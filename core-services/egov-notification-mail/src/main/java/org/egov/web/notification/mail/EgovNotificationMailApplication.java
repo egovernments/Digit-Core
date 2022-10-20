@@ -1,5 +1,6 @@
 package org.egov.web.notification.mail;
 
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,7 +13,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
-@Import({TracerConfiguration.class})
+@Import({TracerConfiguration.class, MultiStateInstanceUtil.class})
 public class EgovNotificationMailApplication {
 
 	public static void main(String[] args) {
@@ -31,4 +32,5 @@ public class EgovNotificationMailApplication {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
+
 }

@@ -50,6 +50,7 @@ import lombok.Getter;
 
 import java.util.Properties;
 
+@Getter
 @Configuration
 public class ApplicationConfiguration {
 
@@ -100,6 +101,11 @@ public class ApplicationConfiguration {
     @Value("${egov.user.state.tenant.id}")
     @Getter
     private String stateTenantId;
-    
-    
+
+    @Value("${egov.filestore.host}")
+    private String filestoreHost;
+
+    @Value("${egov.filestore.path}")
+    private String filestorePath;
+
 }
