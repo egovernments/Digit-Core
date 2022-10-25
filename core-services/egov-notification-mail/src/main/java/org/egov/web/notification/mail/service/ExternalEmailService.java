@@ -120,7 +120,7 @@ public class ExternalEmailService implements EmailService {
 	}
 
 	public String getUri(String tenantId, String entryKey){
-		return config.getFilestoreHost() + config.getFilestorePath() + "?tenantId=" + tenantId + "&fileStoreIds=" + entryKey;
+		return config.getFilestoreHost() + config.getFilestorePath() + "?tenantId=" + tenantId + "&fileStoreId=" + entryKey;
 	}
 
 }
