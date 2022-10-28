@@ -1,6 +1,7 @@
 package com.ingestpipeline.service;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -39,6 +42,8 @@ import com.ingestpipeline.model.IncomingData;
 import com.ingestpipeline.model.TargetData;
 import com.ingestpipeline.util.Constants;
 
+import javax.annotation.PostConstruct;
+
 @Component("elasticService")
 public class ElasticService implements IESService {
 
@@ -51,6 +56,7 @@ public class ElasticService implements IESService {
 
 	@Value("${services.esindexer.host}")
 	private String indexServiceHost;
+
 	@Value("${egov.services.esindexer.host.search}")
 	private String indexServiceHostSearch;
 
@@ -59,8 +65,15 @@ public class ElasticService implements IESService {
 
 	@Value("${services.esindexer.host}")
 	private String indexerServiceHost;
+
 	@Value("${es.target.index.name}")
 	private String targetIndexName;
+
+	@Value("${dss.collection.target.index.name}")
+	private String dssCollectiontargetIndexName;
+
+	@Value("${dss.collection.mapping.path}")
+	private String dssCollectionMappingPath;
 
 	@Value("${es.index.name}")
 	private String collectionIndexName;
@@ -74,6 +87,12 @@ public class ElasticService implements IESService {
 	@Value("${es.index.searchQuery.payment}")
 	private String searchQueryPayment;
 
+	@Value("${services.esindexer.username}")
+	private String userName;
+
+	@Value("${services.esindexer.password}")
+	private String password;
+
 	@Autowired
 	private RestTemplate restTemplate;
 
@@ -84,6 +103,8 @@ public class ElasticService implements IESService {
 	private IngestService ingestService;
 
 	private static final String SLASH_SEPERATOR  = "/";
+
+	private static final String MAPPING  = "_mapping";
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(ElasticService.class);
 
@@ -109,6 +130,49 @@ public class ElasticService implements IESService {
 
 	public void setSearchQueryBilling(String searchQueryBilling) {
 		this.searchQueryBilling = searchQueryBilling;
+	}
+
+	private static final String AUTHORIZATION = "Authorization";
+	private static final String US_ASCII = "US-ASCII";
+	private static final String BASIC_AUTH = "Basic %s";
+
+	@PostConstruct
+	void initalizeindexMapping() throws IOException {
+		StringBuilder uriBuilder = new StringBuilder(indexerServiceHost.concat(dssCollectiontargetIndexName));
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(AUTHORIZATION, getBase64Value(userName, password));
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+		ResponseEntity<Object> response = new ResponseEntity<Object>(HttpStatus.OK);
+		try {
+			LOGGER.info("url:"+uriBuilder.toString());
+			LOGGER.info("requestEntity: "+ requestEntity.toString());
+			response = retryTemplate.getForEntity(uriBuilder.toString(), requestEntity);
+			LOGGER.info("Index mapping already present in the system :: {}", response.getStatusCode());
+		} catch (HttpClientErrorException e) {
+			StringBuilder urlBuilder = new StringBuilder(indexerServiceHost.concat(dssCollectiontargetIndexName));
+			InputStream in = this.getClass().getResourceAsStream(dssCollectionMappingPath);
+			String req = IOUtils.toString(in, "UTF-8");
+			requestEntity = new HttpEntity<>(req, headers);
+
+			LOGGER.info("create url:"+urlBuilder.toString());
+			LOGGER.info("create requestEntity: "+ requestEntity.toString());
+			restTemplate.put(urlBuilder.toString(), requestEntity);
+			LOGGER.info("Index mapping created for DSS Payment in the system");
+		}
+	}
+
+	/**
+	 * Helper Method to create the Base64Value for headers
+	 *
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	private String getBase64Value(String userName, String password) {
+		String authString = String.format("%s:%s", userName, password);
+		byte[] encodedAuthString = Base64.encodeBase64(authString.getBytes(Charset.forName(US_ASCII)));
+		return String.format(BASIC_AUTH, new String(encodedAuthString));
 	}
 
 
