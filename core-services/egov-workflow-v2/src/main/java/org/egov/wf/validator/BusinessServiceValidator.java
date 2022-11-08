@@ -1,5 +1,7 @@
 package org.egov.wf.validator;
 
+import org.egov.common.contract.request.Role;
+import org.egov.common.contract.request.User;
 import org.egov.tracer.model.CustomException;
 import org.egov.wf.repository.BusinessServiceRepository;
 import org.egov.wf.web.models.*;
@@ -26,6 +28,9 @@ public class BusinessServiceValidator {
     public void validateCreateRequest(BusinessServiceRequest request){
         validateIfExists(request,true);
         validateForDuplicates(request);
+        validateUserInfo(request);
+        validateUserInfoFields(request);
+        validateUserInfoRoles(request);
     }
 
 
@@ -95,6 +100,10 @@ public class BusinessServiceValidator {
                             " for tenantId: "+businessService.getTenantId()+" does not exists");
                 });
             validateIds(request.getBusinessServices(),businessServicesFromDB);
+        }
+        if(!errorMap.isEmpty())
+        {
+            throw new CustomException(errorMap);
         }
     }
 
@@ -185,8 +194,36 @@ public class BusinessServiceValidator {
         return new HashSet<>(list1).equals(new HashSet<>(list2));
     }
 
+    public void validateUserInfo(BusinessServiceRequest request) {
+        User requestinfo = request.getRequestInfo().getUserInfo();
+        if (requestinfo == null) {
+            throw new CustomException("EG_Workflow_APP_ERR", "userinfo is mandatory for creating WorkflowService");
+        }
+    }
+    public void validateUserInfoRoles(BusinessServiceRequest request) {
+        List<Role> roles= request.getRequestInfo().getUserInfo().getRoles();
 
+        if (roles == null) {
+            throw new CustomException("EG_Workflow_APP_ERR", "userinfo Roles is mandatory for creating WorkflowService");
+        }
+    }
+    public void validateUserInfoFields(BusinessServiceRequest request) {
+        String Uuid = request.getRequestInfo().getUserInfo().getUuid();
+        String type = request.getRequestInfo().getUserInfo().getType();
+        String username = request.getRequestInfo().getUserInfo().getUserName();
+        String emailid = request.getRequestInfo().getUserInfo().getEmailId();
 
+        if (Uuid == null) {
+            throw new CustomException("EG_Workflow_APP_ERR", "userinfo UUID is mandatory for creating WorkflowService");
+        } else if (username == null) {
+            throw new CustomException("EG_Workflow_APP_ERR", "userinfo username is mandatory for creating WorkflowService");
+        } else if (emailid == null) {
+            throw new CustomException("EG_Workflow_APP_ERR", "userinfo email is mandatory for creating WorkflowService");
+        } else if (type == null) {
+            throw new CustomException("EG_Workflow_APP_ERR", "userinfo type is mandatory for creating WorkflowService");
+        }
+
+    }
 
 
 

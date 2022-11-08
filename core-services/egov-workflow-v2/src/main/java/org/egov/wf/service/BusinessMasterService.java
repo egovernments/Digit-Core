@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.producer.Producer;
 import org.egov.wf.repository.BusinessServiceRepository;
+import org.egov.wf.validator.BusinessServiceValidator;
 import org.egov.wf.web.models.BusinessService;
 import org.egov.wf.web.models.BusinessServiceRequest;
 import org.egov.wf.web.models.BusinessServiceSearchCriteria;
@@ -37,6 +38,8 @@ public class BusinessMasterService {
     private MDMSService mdmsService;
 
     private CacheManager cacheManager;
+    @Autowired
+    private BusinessServiceValidator validator;
 
     @Autowired
     public BusinessMasterService(Producer producer, WorkflowConfig config, EnrichmentService enrichmentService,
@@ -58,6 +61,7 @@ public class BusinessMasterService {
      * @return The enriched object which is persisted
      */
     public List<BusinessService> create(BusinessServiceRequest request){
+        validator.validateCreateRequest(request);
         evictAllCacheValues("businessService");
         evictAllCacheValues("roleTenantAndStatusesMapping");
         enrichmentService.enrichCreateBusinessService(request);
