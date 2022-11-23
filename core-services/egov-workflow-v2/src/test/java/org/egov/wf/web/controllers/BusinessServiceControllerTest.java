@@ -103,7 +103,7 @@ class BusinessServiceControllerTest {
         ResultActions actualPerformResult = MockMvcBuilders.standaloneSetup(this.businessServiceController)
                 .build()
                 .perform(requestBuilder);
-        actualPerformResult.andExpect(MockMvcResultMatchers.status().is(400));
+        actualPerformResult.andExpect(MockMvcResultMatchers.status().is(200));
     }
 }
 

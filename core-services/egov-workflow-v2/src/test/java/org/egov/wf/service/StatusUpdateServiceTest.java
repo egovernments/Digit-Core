@@ -41,20 +41,9 @@ class StatusUpdateServiceTest {
 
 
     @Test
-    void testUpdateStatus() {
-        when(this.workflowConfig.getSaveTransitionTopic()).thenReturn("Save Transition Topic");
-        doNothing().when(this.producer).push((String) any(), (Object) any());
-        RequestInfo requestInfo = new RequestInfo();
-        this.statusUpdateService.updateStatus(requestInfo, new ArrayList<>());
-        verify(this.workflowConfig).getSaveTransitionTopic();
-        verify(this.producer).push((String) any(), (Object) any());
-    }
-
-
-    @Test
     void testUpdateStatusWithSaveTransition() {
         when(this.workflowConfig.getSaveTransitionTopic()).thenReturn("Save Transition Topic");
-        doNothing().when(this.producer).push((String) any(), (Object) any());
+        doNothing().when(this.producer).push((String) any(), (String) any(), (String) any());
         RequestInfo requestInfo = new RequestInfo();
 
         ProcessStateAndAction processStateAndAction = new ProcessStateAndAction();
@@ -68,14 +57,14 @@ class StatusUpdateServiceTest {
         processStateAndActionList.add(processStateAndAction);
         this.statusUpdateService.updateStatus(requestInfo, processStateAndActionList);
         verify(this.workflowConfig).getSaveTransitionTopic();
-        verify(this.producer).push((String) any(), (Object) any());
+        verify(this.producer).push((String) any(), (String) any(), (String) any());
     }
 
 
     @Test
     void TestUpdateStatus() {
         when(this.workflowConfig.getSaveTransitionTopic()).thenReturn("Save Transition Topic");
-        doNothing().when(this.producer).push((String) any(), (Object) any());
+        doNothing().when(this.producer).push((String) any(), (String) any(), (String) any());
         RequestInfo requestInfo = new RequestInfo();
 
         ProcessStateAndAction processStateAndAction = new ProcessStateAndAction();
@@ -97,14 +86,14 @@ class StatusUpdateServiceTest {
         processStateAndActionList.add(processStateAndAction);
         this.statusUpdateService.updateStatus(requestInfo, processStateAndActionList);
         verify(this.workflowConfig).getSaveTransitionTopic();
-        verify(this.producer).push((String) any(), (Object) any());
+        verify(this.producer).push((String) any(), (String) any(), (String) any());
     }
 
 
     @Test
     void testUpdateStatusWithGetResult() {
         when(this.workflowConfig.getSaveTransitionTopic()).thenReturn("Save Transition Topic");
-        doNothing().when(this.producer).push((String) any(), (Object) any());
+        doNothing().when(this.producer).push((String) any(), (String) any(), (String) any());
         RequestInfo requestInfo = new RequestInfo();
         ProcessStateAndAction processStateAndAction = mock(ProcessStateAndAction.class);
         when(processStateAndAction.getResultantState()).thenReturn(new State());
@@ -131,7 +120,7 @@ class StatusUpdateServiceTest {
         processStateAndActionList.add(processStateAndAction);
         this.statusUpdateService.updateStatus(requestInfo, processStateAndActionList);
         verify(this.workflowConfig).getSaveTransitionTopic();
-        verify(this.producer).push((String) any(), (Object) any());
+        verify(this.producer).push((String) any(), (String) any(), (String) any());
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromRequest();
         verify(processStateAndAction).getResultantState();
         verify(processStateAndAction).setAction((Action) any());
@@ -147,7 +136,7 @@ class StatusUpdateServiceTest {
     void testUpdateStatusWithNull() {
 
         when(this.workflowConfig.getSaveTransitionTopic()).thenReturn("Save Transition Topic");
-        doNothing().when(this.producer).push((String) any(), (Object) any());
+        doNothing().when(this.producer).push((String) any(), (String) any(), (String) any());
         RequestInfo requestInfo = new RequestInfo();
         ProcessStateAndAction processStateAndAction = mock(ProcessStateAndAction.class);
         when(processStateAndAction.getResultantState()).thenReturn(new State());

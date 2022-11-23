@@ -50,39 +50,6 @@ class BusinessServiceRepositoryTest {
 
 
     @Test
-    void testGetBusinessServices() {
-        when(this.mDMSService.getStateLevelMapping()).thenReturn(new HashMap<>());
-        assertTrue(this.businessServiceRepository.getBusinessServices(new BusinessServiceSearchCriteria()).isEmpty());
-        verify(this.mDMSService).getStateLevelMapping();
-    }
-
-
-
-
-    @Test
-    void testGetBusinessServiceswithEmpty() throws DataAccessException {
-        when(this.mDMSService.getStateLevelMapping()).thenReturn(new HashMap<>());
-        when(this.jdbcTemplate.query((String) any(), (Object[]) any(),
-                (org.springframework.jdbc.core.ResultSetExtractor<Object>) any())).thenReturn(new ArrayList<>());
-        when(this.businessServiceQueryBuilder.getBusinessServices((BusinessServiceSearchCriteria) any(),
-                (List<Object>) any())).thenReturn("Business Services");
-
-        ArrayList<String> stringList = new ArrayList<>();
-        stringList.add("foo");
-        ArrayList<String> stateUuids = new ArrayList<>();
-        assertTrue(this.businessServiceRepository
-                .getBusinessServices(new BusinessServiceSearchCriteria("42", stringList, stateUuids, new ArrayList<>()))
-                .isEmpty());
-        verify(this.mDMSService).getStateLevelMapping();
-        verify(this.jdbcTemplate).query((String) any(), (Object[]) any(),
-                (org.springframework.jdbc.core.ResultSetExtractor<Object>) any());
-        verify(this.businessServiceQueryBuilder).getBusinessServices((BusinessServiceSearchCriteria) any(),
-                (List<Object>) any());
-    }
-
-
-    @Test
-
     void testGetBusinessServicesWithnull() throws DataAccessException {
 
         when(this.mDMSService.getStateLevelMapping()).thenReturn(new HashMap<>());
@@ -99,7 +66,6 @@ class BusinessServiceRepositoryTest {
 
 
     @Test
-
     void testGetBusinessServiceswithstring() throws DataAccessException {
 
         when(this.mDMSService.getStateLevelMapping()).thenReturn(new HashMap<>());
@@ -114,25 +80,7 @@ class BusinessServiceRepositoryTest {
 
     }
 
-
     @Test
-    void testGetRoleTenantAndStatusMappingwithlist() throws DataAccessException {
-        when(this.mDMSService.getStateLevelMapping()).thenReturn(new HashMap<>());
-        when(this.jdbcTemplate.query((String) any(), (Object[]) any(),
-                (org.springframework.jdbc.core.ResultSetExtractor<Object>) any())).thenReturn(new ArrayList<>());
-        when(this.businessServiceQueryBuilder
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any(), (List<Object>) any()))
-                .thenReturn("Business Services");
-        assertTrue(this.businessServiceRepository.getRoleTenantAndStatusMapping().isEmpty());
-        verify(this.mDMSService).getStateLevelMapping();
-        verify(this.jdbcTemplate).query((String) any(), (Object[]) any(),
-                (org.springframework.jdbc.core.ResultSetExtractor<Object>) any());
-        verify(this.businessServiceQueryBuilder)
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any(), (List<Object>) any());
-    }
-
-    @Test
-
     void testGetRoleTenantAndStatusMappingwithnull() throws DataAccessException {
 
 
@@ -147,7 +95,6 @@ class BusinessServiceRepositoryTest {
 
 
     @Test
-
     void testGetRoleTenantAndStatusMapping() throws DataAccessException {
 
         when(this.mDMSService.getStateLevelMapping()).thenReturn(new HashMap<>());
