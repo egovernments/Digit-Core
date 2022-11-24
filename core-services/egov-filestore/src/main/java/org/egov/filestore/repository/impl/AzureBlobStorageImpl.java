@@ -1,10 +1,8 @@
 package org.egov.filestore.repository.impl;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +12,15 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FilenameUtils;
 import org.egov.filestore.domain.model.Artifact;
+import org.egov.filestore.domain.model.FileLocation;
 import org.egov.filestore.repository.AzureClientFacade;
 import org.egov.filestore.repository.CloudFilesManager;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.microsoft.azure.storage.OperationContext;
@@ -221,6 +222,36 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 			}
 		}
 		return mapOfIdAndSASUrls;
+	}
+
+	public Resource read(FileLocation fileLocation) {
+		Resource resource = null;
+		CloudBlobContainer container= null;
+		File f = new File(fileLocation.getFileStoreId());
+		if(null == azureBlobClient)
+			azureBlobClient = azureFacade.getAzureClient();
+		if (fileLocation.getFileSource().equals("AzureBlobStorage")) {
+			try {
+				String fileName = fileLocation.getFileName().substring(fileLocation.getFileName().indexOf('/') + 1,
+						fileLocation.getFileName().length());
+				int index = fileLocation.getFileName().indexOf('/');
+				String containerName = fileLocation.getFileName().substring(0, index);
+				if(isContainerFixed)
+					container = azureBlobClient.getContainerReference(fixedContainerName);
+				else
+					container = azureBlobClient.getContainerReference(containerName);
+
+				CloudBlockBlob blob = container.getBlockBlobReference(fileName);
+
+				blob.download(new FileOutputStream(f.getName()));
+			}catch(Exception e) {
+				throw new CustomException("WG_WF_READ_ERROR",e.getMessage());
+			}
+			resource = new FileSystemResource(Paths.get(f.getPath()).toFile());
+			return resource;
+		} else {
+			return null;
+		}
 	}
 	
 	
