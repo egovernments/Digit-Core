@@ -54,65 +54,6 @@ class BusinessServiceValidatorTest {
 
     }
 
-
-    @Test
-    void testValidateCreateRequestWithAuditDetails() {
-        when(this.businessServiceRepository
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any()))
-                .thenReturn(new ArrayList<>());
-
-        ArrayList<BusinessService> businessServiceList = new ArrayList<>();
-        ArrayList<State> states = new ArrayList<>();
-        businessServiceList.add(new BusinessService("42", "01234567-89AB-CDEF-FEDC-BA9876543210", "Business Service",
-                "Business", "Get Uri", "Post Uri", 1L, states, new AuditDetails()));
-        BusinessServiceRequest businessServiceRequest = mock(BusinessServiceRequest.class);
-        when(businessServiceRequest.getBusinessServices()).thenReturn(businessServiceList);
-        this.businessServiceValidator.validateCreateRequest(businessServiceRequest);
-        verify(this.businessServiceRepository)
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any());
-        verify(businessServiceRequest, atLeast(1)).getBusinessServices();
-    }
-
-    @Test
-    void TestValidateCreateRequest() {
-        ArrayList<BusinessService> businessServiceList = new ArrayList<>();
-        businessServiceList.add(new BusinessService());
-        when(this.businessServiceRepository
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any()))
-                .thenReturn(businessServiceList);
-        ArrayList<BusinessService> businessServiceList1 = new ArrayList<>();
-        ArrayList<State> states = new ArrayList<>();
-        businessServiceList1.add(new BusinessService("42", "01234567-89AB-CDEF-FEDC-BA9876543210", "Business Service",
-                "Business", "Get Uri", "Post Uri", 1L, states, new AuditDetails()));
-        BusinessServiceRequest businessServiceRequest = mock(BusinessServiceRequest.class);
-        when(businessServiceRequest.getBusinessServices()).thenReturn(businessServiceList1);
-        this.businessServiceValidator.validateCreateRequest(businessServiceRequest);
-        verify(this.businessServiceRepository)
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any());
-        verify(businessServiceRequest, atLeast(1)).getBusinessServices();
-    }
-
-
-    @Test
-    void testValidateCreateRequestWithAddState() {
-        when(this.businessServiceRepository
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any()))
-                .thenReturn(new ArrayList<>());
-        ArrayList<State> stateList = new ArrayList<>();
-        stateList.add(new State());
-        BusinessService e = new BusinessService("42", "01234567-89AB-CDEF-FEDC-BA9876543210", "Business Service",
-                "Business", "Get Uri", "Post Uri", 1L, stateList, new AuditDetails());
-        ArrayList<BusinessService> businessServiceList = new ArrayList<>();
-        businessServiceList.add(e);
-        BusinessServiceRequest businessServiceRequest = mock(BusinessServiceRequest.class);
-        when(businessServiceRequest.getBusinessServices()).thenReturn(businessServiceList);
-        this.businessServiceValidator.validateCreateRequest(businessServiceRequest);
-        verify(this.businessServiceRepository)
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any());
-        verify(businessServiceRequest, atLeast(1)).getBusinessServices();
-    }
-
-
     @Test
 
     void testValidateCreateRequestWithNull() {
@@ -143,28 +84,6 @@ class BusinessServiceValidatorTest {
         when(businessServiceRequest.getBusinessServices()).thenReturn(businessServiceList);
         assertThrows(CustomException.class,
                 () -> this.businessServiceValidator.validateCreateRequest(businessServiceRequest));
-        verify(this.businessServiceRepository)
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any());
-        verify(businessServiceRequest, atLeast(1)).getBusinessServices();
-    }
-
-
-    @Test
-    void testValidateCreateRequestBusinessServiceList1() {
-        ArrayList<BusinessService> businessServiceList = new ArrayList<>();
-        businessServiceList.add(new BusinessService());
-        businessServiceList.add(new BusinessService());
-        when(this.businessServiceRepository
-                .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any()))
-                .thenReturn(businessServiceList);
-
-        ArrayList<BusinessService> businessServiceList1 = new ArrayList<>();
-        ArrayList<State> states = new ArrayList<>();
-        businessServiceList1.add(new BusinessService("42", "01234567-89AB-CDEF-FEDC-BA9876543210", "Business Service",
-                "Business", "Get Uri", "Post Uri", 1L, states, new AuditDetails()));
-        BusinessServiceRequest businessServiceRequest = mock(BusinessServiceRequest.class);
-        when(businessServiceRequest.getBusinessServices()).thenReturn(businessServiceList1);
-        this.businessServiceValidator.validateCreateRequest(businessServiceRequest);
         verify(this.businessServiceRepository)
                 .getBusinessServices((org.egov.wf.web.models.BusinessServiceSearchCriteria) any());
         verify(businessServiceRequest, atLeast(1)).getBusinessServices();
