@@ -11,6 +11,7 @@ import org.egov.filestore.domain.model.FileLocation;
 import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.entity.Artifact;
 import org.egov.filestore.repository.CloudFilesManager;
+import org.egov.filestore.repository.impl.AzureBlobStorageImpl;
 import org.egov.filestore.repository.impl.minio.MinioRepository;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,12 +106,15 @@ public class ArtifactRepository {
 			throw new CustomException("NOT_FOUND", "Invalid filestoreid or tenantid");
 
 		org.springframework.core.io.Resource resource = null;
-	
+
 		if (artifact.getFileLocation().getFileSource().equals("minio")) {
-		// if only DiskFileStoreRepository use read else ignore
-		MinioRepository repo = (MinioRepository) cloudFilesManager;
-		resource = repo.read(artifact.getFileLocation());
-	}
+			// if only DiskFileStoreRepository use read else ignore
+			MinioRepository repo = (MinioRepository) cloudFilesManager;
+			resource = repo.read(artifact.getFileLocation());
+		} else if (artifact.getFileLocation().getFileSource().equals("AzureBlobStorage")) {
+			AzureBlobStorageImpl repo = (AzureBlobStorageImpl) cloudFilesManager;
+			resource = repo.read(artifact.getFileLocation());
+		}
 		 
       if(null!=resource)
 		return new Resource(artifact.getContentType(), artifact.getFileName(), resource, artifact.getTenantId(),

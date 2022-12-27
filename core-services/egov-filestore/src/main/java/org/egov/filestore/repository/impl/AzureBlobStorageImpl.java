@@ -1,10 +1,8 @@
 package org.egov.filestore.repository.impl;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +12,15 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FilenameUtils;
 import org.egov.filestore.domain.model.Artifact;
+import org.egov.filestore.domain.model.FileLocation;
 import org.egov.filestore.repository.AzureClientFacade;
 import org.egov.filestore.repository.CloudFilesManager;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.microsoft.azure.storage.OperationContext;
@@ -97,7 +98,8 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 				
 				if(artifact.getMultipartFile().getContentType().startsWith("image/")) {
 					String extension = FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename());
-					Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(inputStream, fileNameWithPath);
+					// Removed generating versions of image because it's already available in thumbnailImages, and it's causing the issue because using same input stream
+					Map<String, BufferedImage> mapOfImagesAndPaths = artifact.getThumbnailImages();
 					for(String key: mapOfImagesAndPaths.keySet()) {
 						upload(container, key, null, null, mapOfImagesAndPaths.get(key), extension);
 						mapOfImagesAndPaths.get(key).flush();
@@ -196,8 +198,60 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 
 	@Override
 	public Map<String, String> getFiles(List<org.egov.filestore.persistence.entity.Artifact> artifacts) {
-		// TODO Auto-generated method stub
-		return null;
+		if(null == azureBlobClient)
+			azureBlobClient = azureFacade.getAzureClient();
+		Map<String, String> mapOfIdAndSASUrls = new HashMap<>();
+		for(org.egov.filestore.persistence.entity.Artifact artifact : artifacts) {
+			if (util.isFileAnImage(artifact.getFileName())) {
+
+				StringBuilder url = new StringBuilder();
+				/* Don't change the order of images within this if, it is index-based and UI will break.*/
+				String[] imageFormats = {_large, _medium, _small};
+				url.append(getSASURL(artifact.getFileName(), util.generateSASToken(azureBlobClient, artifact.getFileName())));
+				String replaceString = artifact.getFileName().substring(artifact.getFileName().lastIndexOf('.'),
+						artifact.getFileName().length());
+				for (String format : Arrays.asList(imageFormats)) {
+					url.append(",");
+					String path = artifact.getFileName();
+					path = path.replaceAll(replaceString, format + replaceString);
+					url.append(getSASURL(path, util.generateSASToken(azureBlobClient, path)));
+				}
+				mapOfIdAndSASUrls.put(artifact.getFileStoreId(), url.toString());
+			} else {
+				mapOfIdAndSASUrls.put(artifact.getFileStoreId(), getSASURL(artifact.getFileName(), util.generateSASToken(azureBlobClient, artifact.getFileName())));
+			}
+		}
+		return mapOfIdAndSASUrls;
+	}
+
+	public Resource read(FileLocation fileLocation) {
+		Resource resource = null;
+		CloudBlobContainer container= null;
+		File f = new File(fileLocation.getFileStoreId());
+		if(null == azureBlobClient)
+			azureBlobClient = azureFacade.getAzureClient();
+		if (fileLocation.getFileSource().equals("AzureBlobStorage")) {
+			try {
+				String fileName = fileLocation.getFileName().substring(fileLocation.getFileName().indexOf('/') + 1,
+						fileLocation.getFileName().length());
+				int index = fileLocation.getFileName().indexOf('/');
+				String containerName = fileLocation.getFileName().substring(0, index);
+				if(isContainerFixed)
+					container = azureBlobClient.getContainerReference(fixedContainerName);
+				else
+					container = azureBlobClient.getContainerReference(containerName);
+
+				CloudBlockBlob blob = container.getBlockBlobReference(fileName);
+
+				blob.download(new FileOutputStream(f.getName()));
+			}catch(Exception e) {
+				throw new CustomException("WG_WF_READ_ERROR",e.getMessage());
+			}
+			resource = new FileSystemResource(Paths.get(f.getPath()).toFile());
+			return resource;
+		} else {
+			return null;
+		}
 	}
 	
 	
