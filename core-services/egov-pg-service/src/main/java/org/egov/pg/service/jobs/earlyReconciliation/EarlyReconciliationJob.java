@@ -1,6 +1,7 @@
 package org.egov.pg.service.jobs.earlyReconciliation;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.request.PlainAccessRequest;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.pg.config.AppProperties;
@@ -35,8 +36,7 @@ public class EarlyReconciliationJob implements Job {
                 .uuid(appProperties.getEgovPgReconciliationSystemUserUuid())
                 .type("SYSTEM")
                 .roles(Collections.emptyList()).id(0L).build();
-
-        requestInfo = new RequestInfo("", "", 0L, "", "", "", "", "", "", userInfo);
+        requestInfo = new RequestInfo("", "", 0L, "", "", "", "", "", "", PlainAccessRequest.builder().build(), userInfo);
     }
 
     @Autowired

@@ -56,8 +56,7 @@ public class TransactionsApiControllerTest {
     @Before
     public void setUp() {
         user = User.builder().userName("USER001").mobileNumber("9XXXXXXXXX").name("XYZ").tenantId("pb").emailId("").build();
-        requestInfo = new RequestInfo("", "", 0L, "", "", "", "", "", "", null);
-
+        requestInfo = new RequestInfo("", "", 0L, "", "", "", "", "", "",null, null);
     }
 
 
