@@ -71,8 +71,6 @@ public class URLConverterService {
 
     private Producer producer;
 
-    @Autowired
-    private HashIdConverter hashIdConverter;
 
     @Autowired
     public URLConverterService(List<URLRepository> urlRepositories, ObjectMapper objectMapper, RestTemplate restTemplate, Producer producer) {

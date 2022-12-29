@@ -53,18 +53,18 @@ class ShortenControllerTest {
 
     }
 
-    @Test
-    void testShortenUrlpostSucess() throws Exception {
-
-        ArrayList<URLRepository> urlRepositories = new ArrayList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        RestTemplate restTemplate = mock(RestTemplate.class);
-        ShortenController shortenController = new ShortenController(
-                new URLConverterService(urlRepositories, objectMapper, restTemplate, new Producer()));
-
-        ShortenRequest shortenRequest = new ShortenRequest();
-        shortenRequest.setUrl("Shortening {}");
-        assertThrows(CustomException.class, () -> shortenController.shortenUrl(shortenRequest));
-    }
+//    @Test
+//    void testShortenUrlpostSucess() throws Exception {
+//
+//        ArrayList<URLRepository> urlRepositories = new ArrayList<>();
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        RestTemplate restTemplate = mock(RestTemplate.class);
+//        ShortenController shortenController = new ShortenController(
+//                new URLConverterService(urlRepositories, objectMapper, restTemplate, new Producer()));
+//
+//        ShortenRequest shortenRequest = new ShortenRequest();
+//        shortenRequest.setUrl("Shortening {}");
+//        assertThrows(CustomException.class, () -> shortenController.shortenUrl(shortenRequest));
+//    }
 }
 
