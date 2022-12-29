@@ -33,11 +33,5 @@ class AzureBlobStorageImplTest {
         assertThrows(CustomException.class,
                 () -> (new AzureBlobStorageImpl()).upload(null, "Complete Path", null, 3L, null, "Extension"));
     }
-
-    @Test
-    void testConstructor() {
-        AzureBlobStorageImpl actualAzureBlobStorageImpl = new AzureBlobStorageImpl();
-        assertNull(actualAzureBlobStorageImpl.getFiles(new ArrayList<>()));
-    }
 }
 

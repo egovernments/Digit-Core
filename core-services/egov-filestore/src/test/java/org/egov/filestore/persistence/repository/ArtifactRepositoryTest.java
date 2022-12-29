@@ -38,54 +38,6 @@ class ArtifactRepositoryTest {
     }
 
     @Test
-    void testFindArtifactMock() throws IOException {
-        Artifact artifact = mock(Artifact.class);
-        when(artifact.getFileLocation())
-                .thenReturn(new FileLocation("42", "Module", "Tag", "42", "foo.txt", "File Source"));
-        doNothing().when(artifact).setContentType((String) any());
-        doNothing().when(artifact).setCreatedBy((String) any());
-        doNothing().when(artifact).setCreatedTime((Long) any());
-        doNothing().when(artifact).setFileName((String) any());
-        doNothing().when(artifact).setFileSource((String) any());
-        doNothing().when(artifact).setFileStoreId((String) any());
-        doNothing().when(artifact).setId((Long) any());
-        doNothing().when(artifact).setLastModifiedBy((String) any());
-        doNothing().when(artifact).setLastModifiedTime((Long) any());
-        doNothing().when(artifact).setModule((String) any());
-        doNothing().when(artifact).setTag((String) any());
-        doNothing().when(artifact).setTenantId((String) any());
-        artifact.setContentType("text/plain");
-        artifact.setCreatedBy("Jan 1, 2020 8:00am GMT+0100");
-        artifact.setCreatedTime(1L);
-        artifact.setFileName("foo.txt");
-        artifact.setFileSource("File Source");
-        artifact.setFileStoreId("42");
-        artifact.setId(123L);
-        artifact.setLastModifiedBy("Jan 1, 2020 9:00am GMT+0100");
-        artifact.setLastModifiedTime(1L);
-        artifact.setModule("Module");
-        artifact.setTag("Tag");
-        artifact.setTenantId("42");
-        FileStoreJpaRepository fileStoreJpaRepository = mock(FileStoreJpaRepository.class);
-        when(fileStoreJpaRepository.findByFileStoreIdAndTenantId((String) any(), (String) any())).thenReturn(artifact);
-        assertNull((new ArtifactRepository(fileStoreJpaRepository)).find("File Store Id", "42"));
-        verify(fileStoreJpaRepository).findByFileStoreIdAndTenantId((String) any(), (String) any());
-        verify(artifact).getFileLocation();
-        verify(artifact).setContentType((String) any());
-        verify(artifact).setCreatedBy((String) any());
-        verify(artifact).setCreatedTime((Long) any());
-        verify(artifact).setFileName((String) any());
-        verify(artifact).setFileSource((String) any());
-        verify(artifact).setFileStoreId((String) any());
-        verify(artifact).setId((Long) any());
-        verify(artifact).setLastModifiedBy((String) any());
-        verify(artifact).setLastModifiedTime((Long) any());
-        verify(artifact).setModule((String) any());
-        verify(artifact).setTag((String) any());
-        verify(artifact).setTenantId((String) any());
-    }
-
-    @Test
     void testFindByTag() {
         FileStoreJpaRepository fileStoreJpaRepository = mock(FileStoreJpaRepository.class);
         when(fileStoreJpaRepository.findByTagAndTenantId((String) any(), (String) any())).thenReturn(new ArrayList<>());
