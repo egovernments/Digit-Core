@@ -17,6 +17,7 @@ import org.egov.url.shortening.validator.URLValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -28,6 +29,11 @@ public class ShortenController {
     @Autowired
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
+    @Value("${state.level.tenant.id}")
+    private String stateTenantId;
+
+    private Boolean multiInstance;
+
     public ShortenController(URLConverterService urlConverterService) {
         this.urlConverterService = urlConverterService;
     }
@@ -37,12 +43,21 @@ public class ShortenController {
                              @RequestHeader Map<String,String> headers) throws Exception {
         log.info(headers.toString());
         // ULB specific tenantId
-        String ulbSpecificTenantId = headers.get("tenantid");
-        // Extracting state specific tenantId from ULB level tenant
-       String tenantId = multiStateInstanceUtil.getStateLevelTenant(ulbSpecificTenantId);
+        String tenantId;
+        if(headers.get("tenantid")==null){
+            tenantId = stateTenantId;
+            multiInstance = false;
+        }
+        else {
+            // Extracting state specific tenantId from ULB level tenant
+            multiInstance = true;
+            String ulbSpecificTenantId = headers.get("tenantid");
+            tenantId = multiStateInstanceUtil.getStateLevelTenant(ulbSpecificTenantId);
+        }
+
         String longUrl = shortenRequest.getUrl();
         if (URLValidator.INSTANCE.validateURL(longUrl)) {
-            String shortenedUrl = urlConverterService.shortenURL(shortenRequest, tenantId);
+            String shortenedUrl = urlConverterService.shortenURL(shortenRequest, tenantId, multiInstance);
             return shortenedUrl;
         }
         throw new CustomException("URL_SHORTENING_INVALID_URL","Please enter a valid URL");

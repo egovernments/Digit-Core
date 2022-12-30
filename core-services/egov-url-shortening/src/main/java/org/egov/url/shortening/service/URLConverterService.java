@@ -3,7 +3,6 @@ package org.egov.url.shortening.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 
 import javax.annotation.PostConstruct;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.client.RestTemplate;
-import org.egov.url.shortening.utils.HashIdConverter;
 
 
 @Service
@@ -45,7 +43,7 @@ public class URLConverterService {
     private Boolean isDbPersitanceEnabled;
     
     @Value("#{${egov.ui.app.host.map}}")
-    private Map<String, String> hostName;
+    private Map<String, String> hostNameMap;
     
     @Value("${server.contextPath}")
     private String serverContextPath;
@@ -55,6 +53,9 @@ public class URLConverterService {
 
     @Value("${egov.user.host}")
     private String userHost;
+
+    @Value("${host.name}")
+    private String hostName;
 
     @Value("${egov.user.search.path}")
     private String userSearchPath;
@@ -90,7 +91,7 @@ public class URLConverterService {
     }
     
 
-    public String shortenURL(ShortenRequest shortenRequest, String tenantId) {
+    public String shortenURL(ShortenRequest shortenRequest, String tenantId, Boolean multiInstance) {
         LOGGER.info("Shortening {}", shortenRequest.getUrl());
         Long id = urlRepository.incrementID();
         String uniqueID = hashIdConverter.createHashStringForId(id);
@@ -102,11 +103,16 @@ public class URLConverterService {
 		}
         StringBuilder shortenedUrl = new StringBuilder();
 
-        if(!hostName.containsKey(tenantId)){
-            throw new CustomException("EG_TENANT_HOST_NOT_FOUND_ERR", "Hostname for provided state level tenant has not been configured for tenantId: " + tenantId);
+        String stateSpecificHostName;
+        if(multiInstance == true) {
+            if (!hostNameMap.containsKey(tenantId)) {
+                throw new CustomException("EG_TENANT_HOST_NOT_FOUND_ERR", "Hostname for provided state level tenant has not been configured for tenantId: " + tenantId);
+            }
+            stateSpecificHostName = hostNameMap.get(tenantId);
         }
-
-        String stateSpecificHostName = hostName.get(tenantId);
+        else {
+            stateSpecificHostName = hostName;
+        }
         
         if(stateSpecificHostName.endsWith("/"))
             stateSpecificHostName = stateSpecificHostName.substring(0, stateSpecificHostName.length() - 1);
