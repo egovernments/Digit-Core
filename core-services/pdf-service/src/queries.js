@@ -7,6 +7,7 @@ import { fileStoreAPICall, getFilestoreUrl } from "./utils/fileStoreAPICall";
 import fs, {
   exists
 } from "fs";
+import { getStateSchemaIndexPositionInTenantId, isEnvironmentCentralInstance } from "./utils/commons";
 
 const pool = new Pool({
   user: envVariables.DB_USER,
@@ -58,7 +59,7 @@ export const getFileStoreIds = (
   }
   searchquery = `SELECT pdf_1.* FROM {schema}.egov_pdf_gen pdf_1 INNER JOIN (SELECT entityid, max(endtime) as MaxEndTime from (`+searchquery+`) as pdf_2 group by entityid) pdf_3 ON pdf_1.entityid = pdf_3.entityid AND pdf_1.endtime = pdf_3.MaxEndTime`;
   searchquery = replaceSchemaPlaceholder(searchquery, tenantId);
-  
+
   pool.query(searchquery, queryparams, (error, results) => {
     if (error) {
       logger.error(error.stack || error);
@@ -109,7 +110,7 @@ export const insertStoreIds = (
   var endtime = new Date().getTime();
   var id = uuidv4();
   let createJobKafkaTopic = envVariables.KAFKA_CREATE_JOB_TOPIC;
-  if(envVariables.IS_ENVVIRONMENT_CENTRAL_INSTANCE)
+  if(isEnvironmentCentralInstance())
     createJobKafkaTopic = getUpdatedTopic(tenantId, createJobKafkaTopic);
 
   payloads.push({
@@ -143,16 +144,16 @@ export const insertStoreIds = (
 
 export const getUpdatedTopic = (tenantId, topic) => {
   let tenants = tenantId.split('.');
-  if(tenants.length > 1)
-    topic = tenants[1] + "-" + topic;
+  if(tenants.length > getStateSchemaIndexPositionInTenantId())
+    topic = tenants[getStateSchemaIndexPositionInTenantId()] + "-" + topic;
   console.log("The Kafka topic for the tenantId : " + tenantId + " is : " + topic);
   return topic;
 };
 
 export const replaceSchemaPlaceholder = (query, tenantId) => {
   let finalQuery = null;
-	if (tenantId.includes('.')) {
-		let schemaName = tenantId.split('.')[1];
+	if (tenantId.includes('.') && isEnvironmentCentralInstance()) {
+		let schemaName = tenantId.split('.')[getStateSchemaIndexPositionInTenantId()];
 		finalQuery = query.replace(/{schema}/g, schemaName);
 	} else {
 			finalQuery = query.replace(/{schema}./g, "");
