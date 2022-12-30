@@ -9,12 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
 import org.egov.url.shortening.model.ShortenRequest;
 import org.egov.url.shortening.service.URLConverterService;
 import org.egov.url.shortening.validator.URLValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -23,6 +25,8 @@ import org.springframework.web.servlet.view.RedirectView;
 public class ShortenController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShortenController.class);
     private final URLConverterService urlConverterService;
+    @Autowired
+    private MultiStateInstanceUtil multiStateInstanceUtil;
 
     public ShortenController(URLConverterService urlConverterService) {
         this.urlConverterService = urlConverterService;
@@ -35,7 +39,7 @@ public class ShortenController {
         // ULB specific tenantId
         String ulbSpecificTenantId = headers.get("tenantid");
         // Extracting state specific tenantId from ULB level tenant
-        String tenantId = ulbSpecificTenantId.split("\\.")[0] + "." + ulbSpecificTenantId.split("\\.")[1];
+       String tenantId = multiStateInstanceUtil.getStateLevelTenant(ulbSpecificTenantId);
         String longUrl = shortenRequest.getUrl();
         if (URLValidator.INSTANCE.validateURL(longUrl)) {
             String shortenedUrl = urlConverterService.shortenURL(shortenRequest, tenantId);
