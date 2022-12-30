@@ -34,7 +34,8 @@ import {
 import envVariables from "./EnvironmentVariables";
 import QRCode from "qrcode";
 import {
-  getValue
+  getStateSchemaIndexPositionInTenantId,
+  getValue, isEnvironmentCentralInstance
 } from "./utils/commons";
 import {
   getFileStoreIds,
@@ -428,7 +429,9 @@ app.post(
       var formatconfig = formatConfigMap[key];
       var dataconfig = dataConfigMap[key];
       var headers = JSON.parse(JSON.stringify(req.headers));
-      headers['tenantId']=headers.tenantid;
+      if (headers.tenantid) {
+        headers['tenantId']=headers.tenantid;
+      }
 
       logger.info("received createnosave request on key: " + key);
       requestInfo = get(req.body, "RequestInfo");
@@ -496,7 +499,7 @@ app.post(
       let entityid = req.query.entityid;
       requestInfo = get(req.body, "RequestInfo");
 
-      if(envVariables.IS_ENVVIRONMENT_CENTRAL_INSTANCE && tenantid == null){
+      if(isEnvironmentCentralInstance() && tenantid == null){
         let error = {"PDF_INVALID_SEARCH":" TenantId is mandatory for search "};
         res.status(400);
         res.json({
@@ -504,8 +507,8 @@ app.post(
           message: error,
         });
       }
-      else if(envVariables.IS_ENVVIRONMENT_CENTRAL_INSTANCE && tenantid.split('.').length < envVariables.STATE_LEVEL_TENANTID_LENGTH){
-        let error = {"PDF_INVALID_SEARCH":" TenantId should be mandatorily " + envVariables.STATE_LEVEL_TENANTID_LENGTH + " levels for search"};
+      else if(isEnvironmentCentralInstance() && tenantid.split('.').length < getStateSchemaIndexPositionInTenantId()){
+        let error = {"PDF_INVALID_SEARCH":" TenantId should be mandatorily " + getStateSchemaIndexPositionInTenantId() + " levels for search"};
         res.status(400);
         res.json({
           ResponseInfo: requestInfo,
@@ -586,7 +589,9 @@ app.post(
   asyncHandler(async (req, res) => {
     let requestInfo;
     var headers = JSON.parse(JSON.stringify(req.headers));
-    headers['tenantId']=headers.tenantid;
+    if (headers.tenantid) {
+      headers['tenantId']=headers.tenantid;
+    }
 
     try {
       requestInfo = get(req.body, "RequestInfo");
@@ -868,12 +873,13 @@ export const createAndSave = async (
   var requestInfo = get(req.body || req, "RequestInfo");
   var documentType = get(dataconfig, "documentType", "");
   var moduleName = get(dataconfig, "DataConfigs.moduleName", "");
-  var formatconfig =JSON.parse(JSON.stringify(formatconfigNew))
 
   var headers;
   if(req.headers){
     headers = JSON.parse(JSON.stringify(req.headers));
-    headers['tenantId']=headers.tenantid;
+    if (headers.tenantid) {
+      headers['tenantId']=headers.tenantid;
+    }
   }
   else{
     headers = {
