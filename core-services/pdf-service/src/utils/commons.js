@@ -207,3 +207,21 @@ export const convertFooterStringtoFunctionIfExist = (footer) => {
   }
   return footer;
 };
+
+export const isEnvironmentCentralInstance = () => {
+  if (envVariables.IS_ENVIRONMENT_CENTRAL_INSTANCE == true || envVariables.IS_ENVIRONMENT_CENTRAL_INSTANCE == 'true') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export const getStateSchemaIndexPositionInTenantId = () => {
+  if (envVariables.STATE_SCHEMA_INDEX_POSITION_TENANTID && !isNaN(envVariables.STATE_SCHEMA_INDEX_POSITION_TENANTID)) {
+    parseInt(envVariables.STATE_SCHEMA_INDEX_POSITION_TENANTID);
+  } else {
+    return 1;
+  }
+}
+
+
