@@ -51,7 +51,7 @@ public class ShortenController {
         else {
             // Extracting state specific tenantId from ULB level tenant
             if(headers.get("tenantid") == null){
-                throw new CustomException("TENAT_ID_NOT_PASSED","Tenant Id not passed");
+                throw new CustomException("INVALID_TENANTID","TenantId not present in header");
             }
             String ulbSpecificTenantId = headers.get("tenantid");
             tenantId = multiStateInstanceUtil.getStateLevelTenant(ulbSpecificTenantId);
