@@ -104,7 +104,7 @@ public class URLConverterService {
         StringBuilder shortenedUrl = new StringBuilder();
 
         String stateSpecificHostName;
-        if(multiInstance == true) {
+        if(multiInstance) {
             if (!hostNameMap.containsKey(tenantId)) {
                 throw new CustomException("EG_TENANT_HOST_NOT_FOUND_ERR", "Hostname for provided state level tenant has not been configured for tenantId: " + tenantId);
             }

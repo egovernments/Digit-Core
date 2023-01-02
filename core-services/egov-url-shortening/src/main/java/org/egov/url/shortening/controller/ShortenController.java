@@ -32,6 +32,7 @@ public class ShortenController {
     @Value("${state.level.tenant.id}")
     private String stateTenantId;
 
+    @Value("${is.environment.multi.instance:false}")
     private Boolean multiInstance;
 
     public ShortenController(URLConverterService urlConverterService) {
@@ -44,13 +45,14 @@ public class ShortenController {
         log.info(headers.toString());
         // ULB specific tenantId
         String tenantId;
-        if(headers.get("tenantid")==null){
+        if(!multiInstance){
             tenantId = stateTenantId;
-            multiInstance = false;
         }
         else {
             // Extracting state specific tenantId from ULB level tenant
-            multiInstance = true;
+            if(headers.get("tenantid") == null){
+                throw new CustomException("TENAT_ID_NOT_PASSED","Tenant Id not passed");
+            }
             String ulbSpecificTenantId = headers.get("tenantid");
             tenantId = multiStateInstanceUtil.getStateLevelTenant(ulbSpecificTenantId);
         }
