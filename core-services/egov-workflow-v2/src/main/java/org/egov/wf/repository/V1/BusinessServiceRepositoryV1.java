@@ -1,9 +1,7 @@
-package org.egov.wf.repository.legacy;
+package org.egov.wf.repository.V1;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.egov.common.contract.request.Role;
-import org.egov.tracer.model.CustomException;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.repository.querybuilder.BusinessServiceQueryBuilder;
 import org.egov.wf.repository.rowmapper.BusinessServiceRowMapper;

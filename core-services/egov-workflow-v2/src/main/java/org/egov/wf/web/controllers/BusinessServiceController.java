@@ -2,7 +2,7 @@ package org.egov.wf.web.controllers;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.egov.wf.service.legacy.BusinessMasterServiceV1;
+import org.egov.wf.service.V1.BusinessMasterServiceV1;
 import org.egov.wf.util.ResponseInfoFactory;
 import org.egov.wf.web.models.*;
 import org.springframework.beans.factory.annotation.Autowired;

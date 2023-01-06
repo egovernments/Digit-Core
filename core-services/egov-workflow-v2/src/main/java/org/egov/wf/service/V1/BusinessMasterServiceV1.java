@@ -1,8 +1,8 @@
-package org.egov.wf.service.legacy;
+package org.egov.wf.service.V1;
 
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.producer.Producer;
-import org.egov.wf.repository.legacy.BusinessServiceRepositoryV1;
+import org.egov.wf.repository.V1.BusinessServiceRepositoryV1;
 import org.egov.wf.service.EnrichmentService;
 import org.egov.wf.service.MDMSService;
 import org.egov.wf.web.models.BusinessService;
