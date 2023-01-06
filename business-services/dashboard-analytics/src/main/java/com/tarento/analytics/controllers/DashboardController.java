@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarento.analytics.org.service.ClientServiceFactory;
 import com.tarento.analytics.service.AmazonS3ClientService;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,8 @@ public class DashboardController {
 	private MetadataService metadataService;
 	@Autowired
 	private AmazonS3ClientService amazonS3ClientService;
+	@Autowired
+	private ObjectMapper objectMapper;
 
 /*    @Autowired
 	private ClientService clientService;*/
@@ -125,8 +128,14 @@ public class DashboardController {
 
 		//Getting the request information only from the Full Request
 		AggregateRequestDto requestInfo = requestDto.getAggregationRequestDto();
+
+		// For performance enhancement, this creates a key which will cache the response
+		String requestBodyString = objectMapper.writeValueAsString(requestInfo);
+		String headersString = objectMapper.writeValueAsString(requestDto.getHeaders());
+		StringBuilder finalString = new StringBuilder(requestBodyString).append(headersString);
+		requestInfo.setHashKey(finalString.toString().hashCode());
+
 		Map<String, Object> headers = requestDto.getHeaders();
-		//requestInfo.getFilters().putAll(headers);
 		String response = "";
 		try {
 			if (headers.isEmpty()) {
@@ -138,12 +147,12 @@ public class DashboardController {
 				throw new AINException(ErrorCode.ERR320, "tenant is missing");
 
 			}
-			
-			if(requestDto.getAggregationRequestDto() == null) { 
+
+			if(requestDto.getAggregationRequestDto() == null) {
 				logger.error("Please provide requested Visualization Details");
 				throw new AINException(ErrorCode.ERR320, "Visualization Request is missing");
 			}
-			/*if(requestDto.getAggregationRequestDto().getRequestId() == null) { 
+			/*if(requestDto.getAggregationRequestDto().getRequestId() == null) {
 				logger.error("Please provide Request ID");
 				throw new AINException(ErrorCode.ERR320, "Request ID is missing. Insights will not work");
 			}*/
@@ -154,7 +163,7 @@ public class DashboardController {
 				requestInfo.setModuleLevel(Constants.Modules.HOME_REVENUE);
 			}
 
-				Object responseData = clientServiceFactory.get(requestInfo.getVisualizationCode()).getAggregatedData(requestInfo, user.getRoles());
+			Object responseData = clientServiceFactory.get(requestInfo.getVisualizationCode()).getAggregatedData(requestInfo, user.getRoles());
 			response = ResponseGenerator.successResponse(responseData);
 
 		} catch (AINException e) {
@@ -163,7 +172,7 @@ public class DashboardController {
 		}
 		return response;
 	}
-	
+
 /*
 	@RequestMapping(value = PathRoutes.DashboardApi.GET_CHART_V3, method = RequestMethod.POST)
 	public String getVisualizationChartV3(@RequestBody RequestDtoV3 requestDtoV3, @RequestHeader(value = "x-user-info", required = false) String xUserInfo, ServletWebRequest request)
@@ -197,15 +206,15 @@ public class DashboardController {
 				requestInfoV3.setModuleLevel(Constants.Modules.HOME_REVENUE);
 			}
 
-			List<Object> responseDataList = new ArrayList<>(); 
+			List<Object> responseDataList = new ArrayList<>();
 			if(requestInfoV3 !=null && requestInfoV3.getVisualizations() != null && requestInfoV3.getVisualizations().size() > 0) {
 				for (int i = 0; i < requestInfoV3.getVisualizations().size(); i++) {
 					AggregateRequestDto requestInfo = new AggregateRequestDto(requestInfoV3,
 							requestInfoV3.getVisualizations().get(i).getType(), requestInfoV3.getVisualizations().get(i).getCode());
 					Object responseData = clientService.getAggregatedData(requestInfo, user.getRoles());
-					responseDataList.add(responseData); 
+					responseDataList.add(responseData);
 				}
-				
+
 			}
 			response = ResponseGenerator.successResponse(responseDataList);
 		} catch (AINException e) {
