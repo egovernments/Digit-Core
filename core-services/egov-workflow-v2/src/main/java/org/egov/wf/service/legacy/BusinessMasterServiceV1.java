@@ -1,31 +1,24 @@
-package org.egov.wf.service;
+package org.egov.wf.service.legacy;
 
-import com.jayway.jsonpath.JsonPath;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.producer.Producer;
-import org.egov.wf.repository.BusinessServiceRepository;
-import org.egov.wf.repository.legacy.BusinessServiceRepositoryLegacy;
+import org.egov.wf.repository.legacy.BusinessServiceRepositoryV1;
+import org.egov.wf.service.EnrichmentService;
+import org.egov.wf.service.MDMSService;
 import org.egov.wf.web.models.BusinessService;
 import org.egov.wf.web.models.BusinessServiceRequest;
 import org.egov.wf.web.models.BusinessServiceSearchCriteria;
 import org.egov.wf.web.models.ProcessInstanceSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.egov.wf.util.WorkflowConstants.JSONPATH_BUSINESSSERVICE_STATELEVEL;
 
 @Service
-public class BusinessMasterServiceLegacy {
+public class BusinessMasterServiceV1 {
 
     private Producer producer;
 
@@ -33,15 +26,15 @@ public class BusinessMasterServiceLegacy {
 
     private EnrichmentService enrichmentService;
 
-    private BusinessServiceRepositoryLegacy repository;
+    private BusinessServiceRepositoryV1 repository;
 
     private MDMSService mdmsService;
 
     private CacheManager cacheManager;
 
     @Autowired
-    public BusinessMasterServiceLegacy(Producer producer, WorkflowConfig config, EnrichmentService enrichmentService,
-                                 BusinessServiceRepositoryLegacy repository, MDMSService mdmsService, CacheManager cacheManager) {
+    public BusinessMasterServiceV1(Producer producer, WorkflowConfig config, EnrichmentService enrichmentService,
+                                   BusinessServiceRepositoryV1 repository, MDMSService mdmsService, CacheManager cacheManager) {
         this.producer = producer;
         this.config = config;
         this.enrichmentService = enrichmentService;

@@ -19,7 +19,7 @@ import java.util.*;
 
 @Slf4j
 @Repository
-public class BusinessServiceRepositoryLegacy {
+public class BusinessServiceRepositoryV1 {
 
 
     private BusinessServiceQueryBuilder queryBuilder;
@@ -34,8 +34,8 @@ public class BusinessServiceRepositoryLegacy {
 
 
     @Autowired
-    public BusinessServiceRepositoryLegacy(BusinessServiceQueryBuilder queryBuilder, JdbcTemplate jdbcTemplate,
-                                     BusinessServiceRowMapper rowMapper, WorkflowConfig config, MDMSService mdmsService) {
+    public BusinessServiceRepositoryV1(BusinessServiceQueryBuilder queryBuilder, JdbcTemplate jdbcTemplate,
+                                       BusinessServiceRowMapper rowMapper, WorkflowConfig config, MDMSService mdmsService) {
         this.queryBuilder = queryBuilder;
         this.jdbcTemplate = jdbcTemplate;
         this.rowMapper = rowMapper;
