@@ -165,7 +165,8 @@ const createPdfBinary = async (
   userid,
   documentType,
   moduleName,
-  headers
+  headers,
+  isconsolidated
 ) => {
   try {
     let noOfDefinitions = listDocDefinition.length;
@@ -188,27 +189,7 @@ const createPdfBinary = async (
             formatconfig,
             listDocDefinition,
             key,
-            false,
-            jobid,
-            noOfDefinitions,
-            entityIds,
-            starttime,
-            successCallback,
-            errorCallback,
-            tenantId,
-            totalobjectcount,
-            userid,
-            documentType,
-            moduleName,
-            headers
-          ),
-          uploadFiles(
-            dbInsertSingleRecords,
-            dbInsertBulkRecords,
-            formatconfig,
-            listDocDefinition,
-            key,
-            true,
+            isconsolidated,
             jobid,
             noOfDefinitions,
             entityIds,
@@ -340,7 +321,7 @@ const uploadFiles = async (
             });
           }
           if (
-            dbInsertSingleRecords.length == totalobjectcount &&
+            dbInsertSingleRecords.length == totalobjectcount || 
             dbInsertBulkRecords.length == 1
           ) {
             insertStoreIds(
@@ -873,7 +854,8 @@ export const createAndSave = async (
   var requestInfo = get(req.body || req, "RequestInfo");
   var documentType = get(dataconfig, "documentType", "");
   var moduleName = get(dataconfig, "DataConfigs.moduleName", "");
-
+  var isconsolidated = get (req.query, 'isconsolidated')
+  isconsolidated = (isconsolidated == true || isconsolidated == 'true') ? true : false;
   var headers;
   if(req.headers){
     headers = JSON.parse(JSON.stringify(req.headers));
@@ -929,7 +911,8 @@ export const createAndSave = async (
       userid,
       documentType,
       moduleName,
-      headers
+      headers,
+      isconsolidated
     ).catch((err) => {
       logger.error(err.stack || err);
       errorCallback({
