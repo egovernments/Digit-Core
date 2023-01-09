@@ -417,6 +417,9 @@ app.post(
       logger.info("received createnosave request on key: " + key);
       requestInfo = get(req.body, "RequestInfo");
       //
+      let isConsolidated = get(req.query, "isconsolidated");
+      // Set isConsolidated true as default if it's not available because it's a test api
+      isConsolidated = isConsolidated == null ? true : getIsConsolidatedFromReq(req.query);
 
       var valid = validateRequest(req, res, key, tenantId, requestInfo);
 
@@ -432,7 +435,8 @@ app.post(
           true,
           formatconfig,
           dataconfig,
-          headers
+          headers,
+          isConsolidated
         );
         // restoring footer function
         formatConfigByFile[0].footer = convertFooterStringtoFunctionIfExist(formatconfig.footer);
@@ -854,8 +858,8 @@ export const createAndSave = async (
   var requestInfo = get(req.body || req, "RequestInfo");
   var documentType = get(dataconfig, "documentType", "");
   var moduleName = get(dataconfig, "DataConfigs.moduleName", "");
-  var isconsolidated = get (req.query, 'isconsolidated')
-  isconsolidated = (isconsolidated == true || isconsolidated == 'true') ? true : false;
+  let isConsolidated = getIsConsolidatedFromReq(req.query || req);
+
   var headers;
   if(req.headers){
     headers = JSON.parse(JSON.stringify(req.headers));
@@ -878,7 +882,8 @@ export const createAndSave = async (
       false,
       formatconfig,
       dataconfig,
-      headers
+      headers,
+      isConsolidated
     );
 
     // logger.info(`Applied templating engine on ${moduleObjectsArray.length} objects output will be in ${formatConfigByFile.length} files`);
@@ -912,7 +917,7 @@ export const createAndSave = async (
       documentType,
       moduleName,
       headers,
-      isconsolidated
+      isConsolidated
     ).catch((err) => {
       logger.error(err.stack || err);
       errorCallback({
@@ -956,6 +961,8 @@ export const createNoSave = async (
     var isConsolidated = get(req, "isConsolidated");
     var consumerCode = get(req, "consumerCode");
     
+    // Set isConsolidated true as default if it's null
+    isConsolidated = isConsolidated == null ? true : getIsConsolidatedFromReq(req);
 
     logger.info("received createnosave request on key: " + key + " for job id:" + bulkPdfJobId +" totalPdfRecords: "+totalPdfRecords+" currentPdfRecords: "+currentPdfRecords + " size: "+billd.length);
 
@@ -972,7 +979,8 @@ export const createNoSave = async (
         requestInfo,
         true,
         formatconfig,
-        dataconfig
+        dataconfig,
+        isConsolidated
       );
       // restoring footer function
       formatConfigByFile[0].footer = convertFooterStringtoFunctionIfExist(formatconfig.footer);
@@ -1019,6 +1027,20 @@ export const createNoSave = async (
 
 };
 
+/**
+ * Check isConsolidated from given object
+ * @param {*} obj 
+ * @returns boolean
+ */
+const getIsConsolidatedFromReq = (obj) => {
+  let isConsolidated;
+  if (obj && obj.isConsolidated) {
+    isConsolidated = obj.isConsolidated;
+  } else if (obj && obj.isconsolidated) {
+    isConsolidated = obj.isconsolidated;
+  }
+  return isConsolidated == undefined ? false : (isConsolidated == true || isConsolidated.toLowerCase() == 'true') ? true : false;
+}
 
 const updateBorderlayout = (formatconfig) => {
   formatconfig.content = formatconfig.content.map((item) => {
@@ -1154,7 +1176,8 @@ const prepareBegin = async (
   returnFileInResponse,
   formatconfig,
   dataconfig,
-  headers
+  headers,
+  isConsolidated
 ) => {
   var baseKeyPath = get(dataconfig, "DataConfigs.baseKeyPath");
   var entityIdPath = get(dataconfig, "DataConfigs.entityIdPath");
@@ -1164,6 +1187,7 @@ const prepareBegin = async (
       message: `baseKeyPath is absent in config`
     };
   }
+  
   return await prepareBulk(
     key,
     dataconfig,
@@ -1173,7 +1197,8 @@ const prepareBegin = async (
     requestInfo,
     returnFileInResponse,
     entityIdPath,
-    headers
+    headers,
+    isConsolidated
   );
 };
 
@@ -1229,7 +1254,8 @@ const prepareBulk = async (
   requestInfo,
   returnFileInResponse,
   entityIdPath,
-  headers
+  headers,
+  isconsolidated
 ) => {
   let isCommonTableBorderRequired = get(
     dataconfig,
@@ -1261,7 +1287,8 @@ const prepareBulk = async (
       // Multipage pdf, each pdf from new page
       if (
         formatObjectArrayObject.length != 0 &&
-        formatObject["content"][0] !== undefined
+        formatObject["content"][0] !== undefined && 
+        isconsolidated
       ) {
         formatObject["content"][0]["pageBreak"] = "before";
       }
