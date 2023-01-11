@@ -967,6 +967,9 @@ export const createNoSave = async (
     logger.info("received createnosave request on key: " + key + " for job id:" + bulkPdfJobId +" totalPdfRecords: "+totalPdfRecords+" currentPdfRecords: "+currentPdfRecords + " size: "+billd.length);
 
     var valid = validateRequest(req, res, key, tenantId, requestInfo);
+    
+    // set empty header because it's required on prepareBegin
+    let headers = {};
 
     if (valid) {
       let [
@@ -980,6 +983,7 @@ export const createNoSave = async (
         true,
         formatconfig,
         dataconfig,
+        headers,
         isConsolidated
       );
       // restoring footer function
