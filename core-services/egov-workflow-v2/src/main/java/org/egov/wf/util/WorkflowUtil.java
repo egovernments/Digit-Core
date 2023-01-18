@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
+import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.tracer.model.CustomException;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.repository.BusinessServiceRepository;
 import org.egov.wf.web.models.*;
@@ -33,6 +35,9 @@ public class WorkflowUtil {
         this.config = config;
         this.businessServiceRepository = businessServiceRepository;
     }
+
+    @Autowired
+    private MultiStateInstanceUtil multiStateInstanceUtil;
 
 
 
@@ -490,9 +495,13 @@ public class WorkflowUtil {
     public String replaceSchemaPlaceholder(String query, String tenantId) {
 
         String finalQuery = null;
-        if (tenantId.contains(".")) {
-            String schemaName = tenantId.split("\\.")[1];
-            finalQuery = query.replace(SCHEMA_REPLACE_STRING, schemaName);
+        if (config.getIsEnvironmentCentralInstance()) {
+            String multiInstanceSchema = multiStateInstanceUtil.getStateLevelTenant(tenantId);
+            try {
+                finalQuery = multiStateInstanceUtil.replaceSchemaPlaceholder(query, multiInstanceSchema);
+            }catch (Exception e){
+                throw new CustomException("EG_WF_SEARCH_ERR", "Invalid tenantId provided as part of search");
+            }
         } else {
             finalQuery = query.replace(SCHEMA_REPLACE_STRING.concat("."), "");
         }
