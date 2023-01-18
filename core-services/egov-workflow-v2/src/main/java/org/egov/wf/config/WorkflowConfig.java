@@ -2,6 +2,7 @@ package org.egov.wf.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,7 @@ import java.util.TimeZone;
 
 
 
-@Import({TracerConfiguration.class})
+@Import({TracerConfiguration.class, MultiStateInstanceUtil.class})
 @Getter
 @Setter
 @AllArgsConstructor
