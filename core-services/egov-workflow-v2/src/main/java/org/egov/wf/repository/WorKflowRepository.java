@@ -89,6 +89,7 @@ public class WorKflowRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         criteria.setIsAssignedToMeCount(true);
         String query = queryBuilder.getInboxIdCount(criteria, (ArrayList<Object>) preparedStmtList);
+        query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
         Integer count =  jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
         return count;
     }
@@ -184,6 +185,7 @@ public class WorKflowRepository {
     public Integer getEscalatedApplicationsCount(RequestInfo requestInfo,ProcessInstanceSearchCriteria criteria) {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = queryBuilder.getEscalatedApplicationsCount(requestInfo,criteria, (ArrayList<Object>) preparedStmtList);
+        query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
         Integer count =  jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
         return count;
     }
