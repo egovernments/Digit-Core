@@ -76,25 +76,28 @@ public class ExternalEmailService implements EmailService {
 			}
 		}
 
-		String tenantId = centralInstanceUtil.getStateLevelTenant(email.getTenantId());
+
 		try {
 			helper = new MimeMessageHelper(message, true);
 			helper.setTo(email.getEmailTo().toArray(new String[0]));
 			helper.setSubject(email.getSubject());
 			helper.setText(email.getBody(), true);
 
-			for(Map.Entry<String, String> entry : email.getFileStoreId().entrySet()) {
-				String uri = getUri(tenantId, entry.getKey());
-				URL url = new URL(uri);
-				URLConnection con = url.openConnection();
-				UUID uuid = UUID.randomUUID();
-				String fieldValue = uuid.toString();
-				File download = new File(System.getProperty("java.io.tmpdir"), fieldValue);
-				filePaths.add(download.getAbsolutePath());
-				ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
-				fos = new FileOutputStream(download);
-				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-				helper.addAttachment(entry.getValue(), download);
+			if(email.getFileStoreId() != null) {
+				String tenantId = centralInstanceUtil.getStateLevelTenant(email.getTenantId());
+				for (Map.Entry<String, String> entry : email.getFileStoreId().entrySet()) {
+					String uri = getUri(tenantId, entry.getKey());
+					URL url = new URL(uri);
+					URLConnection con = url.openConnection();
+					UUID uuid = UUID.randomUUID();
+					String fieldValue = uuid.toString();
+					File download = new File(System.getProperty("java.io.tmpdir"), fieldValue);
+					filePaths.add(download.getAbsolutePath());
+					ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
+					fos = new FileOutputStream(download);
+					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+					helper.addAttachment(entry.getValue(), download);
+				}
 			}
 
 			mailSender.send(message);
