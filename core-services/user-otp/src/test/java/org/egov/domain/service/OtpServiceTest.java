@@ -144,6 +144,6 @@ public class OtpServiceTest {
 
 		otpService.sendOtp(otpRequest);
 
-		verify(otpEmailRepository).send("foo@bar.com", otpNumber);
+		verify(otpEmailRepository).send("foo@bar.com", otpNumber, OtpRequestType.PASSWORD_RESET);
 	}
 }
