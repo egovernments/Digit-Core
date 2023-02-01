@@ -53,7 +53,7 @@ public class OtpService {
         final String otpNumber = otpRepository.fetchOtp(otpRequest);
         otpSMSSender.send(otpRequest, otpNumber);
         if(!otpRequest.isRegistrationRequestType())
-            otpEmailRepository.send(matchingUser.getEmail(), otpNumber, otpRequest.getType());
+            otpEmailRepository.send(matchingUser.getEmail(), otpNumber, otpRequest);
     }
 
     private void sendOtpForPasswordReset(OtpRequest otpRequest) {
@@ -68,7 +68,7 @@ public class OtpService {
             final String otpNumber = otpRepository.fetchOtp(otpRequest);
             otpRequest.setMobileNumber(matchingUser.getMobileNumber());
             otpSMSSender.send(otpRequest, otpNumber);
-            otpEmailRepository.send(matchingUser.getEmail(), otpNumber, otpRequest.getType());
+            otpEmailRepository.send(matchingUser.getEmail(), otpNumber, otpRequest);
         } catch (Exception e) {
             log.error("Exception while fetching otp: ", e);
         }
