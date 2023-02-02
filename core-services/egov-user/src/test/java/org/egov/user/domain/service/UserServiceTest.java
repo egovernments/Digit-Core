@@ -461,7 +461,7 @@ public class UserServiceTest {
                 .otpReference("123456")
                 .build();
         when(otpRepository.isOtpValidationComplete(any())).thenReturn(true);
-        final User domainUser = User.builder().type(UserType.SYSTEM).build();
+        final User domainUser = User.builder().type(UserType.SYSTEM).id(1L).uuid("uuid").build();
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
         when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
         when(encryptionDecryptionUtil.decryptObject(domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
@@ -494,6 +494,7 @@ public class UserServiceTest {
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
         when(encryptionDecryptionUtil.decryptObject(domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
         when(userService.encryptPwd(anyString())).thenReturn("P@ssw0rd");
+        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
         userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo());
 
         verify(domainUser).updatePassword("P@ssw0rd");
