@@ -52,7 +52,7 @@ public class OtpService {
 
         final String otpNumber = otpRepository.fetchOtp(otpRequest);
         otpSMSSender.send(otpRequest, otpNumber);
-        if(!otpRequest.isRegistrationRequestType())
+        if(!otpRequest.isRegistrationRequestType()) // Because new user doesn't have any email configured
             otpEmailRepository.send(matchingUser.getEmail(), otpNumber, otpRequest);
     }
 

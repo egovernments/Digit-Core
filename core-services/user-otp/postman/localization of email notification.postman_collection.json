@@ -1,0 +1,42 @@
+{
+	"info": {
+		"_postman_id": "3ed750c1-58eb-45ed-b046-7a0fbb459a61",
+		"name": "localization of email notification",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21170203"
+	},
+	"item": [
+		{
+			"name": "upsert messages",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"RequestInfo\": {\n        \"apiId\": \"Rainmaker\",\n        \"ver\": \".01\",\n        \"ts\": \"\",\n        \"action\": \"_create\",\n        \"did\": \"1\",\n        \"key\": \"\",\n        \"msgId\": \"20170310130900|en_IN\",\n        \"authToken\": \"b06e83ed-2b6f-4093-8551-75ec3ca18aa9\",\n        \"userInfo\": {\n            \"id\": 30074,\n            \"uuid\": \"5130f2e3-efc1-401a-94fb-b9e60d9fa17d\",\n            \"userName\": \"XYZ\",\n            \"name\": \"XYZ\",\n            \"mobileNumber\": \"8897970021\",\n            \"emailId\": \"shubhang.dhanesha@egovernments.org\",\n            \"locale\": null,\n            \"type\": \"EMPLOYEE\",\n            \"roles\": [\n                {\n                    \"name\": \"Finance Voucher Creator\",\n                    \"code\": \"EGF_VOUCHER_CREATOR\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Finance Report View\",\n                    \"code\": \"EGF_REPORT_VIEW\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Employee Finance\",\n                    \"code\": \"EMPLOYEE_FINANCE\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"TL Field Inspector\",\n                    \"code\": \"TL_FIELD_INSPECTOR\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"EGF Bill Creator\",\n                    \"code\": \"EGF_BILL_CREATOR\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"EMPLOYEE ADMIN\",\n                    \"code\": \"EMPLOYEE ADMIN\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Finance Master Admin\",\n                    \"code\": \"EGF_MASTER_ADMIN\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Finance Payment Approver\",\n                    \"code\": \"EGF_PAYMENT_APPROVER\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Finance Adminsitrator\",\n                    \"code\": \"EGF_ADMINISTRATOR\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"FSM Employee Application Viewer\",\n                    \"code\": \"FSM_VIEW_EMP\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"National Dashboard Administrator\",\n                    \"code\": \"NATADMIN\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Finance Payment Creator\",\n                    \"code\": \"EGF_PAYMENT_CREATOR\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"ptcollection emp\",\n                    \"code\": \"PT_COLLECTION_EMP\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"EGF Bill Approver\",\n                    \"code\": \"EGF_BILL_APPROVER\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"HRMS Admin\",\n                    \"code\": \"HRMS_ADMIN\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Universal Collection Employee\",\n                    \"code\": \"UC_EMP\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Finance Voucher Approver\",\n                    \"code\": \"EGF_VOUCHER_APPROVER\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"State Administrator\",\n                    \"code\": \"STADMIN\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Super User\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"FSM Employee Application Creator\",\n                    \"code\": \"FSM_CREATOR_EMP\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"FSM Employee Dashboard Viewer\",\n                    \"code\": \"FSM_DASHBOARD_VIEWER\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Financials Approver\",\n                    \"code\": \"WORKS_FINANCIAL_APPROVER\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"Anonymous User\",\n                    \"code\": \"ANONYMOUS\",\n                    \"tenantId\": \"pb.amritsar\"\n                },\n                {\n                    \"name\": \"System Integrator Finance\",\n                    \"code\": \"SYS_INTEGRATOR_FINANCE\",\n                    \"tenantId\": \"pb.amritsar\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pb.amritsar\",\n            \"permanentCity\": null\n        }\n    },\n    \"tenantId\": \"pb\",\n    \"module\": \"egov-user\",\n    \"locale\": \"en_IN\",\n    \"messages\": [\n        {\n            \"code\": \"email.login.otp.sub\",\n            \"message\": \"Login OTP\",\n            \"module\": \"egov-user\",\n            \"locale\": \"en_IN\"\n        },\n        {\n            \"code\": \"email.login.otp.body\",\n            \"message\": \"Dear Citizen, Your Login OTP is %s.\",\n            \"module\": \"egov-user\",\n            \"locale\": \"en_IN\"\n        },\n        {\n            \"code\": \"email.pwd.reset.otp.body\",\n            \"message\": \"Your OTP for recovering password is %s.\",\n            \"module\": \"egov-user\",\n            \"locale\": \"en_IN\"\n        },\n        {\n            \"code\": \"email.pwd.reset.otp.sub\",\n            \"message\": \"Password Reset\",\n            \"module\": \"egov-user\",\n            \"locale\": \"en_IN\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/localization/messages/v1/_upsert",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"localization",
+						"messages",
+						"v1",
+						"_upsert"
+					]
+				},
+				"description": "Fetch messages for given locale"
+			},
+			"response": []
+		}
+	]
+}
