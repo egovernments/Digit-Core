@@ -136,7 +136,7 @@ public class OtpServiceTest {
 	@Test
 	public void test_should_send_email_otp_for_password_reset() {
 		final OtpRequest otpRequest = OtpRequest.builder().tenantId("tenant").mobileNumber("1234567890")
-				.type(OtpRequestType.PASSWORD_RESET).userType("CITIZEN").build();
+				.type(OtpRequestType.PASSWORD_RESET).userType("CITIZEN").requestInfo(null).build();
 		final String otpNumber = "otpNumber";
 		when(otpRepository.fetchOtp(otpRequest)).thenReturn(otpNumber);
 		when(userRepository.fetchUser("1234567890", "tenant", "CITIZEN")).thenReturn(new User(1L, "foo@bar.com",
@@ -144,6 +144,6 @@ public class OtpServiceTest {
 
 		otpService.sendOtp(otpRequest);
 
-		verify(otpEmailRepository).send("foo@bar.com", otpNumber);
+		verify(otpEmailRepository).send("foo@bar.com", otpNumber, otpRequest);
 	}
 }
