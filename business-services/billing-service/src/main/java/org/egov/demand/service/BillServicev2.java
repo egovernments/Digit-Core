@@ -447,20 +447,21 @@ public class BillServicev2 {
 				if (billAmount.compareTo(BigDecimal.ZERO) >= 0) {
 
 					BillV2 bill = BillV2.builder()
-						.auditDetails(util.getAuditDetail(requestInfo))
-						.payerAddress(payer.getPermanentAddress())
-						.mobileNumber(payer.getMobileNumber())
-						.billDate(System.currentTimeMillis())
-						.businessService(business.getCode())
-						.payerName(payer.getName())
-						.consumerCode(consumerCode)
-						.status(BillStatus.ACTIVE)
-						.billDetails(billDetails)
-						.totalAmount(billAmount)
-						.billNumber(billNumber)
-						.tenantId(tenantId)
-						.id(billId)
-						.build();
+							.auditDetails(util.getAuditDetail(requestInfo))
+							.payerAddress(payer.getPermanentAddress())
+							.mobileNumber(payer.getMobileNumber())
+							.billDate(System.currentTimeMillis())
+							.businessService(business.getCode())
+							.payerName(payer.getName())
+							.consumerCode(consumerCode)
+							.status(BillStatus.ACTIVE)
+							.billDetails(billDetails)
+							.totalAmount(billAmount)
+							.billNumber(billNumber)
+							.tenantId(tenantId)
+							.id(billId)
+							.userId(payer.getUuid())
+							.build();
 				
 					bills.add(bill);
 				}
