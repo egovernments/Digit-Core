@@ -475,11 +475,7 @@ public class WorkflowUtil {
 
 
     private Boolean isTenantStateLevel(String tenantId){
-
-        if(tenantId.split("\\.").length == 2)
-            return true;
-        else return false;
-
+        return multiStateInstanceUtil.isTenantIdStateLevel(tenantId);
     }
 
 
