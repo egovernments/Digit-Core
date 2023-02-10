@@ -11,6 +11,7 @@ import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -26,6 +27,10 @@ public class OtpEmailRepository {
 	private static final String LOCALIZATION_KEY_LOGIN_BODY_EMAIL = "email.login.otp.body";
 	private static final String LOCALIZATION_KEY_PWD_RESET_SUBJECT_EMAIL = "email.pwd.reset.otp.sub";
 	private static final String LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL = "email.pwd.reset.otp.body";
+	private static final String PWD_RESET_SUBJECT_EMAIL = 	"Password Reset";
+	private static final String PWD_RESET_BODY_EMAIL = "Your OTP for recovering password is %s.";
+	private static final String LOGIN_SUBJECT_EMAIL = "Login OTP";
+	private static final String LOGIN_BODY_EMAIL = "Dear Citizen, Your Login OTP is %s.";
     private CustomKafkaTemplate<String, EmailRequest> kafkaTemplate;
     private String emailTopic;
 
@@ -89,9 +94,13 @@ public class OtpEmailRepository {
 		String subject;
 		if(otpRequest.getType() == OtpRequestType.PASSWORD_RESET){
 			subject = getMessages(otpRequest, LOCALIZATION_KEY_PWD_RESET_SUBJECT_EMAIL);
+			if(ObjectUtils.isEmpty(subject))
+				subject = PWD_RESET_SUBJECT_EMAIL;
 		}
 		else {
 			subject = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_SUBJECT_EMAIL);
+			if(ObjectUtils.isEmpty(subject))
+				subject = LOGIN_SUBJECT_EMAIL;
 		}
 		return subject;
 	}
@@ -99,10 +108,16 @@ public class OtpEmailRepository {
 	private String getBody(String otpNumber, OtpRequest otpRequest) {
 		String body;
 		if (otpRequest.getType() == OtpRequestType.PASSWORD_RESET){
-			body = format(getMessages(otpRequest, LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL), otpNumber);
+			body = getMessages(otpRequest, LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL);
+			if(ObjectUtils.isEmpty(body))
+				body = PWD_RESET_BODY_EMAIL;
+			body = format(body, otpNumber);
 		}
 		else {
-			body = format(getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL), otpNumber);
+			body = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL);
+			if(ObjectUtils.isEmpty(body))
+				body = LOGIN_BODY_EMAIL;
+			body = format(body, otpNumber);
 		}
 		return body;
 	}
