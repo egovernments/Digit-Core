@@ -367,6 +367,11 @@ config:
       - work-dir: "core-services/libraries/digit-models"
         image-name: "digit-models"
 
+  - name: "builds/Core-Platform/core-services/libraries/services-common"
+    build:
+      - work-dir: "core-services/libraries/services-common"
+        image-name: "services-common"
+
   - name: "builds/Core-Platform/core-services/nlp-engine"
     build:
       - work-dir: "core-services/nlp-engine"
