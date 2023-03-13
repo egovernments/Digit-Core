@@ -65,6 +65,7 @@ public class TarentoServiceImpl implements ClientService {
 	@Autowired
 	private MdmsApiMappings mdmsApiMappings;
 
+
 	@Override
 	@Cacheable(value="versions", key="#request.hashKey")
 	public AggregateDto getAggregatedData(AggregateRequestDto request, List<RoleDto> roles) throws AINException, IOException {
