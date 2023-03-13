@@ -9,7 +9,9 @@ public enum OperationType {
 
     UPDATE("UPDATE"),
 
-    DELETE("DELETE");
+    DELETE("DELETE"),
+
+    UPSERT("UPSERT");
 
 
     private String value;

@@ -83,9 +83,6 @@ public class PersisterAuditClientService {
                  */
                 try {
                     List<AuditLog> currentBatchOfAuditRecords = auditUtil.getAuditRecord(rowDataList, query);
-                    auditLogs.forEach(auditLog -> {
-                        auditLog.setAuditCorrelationId(objectIdVsAuditCorrelationIdMap.get(auditLog.getObjectId()));
-                    });
                     auditLogs.addAll(currentBatchOfAuditRecords);
                 }
                 catch (Exception e){
@@ -99,6 +96,10 @@ public class PersisterAuditClientService {
                     kafkaTemplate.send(auditErrorTopic, auditError);
                 }
             }
+            // Enrich audit logs with correlationId
+            auditLogs.forEach(auditLog -> {
+                auditLog.setAuditCorrelationId(objectIdVsAuditCorrelationIdMap.get(auditLog.getObjectId()));
+            });
             if(!CollectionUtils.isEmpty(auditLogs)) {
                 chooseSignerAndVerifier.selectImplementationAndSign(AuditLogRequest.builder().auditLogs(auditLogs).build());
                 AuditLogResponse response = AuditLogResponse.builder().auditLogs(auditLogs).build();
