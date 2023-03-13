@@ -4,7 +4,7 @@ package org.egov.wf.service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.tracer.model.CustomException;
-import org.egov.wf.repository.BusinessServiceRepository;
+import org.egov.wf.repository.V1.BusinessServiceRepositoryV1;
 import org.egov.wf.repository.WorKflowRepository;
 import org.egov.wf.util.WorkflowUtil;
 import org.egov.wf.web.models.*;
@@ -22,7 +22,7 @@ public class TransitionService {
 
     private WorKflowRepository repository;
 
-    private BusinessServiceRepository businessServiceRepository;
+    private BusinessServiceRepositoryV1 businessServiceRepository;
 
     private WorkflowUtil workflowUtil;
 
@@ -30,7 +30,7 @@ public class TransitionService {
 
     @Autowired
     public TransitionService(WorKflowRepository repository,
-                             BusinessServiceRepository businessServiceRepository,
+                             BusinessServiceRepositoryV1 businessServiceRepository,
                              WorkflowUtil workflowUtil) {
         this.repository = repository;
         this.businessServiceRepository = businessServiceRepository;

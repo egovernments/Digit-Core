@@ -11,6 +11,7 @@ import java.util.List;
 import org.egov.tracer.model.CustomException;
 
 import org.egov.wf.repository.BusinessServiceRepository;
+import org.egov.wf.repository.V1.BusinessServiceRepositoryV1;
 import org.egov.wf.repository.WorKflowRepository;
 import org.egov.wf.util.WorkflowUtil;
 import org.egov.wf.web.models.Action;
@@ -30,7 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 class TransitionServiceTest {
     @MockBean
-    private BusinessServiceRepository businessServiceRepository;
+    private BusinessServiceRepositoryV1 businessServiceRepository;
 
     @Autowired
     private TransitionService transitionService;

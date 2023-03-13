@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.egov.tracer.model.CustomException;
 import org.egov.wf.repository.BusinessServiceRepository;
+import org.egov.wf.repository.V1.BusinessServiceRepositoryV1;
 import org.egov.wf.web.models.BusinessService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 class BusinessUtilTest {
     @MockBean
-    private BusinessServiceRepository businessServiceRepository;
+    private BusinessServiceRepositoryV1 businessServiceRepository;
 
     @Autowired
     private BusinessUtil businessUtil;
