@@ -68,6 +68,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.minidev.json.JSONArray;
+import org.springframework.util.ObjectUtils;
 
 @Repository
 public class BoundaryRepository {
@@ -364,6 +365,11 @@ public class BoundaryRepository {
 			Long start = null;
 			Long end = null;
 			for (TenantBoundary tenantBndry : tenantBoundary) {
+				Boolean isRootLevelBoundaryType = Boolean.FALSE;
+				if(!ObjectUtils.isEmpty(boundarySearchRequest.getBoundaryTypeName())){
+					isRootLevelBoundaryType = boundarySearchRequest.getBoundaryTypeName().equals(tenantBndry.getBoundary().getLabel());
+				}
+
 				MdmsTenantBoundary mdmsBoundary = MdmsTenantBoundary.builder()
 						.tenantId(boundarySearchRequest.getTenantId()).hierarchyType(tenantBndry.getHierarchyType())
 						.build();
@@ -378,7 +384,8 @@ public class BoundaryRepository {
 					logger.info("TIME TAKEN for filterBoundaryCodes() = " + (end - start) + "ms");
 				}
 
-				if (boundarySearchRequest.getBoundaryTypeName() != null
+				// Filter through children boundaries only if boundaryType parameter is not root level
+				if (!isRootLevelBoundaryType && boundarySearchRequest.getBoundaryTypeName() != null
 						&& !boundarySearchRequest.getBoundaryTypeName().isEmpty()) {
 					list.clear();
 					start = new Date().getTime();
