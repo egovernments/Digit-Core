@@ -3,6 +3,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.1.5 - 2023-03-16
+- Fixed bug where search on root level boundary type yields empty search response.
+
 ## 1.1.4 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 
