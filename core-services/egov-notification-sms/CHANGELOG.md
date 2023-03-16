@@ -1,3 +1,7 @@
+## 1.2.0 - 15-03-2023
+
+- Added new API for sms bounce-back tracking 
+
 ## 1.1.3 - 15-12-2021
 
 - Added flag for sms enable
