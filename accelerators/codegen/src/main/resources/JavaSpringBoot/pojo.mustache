@@ -1,12 +1,11 @@
 /**
  * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
  */{{#description}}
-@ApiModel(description = "{{{description}}}"){{/description}}
+@Schema(description = "{{{description}}}"){{/description}}
 {{#useBeanValidation}}@Validated{{/useBeanValidation}}
 {{>generatedAnnotation}}{{#discriminator}}{{>typeInfoAnnotation}}{{/discriminator}}{{>xmlAnnotation}}
 {{#useLombok}}
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -37,10 +36,11 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
         @SerializedName("{{baseName}}")
     {{/gson}}
     {{#isContainer}}
-        {{#useBeanValidation}}@Valid{{/useBeanValidation}}
+        {{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}
         private {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
     {{/isContainer}}
     {{^isContainer}}
+        {{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}
         private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
     {{/isContainer}}
 

@@ -1,14 +1,13 @@
 package {{utilPackage}};
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import {{basePackage}}.config.Configuration;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import digit.models.coremodels.*;
-import digit.repository.ServiceRequestRepository;
-import digit.web.models.*;
+import {{basePackage}}.repository.ServiceRequestRepository;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -24,17 +23,9 @@ public class WorkflowUtil {
     @Autowired
     private ObjectMapper mapper;
 
-    @Value("${egov.workflow.businessservice.search.path}")
-    private String wfBusinessServiceSearchPath;
+    @Autowired
+    private Configuration configs;
 
-    @Value("${egov.workflow.host}")
-    private String wfHost;
-
-    @Value("${egov.workflow.transition.path}")
-    private String wfTransitionPath;
-
-    @Value("${egov.workflow.module.name}")
-    private String wfModuleName;
 
 
     /**
@@ -71,12 +62,13 @@ public class WorkflowUtil {
     * @param businessId
     * @param businessServiceCode
     * @param workflow
+    * @param wfModuleName
     * @return
     */
     public String updateWorkflowStatus(RequestInfo requestInfo, String tenantId,
-        String businessId, String businessServiceCode, Workflow workflow) {
+        String businessId, String businessServiceCode, Workflow workflow, String wfModuleName) {
         ProcessInstance processInstance = getProcessInstanceForWorkflow(requestInfo, tenantId, businessId,
-        businessServiceCode, workflow);
+        businessServiceCode, workflow, wfModuleName);
         ProcessInstanceRequest workflowRequest = new ProcessInstanceRequest(requestInfo, Collections.singletonList(processInstance));
         State state = callWorkFlow(workflowRequest);
 
@@ -90,8 +82,8 @@ public class WorkflowUtil {
     * @return
     */
     private StringBuilder getSearchURLWithParams(String tenantId, String businessService) {
-        StringBuilder url = new StringBuilder(wfHost);
-        url.append(wfBusinessServiceSearchPath);
+        StringBuilder url = new StringBuilder(configs.getWfHost());
+        url.append(configs.getWfBusinessServiceSearchPath());
         url.append("?tenantId=");
         url.append(tenantId);
         url.append("&businessServices=");
@@ -106,10 +98,11 @@ public class WorkflowUtil {
     * @param businessId
     * @param businessServiceCode
     * @param workflow
+    * @param wfModuleName
     * @return
     */
     private ProcessInstance getProcessInstanceForWorkflow(RequestInfo requestInfo, String tenantId,
-        String businessId, String businessServiceCode, Workflow workflow) {
+        String businessId, String businessServiceCode, Workflow workflow, String wfModuleName) {
 
         ProcessInstance processInstance = new ProcessInstance();
         processInstance.setBusinessId(businessId);
@@ -171,7 +164,7 @@ public class WorkflowUtil {
     */
     private State callWorkFlow(ProcessInstanceRequest workflowReq) {
         ProcessInstanceResponse response = null;
-        StringBuilder url = new StringBuilder(wfHost.concat(wfTransitionPath));
+        StringBuilder url = new StringBuilder(configs.getWfHost().concat(configs.getWfTransitionPath()));
         Object optional = repository.fetchResult(url, workflowReq);
         response = mapper.convertValue(optional, ProcessInstanceResponse.class);
         return response.getProcessInstances().get(0).getState();

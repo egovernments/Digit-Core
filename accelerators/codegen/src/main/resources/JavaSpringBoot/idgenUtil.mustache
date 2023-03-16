@@ -1,7 +1,8 @@
 package {{utilPackage}};
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import digit.repository.ServiceRequestRepository;
+import {{basePackage}}.repository.ServiceRequestRepository;
+import {{basePackage}}.config.Configuration;
 import digit.models.coremodels.IdGenerationRequest;
 import digit.models.coremodels.IdGenerationResponse;
 import digit.models.coremodels.IdRequest;
@@ -9,7 +10,6 @@ import digit.models.coremodels.IdResponse;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -20,17 +20,14 @@ import java.util.stream.Collectors;
 @Component
 public class IdgenUtil {
 
-    @Value("${egov.idgen.host}")
-    private String idGenHost;
-
-    @Value("${egov.idgen.path}")
-    private String idGenPath;
-
     @Autowired
     private ObjectMapper mapper;
 
     @Autowired
     private ServiceRequestRepository restRepo;
+
+    @Autowired
+    private Configuration configs;
 
     public List<String> getIdList(RequestInfo requestInfo, String tenantId, String idName, String idformat, Integer count) {
         List<IdRequest> reqList = new ArrayList<>();
@@ -39,7 +36,7 @@ public class IdgenUtil {
         }
 
         IdGenerationRequest request = IdGenerationRequest.builder().idRequests(reqList).requestInfo(requestInfo).build();
-        StringBuilder uri = new StringBuilder(idGenHost).append(idGenPath);
+        StringBuilder uri = new StringBuilder(configs.getIdGenHost()).append(configs.getIdGenPath());
         IdGenerationResponse response = mapper.convertValue(restRepo.fetchResult(uri, request), IdGenerationResponse.class);
 
         List<IdResponse> idResponses = response.getIdResponses();

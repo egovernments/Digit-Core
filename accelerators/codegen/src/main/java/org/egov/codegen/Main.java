@@ -1,11 +1,12 @@
 package org.egov.codegen;
 
-import io.swagger.codegen.ClientOptInput;
-import io.swagger.codegen.ClientOpts;
-import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.DefaultGenerator;
-import io.swagger.models.Swagger;
-import io.swagger.parser.SwaggerParser;
+import io.swagger.codegen.v3.ClientOptInput;
+import io.swagger.codegen.v3.ClientOpts;
+import io.swagger.codegen.v3.CodegenConfig;
+import io.swagger.codegen.v3.DefaultGenerator;
+import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -101,10 +102,15 @@ public class Main {
     }
 
     private static void generateCode(Config config, String outputDir){
-        final Swagger swagger = new SwaggerParser().read(config.getUrl());
+//        final Swagger swagger = new SwaggerParser().read(config.getUrl());
+        ParseOptions parseOptions = new ParseOptions();
+        parseOptions.setResolve(true);
+        parseOptions.setResolveRequestBody(true);
+        final OpenAPI openAPI = new OpenAPIParser().readLocation(config.getUrl(), null,parseOptions).getOpenAPI();
         CodegenConfig codegenConfig = new SpringBootCodegen(config, outputDir);
 
-        ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
+
+        ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).openAPI(openAPI).config(codegenConfig);
 
         DefaultGenerator gen = new DefaultGenerator();
         gen.setGenerateSwaggerMetadata(false);

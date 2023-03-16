@@ -2,13 +2,16 @@ package org.egov.codegen;
 
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
-import io.swagger.codegen.*;
-import io.swagger.codegen.languages.AbstractJavaCodegen;
-import io.swagger.codegen.languages.features.BeanValidationFeatures;
-import io.swagger.codegen.languages.features.OptionalFeatures;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
-import io.swagger.models.Swagger;
+import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.generators.features.OptionalFeatures;
+import io.swagger.codegen.v3.generators.handlebars.lambda.EscapeDoubleQuotesLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.RemoveLineBreakLambda;
+import io.swagger.codegen.v3.generators.java.AbstractJavaCodegen;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ public class SpringBootCodegen extends AbstractJavaCodegen
     public static final String BASE_PACKAGE = "basePackage";
     public static final String REPO_PACKAGE = "repositoryPackage";
     public static final String UTIL_PACKAGE = "utilPackage";
+    public static final String MODEL_PACKAGE = "modelPackage";
     public static final String KAFKA_PACKAGE = "kafkaPackage";
     public static final String INTERFACE_ONLY = "interfaceOnly";
     public static final String DELEGATE_PATTERN = "delegatePattern";
@@ -67,7 +71,9 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         this.config = config;
         processConfigs();
         this.outputFolder = outputFolder;
-        embeddedTemplateDir = templateDir = "JavaSpringBoot";
+        templateDir = "JavaSpringBoot";
+        customTemplateDir = templateDir;
+        embeddedTemplateDir = "JavaSpringBoot";
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         setLibrary(DEFAULT_LIBRARY);
@@ -116,6 +122,7 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         additionalProperties.put(BASE_PACKAGE, basePackage);
         additionalProperties.put(REPO_PACKAGE, repositoryPackage);
         additionalProperties.put(UTIL_PACKAGE, utilPackage);
+        additionalProperties.put(MODEL_PACKAGE, modelPackage);
         additionalProperties.put(KAFKA_PACKAGE, kafkaPackage);
         additionalProperties.put("jackson", true);
 
@@ -192,6 +199,10 @@ public class SpringBootCodegen extends AbstractJavaCodegen
 
         if (additionalProperties.containsKey(UTIL_PACKAGE)) {
             this.setUtilPackage((String) additionalProperties.get(UTIL_PACKAGE));
+        }
+
+        if(additionalProperties.containsKey(MODEL_PACKAGE)) {
+            this.setModelPackage((String) additionalProperties.get(MODEL_PACKAGE));
         }
 
         if (additionalProperties.containsKey(KAFKA_PACKAGE)) {
@@ -274,6 +285,9 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         supportingFiles.add(new SupportingFile("mainConfiguration.mustache",
                 (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator),
                 "MainConfiguration.java"));
+        supportingFiles.add(new SupportingFile("configuration.mustache",
+                (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator),
+                "Configuration.java"));
         supportingFiles.add(new SupportingFile("application.mustache",
                 ("src.main.resources").replace(".", java.io.File.separator), "application.properties"));
 
@@ -285,6 +299,10 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         supportingFiles.add(new SupportingFile("userUtil.mustache",
                 (sourceFolder + File.separator + utilPackage).replace(".", java.io.File.separator),
                 "UserUtil.java"));
+
+        supportingFiles.add(new SupportingFile("requestInfoWrapper.mustache",
+                (sourceFolder + File.separator + modelPackage).replace(".", File.separator),
+                "RequestInfoWrapper.java"));
 
         supportingFiles.add(new SupportingFile("workflowUtil.mustache",
                 (sourceFolder + File.separator + utilPackage).replace(".", java.io.File.separator),
@@ -366,18 +384,8 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         }
 
         // add lambda for mustache templates
-        additionalProperties.put("lambdaEscapeDoubleQuote", new Mustache.Lambda() {
-            @Override
-            public void execute(Template.Fragment fragment, Writer writer) throws IOException {
-                writer.write(fragment.execute().replaceAll("\"", Matcher.quoteReplacement("\\\"")));
-            }
-        });
-        additionalProperties.put("lambdaRemoveLineBreak", new Mustache.Lambda() {
-            @Override
-            public void execute(Template.Fragment fragment, Writer writer) throws IOException {
-                writer.write(fragment.execute().replaceAll("\\r|\\n", ""));
-            }
-        });
+        additionalProperties.put("lambdaEscapeDoubleQuote", new EscapeDoubleQuotesLambda());
+        additionalProperties.put("lambdaRemoveLineBreak", new RemoveLineBreakLambda());
     }
 
     @Override
@@ -410,15 +418,23 @@ public class SpringBootCodegen extends AbstractJavaCodegen
     }
 
     @Override
-    public void preprocessSwagger(Swagger swagger) {
-        super.preprocessSwagger(swagger);
-        if ("/".equals(swagger.getBasePath())) {
-            swagger.setBasePath("");
-        }
+    public String getDefaultTemplateDir() {
+        return templateDir();
+    }
+
+    @Override
+    protected String getTemplateDir() {
+        return templateDir;
+    }
+
+
+    @Override
+    public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
 
         if(!additionalProperties.containsKey(TITLE)) {
             // From the title, compute a reasonable name for the package and the API
-            String title = swagger.getInfo().getTitle();
+            String title = openAPI.getInfo().getTitle();
 
             // Drop any API suffix
             if (title != null) {
@@ -432,21 +448,15 @@ public class SpringBootCodegen extends AbstractJavaCodegen
             additionalProperties.put(TITLE, this.title);
         }
 
-        String host = swagger.getHost();
         String port = "8080";
-        if (host != null) {
-            String[] parts = host.split(":");
-            if (parts.length > 1) {
-                port = parts[1];
-            }
-        }
+
 
         this.additionalProperties.put("serverPort", port);
-        if (swagger.getPaths() != null) {
-            for (String pathname : swagger.getPaths().keySet()) {
-                Path path = swagger.getPath(pathname);
-                if (path.getOperations() != null) {
-                    for (Operation operation : path.getOperations()) {
+        if (openAPI.getPaths() != null) {
+            for (String pathname : openAPI.getPaths().keySet()) {
+                PathItem pathItem = openAPI.getPaths().get(pathname);
+                if (pathItem.readOperations() != null) {
+                    for (Operation operation : pathItem.readOperations()) {
                         if (operation.getTags() != null) {
                             List<Map<String, String>> tags = new ArrayList<Map<String, String>>();
                             for (String tag : operation.getTags()) {
@@ -462,7 +472,7 @@ public class SpringBootCodegen extends AbstractJavaCodegen
                                 String tag = operation.getTags().get(0);
                                 operation.setTags(Arrays.asList(tag));
                             }
-                            operation.setVendorExtension("x-tags", tags);
+                            operation.addExtension("x-tags", tags);
                         }
                     }
                 }
@@ -566,11 +576,11 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         allParams.clear();
 
         for(CodegenParameter p : copy){
-            if(!p.isHeaderParam){
+            if(!p.getIsHeaderParam()){
                 allParams.add(p);
             }
         }
-        allParams.get(allParams.size()-1).hasMore =false;
+//        allParams.get(allParams.size()-1).getHasMore() =false;
     }
 
     @Override
@@ -635,6 +645,8 @@ public class SpringBootCodegen extends AbstractJavaCodegen
 
     public void setUtilPackage(String utilPackage) {this.utilPackage = utilPackage;}
 
+    public void setModelPackage(String modelPackage) {this.modelPackage = modelPackage;}
+
     public void setkafkaPackage(String kafkaPackage) {this.kafkaPackage = kafkaPackage;}
 
     public void setBasePackage(String configPackage) {
@@ -676,10 +688,10 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         }
 
         //Add imports for Jackson
-        if (!Boolean.TRUE.equals(model.isEnum)) {
+        if (!Boolean.TRUE.equals(model.getIsEnum())) {
             model.imports.add("JsonProperty");
 
-            if (Boolean.TRUE.equals(model.hasEnums)) {
+            if (Boolean.TRUE.equals(model.getHasEnums())) {
                 model.imports.add("JsonValue");
             }
         } else { // enum class
@@ -701,7 +713,7 @@ public class SpringBootCodegen extends AbstractJavaCodegen
             Map<String, Object> mo = (Map<String, Object>) _mo;
             CodegenModel cm = (CodegenModel) mo.get("model");
             // for enum model
-            if (Boolean.TRUE.equals(cm.isEnum) && cm.allowableValues != null) {
+            if (Boolean.TRUE.equals(cm.getIsEnum()) && cm.allowableValues != null) {
                 cm.imports.add(importMapping.get("JsonValue"));
                 Map<String, String> item = new HashMap<String, String>();
                 item.put("import", importMapping.get("JsonValue"));
