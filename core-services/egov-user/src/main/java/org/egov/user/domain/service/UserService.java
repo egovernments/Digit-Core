@@ -433,7 +433,11 @@ public class UserService {
         String newEmail = updatedUser.getEmailId();
         if((oldEmail != null && !oldEmail.isEmpty()) && newEmail != null && !(newEmail.equalsIgnoreCase(oldEmail))) {
             // Sending sms and email to old email to notify that email has been changed
-            notificationUtil.sendEmail(requestInfo, existingUser, updatedUser);
+            try {
+                notificationUtil.sendEmail(requestInfo, existingUser, updatedUser);
+            } catch (Exception ignore){
+                log.error("Not able to send email");
+            }
         }
         return updatedUser;
     }

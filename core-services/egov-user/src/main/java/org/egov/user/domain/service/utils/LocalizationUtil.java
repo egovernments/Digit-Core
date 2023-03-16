@@ -6,12 +6,14 @@ import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.egov.user.config.UserServiceConstants.DEFAULT_EMAIL_UPDATION_MESSAGE;
 import static org.reflections.Reflections.log;
 
 @Component
@@ -40,6 +42,10 @@ public class LocalizationUtil {
         Object object = JsonPath.read(responseobj,
                 "$.messages[?(@.code==\"" + code + "\")].message");
         List<String> messages = (ArrayList<String>) object;
+        if(CollectionUtils.isEmpty(messages)){
+            log.warn("No localization messages returned for locale: " + locale +" . Continuing with english language");
+            messages.add(DEFAULT_EMAIL_UPDATION_MESSAGE);
+        }
         String message = messages.get(0);
         return message;
     }
