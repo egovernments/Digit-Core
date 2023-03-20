@@ -397,3 +397,11 @@ config:
       - work-dir: "accelerators/inbox"
         image-name: "inbox"
         dockerfile: "build/maven/Dockerfile"
+
+  - name: "builds/Core-Platform/core-services/service-request"
+    build:
+      - work-dir: "core-services/service-request"
+        image-name: "service-request"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/service-request/src/main/resources/db"
+        image-name: "service-request-db"
