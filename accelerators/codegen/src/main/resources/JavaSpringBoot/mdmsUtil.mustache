@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static {{basePackage}}.config.ServiceConstants.*;
+
 @Slf4j
 @Component
 public class MdmsUtil {
@@ -44,7 +46,7 @@ public class MdmsUtil {
             response = restTemplate.postForObject(uri.toString(), mdmsCriteriaReq, Map.class);
             mdmsResponse = mapper.convertValue(response, MdmsResponse.class);
         }catch(Exception e) {
-            log.error("Exception occurred while fetching category lists from mdms: ",e);
+            log.error(ERROR_WHILE_FETCHING_FROM_MDMS,e);
         }
 
         return mdmsResponse.getMdmsRes();

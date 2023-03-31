@@ -288,6 +288,9 @@ public class SpringBootCodegen extends AbstractJavaCodegen
         supportingFiles.add(new SupportingFile("configuration.mustache",
                 (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator),
                 "Configuration.java"));
+        supportingFiles.add(new SupportingFile("serviceConstants.mustache",
+                (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator),
+                "ServiceConstants.java"));
         supportingFiles.add(new SupportingFile("application.mustache",
                 ("src.main.resources").replace(".", java.io.File.separator), "application.properties"));
 

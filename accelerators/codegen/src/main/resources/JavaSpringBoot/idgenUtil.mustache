@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static {{basePackage}}.config.ServiceConstants.*;
+
 @Component
 public class IdgenUtil {
 
@@ -42,7 +44,7 @@ public class IdgenUtil {
         List<IdResponse> idResponses = response.getIdResponses();
 
         if (CollectionUtils.isEmpty(idResponses))
-            throw new CustomException("IDGEN ERROR", "No ids returned from idgen Service");
+            throw new CustomException(IDGEN_ERROR, NO_IDS_FOUND_ERROR);
 
         return idResponses.stream().map(IdResponse::getId).collect(Collectors.toList());
     }

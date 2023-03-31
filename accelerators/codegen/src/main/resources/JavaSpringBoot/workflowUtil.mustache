@@ -2,6 +2,7 @@ package {{utilPackage}};
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import {{basePackage}}.config.Configuration;
+import static {{basePackage}}.config.ServiceConstants.*;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import digit.models.coremodels.*;
@@ -45,11 +46,11 @@ public class WorkflowUtil {
         try {
             response = mapper.convertValue(result, BusinessServiceResponse.class);
         } catch (IllegalArgumentException e) {
-            throw new CustomException("PARSING ERROR", "Failed to parse response of workflow business service search");
+            throw new CustomException(PARSING_ERROR, FAILED_TO_PARSE_BUSINESS_SERVICE_SEARCH);
         }
 
         if (CollectionUtils.isEmpty(response.getBusinessServices()))
-            throw new CustomException("BUSINESSSERVICE_NOT_FOUND", "The businessService " + businessServiceCode + " is not found");
+            throw new CustomException(BUSINESS_SERVICE_NOT_FOUND, THE_BUSINESS_SERVICE + businessServiceCode + NOT_FOUND);
 
         return response.getBusinessServices().get(0);
     }
@@ -84,9 +85,9 @@ public class WorkflowUtil {
     private StringBuilder getSearchURLWithParams(String tenantId, String businessService) {
         StringBuilder url = new StringBuilder(configs.getWfHost());
         url.append(configs.getWfBusinessServiceSearchPath());
-        url.append("?tenantId=");
+        url.append(TENANTID);
         url.append(tenantId);
-        url.append("&businessServices=");
+        url.append(BUSINESS_SERVICES);
         url.append(businessService);
         return url;
     }
