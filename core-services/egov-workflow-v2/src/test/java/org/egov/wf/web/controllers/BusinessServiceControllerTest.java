@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
-import org.egov.wf.service.BusinessMasterService;
+import org.egov.wf.service.V1.BusinessMasterServiceV1;
 import org.egov.wf.util.ResponseInfoFactory;
 import org.egov.wf.web.models.BusinessServiceRequest;
 import org.egov.wf.web.models.RequestInfoWrapper;
@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @ExtendWith(SpringExtension.class)
 class BusinessServiceControllerTest {
     @MockBean
-    private BusinessMasterService businessMasterService;
+    private BusinessMasterServiceV1 businessMasterService;
 
     @Autowired
     private BusinessServiceController businessServiceController;
@@ -42,7 +42,7 @@ class BusinessServiceControllerTest {
     private ResponseInfoFactory responseInfoFactory;
 
 
-  //  @Test
+    @Test
     void testCreate() throws Exception {
         when(this.responseInfoFactory.createResponseInfoFromRequestInfo((RequestInfo) any(), (Boolean) any()))
                 .thenReturn(new ResponseInfo());
@@ -67,7 +67,7 @@ class BusinessServiceControllerTest {
     }
 
 
-   // @Test
+    @Test
     void testUpdate() throws Exception {
         when(this.responseInfoFactory.createResponseInfoFromRequestInfo((RequestInfo) any(), (Boolean) any()))
                 .thenReturn(new ResponseInfo());
@@ -92,7 +92,7 @@ class BusinessServiceControllerTest {
     }
 
 
-   // @Test
+    @Test
     void testSearch() throws Exception {
         RequestInfoWrapper requestInfoWrapper = new RequestInfoWrapper();
         requestInfoWrapper.setRequestInfo(new RequestInfo());

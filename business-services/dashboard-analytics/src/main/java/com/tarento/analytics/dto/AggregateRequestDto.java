@@ -7,35 +7,35 @@ import com.tarento.analytics.utils.ResponseRecorder;
 import java.util.Map;
 
 public class AggregateRequestDto {
-
+	
 	private String requestId;
-	private String visualizationType;
+	private String visualizationType; 
 	private String visualizationCode;
-	private String moduleLevel;
+	private String moduleLevel; 
 	private String queryType;
-	private Map<String, Object> filters;
-	private Map<String, Object> esFilters;
-	private Map<String, Object> aggregationFactors;
-	private RequestDate requestDate;
+	private Map<String, Object> filters; 
+	private Map<String, Object> esFilters; 
+	private Map<String, Object> aggregationFactors; 
+	private RequestDate requestDate; 
 	private String interval;
 	private ObjectNode chartNode;
 	private ResponseRecorder responseRecorder;
 
 	@JsonIgnore
 	private int hashKey;
-
-	public AggregateRequestDto() {}
-	public AggregateRequestDto(AggregateRequestDtoV3 requestDtoV3, String visualizationType, String visualizationCode) {
-		this.visualizationCode = visualizationCode;
-		this.visualizationType = visualizationType;
-		this.moduleLevel = requestDtoV3.getModuleLevel();
-		this.queryType = requestDtoV3.getQueryType();
-		this.filters = requestDtoV3.getFilters();
-		this.esFilters = requestDtoV3.getEsFilters();
-		this.aggregationFactors = requestDtoV3.getAggregationFactors();
-		this.requestDate = requestDtoV3.getRequestDate();
-		this.interval = requestDtoV3.getInterval();
-		this.chartNode = requestDtoV3.getChartNode();
+	
+	public AggregateRequestDto() {} 
+	public AggregateRequestDto(AggregateRequestDtoV3 requestDtoV3, String visualizationType, String visualizationCode) { 
+		this.visualizationCode = visualizationCode; 
+		this.visualizationType = visualizationType; 
+		this.moduleLevel = requestDtoV3.getModuleLevel(); 
+		this.queryType = requestDtoV3.getQueryType(); 
+		this.filters = requestDtoV3.getFilters(); 
+		this.esFilters = requestDtoV3.getEsFilters(); 
+		this.aggregationFactors = requestDtoV3.getAggregationFactors(); 
+		this.requestDate = requestDtoV3.getRequestDate(); 
+		this.interval = requestDtoV3.getInterval(); 
+		this.chartNode = requestDtoV3.getChartNode(); 
 		this.requestId= requestDtoV3.getRequestId();
 	}
 
@@ -118,7 +118,7 @@ public class AggregateRequestDto {
 	public void setHashKey(int hashKey) {
 		this.hashKey = hashKey;
 	}
-
-
+	
+	
 
 }

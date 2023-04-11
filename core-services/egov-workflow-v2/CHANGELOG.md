@@ -3,6 +3,15 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.3.0 - 2023-03-15
+- Separated out v1 and v2 business service APIs to maintain backward compatibility.
+- Added state level fallback on business service v2 search API.
+- Upgraded to spring-boot version 2.7.5
+- Upgraded to kafka version 3.1.1
+- Upgraded to spring-beans version 5.3.23
+- Upgraded to cache2k-spring version 2.6.1.Final
+- Enhanced workflow service to send descriptive errors for bad requests.
+
 ## 1.2.1 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 

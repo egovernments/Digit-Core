@@ -2,6 +2,7 @@ package org.egov.wf.util;
 
 import org.egov.tracer.model.CustomException;
 import org.egov.wf.repository.BusinessServiceRepository;
+import org.egov.wf.repository.V1.BusinessServiceRepositoryV1;
 import org.egov.wf.web.models.BusinessService;
 import org.egov.wf.web.models.BusinessServiceSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,10 @@ import java.util.List;
 @Component
 public class BusinessUtil {
 
-    private BusinessServiceRepository businessServiceRepository;
+    private BusinessServiceRepositoryV1 businessServiceRepository;
 
     @Autowired
-    public BusinessUtil(BusinessServiceRepository businessServiceRepository) {
+    public BusinessUtil(BusinessServiceRepositoryV1 businessServiceRepository) {
         this.businessServiceRepository = businessServiceRepository;
     }
 

@@ -44,25 +44,26 @@ public class BillRowMapperV2 implements ResultSetExtractor<List<BillV2>>{
 				auditDetails.setCreatedTime((Long) rs.getObject("b_createddate"));
 				auditDetails.setLastModifiedBy(rs.getString("b_lastmodifiedby"));
 				auditDetails.setLastModifiedTime((Long) rs.getObject("b_lastmodifieddate"));
-				
-				
+
+
 				bill = BillV2.builder()
-					.id(billId)
-					.totalAmount(BigDecimal.ZERO)
-					.tenantId(rs.getString("b_tenantid"))
-					.payerName(rs.getString("b_payername"))
-					.payerAddress(rs.getString("b_payeraddress"))
-					.payerEmail(rs.getString("b_payeremail"))
-					.mobileNumber(rs.getString("mobilenumber"))
-					.status(BillStatus.fromValue(rs.getString("b_status")))
-					.businessService(rs.getString("bd_businessService"))
-					.billNumber(rs.getString("bd_billno"))
-					.billDate(rs.getLong("bd_billDate"))
-					.consumerCode(rs.getString("bd_consumerCode"))
-					.fileStoreId(rs.getString("b_fileStoreId"))
-					.additionalDetails(util.getJsonValue((PGobject) rs.getObject("b_additionalDetails")))
-					.auditDetails(auditDetails)
-					.build();
+						.id(billId)
+						.totalAmount(BigDecimal.ZERO)
+						.tenantId(rs.getString("b_tenantid"))
+						.userId(rs.getString("b_payerid"))
+						.payerName(rs.getString("b_payername"))
+						.payerAddress(rs.getString("b_payeraddress"))
+						.payerEmail(rs.getString("b_payeremail"))
+						.mobileNumber(rs.getString("mobilenumber"))
+						.status(BillStatus.fromValue(rs.getString("b_status")))
+						.businessService(rs.getString("bd_businessService"))
+						.billNumber(rs.getString("bd_billno"))
+						.billDate(rs.getLong("bd_billDate"))
+						.consumerCode(rs.getString("bd_consumerCode"))
+						.fileStoreId(rs.getString("b_fileStoreId"))
+						.additionalDetails(util.getJsonValue((PGobject) rs.getObject("b_additionalDetails")))
+						.auditDetails(auditDetails)
+						.build();
 
 				billMap.put(bill.getId(), bill);
 				billDetailMap.clear();

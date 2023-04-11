@@ -6,7 +6,9 @@ package {{package}};
 {{^isDelegate}}
     import com.fasterxml.jackson.databind.ObjectMapper;
 {{/isDelegate}}
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

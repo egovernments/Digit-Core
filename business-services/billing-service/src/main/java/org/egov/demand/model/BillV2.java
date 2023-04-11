@@ -28,6 +28,9 @@ public class BillV2 {
 	@Size(max = 256)
 	private String id;
 
+	@JsonProperty("userId")
+	private String userId;
+
 	@JsonProperty("mobileNumber")
 	@Pattern(regexp = "^[0-9]{10}$", message = "MobileNumber should be 10 digit number")
 	private String mobileNumber;

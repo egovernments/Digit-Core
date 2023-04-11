@@ -1,7 +1,8 @@
 All notable changes to this module will be documented in this file.
 
-## 1.1.3 - 2022-12-16
-- Removed listening to sms notification topic to send email
+## 1.2.0 - 2023-03-15
+- Removed reading from sms topic to send every sms as email.
+- Added support for attachments in email.
 
 ## 1.1.2 - 2022-01-13
 - Updated to log4j2 version 2.17.1

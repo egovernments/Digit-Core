@@ -367,6 +367,11 @@ config:
       - work-dir: "core-services/libraries/digit-models"
         image-name: "digit-models"
 
+  - name: "builds/Core-Platform/core-services/libraries/services-common"
+    build:
+      - work-dir: "core-services/libraries/services-common"
+        image-name: "services-common"
+
   - name: "builds/Core-Platform/core-services/nlp-engine"
     build:
       - work-dir: "core-services/nlp-engine"
@@ -387,4 +392,16 @@ config:
       - work-dir: "core-services/xstate-webchat/nodejs/db"
         image-name: "xstate-webchat-db"
 
-        
+  - name: "builds/Core-Platform/accelerators/inbox"
+    build:
+      - work-dir: "accelerators/inbox"
+        image-name: "inbox"
+        dockerfile: "build/maven/Dockerfile"
+
+  - name: "builds/Core-Platform/core-services/service-request"
+    build:
+      - work-dir: "core-services/service-request"
+        image-name: "service-request"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/service-request/src/main/resources/db"
+        image-name: "service-request-db"

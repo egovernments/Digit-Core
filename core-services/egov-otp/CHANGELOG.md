@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.2.3 - 2023-03-15
+- Removed Database timezone dependency
+
 ## 1.2.2 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 

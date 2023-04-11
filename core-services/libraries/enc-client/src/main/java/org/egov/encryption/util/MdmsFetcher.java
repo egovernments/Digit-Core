@@ -3,6 +3,7 @@ package org.egov.encryption.util;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.encryption.config.EncClientConstants;
 import org.egov.encryption.config.EncProperties;
 import org.egov.encryption.config.ErrorConstants;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.MDC;
 
 import java.util.Arrays;
 
@@ -23,6 +25,11 @@ public class MdmsFetcher {
     private EncProperties encProperties;
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private MultiStateInstanceUtil multiStateInstanceUtil;
+
+    public static final String TENANTID_MDC_STRING = "TENANTID";
 
     public JSONArray getSecurityMdmsForFilter(String filter) {
         return getMdmsForFilter(filter, EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME);
@@ -42,6 +49,9 @@ public class MdmsFetcher {
 
         MdmsCriteriaReq mdmsCriteriaReq = MdmsCriteriaReq.builder().requestInfo(RequestInfo.builder().build())
                 .mdmsCriteria(mdmsCriteria).build();
+        if(multiStateInstanceUtil.getIsEnvironmentCentralInstance()){
+            MDC.put(TENANTID_MDC_STRING, encProperties.getStateLevelTenantId());
+        }
 
         try {
             ResponseEntity<MdmsResponse> response =

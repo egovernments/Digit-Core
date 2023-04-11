@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.2.0 - 2023-03-15
+
+- Added support for sending otp via email by emitting email events.
+
 ## 1.1.5 - 2022-03-02
 
 - Added genric message for failed login attempt.

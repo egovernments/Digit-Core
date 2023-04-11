@@ -50,15 +50,15 @@ public class BusinessServiceValidator {
      */
     private void validateForDuplicates(BusinessServiceRequest request){
         List<BusinessService> businessServices = new LinkedList<>();
-        List<State> states = new LinkedList<>();
-        List<Action> actions = new LinkedList<>();
         Map<String,String> errorMap = new HashMap<>();
 
         request.getBusinessServices().forEach(businessService -> {
+            List<State> states = new LinkedList<>();
             if(businessServices.contains(businessService))
                 errorMap.put("INVALID BUSINESSSERVICE","BusinessService: "+businessService.getBusinessService()+" is duplicate");
             else businessServices.add(businessService);
             businessService.getStates().forEach(state -> {
+                List<Action> actions = new LinkedList<>();
                 if(states.contains(state))
                     errorMap.put("INVALID STATE","State: "+state.getState()+" is duplicate");
                 else states.add(state);

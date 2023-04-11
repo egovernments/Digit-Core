@@ -114,7 +114,12 @@ public class AuditUtil {
     private OperationType getOperationType(String query){
         String operationType = null;
         if (query.startsWith(INSERT_SQL_KEYWORD)){
-            operationType = "CREATE";
+            // If a query is of the type - "INSERT .... ON CONFLICT DO UPDATE", operationType should be classified as UPSERT
+            if(query.contains(UPDATE_SQL_KEYWORD))
+                operationType = "UPSERT";
+            // Otherwise, operation type is CREATE
+            else
+                operationType = "CREATE";
         }
         else if(query.startsWith(UPDATE_SQL_KEYWORD)){
             operationType = "UPDATE";

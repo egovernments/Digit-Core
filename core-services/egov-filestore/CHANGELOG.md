@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0 - 2023-03-15
+- Fixes flow to store and retrieve files from `Azure blob storage`.
+
+## 1.2.5 - 2023-02-06
+- Transition from 1.2.5-beta version to 1.2.5 version
+
+## 1.2.5-beta - 2022-09-20
+- Upgraded spring-boot-starter-parent to 2.2.13 and spring beans to 5.2.20.RELEASE
+
 ## 1.2.4 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 

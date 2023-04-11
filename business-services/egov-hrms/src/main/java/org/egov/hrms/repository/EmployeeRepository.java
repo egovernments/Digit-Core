@@ -49,11 +49,12 @@ public class EmployeeRepository {
 	 * @param requestInfo
 	 * @return
 	 */
-	public List<Employee> fetchEmployees(EmployeeSearchCriteria criteria, RequestInfo requestInfo, String headerTenantId){
+	public List<Employee> fetchEmployees(EmployeeSearchCriteria criteria, RequestInfo requestInfo, String stateLevelTenantId){
 		List<Employee> employees = new ArrayList<>();
 		List<Object> preparedStmtList = new ArrayList<>();
+
 		if(hrmsUtils.isAssignmentSearchReqd(criteria)) {
-			List<String> empUuids = fetchEmployeesforAssignment(criteria, requestInfo, headerTenantId);
+			List<String> empUuids = fetchEmployeesforAssignment(criteria, requestInfo, stateLevelTenantId);
 			if (CollectionUtils.isEmpty(empUuids))
 				return employees;
 			else {
@@ -67,7 +68,7 @@ public class EmployeeRepository {
 		String query = queryBuilder.getEmployeeSearchQuery(criteria, preparedStmtList);
 		String finalQuery;
 		try {
-			finalQuery = centralInstanceUtil.replaceSchemaPlaceholder(query, headerTenantId);
+			finalQuery = centralInstanceUtil.replaceSchemaPlaceholder(query, stateLevelTenantId);
 		} catch (InvalidTenantIdException e1) {
 			throw new CustomException("HRMS_TENANTID_ERROR",
 					"TenantId length is not sufficient to replace query schema in a multi state instance");		
@@ -82,13 +83,13 @@ public class EmployeeRepository {
 		return employees;
 	}
 
-	private List<String> fetchEmployeesforAssignment(EmployeeSearchCriteria criteria, RequestInfo requestInfo, String headerTenantId) {
+	private List<String> fetchEmployeesforAssignment(EmployeeSearchCriteria criteria, RequestInfo requestInfo, String stateLevelTenantId) {
 		List<String> employeesIds = new ArrayList<>();
 		List <Object> preparedStmtList = new ArrayList<>();
 		String query = queryBuilder.getAssignmentSearchQuery(criteria, preparedStmtList);
 
 		try {
-			query = centralInstanceUtil.replaceSchemaPlaceholder(query, headerTenantId);
+			query = centralInstanceUtil.replaceSchemaPlaceholder(query, stateLevelTenantId);
 		} catch (InvalidTenantIdException e1) {
 			throw new CustomException("HRMS_TENANTID_ERROR",
 					"TenantId length is not sufficient to replace query schema in a multi state instance");
