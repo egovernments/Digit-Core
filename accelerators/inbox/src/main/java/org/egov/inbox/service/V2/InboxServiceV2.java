@@ -186,16 +186,25 @@ public class InboxServiceV2 {
         return transformedStatusMap;
     }
 
-    private Long getApplicationServiceSla(Map<String, Long> businessServiceSlaMap, Object data) {
+    private Long getApplicationServiceSla(Map<String, Long> businessServiceSlaMap, Map<String, Long> stateUuidSlaMap, Object data) {
 
         Long currentDate = System.currentTimeMillis(); //current time
         Map<String, Object> auditDetails = (Map<String, Object>) ((Map<String, Object>) data).get(AUDIT_DETAILS_KEY);
-        if (!ObjectUtils.isEmpty(auditDetails.get(CREATED_TIME_KEY))) {
-            Long createdTime = ((Number) auditDetails.get(CREATED_TIME_KEY)).longValue();
-            String businessService = JsonPath.read(data, BUSINESS_SERVICE_PATH);
-            Long businessServiceSLA = businessServiceSlaMap.get(businessService);
+        String stateUuid = JsonPath.read(data, STATE_UUID_PATH);
+        if(stateUuidSlaMap.containsKey(stateUuid)){
+            if (!ObjectUtils.isEmpty(auditDetails.get(LAST_MODIFIED_TIME_KEY))) {
+                Long lastModifiedTime = ((Number) auditDetails.get(LAST_MODIFIED_TIME_KEY)).longValue();
 
-            return Long.valueOf(Math.round((businessServiceSLA - (currentDate - createdTime)) / ((double) (24 * 60 * 60 * 1000))));
+                return Long.valueOf(Math.round((stateUuidSlaMap.get(stateUuid) - (currentDate - lastModifiedTime)) / ((double) (24 * 60 * 60 * 1000))));
+            }
+        }else {
+            if (!ObjectUtils.isEmpty(auditDetails.get(CREATED_TIME_KEY))) {
+                Long createdTime = ((Number) auditDetails.get(CREATED_TIME_KEY)).longValue();
+                String businessService = JsonPath.read(data, BUSINESS_SERVICE_PATH);
+                Long businessServiceSLA = businessServiceSlaMap.get(businessService);
+
+                return Long.valueOf(Math.round((businessServiceSLA - (currentDate - createdTime)) / ((double) (24 * 60 * 60 * 1000))));
+            }
         }
         return null;
     }
@@ -250,9 +259,14 @@ public class InboxServiceV2 {
         }
 
         Map<String, Long> businessServiceSlaMap = new HashMap<>();
+        Map<String, Long> stateUuidVsSlaMap = new HashMap<>();
 
         businessServices.forEach(businessService -> {
             businessServiceSlaMap.put(businessService.getBusinessService(),businessService.getBusinessServiceSla());
+            businessService.getStates().forEach(state -> {
+                if(!ObjectUtils.isEmpty(state.getSla()))
+                    stateUuidVsSlaMap.put(state.getUuid(), state.getSla());
+            });
         });
 
         List<Inbox> inboxItemList = new ArrayList<>();
@@ -260,7 +274,7 @@ public class InboxServiceV2 {
             Inbox inbox = new Inbox();
             Map<String, Object> businessObject = (Map<String, Object>) hit.get(SOURCE_KEY);
             inbox.setBusinessObject((Map<String, Object>)businessObject.get(DATA_KEY));
-            Long serviceSla = getApplicationServiceSla(businessServiceSlaMap, inbox.getBusinessObject());
+            Long serviceSla = getApplicationServiceSla(businessServiceSlaMap, stateUuidVsSlaMap, inbox.getBusinessObject());
             inbox.getBusinessObject().put(SERVICESLA_KEY, serviceSla);
             inboxItemList.add(inbox);
         });
