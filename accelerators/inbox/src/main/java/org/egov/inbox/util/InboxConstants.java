@@ -28,9 +28,9 @@ public class InboxConstants {
     public static final String AUDIT_DETAILS_KEY = "auditDetails";
 
     public static final String CREATED_TIME_KEY = "createdTime";
-
+    public static final String LAST_MODIFIED_TIME_KEY = "lastModifiedTime";
     public static final String BUSINESS_SERVICE_PATH = "$.currentProcessInstance.businessService";
-
+    public static final String STATE_UUID_PATH = "$.currentProcessInstance.state.uuid";
     public static final String APPLICATION_STATUS_KEY = "applicationstatus";
 
     public static final String BUSINESSSERVICE_KEY = "businessservice";
