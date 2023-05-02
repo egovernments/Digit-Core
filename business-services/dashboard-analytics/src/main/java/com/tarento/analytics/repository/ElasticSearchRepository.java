@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -36,11 +37,12 @@ public class ElasticSearchRepository {
 	/**
 	 * Based on the Transaction Index Data Obtained and the URL with Headers, this method will put the Data obtained on the
 	 * Elastic Search Database and returns the response in the form of Positive or Negative outcome (True Or False) 
-	 * @param transactionIndex
+	 * @param transaction
 	 * @param url
 	 * @param headers
 	 * @return
 	 */
+	@Cacheable(value = "transactionCache", key = "#transaction.hashCode() + #url + #headers.hashCode()")
 	public Boolean saveTransaction(Transaction transaction, String url, HttpHeaders headers) {
 		ResponseEntity<Map> map = null;
 		try {
@@ -58,9 +60,9 @@ public class ElasticSearchRepository {
 		}
 		return false;
 	}
-	
 
 
+		@Cacheable(value = "transactionIndexCache", key = "#dto.hashCode() + #url + #headers.hashCode()")
 		// create index
 		public Boolean createTransactionIndex(MappingDto dto, String url, HttpHeaders headers){
 			ResponseEntity<Map> map = null;
