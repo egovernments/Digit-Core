@@ -1,4 +1,4 @@
-DIGIT eGovernance Platform Services
+1DIGIT eGovernance Platform Services
 
 DIGIT (Digital Infrastructure for Governance, Impact & Transformation) is India's largest platform for governance services. Visit https://doc.digit.org for more details.
 
