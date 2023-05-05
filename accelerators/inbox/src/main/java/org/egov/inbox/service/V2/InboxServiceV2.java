@@ -218,6 +218,7 @@ public class InboxServiceV2 {
 
         Map<String,String> statusIdToBusinessServiceMap = workflowService.getStatusIdToBusinessServiceMap(businessServices);
         Map<String, String> statusIdToApplicationStatusMap = workflowService.getApplicationStatusIdToStatusMap(businessServices);
+        Map<String, String> statusIdToStateMap = workflowService.getStatusIdToStateMap(businessServices);
 
         List<HashMap<String,Object>> statusCountMapTransformed = new ArrayList<>();
 
@@ -229,6 +230,7 @@ public class InboxServiceV2 {
             map.put(APPLICATION_STATUS_KEY,statusIdToApplicationStatusMap.get(statusId));
             map.put(BUSINESSSERVICE_KEY,statusIdToBusinessServiceMap.get(statusId));
             map.put(STATUSID_KEY, statusId);
+            map.put(STATE_KEY, statusIdToStateMap.get(statusId));
             statusCountMapTransformed.add(map);
         }
         return statusCountMapTransformed;
