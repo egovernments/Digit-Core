@@ -42,7 +42,6 @@ public class ElasticSearchRepository {
 	 * @param headers
 	 * @return
 	 */
-	@Cacheable(value = "transactionCache", key = "#transaction.hashCode() + #url + #headers.hashCode()")
 	public Boolean saveTransaction(Transaction transaction, String url, HttpHeaders headers) {
 		ResponseEntity<Map> map = null;
 		try {
@@ -62,7 +61,6 @@ public class ElasticSearchRepository {
 	}
 
 
-		@Cacheable(value = "transactionIndexCache", key = "#dto.hashCode() + #url + #headers.hashCode()")
 		// create index
 		public Boolean createTransactionIndex(MappingDto dto, String url, HttpHeaders headers){
 			ResponseEntity<Map> map = null;
