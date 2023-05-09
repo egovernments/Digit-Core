@@ -36,7 +36,7 @@ public class ElasticSearchRepository {
 	/**
 	 * Based on the Transaction Index Data Obtained and the URL with Headers, this method will put the Data obtained on the
 	 * Elastic Search Database and returns the response in the form of Positive or Negative outcome (True Or False) 
-	 * @param transactionIndex
+	 * @param transaction
 	 * @param url
 	 * @param headers
 	 * @return
@@ -58,7 +58,6 @@ public class ElasticSearchRepository {
 		}
 		return false;
 	}
-	
 
 
 		// create index
