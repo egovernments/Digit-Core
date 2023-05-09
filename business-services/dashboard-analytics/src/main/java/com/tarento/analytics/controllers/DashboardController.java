@@ -145,7 +145,6 @@ public class DashboardController {
 			if (headers.get("tenantId") == null) {
 				logger.error("Please provide tenant ID details");
 				throw new AINException(ErrorCode.ERR320, "tenant is missing");
-
 			}
 			
 			if(requestDto.getAggregationRequestDto() == null) { 
