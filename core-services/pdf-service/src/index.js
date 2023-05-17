@@ -120,7 +120,7 @@ var defaultFontMapping = {
   hi_IN: 'default',
   pn_IN: 'BalooPaaji',
   od_IN: 'BalooBhaina',
-  or_IN: 'BalooBhaina',
+  or_IN: 'BalooBhaina'
 }
 
 const printer = new pdfMakePrinter(fontDescriptors);
