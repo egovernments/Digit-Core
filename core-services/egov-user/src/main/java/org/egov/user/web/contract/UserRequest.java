@@ -44,10 +44,8 @@ public class UserRequest {
     @Size(max = 15)
     private String gender;
 
-    @Pattern(regexp = UserServiceConstants.PATTERN_MOBILE)
     private String mobileNumber;
     
-    @Pattern(regexp = UserServiceConstants.PATTERN_MOBILE)
     private String alternatemobilenumber;
 
     @Email
