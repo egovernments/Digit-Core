@@ -11,21 +11,11 @@
   </parent>
   <groupId>org.egov.services</groupId>
   <artifactId>services-common</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.1.2-SNAPSHOT</version>
   <name>services-common</name>
   <description>Shared classes among services</description>
   <distributionManagement>
-  	<repository>
-		<id>repo.digit.org</id>
-		<name>eGov DIGIT Releases Repository</name>
-		<url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
-	</repository>
-    <repository>
-      <id>repo.digit.org</id>
-      <name>eGov ERP Releases Repository</name>
-      <url>https://nexus-repo.digit.org/nexus/content/repositories/releases/</url>
-    </repository>
-    <snapshotRepository>
+  	<snapshotRepository>
       <id>repo.digit.org</id>
       <name>eGov ERP Snapshots Repository</name>
       <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
@@ -71,8 +61,13 @@
       <version>2.0.2</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.0</version>
+    </dependency>
   </dependencies>
-  	<repositories>
+  <repositories>
 		<repository>
 			<id>repo.egovernments.org</id>
 			<name>eGov DIGIT Releases Repository</name>
