@@ -1,8 +1,5 @@
 package org.egov.common.error;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class ErrorCode {
     public static final String IS_CREATE_REQUEST_FLAG_NULL_ERROR_MESSAGE = "IsCreateRequest flag being sent to enrichAuditDetails method must not be null";
 

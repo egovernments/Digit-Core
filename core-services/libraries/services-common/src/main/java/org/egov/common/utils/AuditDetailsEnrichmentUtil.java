@@ -1,6 +1,5 @@
 package org.egov.common.utils;
 
-import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.models.AuditDetails;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.exception.NullCheckException;
@@ -8,7 +7,6 @@ import org.springframework.util.ObjectUtils;
 
 import static org.egov.common.error.ErrorCode.*;
 
-@Slf4j
 public class AuditDetailsEnrichmentUtil {
 
     /**
