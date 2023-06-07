@@ -17,7 +17,7 @@ public class AuditDetailsEnrichmentUtil {
      * @param isCreateRequest
      * @throws NullCheckException
      */
-    public static void enrichAuditDetails(AuditDetails auditDetails, RequestInfo requestInfo, Boolean isCreateRequest) throws NullCheckException{
+    public static void enrichAuditDetails(AuditDetails auditDetails, RequestInfo requestInfo, Boolean isCreateRequest) {
         // This method validates if auditDetails, requestInfo and userInfo are not null.
         validateInput(auditDetails, requestInfo, isCreateRequest);
 
@@ -39,7 +39,7 @@ public class AuditDetailsEnrichmentUtil {
      * @param isCreateRequest
      * @throws NullCheckException
      */
-    private static void validateInput(AuditDetails auditDetails, RequestInfo requestInfo, Boolean isCreateRequest) throws NullCheckException {
+    private static void validateInput(AuditDetails auditDetails, RequestInfo requestInfo, Boolean isCreateRequest) {
         // Throw null check exception in case isCreateRequest flag is null.
         if(ObjectUtils.isEmpty(isCreateRequest))
             throw new NullCheckException(IS_CREATE_REQUEST_FLAG_NULL_ERROR_MESSAGE);

@@ -1,6 +1,6 @@
 package org.egov.common.exception;
 
-public class NullCheckException extends Exception {
+public class NullCheckException extends RuntimeException {
 
     public NullCheckException(String message){
         super(message);
