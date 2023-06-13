@@ -15,7 +15,6 @@ public class AuditDetailsEnrichmentUtil {
      * @param auditDetails
      * @param requestInfo
      * @param isCreateRequest
-     * @throws NullCheckException
      */
     public static void enrichAuditDetails(AuditDetails auditDetails, RequestInfo requestInfo, Boolean isCreateRequest) {
         // This method validates if auditDetails, requestInfo and userInfo are not null.
@@ -37,7 +36,6 @@ public class AuditDetailsEnrichmentUtil {
      * @param auditDetails
      * @param requestInfo
      * @param isCreateRequest
-     * @throws NullCheckException
      */
     private static void validateInput(AuditDetails auditDetails, RequestInfo requestInfo, Boolean isCreateRequest) {
         // Throw null check exception in case isCreateRequest flag is null.
