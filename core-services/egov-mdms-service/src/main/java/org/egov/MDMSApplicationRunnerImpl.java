@@ -58,7 +58,7 @@ public class MDMSApplicationRunnerImpl {
 
     @PostConstruct
 	public void run() {
-		try {
+		/*try {
 			log.info("Reading files from: " + mdmsFileDirectory);
 			LinkedList<String> errorFilesList = new LinkedList<>();
 			if (!StringUtils.isEmpty(masterConfigUrl))
@@ -71,7 +71,7 @@ public class MDMSApplicationRunnerImpl {
 			}
 		} catch (Exception e) {
 			log.error("Exception while loading yaml files: ", e);
-		}
+		}*/
 
     }
 

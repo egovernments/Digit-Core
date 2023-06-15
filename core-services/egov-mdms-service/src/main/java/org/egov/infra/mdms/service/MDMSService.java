@@ -1,13 +1,20 @@
 package org.egov.infra.mdms.service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.egov.MDMSApplicationRunnerImpl;
-import org.egov.mdms.model.MasterDetail;
-import org.egov.mdms.model.MdmsCriteriaReq;
-import org.egov.mdms.model.ModuleDetail;
+import org.egov.infra.mdms.model.Mdms;
+import org.egov.infra.mdms.model.MdmsRequest;
+import org.egov.infra.mdms.repository.MdmsDataRepository;
+import org.egov.infra.mdms.repository.impl.MdmsDataRepositoryImpl;
+import org.egov.infra.mdms.repository.impl.MdmsRedisDataRepository;
+import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
+import org.egov.infra.mdms.service.validator.MdmsDataValidator;
+import org.egov.mdms.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +26,28 @@ import net.minidev.json.JSONArray;
 @Service
 @Slf4j
 public class MDMSService {
+
+
+	private MdmsDataValidator mdmsDataValidator;
+
+	private MdmsDataEnricher mdmsDataEnricher;
+
+	private MdmsDataRepository mdmsDataRepository;
+
+	private MdmsRedisDataRepository mdmsRedisDataRepository;
+
+
+	@Autowired
+	public MDMSService(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
+					   MdmsDataRepository mdmsDataRepository, MdmsRedisDataRepository mdmsRedisDataRepository) {
+
+		this.mdmsDataValidator = mdmsDataValidator;
+		this.mdmsDataEnricher = mdmsDataEnricher;
+		this.mdmsDataRepository = mdmsDataRepository;
+		this.mdmsRedisDataRepository = mdmsRedisDataRepository;
+	}
+
+
 
 	/**
 	 * Service method to collect master data from tenantIdMap and apply filter as per the request
@@ -190,4 +219,46 @@ public class MDMSService {
         JSONArray filteredMasters = JsonPath.read(masters, filterExp);
         return filteredMasters;
     }
+
+	public List<Mdms> create(MdmsRequest mdmsRequest) {
+		mdmsDataValidator.validate(mdmsRequest);
+		mdmsDataEnricher.enrichCreateReq(mdmsRequest);
+		mdmsDataRepository.create(mdmsRequest);
+		return Arrays.asList(mdmsRequest.getMdms());
+	}
+
+	public Map<String, Map<String, JSONArray>> search(MdmsCriteriaReq mdmsCriteriaReq) {
+		Map<String, String> schemaCodeMap = getSchemaCodes(mdmsCriteriaReq.getMdmsCriteria());
+		Map<String, JSONArray> masterMap = mdmsDataRepository.search(schemaCodeMap.keySet());
+		return getModuleMasterMap(masterMap);
+	}
+	public void update(MdmsRequest mdmsRequest) {
+
+	}
+
+	private Map<String, String> getSchemaCodes(MdmsCriteria mdmsCriteria) {
+		Map<String, String> schemaCodesFilterMap = new HashMap<>();
+		for (ModuleDetail moduleDetail : mdmsCriteria.getModuleDetails()) {
+			for (MasterDetail masterDetail : moduleDetail.getMasterDetails()) {
+				String key = moduleDetail.getModuleName().concat(".").concat(masterDetail.getName());
+				String value = masterDetail.getFilter();
+				schemaCodesFilterMap.put(key, value);
+			}
+		}
+		return schemaCodesFilterMap;
+	}
+
+	private Map<String, Map<String, JSONArray>> getModuleMasterMap(Map<String, JSONArray> masterMap) {
+		Map<String, Map<String, JSONArray>> moduleMasterMap = new HashMap<>();
+
+		for (Map.Entry<String, JSONArray> entry : masterMap.entrySet()) {
+			String[] moduleMaster = entry.getKey().split("\\.");
+			String moduleName = moduleMaster[0];
+			String masterName = moduleMaster[1];
+
+			moduleMasterMap.computeIfAbsent(moduleName, k -> new HashMap<>())
+					.put(masterName, entry.getValue());
+		}
+		return moduleMasterMap;
+	}
 }
