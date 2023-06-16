@@ -17,8 +17,8 @@ public class UUIDEnrichmentUtil {
 
     /**
      * This method accepts an object of generic type and the field to be enriched.
-     * If the passed object is an instance of List/Set, each of the member objects
-     * are enriched with random UUIDs. However, if the passed object is non-collection
+     * If the parent object passed is an instance of List, each of the child objects
+     * are enriched with random UUIDs. However, if the passed parent object is non-collection
      * type, the target field passed is enriched with UUID.
      *
      * @param obj
