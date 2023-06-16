@@ -8,4 +8,6 @@ public class ServiceCommonConstants {
     public static final String SUCCESSFUL_STATUS = "successful";
 
     public static final String FAILED_STATUS = "failed";
+
+    public static final String SET_KEYWORD = "set";
 }

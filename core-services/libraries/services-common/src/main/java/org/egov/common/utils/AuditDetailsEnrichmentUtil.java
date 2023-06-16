@@ -9,6 +9,8 @@ import static org.egov.common.error.ErrorCode.*;
 
 public class AuditDetailsEnrichmentUtil {
 
+    private AuditDetailsEnrichmentUtil(){};
+
     /**
      * This is a utility method to enrich auditDetails so that modules don't have to write logic to
      * enrich auditDetails in case of create and update requests.
