@@ -90,7 +90,9 @@ public class MetricChartResponseHandler implements IResponseHandler{
        boolean isRoundOff = (chartNode.get(IS_ROUND_OFF)!=null && chartNode.get(IS_ROUND_OFF).asBoolean()) ? true : false;
        Plot latestDateplot = new Plot("todaysDate", Double.valueOf(0), "number");;
 		Plot lastUpdatedTime = new Plot("lastUpdatedTime", Double.valueOf(0), "number");
+		Plot latestCount = new Plot("count",Double.valueOf(0),"number");
 		Boolean isTodaysCollection = (chartNode.get("TodaysCollection") == null ? Boolean.FALSE : chartNode.get("TodaysCollection").asBoolean());
+		Boolean isLatestCount = (chartNode.get("metricCount") == null ? Boolean.FALSE : chartNode.get("metricCount").asBoolean());
 		for( JsonNode headerPath : aggrsPaths) {
 			List<JsonNode> values = aggregationNode.findValues(headerPath.asText());
 			int valueIndex = 0;
@@ -172,6 +174,12 @@ public class MetricChartResponseHandler implements IResponseHandler{
 					}
 
 				}
+				if (isLatestCount == Boolean.TRUE){
+					JsonNode countNode = aggregationNode.findValue("Count");
+					if(countNode != null && countNode.has(IResponseHandler.VALUE)){
+						latestCount.setValue(countNode.findValue(IResponseHandler.VALUE).asDouble());
+					}
+				}
 				valueIndex++;
 			}
 			// Why is aggrsPaths.size()==2 required? Is there validation if action =
@@ -199,7 +207,7 @@ public class MetricChartResponseHandler implements IResponseHandler{
 				else
 					throw new CustomException("INVALID_NUMBER_OF_OPERANDS", "Division operation can be performed only with 2 operands.");
 			}
-			data.setPlots( Arrays.asList(latestDateplot,lastUpdatedTime));
+			data.setPlots( Arrays.asList(latestDateplot,lastUpdatedTime,latestCount));
             request.getResponseRecorder().put(visualizationCode, request.getModuleLevel(), data);
             dataList.add(data);
             if(chartNode.get(POST_AGGREGATION_THEORY) != null) { 
