@@ -1,0 +1,22 @@
+{
+    "responseInfo": {
+        "apiId": "org.egov.accesscontrol",
+        "ver": "1.0",
+        "ts": 1491762629619,
+        "resMsgId": "uief87324",
+        "msgId": "20170310130900",
+        "status": "200 OK"
+    },
+    "roles": [
+        {
+            "name": "test1test1",
+            "code": "testonecode112234324",
+            "description": "test1description"
+        },
+        {
+            "name": "test2test2",
+            "code": "testtwocode11234354",
+            "description": "test2codedescription"
+        }
+    ]
+}
