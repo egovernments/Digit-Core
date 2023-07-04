@@ -405,3 +405,16 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
+
+# frontend
+  - name: builds/Core-Platform/accelerators/workbench-ui
+    build:
+      - work-dir: accelerators/frontend/micro-ui/
+        dockerfile: accelerators/frontend/micro-ui/web/docker/Dockerfile
+        image-name: workbench-ui
+
+  - name: builds/Core-Platform/accelerators/digit-ui
+    build:
+      - work-dir: accelerators/frontend/micro-ui/
+        dockerfile: accelerators/frontend/micro-ui/web/docker/Dockerfile
+        image-name: digit-ui
