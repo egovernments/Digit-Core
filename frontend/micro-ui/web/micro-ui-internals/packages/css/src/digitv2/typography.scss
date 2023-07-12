@@ -1,0 +1,22 @@
+//work in progress
+.typography {
+  &.text-heading-xl-dt {
+    font-size: map-get($fontSize, "heading-xl-dt");
+    line-height: map-get($lineHeight, "heading-xl-dt");
+
+    @media (max-width: map-get($screens, "dt")) {
+      font-size: map-get($fontSize, "heading-xl");
+      line-height: map-get($lineHeight, "heading-xl");
+    }
+  }
+
+  &.text-heading-xl {
+    font-size: map-get($fontSize, "heading-xl");
+    line-height: map-get($lineHeight, "heading-xl");
+
+    @media (max-width: map-get($screens, "dt")) {
+      font-size: map-get($fontSize, "heading-l-dt");
+      line-height: map-get($lineHeight, "heading-l-dt");
+    }
+  }
+}
