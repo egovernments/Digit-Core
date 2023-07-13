@@ -32,7 +32,6 @@ const WorkbenchCard = () => {
       label: t("Manage Master Data"),
       link: `/${window?.contextPath}/employee/estimate/inbox`,
       roles: ROLES.ESTIMATE,
-      count: isLoadingEstimate ? "-" : dataEstimate?.totalCount,
     },
 
   ];
