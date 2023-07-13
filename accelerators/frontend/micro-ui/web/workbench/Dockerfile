@@ -26,4 +26,4 @@ ENV WORK_DIR=/var/web/workbench-ui
 RUN mkdir -p ${WORK_DIR}
 
 COPY --from=build /app/web/build ${WORK_DIR}/
-COPY --from=build /app/web/works/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/web/workbench/nginx.conf /etc/nginx/conf.d/default.conf
