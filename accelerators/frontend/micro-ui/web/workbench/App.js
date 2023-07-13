@@ -4,19 +4,20 @@ import { DigitUI } from "@egovernments/digit-ui-module-core";
 import { initHRMSComponents } from "@egovernments/digit-ui-module-hrms";
 import { initUtilitiesComponents } from  "@egovernments/digit-ui-module-utilities";
 import { UICustomizations } from "./Customisations/UICustomizations";
+import {initWorkbenchComponents} from "@egovernments/digit-ui-module-workbench";
 
 window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH");
 
 const enabledModules = ["DSS", "NDSS",  "Utilities",
-"HRMS", "Engagement"
+"HRMS", "Engagement",
+"Workbench"
+
 ];
 window.Digit.ComponentRegistryService.setupRegistry({
 
 });
 
 
-initHRMSComponents();
-initUtilitiesComponents();
 
 const moduleReducers = (initData) => ({
   initData,
@@ -28,7 +29,7 @@ const initDigitUI = () => {
 
   initHRMSComponents();
   initUtilitiesComponents();
-
+  initWorkbenchComponents();
  
   window.Digit.Customizations = {
     PGR: {},

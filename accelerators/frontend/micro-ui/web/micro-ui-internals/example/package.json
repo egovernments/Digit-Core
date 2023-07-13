@@ -15,6 +15,7 @@
     "@egovernments/digit-ui-module-common": "1.5.30",
     "@egovernments/digit-ui-module-hrms": "1.5.25",
     "@egovernments/digit-ui-module-utilities": "0.0.5",
+    "@egovernments/digit-ui-module-workbench": "0.0.1",
     "@egovernments/digit-ui-module-engagement": "1.5.20",
     "@egovernments/digit-ui-react-components": "1.5.26",
     "http-proxy-middleware": "^1.0.5",
