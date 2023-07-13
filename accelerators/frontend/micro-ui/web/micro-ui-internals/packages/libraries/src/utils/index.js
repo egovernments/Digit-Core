@@ -126,13 +126,20 @@ const routeSubscription = (pathname) => {
   }
 };
 
-const didEmployeeHasRole = (role) => {
+
+/* to check the employee (loggedin user ) has given role  */
+const didEmployeeHasRole = (role = "") => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const userInfo = Digit.UserService.getUser();
   const rolearray = userInfo?.info?.roles.filter((item) => {
-    if (item.code == role && item.tenantId === tenantId) return true;
+    if (item.code === role && item.tenantId === tenantId) return true;
   });
-  return rolearray?.length;
+  return rolearray?.length > 0;
+};
+
+/* to check the employee (loggedin user ) has given roles  */
+const didEmployeeHasAtleastOneRole = (roles = []) => {
+  return roles.some((role) => didEmployeeHasRole(role));
 };
 
 const pgrAccess = () => {
@@ -283,6 +290,7 @@ const swAccess = () => {
   return SW_ACCESS?.length > 0;
 };
 
+
 /* to get the MDMS config module name */
 const getConfigModuleName = () => {
   return window?.globalConfigs?.getConfig("UICONFIG_MODULENAME") || "commonUiConfig";
@@ -315,6 +323,7 @@ export default {
   mCollectAccess,
   receiptsAccess,
   didEmployeeHasRole,
+  didEmployeeHasAtleastOneRole,
   hrmsAccess,
   getPattern,
   hrmsRoles,
