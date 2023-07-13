@@ -13,10 +13,6 @@ const enabledModules = ["DSS", "NDSS",  "Utilities",
 "Workbench"
 
 ];
-window.Digit.ComponentRegistryService.setupRegistry({
-
-});
-
 
 
 const moduleReducers = (initData) => ({

@@ -15,16 +15,7 @@ window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH");
 const enabledModules = ["DSS", "NDSS",  "Utilities",
 "HRMS", "Engagement"
 ];
-window.Digit.ComponentRegistryService.setupRegistry({
-  PaymentModule,
-  ...paymentConfigs,
-  PaymentLinks,
-});
 
-initDSSComponents();
-initHRMSComponents();
-initEngagementComponents();
-initUtilitiesComponents();
 
 const moduleReducers = (initData) => ({
   initData,
@@ -32,8 +23,12 @@ const moduleReducers = (initData) => ({
 
 
 const initDigitUI = () => {
-  window.Digit.ComponentRegistryService.setupRegistry({});
-
+  window.Digit.ComponentRegistryService.setupRegistry({
+    PaymentModule,
+    ...paymentConfigs,
+    PaymentLinks,
+  });
+  
   initDSSComponents();
   initHRMSComponents();
   initEngagementComponents();
