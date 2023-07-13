@@ -409,7 +409,7 @@ config:
 # frontend
   - name: builds/Core-Platform/accelerators/workbench-ui
     build:
-      - work-dir: frontend/micro-ui/
+      - work-dir: accelerators/frontend/micro-ui/
         dockerfile: accelerators/frontend/micro-ui/web/workbench/Dockerfile
         image-name: workbench-ui
 
