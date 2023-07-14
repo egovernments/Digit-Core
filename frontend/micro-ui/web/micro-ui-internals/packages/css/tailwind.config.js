@@ -132,7 +132,7 @@ module.exports = {
         "chart-4": "#EA8A3B",
         "chart-5": "#0BABDE",
       },
-      screens: { dt: "780px" },
+      screens: { dt: "780px", sm: { max: "425px" } },
       fontSize: {
         "heading-xl-dt": "3rem",
         "heading-xl": "2rem",
