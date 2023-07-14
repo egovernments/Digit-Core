@@ -156,6 +156,18 @@ module.exports = {
         sans: ["Roboto", "sans-serif"],
         rc: ['"Roboto Condensed"', "sans-serif"],
       },
+      fontFamily: {
+        sans: ["Roboto"],
+        rc: ['"Roboto Condensed"'],
+      },
+      fontStyle: {
+        normal: "normal",
+      },
+      fontWeight: {
+        regular: 400,
+        medium: 500,
+        bold: 700,
+      },
     },
   },
   variants: {},
