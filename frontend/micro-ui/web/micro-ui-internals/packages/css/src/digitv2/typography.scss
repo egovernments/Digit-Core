@@ -1,22 +1,20 @@
 //work in progress
 .typography {
   &.text-heading-xl-dt {
-    font-size: map-get($fontSize, "heading-xl-dt");
-    line-height: map-get($lineHeight, "heading-xl-dt");
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.heading-xl-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.bold);
 
-    @media (max-width: map-get($screens, "dt")) {
-      font-size: map-get($fontSize, "heading-xl");
-      line-height: map-get($lineHeight, "heading-xl");
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.heading-xl);
     }
   }
 
   &.text-heading-xl {
-    font-size: map-get($fontSize, "heading-xl");
-    line-height: map-get($lineHeight, "heading-xl");
-
-    @media (max-width: map-get($screens, "dt")) {
-      font-size: map-get($fontSize, "heading-l-dt");
-      line-height: map-get($lineHeight, "heading-l-dt");
-    }
+    font-family: theme(digitv2.fontFamily.sans);
+    font-size: theme(digitv2.fontSize.heading-xl);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.bold);
   }
 }

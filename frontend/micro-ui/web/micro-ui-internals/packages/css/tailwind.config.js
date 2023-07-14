@@ -132,6 +132,7 @@ module.exports = {
         "chart-4": "#EA8A3B",
         "chart-5": "#0BABDE",
       },
+      screens: { dt: "780px" },
       fontSize: {
         "heading-xl-dt": "3rem",
         "heading-xl": "2rem",
@@ -153,8 +154,16 @@ module.exports = {
         link: "1rem",
       },
       fontFamily: {
-        sans: ["Roboto", "sans-serif"],
-        rc: ['"Roboto Condensed"', "sans-serif"],
+        sans: ["Roboto"],
+        rc: ['"Roboto Condensed"'],
+      },
+      fontStyle: {
+        normal: "normal",
+      },
+      fontWeight: {
+        regular: 400,
+        medium: 500,
+        bold: 700,
       },
     },
   },
