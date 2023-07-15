@@ -1,5 +1,4 @@
 .typography {
-  // Heading XL DT
   &.text-heading-xl-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.heading-xl-dt);
@@ -11,7 +10,6 @@
     }
   }
 
-  // Heading XL
   &.text-heading-xl {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.heading-xl);
@@ -23,7 +21,6 @@
     }
   }
 
-  // Heading L DT
   &.text-heading-l-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.heading-l-dt);
@@ -35,7 +32,6 @@
     }
   }
 
-  // Heading L
   &.text-heading-l {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.heading-l);
@@ -47,7 +43,6 @@
     }
   }
 
-  // Heading M DT
   &.text-heading-m-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.heading-m-dt);
@@ -59,7 +54,6 @@
     }
   }
 
-  // Heading M
   &.text-heading-m {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.heading-m);
@@ -71,7 +65,6 @@
     }
   }
 
-  // Heading S
   &.text-heading-s {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.heading-s);
@@ -79,7 +72,6 @@
     font-weight: theme(digitv2.fontWeight.bold);
   }
 
-  // Caption XL DT
   &.text-caption-xl-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.caption-xl-dt);
@@ -91,7 +83,6 @@
     }
   }
 
-  // Caption XL
   &.text-caption-xl {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.caption-xl);
@@ -103,7 +94,6 @@
     }
   }
 
-  // Caption L DT
   &.text-caption-l-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.caption-l-dt);
@@ -115,7 +105,6 @@
     }
   }
 
-  // Caption L
   &.text-caption-l {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.caption-l);
@@ -127,7 +116,6 @@
     }
   }
 
-  // Caption M DT
   &.text-caption-m-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.caption-m-dt);
@@ -139,7 +127,6 @@
     }
   }
 
-  // Caption M
   &.text-caption-m {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.caption-m);
@@ -151,7 +138,6 @@
     }
   }
 
-  // Form Field
   &.text-form-field {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.form-field);
@@ -159,7 +145,6 @@
     font-weight: theme(digitv2.fontWeight.regular);
   }
 
-  // Body L DT
   &.text-body-l-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.body-l-dt);
@@ -171,7 +156,6 @@
     }
   }
 
-  // Body L
   &.text-body-l {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.body-l);
@@ -183,7 +167,6 @@
     }
   }
 
-  // Body S DT
   &.text-body-s-dt {
     font-family: theme(digitv2.fontFamily.rc);
     font-size: theme(digitv2.fontSize.body-s-dt);
@@ -195,7 +178,6 @@
     }
   }
 
-  // Body S
   &.text-body-s {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.body-s);
@@ -207,7 +189,6 @@
     }
   }
 
-  // Legend
   &.text-legend {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.legend);
@@ -215,7 +196,6 @@
     font-weight: theme(digitv2.fontWeight.regular);
   }
 
-  // Link
   &.text-link {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.link);
@@ -223,7 +203,6 @@
     font-weight: theme(digitv2.fontWeight.regular);
   }
 
-  // Text Button
   &.text-text-btn {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.text-btn);
