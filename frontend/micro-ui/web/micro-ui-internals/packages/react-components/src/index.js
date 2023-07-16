@@ -203,7 +203,7 @@ import {
   ExpenditureIcon,
   PaymentIcon,
   HistoryIcon,
-  WarningIcon
+  WarningIcon,
 } from "./atoms/svgindex";
 import Table from "./atoms/Table";
 import TelePhone from "./atoms/TelePhone";
@@ -272,6 +272,10 @@ import WorkflowActions from "./atoms/WorkflowActions";
 import Amount from "./atoms/Amount";
 import Paragraph from "./atoms/Paragraph";
 import CitizenConsentForm from "./atoms/CitizenConsentForm";
+
+// Importing From SVG Library
+import {SVG} from "./atoms/SVG";
+
 export {
   InputTextAmount,
   Button,
@@ -552,5 +556,9 @@ export {
   ExpenditureIcon,
   PaymentIcon,
   HistoryIcon,
-  WarningIcon
+  WarningIcon,
+
+
+  // Exported all svgs from svg-component library
+  SVG
 };
