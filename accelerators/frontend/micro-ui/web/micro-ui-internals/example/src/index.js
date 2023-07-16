@@ -53,7 +53,10 @@ const initTokens = (stateCode) => {
 
 const initDigitUI = () => {
   window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH") || "digit-ui";
-
+  window.Digit.Customizations = {
+    PGR: pgrCustomizations,
+    commonUiConfig: UICustomizations
+  };
   window?.Digit.ComponentRegistryService.setupRegistry({
     PaymentModule,
     ...paymentConfigs,
@@ -66,13 +69,9 @@ const initDigitUI = () => {
   // initUtilitiesComponents();
   initWorkbenchComponents();
 
+
   const moduleReducers = (initData) => initData;
 
-  window.Digit.Customizations = {
-    PGR: pgrCustomizations,
-    commonUiConfig: UICustomizations
-
-  };
 
   const stateCode = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID") || "pb";
   initTokens(stateCode);

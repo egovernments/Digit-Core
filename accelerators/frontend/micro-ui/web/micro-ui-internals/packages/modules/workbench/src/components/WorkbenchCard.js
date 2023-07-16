@@ -3,13 +3,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 const ROLES = {
-  LOCALISATION: ["EMPLOYEE", "PROJECT_VIEWER"],
-  ESTIMATE: ["ESTIMATE_CREATOR", "ESTIMATE_VERIFIER", "TECHNICAL_SANCTIONER", "ESTIMATE_APPROVER"],
-  CONTRACT: ["WORK_ORDER_CREATOR", "WORK_ORDER_VERIFIER", "WORK_ORDER_APPROVER"],
-  MASTERS: ["MUKTA_ADMIN"],
-  BILLS: ["BILL_CREATOR", "BILL_VERIFIER","BILL_APPROVER"],
-  PAYMENT: ["BILL_ACCOUNTANT"],
-  MUSTERROLLS: ["MUSTER_ROLL_VERIFIER", "MUSTER_ROLL_APPROVER"],
+  LOCALISATION: ["EMPLOYEE", "SUPERUSER"],
+  MDMS: ["MDMS_ADMIN","EMPLOYEE","SUPERUSER"],
   DSS: ["STADMIN"],
 };
 
@@ -24,14 +19,14 @@ const WorkbenchCard = () => {
 
   let links = [
     {
-      label: t("Localisation"),
-      link: `/${window?.contextPath}/employee/project/search-project`,
+      label: t("WBH_LOCALISATION"),
+      link: `/${window?.contextPath}/employee/workbench/localisation-search`,
       roles: ROLES.LOCALISATION,
     },
     {
-      label: t("Manage Master Data"),
-      link: `/${window?.contextPath}/employee/estimate/inbox`,
-      roles: ROLES.ESTIMATE,
+      label: t("WBH_MDMS"),
+      link: `/${window?.contextPath}/employee/workbench/mdms-search`,
+      roles: ROLES.MDMS,
     },
 
   ];
@@ -40,7 +35,7 @@ const WorkbenchCard = () => {
 
   const propsForModuleCard = {
     Icon: <WorksMgmtIcon />,
-    moduleName: t("Workbench"),
+    moduleName: t("WBH"),
     kpis: [
     ],
     links: links,

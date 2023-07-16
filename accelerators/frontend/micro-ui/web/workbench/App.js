@@ -22,15 +22,14 @@ const moduleReducers = (initData) => ({
 
 const initDigitUI = () => {
   window.Digit.ComponentRegistryService.setupRegistry({});
-
-  initHRMSComponents();
-  initUtilitiesComponents();
-  initWorkbenchComponents();
- 
   window.Digit.Customizations = {
     PGR: {},
     commonUiConfig: UICustomizations,
   };
+  initHRMSComponents();
+  initUtilitiesComponents();
+  initWorkbenchComponents();
+
 };
 
 initLibraries().then(() => {
