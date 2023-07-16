@@ -16,7 +16,6 @@ const enabledModules = ["DSS", "NDSS",  "Utilities",
 "HRMS", "Engagement"
 ];
 
-
 const moduleReducers = (initData) => ({
   initData,
 });

@@ -290,7 +290,6 @@ const swAccess = () => {
   return SW_ACCESS?.length > 0;
 };
 
-
 /* to get the MDMS config module name */
 const getConfigModuleName = () => {
   return window?.globalConfigs?.getConfig("UICONFIG_MODULENAME") || "commonUiConfig";

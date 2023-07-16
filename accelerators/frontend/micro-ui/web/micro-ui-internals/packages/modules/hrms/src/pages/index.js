@@ -19,6 +19,17 @@ const EmployeeApp = ({ path, url, userType }) => {
   const Inbox = Digit?.ComponentRegistryService?.getComponent("HRInbox");
   const CreateEmployee = Digit?.ComponentRegistryService?.getComponent("HRCreateEmployee");
   const EditEmpolyee = Digit?.ComponentRegistryService?.getComponent("HREditEmpolyee");
+
+  const employeeCreateSession = Digit.Hooks.useSessionStorage("NEW_EMPLOYEE_CREATE", {});
+  const [sessionFormData,setSessionFormData, clearSessionFormData] = employeeCreateSession;
+
+  // remove session form data if user navigates away from the estimate create screen
+  useEffect(()=>{
+    if (!window.location.href.includes("/hrms/create") && sessionFormData && Object.keys(sessionFormData) != 0) {
+    clearSessionFormData();
+    }
+},[location]);
+
   return (
     <Switch>
       <React.Fragment>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { newConfig } from "../components/config/config";
+import _ from "lodash";
 
 const CreateEmployee = () => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
@@ -73,8 +74,15 @@ const CreateEmployee = () => {
       }]
   }
 
+  const employeeCreateSession = Digit.Hooks.useSessionStorage("NEW_EMPLOYEE_CREATE", {});
+  const [sessionFormData,setSessionFormData, clearSessionFormData] = employeeCreateSession;
 
   const onFormValueChange = (setValue = true, formData) => {
+
+    if (!_.isEqual(sessionFormData, formData)) {
+        setSessionFormData({...sessionFormData,...formData});
+    }
+
     if (formData?.SelectEmployeePhoneNumber?.mobileNumber) {
       setMobileNumber(formData?.SelectEmployeePhoneNumber?.mobileNumber);
     } else {
@@ -126,6 +134,8 @@ const CreateEmployee = () => {
   const navigateToAcknowledgement = (Employees) => {
     history.replace(`/${window?.contextPath}/employee/hrms/response`, { Employees, key: "CREATE", action: "CREATE" });
   }
+
+  
 
 
   const onSubmit = (data) => {
@@ -200,7 +210,8 @@ const CreateEmployee = () => {
         <Header>{t("HR_COMMON_CREATE_EMPLOYEE_HEADER")}</Header>
       </div>
       <FormComposer
-        defaultValues={defaultValues}
+        // defaultValues={defaultValues}
+        defaultValues = {sessionFormData}
         heading={t("")}
         config={config}
         onSubmit={onSubmit}
