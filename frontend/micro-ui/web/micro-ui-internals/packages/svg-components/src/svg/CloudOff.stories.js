@@ -1,0 +1,13 @@
+import React from "react";
+import { CloudOff } from "./CloudOff";
+
+export default {
+  title: "CloudOff",
+  component: CloudOff,
+};
+
+export const Default = () => <CloudOff />;
+export const Fill = () => <CloudOff fill="blue" />;
+export const Size = () => <CloudOff height="50" width="50" />;
+export const CustomStyle = () => <CloudOff style={{ border: "1px solid red" }} />;
+export const CustomClassName = () => <CloudOff className="custom-class" />;

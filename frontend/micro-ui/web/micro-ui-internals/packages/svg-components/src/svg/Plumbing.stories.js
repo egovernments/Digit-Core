@@ -1,0 +1,13 @@
+import React from "react";
+import { Plumbing } from "./Plumbing";
+
+export default {
+  title: "Plumbing",
+  component: Plumbing,
+};
+
+export const Default = () => <Plumbing />;
+export const Fill = () => <Plumbing fill="blue" />;
+export const Size = () => <Plumbing height="50" width="50" />;
+export const CustomStyle = () => <Plumbing style={{ border: "1px solid red" }} />;
+export const CustomClassName = () => <Plumbing className="custom-class" />;

@@ -1,0 +1,13 @@
+import React from "react";
+import { EditRoad } from "./EditRoad";
+
+export default {
+  title: "EditRoad",
+  component: EditRoad,
+};
+
+export const Default = () => <EditRoad />;
+export const Fill = () => <EditRoad fill="blue" />;
+export const Size = () => <EditRoad height="50" width="50" />;
+export const CustomStyle = () => <EditRoad style={{ border: "1px solid red" }} />;
+export const CustomClassName = () => <EditRoad className="custom-class" />;

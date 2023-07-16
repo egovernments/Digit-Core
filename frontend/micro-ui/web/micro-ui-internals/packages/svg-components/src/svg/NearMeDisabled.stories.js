@@ -1,0 +1,13 @@
+import React from "react";
+import { NearMeDisabled } from "./NearMeDisabled";
+
+export default {
+  title: "NearMeDisabled",
+  component: NearMeDisabled,
+};
+
+export const Default = () => <NearMeDisabled />;
+export const Fill = () => <NearMeDisabled fill="blue" />;
+export const Size = () => <NearMeDisabled height="50" width="50" />;
+export const CustomStyle = () => <NearMeDisabled style={{ border: "1px solid red" }} />;
+export const CustomClassName = () => <NearMeDisabled className="custom-class" />;

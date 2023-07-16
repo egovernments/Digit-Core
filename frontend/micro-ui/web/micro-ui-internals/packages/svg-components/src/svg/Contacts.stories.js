@@ -1,0 +1,13 @@
+import React from "react";
+import { Contacts } from "./Contacts";
+
+export default {
+  title: "Contacts",
+  component: Contacts,
+};
+
+export const Default = () => <Contacts />;
+export const Fill = () => <Contacts fill="blue" />;
+export const Size = () => <Contacts height="50" width="50" />;
+export const CustomStyle = () => <Contacts style={{ border: "1px solid red" }} />;
+export const CustomClassName = () => <Contacts className="custom-class" />;

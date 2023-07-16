@@ -1,0 +1,13 @@
+import React from "react";
+import { CardMembership } from "./CardMembership";
+
+export default {
+  title: "CardMembership",
+  component: CardMembership,
+};
+
+export const Default = () => <CardMembership />;
+export const Fill = () => <CardMembership fill="blue" />;
+export const Size = () => <CardMembership height="50" width="50" />;
+export const CustomStyle = () => <CardMembership style={{ border: "1px solid red" }} />;
+export const CustomClassName = () => <CardMembership className="custom-class" />;

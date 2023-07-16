@@ -1,0 +1,13 @@
+import React from "react";
+import { RssFeed } from "./RssFeed";
+
+export default {
+  title: "RssFeed",
+  component: RssFeed,
+};
+
+export const Default = () => <RssFeed />;
+export const Fill = () => <RssFeed fill="blue" />;
+export const Size = () => <RssFeed height="50" width="50" />;
+export const CustomStyle = () => <RssFeed style={{ border: "1px solid red" }} />;
+export const CustomClassName = () => <RssFeed className="custom-class" />;

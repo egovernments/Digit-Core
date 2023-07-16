@@ -1,0 +1,16 @@
+import React from "react";
+
+export const LocalConvenienceStore = ({ className, height = "24", width = "24", style = {}, fill = "#F47738" }) => {
+  return (
+    <svg width={width} height={height} className={className} style={style} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_1974_11122)">
+        <path d="M19 7V4H5V7H2V20H10V16H14V20H22V7H19ZM11 10H9V11H11V12H8V9H10V8H8V7H11V10ZM16 12H15V10H13V7H14V9H15V7H16V12Z" fill={fill} />
+      </g>
+      <defs>
+        <clipPath id="clip0_1974_11122">
+          <rect width="24" height="24" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+};
