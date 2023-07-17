@@ -47,7 +47,7 @@ public class MDMSServiceV2 {
 
     public List<Mdms> create(MdmsRequest mdmsRequest) {
         mdmsDataValidator.validate(mdmsRequest);
-        mdmsDataEnricher.enrichCreateReq(mdmsRequest);
+        mdmsDataEnricher.enrichCreateRequest(mdmsRequest);
         mdmsDataRepository.create(mdmsRequest);
         return Arrays.asList(mdmsRequest.getMdms());
     }
@@ -60,7 +60,10 @@ public class MDMSServiceV2 {
         return mdmsList;
     }
 
-    public void updateV2(MdmsRequest mdmsRequest) {
+    public List<Mdms> updateV2(MdmsRequest mdmsRequest) {
+        mdmsDataValidator.validate(mdmsRequest);
+        mdmsDataEnricher.enrichUpdateRequest(mdmsRequest);
+        return null;
     }
 
 }

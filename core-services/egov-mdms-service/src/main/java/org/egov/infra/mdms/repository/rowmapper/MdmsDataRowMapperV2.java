@@ -55,6 +55,7 @@ public class MdmsDataRowMapperV2 implements ResultSetExtractor<List<Mdms>> {
             }
 
             Mdms mdms = Mdms.builder()
+                    .id(resultSet.getString("id"))
                     .tenantId(resultSet.getString("tenantid"))
                     .schemaCode(resultSet.getString("schemacode"))
                     .uniqueIdentifier(resultSet.getString("uniqueidentifier"))

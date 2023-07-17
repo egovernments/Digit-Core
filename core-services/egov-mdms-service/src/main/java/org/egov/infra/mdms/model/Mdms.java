@@ -25,9 +25,13 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Builder
 public class Mdms {
+
+    @JsonProperty("id")
+    @Size(min = 2, max = 64)
+    private String id;
+
     @JsonProperty("tenantId")
     @NotNull
-
     @Size(min = 2, max = 128)
     private String tenantId = null;
 
@@ -50,6 +54,5 @@ public class Mdms {
     @JsonProperty("auditDetails")
     @Valid
     private AuditDetails auditDetails = null;
-
 
 }

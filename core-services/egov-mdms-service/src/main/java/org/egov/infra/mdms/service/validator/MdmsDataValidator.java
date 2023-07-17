@@ -1,6 +1,7 @@
 package org.egov.infra.mdms.service.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.egov.infra.mdms.model.*;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 @Component
 @Slf4j
@@ -36,6 +38,7 @@ public class MdmsDataValidator {
         JSONObject schemaObject = getSchema(mdmsRequest);
         validateDataWithSchemaDefinition(mdmsRequest, schemaObject, errors);
         checkDuplicate(schemaObject, mdmsRequest);
+        validateReference(schemaObject, mdmsRequest.getMdms());
         throwCustomException(errors);
     }
 
@@ -83,51 +86,67 @@ public class MdmsDataValidator {
     }
 
     //TODO: Check nested path(a.b.c)
-    //TODO: Implement Composite unique id
     private void checkDuplicate(JSONObject schemaObject, MdmsRequest mdmsRequest) {
-        org.json.JSONArray uniqueFields = (org.json.JSONArray) schemaObject.get("x-unique");
-        JsonNode data = mdmsRequest.getMdms().getData();
-        String uniqueIdetifier = data.get(uniqueFields.getString(0)).asText();
+        String uniqueIdentifier = getUniqueIdentifier(schemaObject, mdmsRequest);
+
         Map<String, JSONArray> moduleMasterData = mdmsDataRepository.search(MdmsCriteria.builder()
-                .tenantId(mdmsRequest.getMdms()
-                        .getTenantId()).uniqueIdentifier(uniqueIdetifier).build());
+                        .tenantId(mdmsRequest.getMdms().getTenantId())
+                        .uniqueIdentifier(uniqueIdentifier)
+                        .build());
+
         JSONArray masterData = moduleMasterData.get(mdmsRequest.getMdms().getSchemaCode());
-        if( masterData != null && masterData.size() != 0) {
-            throw new CustomException("DUPLICATE_RECORD","Duplicate record");
+
+        if (masterData != null && masterData.size() != 0) {
+            throw new CustomException("DUPLICATE_RECORD", "Duplicate record");
         }
-        mdmsRequest.getMdms().setUniqueIdentifier(uniqueIdetifier);
+
+        mdmsRequest.getMdms().setUniqueIdentifier(uniqueIdentifier);
     }
+
+    private String getUniqueIdentifier(JSONObject schemaObject, MdmsRequest mdmsRequest) {
+        org.json.JSONArray uniqueFieldPaths = (org.json.JSONArray) schemaObject.get("x-unique");
+
+        JsonNode data = mdmsRequest.getMdms().getData();
+        StringBuilder compositeUniqueIdentifier = new StringBuilder();
+
+        // Build composite unique identifier
+        IntStream.range(0, uniqueFieldPaths.length()).forEach(i -> {
+            compositeUniqueIdentifier.append(data.at(getJsonPointerExpressionFromDotSeparatedPath(uniqueFieldPaths.getString(i))).asText());
+
+            if (i != (uniqueFieldPaths.length() - 1))
+                compositeUniqueIdentifier.append(".");
+        });
+
+        log.info("Unique Identifier: " + compositeUniqueIdentifier);
+
+        return compositeUniqueIdentifier.toString();
+    }
+
+    private String getJsonPointerExpressionFromDotSeparatedPath(String dotSeparatedPath) {
+        return "/" + dotSeparatedPath.replaceAll("\\.", "/");
+    }
+
     private void validateReference(JSONObject schemaObject, Mdms mdms) {
         org.json.JSONArray referenceSchema = (org.json.JSONArray) schemaObject.get("x-ref-schema");
 
-        if(referenceSchema != null && referenceSchema.length()>0) {
+        if(referenceSchema != null && referenceSchema.length() > 0) {
             Set<String> refSchemaUniqueIds = new HashSet<>();
             JsonNode mdmsData = mdms.getData();
 
-            for (int i = 0; i < referenceSchema.length(); i++) {
+            IntStream.range(0, referenceSchema.length()).forEach(i -> {
                 JSONObject jsonObject = referenceSchema.getJSONObject(i);
                 String refFieldPath = jsonObject.getString("fieldPath");
-                String[] nodePaths = refFieldPath.split("\\.");
-                collectUniqueIds(mdmsData, nodePaths, 0, refSchemaUniqueIds);
+                refSchemaUniqueIds.add(mdmsData.at(getJsonPointerExpressionFromDotSeparatedPath(refFieldPath)).asText());
+            });
+
+            List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
+                    MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).ids(refSchemaUniqueIds).build());
+
+            if(moduleMasterData.size() != refSchemaUniqueIds.size()){
+                throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
             }
 
-            Map<String, JSONArray> moduleMasterData = mdmsDataRepository.search(
-                    MdmsCriteria.builder().tenantId(mdms.getTenantId()).ids(refSchemaUniqueIds).build());
-        }
-    }
 
-    private void collectUniqueIds(JsonNode currentNode, String[] nodePaths, int index, Set<String> refSchemaUniqueIds) {
-        if (index == nodePaths.length - 1) {
-            return;
-        }
-
-        String nodePath = nodePaths[index];
-        JsonNode nextNode = currentNode.get(nodePath);
-
-        if (nextNode != null) {
-            String uniqueId = nextNode.asText();
-            refSchemaUniqueIds.add(uniqueId);
-            collectUniqueIds(nextNode, nodePaths, index + 1, refSchemaUniqueIds);
         }
     }
 
@@ -136,7 +155,5 @@ public class MdmsDataValidator {
             throw new CustomException(exceptions);
         }
     }
-
-
 
 }

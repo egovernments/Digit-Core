@@ -51,6 +51,7 @@ public class MDMSControllerV2 {
 
     @RequestMapping(value="_update/{schemaCode}", method = RequestMethod.POST)
     public ResponseEntity<MdmsResponse> update(@Parameter(in = ParameterIn.DEFAULT, description = "Details of module and master which need to be search using MDMS .", required=true, schema=@Schema()) @Valid @RequestBody MdmsRequest body, @Parameter(in = ParameterIn.PATH, description = "Unique schema code from schema master", required=true, schema=@Schema()) @PathVariable("schemaCode") String schemaCode) {
+        List<Mdms> updatedMdmsList = mdmsServiceV2.updateV2(body);
         return new ResponseEntity<MdmsResponse>(HttpStatus.NOT_IMPLEMENTED);
     }
 }

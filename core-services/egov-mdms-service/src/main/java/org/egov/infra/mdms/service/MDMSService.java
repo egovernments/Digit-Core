@@ -48,7 +48,7 @@ public class MDMSService {
 
 	public List<Mdms> create(MdmsRequest mdmsRequest) {
 		mdmsDataValidator.validate(mdmsRequest);
-		mdmsDataEnricher.enrichCreateReq(mdmsRequest);
+		mdmsDataEnricher.enrichCreateRequest(mdmsRequest);
 		mdmsDataRepository.create(mdmsRequest);
 		return Arrays.asList(mdmsRequest.getMdms());
 	}

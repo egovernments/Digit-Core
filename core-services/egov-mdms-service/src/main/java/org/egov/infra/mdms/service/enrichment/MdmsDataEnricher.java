@@ -14,13 +14,14 @@ import java.util.UUID;
 @Component
 public class MdmsDataEnricher {
 
-    public void enrichCreateReq(MdmsRequest mdmsRequest) {
+    public void enrichCreateRequest(MdmsRequest mdmsRequest) {
         Mdms mdms = mdmsRequest.getMdms();
+        mdms.setId(UUID.randomUUID().toString());
         mdms.setAuditDetails(getAuditDetail(mdmsRequest.getRequestInfo(),mdms.getAuditDetails(), true));
         //enrichUUID(mdms);
     }
 
-    private void enrichUUID(Mdms mdms) {
+    private void enrichUniqueIdentifier(Mdms mdms) {
         mdms.setUniqueIdentifier(UUID.randomUUID().toString());
     }
 
@@ -39,5 +40,10 @@ public class MdmsDataEnricher {
             }
         }
         return auditDetails;
+    }
+
+    public void enrichUpdateRequest(MdmsRequest mdmsRequest) {
+        Mdms mdms = mdmsRequest.getMdms();
+        mdms.setAuditDetails(getAuditDetail(mdmsRequest.getRequestInfo(), mdms.getAuditDetails(), Boolean.FALSE));
     }
 }

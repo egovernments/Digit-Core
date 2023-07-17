@@ -30,7 +30,7 @@ public class MdmsDataQueryBuilder {
         if (!Objects.isNull(mdmsCriteria.getIds())) {
             addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.id IN ( ").append(createQuery(mdmsCriteria.getIds())).append(" )");
-            addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
+            addToPreparedStatement(preparedStmtList, mdmsCriteria.getIds());
         }
         if (!Objects.isNull(mdmsCriteria.getUniqueIdentifier())) {
             addClauseIfRequired(builder, preparedStmtList);

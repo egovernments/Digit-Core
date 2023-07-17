@@ -12,7 +12,7 @@ import java.util.Set;
 @Component
 public class MdmsDataQueryBuilderV2 {
 
-    private static String SEARCH_MDMS_DATA_QUERY = "SELECT data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
+    private static String SEARCH_MDMS_DATA_QUERY = "SELECT data.id, data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM eg_mdms_data data ";
 
 
@@ -34,7 +34,7 @@ public class MdmsDataQueryBuilderV2 {
         if (!Objects.isNull(mdmsCriteriaV2.getIds())) {
             addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.id IN ( ").append(createQuery(mdmsCriteriaV2.getIds())).append(" )");
-            addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
+            addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getIds());
         }
         if (!Objects.isNull(mdmsCriteriaV2.getUniqueIdentifier())) {
             addClauseIfRequired(builder, preparedStmtList);
