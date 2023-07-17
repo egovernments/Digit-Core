@@ -18,3 +18,13 @@ export const Fill = () => <SettingsInputAntenna fill="blue" />;
 export const Size = () => <SettingsInputAntenna height="50" width="50" />;
 export const CustomStyle = () => <SettingsInputAntenna style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <SettingsInputAntenna className="custom-class" />;
+
+export const Clickable = () => <SettingsInputAntenna onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <SettingsInputAntenna {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};
