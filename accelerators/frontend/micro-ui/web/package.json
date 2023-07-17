@@ -22,7 +22,7 @@
     "@egovernments/digit-ui-module-utilities": "0.0.5",
     "@egovernments/digit-ui-module-engagement": "1.5.20",
     "@egovernments/digit-ui-react-components": "1.5.27",
-    "@egovernments/digit-ui-svg-components": "0.0.1",
+    "@egovernments/digit-ui-svg-components": "0.0.2",
     "babel-loader": "8.1.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
