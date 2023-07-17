@@ -18,3 +18,13 @@ export const Fill = () => <ElectricMoped fill="blue" />;
 export const Size = () => <ElectricMoped height="50" width="50" />;
 export const CustomStyle = () => <ElectricMoped style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <ElectricMoped className="custom-class" />;
+
+export const Clickable = () => <ElectricMoped onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <ElectricMoped {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

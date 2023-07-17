@@ -18,3 +18,13 @@ export const Fill = () => <Schedule fill="blue" />;
 export const Size = () => <Schedule height="50" width="50" />;
 export const CustomStyle = () => <Schedule style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <Schedule className="custom-class" />;
+
+export const Clickable = () => <Schedule onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <Schedule {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

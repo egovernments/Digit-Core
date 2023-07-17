@@ -18,3 +18,13 @@ export const Fill = () => <ReduceCapacity fill="blue" />;
 export const Size = () => <ReduceCapacity height="50" width="50" />;
 export const CustomStyle = () => <ReduceCapacity style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <ReduceCapacity className="custom-class" />;
+
+export const Clickable = () => <ReduceCapacity onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <ReduceCapacity {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

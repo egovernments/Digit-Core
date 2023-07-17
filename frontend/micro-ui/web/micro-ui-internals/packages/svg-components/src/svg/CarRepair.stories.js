@@ -18,3 +18,13 @@ export const Fill = () => <CarRepair fill="blue" />;
 export const Size = () => <CarRepair height="50" width="50" />;
 export const CustomStyle = () => <CarRepair style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <CarRepair className="custom-class" />;
+
+export const Clickable = () => <CarRepair onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <CarRepair {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

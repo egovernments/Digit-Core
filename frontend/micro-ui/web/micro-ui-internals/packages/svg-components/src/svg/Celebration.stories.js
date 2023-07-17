@@ -18,3 +18,13 @@ export const Fill = () => <Celebration fill="blue" />;
 export const Size = () => <Celebration height="50" width="50" />;
 export const CustomStyle = () => <Celebration style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <Celebration className="custom-class" />;
+
+export const Clickable = () => <Celebration onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <Celebration {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

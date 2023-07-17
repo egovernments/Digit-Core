@@ -18,3 +18,13 @@ export const Fill = () => <LocalSee fill="blue" />;
 export const Size = () => <LocalSee height="50" width="50" />;
 export const CustomStyle = () => <LocalSee style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <LocalSee className="custom-class" />;
+
+export const Clickable = () => <LocalSee onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <LocalSee {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};
