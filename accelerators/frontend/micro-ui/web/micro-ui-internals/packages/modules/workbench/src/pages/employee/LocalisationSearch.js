@@ -1,6 +1,3 @@
-
-
-
 import { AddFilled, Button, Header, InboxSearchComposer, Loader } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,7 +26,7 @@ const MDMSSearch = () => {
   //     },
   //   }
   // );
-  const isLoading=false;
+  const isLoading = false;
   let data = Config || {};
   let configs = data || {};
 

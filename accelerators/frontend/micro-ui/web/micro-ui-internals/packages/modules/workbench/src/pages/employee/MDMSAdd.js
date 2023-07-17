@@ -2,6 +2,7 @@ import { Loader, FormComposer } from "@egovernments/digit-ui-react-components";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
+import { mdmsSchema, schema } from "../../configs/sampleschema";
 
 export const newConfig = [
   {
@@ -43,7 +44,7 @@ export const newConfig = [
         description: "Field supporting description",
         type: "date",
         disable: false,
-        populators: { name: "dob", error: "Required", validation: { required:true } },
+        populators: { name: "dob", error: "Required", validation: { required: true } },
       },
       {
         label: "Enter Sample phone number",
@@ -153,14 +154,15 @@ const MDMSAdd = () => {
 
   /* use newConfig instead of commonFields for local development in case needed */
 
-  const configs = newConfig ? newConfig : newConfig;
+  const configs = Digit.Hooks.workbench.UICreateConfigGenerator(mdmsSchema, {});
+  // const configs = newConfig ? newConfig : newConfig;
 
   return (
     <FormComposer
-      heading={t("Config Application Heading")}
-      label={t("Submit Bar")}
-      description={"Sample Description"}
-      text={"Sample Text"}
+      heading={t("Add MDMS Data")}
+      label={t("Add Master")}
+      description={""}
+      text={""}
       config={configs.map((config) => {
         return {
           ...config,

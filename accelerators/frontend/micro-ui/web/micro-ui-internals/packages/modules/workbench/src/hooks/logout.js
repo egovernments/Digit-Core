@@ -1,17 +1,12 @@
 var Digit = window.Digit || {};
 
-
-
 /* Recreated a new hook in same name*/
 export const logoutV1 = async () => {
   let user = Digit.UserService.getUser();
   if (!user || !user.info || !user.access_token) return false;
   const { type } = user.info;
   const access_token = user?.access_token;
-  const tenantId =
-    type === "CITIZEN"
-      ? Digit.ULBService.getStateId()
-      : Digit.ULBService.getCurrentTenantId();
+  const tenantId = type === "CITIZEN" ? Digit.ULBService.getStateId() : Digit.ULBService.getCurrentTenantId();
   const myHeaders = new Headers();
   myHeaders.append("accept", "application/json, text/plain, */*");
   myHeaders.append("content-type", "application/json;charset=UTF-8");
@@ -37,10 +32,7 @@ export const logoutV1 = async () => {
   };
   const userType = Digit.UserService.getType();
   try {
-    await fetch(
-      `${window.location.origin}/user/v1/_logout?tenantId=${tenantId}`,
-      requestOptions
-    )
+    await fetch(`${window.location.origin}/user/v1/_logout?tenantId=${tenantId}`, requestOptions)
       .then((response) => response.json())
       .catch((error) => console.log("error", error));
   } catch (e) {
@@ -54,5 +46,3 @@ export const logoutV1 = async () => {
     }
   }
 };
-
-

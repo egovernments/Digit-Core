@@ -1,27 +1,36 @@
-import {logoutV1} from "./logout";
+import { logoutV1 } from "./logout";
+import { UICreateConfigGenerator } from "./workbench";
+import utils from "../utils";
 
+const UserService = {
+  logoutV1,
+};
 
-const UserService={
-    logoutV1,
-}
+const workbench = {
+  UICreateConfigGenerator,
+};
 
-const works = {
-  
-}
+const contracts = {};
 
-const contracts = {
-}
+const Hooks = {
+  attendance: {
+    update: () => {},
+  },
+  workbench,
+  contracts,
+};
 
-const Hooks ={
-    attendance:{
-        update:()=>{}
-    },
-    works,
-    contracts
-}
+const Utils = {
+  browser: {
+    sample: () => {},
+  },
+  workbench: {
+    ...utils,
+  },
+};
 
-
-export const CustomisedHooks ={
-   Hooks,
-   UserService
-}
+export const CustomisedHooks = {
+  Hooks,
+  UserService,
+  Utils,
+};

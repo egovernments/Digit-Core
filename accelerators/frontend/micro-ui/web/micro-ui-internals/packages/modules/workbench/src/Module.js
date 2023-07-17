@@ -27,7 +27,7 @@ const WorkbenchModule = ({ stateCode, userType, tenants }) => {
 const componentsToRegister = {
   WorkbenchModule,
   WorkbenchCard,
-  DSSCard:null,  // TO HIDE THE DSS CARD IN HOME SCREEN as per workbench
+  DSSCard: null, // TO HIDE THE DSS CARD IN HOME SCREEN as per workbench
   // HRMSCard // Overridden the HRMS card as per workbench
 };
 
@@ -39,6 +39,12 @@ const overrideHooks = () => {
           setupHooks(hook, method, CustomisedHooks[ele][hook][method]);
         });
       });
+    } else if (ele === "Utils") {
+      Object.keys(CustomisedHooks[ele]).map((hook) => {
+        Object.keys(CustomisedHooks[ele][hook]).map((method) => {
+          setupHooks(hook, method, CustomisedHooks[ele][hook][method], false);
+        });
+      });
     } else {
       Object.keys(CustomisedHooks[ele]).map((method) => {
         setupLibraries(ele, method, CustomisedHooks[ele][method]);
@@ -48,11 +54,11 @@ const overrideHooks = () => {
 };
 
 /* To Overide any existing hook we need to use similar method */
-const setupHooks = (HookName, HookFunction, method) => {
+const setupHooks = (HookName, HookFunction, method, isHook = true) => {
   window.Digit = window.Digit || {};
-  window.Digit["Hooks"] = window.Digit["Hooks"] || {};
-  window.Digit["Hooks"][HookName] = window.Digit["Hooks"][HookName] || {};
-  window.Digit["Hooks"][HookName][HookFunction] = method;
+  window.Digit[isHook ? "Hooks" : "Utils"] = window.Digit[isHook ? "Hooks" : "Utils"] || {};
+  window.Digit[isHook ? "Hooks" : "Utils"][HookName] = window.Digit[isHook ? "Hooks" : "Utils"][HookName] || {};
+  window.Digit[isHook ? "Hooks" : "Utils"][HookName][HookFunction] = method;
 };
 /* To Overide any existing libraries  we need to use similar method */
 const setupLibraries = (Library, service, method) => {

@@ -12,9 +12,9 @@ const MastersBreadCrumb = ({ location }) => {
   const fromScreen = new URLSearchParams(search).get("from") || null;
   const crumbs = [
     {
-        path: `/${window?.contextPath}/employee`,
-        content: t("WORKS_MUKTA"),
-        show: true,
+      path: `/${window?.contextPath}/employee`,
+      content: t("WORKS_MUKTA"),
+      show: true,
     },
     {
       path: `/${window.contextPath}/employee/masters/response`,
@@ -22,28 +22,24 @@ const MastersBreadCrumb = ({ location }) => {
       show: location.pathname.includes("/masters/response") ? true : false,
       isBack: fromScreen && true,
     },
-    
   ];
   return <BreadCrumb crumbs={crumbs} spanStyle={{ maxWidth: "min-content" }} />;
 };
 
 const App = ({ path }) => {
   const location = useLocation();
-console.log(path,'workbench/mdms-search')
   return (
     <React.Fragment>
-    <MastersBreadCrumb location={location} />
-    <Switch>
-             
+      <MastersBreadCrumb location={location} />
+      <Switch>
         <div>
           <PrivateRoute path={`${path}/sample`} component={() => <div>Sample Screen loaded</div>} />
-          <PrivateRoute path={`${path}/localisation-search`} component={()=><LocalisationSearch/>} />
-          <PrivateRoute path={`${path}/mdms-search`} component={()=><MDMSSearch/>} />
-          <PrivateRoute path={`${path}/mdms-add`} component={()=><MDMSAdd/>} />
+          <PrivateRoute path={`${path}/localisation-search`} component={() => <LocalisationSearch />} />
+          <PrivateRoute path={`${path}/mdms-search`} component={() => <MDMSSearch />} />
+          <PrivateRoute path={`${path}/mdms-add`} component={() => <MDMSAdd />} />
         </div>
-    </Switch>
+      </Switch>
     </React.Fragment>
-
   );
 };
 
