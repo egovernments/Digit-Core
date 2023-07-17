@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { initLibraries } from "@egovernments/digit-ui-libraries";
-import { paymentConfigs, PaymentLinks, PaymentModule } from "@egovernments/digit-ui-module-common";
+// import { paymentConfigs, PaymentLinks, PaymentModule } from "@egovernments/digit-ui-module-common";
 import { DigitUI } from "@egovernments/digit-ui-module-core";
 import { initDSSComponents } from "@egovernments/digit-ui-module-dss";
 import { initEngagementComponents } from "@egovernments/digit-ui-module-engagement";
@@ -58,9 +58,9 @@ const initDigitUI = () => {
     commonUiConfig: UICustomizations
   };
   window?.Digit.ComponentRegistryService.setupRegistry({
-    PaymentModule,
-    ...paymentConfigs,
-    PaymentLinks,
+    // PaymentModule,
+    // ...paymentConfigs,
+    // PaymentLinks,
   });
 
   initDSSComponents();
