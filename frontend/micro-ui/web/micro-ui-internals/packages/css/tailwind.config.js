@@ -150,11 +150,10 @@ module.exports = {
         "body-l": "1rem",
         "body-s-dt": "1rem",
         "body-s": "0.875rem",
-        link: "1rem",
-      },
-      fontFamily: {
-        sans: ["Roboto", "sans-serif"],
-        rc: ['"Roboto Condensed"', "sans-serif"],
+        "body-xs": "0.75rem",
+        "label-dt":"1.1875rem",
+        "label-m":"1rem",
+        "link": "1rem",
       },
       fontFamily: {
         sans: ["Roboto"],
@@ -167,6 +166,10 @@ module.exports = {
         regular: 400,
         medium: 500,
         bold: 700,
+      },
+      screens: {
+        dt: "780px",
+        sm: { max: "425px" },
       },
     },
   },
