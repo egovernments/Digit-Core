@@ -1,10 +1,14 @@
+@import url("../../digitv2/index.scss");
+
 .inbox-search-links-container {
+    @extend .light-paper-primary;
     height: 100%;
     width: 100% !important;
     display: flex;
     flex-direction: column;
     padding: 1rem;
     .header {
+        @extend .light-text-color-primary;
         display: grid;
         grid-template-columns: 20% 1fr;
         .logo {
@@ -18,6 +22,7 @@
             }
         }
         .text {
+            @extend .light-text-color-primary;
             line-height: 32px;
             font-weight: 700;
             color : black;
@@ -44,6 +49,7 @@
         display: flex;
         flex-direction: column;
         .link {
+            @extend .light-primary;
             padding: 8px;
             --text-opacity: 1;
             color: #f47738;
