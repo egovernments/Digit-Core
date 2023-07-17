@@ -18,3 +18,13 @@ export const Fill = () => <PhonelinkRing fill="blue" />;
 export const Size = () => <PhonelinkRing height="50" width="50" />;
 export const CustomStyle = () => <PhonelinkRing style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <PhonelinkRing className="custom-class" />;
+
+export const Clickable = () => <PhonelinkRing onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <PhonelinkRing {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

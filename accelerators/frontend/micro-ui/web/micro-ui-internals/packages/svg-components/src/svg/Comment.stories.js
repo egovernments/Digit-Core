@@ -18,3 +18,13 @@ export const Fill = () => <Comment fill="blue" />;
 export const Size = () => <Comment height="50" width="50" />;
 export const CustomStyle = () => <Comment style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <Comment className="custom-class" />;
+
+export const Clickable = () => <Comment onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <Comment {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

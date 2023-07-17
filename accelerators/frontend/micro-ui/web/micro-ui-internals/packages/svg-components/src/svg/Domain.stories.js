@@ -18,3 +18,13 @@ export const Fill = () => <Domain fill="blue" />;
 export const Size = () => <Domain height="50" width="50" />;
 export const CustomStyle = () => <Domain style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <Domain className="custom-class" />;
+
+export const Clickable = () => <Domain onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <Domain {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

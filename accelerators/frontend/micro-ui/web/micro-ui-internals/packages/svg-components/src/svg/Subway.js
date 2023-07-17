@@ -28,3 +28,18 @@ export const Subway = ({ className, height = "24", width = "24", style = {}, fil
 };
 
 
+
+Subway.propTypes = {
+  /** custom width of the svg icon */
+  width: PropTypes.string,
+  /** custom height of the svg icon */
+  height: PropTypes.string,
+  /** custom colour of the svg icon */
+  fill: PropTypes.string,
+  /** custom class of the svg icon */
+  className: PropTypes.string,
+  /** custom style of the svg icon */
+  style: PropTypes.object,
+  /** Click Event handler when icon is clicked */
+  onClick: PropTypes.func,
+};
