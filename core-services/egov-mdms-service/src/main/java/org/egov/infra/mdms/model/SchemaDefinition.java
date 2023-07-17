@@ -34,7 +34,6 @@ public class SchemaDefinition implements Serializable{
 
     @JsonProperty("tenantId")
     @NotNull
-
     @Size(min = 2, max = 128)
     private String tenantId = null;
 
@@ -54,7 +53,6 @@ public class SchemaDefinition implements Serializable{
     private JsonNode definition = null;
 
     @JsonProperty("isActive")
-
     private Boolean isActive = true;
 
     @JsonProperty("auditDetails")

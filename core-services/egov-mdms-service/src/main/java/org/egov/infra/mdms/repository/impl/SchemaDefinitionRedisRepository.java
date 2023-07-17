@@ -1,6 +1,8 @@
 package org.egov.infra.mdms.repository.impl;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.infra.mdms.config.MeasureTime;
 import org.egov.infra.mdms.model.SchemaDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
+@NoArgsConstructor
 public class SchemaDefinitionRedisRepository {
 
     private RedisTemplate redisTemplate;
@@ -34,6 +37,7 @@ public class SchemaDefinitionRedisRepository {
 
 
 
+    @MeasureTime
     public List<SchemaDefinition> read(String tenantId, List<String> keys) {
         log.info("From Redis");
         List<String> concatinatedKeys = new ArrayList<>();
@@ -43,8 +47,6 @@ public class SchemaDefinitionRedisRepository {
         List<SchemaDefinition> schemaDefinitions = redisTemplate.opsForHash().multiGet(SCHEMA_DEF_HASH_KEY_NAME, concatinatedKeys);
         if(schemaDefinitions.contains(null))
             schemaDefinitions = null;
-
-        log.info("Reponse from redis:",schemaDefinitions);
 
         return schemaDefinitions;
     }
@@ -62,5 +64,6 @@ public class SchemaDefinitionRedisRepository {
                 return null;
             }
         });
+
     }
 }

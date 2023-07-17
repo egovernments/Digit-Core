@@ -8,5 +8,6 @@ CREATE TABLE eg_mdms_schema_definition (
     createdBy character varying(64),
     lastModifiedBy character varying(64),
     createdTime bigint,
-    lastModifiedTime bigint
+    lastModifiedTime bigint,
+    CONSTRAINT pk_eg_schema_definition PRIMARY KEY (tenantId,code)
 );

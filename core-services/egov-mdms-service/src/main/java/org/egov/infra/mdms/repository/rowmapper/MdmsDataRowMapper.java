@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.egov.common.contract.models.AuditDetails;
+import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.SchemaDefinition;
+import static org.egov.infra.mdms.errors.ErrorCodes.*;
 import org.egov.tracer.model.CustomException;
 import org.postgresql.util.PGobject;
 import org.springframework.dao.DataAccessException;
@@ -26,8 +28,9 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArray>> {
 
-
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+
     /**
      * @param resultSet
      * @return
@@ -37,7 +40,7 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArr
     @Override
     public Map<String, JSONArray> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
 
-        Map<String, Map<String, JSONArray>> moduleMasterMap = new HashMap<>();
+        Map<String, Map<String, JSONArray>> tenantMasterModuleMap = new HashMap<>();
         Map<String, JSONArray> masterMap = new HashMap<>();
         JSONArray jsonArray = null;
         while(resultSet.next()){
@@ -48,19 +51,15 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArr
                 try {
                     data = objectMapper.readTree(dataStr);
                 } catch (IOException e) {
-                    throw new CustomException("INVALID_JSON", "Failed to deserialize json data");
+                    throw new CustomException(INVALID_JSON, INVALID_JSON_MSG);
                 }
             }
             String schemaCode = resultSet.getString("schemacode");
-            //String [] schemaCodes = schemaCode.split(".");
-
             jsonArray = masterMap.getOrDefault(schemaCode, new JSONArray());
             jsonArray.add(data);
             masterMap.put(schemaCode, jsonArray);
-
-            //moduleMasterMap.put(schemaCodes[0], masterMap);
         }
-        System.out.println("MdmsDataRowMapper:"+ masterMap);
+        log.debug("MdmsDataRowMapper:", masterMap);
         return masterMap;
     }
 }

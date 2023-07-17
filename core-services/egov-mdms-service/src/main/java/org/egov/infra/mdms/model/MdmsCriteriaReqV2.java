@@ -5,17 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.minidev.json.JSONArray;
-import org.egov.common.contract.response.ResponseInfo;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
- * MdmsResponse
+ * MdmsCriteriaReq
  */
 @Validated
 @javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
@@ -23,15 +19,15 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MdmsResponse {
-    @JsonProperty("ResponseInfo")
+public class MdmsCriteriaReqV2 {
+    @JsonProperty("RequestInfo")
 
     @Valid
-    private ResponseInfo responseInfo = null;
+    private RequestInfo requestInfo = null;
 
-    @JsonProperty("mdmsRes")
-
-    private Map<String, Map<String, JSONArray>> mdmsRes = null;
+    @JsonProperty("MdmsCriteria")
+    @Valid
+    private MdmsCriteriaV2 mdmsCriteria = null;
 
 
 }

@@ -1,4 +1,5 @@
 CREATE TABLE eg_mdms_data (
+    id VARCHAR(64) NOT NULL,
     tenantid VARCHAR(255) NOT NULL,
     uniqueidentifier VARCHAR(255),
     schemacode VARCHAR(255) NOT NULL,
@@ -8,5 +9,6 @@ CREATE TABLE eg_mdms_data (
     lastModifiedBy character varying(64),
     createdTime bigint,
     lastModifiedTime bigint,
-    CONSTRAINT pk_eg_mdms_data PRIMARY KEY (tenantId,schemacode)
+    CONSTRAINT pk_eg_mdms_data PRIMARY KEY (tenantId,schemacode,uniqueidentifier),
+    CONSTRAINT uk_eg_mdms_data UNIQUE(id)
 );

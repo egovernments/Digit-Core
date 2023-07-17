@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
+import org.egov.common.utils.ResponseInfoUtil;
+import org.egov.infra.mdms.config.MeasureTime;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
 import org.egov.tracer.model.CustomException;
@@ -44,6 +46,7 @@ public class SchemaDefinitionController {
     }
 
     @RequestMapping(value = "_create", method = RequestMethod.POST)
+    @MeasureTime
     public ResponseEntity<SchemaDefinitionResponse> create(@Parameter(in = ParameterIn.DEFAULT,
             description = "Request body to add new master schema", required = true,
             schema = @Schema()) @Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest) {
@@ -52,9 +55,11 @@ public class SchemaDefinitionController {
     }
 
     @RequestMapping(value = "_search", method = RequestMethod.POST)
+    @MeasureTime
     public ResponseEntity<SchemaDefinitionResponse> search(@Parameter(in = ParameterIn.DEFAULT, description = "Details of module and master which need to be search using MDMS .", required = true, schema = @Schema()) @Valid @RequestBody SchemaDefSearchRequest schemaDefSearchRequest) {
+        log.info("Search schema definitions");
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(schemaDefSearchRequest);
-        return new ResponseEntity<SchemaDefinitionResponse>(getSchemaDefinitionResponse(schemaDefSearchRequest.getRequestInfo(), schemaDefinitions, "v1", "Request Accepted For Create"),HttpStatus.ACCEPTED);
+        return new ResponseEntity<SchemaDefinitionResponse>(getSchemaDefinitionResponse(schemaDefSearchRequest.getRequestInfo(), schemaDefinitions, "v1", HttpStatus.ACCEPTED.toString()),HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "_update", method = RequestMethod.POST)
@@ -62,11 +67,11 @@ public class SchemaDefinitionController {
         return new ResponseEntity<SchemaDefinitionResponse>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    private SchemaDefinitionResponse getSchemaDefinitionResponse(RequestInfo requestInfo , List<SchemaDefinition> schemaDefinitions, String apiVersion, String resMsgId){
-        SchemaDefinitionResponse schemaDefinitionResponse = SchemaDefinitionResponse.builder().schemaDefinitions(schemaDefinitions).requestInfo(buildResponseInfo(requestInfo, apiVersion, resMsgId)).build();
+    //TODO
+    private SchemaDefinitionResponse getSchemaDefinitionResponse(RequestInfo requestInfo , List<SchemaDefinition> schemaDefinitions, String apiVersion, String status){
+        //ResponseInfo responseInfo = ResponseInfoUtil.buildResponseInfo(requestInfo,apiVersion, status);
+        SchemaDefinitionResponse schemaDefinitionResponse = SchemaDefinitionResponse.builder().schemaDefinitions(schemaDefinitions).responseInfo(null).build();
         return schemaDefinitionResponse;
     }
-    private ResponseInfo buildResponseInfo(RequestInfo requestInfo, String apiVersion, String resMsgId) {
-        return ResponseInfo.builder().apiId(requestInfo.getApiId()).msgId(requestInfo.getMsgId()).resMsgId(resMsgId).ver(apiVersion).ts(System.currentTimeMillis()).build();
-    }
+
 }

@@ -2,12 +2,10 @@ package org.egov.infra.mdms.repository;
 
 import net.minidev.json.JSONArray;
 import org.egov.infra.mdms.model.*;
-import org.egov.mdms.model.MdmsCriteria;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Repository
 public interface MdmsDataRepository {
@@ -15,6 +13,7 @@ public interface MdmsDataRepository {
 
     public void update(MdmsRequest mdmsRequest);
 
-    public  Map<String, JSONArray> search(Set<String> schemaCodes);
+    public  List<Mdms> searchV2(MdmsCriteriaV2 mdmsCriteriaV2);
 
+    public Map<String, JSONArray> search(MdmsCriteria mdmsCriteria);
 }

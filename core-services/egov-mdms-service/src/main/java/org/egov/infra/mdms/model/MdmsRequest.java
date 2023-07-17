@@ -9,6 +9,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
@@ -27,6 +28,7 @@ public class MdmsRequest {
 
     @JsonProperty("Mdms")
     @Valid
+    @NotNull
     private Mdms mdms = null;
 
     /*@JsonProperty("Workflow")

@@ -1,55 +1,46 @@
 package org.egov.infra.mdms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Bind the request meta data(RequestInfo) and Schema defination
+ * MdmsCriteria
  */
-@Schema(description = "Bind the request meta data(RequestInfo) and Schema defination")
 @Validated
 @javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Mdms {
-    @JsonProperty("tenantId")
-    @NotNull
+public class MdmsCriteriaV2 {
 
-    @Size(min = 2, max = 128)
+    @JsonProperty("tenantId")
+    @Size(min = 1, max = 100)
+    @NotNull
     private String tenantId = null;
 
-    @JsonProperty("schemaCode")
-    @NotNull
-    @Size(min = 2, max = 128)
-    private String schemaCode = null;
+    @JsonProperty("ids")
+    private Set<String> ids = null;
 
     @JsonProperty("uniqueIdentifier")
-    @Size(min = 2, max = 128)
+    @Size(min = 1, max = 64)
     private String uniqueIdentifier = null;
 
-    @JsonProperty("data")
-    @NotNull
-    private JsonNode data = null;
-
-    @JsonProperty("isActive")
-    private Boolean isActive = true;
-
-    @JsonProperty("auditDetails")
-    @Valid
-    private AuditDetails auditDetails = null;
+    @JsonIgnore
+    private Map<String, String> schemaCodeFilterMap = null;
 
 
 }

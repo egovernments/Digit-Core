@@ -1,11 +1,11 @@
 package org.egov.infra.mdms.service;
 
-import com.sun.xml.internal.ws.api.server.ServiceDefinition;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.infra.mdms.config.ApplicationConfig;
+import org.egov.infra.mdms.config.MeasureTime;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
@@ -29,7 +29,6 @@ public class SchemaDefinitionService {
     private ApplicationConfig applicationConfig;
     private SchemaDefinitionEnricher schemaDefinitionEnricher;
     private SchemaDefinitionValidator schemaDefinitionValidator;
-
     private SchemaDefinitionRedisRepository schemaDefinitionRedisRepository;
 
     @Autowired
@@ -44,6 +43,7 @@ public class SchemaDefinitionService {
     }
 
     public List<SchemaDefinition> create(SchemaDefinitionRequest schemaDefinitionRequest) {
+        setTenantIDParent(schemaDefinitionRequest.getSchemaDefinition().getTenantId());
         schemaDefinitionValidator.validateCreateRequest(schemaDefinitionRequest);
         schemaDefinitionEnricher.enrichCreateReq(schemaDefinitionRequest);
         schemaDefinitionRepository.create(schemaDefinitionRequest);
@@ -51,6 +51,7 @@ public class SchemaDefinitionService {
     }
 
     public List<SchemaDefinition> search(SchemaDefSearchRequest schemaDefSearchRequest) {
+        setTenantIDParent(schemaDefSearchRequest.getSchemaDefCriteria().getTenantId());
         List<SchemaDefinition> schemaDefinitions = new ArrayList<>();
         schemaDefinitions  = schemaDefinitionRedisRepository.read(schemaDefSearchRequest.getSchemaDefCriteria().getTenantId(), schemaDefSearchRequest.getSchemaDefCriteria().getCodes());
 
@@ -65,6 +66,9 @@ public class SchemaDefinitionService {
         return null;
     }
 
-
+    private void setTenantIDParent(String tenantID) {
+        if(tenantID.contains("."))
+            tenantID = tenantID.split("//.")[0];
+    }
 
 }

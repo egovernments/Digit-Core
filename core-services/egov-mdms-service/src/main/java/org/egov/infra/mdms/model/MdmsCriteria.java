@@ -1,5 +1,6 @@
 package org.egov.infra.mdms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,9 +9,12 @@ import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * MdmsCriteria
@@ -23,13 +27,24 @@ import java.util.List;
 @Builder
 public class MdmsCriteria {
     @JsonProperty("tenantId")
-
     @Size(min = 1, max = 100)
+    @NotNull
     private String tenantId = null;
+
+    @JsonProperty("ids")
+    private Set<String> ids = null;
+
+    @JsonProperty("uniqueIdentifier")
+    @Size(min = 1, max = 64)
+    private String uniqueIdentifier = null;
 
     @JsonProperty("moduleDetails")
     @Valid
+    @NotNull
     private List<ModuleDetail> moduleDetails = null;
+
+    @JsonIgnore
+    private Map<String, String> schemaCodeFilterMap = null;
 
 
     public MdmsCriteria addModuleDetailsItem(ModuleDetail moduleDetailsItem) {

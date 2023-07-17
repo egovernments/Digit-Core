@@ -32,20 +32,19 @@ public class MdmsRedisDataRepository {
         this.hashOperations = redisTemplate.opsForHash();
     }
 
-
-    /*public List<SchemaDefinition> read(String tenantId, Map<String,Map<String, JSONArray>> moduleMasterMap) {
+    public List<SchemaDefinition> read(String tenantId, Set<String> schemaCodes) {
         log.info("From Redis");
         List<String> concatinatedKeys = new ArrayList<>();
-        for(String key: keys) {
-            concatinatedKeys.add(tenantId.concat(key));
+        for(String schemaCode : schemaCodes) {
+            concatinatedKeys.add(tenantId.concat("|").concat(schemaCode));
         }
-        List<SchemaDefinition> schemaDefinitions = redisTemplate.opsForHash().multiGet(MDMS_DATA_HASH_KEY_NAME, concatinatedKeys);
-        if(schemaDefinitions.contains(null))
-            schemaDefinitions = null;
-        log.info("Reponse from redis:",schemaDefinitions);
+        List<JSONArray> data = redisTemplate.opsForHash().multiGet(MDMS_DATA_HASH_KEY_NAME, concatinatedKeys);
+        if(data.contains(null))
+            data = null;
+        log.info("Reponse from redis:",data);
 
-        return schemaDefinitions;
-    }*/
+        return null;
+    }
 
     public void write(String tenantId, Map<String, JSONArray> masterMap) {
 
@@ -53,14 +52,13 @@ public class MdmsRedisDataRepository {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
                 for(Map.Entry<String, JSONArray> entry : masterMap.entrySet()) {
-                    hashOperations.put(MDMS_DATA_HASH_KEY_NAME,
-                            tenantId.concat("|").concat(entry.getKey()),
+                    String key = tenantId.concat("|").concat(entry.getKey());
+                    hashOperations.put(MDMS_DATA_HASH_KEY_NAME, key,
                             entry.getValue());
                 }
                 return null;
             }
         });
-
     }
 
 

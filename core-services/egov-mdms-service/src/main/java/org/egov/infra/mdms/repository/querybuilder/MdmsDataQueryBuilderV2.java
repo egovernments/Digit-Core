@@ -1,43 +1,47 @@
 package org.egov.infra.mdms.repository.querybuilder;
 
 import org.egov.infra.mdms.model.MdmsCriteria;
+import org.egov.infra.mdms.model.MdmsCriteriaV2;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @Component
-public class MdmsDataQueryBuilder {
+public class MdmsDataQueryBuilderV2 {
 
     private static String SEARCH_MDMS_DATA_QUERY = "SELECT data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM eg_mdms_data data ";
 
 
-    public String getMdmsDataSearchQuery(MdmsCriteria mdmsCriteria, List<Object> preparedStmtList) {
-        String query = buildQuery(mdmsCriteria, preparedStmtList);
+    public String getMdmsDataSearchQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
+        String query = buildQuery(mdmsCriteriaV2, preparedStmtList);
         query = addOrderByClause(query);
         // query = addPagination(query, schemaDefCriteria, preparedStmtList);
         return query;
     }
 
-    private String buildQuery(MdmsCriteria mdmsCriteria, List<Object> preparedStmtList) {
+    private String buildQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
         StringBuilder builder = new StringBuilder(SEARCH_MDMS_DATA_QUERY);
-        Map<String, String> schemaCodeFilterMap = mdmsCriteria.getSchemaCodeFilterMap();
-        if (!Objects.isNull(mdmsCriteria.getTenantId())) {
+        Map<String, String> schemaCodeFilterMap = mdmsCriteriaV2.getSchemaCodeFilterMap();
+        if (!Objects.isNull(mdmsCriteriaV2.getTenantId())) {
             addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.tenantid = ? ");
-            preparedStmtList.add(mdmsCriteria.getTenantId());
+            preparedStmtList.add(mdmsCriteriaV2.getTenantId());
         }
-        if (!Objects.isNull(mdmsCriteria.getIds())) {
+        if (!Objects.isNull(mdmsCriteriaV2.getIds())) {
             addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.id IN ( ").append(createQuery(mdmsCriteria.getIds())).append(" )");
+            builder.append(" data.id IN ( ").append(createQuery(mdmsCriteriaV2.getIds())).append(" )");
             addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
         }
-        if (!Objects.isNull(mdmsCriteria.getUniqueIdentifier())) {
+        if (!Objects.isNull(mdmsCriteriaV2.getUniqueIdentifier())) {
             addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.uniqueidentifier = ? ");
-            preparedStmtList.add(mdmsCriteria.getUniqueIdentifier());
+            preparedStmtList.add(mdmsCriteriaV2.getUniqueIdentifier());
         }
-        if (!Objects.isNull(mdmsCriteria.getSchemaCodeFilterMap())) {
+        if (!Objects.isNull(mdmsCriteriaV2.getSchemaCodeFilterMap())) {
             addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.schemacode IN ( ").append(createQuery(schemaCodeFilterMap.keySet())).append(" )");
             addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());

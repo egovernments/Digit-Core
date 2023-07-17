@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.16</version>
+            <version>1.18.22</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -41,11 +41,6 @@
             <groupId>org.egov.services</groupId>
             <artifactId>tracer</artifactId>
             <version>2.1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.egov</groupId>
-            <artifactId>mdms-client</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
         <dependency>
@@ -71,7 +66,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
-
 
         <!-- Database dependency-->
         <dependency>
@@ -108,6 +102,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
     </dependencies>
     <repositories>
