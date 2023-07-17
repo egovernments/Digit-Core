@@ -410,8 +410,14 @@ config:
   - name: builds/Core-Platform/accelerators/workbench-ui
     build:
       - work-dir: accelerators/frontend/micro-ui/
-        dockerfile: accelerators/frontend/micro-ui/web/docker/Dockerfile
+        dockerfile: accelerators/frontend/micro-ui/web/workbench/Dockerfile
         image-name: workbench-ui
+        
+  - name: builds/Core-Platform/accelerators/storybook-svg
+    build:
+    - work-dir: accelerators/frontend/micro-ui/web/micro-ui-internals/packages/svg-components/
+      dockerfile: accelerators/frontend/micro-ui/web/micro-ui-internals/packages/svg-components/docker/Dockerfile
+      image-name: storybook-svg
 
   - name: builds/Core-Platform/accelerators/digit-ui
     build:
