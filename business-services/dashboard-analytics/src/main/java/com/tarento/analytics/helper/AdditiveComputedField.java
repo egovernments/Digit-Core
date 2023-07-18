@@ -39,8 +39,10 @@ public class AdditiveComputedField implements IComputedField<Data> {
 
             double total = 0.0;
             for (String field: fields){
-                dataType = plotMap.get(field).getSymbol();
-                total = total+ plotMap.get(field).getValue();
+                if(plotMap.containsKey(field)) {
+                    dataType = plotMap.get(field).getSymbol();
+                    total = total + plotMap.get(field).getValue();
+                }
             }
             if(postAggrTheoryName != null && !postAggrTheoryName.isEmpty()) {
                 ComputeHelper computeHelper = computeHelperFactory.getInstance(postAggrTheoryName);
