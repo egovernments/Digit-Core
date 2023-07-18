@@ -11,12 +11,28 @@
 const UIFormBodyGenerator = (JSONSchema = {}, UISchema = {}) => {
   // const newConfig=[];
   const schema = JSONSchema?.properties;
+  const referenceSchema = JSONSchema?.["x-ref-schema"] || [];
+
   const body = Object.keys(schema).map((property) => {
-    const bodyConfig = Digit.Utils.workbench.getConfig(schema[property].type);
+    let bodyConfig = {};
+    const referenceSchemaObject = referenceSchema?.filter((e) => e.fieldPath == property);
+    if (referenceSchemaObject && Array.isArray(referenceSchemaObject) && referenceSchemaObject.length > 0) {
+      /* TODO Schema fetch also has to be integrated */
+      bodyConfig = Digit.Utils.workbench.getConfig("select");
+      const masterDetails = referenceSchemaObject?.[0]?.schemaCode?.split?.(".");
+      bodyConfig.populators.mdmsConfig.moduleName = masterDetails?.[0];
+      bodyConfig.populators.mdmsConfig.masterName = masterDetails?.[1];
+      bodyConfig.populators.mdmsConfig.localePrefix = Digit.Utils.locale.getTransformedLocale(referenceSchemaObject?.[0]?.schemaCode);
+      bodyConfig.key = "SELECT" + property;
+      bodyConfig.populators.name = "SELECT" + property;
+    } else {
+      bodyConfig = Digit.Utils.workbench.getConfig(schema[property].type);
+      bodyConfig.key = schema[property].type == "boolean" ? "SELECT" + property : property;
+      bodyConfig.populators.name = schema[property].type == "boolean" ? "SELECT" + property : property;
+    }
 
     bodyConfig.label = Digit.Utils.workbench.getMDMSLabel(property);
-    bodyConfig.key = property;
-    bodyConfig.populators.name = property;
+
     bodyConfig.isMandatory = JSONSchema?.required?.includes?.(property);
     return { ...bodyConfig };
   });

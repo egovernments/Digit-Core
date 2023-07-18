@@ -50,6 +50,23 @@ const CONFIGS_TEMPLATE = {
       ],
     },
   },
+  select: {
+    isMandatory: false,
+    type: "dropdown",
+    label: "",
+    disable: false,
+    populators: {
+      name: "select1",
+      optionsKey: "name",
+      error: "select any one value",
+      required: false,
+      mdmsConfig: {
+        masterName: "",
+        moduleName: "",
+        localePrefix: "",
+      },
+    },
+  },
   default: {
     inline: true,
     label: "",
@@ -93,4 +110,17 @@ const getMDMSLabel = (code = "") => {
   );
 };
 
-export default { getConfig, getMDMSLabel };
+const getFormattedData = (data = {}) => {
+  const formattedData = {};
+  Object.keys(data).map((key) => {
+    if (key?.startsWith("SELECT")) {
+      const newKey = key?.replace("SELECT", "");
+      formattedData[newKey] = data[newKey]?.code;
+    } else {
+      formattedData[key] = data[key];
+    }
+  });
+  return formattedData;
+};
+
+export default { getConfig, getMDMSLabel, getFormattedData };

@@ -28,6 +28,13 @@ const MastersBreadCrumb = ({ location }) => {
 
 const App = ({ path }) => {
   const location = useLocation();
+  const MDMSCreateSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
+  const [sessionFormData, setSessionFormData, clearSessionFormData] = MDMSCreateSession;
+  useEffect(() => {
+    if (!window.location.href.includes("mdms-add") && sessionFormData && Object.keys(sessionFormData) != 0) {
+      clearSessionFormData();
+    }
+  }, [location]);
   return (
     <React.Fragment>
       <MastersBreadCrumb location={location} />
@@ -36,7 +43,7 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/sample`} component={() => <div>Sample Screen loaded</div>} />
           <PrivateRoute path={`${path}/localisation-search`} component={() => <LocalisationSearch />} />
           <PrivateRoute path={`${path}/mdms-search`} component={() => <MDMSSearch />} />
-          <PrivateRoute path={`${path}/mdms-add`} component={() => <MDMSAdd />} />
+          <PrivateRoute path={`${path}/mdms-add`} component={() => <MDMSAdd FormSession={MDMSCreateSession} />} />
         </div>
       </Switch>
     </React.Fragment>
