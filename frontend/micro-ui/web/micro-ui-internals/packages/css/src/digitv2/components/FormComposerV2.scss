@@ -30,6 +30,7 @@
 .text-input {
   @apply relative w-full;
   input {
+    background-color: transparent;
     &:hover {
       @apply border-2 border-solid border-primary-main;
       @extend .light-input-border;

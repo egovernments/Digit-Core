@@ -186,17 +186,18 @@
 }
 
 .submit-bar {
-  @extend .light-background;
-  @extend .light-text-color-primary;
+  @extend .light-primary-button;
+  /* @extend .light-text-color-primary; */
   @apply h-10 bg-primary-main text-center w-full outline-none;
   box-shadow: inset 0px -2px 0px theme(colors.text.primary);
+  cursor: pointer;
 
   &:focus {
     @apply outline-none;
   }
 
   header {
-    @extend .light-text-color-primary;
+    /* @extend .light-text-color-primary; */
     @apply font-rc font-medium text-legend text-white leading-10;
   }
 }

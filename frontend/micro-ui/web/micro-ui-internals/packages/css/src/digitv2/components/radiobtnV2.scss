@@ -35,12 +35,12 @@
   }
 
   .radio-btn-wrap input:checked ~ .radio-btn-checkmark {
-    @extend .light-input-border;
+    /* @extend .light-input-border; */
     @apply border-2 border-primary-main;
   }
 
   .radio-btn-wrap input:checked ~ .radio-btn-checkmark:after {
-    @extend .light-background;
+    /* @extend .light-background; */
     @apply block bg-primary-main h-5 w-5 rounded-full absolute top-10 left-10;
   }
 }
