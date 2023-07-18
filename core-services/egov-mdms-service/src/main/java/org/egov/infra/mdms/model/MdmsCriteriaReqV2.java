@@ -20,14 +20,13 @@ import javax.validation.Valid;
 @NoArgsConstructor
 @Builder
 public class MdmsCriteriaReqV2 {
-    @JsonProperty("RequestInfo")
 
+    @JsonProperty("RequestInfo")
     @Valid
     private RequestInfo requestInfo = null;
 
     @JsonProperty("MdmsCriteria")
     @Valid
     private MdmsCriteriaV2 mdmsCriteria = null;
-
 
 }

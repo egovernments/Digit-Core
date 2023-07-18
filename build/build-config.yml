@@ -168,6 +168,14 @@ config:
         image-name: "egov-mdms-service"
         dockerfile: "build/maven/Dockerfile"
 
+  - name: "builds/Core-Platform/core-services/mdms-v2"
+    build:
+      - work-dir: "core-services/egov-mdms-service"
+        image-name: "mdms-v2"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/egov-mdms-service/src/main/resources/db"
+        image-name: "mdms-v2-db"
+
   - name: "builds/Core-Platform/core-services/egov-notification-mail"
     build:
       - work-dir: "core-services/egov-notification-mail"

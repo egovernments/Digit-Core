@@ -14,15 +14,11 @@ import java.util.UUID;
 @Component
 public class MdmsDataEnricher {
 
-    public void enrichCreateRequest(MdmsRequest mdmsRequest) {
+    public void enrichCreateRequest(MdmsRequest mdmsRequest, String uniqueIdentifier) {
         Mdms mdms = mdmsRequest.getMdms();
         mdms.setId(UUID.randomUUID().toString());
         mdms.setAuditDetails(getAuditDetail(mdmsRequest.getRequestInfo(),mdms.getAuditDetails(), true));
-        //enrichUUID(mdms);
-    }
-
-    private void enrichUniqueIdentifier(Mdms mdms) {
-        mdms.setUniqueIdentifier(UUID.randomUUID().toString());
+        mdms.setUniqueIdentifier(uniqueIdentifier);
     }
 
     public AuditDetails getAuditDetail(RequestInfo requestInfo, AuditDetails auditDetails, Boolean isCreateRequest) {
@@ -31,7 +27,7 @@ public class MdmsDataEnricher {
                     createdTime(System.currentTimeMillis()).lastModifiedBy(requestInfo.getUserInfo().getUuid()).
                     lastModifiedTime(System.currentTimeMillis()).build();
         } else {
-            if(auditDetails != null ) {
+            if(auditDetails != null) {
                 auditDetails = AuditDetails.builder().createdBy(auditDetails.getCreatedBy()).
                         createdTime(auditDetails.getCreatedTime()).lastModifiedBy(requestInfo.getUserInfo().getUuid()).
                         lastModifiedTime(System.currentTimeMillis()).build();

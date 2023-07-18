@@ -32,14 +32,20 @@ public class MdmsDataValidator {
         this.mdmsDataRepository = mdmsDataRepository;
     }
 
-    public void validate(MdmsRequest mdmsRequest) {
-        log.info("MdmsDataValidator validate()");
+    public String validate(MdmsRequest mdmsRequest) {
+        // Initialize error map and fetch schema
         Map<String, String> errors = new HashMap<>();
         JSONObject schemaObject = getSchema(mdmsRequest);
+
+        // Validations are performed here on the incoming data and its unique identifier is generated and returned
         validateDataWithSchemaDefinition(mdmsRequest, schemaObject, errors);
-        checkDuplicate(schemaObject, mdmsRequest);
+        String uniqueIdentifier = checkDuplicateAndReturnUniqueIdentifier(schemaObject, mdmsRequest);
         validateReference(schemaObject, mdmsRequest.getMdms());
+
+        // Throw validation errors
         throwCustomException(errors);
+
+        return uniqueIdentifier;
     }
 
     private void validateSchemaCode(String schemaCode, MdmsRequest mdmsRequest) {
@@ -85,8 +91,7 @@ public class MdmsDataValidator {
         return schemaObject;
     }
 
-    //TODO: Check nested path(a.b.c)
-    private void checkDuplicate(JSONObject schemaObject, MdmsRequest mdmsRequest) {
+    private String checkDuplicateAndReturnUniqueIdentifier(JSONObject schemaObject, MdmsRequest mdmsRequest) {
         String uniqueIdentifier = getUniqueIdentifier(schemaObject, mdmsRequest);
 
         Map<String, JSONArray> moduleMasterData = mdmsDataRepository.search(MdmsCriteria.builder()
@@ -100,7 +105,7 @@ public class MdmsDataValidator {
             throw new CustomException("DUPLICATE_RECORD", "Duplicate record");
         }
 
-        mdmsRequest.getMdms().setUniqueIdentifier(uniqueIdentifier);
+        return uniqueIdentifier;
     }
 
     private String getUniqueIdentifier(JSONObject schemaObject, MdmsRequest mdmsRequest) {
@@ -116,8 +121,6 @@ public class MdmsDataValidator {
             if (i != (uniqueFieldPaths.length() - 1))
                 compositeUniqueIdentifier.append(".");
         });
-
-        log.info("Unique Identifier: " + compositeUniqueIdentifier);
 
         return compositeUniqueIdentifier.toString();
     }

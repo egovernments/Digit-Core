@@ -47,8 +47,8 @@ public class MDMSService {
     }*/
 
 	public List<Mdms> create(MdmsRequest mdmsRequest) {
-		mdmsDataValidator.validate(mdmsRequest);
-		mdmsDataEnricher.enrichCreateRequest(mdmsRequest);
+		String uniqueIdentifier = mdmsDataValidator.validate(mdmsRequest);
+		mdmsDataEnricher.enrichCreateRequest(mdmsRequest, uniqueIdentifier);
 		mdmsDataRepository.create(mdmsRequest);
 		return Arrays.asList(mdmsRequest.getMdms());
 	}

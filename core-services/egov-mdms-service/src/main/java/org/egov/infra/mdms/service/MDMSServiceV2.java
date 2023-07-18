@@ -46,9 +46,15 @@ public class MDMSServiceV2 {
     }*/
 
     public List<Mdms> create(MdmsRequest mdmsRequest) {
-        mdmsDataValidator.validate(mdmsRequest);
-        mdmsDataEnricher.enrichCreateRequest(mdmsRequest);
+        // Performs validations on incoming request and returns unique identifier for the record if all validations pass
+        String uniqueIdentifier = mdmsDataValidator.validate(mdmsRequest);
+
+        // Enriches the incoming data
+        mdmsDataEnricher.enrichCreateRequest(mdmsRequest, uniqueIdentifier);
+
+        // Emit MDMS create event to be listened by persister
         mdmsDataRepository.create(mdmsRequest);
+
         return Arrays.asList(mdmsRequest.getMdms());
     }
 

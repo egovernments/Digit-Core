@@ -29,17 +29,16 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     private JdbcTemplate jdbcTemplate;
     private ApplicationConfig applicationConfig;
     private MdmsDataQueryBuilder mdmsDataQueryBuilder;
-
     private MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2;
     private MdmsDataRowMapperV2 mdmsDataRowMapperV2;
-
     private MdmsDataRowMapper mdmsDataRowMapper;
+
     @Autowired
     public MdmsDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
-                                          ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
+                                  ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
                                   MdmsDataRowMapperV2 mdmsDataRowMapperV2,
                                   MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2,
-                                  MdmsDataRowMapper mdmsDataRowMapper){
+                                  MdmsDataRowMapper mdmsDataRowMapper) {
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
@@ -73,7 +72,6 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      */
     @Override
     public List<Mdms> searchV2(MdmsCriteriaV2 mdmsCriteriaV2) {
-        log.info("Search from database");
         List<Object> preparedStmtList = new ArrayList<>();
         String query = mdmsDataQueryBuilderV2.getMdmsDataSearchQuery(mdmsCriteriaV2, preparedStmtList);
         log.info(query);
