@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.egov.common.contract.models.AuditDetails;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -25,7 +23,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 @ToString
-@RedisHash("SchemaDefinition")
 public class SchemaDefinition implements Serializable{
 
     @JsonProperty("id")
@@ -40,7 +37,6 @@ public class SchemaDefinition implements Serializable{
     @JsonProperty("code")
     @NotNull
     @Size(min = 2, max = 128)
-    @Id
     private String code = null;
 
     @JsonProperty("description")

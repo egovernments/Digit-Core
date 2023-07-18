@@ -3,7 +3,6 @@ package org.egov.infra.mdms.service;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
-import org.egov.infra.mdms.repository.impl.MdmsRedisDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
 import org.springframework.beans.factory.annotation.Autowired;

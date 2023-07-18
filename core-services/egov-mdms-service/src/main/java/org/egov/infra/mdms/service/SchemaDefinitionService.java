@@ -2,14 +2,9 @@ package org.egov.infra.mdms.service;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.contract.response.ResponseInfo;
 import org.egov.infra.mdms.config.ApplicationConfig;
-import org.egov.infra.mdms.config.MeasureTime;
 import org.egov.infra.mdms.model.*;
-import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
-import org.egov.infra.mdms.repository.impl.SchemaDefinitionRedisRepository;
 import org.egov.infra.mdms.service.enrichment.SchemaDefinitionEnricher;
 import org.egov.infra.mdms.service.validator.SchemaDefinitionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @Builder
