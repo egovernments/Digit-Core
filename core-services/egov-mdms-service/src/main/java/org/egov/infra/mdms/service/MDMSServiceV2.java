@@ -23,17 +23,15 @@ public class MDMSServiceV2 {
 
     private MdmsDataRepository mdmsDataRepository;
 
-    private MdmsRedisDataRepository mdmsRedisDataRepository;
 
 
     @Autowired
     public MDMSServiceV2(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-                         MdmsDataRepository mdmsDataRepository, MdmsRedisDataRepository mdmsRedisDataRepository) {
+                         MdmsDataRepository mdmsDataRepository) {
 
         this.mdmsDataValidator = mdmsDataValidator;
         this.mdmsDataEnricher = mdmsDataEnricher;
         this.mdmsDataRepository = mdmsDataRepository;
-        this.mdmsRedisDataRepository = mdmsRedisDataRepository;
     }
 
    /* public JSONArray getFilterData(Map<String, String> schemaCodeFilterMap, Map<String, JSONArray> masterMap) {

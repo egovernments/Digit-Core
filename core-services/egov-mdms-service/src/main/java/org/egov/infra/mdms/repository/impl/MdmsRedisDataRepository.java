@@ -14,8 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component
-@Slf4j
+
 public class MdmsRedisDataRepository {
 
     private RedisTemplate redisTemplate;
@@ -33,7 +32,6 @@ public class MdmsRedisDataRepository {
     }
 
     public List<SchemaDefinition> read(String tenantId, Set<String> schemaCodes) {
-        log.info("From Redis");
         List<String> concatinatedKeys = new ArrayList<>();
         for(String schemaCode : schemaCodes) {
             concatinatedKeys.add(tenantId.concat("|").concat(schemaCode));
@@ -41,7 +39,6 @@ public class MdmsRedisDataRepository {
         List<JSONArray> data = redisTemplate.opsForHash().multiGet(MDMS_DATA_HASH_KEY_NAME, concatinatedKeys);
         if(data.contains(null))
             data = null;
-        log.info("Reponse from redis:",data);
 
         return null;
     }

@@ -29,17 +29,14 @@ public class SchemaDefinitionService {
     private ApplicationConfig applicationConfig;
     private SchemaDefinitionEnricher schemaDefinitionEnricher;
     private SchemaDefinitionValidator schemaDefinitionValidator;
-    private SchemaDefinitionRedisRepository schemaDefinitionRedisRepository;
 
     @Autowired
     public SchemaDefinitionService(SchemaDefinitionRepository schemaDefinitionRepository, ApplicationConfig applicationConfig,
-                                   SchemaDefinitionEnricher schemaDefinitionEnricher, SchemaDefinitionValidator schemaDefinitionValidator,
-                                   SchemaDefinitionRedisRepository schemaDefinitionRedisRepository){
+                                   SchemaDefinitionEnricher schemaDefinitionEnricher, SchemaDefinitionValidator schemaDefinitionValidator){
         this.schemaDefinitionRepository = schemaDefinitionRepository;
         this.applicationConfig = applicationConfig;
         this.schemaDefinitionEnricher = schemaDefinitionEnricher;
         this.schemaDefinitionValidator = schemaDefinitionValidator;
-        this.schemaDefinitionRedisRepository = schemaDefinitionRedisRepository;
     }
 
     public List<SchemaDefinition> create(SchemaDefinitionRequest schemaDefinitionRequest) {
@@ -53,13 +50,8 @@ public class SchemaDefinitionService {
     public List<SchemaDefinition> search(SchemaDefSearchRequest schemaDefSearchRequest) {
         setTenantIDParent(schemaDefSearchRequest.getSchemaDefCriteria().getTenantId());
         List<SchemaDefinition> schemaDefinitions = new ArrayList<>();
-        schemaDefinitions  = schemaDefinitionRedisRepository.read(schemaDefSearchRequest.getSchemaDefCriteria().getTenantId(), schemaDefSearchRequest.getSchemaDefCriteria().getCodes());
-
-        if(schemaDefinitions == null) {
-            log.info("Fetch from database");
-            schemaDefinitions = schemaDefinitionRepository.search(schemaDefSearchRequest.getSchemaDefCriteria());
-            schemaDefinitionRedisRepository.write(schemaDefinitions);
-        }
+        log.info("Fetch from database");
+        schemaDefinitions = schemaDefinitionRepository.search(schemaDefSearchRequest.getSchemaDefCriteria());
         return schemaDefinitions;
     }
     public SchemaDefinitionResponse update(){
