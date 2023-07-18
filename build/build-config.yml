@@ -731,8 +731,8 @@ config:
 
   - name: builds/digit-dev/frontend/micro-ui/storybook
     build:
-    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/
-      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/docker/Dockerfile
+    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/components-core/
+      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/components-core/docker/Dockerfile
       image-name: storybook
 
   
