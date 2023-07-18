@@ -7,7 +7,7 @@
 @import url("./components/selectdropdownV2.scss");
 @import url("./typography.scss");
 
-// important to be remove after fixing the components
+/* important to be remove after fixing the components */
 .light {
   &-primary {
     color: theme(digitv2.lightTheme.primary) !important;
