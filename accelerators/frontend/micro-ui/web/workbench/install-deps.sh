@@ -9,6 +9,7 @@ cd ..
 
 cp workbench/App.js src
 cp workbench/package.json package.json 
+cp workbench/webpack.config.js workbench/webpack.config.js 
 cp workbench/inter-package.json $INTERNALS/package.json
 
 cp $INTERNALS/example/src/UICustomizations.js src/Customisations

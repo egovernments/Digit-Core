@@ -6,10 +6,11 @@ import LocalisationSearch from "./LocalisationSearch";
 import MDMSSearch from "./MDMSSearch";
 import MDMSAdd from "./MDMSAdd";
 
-const MastersBreadCrumb = ({ location }) => {
+const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
   const search = useLocation().search;
   const fromScreen = new URLSearchParams(search).get("from") || null;
+  const pathVar=location.pathname.replace(defaultPath,"");
   const crumbs = [
     {
       path: `/${window?.contextPath}/employee`,
@@ -18,9 +19,8 @@ const MastersBreadCrumb = ({ location }) => {
     },
     {
       path: `/${window.contextPath}/employee/masters/response`,
-      content: fromScreen ? `${t(fromScreen)} / ${t("ES_WAGE_SEEKER")}` : t("ES_WAGE_SEEKER"),
-      show: location.pathname.includes("/masters/response") ? true : false,
-      isBack: fromScreen && true,
+      content:  t(`${pathVar}`) ,
+      show: true
     },
   ];
   return <BreadCrumb crumbs={crumbs} spanStyle={{ maxWidth: "min-content" }} />;
@@ -37,7 +37,7 @@ const App = ({ path }) => {
   }, [location]);
   return (
     <React.Fragment>
-      <MastersBreadCrumb location={location} />
+      <MastersBreadCrumb location={location} defaultPath={path} />
       <Switch>
         <div>
           <PrivateRoute path={`${path}/sample`} component={() => <div>Sample Screen loaded</div>} />

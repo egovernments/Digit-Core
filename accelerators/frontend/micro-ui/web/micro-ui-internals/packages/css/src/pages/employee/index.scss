@@ -516,9 +516,29 @@
   text-decoration: none;
   div{
     span{
-    color: #f47738;
+    color: theme(colors.primary.main) !important;
     text-decoration: none;
     }
   }
 }
 }
+
+.bread-crumb {
+  a{
+    color: inherit;
+    text-decoration: inherit
+    }
+}
+
+.sidebar-link{
+  .custom-link{
+    text-decoration: none;
+    div{
+      span{
+        color: theme(colors.white);
+        text-decoration: none;
+      }
+    }
+  }
+  }
+  
