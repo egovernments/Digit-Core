@@ -13,6 +13,34 @@ const CONFIGS_TEMPLATE = {
       },
     },
   },
+  object: {
+    inline: true,
+    label: "",
+    isMandatory: false,
+    type: "object",
+    disable: false,
+    populators: {
+      name: "text1",
+      error: "invalid text field",
+      validation: {
+        pattern: /^[A-Za-z]+$/i,
+      },
+    },
+  }, 
+  array: {
+    inline: true,
+    label: "",
+    isMandatory: false,
+    type: "array",
+    disable: false,
+    populators: {
+      name: "text1",
+      error: "invalid text field",
+      validation: {
+        pattern: /^[A-Za-z]+$/i,
+      },
+    },
+  },
   number: {
     label: "",
     isMandatory: false,

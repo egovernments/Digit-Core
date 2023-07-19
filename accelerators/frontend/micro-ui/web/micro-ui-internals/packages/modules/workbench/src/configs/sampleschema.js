@@ -63,6 +63,13 @@ export const schema = {
         required: ["label", "value"],
       },
     },
+    sampleObject:{
+      type: "array",
+      items: {
+          type: "string",        
+      },
+      required: ["label", "value"],
+    },
     localizationModules: {
       type: "array",
       items: {

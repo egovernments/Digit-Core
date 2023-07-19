@@ -1,4 +1,4 @@
-import { Loader, FormComposer } from "@egovernments/digit-ui-react-components";
+import { Loader, FormComposerV2 } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -49,7 +49,7 @@ const MDMSAdd = ({ FormSession }) => {
   const configs = Digit.Hooks.workbench.UICreateConfigGenerator(mdmsSchema, {});
 
   return (
-    <FormComposer
+    <FormComposerV2
       heading={t("Add MDMS Data")}
       label={t("Add Master")}
       description={""}

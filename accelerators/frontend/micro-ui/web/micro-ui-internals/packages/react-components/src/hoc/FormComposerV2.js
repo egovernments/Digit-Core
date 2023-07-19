@@ -83,6 +83,7 @@ export const FormComposer = (props) => {
   } = useForm({
     defaultValues: props.defaultValues,
   });
+  // console.log(props,'props');
   const { t } = useTranslation();
   const formData = watch();
   const selectedFormCategory = props?.currentFormCategory;
@@ -454,7 +455,34 @@ export const FormComposer = (props) => {
             />
           </form>
         ); 
-      
+      case "object":
+        return <Controller
+        name={`${populators.name}`}
+        control={control}
+        defaultValue={formData?.[populators.name]}
+        rules={{ required: populators?.isMandatory, ...populators.validation }}
+        render={(props) => {
+          return (
+            <div style={{ display: "grid", gridAutoFlow: "row" }}>
+              object
+            </div>
+          );
+        }}
+      />
+      case "array":
+        return <Controller
+        name={`${populators.name}`}
+        control={control}
+        defaultValue={formData?.[populators.name]}
+        rules={{ required: populators?.isMandatory, ...populators.validation }}
+        render={(props) => {
+          return (
+            <div style={{ display: "grid", gridAutoFlow: "row" }}>
+              array
+            </div>
+          );
+        }}
+      />
       case "locationdropdown":
         return (
           <Controller
@@ -699,79 +727,7 @@ export const FormComposer = (props) => {
     ),
     [props.config, formData]
   );
-  const formFieldsAll = useMemo(
-    () =>
-      props.config?.map((section, index, array) => {
-        return (
-          <React.Fragment key={index}>
-            {section && getCombinedComponent(section)}
-            {section.body.map((field, index) => {
-              if (props.inline)
-                return (
-                  <React.Fragment key={index}>
-                    <div style={field.isInsideBox ? getCombinedStyle(field?.placementinbox) : {}}>
-                      {!field.withoutLabel && (
-                        <CardLabel
-                          style={{ color: field.isSectionText ? "#505A5F" : "", marginBottom: props.inline ? "8px" : "revert" }}
-                          className={field?.disable ? "disabled" : ""}
-                        >
-                          {t(field.label)}
-                          {field.isMandatory ? " * " : null}
-                          {field.labelChildren && field.labelChildren}
-                        </CardLabel>
-                      )}
-                      {errors && errors[field.populators?.name] && Object.keys(errors[field.populators?.name]).length ? (
-                        <CardLabelError>{t(field.populators.error || errors[field.populators?.name]?.message)}</CardLabelError>
-                      ) : null}
-                      <div style={field.withoutLabel ? { width: "100%" } : {}} className="field">
-                        {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field)}
-                        {field?.description && (
-                          <CardLabel
-                            style={{
-                              marginTop: "-24px",
-                              fontSize: "16px",
-                              fontWeight: "bold",
-                              color: "#505A5F",
-                              ...field?.descriptionStyles,
-                            }}
-                          >
-                            {t(field.description)}
-                          </CardLabel>
-                        )}
-                      </div>
-                    </div>
-                  </React.Fragment>
-                );
-              return (
-                <Fragment>
-                  <LabelFieldPair key={index}>
-                    {!field.withoutLabel && (
-                      <CardLabel
-                        style={{ color: field.isSectionText ? "#505A5F" : "", marginBottom: props.inline ? "8px" : "revert", ...props.fieldStyle }}
-                      >
-                        {t(field.label)}
-                        {field.isMandatory ? " * " : null}
-                      </CardLabel>
-                    )}
-                    <div style={field.withoutLabel ? { width: "100%", ...props?.fieldStyle } : {}} className="field">
-                      {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field)}
-                      {field?.description && <CardText style={{ fontSize: "14px", marginTop: "-24px" }}>{t(field?.description)}</CardText>}
-                    </div>
-                  </LabelFieldPair>
-                  {field?.populators?.name && errors && errors[field?.populators?.name] && Object.keys(errors[field?.populators?.name]).length ? (
-                    <CardLabelError style={{ width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" }}>
-                      {t(field?.populators?.error)}
-                    </CardLabelError>
-                  ) : null}
-                </Fragment>
-              );
-            })}
-            {!props.noBreakLine && (array.length - 1 === index ? null : <BreakLine style={props?.breaklineStyle ? props?.breaklineStyle : {}} />)}
-          </React.Fragment>
-        );
-      }),
-    [props.config, formData]
-  );
+
 
   const getCardStyles = (shouldDisplay = true) => {
     let styles = props.cardStyle || {};
