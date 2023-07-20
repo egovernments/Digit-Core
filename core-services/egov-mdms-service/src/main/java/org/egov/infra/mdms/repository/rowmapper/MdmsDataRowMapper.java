@@ -10,6 +10,7 @@ import org.egov.infra.mdms.model.SchemaDefinition;
 import static org.egov.infra.mdms.errors.ErrorCodes.*;
 import org.egov.tracer.model.CustomException;
 import org.postgresql.util.PGobject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
@@ -28,8 +29,8 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArray>> {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * @param resultSet

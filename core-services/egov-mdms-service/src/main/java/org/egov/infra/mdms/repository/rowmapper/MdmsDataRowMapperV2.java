@@ -7,6 +7,7 @@ import org.egov.common.contract.models.AuditDetails;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.tracer.model.CustomException;
 import org.postgresql.util.PGobject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,8 @@ import static org.egov.infra.mdms.errors.ErrorCodes.INVALID_JSON_MSG;
 @Slf4j
 public class MdmsDataRowMapperV2 implements ResultSetExtractor<List<Mdms>> {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * @param resultSet

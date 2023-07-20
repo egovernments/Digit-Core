@@ -15,8 +15,6 @@ import static org.egov.infra.mdms.utils.MDMSConstants.DOT_SEPARATOR;
 @Component
 public class MdmsDataQueryBuilderV2 {
 
-    private static final Gson gson = new Gson();
-
     private static final String SEARCH_MDMS_DATA_QUERY = "SELECT data.id, data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM eg_mdms_data data ";
 

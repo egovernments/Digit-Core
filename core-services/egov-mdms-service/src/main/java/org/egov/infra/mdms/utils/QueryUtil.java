@@ -109,7 +109,7 @@ public class QueryUtil {
         if(index == nestedKeyArray.length)
             return;
 
-            // For the final level simply put the value in the map.
+        // For the final level simply put the value in the map.
         else if (index == nestedKeyArray.length - 1) {
             currentQueryMap.put(nestedKeyArray[index], value);
             return;
