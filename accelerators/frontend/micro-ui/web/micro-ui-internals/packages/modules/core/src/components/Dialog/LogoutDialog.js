@@ -101,6 +101,7 @@ const LogoutDialog = ({ onSelect, onCancel, onDismiss }) => {
       actionSaveLabel={t("CORE_LOGOUT_WEB_YES")}
       actionSaveOnSubmit={onSelect}
       formId="modal-action"
+      style={{margin:"0px"}}
     >
       <div>
         <CardText style={{ marginBottom: "54px", marginLeft: "8px", marginRight: "8px" }}>
