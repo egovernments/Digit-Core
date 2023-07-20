@@ -6,6 +6,8 @@ import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
+import org.egov.infra.mdms.utils.SchemaUtil;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,36 +18,37 @@ import net.minidev.json.JSONArray;
 @Slf4j
 public class MDMSService {
 
-
 	private MdmsDataValidator mdmsDataValidator;
 
 	private MdmsDataEnricher mdmsDataEnricher;
 
 	private MdmsDataRepository mdmsDataRepository;
 
+	private SchemaUtil schemaUtil;
 
 	@Autowired
 	public MDMSService(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-					   MdmsDataRepository mdmsDataRepository) {
-
+					   MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil) {
 		this.mdmsDataValidator = mdmsDataValidator;
 		this.mdmsDataEnricher = mdmsDataEnricher;
 		this.mdmsDataRepository = mdmsDataRepository;
+		this.schemaUtil = schemaUtil;
 	}
 
-   /* public JSONArray getFilterData(Map<String, String> schemaCodeFilterMap, Map<String, JSONArray> masterMap) {
-		for(Map.Entry<String,String> entry : schemaCodeFilterMap.entrySet()) {
-			masterMap.get(entry.getKey());
-			JSONArray filteredMasters = JsonPath.read(masters, filterExp);
-		}
-
-        return filteredMasters;
-    }*/
-
 	public List<Mdms> create(MdmsRequest mdmsRequest) {
-		String uniqueIdentifier = mdmsDataValidator.validate(mdmsRequest);
-		mdmsDataEnricher.enrichCreateRequest(mdmsRequest, uniqueIdentifier);
+
+		// Fetch schema against which data is getting created
+		JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
+
+		// Validate incoming request
+		mdmsDataValidator.validate(mdmsRequest, schemaObject);
+
+		// Enrich incoming request
+		mdmsDataEnricher.enrichCreateRequest(mdmsRequest, schemaObject);
+
+		// Emit mdms creation request event
 		mdmsDataRepository.create(mdmsRequest);
+
 		return Arrays.asList(mdmsRequest.getMdms());
 	}
 

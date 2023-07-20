@@ -6,7 +6,9 @@ import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsRequest;
 import org.egov.infra.mdms.model.SchemaDefinition;
 import org.egov.infra.mdms.model.SchemaDefinitionRequest;
+import org.egov.infra.mdms.utils.CompositeUniqueIdentifierGenerationUtil;
 import org.egov.tracer.model.CustomException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -14,11 +16,11 @@ import java.util.UUID;
 @Component
 public class MdmsDataEnricher {
 
-    public void enrichCreateRequest(MdmsRequest mdmsRequest, String uniqueIdentifier) {
+    public void enrichCreateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject) {
         Mdms mdms = mdmsRequest.getMdms();
         mdms.setId(UUID.randomUUID().toString());
         mdms.setAuditDetails(getAuditDetail(mdmsRequest.getRequestInfo(),mdms.getAuditDetails(), true));
-        mdms.setUniqueIdentifier(uniqueIdentifier);
+        mdms.setUniqueIdentifier(CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
     }
 
     public AuditDetails getAuditDetail(RequestInfo requestInfo, AuditDetails auditDetails, Boolean isCreateRequest) {
