@@ -10,7 +10,8 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
   const search = useLocation().search;
   const fromScreen = new URLSearchParams(search).get("from") || null;
-  const pathVar=location.pathname.replace(defaultPath,"");
+  const pathVar=location.pathname.replace(defaultPath+'/',"");
+
   const crumbs = [
     {
       path: `/${window?.contextPath}/employee`,
@@ -19,8 +20,8 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
     },
     {
       path: `/${window.contextPath}/employee/masters/response`,
-      content:  t(`${pathVar}`) ,
-      show: true
+      content:  t(`${Digit.Utils.workbench.getMDMSLabel(pathVar)}`) ,
+      show: true,
     },
   ];
   return <BreadCrumb crumbs={crumbs} spanStyle={{ maxWidth: "min-content" }} />;

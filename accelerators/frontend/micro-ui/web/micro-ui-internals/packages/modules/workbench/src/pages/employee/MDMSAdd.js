@@ -1,13 +1,16 @@
 import { Loader, FormComposerV2 } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
 import { mdmsSchema } from "../../configs/sampleschema";
 import _ from "lodash";
+import { useHistory, useParams } from "react-router-dom";
+
 
 
 const MDMSAdd = ({ FormSession }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
+  const { moduleName, masterName } = useParams();
+console.log("moduleName, masterName",moduleName, masterName)
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
 
   const [session, setSession] = useState(sessionFormData);
@@ -50,7 +53,7 @@ const MDMSAdd = ({ FormSession }) => {
 
   return (
     <FormComposerV2
-      heading={t("WBH_ADD_MDMS")}
+      headerLabel="WBH_ADD_MDMS"
       label={t("WBH_ADD_MDMS_ADD_ACTION")}
       description={""}
       text={""}
