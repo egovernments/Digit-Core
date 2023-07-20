@@ -30,6 +30,7 @@ import Paragraph from "../atoms/Paragraph";
 import InputTextAmount from "../atoms/InputTextAmount";
 import LocationDropdownWrapper from "../molecules/LocationDropdownWrapper";
 import ApiDropdown from "../molecules/ApiDropdown";
+import Header from "../atoms/Header";
 
 const wrapperStyles = {
   // "display":"flex",
@@ -785,7 +786,9 @@ export const FormComposer = (props) => {
   );
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(e) => checkKeyDown(e)} id={props.formId} className={props.className}>
+    <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(e) => checkKeyDown(e)} id={props.formId} className={props.className}>        
+              {props?.headerLabel&&<Header className="digit-form-composer-header">{ t(props.headerLabel)}</Header>}
+
       {props?.showMultipleCardsWithoutNavs ? (
           props?.config?.map((section, index, array) => {
             return !section.navLink && (

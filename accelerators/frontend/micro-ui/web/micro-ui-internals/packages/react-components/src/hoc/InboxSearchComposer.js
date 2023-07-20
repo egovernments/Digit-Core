@@ -11,8 +11,12 @@ import MobileSearchComponent from "./MobileView/MobileSearchComponent";
 import MobileSearchResults from "./MobileView/MobileSearchResults";
 import MediaQuery from 'react-responsive';
 import _ from "lodash";
+import Header from "../atoms/Header";
+import { useTranslation } from "react-i18next";
 
-const InboxSearchComposer = ({configs}) => {
+
+const InboxSearchComposer = ({configs,headerLabel}) => {
+    const { t } = useTranslation();
 
     const [enable, setEnable] = useState(false);
     const [state, dispatch] = useReducer(reducer, initialInboxState);
@@ -122,6 +126,7 @@ const InboxSearchComposer = ({configs}) => {
 
     return (
         <InboxContext.Provider value={{state,dispatch}} >
+                          {headerLabel&&<Header className="digit-form-composer-header">{ t(headerLabel)}</Header>}
             <div className="inbox-search-component-wrapper ">
             <div className={`sections-parent ${configs?.type}`}>
                 {
