@@ -50,8 +50,8 @@ const MDMSAdd = ({ FormSession }) => {
 
   return (
     <FormComposerV2
-      heading={t("Add MDMS Data")}
-      label={t("Add Master")}
+      heading={t("WBH_ADD_MDMS")}
+      label={t("WBH_ADD_MDMS_ADD_ACTION")}
       description={""}
       text={""}
       config={configs.map((config) => {

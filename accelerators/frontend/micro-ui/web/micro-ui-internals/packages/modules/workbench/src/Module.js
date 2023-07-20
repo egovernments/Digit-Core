@@ -7,8 +7,9 @@ import { UICustomizations } from "./configs/UICustomizations";
 import HRMSCard from "./components/HRMSCard";
 import WorkbenchCard from "./components/WorkbenchCard";
 
+
 const WorkbenchModule = ({ stateCode, userType, tenants }) => {
-  const moduleCode = ["workbench"];
+  const moduleCode = ["workbench","mdms"];
   const { path, url } = useRouteMatch();
   const language = Digit.StoreData.getCurrentLanguage();
   const { isLoading, data: store } = Digit.Services.useStore({
