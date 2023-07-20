@@ -19,12 +19,12 @@ const WorkbenchCard = () => {
 
   let links = [
     {
-      label: t("WBH_LOCALISATION"),
+      label: t("ACTION_TEST_LOCALISATION"),
       link: `/${window?.contextPath}/employee/workbench/localisation-search`,
       roles: ROLES.LOCALISATION,
     },
     {
-      label: t("WBH_MDMS"),
+      label: t("ACTION_TEST_MDMS"),
       link: `/${window?.contextPath}/employee/workbench/mdms-search`,
       roles: ROLES.MDMS,
     },
@@ -35,7 +35,7 @@ const WorkbenchCard = () => {
 
   const propsForModuleCard = {
     Icon: <WorksMgmtIcon />,
-    moduleName: t("WBH"),
+    moduleName: t("ACTION_TEST_WORKBENCH"),
     kpis: [
     ],
     links: links,
