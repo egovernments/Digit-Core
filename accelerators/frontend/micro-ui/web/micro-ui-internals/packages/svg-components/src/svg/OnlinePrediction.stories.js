@@ -18,3 +18,13 @@ export const Fill = () => <OnlinePrediction fill="blue" />;
 export const Size = () => <OnlinePrediction height="50" width="50" />;
 export const CustomStyle = () => <OnlinePrediction style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <OnlinePrediction className="custom-class" />;
+
+export const Clickable = () => <OnlinePrediction onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <OnlinePrediction {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

@@ -46,7 +46,7 @@
     "dist"
   ],
   "dependencies": {
-    "@egovernments/digit-ui-svg-components":"0.0.1",
+    "@egovernments/digit-ui-svg-components":"0.0.2",
     "@googlemaps/js-api-loader": "1.13.10",
     "react-date-range": "1.3.0",
     "react-hook-form": "6.15.8",

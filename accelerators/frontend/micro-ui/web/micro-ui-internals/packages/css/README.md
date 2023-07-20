@@ -42,6 +42,7 @@ frontend/micro-ui/web/public/index.html
 # Changelog
 
 ```bash
+1.5.32 newer css DIGITv2 added and corrected few existing issues
 1.5.31 Corrected the CSS for inbox composers and default core ui
 1.5.30 Updated the css for dynamic drodown filter dss
 1.5.29 layout issues fixed
@@ -54,7 +55,7 @@ frontend/micro-ui/web/public/index.html
 ```
 
 ## Published from DIGIT Core 
-Digit Dev Repo (https://github.com/egovernments/DIGIT-Dev/tree/digit-ui-core)
+Digit Core Repo (https://github.com/egovernments/Core-Platform/tree/digit-ui-core)
 
 ## License
 

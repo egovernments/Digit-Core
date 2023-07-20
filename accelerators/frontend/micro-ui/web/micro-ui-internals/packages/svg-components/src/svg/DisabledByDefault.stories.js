@@ -18,3 +18,13 @@ export const Fill = () => <DisabledByDefault fill="blue" />;
 export const Size = () => <DisabledByDefault height="50" width="50" />;
 export const CustomStyle = () => <DisabledByDefault style={{ border: "1px solid red" }} />;
 export const CustomClassName = () => <DisabledByDefault className="custom-class" />;
+
+export const Clickable = () => <DisabledByDefault onClick={()=>console.log("clicked")} />;
+
+const Template = (args) => <DisabledByDefault {...args} />;
+
+export const Playground = Template.bind({});
+Playground.args = {
+  className: "custom-class",
+  style: { border: "3px solid green" }
+};

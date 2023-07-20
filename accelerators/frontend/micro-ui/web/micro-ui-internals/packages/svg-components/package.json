@@ -1,13 +1,13 @@
 {
   "name": "@egovernments/digit-ui-svg-components",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
   "engines": {
     "node": ">=14"
   },
-  "homepage": "https://unified-dev.digit.org/storybook/",
+  "homepage": "https://unified-dev.digit.org/storybook-svg/",
   "author": "Jagankumar <jagan.kumar@egov.org.in>",
   "license": "MIT",
   "scripts": {
@@ -55,5 +55,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "keywords": ["digit","svg","components"]
 }

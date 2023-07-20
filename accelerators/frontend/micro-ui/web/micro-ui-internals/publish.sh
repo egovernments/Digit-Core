@@ -11,13 +11,13 @@ msg() {
 # sleep 5
 
 msg "Building and publishing css"
-cd "$BASEDIR/packages/css" && npm publish --access public
+# cd "$BASEDIR/packages/css" && npm publish --access public
 
 msg "Building and publishing libraries"
 # cd "$BASEDIR/packages/libraries" && yarn publish --access public
 
 msg "Building and publishing react-components"
-cd "$BASEDIR/packages/react-components" && rm -rf dist && yarn && npm publish --tag core-1.0
+# cd "$BASEDIR/packages/react-components" && rm -rf dist && yarn && npm publish --tag core-1.0
 
 # sleep 10
 # msg "Updating dependencies"
@@ -43,4 +43,4 @@ cd "$BASEDIR/packages/react-components" && rm -rf dist && yarn && npm publish --
 # cd "$BASEDIR/packages/modules/utilities" &&   rm -rf dist && yarn&& npm publish --tag core-1.0
 
 # msg "Building and publishing svg components"
-# cd "$BASEDIR/packages/svg-components" && rm -rf dist && yarn && npm publish --tag core-1.0
+cd "$BASEDIR/packages/svg-components" && rm -rf dist && yarn && npm publish --access public

@@ -20,10 +20,10 @@ export const CustomStyle = () => <ZoomOut style={{ border: "1px solid red" }} />
 export const CustomClassName = () => <ZoomOut className="custom-class" />;
 export const Clickable = () => <ZoomOut onClick={()=>console.log("clicked")} />;
 
-const Template = (args) => <ZoomOut {...args}/>;
+const Template = (args) => <ZoomOut {...args} />;
 
 export const Playground = Template.bind({});
 Playground.args = {
-  className: 'custom-class',
-  style:{ border: "3px solid green" }
+  className: "custom-class",
+  style: { border: "3px solid green" }
 };

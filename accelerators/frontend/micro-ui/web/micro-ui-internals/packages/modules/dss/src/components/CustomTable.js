@@ -277,14 +277,15 @@ const CustomTable = ({ data = {}, onSearch, setChartData, setChartDenomination }
 
   const tableColumns = useMemo(() => {
     const columns = response?.responseData?.data?.find((row) => !!row);
+    const chartId = response?.responseData?.visualizationCode;
     return columns?.plots
       ?.filter((plot) => plot?.name !== "TankCapacity")
       .map((plot, index) => ({
         Header: (
-          <span className="tooltip" data-tip="React-tooltip" data-for={`jk-table-${index}`}>
+          <span className="tooltip" data-tip="React-tooltip" data-for={`jk-table-${chartId}-${index}`}>
             {renderHeader(plot)}
 
-            <ReactTooltip textColor="#fff" backgroundColor="#555" place="bottom" type="info" effect="solid" id={`jk-table-${index}`}>
+            <ReactTooltip textColor="#fff" backgroundColor="#555" place="bottom" type="info" effect="solid" id={`jk-table-${chartId}-${index}`}>
               {t(`TIP_DSS_HEADER_${Digit.Utils.locale.getTransformedLocale(plot?.name)}`)}
             </ReactTooltip>
             {/* <span
