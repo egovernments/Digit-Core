@@ -50,6 +50,8 @@ body {
   color: theme(colors.text.secondary);
   display: flex;
   margin-bottom: 10px;
+  list-style: none;
+  padding: 0;
 }
 .bread-crumb--item {
   margin-left: 5px;

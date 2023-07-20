@@ -42,6 +42,7 @@ frontend/micro-ui/web/public/index.html
 # Changelog
 
 ```bash
+1.5.34 Fixed breadcrumb styling issue
 1.5.33 fixed some card related css issues due to v2 css
 1.5.32 newer css DIGITv2 added and corrected few existing issues
 1.5.31 Corrected the CSS for inbox composers and default core ui
