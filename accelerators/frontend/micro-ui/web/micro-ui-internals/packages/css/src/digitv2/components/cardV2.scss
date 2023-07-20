@@ -248,7 +248,11 @@
   }
 
   .employeeCard {
-    @apply mb-md mx-md !important;
+    /*  TODO need to revisit that we need mx-md NABEEL/ANIL
+     @apply mb-md mx-md !important;
+    */
+    @apply mb-md !important;
+
 
     &.filter {
       margin-left: auto;
