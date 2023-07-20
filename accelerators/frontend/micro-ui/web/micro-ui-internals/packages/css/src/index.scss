@@ -106,6 +106,8 @@
 @import "./pages/citizen/updatePropertyNumber.scss";
 @import "./pages/citizen/citizenDocument.scss";
 @import "./pages/employee/surveys.scss";
+@import "./digitv2/index.scss";
+/* @import "./digitv2/typography.scss"; */
 @import "./components/inboxv2/index.scss";
 
 .display-none {
@@ -555,11 +557,10 @@ input[type="number"] {
 .full-employee-card-link {
   width: 100% !important;
   margin: 7px 0px;
-  a{
+  a {
     color: inherit;
-    text-decoration: inherit
+    text-decoration: inherit;
   }
-
 }
 .full-employee-card-height {
   height: unset !important;
@@ -732,4 +733,3 @@ input[type="number"] {
   max-height: 120px;
   margin-top: 90px;
 }
-

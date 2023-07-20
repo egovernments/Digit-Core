@@ -1,4 +1,8 @@
+@import url("../../digitv2/index.scss");
+
 .horizontal-nav {
+    @extend .light-paper-primary;
+    @extend .light-text-color-primary;
     overflow: auto;
     display: flex;
     margin-top: 3rem;
@@ -21,6 +25,7 @@
         background: none;
 
         .icon {
+            @extend .light-background;
             display: block;
             color: rgb(117, 117, 117);
             fill: rgb(117, 117, 117);

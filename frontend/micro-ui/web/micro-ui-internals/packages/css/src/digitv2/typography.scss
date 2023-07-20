@@ -1,0 +1,133 @@
+.typography {
+  &.text-heading-xl-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.heading-xl-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.bold);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.heading-xl);
+    }
+  }
+  &.text-heading-l-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.heading-l-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.bold);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.heading-l);
+    }
+  }
+
+  &.text-heading-m-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.heading-m-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.bold);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.heading-m);
+    }
+  }
+
+  &.text-heading-m {
+    font-family: theme(digitv2.fontFamily.sans);
+    font-size: theme(digitv2.fontSize.heading-m);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.bold);
+
+    @media (max-width: theme(digitv2.screens.sm.max)) {
+      font-size: theme(digitv2.fontSize.heading-m);
+    }
+  }
+
+  &.text-heading-s {
+    font-family: theme(digitv2.fontFamily.sans);
+    font-size: theme(digitv2.fontSize.heading-s);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.bold);
+  }
+
+  &.text-caption-xl-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.caption-xl-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.regular);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.caption-xl);
+    }
+  }
+
+  &.text-caption-l-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.caption-l-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.regular);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.caption-l);
+    }
+  }
+
+  &.text-caption-m-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.caption-m-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.regular);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.caption-m);
+    }
+  }
+  &.text-body-l-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.body-l-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.regular);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.body-l);
+    }
+  }
+
+  &.text-body-s-dt {
+    font-family: theme(digitv2.fontFamily.rc);
+    font-size: theme(digitv2.fontSize.body-s-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.regular);
+
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.body-s);
+    }
+  }
+
+  &.text-body-xs {
+    @media (max-width: theme(digitv2.screens.sm.max)) {
+      font-size: theme(digitv2.fontSize.body-xs);
+      font-family: theme(digitv2.fontFamily.sans);
+      font-style: theme(digitv2.fontStyle.normal);
+      font-weight: theme(digitv2.fontWeight.regular);
+    }
+  }
+
+
+  &.text-link {
+    font-family: theme(digitv2.fontFamily.sans);
+    font-size: theme(digitv2.fontSize.link);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.regular);
+  }
+  &.text-label-dt {
+    font-family: theme(digitv2.fontFamily.sans);
+    font-size: theme(digitv2.fontSize.label-dt);
+    font-style: theme(digitv2.fontStyle.normal);
+    font-weight: theme(digitv2.fontWeight.regular);
+    @media (max-width: theme(digitv2.screens.dt)) {
+      font-size: theme(digitv2.fontSize.label-m);
+
+    }
+
+  }
+}
