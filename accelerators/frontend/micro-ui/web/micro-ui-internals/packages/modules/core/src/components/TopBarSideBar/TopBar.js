@@ -134,7 +134,7 @@ const TopBar = ({
                   showArrow={true}
                   freeze={true}
                   style={mobileView ? { right: 0 } : {}}
-                  optionCardStyles={{ overflow: "revert" }}
+                  optionCardStyles={{ overflow: "revert",display:"table" }}
                   customSelector={
                     profilePic == null ? (
                       <TextToImg name={userDetails?.info?.name || userDetails?.info?.userInfo?.name || "Employee"} />
