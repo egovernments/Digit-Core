@@ -33,25 +33,42 @@ public class MDMSControllerV2 {
         this.mdmsServiceV2 = mdmsServiceV2;
     }
 
+    /**
+     * Request handler for serving create requests
+     * @param mdmsRequest
+     * @param schemaCode
+     * @return
+     */
     @RequestMapping(value="_create/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> create(@Parameter(in = ParameterIn.DEFAULT, description = "Data create request", required=true, schema=@Schema()) @Valid @RequestBody MdmsRequest mdmsRequest, @Parameter(in = ParameterIn.PATH, description = "Unique schema code from schema master", required=true, schema=@Schema()) @PathVariable("schemaCode") String schemaCode) {
-        List<Mdms> mdmsList = mdmsServiceV2.create(mdmsRequest);
-        MdmsResponseV2 mdmsCreateResponse = MdmsResponseV2.builder().mdms(mdmsList).build();
+    public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
+        List<Mdms> masterDataList = mdmsServiceV2.create(mdmsRequest);
+        MdmsResponseV2 mdmsCreateResponse = MdmsResponseV2.builder().mdms(masterDataList).build();
         return new ResponseEntity<>(mdmsCreateResponse, HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Request handler for serving search requests
+     * @param masterDataSearchCriteria
+     * @param schemaCode
+     * @return
+     */
     @RequestMapping(value="_search/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<?> search(@Parameter(in = ParameterIn.DEFAULT, description = "Details of module and master which need to be search using MDMS .", required=true, schema=@Schema()) @Valid @RequestBody MdmsCriteriaReqV2 body, @Parameter(in = ParameterIn.PATH, description = "Unique schema code from schema master", required=true, schema=@Schema()) @PathVariable("schemaCode") String schemaCode) {
-        List<Mdms>  mdmsList = mdmsServiceV2.searchV2(body);
-        MdmsResponseV2 mdmsCreateResponse = MdmsResponseV2.builder().mdms(mdmsList).build();
+    public ResponseEntity<MdmsResponseV2> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria, @PathVariable("schemaCode") String schemaCode) {
+        List<Mdms> masterDataList = mdmsServiceV2.search(masterDataSearchCriteria);
+        MdmsResponseV2 mdmsCreateResponse = MdmsResponseV2.builder().mdms(masterDataList).build();
         return new ResponseEntity<>(mdmsCreateResponse, HttpStatus.OK);
     }
 
+    /**
+     * Request handler for serving update requests
+     * @param mdmsRequest
+     * @param schemaCode
+     * @return
+     */
     @RequestMapping(value="_update/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> update(@Parameter(in = ParameterIn.DEFAULT, description = "Details of module and master which need to be search using MDMS .", required=true, schema=@Schema()) @Valid @RequestBody MdmsRequest body, @Parameter(in = ParameterIn.PATH, description = "Unique schema code from schema master", required=true, schema=@Schema()) @PathVariable("schemaCode") String schemaCode) {
-        List<Mdms> updatedMdmsList = mdmsServiceV2.updateV2(body);
-        MdmsResponseV2 mdmsUpdateResponse = MdmsResponseV2.builder().mdms(updatedMdmsList).build();
-
+    public ResponseEntity<MdmsResponseV2> update(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
+        List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest);
+        MdmsResponseV2 mdmsUpdateResponse = MdmsResponseV2.builder().mdms(masterDataList).build();
         return new ResponseEntity<>(mdmsUpdateResponse, HttpStatus.ACCEPTED);
     }
 }

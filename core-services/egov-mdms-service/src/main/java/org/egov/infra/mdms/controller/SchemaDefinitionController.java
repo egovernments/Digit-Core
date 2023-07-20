@@ -47,23 +47,20 @@ public class SchemaDefinitionController {
 
     @RequestMapping(value = "_create", method = RequestMethod.POST)
     @MeasureTime
-    public ResponseEntity<SchemaDefinitionResponse> create(@Parameter(in = ParameterIn.DEFAULT,
-            description = "Request body to add new master schema", required = true,
-            schema = @Schema()) @Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest) {
+    public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest) {
         List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest);
         return new ResponseEntity<SchemaDefinitionResponse>(getSchemaDefinitionResponse(schemaDefinitionRequest.getRequestInfo(), schemaDefinitions, "v1", "Request Accepted For Create"),HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "_search", method = RequestMethod.POST)
     @MeasureTime
-    public ResponseEntity<SchemaDefinitionResponse> search(@Parameter(in = ParameterIn.DEFAULT, description = "Details of module and master which need to be search using MDMS .", required = true, schema = @Schema()) @Valid @RequestBody SchemaDefSearchRequest schemaDefSearchRequest) {
-        log.info("Search schema definitions");
-        List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(schemaDefSearchRequest);
-        return new ResponseEntity<SchemaDefinitionResponse>(getSchemaDefinitionResponse(schemaDefSearchRequest.getRequestInfo(), schemaDefinitions, "v1", HttpStatus.ACCEPTED.toString()),HttpStatus.ACCEPTED);
+    public ResponseEntity<SchemaDefinitionResponse> search(@Valid @RequestBody SchemaDefSearchRequest schemaDefinitionSearchRequest) {
+        List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(schemaDefinitionSearchRequest);
+        return new ResponseEntity<SchemaDefinitionResponse>(getSchemaDefinitionResponse(schemaDefinitionSearchRequest.getRequestInfo(), schemaDefinitions, "v1", HttpStatus.ACCEPTED.toString()),HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "_update", method = RequestMethod.POST)
-    public ResponseEntity<SchemaDefinitionResponse> update(@Parameter(in = ParameterIn.DEFAULT, description = "Request body to update existing master schema", required = true, schema = @Schema()) @Valid @RequestBody SchemaDefinitionRequest body) {
+    public ResponseEntity<SchemaDefinitionResponse> update(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionUpdateRequest) {
         return new ResponseEntity<SchemaDefinitionResponse>(HttpStatus.NOT_IMPLEMENTED);
     }
 

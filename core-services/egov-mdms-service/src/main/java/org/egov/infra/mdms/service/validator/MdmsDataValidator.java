@@ -46,12 +46,14 @@ public class MdmsDataValidator {
         ErrorUtil.throwCustomExceptions(errors);
     }
 
+    public void validateSearchRequest(){
+
+    }
+
     private void validateSchemaCode(String schemaCode, MdmsRequest mdmsRequest) {
         //Path param schema matches to the body schema code (may not be required if override)
         //is Schema exist in schema registry
     }
-
-
 
     private void validateDataWithSchemaDefinition(MdmsRequest mdmsRequest, JSONObject schemaObject,Map<String, String> errors) {
         try {

@@ -30,6 +30,8 @@ public class MdmsDataRowMapperV2 implements ResultSetExtractor<List<Mdms>> {
     private ObjectMapper objectMapper;
 
     /**
+     * This method accepts resultSet from the executed search query and extracts data out
+     * of the result set and maps it into master data POJO
      * @param resultSet
      * @return
      * @throws SQLException
@@ -47,7 +49,7 @@ public class MdmsDataRowMapperV2 implements ResultSetExtractor<List<Mdms>> {
                     lastModifiedTime(resultSet.getLong("lastmodifiedtime")).build();
 
             JsonNode data = null;
-            if( ! isNull(resultSet.getObject("data"))){
+            if (!isNull(resultSet.getObject("data"))) {
                 String dataStr = ((PGobject) resultSet.getObject("data")).getValue();
                 try {
                     data = objectMapper.readTree(dataStr);
@@ -64,6 +66,7 @@ public class MdmsDataRowMapperV2 implements ResultSetExtractor<List<Mdms>> {
                     .data(data)
                     .isActive(resultSet.getBoolean("isactive"))
                     .auditDetails(auditDetails).build();
+
             mdmsList.add(mdms);
         }
 

@@ -35,12 +35,17 @@ public class MDMSController {
         this.mdmsService = mdmsService;
     }
 
-
+    /**
+     * Request handler for serving v1 search requests
+     * @param body
+     * @param schemaCode
+     * @return
+     */
     @RequestMapping(value="_search/{schemaCode}", method = RequestMethod.POST)
     public ResponseEntity<?> search(@Parameter(in = ParameterIn.DEFAULT, description = "Details of module and master which need to be search using MDMS .", required=true, schema=@Schema()) @Valid @RequestBody MdmsCriteriaReq body, @Parameter(in = ParameterIn.PATH, description = "Unique schema code from schema master", required=true, schema=@Schema()) @PathVariable("schemaCode") String schemaCode) {
         Map<String,Map<String,JSONArray>>  moduleMasterMap = mdmsService.search(body);
-        MdmsResponse mdmsResponse = MdmsResponse.builder().mdmsRes(moduleMasterMap)
-                //.responseInfo(ResponseInfoUtil.buildResponseInfo(body.getRequestInfo(),"v1",HttpStatus.OK.toString()))
+        MdmsResponse mdmsResponse = MdmsResponse.builder()
+                .mdmsRes(moduleMasterMap)
                 .build();
         return new ResponseEntity<>(mdmsResponse, HttpStatus.OK);
     }

@@ -28,15 +28,15 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
 
     private SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder;
 
-
-    private static final SchemaDefinitionRowMapper rowMapper = new SchemaDefinitionRowMapper();
+    private SchemaDefinitionRowMapper rowMapper;
 
     @Autowired
     public SchemaDefinitionDbRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
-                                            ApplicationConfig applicationConfig){
+                                            ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper){
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
+        this.rowMapper = rowMapper;
     }
 
 

@@ -33,6 +33,8 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArr
     private ObjectMapper objectMapper;
 
     /**
+     * This method accepts a resultSet and extracts master data in JSONArray format
+     * and creates a map of schemaCode vs master data
      * @param resultSet
      * @return
      * @throws SQLException
@@ -41,9 +43,9 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArr
     @Override
     public Map<String, JSONArray> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
 
-        Map<String, Map<String, JSONArray>> tenantMasterModuleMap = new HashMap<>();
         Map<String, JSONArray> masterMap = new HashMap<>();
         JSONArray jsonArray = null;
+
         while(resultSet.next()){
 
             JsonNode data = null;
@@ -60,7 +62,7 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArr
             jsonArray.add(data);
             masterMap.put(schemaCode, jsonArray);
         }
-        log.debug("MdmsDataRowMapper:", masterMap);
+
         return masterMap;
     }
 }

@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.egov.infra.mdms.utils.MDMSConstants.DOT_REGEX;
-import static org.egov.infra.mdms.utils.MDMSConstants.DOT_SEPARATOR;
+import static org.egov.infra.mdms.utils.MDMSConstants.*;
 
 public class QueryUtil {
 

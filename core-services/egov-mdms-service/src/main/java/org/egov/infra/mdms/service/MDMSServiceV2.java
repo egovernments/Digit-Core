@@ -61,7 +61,9 @@ public class MDMSServiceV2 {
      * @param mdmsCriteriaReqV2
      * @return
      */
-    public List<Mdms> searchV2(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
+    public List<Mdms> search(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
+
+        // Make a call to repository and get list of master data
         List<Mdms> mdmsList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
         return mdmsList;
     }
@@ -71,7 +73,7 @@ public class MDMSServiceV2 {
      * @param mdmsRequest
      * @return
      */
-    public List<Mdms> updateV2(MdmsRequest mdmsRequest) {
+    public List<Mdms> update(MdmsRequest mdmsRequest) {
         mdmsDataEnricher.enrichUpdateRequest(mdmsRequest);
         return null;
     }
