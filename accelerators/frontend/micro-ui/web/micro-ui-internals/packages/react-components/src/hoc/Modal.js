@@ -42,8 +42,8 @@ const Modal = ({
         <div className="popup-module-main" style={popupModuleMianStyles ? popupModuleMianStyles : {}}>
           {children}
           <div className="popup-module-action-bar" style={isOBPSFlow?!mobileView?{marginRight:"18px"}:{position:"absolute",bottom:"5%",right:"10%",left:window.location.href.includes("employee")?"0%":"7%"}:popupModuleActionBarStyles}>
-            {actionCancelLabel ? <ButtonSelector theme="border" label={actionCancelLabel} onSubmit={actionCancelOnSubmit} style={style}/> : null}
-            {!hideSubmit ? <ButtonSelector label={actionSaveLabel} onSubmit={actionSaveOnSubmit} formId={formId} isDisabled={isDisabled} style={style}/> : null}
+            {actionCancelLabel ? <ButtonSelector textStyles={{margin:"0px"}} theme="border" label={actionCancelLabel} onSubmit={actionCancelOnSubmit} style={style}/> : null}
+            {!hideSubmit ? <ButtonSelector textStyles={{margin:"0px"}} label={actionSaveLabel} onSubmit={actionSaveOnSubmit} formId={formId} isDisabled={isDisabled} style={style}/> : null}
           </div>
         </div>
       </div>
