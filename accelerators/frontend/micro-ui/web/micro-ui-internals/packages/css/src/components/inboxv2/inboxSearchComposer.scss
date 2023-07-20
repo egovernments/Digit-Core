@@ -1,15 +1,25 @@
 @import url("../../digitv2/index.scss");
 
 .inbox-search-wrapper {
+    /*
+    TODO NABEEL/ANIL Removed these since it creates issues in search screen
     @extend .light-background;
+
+    */
     height: 100%;
     .inbox-search-component-wrapper {
-        @extend .light-background;
-        height: 100%;
+ /*
+    TODO NABEEL/ANIL Removed these since it creates issues in search screen
+    @extend .light-background;
+
+    */        height: 100%;
         width: 100%;
         .sections-parent {
-            @extend .light-background;
-            height: 100%;
+ /*
+    TODO NABEEL/ANIL Removed these since it creates issues in search screen
+    @extend .light-background;
+
+    */            height: 100%;
             display: grid;
             grid-template-columns: 20% 1fr;
             gap : 1rem;
