@@ -70,7 +70,8 @@ module.exports = function (app) {
     "/works-inbox-service/v2/_search",
     "/egov-pdf/download/WORKSESTIMATE/estimatepdf",
     "/muster-roll",
-    "/individual"
+    "/individual",
+    "/mdms-v2"
   ].forEach((location) => app.use(location, createProxy));
   ["/pb-egov-assets"].forEach((location) => app.use(location, assetsProxy));
 };

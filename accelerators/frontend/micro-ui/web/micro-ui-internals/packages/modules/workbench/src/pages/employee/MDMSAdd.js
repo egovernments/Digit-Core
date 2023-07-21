@@ -1,16 +1,17 @@
-import { Loader, FormComposerV2 } from "@egovernments/digit-ui-react-components";
-import React, { useEffect, useState } from "react";
+import { Loader, FormComposerV2, Toast } from "@egovernments/digit-ui-react-components";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mdmsSchema } from "../../configs/sampleschema";
 import _ from "lodash";
 import { useHistory, useParams } from "react-router-dom";
 
-
-
 const MDMSAdd = ({ FormSession }) => {
-  const tenantId = Digit.ULBService.getCurrentTenantId();
-  const { moduleName, masterName } = useParams();
-console.log("moduleName, masterName",moduleName, masterName)
+  // const tenantId = Digit.ULBService.getCurrentTenantId();
+  const stateId = Digit.ULBService.getStateId();
+  const [showErrorToast, setShowErrorToast] = useState(false);
+
+  const [showToast, setShowToast] = useState(false);
+  const { moduleName, masterName, tenantId } = Digit.Hooks.useQueryParams();
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
 
   const [session, setSession] = useState(sessionFormData);
@@ -18,11 +19,72 @@ console.log("moduleName, masterName",moduleName, masterName)
   const { t } = useTranslation();
   const history = useHistory();
 
+  const reqCriteria = {
+    url: "/mdms-v2/schema/v1/_search",
+    params: {},
+    body: {
+      SchemaDefCriteria: {
+        tenantId: tenantId || stateId,
+        codes: [`${moduleName}.${masterName}`],
+      },
+    },
+    config: {
+      enabled: moduleName && masterName,
+      select: (data) => {
+        return data?.SchemaDefinitions?.[0] || {};
+      },
+    },
+  };
+  const reqCriteriaAdd = {
+    url: "/mdms-v2/v2/_create/common-masters.Sample",
+    params: {},
+    body: {
+      Mdms: {
+        tenantId: stateId,
+        schemaCode: "common-masters.Sample",
+        uniqueIdentifier: null,
+        data: {},
+        isActive: true,
+      },
+    },
+    config: {
+      enabled: true,
+      select: (data) => {
+        return data?.SchemaDefinitions?.[0] || {};
+      },
+    },
+  };
+  const { isLoading, data: schema, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
+  const mutation = Digit.Hooks.useCustomAPIMutationHook(reqCriteriaAdd);
   const onSubmit = (data) => {
     const formattedData = Digit.Utils.workbench.getFormattedData(data);
-    console.log(formattedData,"entered data")
-  };
+    const onSuccess = (resp) => {
+      setSessionFormData({});
+      setShowToast("Success :: " + resp?.mdms?.[0]?.id);
+    };
+    const onError = (resp) => {
+      setShowErrorToast("Error :: " + resp?.response?.data?.Errors?.[0]?.code);
+    };
 
+    mutation.mutate(
+      {
+        params: {},
+        body: {
+          Mdms: {
+            tenantId: stateId,
+            schemaCode: "common-masters.Sample",
+            uniqueIdentifier: null,
+            data: { ...formattedData },
+            isActive: true,
+          },
+        },
+      },
+      {
+        onError,
+        onSuccess,
+      }
+    );
+  };
   const onFormValueChange = (setValue, formData, formState) => {
     // if (!_.isEqual(sessionFormData, formData)) {
     //   // const result = _.pickBy(sessionFormData, (v, k) => !_.isEqual(formData[k], v));
@@ -48,8 +110,11 @@ console.log("moduleName, masterName",moduleName, masterName)
   }, [session]);
 
   /* use newConfig instead of commonFields for local development in case needed */
+  if (isLoading) {
+    return null;
+  }
 
-  const configs = Digit.Hooks.workbench.UICreateConfigGenerator(mdmsSchema, {});
+  const configs = Digit.Hooks.workbench.UICreateConfigGenerator(schema, {});
 
   return (
     <FormComposerV2
@@ -63,6 +128,7 @@ console.log("moduleName, masterName",moduleName, masterName)
           body: config.body.filter((a) => !a.hideInEmployee),
         };
       })}
+      customToast={showToast ? { error: false, label: showToast } : showErrorToast ? { error: true, label: showErrorToast } : null}
       defaultValues={session}
       onFormValueChange={onFormValueChange}
       onSubmit={onSubmit}

@@ -50,7 +50,7 @@ const MDMSSearch = () => {
             variation="secondary"
             icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
             onButtonClick={() => {
-              history.push(`/${window?.contextPath}/employee/${updatedConfig?.actionLink}`);
+              history.push(`/${window?.contextPath}/employee/${updatedConfig?.actionLink}` + "?moduleName=common-masters&masterName=StateInfo1");
             }}
             type="button"
           />

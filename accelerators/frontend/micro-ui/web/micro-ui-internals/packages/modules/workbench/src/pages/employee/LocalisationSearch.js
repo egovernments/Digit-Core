@@ -6,7 +6,6 @@ import { Config } from "../../configs/searchLocalisationConfig";
 
 // works-ui/employee/dss/search/commonMuktaUiConfig/SearchEstimateConfig
 const MDMSSearch = () => {
-  console.log("ssss");
   const { t } = useTranslation();
   const history = useHistory();
   const { moduleName, masterName } = useParams();

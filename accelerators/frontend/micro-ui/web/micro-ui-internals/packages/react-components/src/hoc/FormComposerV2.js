@@ -84,11 +84,11 @@ export const FormComposer = (props) => {
   } = useForm({
     defaultValues: props.defaultValues,
   });
-  // console.log(props,'props');
   const { t } = useTranslation();
   const formData = watch();
   const selectedFormCategory = props?.currentFormCategory;
   const [showErrorToast, setShowErrorToast] = useState(false); 
+  const [customToast, setCustomToast] = useState(props?.customToast||false); 
 
   //clear all errors if user has changed the form category. 
   //This is done in case user first click on submit and have errors in cat 1, switches to cat 2 and hit submit with errors
@@ -632,6 +632,7 @@ export const FormComposer = (props) => {
 
   const closeToast = () => {
     setShowErrorToast(false);
+    setCustomToast(false);
   }
 
   //remove Toast from 3s
@@ -848,6 +849,8 @@ export const FormComposer = (props) => {
         </ActionBar>
       )}
       {showErrorToast && <Toast error={true} label={t("ES_COMMON_PLEASE_ENTER_ALL_MANDATORY_FIELDS")} isDleteBtn={true} onClose={closeToast} />}
+      {customToast && <Toast error={customToast?.error} label={t(customToast?.label)} isDleteBtn={true} onClose={closeToast} />}
+
     </form>
   );
 };
