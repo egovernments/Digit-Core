@@ -6,6 +6,7 @@ import org.egov.infra.mdms.model.MdmsCriteriaV2;
 import org.egov.infra.mdms.utils.QueryUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 
@@ -60,6 +61,11 @@ public class MdmsDataQueryBuilderV2 {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(schemaCodeFilterMap.keySet().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
+        }
+        if(!Objects.isNull(mdmsCriteriaV2.getSchemaCode())){
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+            builder.append(" data.schemacode = ? ");
+            preparedStmtList.add(mdmsCriteriaV2.getSchemaCode());
         }
         if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getFilterMap())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);

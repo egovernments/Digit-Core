@@ -65,6 +65,7 @@ public class MDMSServiceV2 {
 
         // Make a call to repository and get list of master data
         List<Mdms> mdmsList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
+
         return mdmsList;
     }
 

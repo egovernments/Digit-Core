@@ -58,6 +58,11 @@ public class SchemaDefinitionRowMapper implements ResultSetExtractor<List<Schema
         return schemaDefinitions;
     }
 
+    /**
+     * This method accepts a PGobject and converts it into JsonNode.
+     * @param pGobject
+     * @return
+     */
     private JsonNode getJsonValue(PGobject pGobject) {
         try {
             if (Objects.isNull(pGobject) || Objects.isNull(pGobject.getValue()))
