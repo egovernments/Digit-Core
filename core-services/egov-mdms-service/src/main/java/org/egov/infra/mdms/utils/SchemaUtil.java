@@ -44,7 +44,7 @@ public class SchemaUtil {
         if(CollectionUtils.isEmpty(schemaDefinitions))
             throw new CustomException("SCHEMA_DEFINITION_NOT_FOUND_ERR", "Schema definition against which data is being created is not found");
 
-        JSONObject schemaObject = new JSONObject(schemaDefinitions.get(0).toString());
+        JSONObject schemaObject = new JSONObject(schemaDefinitions.get(0).getDefinition().toString());
 
         return schemaObject;
     }

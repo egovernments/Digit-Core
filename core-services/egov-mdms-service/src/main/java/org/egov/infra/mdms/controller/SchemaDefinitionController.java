@@ -1,18 +1,10 @@
 package org.egov.infra.mdms.controller;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
-import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.contract.response.ResponseInfo;
-import org.egov.common.utils.ResponseInfoUtil;
-import org.egov.infra.mdms.config.MeasureTime;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
-import org.egov.tracer.model.CustomException;
+import org.egov.infra.mdms.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
@@ -33,42 +21,43 @@ import java.util.List;
 @Slf4j
 public class SchemaDefinitionController {
 
-    private final ObjectMapper objectMapper;
-
-    private final HttpServletRequest request;
-
     private SchemaDefinitionService schemaDefinitionService;
+
     @Autowired
-    public SchemaDefinitionController(ObjectMapper objectMapper, HttpServletRequest request, SchemaDefinitionService schemaDefinitionService) {
-        this.objectMapper = objectMapper;
-        this.request = request;
+    public SchemaDefinitionController(SchemaDefinitionService schemaDefinitionService) {
         this.schemaDefinitionService = schemaDefinitionService;
     }
 
+    /**
+     * Request handler for serving schema create requests.
+     * @param schemaDefinitionRequest
+     * @return
+     */
     @RequestMapping(value = "_create", method = RequestMethod.POST)
-    @MeasureTime
     public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest) {
         List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest);
-        return new ResponseEntity<SchemaDefinitionResponse>(getSchemaDefinitionResponse(schemaDefinitionRequest.getRequestInfo(), schemaDefinitions, "v1", "Request Accepted For Create"),HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitionRequest.getRequestInfo(), schemaDefinitions), HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Request handler for serving schema search requests.
+     * @param schemaDefinitionSearchRequest
+     * @return
+     */
     @RequestMapping(value = "_search", method = RequestMethod.POST)
-    @MeasureTime
     public ResponseEntity<SchemaDefinitionResponse> search(@Valid @RequestBody SchemaDefSearchRequest schemaDefinitionSearchRequest) {
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(schemaDefinitionSearchRequest);
-        return new ResponseEntity<SchemaDefinitionResponse>(getSchemaDefinitionResponse(schemaDefinitionSearchRequest.getRequestInfo(), schemaDefinitions, "v1", HttpStatus.ACCEPTED.toString()),HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitionSearchRequest.getRequestInfo(), schemaDefinitions), HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Request handler for serving schema update requests - NOT implemented as of now.
+     * @param schemaDefinitionUpdateRequest
+     * @return
+     */
     @RequestMapping(value = "_update", method = RequestMethod.POST)
     public ResponseEntity<SchemaDefinitionResponse> update(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionUpdateRequest) {
-        return new ResponseEntity<SchemaDefinitionResponse>(HttpStatus.NOT_IMPLEMENTED);
-    }
-
-    //TODO
-    private SchemaDefinitionResponse getSchemaDefinitionResponse(RequestInfo requestInfo , List<SchemaDefinition> schemaDefinitions, String apiVersion, String status){
-        //ResponseInfo responseInfo = ResponseInfoUtil.buildResponseInfo(requestInfo,apiVersion, status);
-        SchemaDefinitionResponse schemaDefinitionResponse = SchemaDefinitionResponse.builder().schemaDefinitions(schemaDefinitions).responseInfo(null).build();
-        return schemaDefinitionResponse;
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 }

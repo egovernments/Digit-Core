@@ -12,7 +12,6 @@ import org.egov.infra.mdms.repository.rowmapper.SchemaDefinitionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,31 +40,37 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
 
 
     /**
+     * This method emits schema definition create request on kafka for async persistence
      * @param schemaDefinitionRequest
      */
     @Override
-
-
     public void create(SchemaDefinitionRequest schemaDefinitionRequest) {
         producer.push(applicationConfig.getSaveSchemaDefinitionTopicName(), schemaDefinitionRequest);
     }
 
     /**
-     * @param schemaDefinitionRequest
-     */
-    @Override
-    public void update(SchemaDefinitionRequest schemaDefinitionRequest) {
-    }
-
-    /**
+     * This method queries the database and returns schema definition search response based on
+     * the provided criteria.
      * @param schemaDefCriteria
      */
     @Override
     public List<SchemaDefinition> search(SchemaDefCriteria schemaDefCriteria) {
-        List<Object> params = new ArrayList<>();
-        String query = SchemaDefinitionQueryBuilder.getSchemaSearchQuery(schemaDefCriteria, params);
-        log.info(query);
-        return jdbcTemplate.query(query, params.toArray(), rowMapper);
+        List<Object> preparedStatementList = new ArrayList<>();
+
+        // Invoke query builder to generate query based on the provided criteria
+        String query = SchemaDefinitionQueryBuilder.getSchemaSearchQuery(schemaDefCriteria, preparedStatementList);
+        log.info("Schema definition search query: " + query);
+
+        // Query the database to fetch schema definitions
+        return jdbcTemplate.query(query, preparedStatementList.toArray(), rowMapper);
+    }
+
+    /**
+     * Skeleton method for update as update API has not been implemented
+     * @param schemaDefinitionRequest
+     */
+    @Override
+    public void update(SchemaDefinitionRequest schemaDefinitionRequest) {
     }
 
 }

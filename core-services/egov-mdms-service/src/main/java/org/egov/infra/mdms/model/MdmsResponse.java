@@ -10,8 +10,6 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,14 +22,12 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class MdmsResponse {
-    @JsonProperty("ResponseInfo")
 
+    @JsonProperty("ResponseInfo")
     @Valid
     private ResponseInfo responseInfo = null;
 
     @JsonProperty("mdmsRes")
-
     private Map<String, Map<String, JSONArray>> mdmsRes = null;
-
 
 }
