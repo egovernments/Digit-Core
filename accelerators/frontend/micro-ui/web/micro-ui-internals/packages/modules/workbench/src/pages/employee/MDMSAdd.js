@@ -29,7 +29,7 @@ const MDMSAdd = ({ FormSession }) => {
       },
     },
     config: {
-      enabled: moduleName && masterName,
+      enabled: moduleName && masterName && true,
       select: (data) => {
         return data?.SchemaDefinitions?.[0] || {};
       },
@@ -111,7 +111,7 @@ const MDMSAdd = ({ FormSession }) => {
 
   /* use newConfig instead of commonFields for local development in case needed */
   if (isLoading) {
-    return null;
+    return <Loader/>
   }
 
   const configs = Digit.Hooks.workbench.UICreateConfigGenerator(schema, {});

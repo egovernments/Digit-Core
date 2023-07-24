@@ -4,7 +4,7 @@
  * @author jagankumar-egov
  *
  * @example
- *   Digit.Hooks.workbench.UICreateConfigGenerator({},{})
+ *   Digit.Hooks.workbench.UIFormBodyGenerator({},{})
  *
  * @returns {Array<object>} Returns the Form Body config
  */
