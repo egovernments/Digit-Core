@@ -62,6 +62,7 @@ const { Accessibility } = SVG;
 # Changelog
 
 ```bash
+0.0.2 Added NoResultsFoundicon,StarFilled & Star Empty
 0.0.1 base version
 ```
 
