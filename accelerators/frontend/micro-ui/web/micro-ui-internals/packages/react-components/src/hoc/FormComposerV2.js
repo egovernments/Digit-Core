@@ -32,6 +32,8 @@ import LocationDropdownWrapper from "../molecules/LocationDropdownWrapper";
 import ApiDropdown from "../molecules/ApiDropdown";
 import Header from "../atoms/Header";
 
+
+
 const wrapperStyles = {
   // "display":"flex",
   // "flexDirection":"column",
@@ -82,13 +84,17 @@ export const FormComposer = (props) => {
     clearErrors,
     unregister,
   } = useForm({
+    // context: "contactForm",
     defaultValues: props.defaultValues,
+    // resolver: validateResolver,
+
   });
   const { t } = useTranslation();
+  // console.log(formState,'formState');
   const formData = watch();
   const selectedFormCategory = props?.currentFormCategory;
   const [showErrorToast, setShowErrorToast] = useState(false); 
-  const [customToast, setCustomToast] = useState(props?.customToast||false); 
+  const [customToast, setCustomToast] = useState(false); 
 
   //clear all errors if user has changed the form category. 
   //This is done in case user first click on submit and have errors in cat 1, switches to cat 2 and hit submit with errors
@@ -100,6 +106,7 @@ export const FormComposer = (props) => {
   useEffect(()=>{
     if(Object.keys(formState?.errors).length > 0 && formState?.submitCount > 0) {
       setShowErrorToast(true);
+      console.log(formState?.errors,'formState?.errors');
     }
   },[formState?.errors, formState?.submitCount]);
 
@@ -116,6 +123,10 @@ export const FormComposer = (props) => {
   useEffect(() => {
     props.getFormAccessors && props.getFormAccessors({ setValue, getValues });
   }, []);
+
+  useEffect(()=>{
+    setCustomToast(props?.customToast);
+  },[props?.customToast])
 
   function onSubmit(data) {
     props.onSubmit(data);
@@ -370,8 +381,7 @@ export const FormComposer = (props) => {
       case "radioordropdown":
         return (
           <Controller
-            render={(props) => (
-              <CustomDropdown
+            render={(props) =>(<CustomDropdown
                 t={t}
                 label={config?.label}
                 type={type}
@@ -524,6 +534,15 @@ export const FormComposer = (props) => {
                     formData={formData}
                     inputRef={props.ref}
                     errors={errors}
+                    t={t}
+                    label={config?.label}
+                    type={type}
+                    onBlur={props.onBlur}
+                    value={props.value}
+                    onChange={props.onChange}
+                    config={populators}
+                    disable={config?.disable}
+                    errorStyle={errors?.[populators.name]}
                   />
                 </div>
               );
@@ -633,6 +652,7 @@ export const FormComposer = (props) => {
   const closeToast = () => {
     setShowErrorToast(false);
     setCustomToast(false);
+    props?.updateCustomToast&&props?.updateCustomToast(false);
   }
 
   //remove Toast from 3s

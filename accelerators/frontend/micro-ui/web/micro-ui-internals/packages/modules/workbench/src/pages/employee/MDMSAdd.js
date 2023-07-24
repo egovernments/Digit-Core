@@ -18,7 +18,7 @@ const MDMSAdd = ({ FormSession }) => {
 
   const { t } = useTranslation();
   const history = useHistory();
-
+console.log("test");
   const reqCriteria = {
     url: "/mdms-v2/schema/v1/_search",
     params: {},
@@ -36,12 +36,12 @@ const MDMSAdd = ({ FormSession }) => {
     },
   };
   const reqCriteriaAdd = {
-    url: "/mdms-v2/v2/_create/common-masters.Sample",
+    url: `/mdms-v2/v2/_create/${moduleName}.${masterName}`,
     params: {},
     body: {
       Mdms: {
         tenantId: stateId,
-        schemaCode: "common-masters.Sample",
+        schemaCode: `${moduleName}.${masterName}`,
         uniqueIdentifier: null,
         data: {},
         isActive: true,
@@ -59,11 +59,11 @@ const MDMSAdd = ({ FormSession }) => {
   const onSubmit = (data) => {
     const formattedData = Digit.Utils.workbench.getFormattedData(data);
     const onSuccess = (resp) => {
-      setSessionFormData({});
-      setShowToast("Success :: " + resp?.mdms?.[0]?.id);
+      setTimeout(()=>{setSessionFormData({})},1500);
+      setShowToast(`Success ::  ${ resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowErrorToast("Error :: " + resp?.response?.data?.Errors?.[0]?.code);
+      setShowErrorToast(`Error :: ${resp?.response?.data?.Errors?.[0]?.code}`);
     };
 
     mutation.mutate(
@@ -129,6 +129,7 @@ const MDMSAdd = ({ FormSession }) => {
         };
       })}
       customToast={showToast ? { error: false, label: showToast } : showErrorToast ? { error: true, label: showErrorToast } : null}
+      updateCustomToast={()=>setShowToast(false)}
       defaultValues={session}
       onFormValueChange={onFormValueChange}
       onSubmit={onSubmit}
