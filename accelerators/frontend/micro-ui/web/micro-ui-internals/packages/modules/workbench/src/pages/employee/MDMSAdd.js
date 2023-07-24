@@ -72,7 +72,7 @@ console.log("test");
         body: {
           Mdms: {
             tenantId: stateId,
-            schemaCode: "common-masters.Sample",
+            schemaCode: `${moduleName}.${masterName}`,
             uniqueIdentifier: null,
             data: { ...formattedData },
             isActive: true,
