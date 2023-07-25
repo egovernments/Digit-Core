@@ -1,4 +1,6 @@
-import "@egovernments/digit-ui-css/example/index.css";
+// import "@egovernments/digit-ui-css/example/index.css";
+import "@egovernments/digit-ui-css/dist/index.css";
+
 // import '../src/index.css';
 //👇 Configures Storybook to log the actions( onArchiveTask and onPinTask ) in the UI.
 /** @type { import('@storybook/react').Preview } */
