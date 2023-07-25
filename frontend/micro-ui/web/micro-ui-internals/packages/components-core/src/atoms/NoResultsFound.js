@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { NoResultsFoundIcon } from "@egovernments/digit-ui-svg-components/src";
+import { NoResultsFoundIcon } from "@egovernments/digit-ui-svg-components";
 
 const NoResultsFound = (props) => {
   const { t } = useTranslation();
