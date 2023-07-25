@@ -112,7 +112,7 @@
             <version>1.18.2</version>
             <scope>provided</scope>
         </dependency>
-        <!--Added spring-boot-starter-data-jpa dependency-->
+        <!--Added spring-boot-starter-data-jpa dependency -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
