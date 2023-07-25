@@ -1,6 +1,8 @@
 import React, { useRef } from "react";
 import PropTypes from "prop-types";
+/* add these two files into svg component and use it TODO @anil*/
 import { StarFilled, StarEmpty } from "@egovernments/digit-ui-react-components/src/atoms/svgindex";
+import { StarRate, Stars } from "@egovernments/digit-ui-svg-components";
 
 const Rating = (props) => {
   var stars = [];
@@ -11,7 +13,7 @@ const Rating = (props) => {
       const index = i;
       // stars.push(<img key={i} src={starfilled} className="rating-star" alt="star filled" ref={star} onClick={(e,ref)=>props.onFeedback(e,ref)}/>)
       stars.push(
-        <StarFilled
+        <StarRate
           key={i}
           id={`${props.id}gradient${i}`}
           className="digit-rating-star"
@@ -22,7 +24,7 @@ const Rating = (props) => {
     } else if (i - props.currentRating > 0 && i - props.currentRating < 1) {
       const index = i;
       stars.push(
-        <StarFilled
+        <Stars
           key={i}
           id={`${props.id}gradient${i}`}
           className="digit-rating-star"
@@ -35,7 +37,7 @@ const Rating = (props) => {
       const index = i;
       // stars.push(<img key={i} src={starempty} className="rating-star" alt="star empty" ref={star} onClick={(e,ref)=>props.onFeedback(e,ref)}/>)
       stars.push(
-        <StarEmpty
+        <Stars
           key={i}
           className={`digit-rating-star ${props?.className ? props?.className : ""}`}
           styles={props?.starStyles}
