@@ -50,7 +50,7 @@ public class SchemaDefinitionService {
         schemaDefinitionValidator.validateCreateRequest(schemaDefinitionRequest);
 
         // Enrich schema create request
-        schemaDefinitionEnricher.enrichCreateReq(schemaDefinitionRequest);
+        schemaDefinitionEnricher.enrichCreateRequest(schemaDefinitionRequest);
 
         // Invoke repository method to emit schema creation event
         schemaDefinitionRepository.create(schemaDefinitionRequest);

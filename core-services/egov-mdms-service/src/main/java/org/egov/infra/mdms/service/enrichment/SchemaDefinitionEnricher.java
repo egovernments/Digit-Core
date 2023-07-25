@@ -3,6 +3,7 @@ package org.egov.infra.mdms.service.enrichment;
 import org.egov.common.contract.models.AuditDetails;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.AuditDetailsEnrichmentUtil;
+import org.egov.common.utils.UUIDEnrichmentUtil;
 import org.egov.infra.mdms.model.SchemaDefinition;
 import org.egov.infra.mdms.model.SchemaDefinitionRequest;
 import org.egov.tracer.model.CustomException;
@@ -13,14 +14,18 @@ import java.util.UUID;
 @Component
 public class SchemaDefinitionEnricher {
 
-    public void enrichCreateReq(SchemaDefinitionRequest schemaDefinitionRequest) {
+    /**
+     * This method enriches schemaDefinitionRequest
+     * @param schemaDefinitionRequest
+     */
+    public void enrichCreateRequest(SchemaDefinitionRequest schemaDefinitionRequest) {
         SchemaDefinition schemaDefinition = schemaDefinitionRequest.getSchemaDefinition();
-        schemaDefinition.setAuditDetails(getAuditDetail(schemaDefinitionRequest.getRequestInfo(),schemaDefinition.getAuditDetails(), true));
-        enrichUUID(schemaDefinition);
-    }
 
-    private void enrichUUID(SchemaDefinition schemaDefinition) {
-        schemaDefinition.setId(UUID.randomUUID().toString());
+        // Invoke enrichment of uuid on id field of schemaDefinition
+        UUIDEnrichmentUtil.enrichRandomUuid(schemaDefinition, "id");
+
+        // Populate auditDetails
+        schemaDefinition.setAuditDetails(getAuditDetail(schemaDefinitionRequest.getRequestInfo(),schemaDefinition.getAuditDetails(), true));
     }
 
     public AuditDetails getAuditDetail(RequestInfo requestInfo, AuditDetails auditDetails, Boolean isCreateRequest) {

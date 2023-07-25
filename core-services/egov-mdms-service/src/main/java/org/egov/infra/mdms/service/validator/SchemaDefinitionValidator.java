@@ -5,12 +5,14 @@ import org.egov.infra.mdms.model.SchemaDefCriteria;
 import org.egov.infra.mdms.model.SchemaDefSearchRequest;
 import org.egov.infra.mdms.model.SchemaDefinition;
 import org.egov.infra.mdms.model.SchemaDefinitionRequest;
+import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
+import org.egov.infra.mdms.repository.impl.SchemaDefinitionDbRepositoryImpl;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
 import static org.egov.infra.mdms.errors.ErrorCodes.*;
 
+import org.egov.infra.mdms.utils.ErrorUtil;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -21,33 +23,48 @@ import java.util.Map;
 @Component
 public class SchemaDefinitionValidator {
 
-
-    private SchemaDefinitionService schemaDefinitionService;
+    private SchemaDefinitionRepository schemaDefinitionRepository;
 
     @Autowired
-    public SchemaDefinitionValidator( @Lazy SchemaDefinitionService schemaDefinitionService) {
-        this.schemaDefinitionService = schemaDefinitionService;
+    public SchemaDefinitionValidator(SchemaDefinitionRepository schemaDefinitionRepository) {
+        this.schemaDefinitionRepository = schemaDefinitionRepository;
     }
 
+    /**
+     * This method performs business validations on schemaDefinitionRequest.
+     * @param schemaDefinitionRequest
+     */
     public void validateCreateRequest(SchemaDefinitionRequest schemaDefinitionRequest) {
+
         SchemaDefinition schemaDefinition = schemaDefinitionRequest.getSchemaDefinition();
         RequestInfo requestInfo = schemaDefinitionRequest.getRequestInfo();
         Map<String, String> errors = new HashMap<>();
-        checkSchemaCode(requestInfo, schemaDefinition.getTenantId(), Arrays.asList(schemaDefinition.getCode()), errors);
-        throwCustomException(errors);
+
+        // Check schema code uniqueness
+        checkSchemaCode(schemaDefinition.getTenantId(), Arrays.asList(schemaDefinition.getCode()), errors);
+
+        // Throw errors if any
+        ErrorUtil.throwCustomExceptions(errors);
     }
 
-    private void checkSchemaCode(RequestInfo requestInfo, String tenantId, List<String> codes, Map<String, String> errorMap) {
+    /**
+     * This method checks whether a schema definition with the provided tenantId and code already exists.
+     * @param tenantId
+     * @param codes
+     * @param errorMap
+     */
+    private void checkSchemaCode(String tenantId, List<String> codes, Map<String, String> errorMap) {
+
+        // Build schema definition search criteria
         SchemaDefCriteria schemaDefCriteria = SchemaDefCriteria.builder().tenantId(tenantId).codes(codes).build();
-        List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(SchemaDefSearchRequest.builder().requestInfo(requestInfo).schemaDefCriteria(schemaDefCriteria).build());
+
+        // Search for schema definitions with the incoming tenantId and codes
+        List<SchemaDefinition> schemaDefinitions = schemaDefinitionRepository.search(schemaDefCriteria);
+
+        // If schema definition already exists for tenantId and code combination, populate error map
         if(!schemaDefinitions.isEmpty()){
             errorMap.put(DUPLICATE_SCHEMA_CODE, DUPLICATE_SCHEMA_CODE_MSG);
         }
     }
 
-    private void throwCustomException(Map<String, String> exceptions) {
-        if (!exceptions.isEmpty()) {
-            throw new CustomException(exceptions);
-        }
-    }
 }

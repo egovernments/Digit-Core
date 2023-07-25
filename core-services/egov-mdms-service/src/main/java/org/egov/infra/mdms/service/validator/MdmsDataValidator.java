@@ -33,6 +33,11 @@ public class MdmsDataValidator {
         this.mdmsDataRepository = mdmsDataRepository;
     }
 
+    /**
+     * This method performs business validations on master data request.
+     * @param mdmsRequest
+     * @param schemaObject
+     */
     public void validate(MdmsRequest mdmsRequest, JSONObject schemaObject) {
         // Initialize error map and fetch schema
         Map<String, String> errors = new HashMap<>();
@@ -55,13 +60,25 @@ public class MdmsDataValidator {
         //is Schema exist in schema registry
     }
 
+    /**
+     * This method validates the incoming master data against the schema for which the master
+     * data is being created and populates violations(if any) in errors map.
+     * @param mdmsRequest
+     * @param schemaObject
+     * @param errors
+     */
     private void validateDataWithSchemaDefinition(MdmsRequest mdmsRequest, JSONObject schemaObject,Map<String, String> errors) {
         try {
+            // Load incoming master data as a json object
             JSONObject dataObject = new JSONObject(mdmsRequest.getMdms().getData().toString());
 
+            // Load schema
             Schema schema = SchemaLoader.load(schemaObject);
+
+            // Validate data against the schema
             schema.validate(dataObject);
         } catch (ValidationException e) {
+            // Populate errors map for all the validation errors
             Integer count = 0;
             if (!e.getCausingExceptions().isEmpty()) {
                 for (ValidationException validationException : e.getCausingExceptions()) {
@@ -72,13 +89,21 @@ public class MdmsDataValidator {
                 errors.put("INVALID_REQUEST", e.getErrorMessage());
             }
         } catch (Exception e) {
-            throw e;
+            throw new CustomException("MASTER_DATA_VALIDATION_ERR", "An unknown error occurred while validating provided master data against the schema - " + e.getMessage());
         }
     }
 
+    /**
+     * This method checks whether the master data which is being created already
+     * exists in the database or not.
+     * @param schemaObject
+     * @param mdmsRequest
+     */
     private void checkDuplicate(JSONObject schemaObject, MdmsRequest mdmsRequest) {
+        // Get the uniqueIdentifier for the incoming master data request
         String uniqueIdentifier = CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest);
 
+        // Make a call to the repository to check if the provided master data already exists
         Map<String, JSONArray> moduleMasterData = mdmsDataRepository.search(MdmsCriteria.builder()
                         .tenantId(mdmsRequest.getMdms().getTenantId())
                         .uniqueIdentifier(uniqueIdentifier)
@@ -86,6 +111,7 @@ public class MdmsDataValidator {
 
         JSONArray masterData = moduleMasterData.get(mdmsRequest.getMdms().getSchemaCode());
 
+        // Throw error if the provided master data already exists
         if (masterData != null && masterData.size() != 0) {
             throw new CustomException("DUPLICATE_RECORD", "Duplicate record");
         }
