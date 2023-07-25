@@ -6,15 +6,11 @@ import org.egov.common.utils.AuditDetailsEnrichmentUtil;
 import org.egov.common.utils.UUIDEnrichmentUtil;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsRequest;
-import org.egov.infra.mdms.model.SchemaDefinition;
-import org.egov.infra.mdms.model.SchemaDefinitionRequest;
 import org.egov.infra.mdms.utils.CompositeUniqueIdentifierGenerationUtil;
 import org.egov.tracer.model.CustomException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-
-import java.util.UUID;
 
 @Component
 public class MdmsDataEnricher {

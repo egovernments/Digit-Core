@@ -21,7 +21,7 @@ public class ApplicationConfig {
     @Value("${egov.mdms.data.save.topic}")
     private String saveMdmsDataTopicName;
 
-    @Value("${egov.mdms.schema.definition.update.topic}")
-    private String updateSchemaDefinitionTopicName;
+    @Value("${egov.mdms.data.update.topic}")
+    private String updateMdmsDataTopicName;
 
 }

@@ -48,9 +48,6 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         this.mdmsDataQueryBuilderV2 = mdmsDataQueryBuilderV2;
     }
 
-
-
-
     /**
      * @param mdmsRequest
      */
@@ -64,7 +61,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      */
     @Override
     public void update(MdmsRequest mdmsRequest) {
-        producer.push("update-mdms-data", mdmsRequest);
+        producer.push(applicationConfig.getUpdateMdmsDataTopicName(), mdmsRequest);
     }
 
     /**
