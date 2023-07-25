@@ -5,28 +5,30 @@ export const Config = {
   actionRole: "SUPERUSER",
   actionLink: "workbench/mdms-add",
   apiDetails: {
-    serviceName: "/wms/individual/_search",
+    serviceName: "/egov-mdms-service/v1/_search",
     requestParam: {},
     requestBody: {
       MdmsCriteria: {
-        moduleDetails: {
+        moduleDetails: [
+         {
           moduleName: "ACCESSCONTROL-ROLES",
           masterDetails: [
             {
               name: "roles",
-              filter: "",
+              // filter: "",
               // "filter": "[?(@.code=='HRMS_ADMIN')]"
             },
           ],
-        },
+         }
+        ],
       },
     },
     minParametersForSearchForm: 1,
     masterName: "commonUiConfig",
     moduleName: "SearchMDMSConfig",
-    tableFormJsonPath: "requestBody.inbox",
-    filterFormJsonPath: "requestBody.MdmsCriteria.moduleDetails.masterDetails[0].custom",
-    searchFormJsonPath: "requestBody.MdmsCriteria.moduleDetails.masterDetails[0].custom",
+    tableFormJsonPath: "requestBody.MdmsCriteria.moduleDetails[0].masterDetails[0].custom",
+    filterFormJsonPath: "requestBody.MdmsCriteria.moduleDetails[0].masterDetails[0].custom",
+    searchFormJsonPath: "requestBody.MdmsCriteria.moduleDetails[0].masterDetails[0].custom"
   },
   sections: {
     search: {

@@ -7,6 +7,7 @@ import MDMSSearch from "./MDMSSearch";
 import MDMSAdd from "./MDMSAdd";
 import MDMSAddV2 from "./MDMSAddV2";
 
+import MDMSSearchv2 from "./MDMSSearchv2";
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
   const search = useLocation().search;
@@ -48,7 +49,7 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/mdms-add`} component={() =>  <MDMSAdd FormSession={MDMSCreateSession} parentRoute={path}/>} />
           
           <PrivateRoute path={`${path}/mdms-add-v2`} component={() =>  <MDMSAddV2 FormSession={MDMSCreateSession} parentRoute={path}/>} />
-
+          <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 />} />
         </div>
       </Switch>
     </React.Fragment>

@@ -25,7 +25,7 @@ const WorkbenchCard = () => {
     },
     {
       label: t("ACTION_TEST_MDMS"),
-      link: `/${window?.contextPath}/employee/workbench/mdms-search`,
+      link: `/${window?.contextPath}/employee/workbench/mdms-search-v2`,
       roles: ROLES.MDMS,
     }
     ,
