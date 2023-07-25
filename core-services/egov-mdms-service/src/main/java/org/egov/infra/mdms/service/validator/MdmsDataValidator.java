@@ -2,7 +2,6 @@ package org.egov.infra.mdms.service.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
@@ -15,6 +14,7 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import java.util.*;
 import java.util.stream.IntStream;
 import static org.egov.infra.mdms.utils.MDMSConstants.*;
@@ -34,11 +34,11 @@ public class MdmsDataValidator {
     }
 
     /**
-     * This method performs business validations on master data request.
+     * This method performs business validations on create master data request.
      * @param mdmsRequest
      * @param schemaObject
      */
-    public void validate(MdmsRequest mdmsRequest, JSONObject schemaObject) {
+    public void validateCreateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject) {
         // Initialize error map and fetch schema
         Map<String, String> errors = new HashMap<>();
 
@@ -49,15 +49,6 @@ public class MdmsDataValidator {
 
         // Throw validation errors
         ErrorUtil.throwCustomExceptions(errors);
-    }
-
-    public void validateSearchRequest(){
-
-    }
-
-    private void validateSchemaCode(String schemaCode, MdmsRequest mdmsRequest) {
-        //Path param schema matches to the body schema code (may not be required if override)
-        //is Schema exist in schema registry
     }
 
     /**
@@ -103,13 +94,11 @@ public class MdmsDataValidator {
         // Get the uniqueIdentifier for the incoming master data request
         String uniqueIdentifier = CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest);
 
-        // Make a call to the repository to check if the provided master data already exists
-        Map<String, JSONArray> moduleMasterData = mdmsDataRepository.search(MdmsCriteria.builder()
-                        .tenantId(mdmsRequest.getMdms().getTenantId())
-                        .uniqueIdentifier(uniqueIdentifier)
-                        .build());
-
-        JSONArray masterData = moduleMasterData.get(mdmsRequest.getMdms().getSchemaCode());
+        // Fetch master data
+        List<Mdms> masterData = fetchMasterData(MdmsCriteriaV2.builder()
+                .tenantId(mdmsRequest.getMdms().getTenantId())
+                .uniqueIdentifier(uniqueIdentifier)
+                .build());
 
         // Throw error if the provided master data already exists
         if (masterData != null && masterData.size() != 0) {
@@ -118,6 +107,25 @@ public class MdmsDataValidator {
 
     }
 
+    /**
+     * This method fetches master data from the database depending on the criteria
+     * being passed.
+     * @param mdmsCriteria
+     * @return
+     */
+    private List<Mdms> fetchMasterData(MdmsCriteriaV2 mdmsCriteria) {
+        // Make a call to the repository to check if the provided master data already exists
+        List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(mdmsCriteria);
+
+        return moduleMasterData;
+
+    }
+
+    /**
+     * This method validates whether the provided reference exists in the database.
+     * @param schemaObject
+     * @param mdms
+     */
     private void validateReference(JSONObject schemaObject, Mdms mdms) {
         if (schemaObject.has(X_REFERENCE_SCHEMA_KEY)) {
             org.json.JSONArray referenceSchema = (org.json.JSONArray) schemaObject.get(X_REFERENCE_SCHEMA_KEY);
@@ -142,4 +150,51 @@ public class MdmsDataValidator {
         }
     }
 
+    /**
+     * This method performs business validations on create master data request.
+     * @param mdmsRequest
+     * @param schemaObject
+     */
+    public void validateUpdateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject) {
+        // Initialize error map and fetch schema
+        Map<String, String> errors = new HashMap<>();
+
+        // Validations are performed here on the incoming data
+        String uniqueIdentifierOfExistingRecord = fetchUniqueIdentifier(mdmsRequest);
+        validateIfUniqueFieldsAreNotBeingUpdated(uniqueIdentifierOfExistingRecord, CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
+        validateDataWithSchemaDefinition(mdmsRequest, schemaObject, errors);
+        validateReference(schemaObject, mdmsRequest.getMdms());
+
+        // Throw validation errors
+        ErrorUtil.throwCustomExceptions(errors);
+
+    }
+
+    private void validateIfUniqueFieldsAreNotBeingUpdated(String uniqueIdentifierOfExistingRecord, String uniqueIdentifier) {
+        if(!uniqueIdentifierOfExistingRecord.equalsIgnoreCase(uniqueIdentifier)) {
+            throw new CustomException("UNIQUE_KEY_UPDATE_ERR", "Updating fields defined as unique is not allowed.");
+        }
+    }
+
+    private String fetchUniqueIdentifier(MdmsRequest mdmsRequest) {
+        if(ObjectUtils.isEmpty(mdmsRequest.getMdms().getId()))
+            throw new CustomException("MASTER_DATA_ID_ABSENT_ERR", "Providing master data id is mandatory for update operation.");
+
+        Set<String> idForSearch = new HashSet<>();
+        idForSearch.add(mdmsRequest.getMdms().getId());
+
+        // Fetch master data from database
+        List<Mdms> masterData = fetchMasterData(MdmsCriteriaV2.builder()
+                .tenantId(mdmsRequest.getMdms().getTenantId())
+                .ids(idForSearch)
+                .build());
+
+        // Throw error if the provided master data does not exist
+        if (masterData == null || masterData.size() == 0) {
+            throw new CustomException("MASTER_DATA_NOT_FOUND", "Master data not found for update operation.");
+        } // Return unique identifier if the master data exists
+        else {
+            return masterData.get(0).getUniqueIdentifier();
+        }
+    }
 }

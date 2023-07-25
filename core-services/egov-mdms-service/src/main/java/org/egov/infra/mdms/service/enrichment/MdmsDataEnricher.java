@@ -10,6 +10,7 @@ import org.egov.infra.mdms.utils.CompositeUniqueIdentifierGenerationUtil;
 import org.egov.tracer.model.CustomException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.util.UUID;
 
@@ -19,11 +20,11 @@ public class MdmsDataEnricher {
     public void enrichCreateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject) {
         Mdms mdms = mdmsRequest.getMdms();
         mdms.setId(UUID.randomUUID().toString());
-        mdms.setAuditDetails(getAuditDetail(mdmsRequest.getRequestInfo(),mdms.getAuditDetails(), true));
+        mdms.setAuditDetails(getAuditDetails(mdmsRequest.getRequestInfo(),mdms.getAuditDetails(), true));
         mdms.setUniqueIdentifier(CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
     }
 
-    public AuditDetails getAuditDetail(RequestInfo requestInfo, AuditDetails auditDetails, Boolean isCreateRequest) {
+    public AuditDetails getAuditDetails(RequestInfo requestInfo, AuditDetails auditDetails, Boolean isCreateRequest) {
         if(isCreateRequest) {
             auditDetails = AuditDetails.builder().createdBy(requestInfo.getUserInfo().getUuid()).
                     createdTime(System.currentTimeMillis()).lastModifiedBy(requestInfo.getUserInfo().getUuid()).
@@ -42,6 +43,10 @@ public class MdmsDataEnricher {
 
     public void enrichUpdateRequest(MdmsRequest mdmsRequest) {
         Mdms mdms = mdmsRequest.getMdms();
-        mdms.setAuditDetails(getAuditDetail(mdmsRequest.getRequestInfo(), mdms.getAuditDetails(), Boolean.FALSE));
+
+        if(ObjectUtils.isEmpty(mdms.getAuditDetails()))
+            throw new CustomException("AUDIT_DETAILS_ABSENT_ERR", "Audit details cannot be absent for update request");
+
+        mdms.setAuditDetails(getAuditDetails(mdmsRequest.getRequestInfo(), mdms.getAuditDetails(), Boolean.FALSE));
     }
 }

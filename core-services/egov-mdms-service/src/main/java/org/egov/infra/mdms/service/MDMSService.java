@@ -41,7 +41,7 @@ public class MDMSService {
 		JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
 
 		// Validate incoming request
-		mdmsDataValidator.validate(mdmsRequest, schemaObject);
+		mdmsDataValidator.validateCreateRequest(mdmsRequest, schemaObject);
 
 		// Enrich incoming request
 		mdmsDataEnricher.enrichCreateRequest(mdmsRequest, schemaObject);

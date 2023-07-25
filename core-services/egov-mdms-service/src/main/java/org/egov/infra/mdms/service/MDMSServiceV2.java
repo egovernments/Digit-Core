@@ -45,7 +45,7 @@ public class MDMSServiceV2 {
         JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
 
         // Perform validations on incoming request
-        mdmsDataValidator.validate(mdmsRequest, schemaObject);
+        mdmsDataValidator.validateCreateRequest(mdmsRequest, schemaObject);
 
         // Enrich incoming master data
         mdmsDataEnricher.enrichCreateRequest(mdmsRequest, schemaObject);
@@ -75,8 +75,20 @@ public class MDMSServiceV2 {
      * @return
      */
     public List<Mdms> update(MdmsRequest mdmsRequest) {
+
+        // Fetch schema against which data is getting created
+        JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
+
+        // Validate master data update request
+        mdmsDataValidator.validateUpdateRequest(mdmsRequest, schemaObject);
+
+        // Enrich master data update request
         mdmsDataEnricher.enrichUpdateRequest(mdmsRequest);
-        return null;
+
+        // Emit MDMS update event to be listened by persister
+        mdmsDataRepository.update(mdmsRequest);
+
+        return Arrays.asList(mdmsRequest.getMdms());
     }
 
 }

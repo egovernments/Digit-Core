@@ -64,6 +64,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      */
     @Override
     public void update(MdmsRequest mdmsRequest) {
+        producer.push("update-mdms-data", mdmsRequest);
     }
 
     /**
