@@ -6,6 +6,18 @@
 @import url("./components/radiobtnV2.scss");
 @import url("./components/selectdropdownV2.scss");
 @import url("./typography.scss");
+@import url("./components/actionLinkV2.scss");
+@import url("./components/appContainerV2.scss");
+@import url("./components/bodyContainerV2.scss");
+@import url("./components/breadCrumbV2.scss");
+@import url("./components/bannerV2.scss");
+@import url("./components/breakLineV2.scss");
+@import url("./components/loaderV2.scss");
+@import url("./components/headerV2.scss");
+@import url("./components/checkpointV2.scss");
+@import url("./components/backButtonV2.scss");
+@import url("./components/buttonsV2.scss");
+@import url("./components/infoBannerV2.scss");
 @import url("./components/ratingV2.scss");
 @import url("./components/noresultsfoundV2.scss");
 @import url("./components/mobileNumberV2.scss");
@@ -50,6 +62,9 @@
   &-paper {
     &-primary {
       background-color: theme(digitv2.lightTheme.paper) !important;
+      &-color {
+        color: theme(digitv2.lightTheme.paper) !important;
+      }
     }
 
     &-secondary {
