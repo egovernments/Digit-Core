@@ -2,62 +2,81 @@
 
 .workbench-create-form {
   display: inherit;
+  .digit-form-composer-sub-header{
+    @apply text-heading-m-dt;
+  }
   form {
-    .form-group.field {
-      display: flex;
-
-      &.field-string {
-        align-self: center;
-      }
-      &.field-boolean .checkbox label {
-        display: flex;
-        flex-direction: row-reverse;
-        span {
-          width: 17rem;
-          @extend .card-label;
-        }
-        input[type="checkbox"] {
-          @extend .light-input-border;
-          @extend .employee-card-input;
-          height: 1.5rem;
-          @apply ml-sm;
-        }
-        input:checked,
-        input:hover {
-          @apply border-2 border-primary-main;
-          @extend .light-input-border;
-        }
-      }
-      &.field-object {
-        display: flex;
-        #root {
-          width: 80%;
+    #root {
+      width: 80%;
+      .field-wrapper {
+        .form-group.field {
+          display: flex;
           .control-label {
             width: 13rem;
             @extend .card-label;
+            display: inline-flex;
+            align-self: center;
           }
           .form-control {
-            width: 25rem;
+            width: 28rem;
             @extend .light-input-border;
             @extend .employee-card-input;
           }
-        }
-        /* have to revisit for objects
+          &.field-string {
+            align-self: center;
+          }
+          &.field-boolean .checkbox label {
+           /* display: flex;
+            flex-direction: row-reverse;
+            */
+            span {
+              width: 17rem;
+              display: none;
+              @extend .card-label;
+            }
+            input[type="checkbox"] {
+              @extend .light-input-border;
+              @extend .employee-card-input;
+              height: 1.5rem;
+              @apply ml-sm;
+            }
+            input:checked,
+            input:hover {
+              @apply border-2 border-primary-main;
+              @extend .light-input-border;
+            }
+          }
+          &.field-object {
+            display: block;
+            @extend .light-divider;
+            @extend .light-paper-border;  
+            padding: 1rem;
+            margin: 1rem 0;          
+
+            /* have to revisit for objects
         [id^="root_"] {
           @extend .light-background;
         }
         */
-      }
-      &.field-array {
-        @extend .light-paper-secondary;
-        .row.array-item-list {
-          .array-item {
-            @extend .light-background;
           }
-        }
-        .array-item-add {
-          button {
-            @extend .light-primary-button;
+          &.field-array {
+            display: block;
+
+            @extend .light-paper-secondary;
+            @extend .light-paper-border;  
+            padding: 1rem;
+            margin: 1rem 0;   
+
+            .row.array-item-list {
+              .array-item {
+                @extend .light-background;
+              }
+            }
+            .array-item-add {
+              button {
+                @extend .light-primary-button;
+              }
+            }
           }
         }
       }
@@ -65,7 +84,7 @@
   }
   div.form-action-footer {
     @extend .action-bar-wrap;
-    .submit-bar  {
+    .submit-bar {
       @extend .submit-bar;
       cursor: pointer;
       @apply font-rc font-medium text-legend text-white leading-10;

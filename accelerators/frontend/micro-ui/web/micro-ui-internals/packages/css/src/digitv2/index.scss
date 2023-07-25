@@ -55,6 +55,12 @@
     &-secondary {
       background-color: theme(digitv2.lightTheme.paper-secondary) !important;
     }
+    &-border{
+
+      border: 0.5px solid !important;
+      border-radius: 0.5rem;
+      border-color: theme(digitv2.lightTheme.background);
+    }
   }
 
   &-divider {

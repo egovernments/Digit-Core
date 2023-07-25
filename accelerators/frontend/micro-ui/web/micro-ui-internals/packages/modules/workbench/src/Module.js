@@ -6,6 +6,7 @@ import { CustomisedHooks } from "./hooks";
 import { UICustomizations } from "./configs/UICustomizations";
 import HRMSCard from "./components/HRMSCard";
 import WorkbenchCard from "./components/WorkbenchCard";
+import DigitJSONForm from "./components/DigitJSONForm";
 
 
 const WorkbenchModule = ({ stateCode, userType, tenants }) => {
@@ -28,6 +29,7 @@ const WorkbenchModule = ({ stateCode, userType, tenants }) => {
 const componentsToRegister = {
   WorkbenchModule,
   WorkbenchCard,
+  DigitJSONForm,
   DSSCard: null, // TO HIDE THE DSS CARD IN HOME SCREEN as per workbench
   // HRMSCard // Overridden the HRMS card as per workbench
 };
@@ -73,10 +75,14 @@ const updateCustomConfigs = () => {
   setupLibraries("Customizations", "commonUiConfig", { ...window?.Digit?.Customizations?.commonUiConfig, ...UICustomizations });
 };
 
-export const initWorkbenchComponents = () => {
+
+ const initWorkbenchComponents = () => {
   overrideHooks();
   updateCustomConfigs();
   Object.entries(componentsToRegister).forEach(([key, value]) => {
     Digit.ComponentRegistryService.setComponent(key, value);
   });
 };
+
+export   {initWorkbenchComponents, DigitJSONForm};
+
