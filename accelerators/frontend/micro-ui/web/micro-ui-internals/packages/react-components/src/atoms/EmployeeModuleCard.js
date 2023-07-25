@@ -22,11 +22,8 @@ const EmployeeModuleCard = ({ Icon, moduleName, kpis = [], links = [], isCitizen
                     <span>{count || "-"}</span>
                   </div>
                   <div>
-                    {link ? (
-                      <Link to={{ pathname:link, state: {count} }} className="employeeTotalLink">
-                        {label}
-                      </Link>
-                    ) : null}
+                 
+                {link ? <span className="link" onClick={()=> history.push(`${link}`,{count})}>{label}</span> : null}
                   </div>
                 </div>
               ))}

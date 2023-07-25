@@ -18,7 +18,6 @@ const MDMSAdd = ({ FormSession }) => {
 
   const { t } = useTranslation();
   const history = useHistory();
-console.log("test");
   const reqCriteria = {
     url: "/mdms-v2/schema/v1/_search",
     params: {},
@@ -134,6 +133,7 @@ console.log("test");
       onFormValueChange={onFormValueChange}
       onSubmit={onSubmit}
       fieldStyle={{ marginRight: 0 }}
+      jsonSchema={schema?.definition}
     />
   );
 };

@@ -32,7 +32,9 @@ import LocationDropdownWrapper from "../molecules/LocationDropdownWrapper";
 import ApiDropdown from "../molecules/ApiDropdown";
 import Header from "../atoms/Header";
 
-
+import { yupResolver } from '@hookform/resolvers/yup';
+// import { validateResolver } from "./validateResolver";
+import { buildYupConfig } from "./formUtils";
 
 const wrapperStyles = {
   // "display":"flex",
@@ -69,6 +71,9 @@ const wrapperStyles = {
  */
 
 export const FormComposer = (props) => {
+  const { t } = useTranslation();
+/* added an enhancement for validate data with schema still some issue with sometype we have to solve it*/
+  const yupSchema=props?.jsonSchema&&buildYupConfig(props?.jsonSchema,t);
   const {
     register,
     handleSubmit,
@@ -87,9 +92,9 @@ export const FormComposer = (props) => {
     // context: "contactForm",
     defaultValues: props.defaultValues,
     // resolver: validateResolver,
+    resolver: yupResolver(yupSchema),
 
   });
-  const { t } = useTranslation();
   // console.log(formState,'formState');
   const formData = watch();
   const selectedFormCategory = props?.currentFormCategory;
@@ -738,7 +743,7 @@ export const FormComposer = (props) => {
               </LabelFieldPair>
               {field?.populators?.name && errors && errors[field?.populators?.name] && Object.keys(errors[field?.populators?.name]).length ? (
                 <CardLabelError style={{ width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" }}>
-                  {t(field?.populators?.error)}
+                  {t( errors?.[field?.populators?.name]?.message || field?.populators?.error)}
                 </CardLabelError>
               ) : null}
             </Fragment>
