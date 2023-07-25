@@ -27,17 +27,14 @@ const WorkbenchCard = () => {
       label: t("ACTION_TEST_MDMS"),
       link: `/${window?.contextPath}/employee/workbench/mdms-search`,
       roles: ROLES.MDMS,
-    },
-    {
-      label: t("GenderMaster"),
-      link: `/${window?.contextPath}/employee/workbench/mdms-add?moduleName=common-masters&masterName=GenderType`,
-      roles: ROLES.MDMS,
-    },
+    }
+    ,
     {
       label: t("Sample master"),
-      link: `/${window?.contextPath}/employee/workbench/mdms-add?moduleName=common-masters&masterName=Sample`,
+      link: `/${window?.contextPath}/employee/workbench/mdms-add-v2?moduleName=common-masters&masterName=Sample`,
       roles: ROLES.MDMS,
     }
+
 
 
   ];

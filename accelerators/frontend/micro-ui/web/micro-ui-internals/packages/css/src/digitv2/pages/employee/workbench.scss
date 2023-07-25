@@ -1,0 +1,74 @@
+@import url("../../index.scss");
+
+.workbench-create-form {
+  display: inherit;
+  form {
+    .form-group.field {
+      display: flex;
+
+      &.field-string {
+        align-self: center;
+      }
+      &.field-boolean .checkbox label {
+        display: flex;
+        flex-direction: row-reverse;
+        span {
+          width: 17rem;
+          @extend .card-label;
+        }
+        input[type="checkbox"] {
+          @extend .light-input-border;
+          @extend .employee-card-input;
+          height: 1.5rem;
+          @apply ml-sm;
+        }
+        input:checked,
+        input:hover {
+          @apply border-2 border-primary-main;
+          @extend .light-input-border;
+        }
+      }
+      &.field-object {
+        display: flex;
+        #root {
+          width: 80%;
+          .control-label {
+            width: 13rem;
+            @extend .card-label;
+          }
+          .form-control {
+            width: 25rem;
+            @extend .light-input-border;
+            @extend .employee-card-input;
+          }
+        }
+        /* have to revisit for objects
+        [id^="root_"] {
+          @extend .light-background;
+        }
+        */
+      }
+      &.field-array {
+        @extend .light-paper-secondary;
+        .row.array-item-list {
+          .array-item {
+            @extend .light-background;
+          }
+        }
+        .array-item-add {
+          button {
+            @extend .light-primary-button;
+          }
+        }
+      }
+    }
+  }
+  div.form-action-footer {
+    @extend .action-bar-wrap;
+    .submit-bar  {
+      @extend .submit-bar;
+      cursor: pointer;
+      @apply font-rc font-medium text-legend text-white leading-10;
+    }
+  }
+}

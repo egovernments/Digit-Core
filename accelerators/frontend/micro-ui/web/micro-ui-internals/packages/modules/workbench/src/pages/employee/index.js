@@ -5,6 +5,7 @@ import { PrivateRoute, AppContainer, BreadCrumb } from "@egovernments/digit-ui-r
 import LocalisationSearch from "./LocalisationSearch";
 import MDMSSearch from "./MDMSSearch";
 import MDMSAdd from "./MDMSAdd";
+import MDMSAddV2 from "./MDMSAddV2";
 
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
@@ -45,6 +46,9 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/localisation-search`} component={() => <LocalisationSearch />} />
           <PrivateRoute path={`${path}/mdms-search`} component={() => <MDMSSearch />} />
           <PrivateRoute path={`${path}/mdms-add`} component={() =>  <MDMSAdd FormSession={MDMSCreateSession} parentRoute={path}/>} />
+          
+          <PrivateRoute path={`${path}/mdms-add-v2`} component={() =>  <MDMSAddV2 FormSession={MDMSCreateSession} parentRoute={path}/>} />
+
         </div>
       </Switch>
     </React.Fragment>
