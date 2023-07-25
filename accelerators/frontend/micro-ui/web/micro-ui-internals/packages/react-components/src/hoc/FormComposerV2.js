@@ -73,7 +73,16 @@ const wrapperStyles = {
 export const FormComposer = (props) => {
   const { t } = useTranslation();
 /* added an enhancement for validate data with schema still some issue with sometype we have to solve it*/
-  const yupSchema=props?.jsonSchema&&buildYupConfig(props?.jsonSchema,t);
+  const inputProps={
+    // context: "contactForm",
+    defaultValues: props.defaultValues,
+    // resolver: validateResolver,
+  }
+  if(props?.jsonSchema){
+    const yupSchema=props?.jsonSchema&&buildYupConfig(props?.jsonSchema,t);
+    inputProps["resolver"]=yupResolver(yupSchema);
+  }
+
   const {
     register,
     handleSubmit,
@@ -88,13 +97,7 @@ export const FormComposer = (props) => {
     setError,
     clearErrors,
     unregister,
-  } = useForm({
-    // context: "contactForm",
-    defaultValues: props.defaultValues,
-    // resolver: validateResolver,
-    resolver: yupResolver(yupSchema),
-
-  });
+  } = useForm(inputProps);
   // console.log(formState,'formState');
   const formData = watch();
   const selectedFormCategory = props?.currentFormCategory;
