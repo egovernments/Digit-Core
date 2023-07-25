@@ -114,7 +114,6 @@ export const FormComposer = (props) => {
   useEffect(()=>{
     if(Object.keys(formState?.errors).length > 0 && formState?.submitCount > 0) {
       setShowErrorToast(true);
-      console.log(formState?.errors,'formState?.errors');
     }
   },[formState?.errors, formState?.submitCount]);
 
