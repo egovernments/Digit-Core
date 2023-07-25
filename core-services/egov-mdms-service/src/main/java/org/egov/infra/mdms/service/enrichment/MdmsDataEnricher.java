@@ -2,6 +2,8 @@ package org.egov.infra.mdms.service.enrichment;
 
 import org.egov.common.contract.models.AuditDetails;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.AuditDetailsEnrichmentUtil;
+import org.egov.common.utils.UUIDEnrichmentUtil;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsRequest;
 import org.egov.infra.mdms.model.SchemaDefinition;
@@ -19,8 +21,8 @@ public class MdmsDataEnricher {
 
     public void enrichCreateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject) {
         Mdms mdms = mdmsRequest.getMdms();
-        mdms.setId(UUID.randomUUID().toString());
-        mdms.setAuditDetails(getAuditDetails(mdmsRequest.getRequestInfo(),mdms.getAuditDetails(), true));
+        UUIDEnrichmentUtil.enrichRandomUuid(mdms, "id");
+        mdms.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(mdms.getAuditDetails(), mdmsRequest.getRequestInfo(), Boolean.TRUE));
         mdms.setUniqueIdentifier(CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
     }
 
