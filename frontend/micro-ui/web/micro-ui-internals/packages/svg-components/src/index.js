@@ -447,7 +447,7 @@ import { NoMealsOuline } from "./svg/NoMealsOuline";
 import { North } from "./svg/North";
 import { NorthEast } from "./svg/NorthEast";
 import { NorthWest } from "./svg/NorthWest";
-import { NoResultsFound } from "./svg/NoResultsFound";
+import { NoResultsFoundIcon } from "./svg/NoResultsFoundIcon";
 import { NoSim } from "./svg/NoSim";
 import { NotAccessible } from "./svg/NotAccessible";
 import { NoteAdd } from "./svg/NoteAdd";
@@ -1228,7 +1228,7 @@ export {
   North,
   NorthEast,
   NorthWest,
-  NoResultsFound,
+  NoResultsFoundIcon,
   NoSim,
   NotAccessible,
   NoteAdd,

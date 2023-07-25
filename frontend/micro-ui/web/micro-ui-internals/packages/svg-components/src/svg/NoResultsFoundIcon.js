@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-export const NoResultsFound = ({ className, height = "24", width = "24", style = {}, fill = "#F47738", onClick = null }) => {
+export const NoResultsFoundIcon = ({ className, height = "24", width = "24", style = {}, fill = "#F47738", onClick = null }) => {
   return (
     <svg
       className={className}
@@ -410,7 +410,7 @@ export const NoResultsFound = ({ className, height = "24", width = "24", style =
   );
 };
 
-NoResultsFound.propTypes = {
+NoResultsFoundIcon.propTypes = {
   /** custom width of the svg icon */
   width: PropTypes.string,
   /** custom height of the svg icon */
