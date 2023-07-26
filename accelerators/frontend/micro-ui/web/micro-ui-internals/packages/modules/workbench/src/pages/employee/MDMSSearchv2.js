@@ -55,6 +55,80 @@ const sampleSchemaResponse = {
     {
       id: "aa4d8d08-658b-45c1-af4d-d57428fa5e52",
       tenantId: "pg",
+      code: "common-masters.SampleTwo",
+      description: "Sample Master",
+      definition: {
+        type: "object",
+        title: "Generated schema for Root",
+        $schema: "http://json-schema.org/draft-07/schema#",
+        required: ["name", "code"],
+        "x-unique": ["code"],
+        properties: {
+          id: {
+            type: "string",
+          },
+          code: {
+            type: "string",
+          },
+          name: {
+            type: "string",
+          },
+          active: {
+            type: "boolean",
+          },
+          d: {
+            type: "string",
+          },
+        },
+      },
+      isActive: true,
+      auditDetails: {
+        createdBy: null,
+        lastModifiedBy: null,
+        createdTime: 1689914236639,
+        lastModifiedTime: 1689914236639,
+      },
+    },
+    {
+      id: "aa4d8d08-658b-45c1-af4d-d57428fa5e52",
+      tenantId: "pg",
+      code: "common-masters.Simple",
+      description: "Simple Master",
+      definition: {
+        type: "object",
+        title: "Generated schema for Root",
+        $schema: "http://json-schema.org/draft-07/schema#",
+        required: ["name", "code"],
+        "x-unique": ["code"],
+        properties: {
+          id: {
+            type: "string",
+          },
+          code: {
+            type: "string",
+          },
+          name: {
+            type: "string",
+          },
+          active: {
+            type: "boolean",
+          },
+          desc: {
+            type: "string",
+          },
+        },
+      },
+      isActive: true,
+      auditDetails: {
+        createdBy: null,
+        lastModifiedBy: null,
+        createdTime: 1689914236639,
+        lastModifiedTime: 1689914236639,
+      },
+    },
+    {
+      id: "aa4d8d08-658b-45c1-af4d-d57428fa5e52",
+      tenantId: "pg",
       code: "common-masters.Department",
       description: "Sample Master",
       definition: {
@@ -245,9 +319,9 @@ const MDMSSearchv2 = () => {
           });
         }
       });
-
+console.log("currentSchema",currentSchema);
       Config.sections.search.uiConfig.fields[0].populators.options = dropDownOptions;
-
+      Config.actionLink=Config.actionLink+`?moduleName=${masterName?.name}&masterName=${moduleName?.name}`;
       setUpdatedConfig(Config)
     }
   }, [currentSchema]);
@@ -283,13 +357,13 @@ const MDMSSearchv2 = () => {
           t={t}
           placeholder={t("WBH_MODULE_NAME")}
         />
-        {Digit.Utils.didEmployeeHasRole(Config?.actionRole) && (
+       {updatedConfig && moduleName && masterName && Digit.Utils.didEmployeeHasRole(updatedConfig?.actionRole) && (
           <Button
-            label={t(Config?.actionLabel)}
+            label={t(updatedConfig?.actionLabel)}
             variation="secondary"
             icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
             onButtonClick={() => {
-              history.push(`/${window?.contextPath}/employee/${Config?.actionLink}`);
+              history.push(`/${window?.contextPath}/employee/${updatedConfig?.actionLink}`);
             }}
             type="button"
           />

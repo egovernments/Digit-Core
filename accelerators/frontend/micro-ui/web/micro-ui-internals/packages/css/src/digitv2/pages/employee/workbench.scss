@@ -2,7 +2,7 @@
 
 .workbench-create-form {
   display: inherit;
-  .digit-form-composer-sub-header{
+  .digit-form-composer-sub-header {
     @apply text-heading-m-dt;
   }
   form {
@@ -26,7 +26,7 @@
             align-self: center;
           }
           &.field-boolean .checkbox label {
-           /* display: flex;
+            /* display: flex;
             flex-direction: row-reverse;
             */
             span {
@@ -49,9 +49,9 @@
           &.field-object {
             display: block;
             @extend .light-divider;
-            @extend .light-paper-border;  
+            @extend .light-paper-border;
             padding: 1rem;
-            margin: 1rem 0;          
+            margin: 1rem 0;
 
             /* have to revisit for objects
         [id^="root_"] {
@@ -63,9 +63,9 @@
             display: block;
 
             @extend .light-paper-secondary;
-            @extend .light-paper-border;  
+            @extend .light-paper-border;
             padding: 1rem;
-            margin: 1rem 0;   
+            margin: 1rem 0;
 
             .row.array-item-list {
               .array-item {
@@ -89,5 +89,59 @@
       cursor: pointer;
       @apply font-rc font-medium text-legend text-white leading-10;
     }
+  }
+}
+.jk-digit-loader {
+  position: fixed;
+  z-index: 10000;
+  width: 100vh;
+  background-color: rgba(189, 189, 189, 0.5);
+  height: 80vh;
+  .jk-spinner-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    .jk-spinner {
+      border: 0.4em solid #fe7a51;
+      border-radius: 50%;
+      border-top: 0.4em solid #ffffff;
+      width: 4em;
+      height: 4em;
+      -webkit-animation: spin 2s linear infinite;
+      /* Safari */
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+.jk-sm-inbox-loader {
+  border: 0.2em solid #fe7a51;
+  border-radius: 50%;
+  border-top: 0.2em solid #ffffff;
+  width: 2em;
+  height: 2em;
+  -webkit-animation: spin 2s linear infinite;
+  /* Safari */
+  animation: spin 1s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

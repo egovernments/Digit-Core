@@ -3,7 +3,7 @@ export const Config = {
   type: "search",
   actionLabel: "WBH_ADD_MDMS",
   actionRole: "SUPERUSER",
-  actionLink: "workbench/mdms-add",
+  actionLink: "workbench/mdms-add-v2",
   apiDetails: {
     serviceName: "/egov-mdms-service/v1/_search",
     requestParam: {},

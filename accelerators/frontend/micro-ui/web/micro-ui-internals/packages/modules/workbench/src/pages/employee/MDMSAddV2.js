@@ -1,8 +1,10 @@
 import { Loader } from "@egovernments/digit-ui-react-components";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { DigitJSONForm } from "../../Module";
+import _ from "lodash";
+import { DigitLoader } from "../../components/DigitLoader";
 
 /*
 
@@ -11,12 +13,18 @@ created the foem using rjfs json form
 https://rjsf-team.github.io/react-jsonschema-form/docs/
 
 */
+const onFormError = (errors) => console.log('I have', errors.length, 'errors to fix');
 
 const uiSchema = {};
 
-const MDMSAdd = ({ FormSession }) => {
+const MDMSAdd = () => {
   // const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
+  const FormSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
+
+  const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
+  const [session, setSession] = useState(sessionFormData);
+
   const [showErrorToast, setShowErrorToast] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
@@ -67,10 +75,10 @@ const MDMSAdd = ({ FormSession }) => {
       setTimeout(() => {
         setSessionFormData({});
       }, 1500);
-      setShowToast(`Success ::  ${resp?.mdms?.[0]?.id}`);
+      setShowToast(`Success :  ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowToast(`Error :: ${resp?.response?.data?.Errors?.[0]?.code}`);
+      setShowToast(`Error : ${resp?.response?.data?.Errors?.[0]?.code}`);
       setShowErrorToast(true);
     };
 
@@ -93,14 +101,45 @@ const MDMSAdd = ({ FormSession }) => {
       }
     );
   };
+  const onFormValueChange = (updatedSchema,element) => {
+    const {formData} = updatedSchema;
+   
+    if (!_.isEqual(session, formData)) {
+      setSession({ ...session, ...formData });
+    }
+  };
+
+
+
+
+
+  useEffect(() => {
+    if (!_.isEqual(sessionFormData, session)) {
+      const timer = setTimeout(() => {
+        setSessionFormData({ ...sessionFormData, ...session });
+      }, 1000);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [session]);
+
 
   /* use newConfig instead of commonFields for local development in case needed */
   if (isLoading) {
-    return <Loader />;
+    return <Loader/>;
   }
 
+console.log(showToast,'showToast')
+  
   return (
-    <DigitJSONForm schema={schema} onSubmit={onSubmit} uiSchema={uiSchema} showToast={showToast} showErrorToast={showErrorToast}></DigitJSONForm>
+    <React.Fragment>
+      {/* <DigitLoader /> */}
+    
+    <DigitJSONForm schema={schema} onFormChange={onFormValueChange} onFormError={onFormError} 
+    formData={session} 
+    onSubmit={onSubmit} uiSchema={uiSchema} showToast={showToast} showErrorToast={showErrorToast}></DigitJSONForm>
+    </React.Fragment>
   );
 };
 

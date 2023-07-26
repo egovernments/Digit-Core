@@ -127,7 +127,7 @@ const FieldErrorTemplate = (props) => {
   return errors && errors.length > 0 && errors?.[0]?.stack ? <CardLabelError>{errors?.[0]?.stack}</CardLabelError> : null;
 };
 
-const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, showErrorToast }) => {
+const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, showErrorToast,formData={} ,onFormChange,onFormError}) => {
   const { t } = useTranslation();
 
   const onSubmitV2 = ({ formData }) => {
@@ -143,7 +143,8 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
         <Form
           schema={schema?.definition}
           validator={validator}
-          onChange={console.log("changed")}
+          formData={formData}
+          onChange={onFormChange}
           onSubmit={onSubmitV2}
           templates={{
             FieldErrorTemplate,
@@ -158,7 +159,7 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
             arrayMinItems: { populate: "requiredOnly" },
           }}
           uiSchema={{ ...uiSchema, ...inputUiSchema }}
-          onError={console.log("errors")}
+          onError={onFormError}
         >
           <ActionBar>
             <SubmitBar label={t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
