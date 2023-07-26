@@ -22,14 +22,13 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class SchemaDefCriteria {
-    @JsonProperty("tenantId")
 
+    @JsonProperty("tenantId")
     @Size(min = 1, max = 100)
     @NotNull
     private String tenantId = null;
 
     @JsonProperty("codes")
-    @NotNull
     private List<String> codes = null;
 
 

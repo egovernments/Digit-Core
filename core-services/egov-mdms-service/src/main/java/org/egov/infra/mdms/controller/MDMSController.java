@@ -27,11 +27,10 @@ public class MDMSController {
     /**
      * Request handler for serving v1 search requests.
      * @param body
-     * @param schemaCode
      * @return
      */
-    @RequestMapping(value="_search/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<?> search(@Valid @RequestBody MdmsCriteriaReq body, String schemaCode) {
+    @RequestMapping(value="_search", method = RequestMethod.POST)
+    public ResponseEntity<?> search(@Valid @RequestBody MdmsCriteriaReq body) {
         Map<String,Map<String,JSONArray>>  moduleMasterMap = mdmsService.search(body);
         MdmsResponse mdmsResponse = MdmsResponse.builder()
                 .mdmsRes(moduleMasterMap)
