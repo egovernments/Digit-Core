@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import PropTypes from "prop-types";
 /* add these two files into svg component and use it TODO @anil*/
-import { StarFilled, StarEmpty } from "@egovernments/digit-ui-react-components/src/atoms/svgindex";
+//import { StarFilled, StarEmpty } from "@egovernments/digit-ui-react-components/src/atoms/svgindex";
 import { StarRate, Stars } from "@egovernments/digit-ui-svg-components";
 
 const Rating = (props) => {
