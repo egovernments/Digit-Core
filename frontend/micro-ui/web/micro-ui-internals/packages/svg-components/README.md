@@ -62,6 +62,7 @@ const { Accessibility } = SVG;
 # Changelog
 
 ```bash
+0.0.5 fixed publish related issue
 0.0.4 fixed some fill related issue
 0.0.3 Added NoResultsFoundicon,StarFilled , Star Empty and Fixed issue on  NoResultsFoundicon
 0.0.2 added the prototypes and playground stories for all svgs
