@@ -447,6 +447,7 @@ import { NoMealsOuline } from "./svg/NoMealsOuline";
 import { North } from "./svg/North";
 import { NorthEast } from "./svg/NorthEast";
 import { NorthWest } from "./svg/NorthWest";
+import { NoResultsFoundIcon } from "./svg/NoResultsFoundIcon";
 import { NoSim } from "./svg/NoSim";
 import { NotAccessible } from "./svg/NotAccessible";
 import { NoteAdd } from "./svg/NoteAdd";
@@ -648,8 +649,10 @@ import { SportsRugby } from "./svg/SportsRugby";
 import { SportsSoccer } from "./svg/SportsSoccer";
 import { SportsTennis } from "./svg/SportsTennis";
 import { SportsVolleyball } from "./svg/SportsVolleyball";
+import { StarEmpty } from "./svg/StarEmpty";
 import { StarRate } from "./svg/StarRate";
 import { Stars } from "./svg/Stars";
+import { StarFilled } from "./svg/StarFilled";
 import { StayCurrentLandscape } from "./svg/StayCurrentLandscape";
 import { StayCurrentPortrait } from "./svg/StayCurrentPortrait";
 import { StayPrimaryLandscape } from "./svg/StayPrimaryLandscape";
@@ -1225,6 +1228,7 @@ export {
   North,
   NorthEast,
   NorthWest,
+  NoResultsFoundIcon,
   NoSim,
   NotAccessible,
   NoteAdd,
@@ -1426,8 +1430,10 @@ export {
   SportsSoccer,
   SportsTennis,
   SportsVolleyball,
+  StarEmpty,
   StarRate,
   Stars,
+  StarFilled,
   StayCurrentLandscape,
   StayCurrentPortrait,
   StayPrimaryLandscape,
