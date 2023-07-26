@@ -653,7 +653,6 @@ import { StarEmpty } from "./svg/StarEmpty";
 import { StarRate } from "./svg/StarRate";
 import { Stars } from "./svg/Stars";
 import { StarFilled } from "./svg/StarFilled";
-import { StarEmpty } from "./svg/StarEmpty";
 import { StayCurrentLandscape } from "./svg/StayCurrentLandscape";
 import { StayCurrentPortrait } from "./svg/StayCurrentPortrait";
 import { StayPrimaryLandscape } from "./svg/StayPrimaryLandscape";
@@ -1435,7 +1434,6 @@ export {
   StarRate,
   Stars,
   StarFilled,
-  StarEmpty,
   StayCurrentLandscape,
   StayCurrentPortrait,
   StayPrimaryLandscape,

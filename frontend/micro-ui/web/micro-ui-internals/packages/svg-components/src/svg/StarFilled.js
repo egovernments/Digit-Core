@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-export const StarFilled = ({ className, id, onClick, style, percentage = 100, width, height }) => {
+export const StarFilled = ({ className, id, onClick, style, percentage = 100, fill = "#F47738", width, height }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -10,13 +10,13 @@ export const StarFilled = ({ className, id, onClick, style, percentage = 100, wi
       style={style}
       onClick={onClick}
       viewBox="0 0 24 24"
-      fill="#F47738"
+      fill={fill}
       width={width}
       height={height}
     >
       <linearGradient id={id} x1="0" x2="1" y1="0" y2="0">
-        <stop offset="0%" stopColor="#F47738" stopOpacity={1}></stop>
-        <stop offset={`${percentage}%`} stopColor="#F47738" stopOpacity={1}></stop>
+        <stop offset="0%" stopColor={fill} stopOpacity={1}></stop>
+        <stop offset={`${percentage}%`} stopColor={fill} stopOpacity={1}></stop>
         <stop offset={`${percentage}%`} stopColor="white" stopOpacity={0}></stop>
       </linearGradient>
       <g>
@@ -27,7 +27,7 @@ export const StarFilled = ({ className, id, onClick, style, percentage = 100, wi
         <path
           d="M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z"
           fill={`url(#${id})`}
-          stroke="#F47738"
+          stroke={fill}
           strokeWidth={1}
         />
       </g>
