@@ -38,7 +38,7 @@ Playground.args = {
 
 export const Primary = Template.bind({});
 Primary.args = {
-  variation: "Primary",
+  variation: "primary",
   label: "Primary",
   style: {},
   onClick: () => console.log("Primary clicked"),

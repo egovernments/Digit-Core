@@ -8,12 +8,6 @@ export default {
 
 const Template = (args) => <CheckBox {...args} />;
 
-export const Primary = Template.bind({});
-
-export const Checked = Template.bind({});
-Checked.args = {
-  checked: true,
-};
 
 export const PlayGround = Template.bind({});
 PlayGround.args = {
@@ -21,4 +15,11 @@ PlayGround.args = {
   onChange: () => {
     console.log("clicked");
   },
+};
+
+export const Unchecked = Template.bind({});
+
+export const Checked = Template.bind({});
+Checked.args = {
+  checked: true,
 };

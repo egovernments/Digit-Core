@@ -34,6 +34,9 @@ const Breadcrumb = (props) => {
 
 Breadcrumb.propTypes = {
   crumbs: PropTypes.array,
+  className: PropTypes.string,
+  style: PropTypes.object,
+  spanStyle: PropTypes.object,
 };
 
 Breadcrumb.defaultProps = {

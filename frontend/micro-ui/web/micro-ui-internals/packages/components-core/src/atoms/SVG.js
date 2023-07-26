@@ -775,12 +775,16 @@ import {
     ZoomIn,
     ZoomOut,
     ZoomOutMap,
+    Success,
+    TickMark,
   } from "@egovernments/digit-ui-svg-components";
   import PropTypes from "prop-types";
 
 
 
  export const SVG={
+    Success,
+    TickMark,
     Rotation3D,
     SixFtApart,
     Rotate360,

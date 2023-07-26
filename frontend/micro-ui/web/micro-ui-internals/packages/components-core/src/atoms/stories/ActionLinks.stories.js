@@ -5,6 +5,17 @@ import ActionLinks from "../ActionLinks";
 export default {
   title: "Atom/ActionLinks",
   component: ActionLinks,
+  argTypes: {
+    className: {
+      control: "text",
+    },
+    style: {
+      control: { type: "object" },
+    },
+    children: {
+      control: { type: "object" },
+    },
+  },
 };
 
 const Template = (args) => <ActionLinks {...args} />;

@@ -13,3 +13,9 @@ PlayGround.args = {
   label: "a default info message",
   text: "",
 };
+
+export const Primary = Template.bind({});
+Primary.args = {
+  label: "a default info message",
+  text: "",
+};

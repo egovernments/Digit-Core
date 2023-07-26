@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const BodyContainer = (props) => {
   return (
@@ -6,6 +7,12 @@ const BodyContainer = (props) => {
       {props.children}
     </div>
   );
+};
+
+BodyContainer.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.object,
+  children: PropTypes.node,
 };
 
 export default BodyContainer;

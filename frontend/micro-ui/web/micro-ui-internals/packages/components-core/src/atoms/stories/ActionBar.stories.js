@@ -23,10 +23,10 @@ const Template = (args) => <ActionBar {...args} />;
 export const Playground = Template.bind({});
 Playground.args = {
   className: "custom-class",
-  style: { border: "3px solid green" },
+  style: { border: "1px solid green" },
   children: (
     <span>
-      <p>COMMON_SELECTED</p>
+      <p>Action</p>
     </span>
   ),
 };

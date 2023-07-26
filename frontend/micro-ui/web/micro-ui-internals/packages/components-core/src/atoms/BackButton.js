@@ -1,6 +1,7 @@
 import React from "react";
 import { SVG } from "./SVG";
 import { useTranslation } from "react-i18next";
+import PropTypes from "prop-types";
 
 const BackButton = ({ style, className = "", variant = "black", onClick }) => {
   const { t } = useTranslation();
@@ -17,4 +18,12 @@ const BackButton = ({ style, className = "", variant = "black", onClick }) => {
     </div>
   );
 };
+
+BackButton.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.object,
+  variant: PropTypes.string,
+  onClick: PropTypes.func,
+};
+
 export default BackButton;

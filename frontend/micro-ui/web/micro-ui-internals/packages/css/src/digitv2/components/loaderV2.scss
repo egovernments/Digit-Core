@@ -1,5 +1,26 @@
 @import url("../index.scss");
 
+.digit-screen-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  @extend .light-background;
+  .digit-ldio-pjg92h09b2o div {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border: 12px solid theme(digitv2.lightTheme.primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+  }
+}
+
 .digit-page-loader,
 .digit-module-loader {
   text-align: center;

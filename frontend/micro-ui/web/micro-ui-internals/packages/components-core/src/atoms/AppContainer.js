@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const AppContainer = (props) => {
   return (
@@ -8,6 +9,12 @@ const AppContainer = (props) => {
       </div>
     </React.Fragment>
   );
+};
+
+AppContainer.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.object,
+  children: PropTypes.node,
 };
 
 export default AppContainer;
