@@ -4,14 +4,14 @@ import PropTypes from "prop-types";
 export const StarEmpty = ({ className, height = "24", width = "24", style = {}, fill = "#F47738", onClick = null }) => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="#F47738"
-      className={className}
       width={width}
       height={height}
+      className={className}
       onClick={onClick}
       style={style}
+      viewBox="0 0 24 24"
+      fill={fill}
+      xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M0 0h24v24H0V0z" fill="none" />
       <path

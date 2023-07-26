@@ -7,7 +7,7 @@
   "engines": {
     "node": ">=14"
   },
-  "homepage": "https://unified-dev.digit.org/storybook/",
+  "homepage": "https://unified-dev.digit.org/storybook-svg/",
   "author": "Jagankumar <jagan.kumar@egov.org.in>",
   "license": "MIT",
   "scripts": {
@@ -55,5 +55,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "keywords": ["digit","svg","components","egov","DPG"]
 }

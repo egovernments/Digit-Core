@@ -62,14 +62,14 @@ const { Accessibility } = SVG;
 # Changelog
 
 ```bash
-0.0.3 Fixed issue on  NoResultsFoundicon
-0.0.2 Added NoResultsFoundicon,StarFilled & Star Empty
+0.0.3 Added NoResultsFoundicon,StarFilled , Star Empty and Fixed issue on  NoResultsFoundicon
+0.0.2 added the prototypes and playground stories for all svgs
 0.0.1 base version
 ```
 
 ## Published from DIGIT Core
 
-Digit Dev Repo (https://github.com/egovernments/DIGIT-Dev/tree/digit-ui-core)
+Digit Core Repo (https://github.com/egovernments/Core-Platform/tree/digit-ui-core)
 
 # Contributors
 
@@ -77,7 +77,7 @@ Digit Dev Repo (https://github.com/egovernments/DIGIT-Dev/tree/digit-ui-core)
 
 # Reference
 
-Home Page (https://unified-dev.digit.org/storybook/)
+Home Page (https://unified-dev.digit.org/storybook-svg/)
 
 ## License
 

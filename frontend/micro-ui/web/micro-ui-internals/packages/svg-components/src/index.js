@@ -649,6 +649,7 @@ import { SportsRugby } from "./svg/SportsRugby";
 import { SportsSoccer } from "./svg/SportsSoccer";
 import { SportsTennis } from "./svg/SportsTennis";
 import { SportsVolleyball } from "./svg/SportsVolleyball";
+import { StarEmpty } from "./svg/StarEmpty";
 import { StarRate } from "./svg/StarRate";
 import { Stars } from "./svg/Stars";
 import { StarFilled } from "./svg/StarFilled";
@@ -1430,6 +1431,7 @@ export {
   SportsSoccer,
   SportsTennis,
   SportsVolleyball,
+  StarEmpty,
   StarRate,
   Stars,
   StarFilled,
