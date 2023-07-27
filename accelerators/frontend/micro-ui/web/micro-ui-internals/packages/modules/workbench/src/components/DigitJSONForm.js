@@ -1,4 +1,4 @@
-import { Loader, Header, Toast, Card, ActionBar, SubmitBar, CardLabelError } from "@egovernments/digit-ui-react-components";
+import { Loader, Header, Toast, Card, Button,ActionBar,AddFilled, SubmitBar, CardLabelError } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import _ from "lodash";
@@ -76,13 +76,20 @@ function ArrayFieldTitleTemplate(props) {
   return null;
 }
 function ArrayFieldTemplate(props) {
+  const { t } = useTranslation();
+
   return (
     <div>
       {props.items.map((element) => element.children)}
       {props.canAdd && (
-        <button type="button" onClick={props.onAddClick}>
-          add
-        </button>
+        
+        <Button
+        label={t("Add Eligibility Criteria")}
+        variation="secondary"
+        icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
+        onButtonClick={props.onAddClick}
+        type="button"
+      />
       )}
     </div>
   );

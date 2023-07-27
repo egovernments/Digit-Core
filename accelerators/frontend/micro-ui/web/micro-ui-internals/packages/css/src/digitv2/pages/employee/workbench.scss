@@ -72,9 +72,12 @@
                 @extend .light-background;
               }
             }
-            .array-item-add {
-              button {
-                @extend .light-primary-button;
+            .jk-digit-secondary-btn {
+              border: none;
+              padding: unset;
+              background-color: inherit;
+              h2 {
+                font-size: 1rem;
               }
             }
           }
