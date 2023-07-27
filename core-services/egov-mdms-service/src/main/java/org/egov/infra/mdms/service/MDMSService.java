@@ -77,11 +77,6 @@ public class MDMSService {
 		return getModuleMasterMap(masterDataMap);
 	}
 
-
-
-	public void update(MdmsRequest mdmsRequest) {
-	}
-
 	private Map<String, Map<String, JSONArray>> getModuleMasterMap(Map<String, JSONArray> masterMap) {
 		Map<String, Map<String, JSONArray>> moduleMasterMap = new HashMap<>();
 
