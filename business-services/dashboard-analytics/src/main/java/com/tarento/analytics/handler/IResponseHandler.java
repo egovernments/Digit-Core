@@ -75,6 +75,8 @@ public interface IResponseHandler {
     public final String DOC_COUNT = "doc_count"; 
     
     public static final String POST_AGGREGATION_THEORY = "postAggregationTheory";
+
+	public static final String COMPARE_TWO_INDICES = "compareTwoIndices";
     
     public static final String CHART_SPECIFIC = "chartSpecificProperty";
 	
@@ -205,6 +207,19 @@ public interface IResponseHandler {
 		}
 		logger.info("after appending missing plots : "+ sortedMap);
 		data.setPlots(sortedMap.values().stream().collect(Collectors.toList()));
+	}
+
+	default Double compareTwoIndices(List<List<String>> bucketList){
+		List<String> listA = bucketList.get(0);
+		List<String> listB = bucketList.get(1);
+
+		Double count = 0.0;
+		for (String str : listA) {
+			if (!listB.contains(str)) {
+				count++;
+			}
+		}
+		return  count;
 	}
 
 }
