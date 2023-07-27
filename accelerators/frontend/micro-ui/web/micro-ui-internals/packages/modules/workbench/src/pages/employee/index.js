@@ -34,7 +34,7 @@ const App = ({ path }) => {
   const MDMSCreateSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
   const [sessionFormData, setSessionFormData, clearSessionFormData] = MDMSCreateSession;
   useEffect(() => {
-    if (!window.location.href.includes("mdms-add") && sessionFormData && Object.keys(sessionFormData) != 0) {
+    if (!window.location.href.includes("mdms-add-v2") && sessionFormData && Object.keys(sessionFormData) != 0) {
       clearSessionFormData();
     }
   }, [location]);

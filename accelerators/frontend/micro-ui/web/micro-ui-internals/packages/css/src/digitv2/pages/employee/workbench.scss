@@ -11,11 +11,29 @@
       .field-wrapper {
         .form-group.field {
           display: flex;
+          &.field-error.has-error.has-danger{
+            .control-label{
+              @extend .alert-error;
+            }
+            .form-control{
+@extend .alert-error-border;
+            }
+            .card-label-error {
+              display: inline;
+              position: relative;
+              margin: 0px;
+              padding: 0px;
+              top: -1.5rem;
+              font-weight:normal;
+            }
+          }
           .control-label {
             width: 13rem;
             @extend .card-label;
             display: inline-flex;
-            align-self: center;
+            /* align-self: center; */
+            width: 13rem;
+            line-height: 3rem;
           }
           .form-control {
             width: 28rem;
@@ -48,7 +66,7 @@
           }
           &.field-object {
             display: block;
-            @extend .light-divider;
+            @extend .light-background;
             @extend .light-paper-border;
             padding: 1rem;
             margin: 1rem 0;
