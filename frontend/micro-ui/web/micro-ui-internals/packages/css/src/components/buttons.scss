@@ -48,3 +48,54 @@
 .submit-bar:focus {
   @apply outline-none !important;
 }
+
+.jk-digit-secondary-btn {
+  width: auto;
+  height: 40px;
+  background: theme(colors.white);
+  border: 1px solid theme(colors.primary.main);
+  padding: 12px;
+  color: theme(colors.primary.main);
+  display: flex;
+  align-items: center;
+  font-size: 19px;
+  cursor: pointer;
+  svg {
+    margin: 0 10px;
+  }
+}
+.jk-digit-primary-btn {
+  width: auto;
+  height: 40px;
+  background: theme(colors.primary.main);
+  border: 1px solid theme(colors.primary.main);
+  padding: 6px;
+  color: theme(colors.white);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 19px;
+  box-shadow: inset 0 -2px 0 #0b0c0c;
+  svg {
+    margin: 0 15px;
+  }
+}
+
+.jk-digit-disabled-btn {
+  opacity: 0.5;
+  font-size: 19px;
+  cursor: not-allowed;
+}
+
+.jk-header-btn-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* for mobile view */
+@media (max-width: 780px) {
+  .jk-header-btn-wrapper {
+    flex-flow: column;
+    margin-bottom: 15px;
+  }
+}

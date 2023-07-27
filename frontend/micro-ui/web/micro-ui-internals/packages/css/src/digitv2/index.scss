@@ -33,6 +33,9 @@
 @import url("./components/multiSelectDropdownV2.scss");
 @import url("./components/uploadFileV2.scss");
 
+/* pages */
+@import url("./pages/employee/index.scss");
+
 /* important to be remove after fixing the components */
 .light {
   &-primary {
@@ -74,6 +77,11 @@
 
     &-secondary {
       background-color: theme(digitv2.lightTheme.paper-secondary) !important;
+    }
+    &-border{
+      border: 0.5px solid !important;
+      border-radius: 0.5rem;
+      border-color: theme(digitv2.lightTheme.background);
     }
   }
 
