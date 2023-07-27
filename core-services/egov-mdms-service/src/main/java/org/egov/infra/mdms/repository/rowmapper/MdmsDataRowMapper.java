@@ -27,7 +27,7 @@ import static java.util.Objects.isNull;
 
 @Component
 @Slf4j
-public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArray>> {
+public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, Map<String, JSONArray>>> {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -41,13 +41,12 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArr
      * @throws DataAccessException
      */
     @Override
-    public Map<String, JSONArray> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-
-        Map<String, JSONArray> masterMap = new HashMap<>();
-        JSONArray jsonArray = null;
+    public Map<String, Map<String, JSONArray>> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+        Map<String, Map<String, JSONArray>> tenantMasterMap = new HashMap<>();
 
         while(resultSet.next()){
-
+            JSONArray jsonArray = null;
+            Map<String, JSONArray> masterMap = new HashMap<>();
             JsonNode data = null;
             if( ! isNull(resultSet.getObject("data"))){
                 String dataStr = ((PGobject) resultSet.getObject("data")).getValue();
@@ -58,11 +57,13 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, JSONArr
                 }
             }
             String schemaCode = resultSet.getString("schemacode");
-            jsonArray = masterMap.getOrDefault(schemaCode, new JSONArray());
+            String tenantId = resultSet.getString("tenantid");
+            jsonArray = tenantMasterMap.getOrDefault(tenantId, new HashMap<>()).getOrDefault(schemaCode, new JSONArray());
             jsonArray.add(data);
             masterMap.put(schemaCode, jsonArray);
+            tenantMasterMap.put(tenantId, masterMap);
         }
 
-        return masterMap;
+        return tenantMasterMap;
     }
 }

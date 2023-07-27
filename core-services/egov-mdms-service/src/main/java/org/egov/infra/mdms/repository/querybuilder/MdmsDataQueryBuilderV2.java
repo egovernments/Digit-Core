@@ -44,8 +44,8 @@ public class MdmsDataQueryBuilderV2 {
         Map<String, String> schemaCodeFilterMap = mdmsCriteriaV2.getSchemaCodeFilterMap();
         if (!Objects.isNull(mdmsCriteriaV2.getTenantId())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.tenantid = ? ");
-            preparedStmtList.add(mdmsCriteriaV2.getTenantId());
+            builder.append(" data.tenantid LIKE ? ");
+            preparedStmtList.add(mdmsCriteriaV2.getTenantId() + "%");
         }
         if (!Objects.isNull(mdmsCriteriaV2.getIds())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);

@@ -81,7 +81,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      * @return
      */
     @Override
-    public Map<String, JSONArray> search(MdmsCriteria mdmsCriteria) {
+    public Map<String, Map<String, JSONArray>> search(MdmsCriteria mdmsCriteria) {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = mdmsDataQueryBuilder.getMdmsDataSearchQuery(mdmsCriteria, preparedStmtList);
         log.info(query);
