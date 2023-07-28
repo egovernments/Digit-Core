@@ -74,11 +74,13 @@ const MDMSAdd = () => {
     const onSuccess = (resp) => {
       setTimeout(() => {
         setSessionFormData({});
+        setSession({});
       }, 1500);
-      setShowToast(`Success :  ${resp?.mdms?.[0]?.id}`);
+      setShowErrorToast(false);
+      setShowToast(`Success : Data added Successfully with Id : ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowToast(`Error : ${resp?.response?.data?.Errors?.[0]?.code}`);
+      setShowToast(`Error : Following error occured ${resp?.response?.data?.Errors?.[0]?.code}`);
       setShowErrorToast(true);
     };
 

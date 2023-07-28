@@ -1,4 +1,4 @@
-import { Loader, Header, Toast, Card, Button,ActionBar,AddFilled, SubmitBar, CardLabelError } from "@egovernments/digit-ui-react-components";
+import { Loader, Header, Toast, Card, Button,ActionBar,AddFilled, SubmitBar, CardLabelError, SVG } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import _ from "lodash";
@@ -41,18 +41,38 @@ const uiSchema = {
  
 };
 
+const transformErrors = (errors) => {
+  console.log(errors,'errors');
+  // Custom validation logic for all widgets
+  // You can modify or add error messages based on your requirements
+  return errors.map((error) => {
+    // if (error.property === '.name' && error.name === 'minLength') {
+    //   error.message = 'Name must be at least 3 characters';
+    // }
+    // if (error.property === '.email' && error.name === 'format') {
+    //   error.message = 'Invalid email format';
+    // }
+    return error;
+  });
+};
+
+
 function ArrayFieldItemTemplate(props) {
   const { children, className ,index,onDropIndexClick} = props;
   return (
     <div className={className}>
       {children}
-{/* commented out since it has some issue 
       {props.hasRemove && (
-        <button type="button" onClick={()=>onDropIndexClick(index)}>
-          rem
+        <div className="array-remove-button-wrapper">
+
+        <button type="button" className="array-remove-button"
+          onClick={onDropIndexClick(index)}
+          >
+          <SVG.Delete />
         </button>
+        </div>
       )}
-      */}
+     
     </div>
   );
 }
@@ -74,15 +94,14 @@ function ArrayFieldTitleTemplate(props) {
 }
 function ArrayFieldTemplate(props) {
   const { t } = useTranslation();
-console.log(props,'propsarray');
   return (
     <div>
       {props.items.map((element,index) => {return (<span>
-        <ArrayFieldItemTemplate {...element}></ArrayFieldItemTemplate>
+        <ArrayFieldItemTemplate key={index} index={index} {...element}></ArrayFieldItemTemplate>
       </span>)})}
       {props.canAdd && (
         <Button
-        label={t("Add Eligibility Criteria")}
+        label={t(`Add `+props?.title)}
         variation="secondary"
         icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
         onButtonClick={props.onAddClick}
@@ -152,13 +171,14 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
         <Form
           schema={schema?.definition}
           validator={validator}
-          liveValidate
+          liveValidate={formData&&Object.keys(formData)&&Object.keys(formData)?.length>0}
           focusOnFirstError={true}
           showErrorList={false}
           formData={formData}
           noHtml5Validate={true}
           onChange={onFormChange}
           onSubmit={onSubmitV2}
+          idPrefix="digit_root"
           templates={{
             FieldErrorTemplate,
             ArrayFieldTemplate,
@@ -171,6 +191,7 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
           experimental_defaultFormStateBehavior={{
             arrayMinItems: { populate: "requiredOnly" },
           }}
+          transformErrors={transformErrors}
           uiSchema={{ ...uiSchema, ...inputUiSchema }}
           onError={onFormError}
         >

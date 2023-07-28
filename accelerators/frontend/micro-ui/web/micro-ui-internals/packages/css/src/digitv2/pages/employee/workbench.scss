@@ -2,31 +2,50 @@
 
 .workbench-create-form {
   display: inherit;
+
   .digit-form-composer-sub-header {
     @apply text-heading-m-dt;
   }
+
   form {
-    #root {
+    #digit_root {
       width: 80%;
+
       .field-wrapper {
         .form-group.field {
           display: flex;
-          &.field-error.has-error.has-danger{
-            .control-label{
+
+          &.field-error.has-error.has-danger {
+            .control-label {
               @extend .alert-error;
             }
-            .form-control{
-@extend .alert-error-border;
+
+            .form-control {
+              @extend .alert-error-border;
             }
+
             .card-label-error {
               display: inline;
               position: relative;
               margin: 0px;
               padding: 0px;
               top: -1.5rem;
-              font-weight:normal;
+              font-weight: normal;
+
             }
           }
+
+          &.field-boolean.field-error.has-error.has-danger {
+
+            .card-label-error {
+              position: initial;
+              margin-left: 2rem;
+              display: block;
+              margin-top: 0.5rem;
+
+            }
+          }
+
           .control-label {
             width: 13rem;
             @extend .card-label;
@@ -35,35 +54,51 @@
             width: 13rem;
             line-height: 3rem;
           }
+
           .form-control {
             width: 28rem;
             @extend .light-input-border;
             @extend .employee-card-input;
           }
+
           &.field-string {
             align-self: center;
           }
-          &.field-boolean .checkbox label {
-            /* display: flex;
+
+          &.field-boolean .checkbox {
+            width: 28rem;
+
+            label {
+              float: left;
+
+              /* display: flex;
             flex-direction: row-reverse;
             */
-            span {
-              width: 17rem;
-              display: none;
-              @extend .card-label;
-            }
-            input[type="checkbox"] {
-              @extend .light-input-border;
-              @extend .employee-card-input;
-              height: 1.5rem;
-              @apply ml-sm;
-            }
-            input:checked,
-            input:hover {
-              @apply border-2 border-primary-main;
-              @extend .light-input-border;
+              span {
+                width: 17rem;
+                display: none;
+                @extend .card-label;
+              }
+
+              input[type="checkbox"] {
+                @extend .light-input-border;
+                @extend .employee-card-input;
+                height: 1.5rem;
+                /*              @apply ml-sm;*/
+              }
+
+              input[type="checkbox"]#digit_root_active {
+                accent-color: theme(digitv2.lightTheme.primary);
+              }
+
+              input:checked,
+              input:hover {
+                @apply border-2;
+                @extend .light-input-border;
+              }
             }
           }
+
           &.field-object {
             display: block;
             @extend .light-background;
@@ -77,6 +112,7 @@
         }
         */
           }
+
           &.field-array {
             display: block;
 
@@ -85,15 +121,32 @@
             padding: 1rem;
             margin: 1rem 0;
 
-            .row.array-item-list {
-              .array-item {
-                @extend .light-background;
+
+            .array-item {
+              @extend .light-background;
+              padding: 1rem;
+              position: relative;
+
+              .array-remove-button-wrapper {
+                position: absolute;
+                right: 0;
+                top: 0;
+
+                .array-remove-button {
+
+                  @extend .light-paper-secondary;
+                  cursor: pointer;
+                }
               }
+
             }
+
+
             .jk-digit-secondary-btn {
               border: none;
               padding: unset;
               background-color: inherit;
+
               h2 {
                 font-size: 1rem;
               }
@@ -103,8 +156,10 @@
       }
     }
   }
+
   div.form-action-footer {
     @extend .action-bar-wrap;
+
     .submit-bar {
       @extend .submit-bar;
       cursor: pointer;
@@ -112,18 +167,21 @@
     }
   }
 }
+
 .jk-digit-loader {
   position: fixed;
   z-index: 10000;
   width: 100vh;
   background-color: rgba(189, 189, 189, 0.5);
   height: 80vh;
+
   .jk-spinner-wrapper {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
+
     .jk-spinner {
       border: 0.4em solid #fe7a51;
       border-radius: 50%;
@@ -153,6 +211,7 @@
   0% {
     -webkit-transform: rotate(0deg);
   }
+
   100% {
     -webkit-transform: rotate(360deg);
   }
@@ -162,7 +221,19 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
+  }
+}
+.no-data-found {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .digit-error-msg {
+    margin-top: 2rem;
   }
 }
