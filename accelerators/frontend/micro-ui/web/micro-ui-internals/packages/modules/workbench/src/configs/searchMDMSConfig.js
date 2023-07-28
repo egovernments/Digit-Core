@@ -5,30 +5,19 @@ export const Config = {
   actionRole: "SUPERUSER",
   actionLink: "workbench/mdms-add-v2",
   apiDetails: {
-    serviceName: "/egov-mdms-service/v1/_search",
+    serviceName: "/mdms-v2/v2/_search/",
     requestParam: {},
     requestBody: {
       MdmsCriteria: {
-        moduleDetails: [
-         {
-          moduleName: "ACCESSCONTROL-ROLES",
-          masterDetails: [
-            {
-              name: "roles",
-              // filter: "",
-              // "filter": "[?(@.code=='HRMS_ADMIN')]"
-            },
-          ],
-         }
-        ],
+        
       },
     },
-    minParametersForSearchForm: 1,
+    minParametersForSearchForm: 0,
     masterName: "commonUiConfig",
     moduleName: "SearchMDMSConfig",
-    tableFormJsonPath: "requestBody.MdmsCriteria.moduleDetails[0].masterDetails[0].custom",
-    filterFormJsonPath: "requestBody.MdmsCriteria.moduleDetails[0].masterDetails[0].custom",
-    searchFormJsonPath: "requestBody.MdmsCriteria.moduleDetails[0].masterDetails[0].custom"
+    tableFormJsonPath: "requestBody.MdmsCriteria.custom",
+    filterFormJsonPath: "requestBody.MdmsCriteria.custom",
+    searchFormJsonPath: "requestBody.MdmsCriteria.custom"
   },
   sections: {
     search: {
@@ -37,7 +26,7 @@ export const Config = {
         formClassName: "", //"custom-both-clear-search",
         primaryLabel: "ES_COMMON_SEARCH",
         secondaryLabel: "ES_COMMON_CLEAR_SEARCH",
-        minReqFields: 1,
+        minReqFields: 0,
         defaultValues: {
           value: "",
           field: "",
@@ -122,38 +111,26 @@ export const Config = {
       uiConfig: {
         columns: [
           {
-            label: "MASTERS_WAGESEEKER_ID",
-            jsonPath: "businessObject.individualId",
-            additionalCustomization: true,
+            label: "Id",
+            jsonPath: "data.id",
           },
           {
-            label: "MASTERS_WAGESEEKER_NAME",
-            jsonPath: "businessObject.name.givenName",
-          },
-          { label: "MASTERS_FATHER_NAME", jsonPath: "businessObject.fatherName" },
-          {
-            label: "MASTERS_SOCIAL_CATEGORY",
-            jsonPath: "businessObject.additionalFields.fields[0].value",
+            label: "Name",
+            jsonPath: "data.name",
           },
           {
-            label: "CORE_COMMON_PROFILE_CITY",
-            jsonPath: "businessObject.address[0].tenantId",
-            additionalCustomization: true,
+            label: "Code",
+            jsonPath: "data.code",
           },
+          { label: "Description", jsonPath: "data.description" },
           {
-            label: "MASTERS_WARD",
-            jsonPath: "businessObject.address[0].ward.code",
-            additionalCustomization: true,
-          },
-          {
-            label: "MASTERS_LOCALITY",
-            jsonPath: "businessObject.address[0].locality.code",
-            additionalCustomization: true,
-          },
+            label: "Active",
+            jsonPath: "data.active",
+          }
         ],
         enableGlobalSearch: false,
         enableColumnSort: true,
-        resultsJsonPath: "items",
+        resultsJsonPath: "mdms",
       },
       children: {},
       show: true,

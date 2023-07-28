@@ -48,7 +48,7 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/mdms-search`} component={() => <MDMSSearch />} />
           <PrivateRoute path={`${path}/mdms-add`} component={() =>  <MDMSAdd FormSession={MDMSCreateSession} parentRoute={path}/>} />
           
-          <PrivateRoute path={`${path}/mdms-add-v2`} component={() =>  <MDMSAddV2  parentRoute={path}/>} />
+          <PrivateRoute path={`${path}/mdms-add-v2`} component={() =>  <MDMSAddV2 parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 />} />
         </div>
       </Switch>

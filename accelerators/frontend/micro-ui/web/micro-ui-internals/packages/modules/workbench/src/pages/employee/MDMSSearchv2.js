@@ -6,9 +6,14 @@ import { Config as Configg } from "../../configs/searchMDMSConfig";
 import _, { drop } from "lodash";
 
 const toDropdownObj = (master = "", mod = "") => {
+  // return {
+  //   name: mod || master,
+  //   code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
+  // };
+
   return {
     name: mod || master,
-    code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
+    code: mod ? `${mod}` : `${master}`,
   };
 };
 
@@ -245,7 +250,8 @@ const MDMSSearchv2 = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const tenant = Digit.ULBService.getStateId();
-
+  const {masterName:master,moduleName:modulee,tenantId} = Digit.Hooks.useQueryParams()
+  
   const [availableSchemas, setAvailableSchemas] = useState([]);
   const [currentSchema, setCurrentSchema] = useState(null);
   const [masterName, setMasterName] = useState(null); //for dropdown
@@ -253,23 +259,29 @@ const MDMSSearchv2 = () => {
   const [masterOptions,setMasterOptions] = useState([])
   const [moduleOptions,setModuleOptions] = useState([])
   const [updatedConfig,setUpdatedConfig] = useState(null)
+  const SchemaDefCriteria = {
+    tenantId:tenant,
+  }
+  if(master && modulee ) {
+    SchemaDefCriteria.codes = [`${master}.${modulee}`] 
+  }
   const { isLoading, data: dropdownData } = Digit.Hooks.useCustomAPIHook({
     url: "/mdms-v2/schema/v1/_search",
     params: {},
     body: {
-      SchemaDefCriteria: {
-        tenantId: "pg",
-        codes: ["common-masters.Sample"],
-      },
+      SchemaDefCriteria
     },
     config: {
       select: (data) => {
         function onlyUnique(value, index, array) {
           return array.indexOf(value) === index;
         }
+        
         //when api is working fine change here(thsese are all schemas available in a tenant)
-        const schemas = sampleSchemaResponse.SchemaDefinitions;
+        // const schemas = sampleSchemaResponse.SchemaDefinitions;
+        const schemas = data?.SchemaDefinitions
         setAvailableSchemas(schemas);
+        if(schemas?.length===1) setCurrentSchema(schemas?.[0])
         //now extract moduleNames and master names from this schema
         const obj = {
           mastersAvailable: [],
@@ -311,17 +323,19 @@ const MDMSSearchv2 = () => {
       const {
         definition: { properties },
       } = currentSchema;
+      
       Object.keys(properties)?.forEach((key) => {
-        if (typeof properties[key].type === "string") {
+        if (properties[key].type === "string") {
           dropDownOptions.push({
             name: key,
             code: key,
           });
         }
       });
-console.log("currentSchema",currentSchema);
+
       Config.sections.search.uiConfig.fields[0].populators.options = dropDownOptions;
       Config.actionLink=Config.actionLink+`?moduleName=${masterName?.name}&masterName=${moduleName?.name}`;
+      Config.apiDetails.serviceName = `/mdms-v2/v2/_search/${currentSchema.code}`
       setUpdatedConfig(Config)
     }
   }, [currentSchema]);
@@ -336,28 +350,34 @@ console.log("currentSchema",currentSchema);
           style={{width:"25%",marginRight:"1rem" }}
           className={"form-field"}
           optionKey="code"
-          selected={masterName}
+          selected={master && modulee ? toDropdownObj(master) : masterName}
           select={(e) => {
             setMasterName(e);
             setModuleName(null)
             setUpdatedConfig(null)
           }}
           t={t}
-          placeholder={t("WBH_MODULE_NAME")}
+          // placeholder={t("WBH_MODULE_NAME")}
+          placeholder={t("MODULE NAME")}
+          
+          disable={master ? true : false}
         />
         <Dropdown
           option={moduleOptions}
           style={{width:"25%",marginRight:"auto" }}
           className={"form-field"}
           optionKey="code"
-          selected={moduleName}
+          selected={master && modulee ? toDropdownObj(master,modulee) : moduleName}
           select={(e) => {
             setModuleName(e);
           }}
           t={t}
-          placeholder={t("WBH_MODULE_NAME")}
+          // placeholder={t("WBH_MODULE_NAME")}
+          placeholder={t("MASTER NAME")}
+          
+          disable = {modulee ? true : false}
         />
-       {updatedConfig && moduleName && masterName && Digit.Utils.didEmployeeHasRole(updatedConfig?.actionRole) && (
+       {updatedConfig && Digit.Utils.didEmployeeHasRole(updatedConfig?.actionRole) && (
           <Button
             label={t(updatedConfig?.actionLabel)}
             variation="secondary"
@@ -369,7 +389,7 @@ console.log("currentSchema",currentSchema);
           />
         )}
       </div>
-      {updatedConfig && moduleName && masterName && <div className="inbox-search-wrapper">
+      {updatedConfig && <div className="inbox-search-wrapper">
         <InboxSearchComposer configs={updatedConfig}></InboxSearchComposer>
       </div>}
     </React.Fragment>

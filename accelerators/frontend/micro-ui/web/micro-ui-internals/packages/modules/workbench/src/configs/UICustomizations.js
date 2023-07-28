@@ -428,16 +428,19 @@ export const UICustomizations = {
     },
     preProcess: (data) => {
       
-      const {field,value} = data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].custom || {}
       
-      const tenantId = Digit.ULBService.getCurrentTenantId()
-      data.body.MdmsCriteria.tenantId = tenantId
+      data.body.MdmsCriteria.tenantId = "pg"
+      delete data.body.MdmsCriteria.custom
+      // const {field,value} = data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].custom || {}
+      
+      // const tenantId = Digit.ULBService.getCurrentTenantId()
+      // data.body.MdmsCriteria.tenantId = tenantId
 
-      //generate filter 
-      const filter = `[?(@.${field?.code}=='${value}')]`
+      // //generate filter 
+      // const filter = `[?(@.${field?.code}=='${value}')]`
       
 
-      data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].filter = filter
+      // data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].filter = filter
       // delete data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].custom
       //we simply
       // data.params = { ...data.params, tenantId: Digit.ULBService.getCurrentTenantId() };
