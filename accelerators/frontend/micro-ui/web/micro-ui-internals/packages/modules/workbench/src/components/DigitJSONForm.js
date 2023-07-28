@@ -1,4 +1,4 @@
-import { Loader, Header, Toast, Card, Button,ActionBar,AddFilled, SubmitBar, CardLabelError, SVG } from "@egovernments/digit-ui-react-components";
+import { Loader, Header, Toast, Card, Button, ActionBar, AddFilled, SubmitBar, CardLabelError, SVG } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import _ from "lodash";
@@ -6,6 +6,7 @@ import Form from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
 // import { UiSchema } from '@rjsf/utils';
 import { titleId } from "@rjsf/utils";
+import App from "./MultiSelect";
 /*
 
 created the foem using rjfs json form 
@@ -25,6 +26,9 @@ const uiSchema = {
   "ui:title": " ",
   "ui:classNames": "my-class",
 
+  SORdescription: {
+    "ui:widget": "textarea",
+  },
   "ui:submitButtonOptions": {
     props: {
       disabled: false,
@@ -38,11 +42,10 @@ const uiSchema = {
       className: "object-jk",
     },
   },
- 
 };
 
 const transformErrors = (errors) => {
-  console.log(errors,'errors');
+  console.log(errors, "errors");
   // Custom validation logic for all widgets
   // You can modify or add error messages based on your requirements
   return errors.map((error) => {
@@ -56,23 +59,18 @@ const transformErrors = (errors) => {
   });
 };
 
-
 function ArrayFieldItemTemplate(props) {
-  const { children, className ,index,onDropIndexClick} = props;
+  const { children, className, index, onDropIndexClick } = props;
   return (
     <div className={className}>
       {children}
       {props.hasRemove && (
         <div className="array-remove-button-wrapper">
-
-        <button type="button" className="array-remove-button"
-          onClick={onDropIndexClick(index)}
-          >
-          <SVG.Delete />
-        </button>
+          <button type="button" className="array-remove-button" onClick={onDropIndexClick(index)}>
+            <SVG.Delete />
+          </button>
         </div>
       )}
-     
     </div>
   );
 }
@@ -96,17 +94,21 @@ function ArrayFieldTemplate(props) {
   const { t } = useTranslation();
   return (
     <div>
-      {props.items.map((element,index) => {return (<span>
-        <ArrayFieldItemTemplate key={index} index={index} {...element}></ArrayFieldItemTemplate>
-      </span>)})}
+      {props.items.map((element, index) => {
+        return (
+          <span>
+            <ArrayFieldItemTemplate key={index} index={index} {...element}></ArrayFieldItemTemplate>
+          </span>
+        );
+      })}
       {props.canAdd && (
         <Button
-        label={t(`Add `+props?.title)}
-        variation="secondary"
-        icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
-        onButtonClick={props.onAddClick}
-        type="button"
-      />
+          label={t(`Add ` + props?.title)}
+          variation="secondary"
+          icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
+          onButtonClick={props.onAddClick}
+          type="button"
+        />
       )}
     </div>
   );
@@ -131,20 +133,21 @@ function ObjectFieldTemplate(props) {
 
 function CustomFieldTemplate(props) {
   const { id, classNames, style, label, help, required, description, errors, children } = props;
-  console.log(props,"all")
+  console.log(props, "all");
   return (
     <span>
-    <div className={classNames} style={style}>
-      <label htmlFor={id} className="control-label">
-        {label}
-        {required ? "*" : null}
-      </label>
-      {description}
-      <span>{children}
-      {errors}
-      {help}
-      </span>
-    </div>
+      <div className={classNames} style={style}>
+        <label htmlFor={id} className="control-label">
+          {label}
+          {required ? "*" : null}
+        </label>
+        {description}
+        <span>
+          {children}
+          {errors}
+          {help}
+        </span>
+      </div>
     </span>
   );
 }
@@ -155,13 +158,14 @@ const FieldErrorTemplate = (props) => {
   return errors && errors.length > 0 && errors?.[0] ? <CardLabelError>{errors?.[0]}</CardLabelError> : null;
 };
 
-const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, showErrorToast,formData={} ,onFormChange,onFormError}) => {
+const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, showErrorToast, formData = {}, onFormChange, onFormError }) => {
   const { t } = useTranslation();
 
   const onSubmitV2 = ({ formData }) => {
     onSubmit(formData);
     console.log("Data submitted: ", formData);
   };
+  const customWidgets = { SelectWidget: App };
 
   return (
     <React.Fragment>
@@ -171,7 +175,7 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
         <Form
           schema={schema?.definition}
           validator={validator}
-          liveValidate={formData&&Object.keys(formData)&&Object.keys(formData)?.length>0}
+          liveValidate={formData && Object.keys(formData) && Object.keys(formData)?.length > 0}
           focusOnFirstError={true}
           showErrorList={false}
           formData={formData}
@@ -191,6 +195,7 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
           experimental_defaultFormStateBehavior={{
             arrayMinItems: { populate: "requiredOnly" },
           }}
+          widgets={customWidgets}
           transformErrors={transformErrors}
           uiSchema={{ ...uiSchema, ...inputUiSchema }}
           onError={onFormError}
