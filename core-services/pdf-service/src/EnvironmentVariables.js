@@ -32,6 +32,7 @@ const envVariables = {
     DEFAULT_LOCALISATION_TENANT:
     process.env.DEFAULT_LOCALISATION_TENANT || "pb",
     DATA_CONFIG_URLS: process.env.DATA_CONFIG_URLS,
-    FORMAT_CONFIG_URLS: process.env.FORMAT_CONFIG_URLS
+    FORMAT_CONFIG_URLS: process.env.FORMAT_CONFIG_URLS,
+    STATE_LEVEL_TENANT_ID: "in.stateb"
 };
 export default envVariables;

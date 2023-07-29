@@ -167,6 +167,8 @@ export const externalAPIMapping = async function (
       accept: "application/json, text/plain"
     };*/
 
+    header.TENANTID = envVariables.STATE_LEVEL_TENANT_ID;
+
     let headerConfig = {
       headers: header
     };
@@ -185,10 +187,15 @@ export const externalAPIMapping = async function (
         }
       );
     }
+    console.log("EXTERNAL API --> "+externalAPIArray[i].uri + "?" + externalAPIArray[i].queryParams);
+    console.log("resPromise-------->     "+JSON.stringify(resPromise));
     responsePromises.push(resPromise)
   }
 
+
   try {
+   console.log("responsePromises -------->     "+JSON.stringify(responsePromises));
+
     responses = await Promise.all(responsePromises)
   } catch (error) {
     logger.error(error.stack || error);

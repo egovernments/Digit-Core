@@ -76,10 +76,15 @@ export const getTransformedLocale = (label) => {
     let headers = {
       headers:{
         "content-type": "application/json;charset=UTF-8",
-        accept: "application/json, text/plain, */*"
+        accept: "application/json, text/plain, */*",
+        "TENANTID":envVariables.STATE_LEVEL_TENANT_ID
       }
     };
-  
+
+     console.log("headers------------>"+JSON.stringify(headers));
+      console.log("url------------>"+url);
+      console.log("request------------>"+JSON.stringify(request));
+
     let responseBody = await axios.post(url,request,headers)
     .then(function (response) {
       return response;
