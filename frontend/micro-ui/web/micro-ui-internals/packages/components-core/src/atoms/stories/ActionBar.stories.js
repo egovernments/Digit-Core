@@ -3,7 +3,7 @@ import React from "react";
 import ActionBar from "../ActionBar";
 
 export default {
-  title: "Atom/ActionBar",
+  title: "Atoms/ActionBar",
   component: ActionBar,
   argTypes: {
     className: {

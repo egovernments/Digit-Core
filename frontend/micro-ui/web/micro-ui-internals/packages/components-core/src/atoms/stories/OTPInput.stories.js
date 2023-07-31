@@ -1,6 +1,6 @@
 import React from "react";
 import { action } from "@storybook/addon-actions";
-import OTPInput from "../atoms/OTPInput";
+import OTPInput from "../OTPInput";
 
 export default {
   title: "Atoms/OTPInput",

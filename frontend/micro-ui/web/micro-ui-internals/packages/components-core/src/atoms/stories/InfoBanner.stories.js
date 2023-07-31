@@ -2,7 +2,7 @@ import React from "react";
 import InfoBanner from "../InfoBanner";
 
 export default {
-  title: "Atom/InfoBanner",
+  title: "Atoms/InfoBanner",
   component: InfoBanner,
 };
 

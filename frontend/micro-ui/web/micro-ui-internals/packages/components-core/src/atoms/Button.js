@@ -9,7 +9,7 @@ const Button = (props) => {
       type={props.type || "button"}
       form={props.formId}
       onClick={props.onClick}
-      // disabled={props?.isDisabled || null}
+      disabled={props?.isDisabled || null}
       style={props.style ? props.style : null}
     >
       {props?.icon && props.icon}

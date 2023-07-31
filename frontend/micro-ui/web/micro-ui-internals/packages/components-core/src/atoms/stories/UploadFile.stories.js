@@ -1,6 +1,6 @@
 import React from "react";
 import { action } from "@storybook/addon-actions";
-import UploadFile from "../atoms/UploadFile";
+import UploadFile from "../UploadFile";
 
 export default {
   title: "Atoms/UploadFile",

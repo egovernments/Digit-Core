@@ -1,5 +1,5 @@
 import React from "react";
-import { SVG } from "../atoms";
+import { SVG } from "../SVG";
 
 export default {
   tags: ["autodocs"],

@@ -2,7 +2,7 @@ import React from "react";
 import { Loader } from "../Loader";
 
 export default {
-  title: "Atom/Loader",
+  title: "Atoms/Loader",
   component: Loader,
   argTypes: {
     page: {

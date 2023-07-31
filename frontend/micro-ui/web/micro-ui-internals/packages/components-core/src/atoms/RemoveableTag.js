@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Close } from "@egovernments/digit-ui-svg-components";
+import { SVG } from "./SVG";
 
 const RemoveableTag = ({ className, text, onClick, extraStyles, disabled = false }) => {
   const tagStyles = extraStyles && extraStyles.tagStyles ? extraStyles.tagStyles : {};
@@ -13,7 +13,7 @@ const RemoveableTag = ({ className, text, onClick, extraStyles, disabled = false
         {text}
       </span>
       <span onClick={disabled ? null : onClick}>
-        <Close className="close" style={closeIconStyles} />
+        <SVG.Close className="close" style={closeIconStyles} />
       </span>
     </div>
   );

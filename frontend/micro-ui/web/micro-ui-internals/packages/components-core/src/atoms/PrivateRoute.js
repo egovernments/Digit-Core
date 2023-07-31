@@ -1,14 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Route, Redirect } from "react-router-dom";
+import { getUser } from "../utils/getUser";
+import { getUserType } from "../utils/getUserType";
 
 export const PrivateRoute = ({ component: Component, roles, ...rest }) => {
   return (
     <Route
       {...rest}
       render={(props) => {
-        const user = Digit.UserService.getUser();
-        const userType = Digit.UserService.getType();
+        const user = getUser();
+        const userType = getUserType();
         function getLoginRedirectionLink() {
           if (userType === "employee") {
             return `/${window?.contextPath}/employee/user/language-selection`;

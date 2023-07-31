@@ -1,5 +1,5 @@
 import React from "react";
-import RadioButtons from "../atoms/RadioButtons";
+import RadioButtons from "../RadioButtons";
 
 export default {
   title: "Atoms/RadioButtons",

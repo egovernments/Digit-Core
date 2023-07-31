@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import DisplayPhotos from "../DisplayPhotos";
 
 export default {
-  title: "Atom/DisplayPhotos",
+  title: "Atoms/DisplayPhotos",
   component: DisplayPhotos,
 };
 

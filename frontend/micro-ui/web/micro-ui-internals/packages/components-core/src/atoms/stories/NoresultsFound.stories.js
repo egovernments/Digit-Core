@@ -1,5 +1,5 @@
 import React from "react";
-import NoResultsFound from "../atoms/NoResultsFound";
+import NoResultsFound from "../NoResultsFound";
 import { action } from "@storybook/addon-actions";
 
 export default {

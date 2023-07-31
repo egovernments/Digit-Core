@@ -2,7 +2,7 @@ import React from "react";
 import BackButton from "../BackButton";
 
 export default {
-  title: "Atom/BackButton",
+  title: "Atoms/BackButton",
   component: BackButton,
   argTypes: {
     className: {

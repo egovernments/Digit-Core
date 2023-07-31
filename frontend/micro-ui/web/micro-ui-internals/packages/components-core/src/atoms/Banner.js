@@ -19,7 +19,7 @@ const Successful = (props) => {
       <div>
         {props.props.whichSvg === "tick" ? (
           <div>
-            <SVG.TickMark fillColor="green" />
+            <SVG.TickMark fill="green" />
             <br />
             <br />
           </div>
@@ -65,7 +65,6 @@ const Error = (props) => {
     >
       <header style={props?.props?.headerStyles ? props?.props?.headerStyles : {}}>{props.props.message}</header>
       <SVG.Error />
-      {/* <img src={error} alt="error while submition"/> */}
       <h2 style={props?.props?.infoStyles ? props?.props?.infoStyles : {}}>
         {props?.props?.complaintNumber ? t("CS_PGR_COMPLAINT_NUMBER") : props.props.info}
       </h2>

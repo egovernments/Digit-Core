@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import Dropdown from "../Dropdown";
 
 export default {
-  title: "Atom/Dropdown",
+  title: "Atoms/Dropdown",
   component: Dropdown,
 };
 

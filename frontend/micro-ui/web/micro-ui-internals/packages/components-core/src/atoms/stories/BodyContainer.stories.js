@@ -3,7 +3,7 @@ import React from "react";
 import BodyContainer from "../BodyContainer";
 
 export default {
-  title: "Atom/BodyContainer",
+  title: "Atoms/BodyContainer",
   component: BodyContainer,
   argTypes: {
     className: {

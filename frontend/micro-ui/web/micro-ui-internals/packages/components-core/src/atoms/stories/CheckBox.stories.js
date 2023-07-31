@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CheckBox from "../CheckBox";
 
 export default {
-  title: "Atom/CheckBox",
+  title: "Atoms/CheckBox",
   component: CheckBox,
 };
 

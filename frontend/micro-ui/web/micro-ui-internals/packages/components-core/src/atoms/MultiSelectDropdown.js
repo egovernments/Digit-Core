@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import RemoveableTag from "./RemoveableTag";
-import { Check as CheckSvg, ArrowDownward as ArrowDown } from "@egovernments/digit-ui-svg-components";
+import { SVG } from "./SVG";
 import { useOnClickOutside } from "../utils";
 
 const MultiSelectDropdown = ({
@@ -128,7 +128,7 @@ const MultiSelectDropdown = ({
         className="digit-multi-select-dropdown-menuitem"
       />
       <div className="digit-custom-checkbox">
-        <CheckSvg style={{ innerWidth: "24px", width: "24px" }} />
+        <SVG.Check style={{ innerWidth: "24px", width: "24px" }} />
       </div>
       <p
         className="digit-label"
@@ -174,7 +174,7 @@ const MultiSelectDropdown = ({
           />
           <div className="digit-label">
             <p>{alreadyQueuedSelectedState.length > 0 ? `${alreadyQueuedSelectedState.length} ${defaultUnit}` : defaultLabel}</p>
-            <ArrowDown />
+            <SVG.ArrowDownward />
           </div>
         </div>
         {active ? (

@@ -1,5 +1,5 @@
 import React from "react";
-import TelePhone from "../atoms/Telephone";
+import TelePhone from "../Telephone";
 
 export default {
   title: "Atoms/TelePhone",

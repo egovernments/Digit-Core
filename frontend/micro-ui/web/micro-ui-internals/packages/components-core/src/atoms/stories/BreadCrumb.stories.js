@@ -2,7 +2,7 @@ import React from "react";
 import BreadCrumb from "../BreadCrumb";
 
 export default {
-  title: "Atom/BreadCrumb",
+  title: "Atoms/BreadCrumb",
   component: BreadCrumb,
   argTypes: {
     className: {
