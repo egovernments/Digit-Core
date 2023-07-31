@@ -1,6 +1,6 @@
 import React from "react";
 import { action } from "@storybook/addon-actions";
-import MobileNumber from "../atoms/MobileNumber";
+import MobileNumber from "../MobileNumber";
 
 export default {
   title: "Atoms/MobileNumber",

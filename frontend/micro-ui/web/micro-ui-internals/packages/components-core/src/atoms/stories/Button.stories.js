@@ -2,7 +2,7 @@ import React from "react";
 import Button from "../Button";
 
 export default {
-  title: "Atom/Button",
+  title: "Atoms/Button",
   component: Button,
   argTypes: {
     isDisabled: {

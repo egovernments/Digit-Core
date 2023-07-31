@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import PropTypes from "prop-types";
-import { StarFilled, StarEmpty } from "@egovernments/digit-ui-svg-components";
+import { SVG } from "./SVG";
 
 const Rating = (props) => {
   var stars = [];
@@ -11,7 +11,7 @@ const Rating = (props) => {
       const index = i;
       // stars.push(<img key={i} src={starfilled} className="rating-star" alt="star filled" ref={star} onClick={(e,ref)=>props.onFeedback(e,ref)}/>)
       stars.push(
-        <StarFilled
+        <SVG.StarFilled
           key={i}
           id={`${props.id}gradient${i}`}
           className="digit-rating-star"
@@ -22,7 +22,7 @@ const Rating = (props) => {
     } else if (i - props.currentRating > 0 && i - props.currentRating < 1) {
       const index = i;
       stars.push(
-        <StarEmpty
+        <SVG.StarEmpty
           key={i}
           id={`${props.id}gradient${i}`}
           className="digit-rating-star"
@@ -35,7 +35,7 @@ const Rating = (props) => {
       const index = i;
       // stars.push(<img key={i} src={starempty} className="rating-star" alt="star empty" ref={star} onClick={(e,ref)=>props.onFeedback(e,ref)}/>)
       stars.push(
-        <StarEmpty
+        <SVG.StarEmpty
           key={i}
           className={`digit-rating-star ${props?.className ? props?.className : ""}`}
           styles={props?.starStyles}

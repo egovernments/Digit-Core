@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import ErrorMessage from "../ErrorMessage";
 
 export default {
-  title: "Atom/ErrorMessage",
+  title: "Atoms/ErrorMessage",
   component: ErrorMessage,
 };
 

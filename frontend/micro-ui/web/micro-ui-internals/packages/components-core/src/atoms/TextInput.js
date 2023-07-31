@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { AddLocation as LocateIcon } from "./SVG";
+import { SVG } from "./SVG";
 import { getUserType } from "../utils";
 
 const TextInput = (props) => {
@@ -119,7 +119,7 @@ const TextInput = (props) => {
         {props.signature && props.signatureImg}
         {props.customIcon === "geolocation" && (
           <span className="digit-cursor-pointer" onClick={props?.onIconSelection}>
-            <LocateIcon className="digit-text-input-customIcon" />
+            <SVG.AddLocation className="digit-text-input-customIcon" />
           </span>
         )}
       </div>

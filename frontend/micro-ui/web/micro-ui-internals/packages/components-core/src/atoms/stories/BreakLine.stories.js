@@ -3,7 +3,7 @@ import React from "react";
 import BreakLine from "../BreakLine";
 
 export default {
-  title: "Atom/BreakLine",
+  title: "Atoms/BreakLine",
   component: BreakLine,
   argTypes: {
     className: {

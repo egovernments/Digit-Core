@@ -2,7 +2,7 @@ import React from "react";
 import { LoaderScreen } from "../LoaderScreen";
 
 export default {
-  title: "Atom/LoaderScreen",
+  title: "Atoms/LoaderScreen",
   component: LoaderScreen,
   argTypes: {
     page: {

@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
-const Breadcrumb = (props) => {
+const BreadCrumb = (props) => {
   function isLast(index) {
     return index === props.crumbs.length - 1;
   }
@@ -32,15 +32,15 @@ const Breadcrumb = (props) => {
   );
 };
 
-Breadcrumb.propTypes = {
+BreadCrumb.propTypes = {
   crumbs: PropTypes.array,
   className: PropTypes.string,
   style: PropTypes.object,
   spanStyle: PropTypes.object,
 };
 
-Breadcrumb.defaultProps = {
+BreadCrumb.defaultProps = {
   successful: true,
 };
 
-export default Breadcrumb;
+export default BreadCrumb;

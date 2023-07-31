@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import KeyNote from "../KeyNote";
 
 export default {
-  title: "Atom/KeyNote",
+  title: "Atoms/KeyNote",
   component: KeyNote,
 };
 

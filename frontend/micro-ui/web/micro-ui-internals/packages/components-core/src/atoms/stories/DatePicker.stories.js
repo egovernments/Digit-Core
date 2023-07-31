@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import DatePicker from "../DatePicker";
 
 export default {
-  title: "Atom/DatePicker",
+  title: "Atoms/DatePicker",
   component: DatePicker,
 };
 

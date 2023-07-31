@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import Card from "../Card";
 
 export default {
-  title: "Atom/Card",
+  title: "Atoms/Card",
   component: Card,
   argTypes: {
     className: {

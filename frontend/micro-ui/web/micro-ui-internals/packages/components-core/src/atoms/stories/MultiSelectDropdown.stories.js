@@ -1,5 +1,5 @@
 import React from "react";
-import MultiSelectDropdown from "../atoms/MultiSelectDropdown";
+import MultiSelectDropdown from "../MultiSelectDropdown";
 import { action } from "@storybook/addon-actions";
 
 export default {

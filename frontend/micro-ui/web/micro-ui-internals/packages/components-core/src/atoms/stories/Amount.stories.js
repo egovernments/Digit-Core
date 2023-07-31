@@ -2,7 +2,7 @@ import React from "react";
 import Amount from "../Amount";
 
 export default {
-  title: "Atom/Amount",
+  title: "Atoms/Amount",
   component: Amount,
   argTypes: {
     className: {

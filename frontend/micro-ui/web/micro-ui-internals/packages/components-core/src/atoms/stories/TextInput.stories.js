@@ -1,6 +1,6 @@
 import React from "react";
 import { action } from "@storybook/addon-actions";
-import TextInput from "../atoms/TextInput";
+import TextInput from "../TextInput";
 
 export default {
   title: "Atoms/TextInput",

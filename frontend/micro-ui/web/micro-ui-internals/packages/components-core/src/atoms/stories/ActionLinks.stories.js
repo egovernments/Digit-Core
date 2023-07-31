@@ -3,7 +3,7 @@ import React from "react";
 import ActionLinks from "../ActionLinks";
 
 export default {
-  title: "Atom/ActionLinks",
+  title: "Atoms/ActionLinks",
   component: ActionLinks,
   argTypes: {
     className: {

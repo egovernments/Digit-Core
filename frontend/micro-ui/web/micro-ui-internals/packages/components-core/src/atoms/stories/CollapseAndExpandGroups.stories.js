@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import CollapseAndExpandGroups from "../CollapseAndExpandGroups";
 
 export default {
-  title: "Atom/CollapseAndExpandGroups",
+  title: "Atoms/CollapseAndExpandGroups",
   component: CollapseAndExpandGroups,
 };
 

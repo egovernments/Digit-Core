@@ -2,7 +2,7 @@ import React from "react";
 import Banner from "../Banner";
 
 export default {
-  title: "Atom/Banner",
+  title: "Atoms/Banner",
   component: Banner,
   argTypes: {},
 };

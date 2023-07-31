@@ -2,7 +2,7 @@ import React from "react";
 import { CheckPoint } from "../ConnectingCheckPoints";
 
 export default {
-  title: "Atom/CheckPoint",
+  title: "Atoms/CheckPoint",
   component: CheckPoint,
 };
 

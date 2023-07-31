@@ -1,6 +1,6 @@
 import React from "react";
 import { action } from "@storybook/addon-actions";
-import RemoveableTag from "../atoms/RemoveableTag";
+import RemoveableTag from "../RemoveableTag";
 
 export default {
   title: "Atoms/RemoveableTag",

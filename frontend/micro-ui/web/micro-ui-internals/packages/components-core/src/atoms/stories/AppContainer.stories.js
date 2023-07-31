@@ -3,7 +3,7 @@ import React from "react";
 import AppContainer from "../AppContainer";
 
 export default {
-  title: "Atom/AppContainer",
+  title: "Atoms/AppContainer",
   component: AppContainer,
   argTypes: {
     className: {

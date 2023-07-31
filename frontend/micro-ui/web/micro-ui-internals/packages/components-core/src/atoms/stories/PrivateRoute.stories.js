@@ -1,7 +1,7 @@
 // PrivateRoute.stories.js
 import React from "react";
 import { Switch, Link, Route } from "react-router-dom";
-import { PrivateRoute } from "../atoms/PrivateRoute";
+import { PrivateRoute } from "../PrivateRoute";
 
 // Sample component for protected content
 const DummyComponent = () => <div>Protected Content</div>;
