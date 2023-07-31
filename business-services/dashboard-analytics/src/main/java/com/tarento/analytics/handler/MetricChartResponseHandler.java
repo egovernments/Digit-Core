@@ -84,6 +84,8 @@ public class MetricChartResponseHandler implements IResponseHandler{
         List<Double> percentageList = new ArrayList<>();
         ArrayNode aggrsPaths = (ArrayNode) chartNode.get(AGGS_PATH);
 
+		boolean extractBuckets = chartNode.get(POST_AGGREGATION_THEORY).asText().equals(COMPARE_TWO_INDICES);
+		List<List<String>> bucketList = new ArrayList<>();
         /*
         * Sums all value of all aggrsPaths i.e all aggregations
         * */
@@ -98,6 +100,9 @@ public class MetricChartResponseHandler implements IResponseHandler{
 			int valueIndex = 0;
 			Double headerPathValue = new Double(0);
 			for (JsonNode value : values) {
+				if(extractBuckets){
+					bucketList.add(value.findValuesAsText("key"));
+				}
 				if (isRoundOff) {
 					ObjectMapper mapper = new ObjectMapper();
 					JsonNode node = value.get("value");
@@ -193,7 +198,11 @@ public class MetricChartResponseHandler implements IResponseHandler{
 		}
 
         String symbol = chartNode.get(IResponseHandler.VALUE_TYPE).asText();
-       
+       	if (extractBuckets && bucketList.size() ==2){
+			Double count = compareTwoIndices(bucketList);
+			totalValues.clear();
+			totalValues.add(count);
+		}
         try{
             Data data = new Data(chartName, action.equals(PERCENTAGE) && aggrsPaths.size()==2? percentageValue(percentageList, isRoundOff) : (totalValues==null || totalValues.isEmpty())? 0.0 :totalValues.stream().reduce(0.0, Double::sum), symbol);
 			//Logic to perform DIVISION action

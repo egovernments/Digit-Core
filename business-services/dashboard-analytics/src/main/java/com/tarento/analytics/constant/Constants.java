@@ -104,7 +104,8 @@ public class Constants {
 		final static String NAME = "name";
 		final static String ID = "id";
 		final static String TITLE = "title";
-
+		final static String CUSTOM_FILTER_COMPONENT = "filter";
+		final static String CUSTOM_FILTER_CONFIGURATION = "filterConfig";
 	}
 	public interface MDMSKeys {
 		final static String CODE = "code";
