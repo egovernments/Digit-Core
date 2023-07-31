@@ -73,6 +73,11 @@ public class MdmsDataQueryBuilderV2 {
             String partialQueryJsonString = QueryUtil.preparePartialJsonStringFromFilterMap(mdmsCriteriaV2.getFilterMap());
             preparedStmtList.add(partialQueryJsonString);
         }
+        if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getUniqueIdentifiersForRefVerification())){
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+            builder.append(" data.uniqueidentifier IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getUniqueIdentifiersForRefVerification().size())).append(" )");
+            QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getUniqueIdentifiersForRefVerification());
+        }
         return builder.toString();
     }
 

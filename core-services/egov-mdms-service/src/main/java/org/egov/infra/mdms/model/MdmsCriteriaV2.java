@@ -48,5 +48,8 @@ public class MdmsCriteriaV2 {
     @JsonIgnore
     private Map<String, String> schemaCodeFilterMap = null;
 
+    @JsonIgnore
+    private Set<String> uniqueIdentifiersForRefVerification = null;
+
 
 }

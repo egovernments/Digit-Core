@@ -131,19 +131,19 @@ public class MdmsDataValidator {
             org.json.JSONArray referenceSchema = (org.json.JSONArray) schemaObject.get(X_REFERENCE_SCHEMA_KEY);
 
             if (referenceSchema != null && referenceSchema.length() > 0) {
-                Set<String> refSchemaUniqueIds = new HashSet<>();
+                Set<String> uniqueIdentifiersForRefVerification = new HashSet<>();
                 JsonNode mdmsData = mdms.getData();
 
                 IntStream.range(0, referenceSchema.length()).forEach(i -> {
                     JSONObject jsonObject = referenceSchema.getJSONObject(i);
                     String refFieldPath = jsonObject.getString(FIELD_PATH_KEY);
-                    refSchemaUniqueIds.add(mdmsData.at(CompositeUniqueIdentifierGenerationUtil.getJsonPointerExpressionFromDotSeparatedPath(refFieldPath)).asText());
+                    uniqueIdentifiersForRefVerification.add(mdmsData.at(CompositeUniqueIdentifierGenerationUtil.getJsonPointerExpressionFromDotSeparatedPath(refFieldPath)).asText());
                 });
 
                 List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
-                        MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).ids(refSchemaUniqueIds).build());
+                        MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).build());
 
-                if (moduleMasterData.size() != refSchemaUniqueIds.size()) {
+                if (moduleMasterData.size() != uniqueIdentifiersForRefVerification.size()) {
                     throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
                 }
             }
