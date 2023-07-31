@@ -413,3 +413,30 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
+
+
+# frontend
+  - name: builds/Digit-Core/accelerators/workbench-ui
+    build:
+      - work-dir: frontend/micro-ui/
+        dockerfile: frontend/micro-ui/web/workbench/Dockerfile
+        image-name: workbench-ui
+        
+  - name: builds/Digit-Core/accelerators/storybook-svg
+    build:
+    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/
+      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/docker/Dockerfile
+      image-name: storybook-svg
+      
+  - name: builds/Digit-Core/accelerators/storybook
+    build:
+    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/components-core/
+      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/components-core/docker/Dockerfile
+      image-name: storybook
+
+  - name: builds/Digit-Core/accelerators/digit-ui
+    build:
+      - work-dir: frontend/micro-ui/
+        dockerfile: frontend/micro-ui/web/docker/Dockerfile
+        image-name: digit-ui
+
