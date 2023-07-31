@@ -1,0 +1,251 @@
+@import url("../../index.scss");
+
+.workbench-create-form {
+  display: inherit;
+
+  .digit-form-composer-sub-header {
+    @apply text-heading-m-dt;
+  }
+
+  form {
+    #digit_root {
+      width: 80%;
+
+      .field-wrapper {
+        .form-group.field {
+          display: flex;
+
+          &.field-error.has-error.has-danger {
+            .control-label {
+              @extend .alert-error;
+            }
+
+            .form-control {
+              @extend .alert-error-border;
+            }
+
+            .card-label-error {
+              display: inline;
+              position: relative;
+              margin: 0px;
+              padding: 0px;
+              top: -1.5rem;
+              font-weight: normal;
+
+            }
+          }
+
+          &.field-boolean.field-error.has-error.has-danger {
+
+            .card-label-error {
+              position: initial;
+              margin-left: 2rem;
+              display: block;
+              margin-top: 0.5rem;
+
+            }
+          }
+
+          .control-label {
+            width: 13rem;
+            @extend .card-label;
+            display: inline-flex;
+            /* align-self: center; */
+            width: 13rem;
+            line-height: 3rem;
+
+          }
+
+          .form-control {
+            width: 28rem;
+            @extend .light-input-border;
+            @extend .employee-card-input;
+
+            .digit__control {
+              border: 0px;
+            }
+
+          }
+
+          textarea.form-control {
+            height: 5rem;
+          }
+
+          &.field-string {
+            align-self: center;
+          }
+
+          &.field-boolean .checkbox {
+            width: 28rem;
+
+            label {
+              float: left;
+
+              /* display: flex;
+            flex-direction: row-reverse;
+            */
+              span {
+                width: 17rem;
+                display: none;
+                @extend .card-label;
+              }
+
+              input[type="checkbox"] {
+                @extend .light-input-border;
+                @extend .employee-card-input;
+                height: 1.5rem;
+                /*              @apply ml-sm;*/
+              }
+
+              input[type="checkbox"]#digit_root_active {
+                accent-color: theme(digitv2.lightTheme.primary);
+              }
+
+              input:checked,
+              input:hover {
+                @apply border-2;
+                @extend .light-input-border;
+              }
+            }
+          }
+
+          &.field-object {
+            display: block;
+            @extend .light-background;
+            @extend .light-paper-border;
+            padding: 1rem;
+            margin: 1rem 0;
+
+            /* have to revisit for objects
+        [id^="root_"] {
+          @extend .light-background;
+        }
+        */
+          }
+
+          &.field-array {
+            display: block;
+
+            @extend .light-paper-secondary;
+            @extend .light-paper-border;
+            padding: 1rem;
+            margin: 1rem 0;
+
+
+            .array-item {
+              @extend .light-background;
+              padding: 1rem;
+              position: relative;
+
+              .array-remove-button-wrapper {
+                position: absolute;
+                right: 0;
+                top: 0;
+
+                .array-remove-button {
+
+                  @extend .light-paper-secondary;
+                  cursor: pointer;
+                }
+              }
+
+            }
+
+
+            .jk-digit-secondary-btn {
+              border: none;
+              padding: unset;
+              background-color: inherit;
+
+              h2 {
+                font-size: 1rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  div.form-action-footer {
+    @extend .action-bar-wrap;
+
+    .submit-bar {
+      @extend .submit-bar;
+      cursor: pointer;
+      @apply font-rc font-medium text-legend text-white leading-10;
+    }
+  }
+}
+
+.jk-digit-loader {
+  position: fixed;
+  z-index: 10000;
+  width: 100vh;
+  background-color: rgba(189, 189, 189, 0.5);
+  height: 80vh;
+
+  .jk-spinner-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+    .jk-spinner {
+      border: 0.4em solid #fe7a51;
+      border-radius: 50%;
+      border-top: 0.4em solid #ffffff;
+      width: 4em;
+      height: 4em;
+      -webkit-animation: spin 2s linear infinite;
+      /* Safari */
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+.jk-sm-inbox-loader {
+  border: 0.2em solid #fe7a51;
+  border-radius: 50%;
+  border-top: 0.2em solid #ffffff;
+  width: 2em;
+  height: 2em;
+  -webkit-animation: spin 2s linear infinite;
+  /* Safari */
+  animation: spin 1s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.no-data-found {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .digit-error-msg {
+    margin-top: 2rem;
+  }
+}
