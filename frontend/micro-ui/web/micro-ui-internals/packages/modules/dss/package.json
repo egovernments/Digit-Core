@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-module-dss",
-  "version": "1.5.36",
+  "version": "1.5.38",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
@@ -33,5 +33,6 @@
     "react-tooltip": "4.1.2",
     "react-inlinesvg": "1.1.7",
     "lodash": "4.17.21"
-  }
+  },
+  "keywords": ["digit","egov","dpg","digit-ui","dss"]
 }

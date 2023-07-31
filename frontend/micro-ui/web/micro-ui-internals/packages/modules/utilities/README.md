@@ -124,6 +124,7 @@ _Bill Module
 # Changelog
 
 ```bash
+0.0.7 updated the readme content
 0.0.6 fixed the module overriding issue
 0.0.5 fixed the instablility issue with previous version
 0.0.4 Updated the react-component library version
@@ -132,8 +133,12 @@ _Bill Module
 0.0.1 base version
 ```
 
+# Contributors
+
+[jagankumar-egov] 
+
 ## Published from DIGIT Core 
-Digit Dev Repo (https://github.com/egovernments/DIGIT-Dev/tree/digit-ui-core)
+Digit Dev Repo (https://github.com/egovernments/Digit-Core/tree/digit-ui-core)
 
 ## License
 

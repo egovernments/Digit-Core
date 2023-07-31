@@ -1,11 +1,11 @@
 <!-- TODO: update this -->
 
-# digit-ui-module-hrms
+# digit-ui-module-engagement
 
 ## Install
 
 ```bash
-npm install --save @egovernments/digit-ui-module-hrms
+npm install --save @egovernments/digit-ui-module-engagement
 ```
 
 ## Limitation
@@ -23,7 +23,7 @@ frontend/micro-ui/web/package.json
 ```
 
 ```json
-"@egovernments/digit-ui-module-hrms":"^1.5.0",
+"@egovernments/digit-ui-module-engagement":"^1.5.0",
 ```
 
 then navigate to App.js
@@ -36,35 +36,33 @@ then navigate to App.js
 ```jsx
 /** add this import **/
 
-import { initHRMSComponents } from "@egovernments/digit-ui-module-hrms";
+import { initEngagementComponents } from "@egovernments/digit-ui-module-engagement";
 
 /** inside enabledModules add this new module key **/
 
-const enabledModules = ["HRMS"];
+const enabledModules = ["Engagement"];
 
 /** inside init Function call this function **/
 
 const initDigitUI = () => {
-  initHRMSComponents();
+  initEngagementComponents();
 };
 ```
 
 # Changelog
 
 ```bash
-1.5.27 updated the readme content
-1.5.26 some issue
-1.5.25 corrected the bredcrumb issue
+1.5.25 updated the readme content
 1.5.24 added the readme file
 1.5.23 base version
 ```
 
 # Contributors
 
-[jagankumar-egov] [naveen-egov] [nipunarora-eGov] [Tulika-eGov] [Ramkrishna-egov] [vamshikrishnakole-wtt-egov] 
+[jagankumar-egov] [nipunarora-eGov] [Tulika-eGov] [Ramkrishna-egov] [vamshikrishnakole-wtt-egov] 
 
 ## Published from DIGIT Core 
-Digit Dev Repo (https://github.com/egovernments/DIGIT-Dev/tree/digit-ui-core)
+Digit Dev Repo (https://github.com/egovernments/Digit-Core/tree/digit-ui-core)
 
 ## License
 

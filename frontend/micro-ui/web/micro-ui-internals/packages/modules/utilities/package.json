@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-module-utilities",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Utilities Module UI",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
@@ -28,5 +28,6 @@
     "react-router-dom": "5.3.0"
   },
   "author": "Jagankumar <jagan.kumar@egov.org.in>",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": ["digit","egov","dpg","digit-ui","utilities"]
 }
