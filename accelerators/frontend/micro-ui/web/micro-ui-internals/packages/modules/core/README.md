@@ -65,6 +65,7 @@ with
 # Changelog
 
 ```bash
+1.5.40 Updated the login componenet to handle mdms config, which can be accessed from master - commonUiConfig and module - LoginConfig
 1.5.39 Show the Toast when password changed and need to logout from profile page
 1.5.38 enabled the admin mode for employee login which can be accessed through route employee/user/login?mode=admin and updated to use formcomposerv2
 1.5.37 fixed hiding upload drawer icons.

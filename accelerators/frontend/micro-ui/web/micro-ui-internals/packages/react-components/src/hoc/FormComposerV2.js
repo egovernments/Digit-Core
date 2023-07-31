@@ -417,6 +417,7 @@ export const FormComposer = (props) => {
               />
             )}
             name={config.key}
+            rules={!disableFormValidation ? { required: isMandatory, ...populators.validation } : {}}
             control={control}
           />
         );
