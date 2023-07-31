@@ -54,5 +54,6 @@
     "img/**/*.png",
     "src/**/*.scss",
     "src/**/*.css"
-  ]
+  ],
+  "keywords": ["digit","egov","dpg","digit-ui","css"]
 }

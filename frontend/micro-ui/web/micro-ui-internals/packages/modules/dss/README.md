@@ -153,6 +153,7 @@ const useGetCustomFilterRequestValues = (filterConfigs, config={}) => {
 # Changelog
 
 ```bash
+1.5.38 updated the readme content
 1.5.37 Pie chart denomination and Horizontal bar white spaces fixes
 1.5.36 Bug Fix::Multiple tooltips showing in Tables
 1.5.35 Added the dynamic filter component 
@@ -173,8 +174,12 @@ const useGetCustomFilterRequestValues = (filterConfigs, config={}) => {
 1.5.20 base version
 ```
 
+# Contributors
+
+[jagankumar-egov] [nipunarora-eGov] [Tulika-eGov] [Ramkrishna-egov] [nabeelmd-eGov]
+
 ## Published from DIGIT Core 
-Digit Dev Repo (https://github.com/egovernments/DIGIT-Dev/tree/digit-ui-core)
+Digit Dev Repo (https://github.com/egovernments/Digit-Core/tree/digit-ui-core)
 
 ## License
 

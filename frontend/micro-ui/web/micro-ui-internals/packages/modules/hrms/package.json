@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-module-hrms",
-  "version": "1.5.26",
+  "version": "1.5.27",
   "description": "HRMS",
   "license": "MIT",
   "main": "dist/index.js",
@@ -23,5 +23,6 @@
     "react-query": "3.6.1",
     "react-router-dom": "5.3.0",
     "rooks": "^4.4.0"
-  }
+  },
+  "keywords": ["digit","egov","dpg","digit-ui","hrms","employee","management"]
 }

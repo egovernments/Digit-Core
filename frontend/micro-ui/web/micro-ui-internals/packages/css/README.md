@@ -42,6 +42,7 @@ frontend/micro-ui/web/public/index.html
 # Changelog
 
 ```bash
+1.5.37 updated the readme content
 1.5.36 enhanced the formcomposer with header attribute
 1.5.35 Fixed the card css issues
 1.5.34 Fixed breadcrumb styling issue
@@ -57,9 +58,12 @@ frontend/micro-ui/web/public/index.html
 1.5.24 added the readme file
 1.5.23 base version
 ```
+# Contributors
+
+[jagankumar-egov] [nipunarora-eGov] [Tulika-eGov] [Ramkrishna-egov] [nabeelmd-eGov] [anil-egov] [vamshikrishnakole-wtt-egov] 
 
 ## Published from DIGIT Core 
-Digit Core Repo (https://github.com/egovernments/Core-Platform/tree/digit-ui-core)
+Digit Core Repo (https://github.com/egovernments/Digit-Core/tree/digit-ui-core)
 
 ## License
 
