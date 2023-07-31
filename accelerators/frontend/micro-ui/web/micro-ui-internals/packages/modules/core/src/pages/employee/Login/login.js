@@ -97,48 +97,9 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
     code: Digit.ULBService.getStateId(),
     name: Digit.Utils.locale.getTransformedLocale(`TENANT_TENANTS_${Digit.ULBService.getStateId()}`),
   };
-  const [userId, password, city] = propsConfig.inputs;
-  const config = [
-    {
-      body: [
-        {
-          label: "CORE_LOGIN_USERNAME",
-          type: "text",
-          populators: {
-            name: "username",
-          },
-          isMandatory: true,
-        },
-        {
-          label: "CORE_LOGIN_PASSWORD",
-          type: "password",
-          populators: {
-            name: "password",
-          },
-          isMandatory: true,
-        },
-        {
-          isMandatory: true,
-          type: "dropdown",
-          key: "city",
-          label: "CORE_COMMON_CITY",
-          disable: false,
-          populators: {
-            name: "city",
-            optionsKey: "name",
-            error: "ERR_HRMS_INVALID_CITY",
-            mdmsConfig: {
-              masterName: "tenants",
-              moduleName: "tenant",
-              localePrefix: "TENANT_TENANTS",
-              select:
-                "(data)=>{ return Array.isArray(data['tenant'].tenants) && Digit.Utils.getUnique(data['tenant'].tenants).map(ele=>({code:ele.code,name:Digit.Utils.locale.getTransformedLocale('TENANT_TENANTS_'+ele.code)}))}",
-            },
-          },
-        },
-      ],
-    },
-  ];
+
+  let config = [{body : propsConfig?.inputs}];
+
   const { mode } = Digit.Hooks.useQueryParams();
   if (mode === "admin" && config?.[0]?.body?.[2]?.disable == false && config?.[0]?.body?.[2]?.populators?.defaultValue == undefined) {
     config[0].body[2].disable = true;

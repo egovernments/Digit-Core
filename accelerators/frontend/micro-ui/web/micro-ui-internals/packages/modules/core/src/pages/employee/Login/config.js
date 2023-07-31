@@ -9,20 +9,37 @@ export const loginConfig = [
       {
         label: "CORE_LOGIN_USERNAME",
         type: "text",
-        name: "username",
-        error: "ERR_HRMS_INVALID_USER_ID",
+        populators: {
+          name: "username",
+        },
+        isMandatory: true,
       },
       {
         label: "CORE_LOGIN_PASSWORD",
         type: "password",
-        name: "password",
-        error: "ERR_HRMS_WRONG_PASSWORD",
+        populators: {
+          name: "password",
+        },
+        isMandatory: true,
       },
       {
+        isMandatory: true,
+        type: "dropdown",
+        key: "city",
         label: "CORE_COMMON_CITY",
-        type: "custom",
-        name: "city",
-        error: "ERR_HRMS_INVALID_CITY",
+        disable: false,
+        populators: {
+          name: "city",
+          optionsKey: "name",
+          error: "ERR_HRMS_INVALID_CITY",
+          mdmsConfig: {
+            masterName: "tenants",
+            moduleName: "tenant",
+            localePrefix: "TENANT_TENANTS",
+            select:
+              "(data)=>{ return Array.isArray(data['tenant'].tenants) && Digit.Utils.getUnique(data['tenant'].tenants).map(ele=>({code:ele.code,name:Digit.Utils.locale.getTransformedLocale('TENANT_TENANTS_'+ele.code)}))}",
+          },
+        },
       },
     ],
   },
