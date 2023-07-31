@@ -177,6 +177,13 @@
   @apply mb-sm;
 }
 
+.employeeCard {
+  /*  TODO need to revisit that we need mx-md NABEEL/ANIL
+   @apply mb-md mx-md !important;
+  */
+  @apply mb-md !important;
+}
+
 .home-link {
   margin-left: 16px;
   margin-bottom: 16px;

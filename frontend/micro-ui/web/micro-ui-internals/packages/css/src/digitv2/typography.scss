@@ -1,3 +1,5 @@
+@import url("../index.scss");
+
 .typography {
   &.text-heading-xl-dt {
     font-family: theme(digitv2.fontFamily.rc);
@@ -112,7 +114,6 @@
     }
   }
 
-
   &.text-link {
     font-family: theme(digitv2.fontFamily.sans);
     font-size: theme(digitv2.fontSize.link);
@@ -126,8 +127,6 @@
     font-weight: theme(digitv2.fontWeight.regular);
     @media (max-width: theme(digitv2.screens.dt)) {
       font-size: theme(digitv2.fontSize.label-m);
-
     }
-
   }
 }

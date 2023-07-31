@@ -516,13 +516,12 @@
   text-decoration: none;
   div{
     span{
-    color: theme(colors.primary.main) !important;
-    text-decoration: none;
+      color: theme(colors.primary.main) !important;
+      text-decoration: none;
     }
   }
 }
 }
-
 .bread-crumb {
   a{
     color: inherit;
