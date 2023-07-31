@@ -126,10 +126,10 @@ const CustomHorizontalBarChart = ({
       {horizontalBarv2 ? 
        <ResponsiveContainer
        width="100%"
-       height={chartData?.length === 0 ? 300 : chartData?.length === 1 ? 80 : chartData?.length * 42 + 10}
+       height={chartData?.length === 0 ? 250 : chartData?.length === 1 ? 40 : chartData?.length * 28 + 10}
        margin={{
          top: 5,
-         right: 16,
+         right: 8,
          left: 0,
          bottom: 0,
        }}
@@ -139,16 +139,16 @@ const CustomHorizontalBarChart = ({
        ) : (
          <BarChart 
            width="100%"
-           height="100%"
+           height="90%"
            margin={{
              top: 0,
              right: 24,
              left: 0,
-             bottom: 0,
+             bottom: -32,
            }}
            layout={layout}
            data={chartData}
-           barCategoryGap={20}
+           barCategoryGap={10}
            barGap={0}
          >
            <CartesianGrid display={"none"} strokeDasharray="2 2"/>

@@ -38,7 +38,7 @@ const CustomPieChart = ({ dataKey = "value", data, setChartDenomination,variant=
     : response?.responseData?.data?.[0]?.plots.sort(compareFn).reduce((acc, plot, index) => {
       if(variant === "pieChartv2"){
         if (index < 4) acc = acc.concat(plot);
-        else if (index === 4) acc = acc.concat({ label: null, name: "DSS.OTHERS", value: plot?.value, symbol: "amount" });
+        else if (index === 4) acc = acc.concat({ label: null, name: "DSS.OTHERS", value: plot?.value, symbol: plot?.symbol });
         else acc[4].value += plot?.value;
         // If types more than 4 then we'll show as others
         /* Commnted logic of pie chart which hides more that 4 and show max of 4*/
@@ -52,13 +52,13 @@ const CustomPieChart = ({ dataKey = "value", data, setChartDenomination,variant=
   const totalCount = chartData?.reduce((acc,item)=> acc + item?.value, 0)
   
 
-  const renderLegend = (value,entry) => {
+  const renderLegend = (val,entry) => {
 
     if(variant==="pieChartv2" && entry){
       return (
         <div style={{ display:"inline-flex",justifyContent:"space-between",fontSize: "16px",width:"90%",color:"black",height:"5px" }}>
-          <p style={{display:"inline-block",width:"8rem",alignItems:"flex-start",paddingLeft:"0.5rem"}}>{t(`COMMON_MASTERS_${value && Digit.Utils.locale.getTransformedLocale(value)}`)}</p>
-          <p style={{ display:"inline-block",width:"2rem",alignItems:"flex-end",fontWeight:"bold",fontSize:"20px" }}>{entry?.payload?.value}</p>
+          <p style={{display:"inline-block",width:"8rem",alignItems:"flex-start",paddingLeft:"0.5rem"}}>{t(`COMMON_MASTERS_${val && Digit.Utils.locale.getTransformedLocale(val)}`)}</p>
+          <p style={{ display:"inline-block",width:"2rem",alignItems:"flex-end",fontWeight:"bold",fontSize:"20px" }}>{Digit.Utils.dss.formatter(entry?.payload?.value, entry?.payload?.symbol, value?.denomination, true, t)}</p>
         </div>
       );
     }
