@@ -41,9 +41,8 @@ public class CompareTableChartResponseHandler implements IResponseHandler{
         String plotLabel = chartNode.get(PLOT_LABEL).asText();
         JsonNode computedFields = chartNode.get(COMPUTED_FIELDS);
         JsonNode excludedFields = chartNode.get(EXCLUDED_COLUMNS);
-        JsonNode compareValueOfPaths = chartNode.get("compareValueOfPaths");
+
         boolean executeComputedFields = computedFields !=null && computedFields.isArray();
-        boolean compareValue = compareValueOfPaths !=null && compareValueOfPaths.isArray();
         List<JsonNode> aggrNodes = aggregationNode.findValues(BUCKETS);
         boolean isPathSpecified = chartNode.get(IResponseHandler.AGGS_PATH)!=null && chartNode.get(IResponseHandler.AGGS_PATH).isArray();
         ArrayNode aggrsPaths = isPathSpecified ? (ArrayNode) chartNode.get(IResponseHandler.AGGS_PATH) : JsonNodeFactory.instance.arrayNode();
@@ -107,14 +106,10 @@ public class CompareTableChartResponseHandler implements IResponseHandler{
                                 plot.setLabel(node.get(LABEL).asText());
                                 plots.add(plot);
                             }else if(node.has(VALUE)){
-                                if (node.get(VALUE).getNodeType() == JsonNodeType.OBJECT) {
-                                    final Double[] nodeVal = {0.0};
-                                    node.get(VALUE).forEach(value-> {
-                                        nodeVal[0] += ((value.getNodeType() == JsonNodeType.NULL) ? 1.0 : value.asDouble());
-                                    });
-                                    Plot plot = new Plot(node.get(NAME).asText(), nodeVal[0], node.get(SYMBOL).asText());
+                                if(node.get(VALUE).getNodeType() == JsonNodeType.ARRAY){
+                                    Plot plot = new Plot(node.get(NAME).asText(), (double) node.get(VALUE).size(), node.get(SYMBOL).asText());
                                     plots.add(plot);
-                                } else {
+                                }else {
                                     Plot plot = new Plot(node.get(NAME).asText(), node.get(VALUE).asDouble(), node.get(SYMBOL).asText());
                                     plots.add(plot);
                                 }
@@ -145,10 +140,7 @@ public class CompareTableChartResponseHandler implements IResponseHandler{
             plotNode.put(NAME,headerPath.asText());
             if(valueNode!=null){
                 if (valueNode.has(BUCKETS)){
-                    Map<String, JsonNode> keyList = new HashMap<>();
-                    valueNode.get(BUCKETS).forEach(node -> {
-                        keyList.put(node.findValue(KEY).asText(),node.findValue(VALUE));
-                    });
+                    ArrayList keyList = (ArrayList) valueNode.findValuesAsText("key");
                     plotNode.putPOJO(VALUE,keyList);
                 }else {
                     plotNode.put(VALUE, ( null == valueNode.findValue(VALUE) ? 0.0 : valueNode.findValue(VALUE).asDouble()));
