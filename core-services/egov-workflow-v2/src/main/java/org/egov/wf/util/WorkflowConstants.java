@@ -52,6 +52,8 @@ public class WorkflowConstants {
     
     public static final String  FSM_MODULE="FSM";
 
+	public static final String TENANTID_MDC_STRING = "TENANTID";
+
     public static String SCHEMA_REPLACE_STRING = "{SCHEMA}";
 
 }

@@ -32,8 +32,8 @@ class BusinessServiceQueryBuilderTest {
                 + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                 + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                 + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  ORDER"
+                + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  ORDER"
                 + " BY seq", this.businessServiceQueryBuilder.getBusinessServices(criteria, new ArrayList<>()));
     }
 
@@ -53,8 +53,8 @@ class BusinessServiceQueryBuilderTest {
                         + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                         + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                         + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                        + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                        + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
+                        + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                        + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
                         + "  bs.tenantId = ?  ORDER BY seq",
                 this.businessServiceQueryBuilder.getBusinessServices(criteria, objectList));
         assertEquals(1, objectList.size());
@@ -75,8 +75,8 @@ class BusinessServiceQueryBuilderTest {
                         + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                         + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                         + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                        + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                        + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
+                        + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                        + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
                         + "  bs.tenantId = ?  ORDER BY seq",
                 this.businessServiceQueryBuilder.getBusinessServices(businessServiceSearchCriteria, objectList));
         verify(businessServiceSearchCriteria).getTenantId();
@@ -96,8 +96,8 @@ class BusinessServiceQueryBuilderTest {
                 + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                 + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                 + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
+                + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
         BusinessServiceSearchCriteria businessServiceSearchCriteria = mock(BusinessServiceSearchCriteria.class);
         when(businessServiceSearchCriteria.getTenantId()).thenReturn("42");
         when(businessServiceSearchCriteria.getActionUuids()).thenReturn(stringList);
@@ -110,8 +110,8 @@ class BusinessServiceQueryBuilderTest {
                         + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                         + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                         + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                        + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                        + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
+                        + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                        + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
                         + "  bs.tenantId = ?  AND  ac.uuid IN ( ?) ORDER BY seq",
                 this.businessServiceQueryBuilder.getBusinessServices(businessServiceSearchCriteria, objectList));
         verify(businessServiceSearchCriteria).getTenantId();
@@ -131,8 +131,8 @@ class BusinessServiceQueryBuilderTest {
                 + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                 + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                 + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
+                + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
         BusinessServiceSearchCriteria businessServiceSearchCriteria = mock(BusinessServiceSearchCriteria.class);
         when(businessServiceSearchCriteria.getTenantId()).thenReturn("42");
         when(businessServiceSearchCriteria.getActionUuids()).thenReturn(new ArrayList<>());
@@ -145,8 +145,8 @@ class BusinessServiceQueryBuilderTest {
                         + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                         + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                         + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                        + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                        + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
+                        + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                        + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
                         + "  bs.tenantId = ?  AND  bs.businessService IN ( ?) ORDER BY seq",
                 this.businessServiceQueryBuilder.getBusinessServices(businessServiceSearchCriteria, objectList));
         verify(businessServiceSearchCriteria).getTenantId();
@@ -166,8 +166,8 @@ class BusinessServiceQueryBuilderTest {
                 + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                 + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                 + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
+                + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
         BusinessServiceSearchCriteria businessServiceSearchCriteria = mock(BusinessServiceSearchCriteria.class);
         when(businessServiceSearchCriteria.getTenantId()).thenReturn("42");
         when(businessServiceSearchCriteria.getActionUuids()).thenReturn(new ArrayList<>());
@@ -180,8 +180,8 @@ class BusinessServiceQueryBuilderTest {
                         + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                         + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                         + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                        + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                        + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
+                        + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                        + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
                         + "  bs.tenantId = ?  AND  st.uuid IN ( ?) ORDER BY seq",
                 this.businessServiceQueryBuilder.getBusinessServices(businessServiceSearchCriteria, objectList));
         verify(businessServiceSearchCriteria).getTenantId();
@@ -201,16 +201,16 @@ class BusinessServiceQueryBuilderTest {
                 + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                 + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                 + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
+                + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
         stringList.add("SELECT bs.*,st.*,ac.*,bs.uuid as bs_uuid, bs.lastModifiedTime as bs_lastModifiedTime,bs.createdTime"
                 + " as bs_createdTime,bs.createdBy as bs_createdBy,bs.lastModifiedBy as bs_lastModifiedBy,bs.tenantId"
                 + " as bs_tenantId, st.lastModifiedTime as st_lastModifiedTime,st.createdTime as st_createdTime,st.tenantId"
                 + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                 + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                 + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
+                + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE ");
         BusinessServiceSearchCriteria businessServiceSearchCriteria = mock(BusinessServiceSearchCriteria.class);
         when(businessServiceSearchCriteria.getTenantId()).thenReturn("42");
         when(businessServiceSearchCriteria.getActionUuids()).thenReturn(stringList);
@@ -223,8 +223,8 @@ class BusinessServiceQueryBuilderTest {
                         + " as st_tenantId,st.createdBy as st_createdBy,st.uuid as st_uuid, st.lastModifiedBy as st_lastModifiedBy,"
                         + " ac.lastModifiedTime as ac_lastModifiedTime,ac.createdTime as ac_createdTime,ac.createdBy as"
                         + " ac_createdBy,ac.lastModifiedBy as ac_lastModifiedBy,ac.uuid as ac_uuid,ac.tenantId as ac_tenantId,ac.active"
-                        + " as ac_active  FROM eg_wf_businessService_v2 bs  INNER JOIN  eg_wf_state_v2 st ON st.businessServiceId"
-                        + " = bs.uuid  LEFT OUTER JOIN  eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
+                        + " as ac_active  FROM {SCHEMA}.eg_wf_businessService_v2 bs  INNER JOIN  {SCHEMA}.eg_wf_state_v2 st ON st.businessServiceId"
+                        + " = bs.uuid  LEFT OUTER JOIN  {SCHEMA}.eg_wf_action_v2 ac ON ac.currentState = st.uuid AND ac.active=TRUE  WHERE"
                         + "  bs.tenantId = ?  AND  ac.uuid IN ( ?, ?) ORDER BY seq",
                 this.businessServiceQueryBuilder.getBusinessServices(businessServiceSearchCriteria, objectList));
         verify(businessServiceSearchCriteria).getTenantId();
