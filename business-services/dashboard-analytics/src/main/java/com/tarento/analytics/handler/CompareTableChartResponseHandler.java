@@ -41,9 +41,7 @@ public class CompareTableChartResponseHandler implements IResponseHandler{
         String plotLabel = chartNode.get(PLOT_LABEL).asText();
         JsonNode computedFields = chartNode.get(COMPUTED_FIELDS);
         JsonNode excludedFields = chartNode.get(EXCLUDED_COLUMNS);
-        JsonNode compareValueOfPaths = chartNode.get("compareValueOfPaths");
         boolean executeComputedFields = computedFields !=null && computedFields.isArray();
-        boolean compareValue = compareValueOfPaths !=null && compareValueOfPaths.isArray();
         List<JsonNode> aggrNodes = aggregationNode.findValues(BUCKETS);
         boolean isPathSpecified = chartNode.get(IResponseHandler.AGGS_PATH)!=null && chartNode.get(IResponseHandler.AGGS_PATH).isArray();
         ArrayNode aggrsPaths = isPathSpecified ? (ArrayNode) chartNode.get(IResponseHandler.AGGS_PATH) : JsonNodeFactory.instance.arrayNode();
