@@ -28,7 +28,7 @@ const MDMSAdd = ({defaultFormData,updatesToUISchema,screenType,onViewActionsSele
   const [showErrorToast, setShowErrorToast] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
-  const { moduleName, masterName, tenantId,uniqueIdentifier } = Digit.Hooks.useQueryParams();
+  const { moduleName, masterName, tenantId } = Digit.Hooks.useQueryParams();
 
   useEffect(() => {
     setSession({...session,...defaultFormData})

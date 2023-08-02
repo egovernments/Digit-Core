@@ -426,7 +426,7 @@ export const UICustomizations = {
 
       return false;
     },
-    preProcess: (data) => {
+    preProcess: (data,additionalDetails) => {
       
       const tenant = Digit.ULBService.getStateId();
       data.body.MdmsCriteria.tenantId = tenant
@@ -437,7 +437,7 @@ export const UICustomizations = {
       const {field,value} = custom || {}
       filters[field?.code] = value
       data.body.MdmsCriteria.filters = filters
-      
+      data.body.MdmsCriteria.schemaCodes = [additionalDetails?.currentSchemaCode]
       delete data.body.MdmsCriteria.custom
       // const {field,value} = data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].custom || {}
       

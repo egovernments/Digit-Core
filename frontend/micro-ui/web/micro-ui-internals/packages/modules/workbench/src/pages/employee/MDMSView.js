@@ -1,8 +1,13 @@
 import React from 'react'
 import MDMSAdd from './MDMSAddV2'
 import { Loader } from '@egovernments/digit-ui-react-components';
+import { useHistory } from "react-router-dom";
+
 const MDMSView = ({...props}) => {
-  
+  const history = useHistory()
+
+  // history.push(`/${window?.contextPath}/employee/expenditure/create-bill`, { contractType /*getContractType()*/  });
+
   //"ui:readonly": true
 
   //here make view related things 
@@ -33,12 +38,13 @@ const MDMSView = ({...props}) => {
   
 
   const reqCriteria = {
-    url: `/mdms-v2/v2/_search/${moduleName}.${masterName}`,
+    url: `/mdms-v2/v2/_search`,
     params: {},
     body: {
       MdmsCriteria: {
         tenantId: stateId,
-        uniqueIdentifier
+        uniqueIdentifier,
+        schemaCodes:[`${moduleName}.${masterName}`]
       },
     },
     config: {
@@ -53,7 +59,11 @@ const MDMSView = ({...props}) => {
   const { isLoading, data, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
   
   const onActionSelect = (action) => {
+    const {action:actionSelected} = action 
     //action===EDIT go to edit screen 
+    if(actionSelected==="EDIT") {
+      history.push(`/${window?.contextPath}/employee/workbench/mdms-edit?moduleName=${moduleName}&masterName=${masterName}&uniqueIdentifier=${uniqueIdentifier}`)
+    }
     //action===DISABLE || ENABLE call update api 
   }
 

@@ -108,8 +108,12 @@ const MDMSSearchv2 = () => {
 
       Config.sections.search.uiConfig.fields[0].populators.options = dropDownOptions;
       Config.actionLink=Config.actionLink+`?moduleName=${masterName?.name}&masterName=${moduleName?.name}`;
-      Config.apiDetails.serviceName = `/mdms-v2/v2/_search/${currentSchema.code}`
-
+      // Config.apiDetails.serviceName = `/mdms-v2/v2/_search/${currentSchema.code}`
+      
+      
+      Config.additionalDetails = {
+        currentSchemaCode:currentSchema.code
+      }
       //set the column config
       
       Config.sections.searchResult.uiConfig.columns = [{
