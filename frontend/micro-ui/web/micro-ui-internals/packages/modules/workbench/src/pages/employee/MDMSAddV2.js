@@ -17,10 +17,10 @@ const onFormError = (errors) => console.log('I have', errors.length, 'errors to 
 
 const uiSchema = {};
 
-const MDMSAdd = () => {
+const MDMSAdd = ({defaultFormData,updatesToUISchema,screenType,onViewActionsSelect,viewActions,...props}) => {
   // const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
-  const FormSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
+  const FormSession = Digit.Hooks.useSessionStorage("MDMS_CREATE",{});
 
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
   const [session, setSession] = useState(sessionFormData);
@@ -29,6 +29,11 @@ const MDMSAdd = () => {
 
   const [showToast, setShowToast] = useState(false);
   const { moduleName, masterName, tenantId } = Digit.Hooks.useQueryParams();
+
+  useEffect(() => {
+    setSession({...session,...defaultFormData})
+  }, [defaultFormData])
+  
 
   const { t } = useTranslation();
   const history = useHistory();
@@ -132,7 +137,7 @@ const MDMSAdd = () => {
     return <Loader/>;
   }
 
-console.log(showToast,'showToast')
+
   
   return (
     <React.Fragment>
@@ -140,7 +145,7 @@ console.log(showToast,'showToast')
     
     <DigitJSONForm schema={schema} onFormChange={onFormValueChange} onFormError={onFormError} 
     formData={session} 
-    onSubmit={onSubmit} uiSchema={uiSchema} showToast={showToast} showErrorToast={showErrorToast}></DigitJSONForm>
+    onSubmit={onSubmit} uiSchema={{...uiSchema,...updatesToUISchema}} showToast={showToast} showErrorToast={showErrorToast} screenType={screenType} viewActions={viewActions} onViewActionsSelect={onViewActionsSelect}></DigitJSONForm>
     </React.Fragment>
   );
 };

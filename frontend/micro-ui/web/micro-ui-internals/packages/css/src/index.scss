@@ -259,6 +259,11 @@
   color: theme(colors.text.primary) !important;
 }
 
+input:read-only {
+  @apply border-grey-dark text-grey-dark !important;
+  pointer-events: none !important;
+}
+
 @media (hover: hover) {
   .primary-label-btn {
     &:hover {
@@ -316,6 +321,7 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
 
 .static {
   @apply flex flex-col;
