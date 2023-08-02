@@ -4,20 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
-import org.egov.infra.mdms.repository.impl.SchemaDefinitionDbRepositoryImpl;
-import org.egov.infra.mdms.service.SchemaDefinitionService;
 import static org.egov.infra.mdms.errors.ErrorCodes.*;
 import static org.egov.infra.mdms.utils.MDMSConstants.*;
-
-import org.egov.infra.mdms.utils.CompositeUniqueIdentifierGenerationUtil;
 import org.egov.infra.mdms.utils.ErrorUtil;
-import org.egov.tracer.model.CustomException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import org.springframework.util.CollectionUtils;
 import java.util.*;
-import java.util.stream.IntStream;
 
 @Component
 public class SchemaDefinitionValidator {
@@ -36,7 +30,6 @@ public class SchemaDefinitionValidator {
     public void validateCreateRequest(SchemaDefinitionRequest schemaDefinitionRequest) {
 
         SchemaDefinition schemaDefinition = schemaDefinitionRequest.getSchemaDefinition();
-        RequestInfo requestInfo = schemaDefinitionRequest.getRequestInfo();
         Map<String, String> errors = new HashMap<>();
 
         // Validate schema attributes
@@ -60,20 +53,26 @@ public class SchemaDefinitionValidator {
     private void validateSchemaAttributes(JsonNode definition, Map<String, String> errorMap) {
         JSONObject schemaObject = new JSONObject(definition.toString());
 
+        // Check if the incoming schema definition has "required" key and at least one value against it
         if(!schemaObject.has(REQUIRED_KEY) || ((org.json.JSONArray) schemaObject.get(REQUIRED_KEY)).length() == 0){
             errorMap.put(REQUIRED_ATTRIBUTE_LIST_ERR_CODE, REQUIRED_ATTRIBUTE_LIST_EMPTY_MSG);
         }
 
+        // Check if the incoming schema definition has "x-unique" key and at least one value against it
         if(!schemaObject.has(X_UNIQUE_KEY) || ((org.json.JSONArray) schemaObject.get(X_UNIQUE_KEY)).length() == 0) {
             errorMap.put(UNIQUE_ATTRIBUTE_LIST_ERR_CODE, UNIQUE_ATTRIBUTE_LIST_EMPTY_MSG);
         }
 
-        List<Object> requiredAttributesList = ((org.json.JSONArray) schemaObject.get(REQUIRED_KEY)).toList();
+        // Perform further validations iff both "required" and "x-unique" keys are present
+        if(CollectionUtils.isEmpty(errorMap)) {
+            List<Object> requiredAttributesList = ((org.json.JSONArray) schemaObject.get(REQUIRED_KEY)).toList();
 
-        List<Object> uniqueAttributesList = ((org.json.JSONArray) schemaObject.get(X_UNIQUE_KEY)).toList();
+            List<Object> uniqueAttributesList = ((org.json.JSONArray) schemaObject.get(X_UNIQUE_KEY)).toList();
 
-        if(uniqueAttributesList.size() > requiredAttributesList.size() || !requiredAttributesList.containsAll(uniqueAttributesList)) {
-            errorMap.put(UNIQUE_ATTRIBUTE_LIST_ERR_CODE, UNIQUE_ATTRIBUTE_LIST_INVALID_MSG);
+            // Check if values against unique attributes are a subset of required fields
+            if (uniqueAttributesList.size() > requiredAttributesList.size() || !requiredAttributesList.containsAll(uniqueAttributesList)) {
+                errorMap.put(UNIQUE_ATTRIBUTE_LIST_ERR_CODE, UNIQUE_ATTRIBUTE_LIST_INVALID_MSG);
+            }
         }
     }
 

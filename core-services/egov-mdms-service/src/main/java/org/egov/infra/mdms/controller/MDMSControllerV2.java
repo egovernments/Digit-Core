@@ -39,11 +39,10 @@ public class MDMSControllerV2 {
     /**
      * Request handler for serving search requests
      * @param masterDataSearchCriteria
-     * @param schemaCode
      * @return
      */
-    @RequestMapping(value="_search/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria, @PathVariable("schemaCode") String schemaCode) {
+    @RequestMapping(value="_search", method = RequestMethod.POST)
+    public ResponseEntity<MdmsResponseV2> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
         List<Mdms> masterDataList = mdmsServiceV2.search(masterDataSearchCriteria);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(RequestInfo.builder().build(), masterDataList), HttpStatus.OK);
     }

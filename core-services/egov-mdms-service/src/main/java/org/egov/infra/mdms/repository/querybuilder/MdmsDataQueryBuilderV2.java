@@ -1,17 +1,10 @@
 package org.egov.infra.mdms.repository.querybuilder;
 
-import com.google.gson.Gson;
-import org.egov.infra.mdms.model.MdmsCriteria;
 import org.egov.infra.mdms.model.MdmsCriteriaV2;
 import org.egov.infra.mdms.utils.QueryUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-
 import java.util.*;
-
-import static org.egov.infra.mdms.utils.MDMSConstants.DOT_REGEX;
-import static org.egov.infra.mdms.utils.MDMSConstants.DOT_SEPARATOR;
 
 @Component
 public class MdmsDataQueryBuilderV2 {
@@ -62,10 +55,10 @@ public class MdmsDataQueryBuilderV2 {
             builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(schemaCodeFilterMap.keySet().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
         }
-        if(!Objects.isNull(mdmsCriteriaV2.getSchemaCode())){
+        if(!Objects.isNull(mdmsCriteriaV2.getSchemaCodes())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.schemacode = ? ");
-            preparedStmtList.add(mdmsCriteriaV2.getSchemaCode());
+            builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getSchemaCodes().size())).append(" )");
+            QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getSchemaCodes());
         }
         if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getFilterMap())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
