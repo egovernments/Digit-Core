@@ -112,12 +112,16 @@ const MDMSSearchv2 = () => {
 
       //set the column config
       
-      Config.sections.searchResult.uiConfig.columns = dropDownOptions.map(option => {
+      Config.sections.searchResult.uiConfig.columns = [{
+        label: "Unique Identifier",
+        jsonPath: "uniqueIdentifier",
+        additionalCustomization:true
+      },...dropDownOptions.map(option => {
         return {
           label:option.code,
           jsonPath:`data.${option.code}`
         }
-      })
+      })]
 
       setUpdatedConfig(Config)
     }
