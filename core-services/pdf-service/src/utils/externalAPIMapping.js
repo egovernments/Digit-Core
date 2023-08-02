@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import envVariables from "../EnvironmentVariables";
 import axios from "axios";
 import {
   getLocalisationkey,
