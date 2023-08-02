@@ -6,6 +6,8 @@ import LocalisationSearch from "./LocalisationSearch";
 import MDMSSearch from "./MDMSSearch";
 import MDMSAdd from "./MDMSAdd";
 import MDMSAddV2 from "./MDMSAddV2";
+import MDMSEdit from "./MDMSEdit";
+import MDMSView from "./MDMSView";
 
 import MDMSSearchv2 from "./MDMSSearchv2";
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
@@ -49,6 +51,8 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/mdms-add`} component={() =>  <MDMSAdd FormSession={MDMSCreateSession} parentRoute={path}/>} />
           
           <PrivateRoute path={`${path}/mdms-add-v2`} component={() =>  <MDMSAddV2 parentRoute={path}/>} />
+          <PrivateRoute path={`${path}/mdms-view`} component={() =>  <MDMSView parentRoute={path}/>} />
+          <PrivateRoute path={`${path}/mdms-edit`} component={() =>  <MDMSEdit parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 />} />
         </div>
       </Switch>

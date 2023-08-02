@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import _ from "lodash";
-
+import React from 'react';
 //create functions here based on module name set in mdms(eg->SearchProjectConfig)
 //how to call these -> Digit?.Customizations?.[masterName]?.[moduleName]
 // these functions will act as middlewares
@@ -426,7 +426,7 @@ export const UICustomizations = {
 
       return false;
     },
-    preProcess: (data) => {
+    preProcess: (data,additionalDetails) => {
       
       const tenant = Digit.ULBService.getStateId();
       data.body.MdmsCriteria.tenantId = tenant
@@ -437,7 +437,7 @@ export const UICustomizations = {
       const {field,value} = custom || {}
       filters[field?.code] = value
       data.body.MdmsCriteria.filters = filters
-      
+      data.body.MdmsCriteria.schemaCodes = [additionalDetails?.currentSchemaCode]
       delete data.body.MdmsCriteria.custom
       // const {field,value} = data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].custom || {}
       
@@ -497,10 +497,11 @@ export const UICustomizations = {
       //like if a cell is link then we return link
       //first we can identify which column it belongs to then we can return relevant result
       switch (key) {
-        case "MASTERS_WAGESEEKER_ID":
+        case "Unique Identifier":
+          const [moduleName,masterName] = row.schemaCode.split(".")
           return (
             <span className="link">
-              <Link to={`/${window.contextPath}/employee/masters/view-wageseeker?tenantId=${row?.tenantId}&individualId=${value}`}>
+              <Link to={`/${window.contextPath}/employee/workbench/mdms-view?moduleName=${moduleName}&masterName=${masterName}&uniqueIdentifier=${row.uniqueIdentifier}`}>
                 {String(value ? (column.translate ? t(column.prefix ? `${column.prefix}${value}` : value) : value) : t("ES_COMMON_NA"))}
               </Link>
             </span>

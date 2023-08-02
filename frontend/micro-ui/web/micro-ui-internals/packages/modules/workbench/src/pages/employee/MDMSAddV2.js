@@ -17,7 +17,7 @@ const onFormError = (errors) => console.log("I have", errors.length, "errors to 
 
 const uiSchema = {};
 
-const MDMSAdd = () => {
+const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActionsSelect, viewActions, ...props }) => {
   // const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
@@ -30,6 +30,10 @@ const MDMSAdd = () => {
 
   const [showToast, setShowToast] = useState(false);
   const { moduleName, masterName, tenantId } = Digit.Hooks.useQueryParams();
+
+  useEffect(() => {
+    setSession({ ...session, ...defaultFormData });
+  }, [defaultFormData]);
 
   const { t } = useTranslation();
   const history = useHistory();
@@ -48,7 +52,7 @@ const MDMSAdd = () => {
         return data?.SchemaDefinitions?.[0] || {};
       },
     },
-    changeQueryName:"schema"
+    changeQueryName: "schema",
   };
   const reqCriteriaForData = {
     url: `/mdms-v2/v2/_search`,
@@ -65,7 +69,7 @@ const MDMSAdd = () => {
         return data?.mdms?.map((ele) => ele.uniqueIdentifier);
       },
     },
-    changeQueryName:"data"
+    changeQueryName: "data",
   };
   const reqCriteriaAdd = {
     url: `/mdms-v2/v2/_create/${moduleName}.${masterName}`,
@@ -175,16 +179,21 @@ const MDMSAdd = () => {
 
   return (
     <React.Fragment>
-      {formSchema&&<DigitJSONForm
-        schema={formSchema}
-        onFormChange={onFormValueChange}
-        onFormError={onFormError}
-        formData={session}
-        onSubmit={onSubmit}
-        uiSchema={uiSchema}
-        showToast={showToast}
-        showErrorToast={showErrorToast}
-      ></DigitJSONForm>}
+      {formSchema && (
+        <DigitJSONForm
+          schema={formSchema}
+          onFormChange={onFormValueChange}
+          onFormError={onFormError}
+          formData={session}
+          onSubmit={onSubmit}
+          uiSchema={{ ...uiSchema, ...updatesToUISchema }}
+          showToast={showToast}
+          showErrorToast={showErrorToast}
+          screenType={screenType}
+          viewActions={viewActions}
+          onViewActionsSelect={onViewActionsSelect}
+        ></DigitJSONForm>
+      )}
     </React.Fragment>
   );
 };
