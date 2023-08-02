@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { UnMaskComponent } from "..";
+// import { UnMaskComponent } from "..";
 const KeyNote = ({ keyValue, note, caption, noteStyle, children, privacy, className = "", style = {} }) => {
   return (
     <div className={`digit-key-note-pair ${className}`} style={style}>
@@ -13,7 +13,7 @@ const KeyNote = ({ keyValue, note, caption, noteStyle, children, privacy, classN
                 Feature :: Privacy
                 privacy object set to the Mask Component
               */}
-            <UnMaskComponent privacy={privacy}></UnMaskComponent>
+            {/* <UnMaskComponent privacy={privacy}></UnMaskComponent> */}
           </span>
         )}
       </div>

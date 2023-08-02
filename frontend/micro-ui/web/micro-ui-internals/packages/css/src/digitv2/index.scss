@@ -36,6 +36,7 @@
 @import url("./components/otpInputV2.scss");
 @import url("./components/multiSelectDropdownV2.scss");
 @import url("./components/uploadFileV2.scss");
+@import url("./components/homeV2.scss");
 
 /* pages */
 @import url("./pages/employee/index.scss");
@@ -82,7 +83,7 @@
     &-secondary {
       background-color: theme(digitv2.lightTheme.paper-secondary) !important;
     }
-    &-border{
+    &-border {
       border: 0.5px solid !important;
       border-radius: 0.5rem;
       border-color: theme(digitv2.lightTheme.background);
