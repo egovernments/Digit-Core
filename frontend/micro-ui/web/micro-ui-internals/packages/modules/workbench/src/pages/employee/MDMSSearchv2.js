@@ -23,7 +23,7 @@ const MDMSSearchv2 = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const tenant = Digit.ULBService.getStateId();
-  const {masterName:master,moduleName:modulee,tenantId} = Digit.Hooks.useQueryParams()
+  const {masterName:modulee,moduleName:master,tenantId} = Digit.Hooks.useQueryParams()
   
   const [availableSchemas, setAvailableSchemas] = useState([]);
   const [currentSchema, setCurrentSchema] = useState(null);
@@ -170,7 +170,11 @@ const MDMSSearchv2 = () => {
             variation="secondary"
             icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
             onButtonClick={() => {
-              history.push(`/${window?.contextPath}/employee/${updatedConfig?.actionLink}`);
+              let actionLink=updatedConfig?.actionLink
+              if(modulee&&master){
+                actionLink= `workbench/mdms-add-v2?moduleName=${master}&masterName=${modulee}`
+              }
+              history.push(`/${window?.contextPath}/employee/${actionLink}`);
             }}
             type="button"
           />
