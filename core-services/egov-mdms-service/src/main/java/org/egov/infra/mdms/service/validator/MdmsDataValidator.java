@@ -170,12 +170,22 @@ public class MdmsDataValidator {
 
     }
 
+    /**
+     * This method validates if any fields defined under unique field list are being updated.
+     * @param uniqueIdentifierOfExistingRecord
+     * @param uniqueIdentifier
+     */
     private void validateIfUniqueFieldsAreNotBeingUpdated(String uniqueIdentifierOfExistingRecord, String uniqueIdentifier) {
         if(!uniqueIdentifierOfExistingRecord.equalsIgnoreCase(uniqueIdentifier)) {
             throw new CustomException("UNIQUE_KEY_UPDATE_ERR", "Updating fields defined as unique is not allowed.");
         }
     }
 
+    /**
+     * This method checks if the master that is being created already exists or not.
+     * @param mdmsRequest
+     * @return
+     */
     private String fetchUniqueIdentifier(MdmsRequest mdmsRequest) {
         if(ObjectUtils.isEmpty(mdmsRequest.getMdms().getId()))
             throw new CustomException("MASTER_DATA_ID_ABSENT_ERR", "Providing master data id is mandatory for update operation.");

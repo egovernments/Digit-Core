@@ -1,24 +1,23 @@
 package org.egov.infra.mdms.service.validator;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.infra.mdms.model.SchemaDefCriteria;
-import org.egov.infra.mdms.model.SchemaDefSearchRequest;
-import org.egov.infra.mdms.model.SchemaDefinition;
-import org.egov.infra.mdms.model.SchemaDefinitionRequest;
+import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
 import org.egov.infra.mdms.repository.impl.SchemaDefinitionDbRepositoryImpl;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
 import static org.egov.infra.mdms.errors.ErrorCodes.*;
+import static org.egov.infra.mdms.utils.MDMSConstants.*;
 
+import org.egov.infra.mdms.utils.CompositeUniqueIdentifierGenerationUtil;
 import org.egov.infra.mdms.utils.ErrorUtil;
 import org.egov.tracer.model.CustomException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.IntStream;
 
 @Component
 public class SchemaDefinitionValidator {
@@ -40,11 +39,42 @@ public class SchemaDefinitionValidator {
         RequestInfo requestInfo = schemaDefinitionRequest.getRequestInfo();
         Map<String, String> errors = new HashMap<>();
 
+        // Validate schema attributes
+        validateSchemaAttributes(schemaDefinition.getDefinition(), errors);
+
         // Check schema code uniqueness
         checkSchemaCode(schemaDefinition.getTenantId(), Arrays.asList(schemaDefinition.getCode()), errors);
 
         // Throw errors if any
         ErrorUtil.throwCustomExceptions(errors);
+    }
+
+    /**
+     * This method performs validations on the schema definition attributes namely -
+     * 1. validate that required fields list is not empty
+     * 2. validate that unique fields list is not empty
+     * 3. validate that list of unique attributes is a subset of list of required attributes
+     * @param definition
+     * @param errorMap
+     */
+    private void validateSchemaAttributes(JsonNode definition, Map<String, String> errorMap) {
+        JSONObject schemaObject = new JSONObject(definition.toString());
+
+        if(!schemaObject.has(REQUIRED_KEY) || ((org.json.JSONArray) schemaObject.get(REQUIRED_KEY)).length() == 0){
+            errorMap.put(REQUIRED_ATTRIBUTE_LIST_ERR_CODE, REQUIRED_ATTRIBUTE_LIST_EMPTY_MSG);
+        }
+
+        if(!schemaObject.has(X_UNIQUE_KEY) || ((org.json.JSONArray) schemaObject.get(X_UNIQUE_KEY)).length() == 0) {
+            errorMap.put(UNIQUE_ATTRIBUTE_LIST_ERR_CODE, UNIQUE_ATTRIBUTE_LIST_EMPTY_MSG);
+        }
+
+        List<Object> requiredAttributesList = ((org.json.JSONArray) schemaObject.get(REQUIRED_KEY)).toList();
+
+        List<Object> uniqueAttributesList = ((org.json.JSONArray) schemaObject.get(X_UNIQUE_KEY)).toList();
+
+        if(uniqueAttributesList.size() > requiredAttributesList.size() || !requiredAttributesList.containsAll(uniqueAttributesList)) {
+            errorMap.put(UNIQUE_ATTRIBUTE_LIST_ERR_CODE, UNIQUE_ATTRIBUTE_LIST_INVALID_MSG);
+        }
     }
 
     /**

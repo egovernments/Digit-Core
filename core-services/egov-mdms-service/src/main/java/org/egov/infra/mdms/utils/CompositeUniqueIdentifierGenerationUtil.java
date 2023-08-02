@@ -2,7 +2,10 @@ package org.egov.infra.mdms.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.egov.infra.mdms.model.MdmsRequest;
+import org.egov.tracer.model.CustomException;
 import org.json.JSONObject;
+import org.springframework.util.StringUtils;
+
 import java.util.stream.IntStream;
 import static org.egov.infra.mdms.utils.MDMSConstants.*;
 
@@ -25,7 +28,14 @@ public class CompositeUniqueIdentifierGenerationUtil {
 
         // Build composite unique identifier
         IntStream.range(0, uniqueFieldPaths.length()).forEach(i -> {
-            compositeUniqueIdentifier.append(data.at(getJsonPointerExpressionFromDotSeparatedPath(uniqueFieldPaths.getString(i))).asText());
+            String uniqueIdentifierChunk = data.at(getJsonPointerExpressionFromDotSeparatedPath(uniqueFieldPaths.getString(i))).asText();
+
+            // Throw error in case value against unique identifier is empty
+            if(StringUtils.isEmpty(uniqueIdentifierChunk)) {
+                throw new CustomException("UNIQUE_IDENTIFIER_EMPTY_ERR", "Values defined against unique fields cannot be empty.");
+            }
+
+            compositeUniqueIdentifier.append(uniqueIdentifierChunk);
 
             if (i != (uniqueFieldPaths.length() - 1))
                 compositeUniqueIdentifier.append(DOT_SEPARATOR);
