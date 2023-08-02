@@ -16,7 +16,6 @@ const EmployeeLogin = () => {
       };
     },
     retry: false,
-    enable: false,
   });
 
   //let loginConfig = mdmsData?.config ? mdmsData?.config : defaultLoginConfig;
