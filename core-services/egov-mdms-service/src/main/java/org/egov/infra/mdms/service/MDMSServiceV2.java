@@ -79,6 +79,7 @@ public class MDMSServiceV2 {
         // Make a call to repository and get list of master data
         List<Mdms> masterDataList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
 
+        // Perform fallback
         List<Mdms> masterDataListAfterFallback = FallbackUtil.backTrackTenantMasterDataList(masterDataList, tenantId);
 
         return masterDataListAfterFallback;

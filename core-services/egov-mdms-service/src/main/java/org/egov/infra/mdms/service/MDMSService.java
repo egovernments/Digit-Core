@@ -40,6 +40,11 @@ public class MDMSService {
 		this.multiStateInstanceUtil = multiStateInstanceUtil;
 	}
 
+	/**
+	 * This method processes the requests that come for master data creation.
+	 * @param mdmsRequest
+	 * @return
+	 */
 	public List<Mdms> create(MdmsRequest mdmsRequest) {
 
 		// Fetch schema against which data is getting created
@@ -57,6 +62,11 @@ public class MDMSService {
 		return Arrays.asList(mdmsRequest.getMdms());
 	}
 
+	/**
+	 * This method processes the requests that come for master data search.
+	 * @param mdmsCriteriaReq
+	 * @return
+	 */
 	public Map<String, Map<String, JSONArray>> search(MdmsCriteriaReq mdmsCriteriaReq) {
 		Map<String, Map<String, JSONArray>> tenantMasterMap = new HashMap<>();
 
@@ -70,10 +80,13 @@ public class MDMSService {
 		Map<String, String> schemaCodes = getSchemaCodes(mdmsCriteriaReq.getMdmsCriteria());
 		mdmsCriteriaReq.getMdmsCriteria().setSchemaCodeFilterMap(schemaCodes);
 
+		// Make a call to the repository layer to fetch data as per given criteria
 		tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
 
+		// Perform fallback
 		Map<String, JSONArray> masterDataMap = FallbackUtil.backTrackTenantMasterDataMap(tenantMasterMap, tenantId);
 
+		// Return response in MDMS v1 search response format for backward compatibility
 		return getModuleMasterMap(masterDataMap);
 	}
 
