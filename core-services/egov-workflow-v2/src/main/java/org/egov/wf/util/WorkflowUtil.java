@@ -467,7 +467,7 @@ public class WorkflowUtil {
 
         // If the role tenantId is statelevel it can take action
 
-        else if(roleTenantId.equalsIgnoreCase(centralInstanceUtil.getStateLevelTenant(applicationTenantId)))
+        else if(applicationTenantId.contains(roleTenantId))
             isTenantIdValid = true;
 
         return isTenantIdValid;
