@@ -76,7 +76,6 @@ function ArrayFieldItemTemplate(props) {
 }
 
 function TitleFieldTemplate(props) {
-  console.log(props, "title");
   const { id, required, title } = props;
   return (
     <header id={id}>
@@ -120,7 +119,6 @@ function ObjectFieldTemplate(props) {
       {/* {props.title} */}
       {props.description}
       {props.properties.map((element) => {
-        console.log(element, "object");
         return (
           <div className="field-wrapper" id={`${props?.idSchema?.["$id"]}_${element.name}`}>
             {element.content}
@@ -133,7 +131,6 @@ function ObjectFieldTemplate(props) {
 
 function CustomFieldTemplate(props) {
   const { id, classNames, style, label, help, required, description, errors, children } = props;
-  console.log(props, "all");
   return (
     <span>
       <div className={classNames} style={style}>
@@ -154,7 +151,6 @@ function CustomFieldTemplate(props) {
 
 const FieldErrorTemplate = (props) => {
   const { errors } = props;
-  console.log("errors", errors);
   return errors && errors.length > 0 && errors?.[0] ? <CardLabelError>{errors?.[0]}</CardLabelError> : null;
 };
 
@@ -163,7 +159,6 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
 
   const onSubmitV2 = ({ formData }) => {
     onSubmit(formData);
-    console.log("Data submitted: ", formData);
   };
   const customWidgets = { SelectWidget: App };
 

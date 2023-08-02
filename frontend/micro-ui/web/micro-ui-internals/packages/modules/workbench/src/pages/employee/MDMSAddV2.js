@@ -1,5 +1,5 @@
 import { Loader } from "@egovernments/digit-ui-react-components";
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { DigitJSONForm } from "../../Module";
@@ -13,7 +13,7 @@ created the foem using rjfs json form
 https://rjsf-team.github.io/react-jsonschema-form/docs/
 
 */
-const onFormError = (errors) => console.log('I have', errors.length, 'errors to fix');
+const onFormError = (errors) => console.log("I have", errors.length, "errors to fix");
 
 const uiSchema = {};
 
@@ -24,7 +24,8 @@ const MDMSAdd = () => {
 
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
   const [session, setSession] = useState(sessionFormData);
-
+  const [formSchema, setFormSchema] = useState({});
+  const [loadDependent, setLoadDependent] = useState("");
   const [showErrorToast, setShowErrorToast] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
@@ -47,6 +48,24 @@ const MDMSAdd = () => {
         return data?.SchemaDefinitions?.[0] || {};
       },
     },
+    changeQueryName:"schema"
+  };
+  const reqCriteriaForData = {
+    url: `/mdms-v2/v2/_search`,
+    params: {},
+    body: {
+      MdmsCriteria: {
+        tenantId: tenantId || stateId,
+        schemaCodes: [loadDependent?.schemaCode],
+      },
+    },
+    config: {
+      enabled: loadDependent == "" ? false : true,
+      select: (data) => {
+        return data?.mdms?.map((ele) => ele.uniqueIdentifier);
+      },
+    },
+    changeQueryName:"data"
   };
   const reqCriteriaAdd = {
     url: `/mdms-v2/v2/_create/${moduleName}.${masterName}`,
@@ -67,7 +86,9 @@ const MDMSAdd = () => {
       },
     },
   };
+  const { isLoading: additonalLoading, data: additonalData } = Digit.Hooks.useCustomAPIHook(reqCriteriaForData);
   const { isLoading, data: schema, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
+
   const mutation = Digit.Hooks.useCustomAPIMutationHook(reqCriteriaAdd);
   const onSubmit = (data) => {
     // const formattedData = Digit.Utils.workbench.getFormattedData(data);
@@ -80,7 +101,7 @@ const MDMSAdd = () => {
       setShowToast(`Success : Data added Successfully with Id : ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowToast(`Error : Following error occured ${resp?.response?.data?.Errors?.[0]?.code}`);
+      setShowToast(`Error : Error ${resp?.response?.data?.Errors?.[0]?.code}`);
       setShowErrorToast(true);
     };
 
@@ -103,17 +124,38 @@ const MDMSAdd = () => {
       }
     );
   };
-  const onFormValueChange = (updatedSchema,element) => {
-    const {formData} = updatedSchema;
-   
+  const onFormValueChange = (updatedSchema, element) => {
+    const { formData } = updatedSchema;
+
     if (!_.isEqual(session, formData)) {
       setSession({ ...session, ...formData });
     }
   };
 
+  useEffect(() => {
+    setFormSchema(schema);
+    if (schema?.definition?.["x-ref-schema"]?.length > 0) {
+      schema?.definition?.["x-ref-schema"]?.map((ele) => {
+        setLoadDependent(ele);
+      });
+    }
+  }, [schema]);
 
-
-
+  useEffect(() => {
+    if (loadDependent?.fieldPath && additonalData?.length > 0) {
+      if (schema?.definition?.properties?.[loadDependent?.fieldPath]) {
+        schema.definition.properties[loadDependent.fieldPath] = { ...schema.definition.properties[loadDependent.fieldPath], enum: additonalData };
+        schema.definition.properties["temp_field"] = { ...schema.definition.properties[loadDependent.fieldPath], enum: additonalData };
+        setFormSchema({ ...schema });
+        setTimeout(() => {
+          setFormSchema((schema) => {
+            delete schema.definition.properties["temp_field"];
+            return { ...schema };
+          }, 500);
+        });
+      }
+    }
+  }, [additonalData]);
 
   useEffect(() => {
     if (!_.isEqual(sessionFormData, session)) {
@@ -126,21 +168,23 @@ const MDMSAdd = () => {
     }
   }, [session]);
 
-
   /* use newConfig instead of commonFields for local development in case needed */
-  if (isLoading) {
-    return <Loader/>;
+  if (isLoading || !formSchema) {
+    return <Loader />;
   }
 
-console.log(showToast,'showToast')
-  
   return (
     <React.Fragment>
-      {/* <DigitLoader /> */}
-    
-    <DigitJSONForm schema={schema} onFormChange={onFormValueChange} onFormError={onFormError} 
-    formData={session} 
-    onSubmit={onSubmit} uiSchema={uiSchema} showToast={showToast} showErrorToast={showErrorToast}></DigitJSONForm>
+      {formSchema&&<DigitJSONForm
+        schema={formSchema}
+        onFormChange={onFormValueChange}
+        onFormError={onFormError}
+        formData={session}
+        onSubmit={onSubmit}
+        uiSchema={uiSchema}
+        showToast={showToast}
+        showErrorToast={showErrorToast}
+      ></DigitJSONForm>}
     </React.Fragment>
   );
 };

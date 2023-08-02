@@ -65,6 +65,12 @@
               border: 0px;
             }
 
+            .digit__control:hover {
+              border: 0px;
+              border-color: unset;
+              box-shadow: none;
+              box-sizing: unset;
+            }
           }
 
           textarea.form-control {

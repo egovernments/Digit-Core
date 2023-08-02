@@ -23,7 +23,6 @@ const MDMSSearch = () => {
       select: (data) => {
         //response jsonPath will always be data.moduleName.masterName // this will be an array
         const response = _.get(data,`${moduleName}.${masterName}`,{})
-        console.log(response);
         //take any row from response array and check which all fields are string
         const dropDownOptions=[] 
         Object.keys(response?.[0])?.forEach(key => {

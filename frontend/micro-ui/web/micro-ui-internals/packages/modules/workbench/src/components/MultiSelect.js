@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-// import "./styles.css";
 import Select from "react-select";
+
 /* Multiple support not added TODO jagan to fix this issue */
 const CustomSelectWidget = (props) => {
   const { options, value, disabled, readonly, onChange, onBlur, onFocus, placeholder, multiple = false } = props;
-  const handleChange = (selectedValue) => onChange(selectedValue?.value);
-  console.log(options, "options");
+  const handleChange = (selectedValue) => onChange(multiple ? selectedValue?.value : selectedValue?.value);
   const optionsList = options?.enumOptions || options || [];
-  const selectedOption = optionsList?.filter((obj) => obj.value == value);
+  const selectedOption = optionsList?.filter((obj) => (multiple ? value?.includes(obj.value) : obj.value == value));
   return (
     <Select
       className="form-control"
