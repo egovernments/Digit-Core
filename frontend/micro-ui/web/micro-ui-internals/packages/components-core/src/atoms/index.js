@@ -35,6 +35,7 @@ import Telephone from "./Telephone";
 import TextArea from "./TextArea";
 import TextInput from "./TextInput";
 import UploadFile from "./UploadFile";
+import Toast from "./Toast";
 
 export {
   SVG,
@@ -74,4 +75,5 @@ export {
   TextArea,
   TextInput,
   UploadFile,
+  Toast,
 };

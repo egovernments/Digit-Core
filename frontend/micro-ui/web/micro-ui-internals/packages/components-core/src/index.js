@@ -36,6 +36,7 @@ import {
   TextArea,
   TextInput,
   UploadFile,
+  Toast,
 } from "./atoms";
 
 export {
@@ -76,4 +77,5 @@ export {
   TextArea,
   TextInput,
   UploadFile,
+  Toast,
 };

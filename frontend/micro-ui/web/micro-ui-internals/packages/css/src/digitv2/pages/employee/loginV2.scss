@@ -1,0 +1,39 @@
+.digit-employee-login-home-footer {
+  @apply flex fixed bottom-0 h-10 bg-grey-bg pb-md pt-sm justify-center w-full;
+  img {
+    @apply ml-sm;
+  }
+}
+
+.digit-employeeBackbuttonAlign {
+  display: none;
+}
+
+@media (max-width: theme(digitv2.screens.dt)) {
+  .digit-employeeBackbuttonAlign {
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
+  .banner {
+    align-items: flex-end;
+    padding-bottom: 40px;
+    height: 100vh !important;
+  }
+  .topbar {
+    background: rgba(34, 57, 77, var(--bg-opacity)) !important;
+    color: white;
+  }
+  .employee .loginContainer {
+    padding-top: 0px !important;
+  }
+  .removeBottomMargin {
+    margin-bottom: 0px !important;
+  }
+  .employee-select-wrap.login-city-dd {
+    .options-card {
+      max-height: 160px;
+    }
+  }
+}
