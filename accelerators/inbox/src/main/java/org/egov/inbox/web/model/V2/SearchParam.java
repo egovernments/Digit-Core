@@ -38,7 +38,6 @@ public class SearchParam {
         
         WILDCARD("WILDCARD");
 
-
         private String value;
 
         Operator(String value) {
