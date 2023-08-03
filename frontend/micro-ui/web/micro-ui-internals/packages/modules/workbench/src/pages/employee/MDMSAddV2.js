@@ -102,7 +102,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActions
         setSession({});
       }, 1500);
       setShowErrorToast(false);
-      setShowToast(`Success : Data added Successfully with Id : ${resp?.mdms?.[0]?.id}`);
+      setShowToast(`Success : Data added Successfully with Id ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
       setShowToast(`Error : Error ${resp?.response?.data?.Errors?.[0]?.code}`);
