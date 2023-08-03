@@ -6,15 +6,15 @@ import { Config as Configg } from "../../configs/searchMDMSConfig";
 import _, { drop } from "lodash";
 
 const toDropdownObj = (master = "", mod = "") => {
-  // return {
-  //   name: mod || master,
-  //   code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
-  // };
-
   return {
     name: mod || master,
-    code: mod ? `${mod}` : `${master}`,
+    code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
   };
+
+  // return {
+  //   name: mod || master,
+  //   code: mod ? `${mod}` : `${master}`,
+  // };
 };
 
 
@@ -100,8 +100,10 @@ const MDMSSearchv2 = () => {
       Object.keys(properties)?.forEach((key) => {
         if (properties[key].type === "string") {
           dropDownOptions.push({
-            name: key,
+            // name: key,
+            name:key,
             code: key,
+            i18nKey:Digit.Utils.locale.getTransformedLocale(`${currentSchema.code}_${key}`)
           });
         }
       });
@@ -122,7 +124,8 @@ const MDMSSearchv2 = () => {
         additionalCustomization:true
       },...dropDownOptions.map(option => {
         return {
-          label:option.code,
+          label:option.i18nKey,
+          i18nKey:option.i18nKey,
           jsonPath:`data.${option.code}`
         }
       })]
@@ -140,7 +143,7 @@ const MDMSSearchv2 = () => {
           option={masterOptions}
           style={{width:"25%",marginRight:"1rem" }}
           className={"form-field"}
-          optionKey="code"
+          optionKey="name"
           selected={master && modulee ? toDropdownObj(master) : masterName}
           select={(e) => {
             setMasterName(e);
@@ -157,7 +160,7 @@ const MDMSSearchv2 = () => {
           option={moduleOptions}
           style={{width:"25%",marginRight:"auto" }}
           className={"form-field"}
-          optionKey="code"
+          optionKey="name"
           selected={master && modulee ? toDropdownObj(master,modulee) : moduleName}
           select={(e) => {
             setModuleName(e);
