@@ -63,6 +63,8 @@
 
             .digit__control {
               border: 0px;
+              @apply outline-none;
+
             }
 
             .digit__control:hover {
@@ -70,6 +72,7 @@
               border-color: unset;
               box-shadow: none;
               box-sizing: unset;
+              @apply outline-none;
             }
           }
 
