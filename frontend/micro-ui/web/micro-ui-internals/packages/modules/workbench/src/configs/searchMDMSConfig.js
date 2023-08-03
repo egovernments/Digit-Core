@@ -2,7 +2,7 @@ export const Config = {
   label: "WBH_SEARCH_MDMS",
   type: "search",
   actionLabel: "WBH_ADD_MDMS",
-  actionRole: "SUPERUSER",
+  actionRole: "MDMS_ADMIN",
   actionLink: "workbench/mdms-add-v2",
   apiDetails: {
     serviceName: "/mdms-v2/v2/_search",
