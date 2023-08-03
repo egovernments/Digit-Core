@@ -282,44 +282,50 @@ public class InboxQueryBuilder implements QueryBuilderInterface {
         return baseEsQuery;
     }
 
-    private Object prepareMustClauseChild(Map<String, Object> params, String key, Map<String, String> nameToPathMap, Map<String, SearchParam.Operator> nameToOperatorMap){
+	private Object prepareMustClauseChild(Map<String, Object> params, String key, Map<String, String> nameToPathMap,
+			Map<String, SearchParam.Operator> nameToOperatorMap) {
 
-        SearchParam.Operator operator = nameToOperatorMap.get(key);
-        if(operator == null || operator.equals(SearchParam.Operator.EQUAL)){
-            // Add terms clause in case the search criteria has a list of values
-            if(params.get(key) instanceof List){
-                Map<String, Object> termsClause = new HashMap<>();
-                termsClause.put("terms", new HashMap<>());
-                Map<String, Object> innerTermsClause = (Map<String, Object>) termsClause.get("terms");
-                innerTermsClause.put(addDataPathToSearchParamKey(key, nameToPathMap), params.get(key));
-                return termsClause;
-            }
-            // Add term clause in case the search criteria has a single value
-            else{
-                Map<String, Object> termClause = new HashMap<>();
-                termClause.put("term", new HashMap<>());
-                Map<String, Object> innerTermClause = (Map<String, Object>) termClause.get("term");
-                innerTermClause.put(addDataPathToSearchParamKey(key, nameToPathMap), params.get(key));
-                return termClause;
-            }
-        }
-        else {
-            Map<String, Object> rangeClause = new HashMap<>();
-            rangeClause.put("range", new HashMap<>());
-            Map<String, Object> innerTermClause = (Map<String, Object>) rangeClause.get("range");
-            Map<String, Object> comparatorMap = new HashMap<>();
+		SearchParam.Operator operator = nameToOperatorMap.get(key);
+		if (operator == null || operator.equals(SearchParam.Operator.EQUAL)) {
+			// Add terms clause in case the search criteria has a list of values
+			if (params.get(key) instanceof List) {
+				Map<String, Object> termsClause = new HashMap<>();
+				termsClause.put("terms", new HashMap<>());
+				Map<String, Object> innerTermsClause = (Map<String, Object>) termsClause.get("terms");
+				innerTermsClause.put(addDataPathToSearchParamKey(key, nameToPathMap), params.get(key));
+				return termsClause;
+			}
+			// Add term clause in case the search criteria has a single value
+			else {
+				Map<String, Object> termClause = new HashMap<>();
+				termClause.put("term", new HashMap<>());
+				Map<String, Object> innerTermClause = (Map<String, Object>) termClause.get("term");
+				innerTermClause.put(addDataPathToSearchParamKey(key, nameToPathMap), params.get(key));
+				return termClause;
+			}
+		} else if (operator.equals(SearchParam.Operator.WILDCARD)) {
+			// Add wildcard clause in case the search criteria has a single value
+			Map<String, Object> wildcardClause = new HashMap<>();
+			wildcardClause.put("wildcard", new HashMap<>());
+			Map<String, Object> innerWildcardClause = (Map<String, Object>) wildcardClause.get("wildcard");
+			innerWildcardClause.put(addDataPathToSearchParamKey(key, nameToPathMap), "*" + params.get(key) + "*");
+			return wildcardClause;
+		} else {
+			Map<String, Object> rangeClause = new HashMap<>();
+			rangeClause.put("range", new HashMap<>());
+			Map<String, Object> innerTermClause = (Map<String, Object>) rangeClause.get("range");
+			Map<String, Object> comparatorMap = new HashMap<>();
 
-            if (operator.equals(SearchParam.Operator.LTE)){
-                comparatorMap.put("lte",params.get(key));
-            }
-            else if (operator.equals(SearchParam.Operator.GTE)){
-                comparatorMap.put("gte",params.get(key));
-            }
-            innerTermClause.put(addDataPathToSearchParamKey(key, nameToPathMap), comparatorMap);
-            return rangeClause;
-        }
+			if (operator.equals(SearchParam.Operator.LTE)) {
+				comparatorMap.put("lte", params.get(key));
+			} else if (operator.equals(SearchParam.Operator.GTE)) {
+				comparatorMap.put("gte", params.get(key));
+			}
+			innerTermClause.put(addDataPathToSearchParamKey(key, nameToPathMap), comparatorMap);
+			return rangeClause;
+		}
 
-    }
+	}
 
     private String addDataPathToSearchParamKey(String key, Map<String, String> nameToPathMap){
 
