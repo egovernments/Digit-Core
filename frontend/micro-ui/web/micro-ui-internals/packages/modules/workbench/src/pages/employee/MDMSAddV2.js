@@ -17,10 +17,10 @@ const onFormError = (errors) => console.log("I have", errors.length, "errors to 
 
 const uiSchema = {};
 
-const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActionsSelect, viewActions, ...props }) => {
+const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType='add', onViewActionsSelect, viewActions, ...props }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
-  const FormSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
+  const FormSession = Digit.Hooks.useSessionStorage(`MDMS_${screenType}`, {});
 
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
   const [session, setSession] = useState(sessionFormData);

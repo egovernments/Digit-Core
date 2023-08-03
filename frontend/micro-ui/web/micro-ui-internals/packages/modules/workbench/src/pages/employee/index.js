@@ -33,7 +33,7 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
 
 const App = ({ path }) => {
   const location = useLocation();
-  const MDMSCreateSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
+  const MDMSCreateSession = Digit.Hooks.useSessionStorage("MDMS_add", {});
   const [sessionFormData, setSessionFormData, clearSessionFormData] = MDMSCreateSession;
   useEffect(() => {
     if (!window.location.href.includes("mdms-add-v2") && sessionFormData && Object.keys(sessionFormData) != 0) {
