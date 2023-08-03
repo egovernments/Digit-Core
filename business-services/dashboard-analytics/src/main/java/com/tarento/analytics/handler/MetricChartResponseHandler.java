@@ -84,7 +84,7 @@ public class MetricChartResponseHandler implements IResponseHandler{
         List<Double> percentageList = new ArrayList<>();
         ArrayNode aggrsPaths = (ArrayNode) chartNode.get(AGGS_PATH);
 
-		boolean extractBuckets = chartNode.get(POST_AGGREGATION_THEORY).asText().equals(COMPARE_TWO_INDICES);
+		boolean extractBuckets = (chartNode.get(COMPARE_TWO_INDICES) !=null) ? chartNode.get(COMPARE_TWO_INDICES).asBoolean() : false;
 		List<List<String>> bucketList = new ArrayList<>();
         /*
         * Sums all value of all aggrsPaths i.e all aggregations
