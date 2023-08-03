@@ -149,7 +149,7 @@ const MDMSSearchv2 = () => {
           }}
           t={t}
           // placeholder={t("WBH_MODULE_NAME")}
-          placeholder={t("MODULE NAME")}
+          placeholder={t("WBH_MODULE_NAME")}
           
           disable={master ? true : false}
         />
@@ -164,7 +164,7 @@ const MDMSSearchv2 = () => {
           }}
           t={t}
           // placeholder={t("WBH_MODULE_NAME")}
-          placeholder={t("MASTER NAME")}
+          placeholder={t("WBH_MASTER_NAME")}
           
           disable = {modulee ? true : false}
         />
