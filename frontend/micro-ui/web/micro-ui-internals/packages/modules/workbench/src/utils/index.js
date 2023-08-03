@@ -123,7 +123,7 @@ const getConfig = (type = "text") => {
 
 const getMDMSLabel = (code = "") => {
   //enable this flag to get the localisation enabled for the mdms forms
-  let flag;
+  let flag =true;
   if (!flag) {
     return code
       .split(/(?=[A-Z])/)
@@ -132,9 +132,6 @@ const getMDMSLabel = (code = "") => {
   }
   return Digit.Utils.locale.getTransformedLocale(
     code
-      .split(/(?=[A-Z])/)
-      .reduce((acc, curr) => acc + curr.charAt(0).toUpperCase() + curr.slice(1) + " ", "")
-      .trim()
   );
 };
 

@@ -1,4 +1,16 @@
-import { Loader, Header, Toast, Card, Button, ActionBar, AddFilled, SubmitBar, CardLabelError, SVG,Menu } from "@egovernments/digit-ui-react-components";
+import {
+  Loader,
+  Header,
+  Toast,
+  Card,
+  Button,
+  ActionBar,
+  AddFilled,
+  SubmitBar,
+  CardLabelError,
+  SVG,
+  Menu,
+} from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import _ from "lodash";
@@ -154,7 +166,19 @@ const FieldErrorTemplate = (props) => {
   return errors && errors.length > 0 && errors?.[0] ? <CardLabelError>{errors?.[0]}</CardLabelError> : null;
 };
 
-const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, showErrorToast, formData = {}, onFormChange, onFormError,screenType="add",onViewActionsSelect,viewActions }) => {
+const DigitJSONForm = ({
+  schema,
+  onSubmit,
+  uiSchema: inputUiSchema,
+  showToast,
+  showErrorToast,
+  formData = {},
+  onFormChange,
+  onFormError,
+  screenType = "add",
+  onViewActionsSelect,
+  viewActions,
+}) => {
   const { t } = useTranslation();
 
   const onSubmitV2 = ({ formData }) => {
@@ -162,18 +186,18 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
   };
   const customWidgets = { SelectWidget: App };
 
-  const [displayMenu,setDisplayMenu] = useState(false)
+  const [displayMenu, setDisplayMenu] = useState(false);
 
   return (
     <React.Fragment>
-      <Header className="digit-form-composer-header">{screenType==="add" ? t("WBH_ADD_MDMS") : screenType==="view" ?t("WBH_VIEW_MDMS") :t("WBH_EDIT_MDMS") }</Header>
+      <Header className="digit-form-composer-header">
+        {screenType === "add" ? t("WBH_ADD_MDMS") : screenType === "view" ? t("WBH_VIEW_MDMS") : t("WBH_EDIT_MDMS")}
+      </Header>
       <Card className="workbench-create-form">
-        <Header className="digit-form-composer-sub-header">{t(Digit.Utils.workbench.getMDMSLabel(schema?.code))}</Header>
+        <Header className="digit-form-composer-sub-header">{t(Digit.Utils.workbench.getMDMSLabel(`SCHEMA_` + schema?.code))}</Header>
         <Form
           schema={schema?.definition}
           validator={validator}
-          liveValidate={formData && Object.keys(formData) && Object.keys(formData)?.length > 0}
-          focusOnFirstError={true}
           showErrorList={false}
           formData={formData}
           noHtml5Validate={true}
@@ -196,28 +220,31 @@ const DigitJSONForm = ({ schema, onSubmit, uiSchema: inputUiSchema, showToast, s
           transformErrors={transformErrors}
           uiSchema={{ ...uiSchema, ...inputUiSchema }}
           onError={onFormError}
+          // disabled the error onload
+          // focusOnFirstError={true}
+          // liveValidate={formData && Object.keys(formData) && Object.keys(formData)?.length > 0}
         >
-        
-        {screenType==="add" && <ActionBar>
-          <SubmitBar label={t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
-          {/* <LinkButton style={props?.skipStyle} label={t(`CS_SKIP_CONTINUE`)}  /> */}
-        </ActionBar>
-}
-        {screenType==="view" && 
-          <ActionBar>
-            {displayMenu ?
+          {screenType === "add" && (
+            <ActionBar>
+              <SubmitBar label={t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
+              {/* <LinkButton style={props?.skipStyle} label={t(`CS_SKIP_CONTINUE`)}  /> */}
+            </ActionBar>
+          )}
+          {screenType === "view" && (
+            <ActionBar>
+              {displayMenu ? (
                 <Menu
-                localeKeyPrefix={""}
-                options={viewActions}
-                optionKey={"label"}
-                t={t}
-                onSelect={onViewActionsSelect}
-                textStyles={{margin:"0px"}}
-                />:null}
-            <SubmitBar label={t("WORKS_ACTIONS")} onSubmit={() => setDisplayMenu(!displayMenu)} />
-          </ActionBar>
-        }
-
+                  localeKeyPrefix={""}
+                  options={viewActions}
+                  optionKey={"label"}
+                  t={t}
+                  onSelect={onViewActionsSelect}
+                  textStyles={{ margin: "0px" }}
+                />
+              ) : null}
+              <SubmitBar label={t("WORKS_ACTIONS")} onSubmit={() => setDisplayMenu(!displayMenu)} />
+            </ActionBar>
+          )}
         </Form>
       </Card>
       {showToast && <Toast label={t(showToast)} error={showErrorToast}></Toast>}

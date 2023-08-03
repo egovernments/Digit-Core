@@ -18,7 +18,7 @@ const onFormError = (errors) => console.log("I have", errors.length, "errors to 
 const uiSchema = {};
 
 const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActionsSelect, viewActions, ...props }) => {
-  // const tenantId = Digit.ULBService.getCurrentTenantId();
+  const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage("MDMS_CREATE", {});
 
@@ -29,7 +29,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActions
   const [showErrorToast, setShowErrorToast] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
-  const { moduleName, masterName, tenantId } = Digit.Hooks.useQueryParams();
+  const { moduleName, masterName } = Digit.Hooks.useQueryParams();
 
   useEffect(() => {
     setSession({ ...session, ...defaultFormData });
@@ -76,7 +76,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActions
     params: {},
     body: {
       Mdms: {
-        tenantId: stateId,
+        tenantId: tenantId | stateId,
         schemaCode: `${moduleName}.${masterName}`,
         uniqueIdentifier: null,
         data: {},
@@ -102,10 +102,10 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActions
         setSession({});
       }, 1500);
       setShowErrorToast(false);
-      setShowToast(`Success : Data added Successfully with Id ${resp?.mdms?.[0]?.id}`);
+      setShowToast(`${t('WBH_SUCCESS_MDMS_MSG')} ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowToast(`Error : Error ${resp?.response?.data?.Errors?.[0]?.code}`);
+      setShowToast(`${t('WBH_ERROR_MDMS_DATA')}  ${resp?.response?.data?.Errors?.[0]?.code}`);
       setShowErrorToast(true);
     };
 
@@ -137,12 +137,20 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActions
   };
 
   useEffect(() => {
-    setFormSchema(schema);
+    // setFormSchema(schema);
+          /* localise */
+          if(schema){
+Object.keys(schema?.definition?.properties).map(key=>{
+  const title=Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`)
+  schema.definition.properties[key]={...schema.definition.properties[key],title:t(title)}
+})
+setFormSchema(schema)
     if (schema?.definition?.["x-ref-schema"]?.length > 0) {
       schema?.definition?.["x-ref-schema"]?.map((ele) => {
         setLoadDependent(ele);
       });
     }
+  }
   }, [schema]);
 
   useEffect(() => {
@@ -173,7 +181,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType, onViewActions
   }, [session]);
 
   /* use newConfig instead of commonFields for local development in case needed */
-  if (isLoading || !formSchema) {
+  if (isLoading || !formSchema||Object.keys(formSchema)==0) {
     return <Loader />;
   }
 

@@ -10,7 +10,7 @@ import DigitJSONForm from "./components/DigitJSONForm";
 
 
 const WorkbenchModule = ({ stateCode, userType, tenants }) => {
-  const moduleCode = ["workbench","mdms"];
+  const moduleCode = ["workbench","mdms","schema"];
   const { path, url } = useRouteMatch();
   const language = Digit.StoreData.getCurrentLanguage();
   const { isLoading, data: store } = Digit.Services.useStore({
