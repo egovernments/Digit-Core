@@ -8,19 +8,26 @@ import MDMSAdd from "./MDMSAdd";
 import MDMSAddV2 from "./MDMSAddV2";
 import MDMSEdit from "./MDMSEdit";
 import MDMSView from "./MDMSView";
-
 import MDMSSearchv2 from "./MDMSSearchv2";
+
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
   const search = useLocation().search;
   const fromScreen = new URLSearchParams(search).get("from") || null;
-  const pathVar=location.pathname.replace(defaultPath+'/',"");
+  const pathVar=location.pathname.replace(defaultPath+'/',"").split("?")?.[0];
+  const {masterName,moduleName} = Digit.Hooks.useQueryParams()
 
   const crumbs = [
     {
       path: `/${window?.contextPath}/employee`,
       content: t("WORKS_MUKTA"),
       show: true,
+    },
+    {
+      path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
+      content:  t(`MDMS_SEARCH_V2`) ,
+      show: pathVar.includes("mdms-search-v2")?false: true,
+      query:`moduleName=${moduleName}&masterName=${masterName}`
     },
     {
       path: `/${window.contextPath}/employee/masters/response`,
@@ -49,11 +56,10 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/localisation-search`} component={() => <LocalisationSearch />} />
           <PrivateRoute path={`${path}/mdms-search`} component={() => <MDMSSearch />} />
           <PrivateRoute path={`${path}/mdms-add`} component={() =>  <MDMSAdd FormSession={MDMSCreateSession} parentRoute={path}/>} />
-          
           <PrivateRoute path={`${path}/mdms-add-v2`} component={() =>  <MDMSAddV2 parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-view`} component={() =>  <MDMSView parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-edit`} component={() =>  <MDMSEdit parentRoute={path}/>} />
-          <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 />} />
+          <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 parentRoute={path}/>} />
         </div>
       </Switch>
     </React.Fragment>
