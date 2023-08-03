@@ -98,7 +98,7 @@ const MDMSSearchv2 = () => {
       } = currentSchema;
       
       Object.keys(properties)?.forEach((key) => {
-        if (properties[key].type === "string") {
+        if (properties[key].type === "string" && !properties[key].format) {
           dropDownOptions.push({
             // name: key,
             name:key,
@@ -143,7 +143,7 @@ const MDMSSearchv2 = () => {
           option={masterOptions}
           style={{width:"25%",marginRight:"1rem" }}
           className={"form-field"}
-          optionKey="name"
+          optionKey="code"
           selected={master && modulee ? toDropdownObj(master) : masterName}
           select={(e) => {
             setMasterName(e);
@@ -160,7 +160,7 @@ const MDMSSearchv2 = () => {
           option={moduleOptions}
           style={{width:"25%",marginRight:"auto" }}
           className={"form-field"}
-          optionKey="name"
+          optionKey="code"
           selected={master && modulee ? toDropdownObj(master,modulee) : moduleName}
           select={(e) => {
             setModuleName(e);
