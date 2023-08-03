@@ -12,7 +12,10 @@ public class ComputedFieldFactory {
     private AverageComputedField averageComputedField;
     @Autowired
     private AdditiveComputedField additiveComputedField;
-
+    @Autowired
+    private CompareComputedField compareComputedField;
+    @Autowired
+    private CompareValueComputedField compareValueComputedField;
     public IComputedField getInstance(String className){
 
         if(className.equalsIgnoreCase(percentageComputedField.getClass().getSimpleName())){
@@ -23,8 +26,11 @@ public class ComputedFieldFactory {
 
         } else if(className.equalsIgnoreCase(additiveComputedField.getClass().getSimpleName())) {
             return additiveComputedField;
-
-        } else {
+        } else if (className.equalsIgnoreCase(compareComputedField.getClass().getSimpleName())) {
+            return compareComputedField;
+        } else if (className.equalsIgnoreCase(compareValueComputedField.getClass().getSimpleName())) {
+            return compareValueComputedField;
+        }else {
             throw new RuntimeException("Computer field not found for className "+className);
         }
 

@@ -39,8 +39,10 @@ public class AdditiveComputedField implements IComputedField<Data> {
 
             double total = 0.0;
             for (String field: fields){
-                dataType = plotMap.get(field).getSymbol();
-                total = total+ plotMap.get(field).getValue();
+                if(plotMap.containsKey(field)) {
+                    dataType = plotMap.get(field).getSymbol();
+                    total = total + plotMap.get(field).getValue();
+                }
             }
             if(postAggrTheoryName != null && !postAggrTheoryName.isEmpty()) {
                 ComputeHelper computeHelper = computeHelperFactory.getInstance(postAggrTheoryName);
@@ -53,7 +55,7 @@ public class AdditiveComputedField implements IComputedField<Data> {
 
         } catch (Exception e) {
             // throw new RuntimeException("Computed field configuration not correctly provided");
-            logger.error("percentage could not be computed " +e.getMessage());
+            logger.error("Addition could not be computed " +e.getMessage());
             data.getPlots().add(new Plot(newField, 0.0, dataType));
         }
 
