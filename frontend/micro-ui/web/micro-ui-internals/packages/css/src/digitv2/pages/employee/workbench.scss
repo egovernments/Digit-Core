@@ -73,6 +73,12 @@
             }
           }
 
+          .form-control:focus {
+
+            @apply outline-none;
+            border-color: theme(digitv2.lightTheme.primary);
+          }
+
           textarea.form-control {
             height: 5rem;
           }
