@@ -51,5 +51,11 @@ public class MdmsCriteriaV2 {
     @JsonIgnore
     private Set<String> uniqueIdentifiersForRefVerification = null;
 
+    @JsonProperty("offset")
+    private Integer offset;
+
+    @JsonProperty("limit")
+    private Integer limit;
+
 
 }

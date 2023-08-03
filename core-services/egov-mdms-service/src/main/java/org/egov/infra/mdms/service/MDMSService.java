@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 
+import static org.egov.infra.mdms.utils.MDMSConstants.*;
+
 @Service
 @Slf4j
 public class MDMSService {
@@ -94,7 +96,7 @@ public class MDMSService {
 		Map<String, Map<String, JSONArray>> moduleMasterMap = new HashMap<>();
 
 		for (Map.Entry<String, JSONArray> entry : masterMap.entrySet()) {
-			String[] moduleMaster = entry.getKey().split("\\.");
+			String[] moduleMaster = entry.getKey().split(DOT_REGEX);
 			String moduleName = moduleMaster[0];
 			String masterName = moduleMaster[1];
 
@@ -108,7 +110,7 @@ public class MDMSService {
 		Map<String, String> schemaCodesFilterMap = new HashMap<>();
 		for (ModuleDetail moduleDetail : mdmsCriteria.getModuleDetails()) {
 			for (MasterDetail masterDetail : moduleDetail.getMasterDetails()) {
-				String key = moduleDetail.getModuleName().concat(".").concat(masterDetail.getName());
+				String key = moduleDetail.getModuleName().concat(DOT_SEPARATOR).concat(masterDetail.getName());
 				String value = masterDetail.getFilter();
 				schemaCodesFilterMap.put(key, value);
 			}

@@ -1,13 +1,20 @@
 package org.egov.infra.mdms.repository.querybuilder;
 
+import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.MdmsCriteriaV2;
 import org.egov.infra.mdms.utils.QueryUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+
 import java.util.*;
 
 @Component
 public class MdmsDataQueryBuilderV2 {
+
+    @Autowired
+    private ApplicationConfig config;
 
     private static final String SEARCH_MDMS_DATA_QUERY = "SELECT data.id, data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM eg_mdms_data data ";
@@ -23,6 +30,7 @@ public class MdmsDataQueryBuilderV2 {
     public String getMdmsDataSearchQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
         String query = buildQuery(mdmsCriteriaV2, preparedStmtList);
         query = QueryUtil.addOrderByClause(query, MDMS_DATA_QUERY_ORDER_BY_CLAUSE);
+        query = getPaginatedQuery(query, mdmsCriteriaV2, preparedStmtList);
         return query;
     }
 
@@ -72,6 +80,20 @@ public class MdmsDataQueryBuilderV2 {
             QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getUniqueIdentifiersForRefVerification());
         }
         return builder.toString();
+    }
+
+    private String getPaginatedQuery(String query, MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
+        StringBuilder paginatedQuery = new StringBuilder(query);
+
+        // Append offset
+        paginatedQuery.append(" OFFSET ? ");
+        preparedStmtList.add(ObjectUtils.isEmpty(mdmsCriteriaV2.getOffset()) ? config.getDefaultOffset() : mdmsCriteriaV2.getOffset());
+
+        // Append limit
+        paginatedQuery.append(" LIMIT ? ");
+        preparedStmtList.add(ObjectUtils.isEmpty(mdmsCriteriaV2.getLimit()) ? config.getDefaultLimit() : mdmsCriteriaV2.getLimit());
+
+        return paginatedQuery.toString();
     }
 
 }

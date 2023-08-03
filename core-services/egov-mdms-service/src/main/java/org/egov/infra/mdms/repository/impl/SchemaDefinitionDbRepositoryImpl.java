@@ -31,11 +31,12 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
 
     @Autowired
     public SchemaDefinitionDbRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
-                                            ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper){
+                                            ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper, SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder){
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
         this.rowMapper = rowMapper;
+        this.schemaDefinitionQueryBuilder = schemaDefinitionQueryBuilder;
     }
 
 
@@ -58,7 +59,7 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
         List<Object> preparedStatementList = new ArrayList<>();
 
         // Invoke query builder to generate query based on the provided criteria
-        String query = SchemaDefinitionQueryBuilder.getSchemaSearchQuery(schemaDefCriteria, preparedStatementList);
+        String query = schemaDefinitionQueryBuilder.getSchemaSearchQuery(schemaDefCriteria, preparedStatementList);
         log.info("Schema definition search query: " + query);
 
         // Query the database to fetch schema definitions

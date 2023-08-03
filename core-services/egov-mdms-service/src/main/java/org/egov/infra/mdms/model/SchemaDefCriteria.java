@@ -31,6 +31,12 @@ public class SchemaDefCriteria {
     @JsonProperty("codes")
     private List<String> codes = null;
 
+    @JsonProperty("offset")
+    private Integer offset;
+
+    @JsonProperty("limit")
+    private Integer limit;
+
 
     public SchemaDefCriteria addCodesItem(String codesItem) {
         if (this.codes == null) {

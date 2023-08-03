@@ -24,4 +24,10 @@ public class ApplicationConfig {
     @Value("${egov.mdms.data.update.topic}")
     private String updateMdmsDataTopicName;
 
+    @Value("${mdms.default.offset}")
+    private Integer defaultOffset;
+
+    @Value("${mdms.default.limit}")
+    private Integer defaultLimit;
+
 }
