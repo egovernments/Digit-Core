@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-css",
-  "version": "1.2.108",
+  "version": "1.2.109",
   "license": "MIT",
   "main": "dist/index.css",
   "author": "Jagankumar <jagan.kumar@egov.org.in>",
@@ -55,5 +55,11 @@
     "src/**/*.scss",
     "src/**/*.css"
   ],
-  "keywords": ["digit","egov","dpg","digit-ui","css"]
+  "keywords": [
+    "digit",
+    "egov",
+    "dpg",
+    "digit-ui",
+    "css"
+  ]
 }
