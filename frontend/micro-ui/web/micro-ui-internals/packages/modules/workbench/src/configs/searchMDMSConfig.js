@@ -41,7 +41,7 @@ export const Config = {
             disable: false,
             populators: {
               name: "field",
-              optionsKey: "code",
+              optionsKey: "i18nKey",
               optionsCustomStyle: { top: "2.3rem" },
               options: [
                 {
