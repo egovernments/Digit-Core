@@ -17,7 +17,7 @@ const onFormError = (errors) => console.log("I have", errors.length, "errors to 
 
 const uiSchema = {};
 
-const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType='add', onViewActionsSelect, viewActions, ...props }) => {
+const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions, ...props }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage(`MDMS_${screenType}`, {});
@@ -25,7 +25,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType='add', onViewA
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
   const [session, setSession] = useState(sessionFormData);
   const [formSchema, setFormSchema] = useState({});
-  const [loadDependent, setLoadDependent] = useState("");
+  const [loadDependent, setLoadDependent] = useState([]);
   const [showErrorToast, setShowErrorToast] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
@@ -60,13 +60,21 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType='add', onViewA
     body: {
       MdmsCriteria: {
         tenantId: tenantId || stateId,
-        schemaCodes: [loadDependent?.schemaCode],
+        schemaCodes: loadDependent.map((e) => e.schemaCode),
       },
     },
     config: {
-      enabled: loadDependent == "" ? false : true,
+      enabled: loadDependent && loadDependent?.length > 0,
       select: (data) => {
-        return data?.mdms?.map((ele) => ele.uniqueIdentifier);
+        const dependentData = {};
+        data?.mdms?.map((ele) => {
+          if (dependentData?.[ele?.schemaCode] && dependentData?.[ele?.schemaCode]?.length > 0) {
+            dependentData[ele?.schemaCode]?.push(ele?.uniqueIdentifier);
+          } else {
+            dependentData[ele?.schemaCode] = [ele?.uniqueIdentifier];
+          }
+        });
+        return dependentData;
       },
     },
     changeQueryName: "data",
@@ -102,10 +110,10 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType='add', onViewA
         setSession({});
       }, 1500);
       setShowErrorToast(false);
-      setShowToast(`${t('WBH_SUCCESS_MDMS_MSG')} ${resp?.mdms?.[0]?.id}`);
+      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowToast(`${t('WBH_ERROR_MDMS_DATA')}  ${resp?.response?.data?.Errors?.[0]?.code}`);
+      setShowToast(`${t("WBH_ERROR_MDMS_DATA")}  ${resp?.response?.data?.Errors?.[0]?.code}`);
       setShowErrorToast(true);
     };
 
@@ -138,34 +146,42 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType='add', onViewA
 
   useEffect(() => {
     // setFormSchema(schema);
-          /* localise */
-          if(schema){
-Object.keys(schema?.definition?.properties).map(key=>{
-  const title=Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`)
-  schema.definition.properties[key]={...schema.definition.properties[key],title:t(title)}
-})
-setFormSchema(schema)
-    if (schema?.definition?.["x-ref-schema"]?.length > 0) {
-      schema?.definition?.["x-ref-schema"]?.map((ele) => {
-        setLoadDependent(ele);
+    /* localise */
+    if (schema) {
+      Object.keys(schema?.definition?.properties).map((key) => {
+        const title = Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`);
+        schema.definition.properties[key] = { ...schema.definition.properties[key], title: t(title) };
       });
+      setFormSchema(schema);
+      if (schema?.definition?.["x-ref-schema"]?.length > 0) {
+        setLoadDependent([...schema?.definition?.["x-ref-schema"]]);
+      }
     }
-  }
   }, [schema]);
 
   useEffect(() => {
-    if (loadDependent?.fieldPath && additonalData?.length > 0) {
-      if (schema?.definition?.properties?.[loadDependent?.fieldPath]) {
-        schema.definition.properties[loadDependent.fieldPath] = { ...schema.definition.properties[loadDependent.fieldPath], enum: additonalData };
-        schema.definition.properties["temp_field"] = { ...schema.definition.properties[loadDependent.fieldPath], enum: additonalData };
-        setFormSchema({ ...schema });
-        setTimeout(() => {
-          setFormSchema((schema) => {
-            delete schema.definition.properties["temp_field"];
-            return { ...schema };
-          }, 500);
-        });
-      }
+    if (loadDependent && loadDependent?.length > 0) {
+      loadDependent?.map((dependent) => {
+        if (dependent?.fieldPath && additonalData?.[dependent?.schemaCode]?.length > 0) {
+          if (schema?.definition?.properties?.[dependent?.fieldPath]) {
+            schema.definition.properties[dependent.fieldPath] = {
+              ...schema.definition.properties[dependent.fieldPath],
+              enum: additonalData?.[dependent?.schemaCode],
+            };
+            schema.definition.properties["temp_field"] = {
+              ...schema.definition.properties[dependent.fieldPath],
+              enum: additonalData?.[dependent?.schemaCode],
+            };
+          }
+        }
+      });
+      setFormSchema({ ...schema });
+      setTimeout(() => {
+        setFormSchema((schema) => {
+          delete schema.definition.properties["temp_field"];
+          return { ...schema };
+        }, 500);
+      });
     }
   }, [additonalData]);
 
@@ -181,9 +197,10 @@ setFormSchema(schema)
   }, [session]);
 
   /* use newConfig instead of commonFields for local development in case needed */
-  if (isLoading || !formSchema||Object.keys(formSchema)==0) {
+  if (isLoading || !formSchema || Object.keys(formSchema) == 0) {
     return <Loader />;
   }
+  const uiJSONSchema = formSchema?.["x-ui-schema"];
 
   return (
     <React.Fragment>
@@ -194,7 +211,7 @@ setFormSchema(schema)
           onFormError={onFormError}
           formData={session}
           onSubmit={onSubmit}
-          uiSchema={{ ...uiSchema, ...updatesToUISchema }}
+          uiSchema={{ ...uiSchema, ...uiJSONSchema, ...updatesToUISchema }}
           showToast={showToast}
           showErrorToast={showErrorToast}
           screenType={screenType}

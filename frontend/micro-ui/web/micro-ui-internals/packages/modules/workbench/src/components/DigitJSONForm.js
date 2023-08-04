@@ -38,9 +38,7 @@ const uiSchema = {
   "ui:title": " ",
   "ui:classNames": "my-class",
 
-  SORdescription: {
-    "ui:widget": "textarea",
-  },
+
   "ui:submitButtonOptions": {
     props: {
       disabled: false,

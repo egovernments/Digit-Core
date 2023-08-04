@@ -12,7 +12,13 @@ const assetsProxy = createProxyMiddleware({
   changeOrigin: true,
   secure:false
 });
+const mdmsProxy = createProxyMiddleware({
+  target: process.env.REACT_APP_PROXY_ASSETS || "http://localhost:8080",
+  changeOrigin: true,
+  secure:false
+});
 module.exports = function (app) {
+  ["/mdms-v2/v2/_create"].forEach((location) => app.use(location, mdmsProxy));
   [
     "/access/v1/actions/mdms",
     "/egov-mdms-service",
@@ -75,4 +81,5 @@ module.exports = function (app) {
     "/mdms-v2"
   ].forEach((location) => app.use(location, createProxy));
   ["/pb-egov-assets"].forEach((location) => app.use(location, assetsProxy));
+  ["/mdms-v2/v2/_create"].forEach((location) => app.use(location, mdmsProxy));
 };
