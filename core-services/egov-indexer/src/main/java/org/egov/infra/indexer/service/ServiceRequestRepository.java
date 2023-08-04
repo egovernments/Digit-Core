@@ -26,11 +26,7 @@ public class ServiceRequestRepository {
 	private RestTemplate restTemplate;
 
 	@Autowired
-	@Qualifier("objectMapperBnd")
 	private ObjectMapper mapper;
-
-	@Value("${egov.state.level.tenant.id}")
-	private  String stateLevelTenantId;
 
 	@Autowired
 	private MultiStateInstanceUtil centralInstanceUtil;
