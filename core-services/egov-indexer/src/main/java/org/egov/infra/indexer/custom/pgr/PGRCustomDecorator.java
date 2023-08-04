@@ -148,7 +148,10 @@ public class PGRCustomDecorator {
 		String serviceCode = JsonPath.read(kafkaJson, "$.service.serviceCode");
 		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, serviceCode, new RequestInfo());
 		try {
-			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
+			Object responseObject =  serviceRequestRepository.fetchResult(uri, request, stateLevelTenantId);
+			Object response =  mapper.convertValue(responseObject,  Map.class);
+
+//			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
