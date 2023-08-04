@@ -200,7 +200,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   if (isLoading || !formSchema || Object.keys(formSchema) == 0) {
     return <Loader />;
   }
-  const uiJSONSchema = formSchema?.["x-ui-schema"];
+  const uiJSONSchema = formSchema?.["definition"]?.["x-ui-schema"];
 
   return (
     <React.Fragment>

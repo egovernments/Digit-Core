@@ -90,7 +90,8 @@
             align-self: center;
           }
 
-          &.field-boolean .checkbox {
+          &.field-boolean { 
+            .checkbox {
             width: 28rem;
 
             label {
@@ -120,6 +121,15 @@
               input:hover {
                 @apply border-2;
                 @extend .light-input-border;
+              }
+            }
+            }
+            .field-radio-group{
+              display: inline-flex;
+              height: 2.5rem;
+              align-items: center;
+              .radio{
+                @apply mr-sm; 
               }
             }
           }
