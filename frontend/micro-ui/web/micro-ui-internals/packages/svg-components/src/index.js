@@ -777,6 +777,8 @@ import { YoutubeSearchedFor } from "./svg/YoutubeSearchedFor";
 import { ZoomIn } from "./svg/ZoomIn";
 import { ZoomOut } from "./svg/ZoomOut";
 import { ZoomOutMap } from "./svg/ZoomOutMap";
+import { RoundedCheck } from "./svg/RoundedCheck";
+import { DeleteBtn } from "./svg/DeleteBtn";
 
 export {
   Rotation3D,
@@ -1558,4 +1560,6 @@ export {
   ZoomIn,
   ZoomOut,
   ZoomOutMap,
+  RoundedCheck,
+  DeleteBtn,
 };

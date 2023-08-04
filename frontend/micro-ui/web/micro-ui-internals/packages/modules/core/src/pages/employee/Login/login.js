@@ -1,4 +1,5 @@
-import { BackButton, Dropdown, FormComposer, FormComposerV2, Loader, Toast } from "@egovernments/digit-ui-react-components";
+import { BackButton, Loader, Toast } from "@egovernments/digit-ui-components-core";
+import { FormComposerV2 } from "@egovernments/digit-ui-react-components"; //will remove this when formcomposerv2 is avialable for digiV2
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -19,7 +20,7 @@ const setEmployeeDetail = (userObject, token) => {
   localStorage.setItem("Employee.user-info", JSON.stringify(userObject));
 };
 
-const Login = ({ config: propsConfig, t, isDisabled }) => {
+const Login = ({ config: propsConfig, t, isDisabled, ...props }) => {
   const { data: cities, isLoading } = Digit.Hooks.useTenants();
   const { data: storeData, isLoading: isStoreLoading } = Digit.Hooks.useStore.getInitData();
   const { stateInfo } = storeData || {};
@@ -98,7 +99,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
     name: Digit.Utils.locale.getTransformedLocale(`TENANT_TENANTS_${Digit.ULBService.getStateId()}`),
   };
 
-  let config = [{body : propsConfig?.inputs}];
+  let config = [{ body: propsConfig?.inputs }];
 
   const { mode } = Digit.Hooks.useQueryParams();
   if (mode === "admin" && config?.[0]?.body?.[2]?.disable == false && config?.[0]?.body?.[2]?.populators?.defaultValue == undefined) {
@@ -110,7 +111,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
     <Loader />
   ) : (
     <Background>
-      <div className="employeeBackbuttonAlign">
+      <div className={`digit-employeeBackbuttonAlign`}>
         <BackButton variant="white" style={{ borderBottom: "none" }} />
       </div>
 
@@ -133,7 +134,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
         <Header />
       </FormComposerV2>
       {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
-      <div className="employee-login-home-footer" style={{ backgroundColor: "unset" }}>
+      <div className={`digit-employee-login-home-footer`} style={{ backgroundColor: "unset" }}>
         <img
           alt="Powered by DIGIT"
           src={window?.globalConfigs?.getConfig?.("DIGIT_FOOTER_BW")}
