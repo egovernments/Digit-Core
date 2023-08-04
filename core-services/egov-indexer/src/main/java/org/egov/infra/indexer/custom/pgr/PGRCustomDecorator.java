@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.infra.indexer.service.ServiceRequestRepository;
 import org.egov.infra.indexer.util.IndexerConstants;
 import org.egov.infra.indexer.util.IndexerUtils;
 import org.egov.mdms.model.MasterDetail;
@@ -41,6 +43,15 @@ public class PGRCustomDecorator {
 
 	@Value("${egov.statelevel.tenantId}")
 	private  String stateLevelTenantId ;
+
+	@Autowired
+	private ServiceRequestRepository serviceRequestRepository;
+
+	@Autowired
+	private ObjectMapper mapper;
+
+	@Autowired
+	private MultiStateInstanceUtil centralInstanceUtil;
 
 	/**
 	 * Builds a custom object for PGR that is common for core index and legacy index,
@@ -87,7 +98,10 @@ public class PGRCustomDecorator {
 		StringBuilder uri = new StringBuilder();
 		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, service.getServiceCode(), new RequestInfo());
 		try {
-			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
+			Object responseObject =  serviceRequestRepository.fetchResult(uri, request, centralInstanceUtil.getStateLevelTenant(service.getTenantId()));
+			Object response =  mapper.convertValue(responseObject,  Map.class);
+
+//			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);

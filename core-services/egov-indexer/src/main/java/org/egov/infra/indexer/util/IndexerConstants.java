@@ -14,4 +14,6 @@ public class IndexerConstants {
 	public static final String SAVE_PGR_REQUEST_BATCH_TOPIC = "save-pgr-request-batch";
 	public static final String DEPARTMENT_PLACEHOLDER = "\"department\"";
 	public static final String DEPT_CODE_PLACEHOLDER = "\"deptCode\"";
+
+	public static final String TENANTID_MDC_STRING = "TENANTID";
 }
