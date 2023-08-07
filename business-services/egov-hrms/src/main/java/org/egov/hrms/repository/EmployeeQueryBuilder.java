@@ -90,6 +90,16 @@ public class EmployeeQueryBuilder {
 			builder.append(" and employee.active = ?");
 			preparedStmtList.add(criteria.getIsActive());
 		}
+		
+		if(!(StringUtils.isEmpty(criteria.getBoundaryType())) && StringUtils.isEmpty(criteria.getBoundary())) {
+			builder.append(" and jurisdiction.boundarytype = ?");
+			preparedStmtList.add(criteria.getBoundaryType());
+		}
+		
+		if(!(CollectionUtils.isEmpty(criteria.getValidBoundaryCodes()))) {
+			builder.append(" and jurisdiction.boundary IN (").append(createQuery(criteria.getValidBoundaryCodes())).append(")");
+			addToPreparedStatement(preparedStmtList, criteria.getValidBoundaryCodes());
+		}
 	}
 	
 	public String paginationClause(EmployeeSearchCriteria criteria, StringBuilder builder) {

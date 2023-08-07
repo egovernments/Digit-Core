@@ -75,8 +75,8 @@ public class EmployeeValidator {
 		Map<String, List<String>> masterData = new HashMap<>();
 		if(!CollectionUtils.isEmpty(employee.getJurisdictions())){
 			for(Jurisdiction jurisdiction: employee.getJurisdictions()){
-				if(!boundarytList.contains(jurisdiction.getBoundary()))
-					boundarytList.add(jurisdiction.getBoundary());
+				if(!boundarytList.contains(jurisdiction.getTenantId()))
+					boundarytList.add(jurisdiction.getTenantId());
 			}
 			if(CollectionUtils.isEmpty(boundarytList))
 				boundarytList.add(employee.getTenantId());

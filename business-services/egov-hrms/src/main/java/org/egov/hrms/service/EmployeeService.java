@@ -55,7 +55,9 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.hrms.config.PropertiesManager;
 import org.egov.hrms.model.AuditDetails;
+import org.egov.hrms.model.Boundary;
 import org.egov.hrms.model.Employee;
+import org.egov.hrms.model.TenantBoundary;
 import org.egov.hrms.model.enums.UserType;
 import org.egov.hrms.producer.HRMSProducer;
 import org.egov.hrms.repository.EmployeeRepository;
@@ -69,12 +71,15 @@ import org.egov.hrms.web.contract.EmployeeSearchCriteria;
 import org.egov.hrms.web.contract.User;
 import org.egov.hrms.web.contract.UserRequest;
 import org.egov.hrms.web.contract.UserResponse;
+import org.egov.mdms.model.MdmsResponse;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
@@ -118,6 +123,10 @@ public class EmployeeService {
 	
 	@Autowired
 	private MultiStateInstanceUtil centralInstanceUtil;
+	
+	@Autowired
+	private MDMSService mdmsService;
+	
 
 	/**
 	 * Service method for create employee. Does following:
@@ -206,13 +215,27 @@ public class EmployeeService {
 					criteria.setUuids(userUUIDs);
 			}
 		}
+		
+		// new logic to get valid list of boundary codes for an employee
+		List<String> validBoundaryCodes = new ArrayList<String>();
+		if (!StringUtils.isEmpty(criteria.getBoundary())){
+			
+			
+			validBoundaryCodes = getAllValidBoundaryTypesfromMDMS(requestInfo, criteria.getBoundary(),
+					criteria.getTenantId());
+			validBoundaryCodes.add(criteria.getBoundary());
+			criteria.setValidBoundaryCodes(validBoundaryCodes);
+			
+		}
 
 		String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(criteria.getTenantId());
 		if(userChecked)
 			criteria.setTenantId(null);
-
+		
+		
+		
 		List <Employee> employees = new ArrayList<>();
-        if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())) && CollectionUtils.isEmpty(criteria.getUuids())))
+        if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())|| !StringUtils.isEmpty(criteria.getBoundaryType())|| !StringUtils.isEmpty(criteria.getBoundaryType())) && CollectionUtils.isEmpty(criteria.getUuids())))
             employees = repository.fetchEmployees(criteria, requestInfo, stateLevelTenantId);
         List<String> uuids = employees.stream().map(Employee :: getUuid).collect(Collectors.toList());
 		if(!CollectionUtils.isEmpty(uuids)){
@@ -232,8 +255,75 @@ public class EmployeeService {
 		return EmployeeResponse.builder().responseInfo(factory.createResponseInfoFromRequestInfo(requestInfo, true))
 				.employees(employees).build();
 	}
+		
 	
 	
+	private List<String> getAllValidBoundaryTypesfromMDMS(RequestInfo requestInfo, String boundary, String tenantId) {
+		
+		MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, tenantId);
+		List<String> tenantBoundaryData = new ArrayList<>();
+		Map<String, List<String>> eachMasterMap = new HashMap<>();
+		Map<String, List<String>> masterData = new HashMap<>();
+		List<String> childCodes = new ArrayList<String>();
+		
+		if (!CollectionUtils.isEmpty(responseLoc.getMdmsRes().keySet())) {
+			if (null != responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE)) {
+				eachMasterMap = (Map) responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE);
+				tenantBoundaryData.addAll(eachMasterMap.get(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE));
+			}
+		}
+		if(!CollectionUtils.isEmpty(tenantBoundaryData))
+			masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE,tenantBoundaryData);
+		
+		JSONObject jsonObject = new JSONObject(masterData);
+		try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(jsonObject.toString());
+            TenantBoundary[] tenantBoundaries = mapper.convertValue(jsonNode.get("TenantBoundary"), TenantBoundary[].class);
+            String targetCode = boundary;
+            childCodes = findChildrenCodes(tenantBoundaries, targetCode);
+		} catch (Exception e) {
+            e.printStackTrace();
+        }
+		
+		return childCodes;
+	}
+
+
+	private List<String> findChildrenCodes(TenantBoundary[] tenantBoundaries, String targetCode) {
+		List<String> childCodes = new ArrayList<>();
+        for (TenantBoundary tenantBoundary : tenantBoundaries) {
+            
+        	Boundary boundary = tenantBoundary.getBoundary();
+            collectChildCodes(boundary, targetCode, childCodes);
+
+        }
+        return childCodes;
+	}
+
+
+	private static void collectChildCodes(Boundary boundary, String targetCode, List<String> childCodes) {
+        if (boundary.getCode().equals(targetCode)) {
+            // Found the target node, collect the child codes and return
+            collectChildCodesRecursively(boundary, childCodes);
+        } else {
+            // Explore the children of the current node
+            List<Boundary> children = boundary.getChildren();
+            for (Boundary child : children) {
+                collectChildCodes(child, targetCode, childCodes);
+            }
+        }
+    }
+
+    private static void collectChildCodesRecursively(Boundary boundary, List<String> childCodes) {
+        List<Boundary> children = boundary.getChildren();
+        for (Boundary child : children) {
+            childCodes.add(child.getCode());
+            collectChildCodesRecursively(child, childCodes);
+        }
+    }
+
+
 	/**
 	 * Creates user by making call to egov-user.
 	 * 
