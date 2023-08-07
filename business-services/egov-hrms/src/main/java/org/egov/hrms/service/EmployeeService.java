@@ -264,7 +264,7 @@ public class EmployeeService {
 		List<String> tenantBoundaryData = new ArrayList<>();
 		Map<String, List<String>> eachMasterMap = new HashMap<>();
 		Map<String, List<String>> masterData = new HashMap<>();
-		List<String> childCodes = new ArrayList<String>();
+		List<String> parentCodes = new ArrayList<String>();
 		
 		if (!CollectionUtils.isEmpty(responseLoc.getMdmsRes().keySet())) {
 			if (null != responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE)) {
@@ -281,45 +281,37 @@ public class EmployeeService {
             JsonNode jsonNode = mapper.readTree(jsonObject.toString());
             TenantBoundary[] tenantBoundaries = mapper.convertValue(jsonNode.get("TenantBoundary"), TenantBoundary[].class);
             String targetCode = boundary;
-            childCodes = findChildrenCodes(tenantBoundaries, targetCode);
+            parentCodes = findParentCodes(tenantBoundaries, targetCode);
 		} catch (Exception e) {
             e.printStackTrace();
         }
 		
-		return childCodes;
+		return parentCodes;
 	}
-
-
-	private List<String> findChildrenCodes(TenantBoundary[] tenantBoundaries, String targetCode) {
-		List<String> childCodes = new ArrayList<>();
+	
+	private static List<String> findParentCodes(TenantBoundary[] tenantBoundaries, String targetCode) {
+        Map<String, String> codeToParentMap = new HashMap<>();
         for (TenantBoundary tenantBoundary : tenantBoundaries) {
-            
-        	Boundary boundary = tenantBoundary.getBoundary();
-            collectChildCodes(boundary, targetCode, childCodes);
-
+            Boundary boundary = tenantBoundary.getBoundary();
+            populateParentMap(boundary, null, codeToParentMap);
         }
-        return childCodes;
-	}
 
-
-	private static void collectChildCodes(Boundary boundary, String targetCode, List<String> childCodes) {
-        if (boundary.getCode().equals(targetCode)) {
-            // Found the target node, collect the child codes and return
-            collectChildCodesRecursively(boundary, childCodes);
-        } else {
-            // Explore the children of the current node
-            List<Boundary> children = boundary.getChildren();
-            for (Boundary child : children) {
-                collectChildCodes(child, targetCode, childCodes);
-            }
+        List<String> parentCodes = new ArrayList<>();
+        String parentCode = codeToParentMap.get(targetCode);
+        while (parentCode != null) {
+            parentCodes.add(parentCode);
+            parentCode = codeToParentMap.get(parentCode);
         }
+        return parentCodes;
     }
 
-    private static void collectChildCodesRecursively(Boundary boundary, List<String> childCodes) {
+    private static void populateParentMap(Boundary boundary, String parentCode, Map<String, String> codeToParentMap) {
+        String currentCode = boundary.getCode();
+        codeToParentMap.put(currentCode, parentCode);
+
         List<Boundary> children = boundary.getChildren();
         for (Boundary child : children) {
-            childCodes.add(child.getCode());
-            collectChildCodesRecursively(child, childCodes);
+            populateParentMap(child, currentCode, codeToParentMap);
         }
     }
 
