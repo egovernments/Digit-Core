@@ -63,6 +63,8 @@ public class KeyManagementService implements ApplicationRunner {
 
     //Initialize active tenant id list and Check for any new tenants
     private void init() throws Exception {
+        // Adding in MDC so that tracer can add it in header
+        MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
         generateKeyForNewTenants();
     }
 
@@ -191,8 +193,6 @@ public class KeyManagementService implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
-        // Adding in MDC so that tracer can add it in header
-        MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
         init();
     }
 }
