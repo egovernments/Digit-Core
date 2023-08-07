@@ -102,7 +102,7 @@ function ArrayFieldTitleTemplate(props) {
 function ArrayFieldTemplate(props) {
   const { t } = useTranslation();
   return (
-    <div>
+    <div className="array-wrapper">
       {props.items.map((element, index) => {
         return (
           <span>

@@ -1,4 +1,4 @@
-import { Loader } from "@egovernments/digit-ui-react-components";
+import { Card, Loader, SVG } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -25,6 +25,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
   const [session, setSession] = useState(sessionFormData);
   const [formSchema, setFormSchema] = useState({});
+  const [noSchema, setNoSchema] = useState(false);
   const [loadDependent, setLoadDependent] = useState([]);
   const [showErrorToast, setShowErrorToast] = useState(false);
 
@@ -49,6 +50,9 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     config: {
       enabled: moduleName && masterName && true,
       select: (data) => {
+        if (data?.SchemaDefinitions?.length == 0) {
+          setNoSchema(true);
+        }
         return data?.SchemaDefinitions?.[0] || {};
       },
     },
@@ -147,7 +151,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   useEffect(() => {
     // setFormSchema(schema);
     /* localise */
-    if (schema) {
+    if (schema && schema?.definition) {
       Object.keys(schema?.definition?.properties).map((key) => {
         const title = Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`);
         schema.definition.properties[key] = { ...schema.definition.properties[key], title: t(title) };
@@ -195,6 +199,17 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       };
     }
   }, [session]);
+
+  if (noSchema) {
+    return (
+      <Card>
+        <span className="workbench-no-schema-found">
+          <h4>No Schema Found</h4>
+          <SVG.NoResultsFoundIcon width="20em" height={"20em"} />
+        </span>
+      </Card>
+    );
+  }
 
   /* use newConfig instead of commonFields for local development in case needed */
   if (isLoading || !formSchema || Object.keys(formSchema) == 0) {
