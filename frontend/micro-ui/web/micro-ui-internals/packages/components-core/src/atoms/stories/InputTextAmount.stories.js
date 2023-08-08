@@ -2,7 +2,7 @@ import React from "react";
 import { action } from "@storybook/addon-actions";
 import InputTextAmount from "../InputTextAmount";
 export default {
-  title: "Components/InputTextAmount",
+  title: "Atoms/InputTextAmount",
   component: InputTextAmount,
 };
 
