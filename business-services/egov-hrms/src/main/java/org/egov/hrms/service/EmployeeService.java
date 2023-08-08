@@ -57,6 +57,7 @@ import org.egov.hrms.config.PropertiesManager;
 import org.egov.hrms.model.AuditDetails;
 import org.egov.hrms.model.Boundary;
 import org.egov.hrms.model.Employee;
+import org.egov.hrms.model.Jurisdiction;
 import org.egov.hrms.model.TenantBoundary;
 import org.egov.hrms.model.enums.UserType;
 import org.egov.hrms.producer.HRMSProducer;
@@ -223,7 +224,7 @@ public class EmployeeService {
 			
 			validBoundaryCodes = getAllValidBoundaryTypesfromMDMS(requestInfo, criteria.getBoundary(),
 					criteria.getTenantId());
-			validBoundaryCodes.add(criteria.getBoundary());
+			validBoundaryCodes.add(0,criteria.getBoundary());
 			criteria.setValidBoundaryCodes(validBoundaryCodes);
 			
 		}
@@ -237,7 +238,8 @@ public class EmployeeService {
 		List <Employee> employees = new ArrayList<>();
         if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())|| !StringUtils.isEmpty(criteria.getBoundaryType())|| !StringUtils.isEmpty(criteria.getBoundaryType())) && CollectionUtils.isEmpty(criteria.getUuids())))
             employees = repository.fetchEmployees(criteria, requestInfo, stateLevelTenantId);
-        List<String> uuids = employees.stream().map(Employee :: getUuid).collect(Collectors.toList());
+        	List<Employee> filteredEmployees = filterEmployeesByJurisdiction(employees, validBoundaryCodes);
+        List<String> uuids = filteredEmployees.stream().map(Employee :: getUuid).collect(Collectors.toList());
 		if(!CollectionUtils.isEmpty(uuids)){
             Map<String, Object> UserSearchCriteria = new HashMap<>();
             UserSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_UUID,uuids);
@@ -248,73 +250,109 @@ public class EmployeeService {
 						.collect(Collectors.toMap(User :: getUuid, Function.identity()));
             }
             }
-            for(Employee employee: employees){
+            for(Employee employee: filteredEmployees){
                 employee.setUser(mapOfUsers.get(employee.getUuid()));
             }
 		}
 		return EmployeeResponse.builder().responseInfo(factory.createResponseInfoFromRequestInfo(requestInfo, true))
-				.employees(employees).build();
+				.employees(filteredEmployees).build();
 	}
 		
 	
 	
 	private List<String> getAllValidBoundaryTypesfromMDMS(RequestInfo requestInfo, String boundary, String tenantId) {
-		
+
 		MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, tenantId);
 		List<String> tenantBoundaryData = new ArrayList<>();
 		Map<String, List<String>> eachMasterMap = new HashMap<>();
 		Map<String, List<String>> masterData = new HashMap<>();
 		List<String> parentCodes = new ArrayList<String>();
-		
+
 		if (!CollectionUtils.isEmpty(responseLoc.getMdmsRes().keySet())) {
 			if (null != responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE)) {
 				eachMasterMap = (Map) responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE);
 				tenantBoundaryData.addAll(eachMasterMap.get(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE));
 			}
 		}
-		if(!CollectionUtils.isEmpty(tenantBoundaryData))
-			masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE,tenantBoundaryData);
-		
+		if (!CollectionUtils.isEmpty(tenantBoundaryData))
+			masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, tenantBoundaryData);
+
 		JSONObject jsonObject = new JSONObject(masterData);
 		try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(jsonObject.toString());
-            TenantBoundary[] tenantBoundaries = mapper.convertValue(jsonNode.get("TenantBoundary"), TenantBoundary[].class);
-            String targetCode = boundary;
-            parentCodes = findParentCodes(tenantBoundaries, targetCode);
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(jsonObject.toString());
+			TenantBoundary[] tenantBoundaries = mapper.convertValue(jsonNode.get("TenantBoundary"),
+					TenantBoundary[].class);
+			String targetCode = boundary;
+			parentCodes = findParentCodes(tenantBoundaries, targetCode);
 		} catch (Exception e) {
-            e.printStackTrace();
-        }
-		
+			e.printStackTrace();
+		}
+
 		return parentCodes;
 	}
-	
+
 	private static List<String> findParentCodes(TenantBoundary[] tenantBoundaries, String targetCode) {
-        Map<String, String> codeToParentMap = new HashMap<>();
-        for (TenantBoundary tenantBoundary : tenantBoundaries) {
-            Boundary boundary = tenantBoundary.getBoundary();
-            populateParentMap(boundary, null, codeToParentMap);
-        }
+		Map<String, String> codeToParentMap = new HashMap<>();
+		for (TenantBoundary tenantBoundary : tenantBoundaries) {
+			Boundary boundary = tenantBoundary.getBoundary();
+			populateParentMap(boundary, null, codeToParentMap);
+		}
 
-        List<String> parentCodes = new ArrayList<>();
-        String parentCode = codeToParentMap.get(targetCode);
-        while (parentCode != null) {
-            parentCodes.add(parentCode);
-            parentCode = codeToParentMap.get(parentCode);
-        }
-        return parentCodes;
-    }
+		List<String> parentCodes = new ArrayList<>();
+		String parentCode = codeToParentMap.get(targetCode);
+		while (parentCode != null) {
+			parentCodes.add(parentCode);
+			parentCode = codeToParentMap.get(parentCode);
+		}
+		return parentCodes;
+	}
 
-    private static void populateParentMap(Boundary boundary, String parentCode, Map<String, String> codeToParentMap) {
-        String currentCode = boundary.getCode();
-        codeToParentMap.put(currentCode, parentCode);
+	private static void populateParentMap(Boundary boundary, String parentCode, Map<String, String> codeToParentMap) {
+		String currentCode = boundary.getCode();
+		codeToParentMap.put(currentCode, parentCode);
 
-        List<Boundary> children = boundary.getChildren();
-        for (Boundary child : children) {
-            populateParentMap(child, currentCode, codeToParentMap);
-        }
-    }
+		List<Boundary> children = boundary.getChildren();
+		for (Boundary child : children) {
+			populateParentMap(child, currentCode, codeToParentMap);
+		}
+	}
 
+	private static List<Employee> filterEmployeesByJurisdiction(List<Employee> employees, List<String> parentCodes) {
+		List<Employee> filteredEmployees = new ArrayList<>();
+
+		// Filter employees at the target code level
+		for (Employee employee : employees) {
+			if (hasJurisdiction(employee, parentCodes.get(0))) {
+				filteredEmployees.add(employee);
+			}
+		}
+
+		// If no employees at target code level, progressively go up to parent codes
+		if (filteredEmployees.isEmpty()) {
+			for (String parentCode : parentCodes) {
+				for (Employee employee : employees) {
+					if (hasJurisdiction(employee, parentCode)) {
+						filteredEmployees.add(employee);
+					}
+				}
+				if (!filteredEmployees.isEmpty()) {
+					break; // Stop if employees are found
+				}
+			}
+		}
+
+		return filteredEmployees;
+	}
+
+	private static boolean hasJurisdiction(Employee employee, String jurisdictionCode) {
+		for (Jurisdiction jurisdiction : employee.getJurisdictions()) {
+			if (jurisdiction.getBoundary().equals(jurisdictionCode)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Creates user by making call to egov-user.
