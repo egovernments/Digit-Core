@@ -14,6 +14,7 @@ import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.ModuleDetail;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
 
 @Component
 @Slf4j
@@ -95,6 +98,8 @@ public class PGRCustomDecorator {
 	 * @return
 	 */
 	public String getDepartment(Service service) {
+		// Adding in MDC so that tracer can add it in header
+		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 		StringBuilder uri = new StringBuilder();
 		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, service.getServiceCode(), new RequestInfo());
 		try {
@@ -144,6 +149,8 @@ public class PGRCustomDecorator {
 	}
 
 	public String getDepartmentCodeForPgrRequest(String kafkaJson) {
+		// Adding in MDC so that tracer can add it in header
+		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 		StringBuilder uri = new StringBuilder();
 		String serviceCode = JsonPath.read(kafkaJson, "$.service.serviceCode");
 		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, serviceCode, new RequestInfo());
