@@ -224,15 +224,15 @@ const DigitJSONForm = ({
           // focusOnFirstError={true}
           // liveValidate={formData && Object.keys(formData) && Object.keys(formData)?.length > 0}
         >
-          {screenType === "add" && (
-            <ActionBar>
-              <SubmitBar label={t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
-              {/* <LinkButton style={props?.skipStyle} label={t(`CS_SKIP_CONTINUE`)}  /> */}
-            </ActionBar>
-          )}
-          {screenType === "view" && (
-            <ActionBar>
-              {displayMenu ? (
+        
+        {(screenType==="add" || screenType==="edit")  && <ActionBar>
+          <SubmitBar label={screenType==="edit" ? t("WBH_ADD_MDMS_UPDATE_ACTION") : t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
+          {/* <LinkButton style={props?.skipStyle} label={t(`CS_SKIP_CONTINUE`)}  /> */}
+        </ActionBar>
+        }
+        {screenType==="view" && 
+          <ActionBar>
+            {displayMenu ?
                 <Menu
                   localeKeyPrefix={""}
                   options={viewActions}
@@ -241,10 +241,10 @@ const DigitJSONForm = ({
                   onSelect={onViewActionsSelect}
                   textStyles={{ margin: "0px" }}
                 />
-              ) : null}
+               : null}
               <SubmitBar label={t("WORKS_ACTIONS")} onSubmit={() => setDisplayMenu(!displayMenu)} />
             </ActionBar>
-          )}
+          }
         </Form>
       </Card>
       {showToast && <Toast label={t(showToast)} error={showErrorToast}></Toast>}
