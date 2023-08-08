@@ -42,6 +42,9 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 	@Value("${pgr.batch.create.topic.name}")
 	private String pgrBatchCreateTopic;
 
+	@Value("${egov.statelevel.tenantId}")
+	private String stateLevelTenantId;
+
 	@Override
 	/**
 	 * Messages listener which acts as consumer. This message listener is injected
@@ -54,7 +57,7 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 
 		if(data.topic().equals(pgrCreateTopic) || data.topic().equals(pgrBatchCreateTopic)){
 			// Adding in MDC so that tracer can add it in header
-			MDC.put(TENANTID_MDC_STRING, "");
+			MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 			String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
 			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson);
 			kafkaJson = kafkaJson.replace(IndexerConstants.DEPT_CODE, deptCode);
