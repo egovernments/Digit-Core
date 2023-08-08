@@ -38,9 +38,7 @@ const uiSchema = {
   "ui:title": " ",
   "ui:classNames": "my-class",
 
-  SORdescription: {
-    "ui:widget": "textarea",
-  },
+
   "ui:submitButtonOptions": {
     props: {
       disabled: false,
@@ -104,7 +102,7 @@ function ArrayFieldTitleTemplate(props) {
 function ArrayFieldTemplate(props) {
   const { t } = useTranslation();
   return (
-    <div>
+    <div className="array-wrapper">
       {props.items.map((element, index) => {
         return (
           <span>

@@ -14,6 +14,7 @@
       .field-wrapper {
         .form-group.field {
           display: flex;
+          padding:1em 0 0 1em;
 
           &.field-error.has-error.has-danger {
             .control-label {
@@ -90,36 +91,48 @@
             align-self: center;
           }
 
-          &.field-boolean .checkbox {
-            width: 28rem;
+          &.field-boolean {
+            .checkbox {
+              width: 28rem;
 
-            label {
-              float: left;
+              label {
+                float: left;
 
-              /* display: flex;
+                /* display: flex;
             flex-direction: row-reverse;
             */
-              span {
-                width: 17rem;
-                display: none;
-                @extend .card-label;
-              }
+                span {
+                  width: 17rem;
+                  display: none;
+                  @extend .card-label;
+                }
 
-              input[type="checkbox"] {
-                @extend .light-input-border;
-                @extend .employee-card-input;
-                height: 1.5rem;
-                /*              @apply ml-sm;*/
-              }
+                input[type="checkbox"] {
+                  @extend .light-input-border;
+                  @extend .employee-card-input;
+                  height: 1.5rem;
+                  /*              @apply ml-sm;*/
+                }
 
-              input[type="checkbox"]#digit_root_active {
-                accent-color: theme(digitv2.lightTheme.primary);
-              }
+                input[type="checkbox"]#digit_root_active {
+                  accent-color: theme(digitv2.lightTheme.primary);
+                }
 
-              input:checked,
-              input:hover {
-                @apply border-2;
-                @extend .light-input-border;
+                input:checked,
+                input:hover {
+                  @apply border-2;
+                  @extend .light-input-border;
+                }
+              }
+            }
+
+            .field-radio-group {
+              display: inline-flex;
+              height: 2.5rem;
+              align-items: center;
+
+              .radio {
+                @apply mr-sm;
               }
             }
           }
@@ -147,20 +160,20 @@
             margin: 1rem 0;
 
 
-            .array-item {
+            .array-wrapper .array-item {
               @extend .light-background;
               padding: 1rem;
               position: relative;
 
               .array-remove-button-wrapper {
                 position: absolute;
-                right: 0;
-                top: 0;
+                right: 1.3em;
+                top: 1.3em;
+                background-color: inherit !important;
 
                 .array-remove-button {
-
-                  @extend .light-paper-secondary;
                   cursor: pointer;
+                  background-color: inherit !important;
                 }
               }
 
@@ -191,6 +204,11 @@
       @apply font-rc font-medium text-legend text-white leading-10;
     }
   }
+}
+
+.workbench-no-schema-found {
+  @apply flex justify-items-center flex-col;
+  align-items: center;
 }
 
 .jk-digit-loader {
