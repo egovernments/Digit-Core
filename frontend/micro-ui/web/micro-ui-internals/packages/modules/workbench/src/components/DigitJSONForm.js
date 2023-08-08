@@ -10,6 +10,7 @@ import {
   CardLabelError,
   SVG,
   Menu,
+  CollapseAndExpandGroups,
 } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -70,17 +71,24 @@ const transformErrors = (errors) => {
 };
 
 function ArrayFieldItemTemplate(props) {
+  const { t } = useTranslation();
+
   const { children, className, index, onDropIndexClick } = props;
   return (
     <div className={className}>
       {children}
-      {props.hasRemove && (
+      {/* {props.hasRemove && (
         <div className="array-remove-button-wrapper">
-          <button type="button" className="array-remove-button" onClick={onDropIndexClick(index)}>
-            <SVG.Delete />
-          </button>
+            <Button
+          label={`${t("Delete")} ` + props?.title}
+          variation="secondary"
+          className="array-remove-button" 
+          icon={ <SVG.Delete />}
+          onButtonClick={onDropIndexClick(index)}
+          type="button"
+        />
         </div>
-      )}
+      )} */}
     </div>
   );
 }
@@ -106,7 +114,7 @@ function ArrayFieldTemplate(props) {
       {props.items.map((element, index) => {
         return (
           <span>
-            <ArrayFieldItemTemplate key={index} index={index} {...element}></ArrayFieldItemTemplate>
+            <ArrayFieldItemTemplate title={props?.title} key={index} index={index} {...element}></ArrayFieldItemTemplate>
           </span>
         );
       })}
@@ -124,17 +132,23 @@ function ArrayFieldTemplate(props) {
 }
 
 function ObjectFieldTemplate(props) {
+  const children= props.properties.map((element) => {
+    return (
+      <div className="field-wrapper object-wrapper" id={`${props?.idSchema?.["$id"]}_${element.name}`}>
+        {element.content}
+      </div>
+    );
+  })
+  const isRoot=props?.["idSchema"]?.["$id"]=="digit_root";
+
   return (
     <div id={props?.idSchema?.["$id"]}>
       {/* {props.title} */}
       {props.description}
-      {props.properties.map((element) => {
-        return (
-          <div className="field-wrapper" id={`${props?.idSchema?.["$id"]}_${element.name}`}>
-            {element.content}
-          </div>
-        );
-      })}
+    
+    {isRoot?children:  <CollapseAndExpandGroups showHelper={true} groupHeader={""} groupElements={true} children={children}>
+      </CollapseAndExpandGroups>}
+      
     </div>
   );
 }
@@ -149,7 +163,7 @@ function CustomFieldTemplate(props) {
           {required ? "*" : null}
         </label>
         {description}
-        <span>
+        <span class="all-input-field-wrapper">
           {children}
           {errors}
           {help}

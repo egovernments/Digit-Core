@@ -166,6 +166,8 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   useEffect(() => {
     if (loadDependent && loadDependent?.length > 0) {
       loadDependent?.map((dependent) => {
+        //todo for chained / hirearchy
+        // console.log(dependent,'dependent');
         if (dependent?.fieldPath && additonalData?.[dependent?.schemaCode]?.length > 0) {
           if (schema?.definition?.properties?.[dependent?.fieldPath]) {
             schema.definition.properties[dependent.fieldPath] = {
@@ -216,7 +218,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     return <Loader />;
   }
   const uiJSONSchema = formSchema?.["definition"]?.["x-ui-schema"];
-
+// console.log(formSchema,'formSchema');
   return (
     <React.Fragment>
       {formSchema && (
