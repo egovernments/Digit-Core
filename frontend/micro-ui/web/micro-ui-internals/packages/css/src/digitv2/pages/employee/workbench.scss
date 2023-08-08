@@ -89,19 +89,23 @@
               width: 15.2rem;
 
             }
+            &.form-select{
+              padding: 0%;
+               border: 0px;
+
             .digit__control {
-              border: 0px;
               @apply outline-none;
 
             }
 
             .digit__control:hover {
-              border: 0px;
+              
               border-color: unset;
               box-shadow: none;
               box-sizing: unset;
               @apply outline-none;
             }
+          }
           }
 
           .form-control:focus {

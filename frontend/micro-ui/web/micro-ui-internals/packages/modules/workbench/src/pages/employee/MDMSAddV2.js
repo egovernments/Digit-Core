@@ -218,7 +218,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   }
   const uiJSONSchema = formSchema?.["definition"]?.["x-ui-schema"];
   
-  return (
+    return (
     <React.Fragment>
       {formSchema && (
         <DigitJSONForm
