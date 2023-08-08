@@ -777,6 +777,7 @@ import { YoutubeSearchedFor } from "./svg/YoutubeSearchedFor";
 import { ZoomIn } from "./svg/ZoomIn";
 import { ZoomOut } from "./svg/ZoomOut";
 import { ZoomOutMap } from "./svg/ZoomOutMap";
+import { InfoBannerIcon } from "./svg/InfoBannerIcon";
 
 export {
   Rotation3D,
@@ -1109,6 +1110,7 @@ export {
   ImportContacts,
   ImportExport,
   Info,
+  InfoBannerIcon,
   InfoOutline,
   Input,
   IntegrationInstructions,

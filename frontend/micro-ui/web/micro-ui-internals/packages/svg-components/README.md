@@ -62,6 +62,7 @@ const { Accessibility } = SVG;
 # Changelog
 
 ```bash
+0.0.7 Added Info banner icon
 0.0.6 Added TickMark, Success Svg and fixed publish related issue
 0.0.5 fixed publish related issue
 0.0.4 fixed some fill related issue

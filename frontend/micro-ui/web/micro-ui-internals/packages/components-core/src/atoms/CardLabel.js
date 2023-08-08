@@ -1,0 +1,17 @@
+import React from "react";
+import PropTypes from "prop-types";
+
+const CardLabel = (props) => {
+  return (
+    <h2 className={`digit-card-label ${props?.className ? props?.className : ""}`} style={props.style}>
+      {props.children}
+    </h2>
+  );
+};
+CardLabel.propTypes = {
+  className: PropTypes.string, // An optional string for custom class names.
+  style: PropTypes.object, // An optional object for custom styles.
+  children: PropTypes.node.isRequired, // Required prop for the content of the error label.
+};
+
+export default CardLabel;
