@@ -1,16 +1,5 @@
 package com.tarento.analytics.handler;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.egov.tracer.model.CustomException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +12,14 @@ import com.tarento.analytics.dto.Data;
 import com.tarento.analytics.dto.Plot;
 import com.tarento.analytics.helper.ComputeHelper;
 import com.tarento.analytics.helper.ComputeHelperFactory;
-import com.tarento.analytics.utils.ResponseRecorder;
+import org.egov.tracer.model.CustomException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * This handles ES response for single index, multiple index to represent single data value
@@ -86,6 +82,8 @@ public class MetricChartResponseHandler implements IResponseHandler{
 
 		boolean extractBuckets = (chartNode.get(COMPARE_TWO_INDICES) !=null) ? chartNode.get(COMPARE_TWO_INDICES).asBoolean() : false;
 		List<List<String>> bucketList = new ArrayList<>();
+		boolean compareValue = (chartNode.get(COMPARE_VALUE_TWO_INDICES) !=null) ? chartNode.get(COMPARE_VALUE_TWO_INDICES).asBoolean() : false;
+		List<Map<String,Double>> valueMap = new ArrayList<>();
         /*
         * Sums all value of all aggrsPaths i.e all aggregations
         * */
@@ -102,6 +100,18 @@ public class MetricChartResponseHandler implements IResponseHandler{
 			for (JsonNode value : values) {
 				if(extractBuckets){
 					bucketList.add(value.findValuesAsText("key"));
+				}
+				if(compareValue){
+					Map<String, Double> map = new HashMap<>();
+					value.get("buckets").forEach(node -> {
+						try {
+							map.put(node.get(KEY).asText(),node.findValue(VALUE).asDouble());
+						}catch (Exception e){
+							logger.error(String.valueOf(e));
+						}
+
+					});
+					valueMap.add(map);
 				}
 				if (isRoundOff) {
 					ObjectMapper mapper = new ObjectMapper();
@@ -202,6 +212,10 @@ public class MetricChartResponseHandler implements IResponseHandler{
 			Double count = compareTwoIndices(bucketList);
 			totalValues.clear();
 			totalValues.add(count);
+		}
+		if (compareValue ){
+			totalValues.clear();
+			totalValues.add(compareValueOfTwoIndices(valueMap));
 		}
         try{
             Data data = new Data(chartName, action.equals(PERCENTAGE) && aggrsPaths.size()==2? percentageValue(percentageList, isRoundOff) : (totalValues==null || totalValues.isEmpty())? 0.0 :totalValues.stream().reduce(0.0, Double::sum), symbol);
