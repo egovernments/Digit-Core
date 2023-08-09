@@ -18,6 +18,7 @@ const onFormError = (errors) => console.log("I have", errors.length, "errors to 
 const uiSchema = {};
 
 const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions,onSubmitEditAction, ...props }) => {
+  
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage(`MDMS_${screenType}`, {});
@@ -33,7 +34,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   const { moduleName, masterName } = Digit.Hooks.useQueryParams();
   
   useEffect(() => {
-    setSession({  ...defaultFormData });
+    setSession({  ...session,...defaultFormData });
   }, [defaultFormData]);
 
   const { t } = useTranslation();
