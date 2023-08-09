@@ -53,4 +53,13 @@ public class CompositeUniqueIdentifierGenerationUtil {
         return FORWARD_SLASH + dotSeparatedPath.replaceAll(DOT_REGEX, FORWARD_SLASH);
     }
 
+    /**
+     * This method creates JSON path expression from dot separated path.
+     * @param dotSeparatedPath
+     * @return
+     */
+    public static String getJsonPathExpressionFromDotSeparatedPath(String dotSeparatedPath) {
+        return DOLLAR_DOT + dotSeparatedPath;
+    }
+
 }

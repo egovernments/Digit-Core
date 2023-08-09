@@ -1,7 +1,10 @@
 package org.egov.infra.mdms.service.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.TypeRef;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
@@ -16,7 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
+
 import static org.egov.infra.mdms.utils.MDMSConstants.*;
 
 @Component
@@ -137,7 +143,16 @@ public class MdmsDataValidator {
                 IntStream.range(0, referenceSchema.length()).forEach(i -> {
                     JSONObject jsonObject = referenceSchema.getJSONObject(i);
                     String refFieldPath = jsonObject.getString(FIELD_PATH_KEY);
-                    uniqueIdentifiersForRefVerification.add(mdmsData.at(CompositeUniqueIdentifierGenerationUtil.getJsonPointerExpressionFromDotSeparatedPath(refFieldPath)).asText());
+                    Object refResult = JsonPath.read(mdmsData.toString(), CompositeUniqueIdentifierGenerationUtil.getJsonPathExpressionFromDotSeparatedPath(refFieldPath));
+
+                    if (refResult instanceof String) {
+                        uniqueIdentifiersForRefVerification.add((String) refResult);
+                    } else if (refResult instanceof List) {
+                        uniqueIdentifiersForRefVerification.addAll((Collection<? extends String>) refResult);
+                    } else {
+                        throw new CustomException("REFERENCE_VALIDATION_ERR", "Reference must only be of the type string or a list of strings");
+                    }
+
                 });
 
                 List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(

@@ -12,6 +12,7 @@ public class MDMSConstants {
     public static final String DOT_SEPARATOR = ".";
     public static final String DOT_REGEX = "\\.";
     public static final String FORWARD_SLASH = "/";
+    public static final String DOLLAR_DOT = "$.";
     public static final String FIELD_PATH_KEY = "fieldPath";
 
 }
