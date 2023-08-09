@@ -6,7 +6,7 @@ const Button = (props) => {
   return (
     <button
       className={`${className} ${props?.className ? props?.className : ""} ${props?.isDisabled ? "disabled" : ""}`}
-      type={props.type || "button"}
+      type={props?.submit ? "submit" : props.type || "button"}
       form={props.formId}
       onClick={props.onClick}
       disabled={props?.isDisabled || null}

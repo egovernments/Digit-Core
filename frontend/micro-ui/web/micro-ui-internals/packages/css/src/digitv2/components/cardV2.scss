@@ -79,6 +79,19 @@
   @apply shadow-card p-md mb-xl;
   border-radius: 4px;
 
+  .label-field-pair {
+    display: flex;
+    align-items: center;
+    .label {
+      width: 30%;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 19px;
+    }
+    .field {
+      width: 100%;
+    }
+  }
   .digit-card-header {
     @extend .light-primary;
     @apply text-heading-xl font-bold font-rc align-middle text-left mb-md;
@@ -91,8 +104,10 @@
   }
 
   .digit-card-section-header {
-    @extend .light-primary;
+    @extend .light-text-color-primary;
     @apply text-heading-m font-bold;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
   }
 
   .digit-card-section-sub-text {

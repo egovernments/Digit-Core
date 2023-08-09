@@ -1,5 +1,5 @@
 .digit-employee-select-wrap {
-  @apply mb-lg relative;
+  @apply mb-lg w-full relative;
 
   .digit-select {
     @extend .light-input-border;
@@ -38,7 +38,6 @@
     input[type="text"] {
       width: calc(100% - 32px);
       background-color: transparent;
-      @extend .light-background;
       @extend .light-text-color-primary;
 
       @apply absolute z-10 w-full h-full outline-none text-text-primary text-form-field pl-sm;
@@ -63,11 +62,12 @@
   }
 
   .digit-options-card {
+    margin-top: 40px;
     width: 100% !important;
     box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
     max-height: 400px;
     overflow: auto;
-    @apply absolute z-20 mt-xs bg-white max-w-full;
+    @apply absolute z-20 bg-white max-w-full;
 
     p {
       padding-top: 14px;
