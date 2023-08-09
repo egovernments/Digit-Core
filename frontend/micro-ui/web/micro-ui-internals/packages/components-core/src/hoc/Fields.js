@@ -354,26 +354,28 @@ const Fields = (
       );
     case "locationdropdown":
       return (
-        <Controller
-          name={`${populators.name}`}
-          control={control}
-          defaultValue={formData?.[populators.name]}
-          rules={{ required: populators?.isMandatory, ...populators.validation }}
-          render={(props) => {
-            return (
-              <div style={{ display: "grid", gridAutoFlow: "row" }}>
-                <LocationDropdownWrapper
-                  props={props}
-                  populators={populators}
-                  formData={formData}
-                  inputRef={props.ref}
-                  errors={errors}
-                  setValue={setValue}
-                />
-              </div>
-            );
-          }}
-        />
+        <div className="field-container">
+          <Controller
+            name={`${populators.name}`}
+            control={control}
+            defaultValue={formData?.[populators.name]}
+            rules={{ required: populators?.isMandatory, ...populators.validation }}
+            render={(props) => {
+              return (
+                // <div style={{ display: "grid", gridAutoFlow: "row" }}>
+                  <LocationDropdownWrapper
+                    props={props}
+                    populators={populators}
+                    formData={formData}
+                    inputRef={props.ref}
+                    errors={errors}
+                    setValue={setValue}
+                  />
+                // </div>
+              );
+            }}
+          />
+        </div>
       );
     case "apidropdown":
       return (
