@@ -1,10 +1,11 @@
 @import url("../index.scss");
 
-.action-bar-wrap {
+.digit-action-bar-wrap {
+  @extend .light-text-color-primary;
+  @extend .light-paper-primary;
   box-shadow: rgba(0, 0, 0, 0.16) 0 -2px 8px;
-  max-width: 480px;
+  max-width: 100%;
   z-index: 100;
-  @extend .light-background;
 
   @apply left-0 bottom-0 w-full bg-white py-sm px-sm fixed text-right;
 
