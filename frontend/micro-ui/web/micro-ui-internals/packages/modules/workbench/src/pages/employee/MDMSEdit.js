@@ -7,7 +7,7 @@ const MDMSEdit = ({...props}) => {
   const { t } = useTranslation()
 
   const { moduleName, masterName, tenantId,uniqueIdentifier } = Digit.Hooks.useQueryParams();
-  const stateId = Digit.ULBService.getStateId();
+  const stateId = Digit.ULBService.getCurrentTenantId();
 
   const [showToast, setShowToast] = useState(false);
 
@@ -29,6 +29,27 @@ const MDMSEdit = ({...props}) => {
     },
   };
 
+  const reqCriteriaSchema = {
+    url: `/mdms-v2/schema/v1/_search`,
+    params: {},
+    body: {
+      SchemaDefCriteria: {
+        tenantId: stateId,
+        codes:[`${moduleName}.${masterName}`]
+      },
+    },
+    config: {
+      enabled: moduleName && masterName && true,
+      select: (data) => { 
+        const uniqueFields = data?.SchemaDefinitions?.[0]?.definition?.["x-unique"]
+        const updatesToUiSchema = {}
+        uniqueFields.forEach(field => updatesToUiSchema[field] = {"ui:disabled":true})
+        return {schema:data?.SchemaDefinitions?.[0],updatesToUiSchema}
+      },
+    },
+    changeQueryName:"schema"
+  };
+
   const closeToast = () => {
     setTimeout(() => {
       setShowToast(null)
@@ -36,7 +57,8 @@ const MDMSEdit = ({...props}) => {
   }
 
   const { isLoading, data, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
-
+  const { isLoading:isLoadingSchema,data: schemaData,isFetching: isFetchingSchema,...rest } = Digit.Hooks.useCustomAPIHook(reqCriteriaSchema);
+  
 
   const reqCriteriaUpdate = {
     url: `/mdms-v2/v2/_update/${moduleName}.${masterName}`,
@@ -88,12 +110,12 @@ const MDMSEdit = ({...props}) => {
 
   }
 
-  if(isLoading) return <Loader />
-
+  if(isLoading || isLoadingSchema ) return <Loader />
+  
   return (
     <React.Fragment>
-      <MDMSAdd defaultFormData = {data?.data} screenType={"edit"} onSubmitEditAction={handleUpdate}  />
-      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError}></Toast>}
+      <MDMSAdd defaultFormData = {data?.data} screenType={"edit"} onSubmitEditAction={handleUpdate} updatesToUISchema ={schemaData?.updatesToUiSchema} />
+      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError} ></Toast>}
     </React.Fragment>
   )
 }
