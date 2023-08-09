@@ -37,11 +37,6 @@
   @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-error border-solid bg-white leading-10 text-form-field text-text-primary;
 }
 
-.digit-card-textarea,
-.digit-employee-card-textarea {
-  @apply block outline-none mt-md mb-lg border w-full border-input-border border-solid bg-white h-24 text-form-field text-text-primary p-sm;
-}
-
 .digit-inputWrapper {
   display: flex;
   justify-content: flex-start;
@@ -83,10 +78,6 @@
     /* //width: 480px; */
     @apply w-full;
     max-width: 540px;
-  }
-
-  .digit-employee-card-textarea {
-    @apply w-full;
   }
 
   .card-input-emp {

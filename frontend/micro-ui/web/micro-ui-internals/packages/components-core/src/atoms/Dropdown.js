@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect, useRef, useState } from "react";
 import { SVG } from "./SVG";
 import { getUserType } from "../utils/getUserType";
+
 const TextField = (props) => {
   const [value, setValue] = useState(props.selectedVal ? props.selectedVal : "");
 
@@ -163,17 +164,17 @@ const Dropdown = (props) => {
       {hasCustomSelector && (
         <div className={props.showArrow ? "cp flex-right column-gap-5" : "cp"} onClick={dropdownSwitch}>
           {props.customSelector}
-          {props.showArrow && <SVG.ArrowDropDown onClick={dropdownSwitch} className={props.disable && "disabled"} />}
+          {props.showArrow && <SVG.ArrowDropDown onClick={dropdownSwitch} className={props.disable && "disabled"} fill="black" />}
         </div>
       )}
       {!hasCustomSelector && (
         <div
-          className={`${dropdownStatus ? "digit-select-active" : "digit-select"} ${props.disable && "disabled"}`}
-          style={
-            props.errorStyle
-              ? { border: "1px solid red", ...(props.noBorder ? { border: "none" } : {}) }
-              : { ...(props.noBorder ? { border: "none" } : {}) }
-          }
+        className={`${dropdownStatus ? "digit-select-active" : "digit-select"} ${props.disable && "disabled"}`}
+        style={
+          props.errorStyle
+          ? { border: "1px solid red", ...(props.noBorder ? { border: "none" } : {}) }
+          : { ...(props.noBorder ? { border: "none" } : {}) }
+        }
         >
           <TextField
             autoComplete={props.autoComplete}
@@ -204,7 +205,7 @@ const Dropdown = (props) => {
             onBlur={props?.onBlur}
             inputRef={props.ref}
           />
-          {props.showSearchIcon ? null : <SVG.ArrowDropDown onClick={dropdownSwitch} className="cp" disable={props.disable} />}
+          {props.showSearchIcon ? null : <SVG.ArrowDropDown fill="black" onClick={dropdownSwitch} className="cp" disable={props.disable} />}
           {props.showSearchIcon ? <SVG.Search onClick={dropdownSwitch} className="cp" disable={props.disable} /> : null}
         </div>
       )}

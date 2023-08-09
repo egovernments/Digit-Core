@@ -2,7 +2,12 @@
 
 .digit-mobile-number-container {
   @apply flex  items-center;
-
+  width: 100%;
+  .digit-text-mobile-input-width {
+    .digit-text-input-width {
+      width: calc(540px - 41px);
+    }
+  }
   .digit-citizen-card-input--front {
     @extend .light-background;
     width: fit-content !important;

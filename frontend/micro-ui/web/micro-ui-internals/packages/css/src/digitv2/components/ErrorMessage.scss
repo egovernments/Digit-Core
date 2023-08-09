@@ -4,3 +4,12 @@
   @extend .alert-error;
   @apply block text-body-s mb-md;
 }
+
+.digit-employee-card {
+  .digit-error-message {
+    width: 70%;
+    margin-left: 31%;
+    font-size: 12px;
+    margin-top: -21px;
+  }
+}

@@ -155,6 +155,7 @@ const MultiUploadWrapper = ({
     </div>
   );
 };
+
 MultiUploadWrapper.propTypes = {
   t: PropTypes.func.isRequired,
   module: PropTypes.string,
@@ -173,4 +174,5 @@ MultiUploadWrapper.propTypes = {
   customErrorMsg: PropTypes.string,
   containerStyles: PropTypes.object,
 };
+
 export default MultiUploadWrapper;

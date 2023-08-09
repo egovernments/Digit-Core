@@ -103,6 +103,7 @@ const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors
     </>
   );
 };
+
 LocationDropdownWrapper.propTypes = {
   populators: PropTypes.shape({
     type: PropTypes.string.isRequired,
