@@ -20,7 +20,7 @@ const uiSchema = {};
 const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions,onSubmitEditAction, ...props }) => {
   
   const tenantId = Digit.ULBService.getCurrentTenantId();
-  const stateId = Digit.ULBService.getStateId();
+  // const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage(`MDMS_${screenType}`, {});
 
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
@@ -44,7 +44,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       SchemaDefCriteria: {
-        tenantId:  stateId,
+        tenantId:  tenantId ,
         codes: [`${moduleName}.${masterName}`],
       },
     },
@@ -64,7 +64,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       MdmsCriteria: {
-        tenantId: tenantId || stateId,
+        tenantId: tenantId ,
         schemaCodes: loadDependent.map((e) => e.schemaCode),
       },
     },
@@ -89,7 +89,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       Mdms: {
-        tenantId:  stateId,
+        tenantId: tenantId ,
         schemaCode: `${moduleName}.${masterName}`,
         uniqueIdentifier: null,
         data: {},
@@ -127,7 +127,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
         params: {},
         body: {
           Mdms: {
-            tenantId: stateId,
+            tenantId: tenantId,
             schemaCode: `${moduleName}.${masterName}`,
             uniqueIdentifier: null,
             data: { ...data },

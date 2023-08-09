@@ -8,9 +8,9 @@ const MDMSView = ({...props}) => {
   const history = useHistory()
   const { t } = useTranslation()
   const [showToast, setShowToast] = useState(false);
-  const { moduleName, masterName, tenantId,uniqueIdentifier } = Digit.Hooks.useQueryParams();
-  const stateId = Digit.ULBService.getStateId();
-
+  let { moduleName, masterName, tenantId,uniqueIdentifier } = Digit.Hooks.useQueryParams();
+  // const stateId = Digit.ULBService.getStateId();
+  tenantId = Digit.ULBService.getCurrentTenantId();
   const fetchActionItems = (data) => {
     let actionItems = [{
       action:"EDIT",
@@ -37,7 +37,7 @@ const MDMSView = ({...props}) => {
     params: {},
     body: {
       MdmsCriteria: {
-        tenantId: stateId,
+        tenantId: tenantId ,
         uniqueIdentifier,
         schemaCodes:[`${moduleName}.${masterName}`]
       },
