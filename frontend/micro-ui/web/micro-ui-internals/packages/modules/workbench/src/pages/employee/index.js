@@ -42,11 +42,19 @@ const App = ({ path }) => {
   const location = useLocation();
   const MDMSCreateSession = Digit.Hooks.useSessionStorage("MDMS_add", {});
   const [sessionFormData, setSessionFormData, clearSessionFormData] = MDMSCreateSession;
+  
+  const MDMSViewSession = Digit.Hooks.useSessionStorage("MDMS_view", {});
+  const [sessionFormDataView,setSessionFormDataView,clearSessionFormDataView] = MDMSViewSession
+
   useEffect(() => {
     if (!window.location.href.includes("mdms-add-v2") && sessionFormData && Object.keys(sessionFormData) != 0) {
       clearSessionFormData();
     }
+    if (!window.location.href.includes("mdms-view") && sessionFormDataView ) {
+      clearSessionFormDataView();
+    }
   }, [location]);
+
   return (
     <React.Fragment>
       <MastersBreadCrumb location={location} defaultPath={path} />

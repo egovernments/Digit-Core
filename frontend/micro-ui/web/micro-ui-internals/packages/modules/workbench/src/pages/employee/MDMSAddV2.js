@@ -17,9 +17,10 @@ const onFormError = (errors) => console.log("I have", errors.length, "errors to 
 
 const uiSchema = {};
 
-const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions, ...props }) => {
+const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions,onSubmitEditAction, ...props }) => {
+  
   const tenantId = Digit.ULBService.getCurrentTenantId();
-  const stateId = Digit.ULBService.getStateId();
+  // const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage(`MDMS_${screenType}`, {});
 
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
@@ -28,12 +29,12 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   const [noSchema, setNoSchema] = useState(false);
   const [loadDependent, setLoadDependent] = useState([]);
   const [showErrorToast, setShowErrorToast] = useState(false);
-
+  
   const [showToast, setShowToast] = useState(false);
   const { moduleName, masterName } = Digit.Hooks.useQueryParams();
-
+  
   useEffect(() => {
-    setSession({ ...session, ...defaultFormData });
+    setSession({  ...session,...defaultFormData });
   }, [defaultFormData]);
 
   const { t } = useTranslation();
@@ -43,7 +44,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       SchemaDefCriteria: {
-        tenantId: tenantId || stateId,
+        tenantId:  tenantId ,
         codes: [`${moduleName}.${masterName}`],
       },
     },
@@ -63,7 +64,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       MdmsCriteria: {
-        tenantId: tenantId || stateId,
+        tenantId: tenantId ,
         schemaCodes: loadDependent.map((e) => e.schemaCode),
       },
     },
@@ -88,7 +89,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       Mdms: {
-        tenantId: tenantId | stateId,
+        tenantId: tenantId ,
         schemaCode: `${moduleName}.${masterName}`,
         uniqueIdentifier: null,
         data: {},
@@ -126,7 +127,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
         params: {},
         body: {
           Mdms: {
-            tenantId: stateId,
+            tenantId: tenantId,
             schemaCode: `${moduleName}.${masterName}`,
             uniqueIdentifier: null,
             data: { ...data },
@@ -226,8 +227,8 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
           onFormChange={onFormValueChange}
           onFormError={onFormError}
           formData={session}
-          onSubmit={onSubmit}
-          uiSchema={{ ...uiSchema, ...uiJSONSchema, ...updatesToUISchema }}
+          onSubmit={screenType==="add" ? onSubmit : onSubmitEditAction}
+          uiSchema={{ ...uiSchema,...uiJSONSchema, ...updatesToUISchema }}
           showToast={showToast}
           showErrorToast={showErrorToast}
           screenType={screenType}

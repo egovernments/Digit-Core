@@ -22,8 +22,8 @@ const MDMSSearchv2 = () => {
   let Config = _.clone(Configg)
   const { t } = useTranslation();
   const history = useHistory();
-  const tenant = Digit.ULBService.getStateId();
-  const {masterName:modulee,moduleName:master,tenantId} = Digit.Hooks.useQueryParams()
+  
+  let {masterName:modulee,moduleName:master,tenantId} = Digit.Hooks.useQueryParams()
   
   const [availableSchemas, setAvailableSchemas] = useState([]);
   const [currentSchema, setCurrentSchema] = useState(null);
@@ -32,8 +32,9 @@ const MDMSSearchv2 = () => {
   const [masterOptions,setMasterOptions] = useState([])
   const [moduleOptions,setModuleOptions] = useState([])
   const [updatedConfig,setUpdatedConfig] = useState(null)
+  tenantId = tenantId || Digit.ULBService.getCurrentTenantId();
   const SchemaDefCriteria = {
-    tenantId:tenant,
+    tenantId:tenantId ,
   }
   if(master && modulee ) {
     SchemaDefCriteria.codes = [`${master}.${modulee}`] 
