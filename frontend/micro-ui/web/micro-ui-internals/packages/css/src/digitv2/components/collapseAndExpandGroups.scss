@@ -1,3 +1,5 @@
+@import url("../../digitv2/index.scss");
+
 .digit-expand-collapse-wrapper {
   display: flex;
   flex-direction: column;
@@ -22,6 +24,15 @@
   top: 50%;
   transform: translate(0%, -50%);
   cursor: pointer;
+  span{
+    display: inline-flex;
+    align-items: center;
+
+    h5{
+      color: theme(colors.primary.main);
+      display: inline;
+    }
+  }
 }
 
 .digit-expand-collapse-header .label {

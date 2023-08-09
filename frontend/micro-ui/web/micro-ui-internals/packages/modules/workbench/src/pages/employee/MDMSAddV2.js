@@ -168,15 +168,16 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     if (loadDependent && loadDependent?.length > 0) {
       loadDependent?.map((dependent) => {
         if (dependent?.fieldPath && additonalData?.[dependent?.schemaCode]?.length > 0) {
-          if (schema?.definition?.properties?.[dependent?.fieldPath]) {
-            schema.definition.properties[dependent.fieldPath] = {
-              ...schema.definition.properties[dependent.fieldPath],
-              enum: additonalData?.[dependent?.schemaCode],
-            };
-            schema.definition.properties["temp_field"] = {
-              ...schema.definition.properties[dependent.fieldPath],
-              enum: additonalData?.[dependent?.schemaCode],
-            };
+          let updatedPath=Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
+          if (_.get(schema?.definition?.properties,updatedPath) ) {
+            if(_.get(schema?.definition?.properties,updatedPath)&&_.get(schema?.definition?.properties,updatedPath,{})?.type=="array"){
+              updatedPath+='.items';
+            }
+            _.set(schema?.definition?.properties,updatedPath,{..._.get(schema?.definition?.properties,updatedPath,{}),enum: additonalData?.[dependent?.schemaCode]})
+              schema.definition.properties["temp_field"] = {
+                ...schema.definition.properties[updatedPath],
+                enum: additonalData?.[dependent?.schemaCode],
+              }; 
           }
         }
       });
@@ -217,8 +218,8 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     return <Loader />;
   }
   const uiJSONSchema = formSchema?.["definition"]?.["x-ui-schema"];
-
-  return (
+  
+    return (
     <React.Fragment>
       {formSchema && (
         <DigitJSONForm

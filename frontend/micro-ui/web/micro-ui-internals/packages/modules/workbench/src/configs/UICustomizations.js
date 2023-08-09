@@ -430,8 +430,7 @@ export const UICustomizations = {
       
       const tenantId = Digit.ULBService.getCurrentTenantId();
       data.body.MdmsCriteria.tenantId = tenantId 
-      
-      // data.body.MdmsCriteria.tenantId = "pg"
+     
       const filters = {}
       const custom = data.body.MdmsCriteria.custom
       const {field,value} = custom || {}
