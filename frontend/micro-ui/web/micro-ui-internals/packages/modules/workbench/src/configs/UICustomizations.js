@@ -431,7 +431,7 @@ export const UICustomizations = {
       const tenant = Digit.ULBService.getStateId();
       data.body.MdmsCriteria.tenantId = tenant
       
-      data.body.MdmsCriteria.tenantId = "pg"
+      data.body.MdmsCriteria.tenantId = Digit.ULBService.getStateId();
       const filters = {}
       const custom = data.body.MdmsCriteria.custom
       const {field,value} = custom || {}

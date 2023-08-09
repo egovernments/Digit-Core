@@ -48,75 +48,83 @@
           }
 
           .control-label {
-            width: 17.2rem;
+            max-width: 17.2rem;
+            margin-right: 1.6rem;
             @extend .card-label;
             display: inline-flex;
             /* align-self: center; */
             line-height: 3rem;
             /* web view*/
-            width: 17.2rem;
+            @apply w-1/3;
 
             /* tablet view*/
 
             @media (max-width: 768px) {
-              width: 13.2rem;
+              max-width: 13.2rem;
 
             }
             /* mobile view*/
 
             @media (max-width: 368px) {
-              width: 10.2rem;
+              max-width: 10.2rem;
 
             }
 
           }
 
-          .form-control {
-            @extend .light-input-border;
-            @extend .employee-card-input;
-            /* web view*/
-            width: 37.5rem;
+          .all-input-field-wrapper{
 
-            /* tablet view*/
+          @apply w-3/5;
+            .form-control {
+              @extend .light-input-border;
+              @extend .employee-card-input;
+              /* web view*/
+              max-width: 37.5rem;
+              min-width: 20.5rem;
 
-            @media (max-width: 768px) {
-              width: 28.2rem;
+              /* tablet view*/
 
+              @media (max-width: 768px) {
+                max-width: 27.5rem;
+                min-width: 12.5rem;
+
+              }
+              /* mobile view*/
+
+              @media (max-width: 368px) {
+                max-width: 20.5rem;
+                min-width: 9.5rem;
+
+              }
+              &.form-select{
+                padding: 0%;
+                border: 0px;
+
+              .digit__control {
+                @apply outline-none;
+
+              }
+
+              .digit__control:hover {
+                
+                border-color: unset;
+                box-shadow: none;
+                box-sizing: unset;
+                @apply outline-none;
+              }
             }
-            /* mobile view*/
-
-            @media (max-width: 368px) {
-              width: 15.2rem;
-
             }
-            &.form-select{
-              padding: 0%;
-               border: 0px;
 
-            .digit__control {
+            .form-control:focus {
+
               @apply outline-none;
-
+              border-color: theme(digitv2.lightTheme.primary);
             }
 
-            .digit__control:hover {
-              
-              border-color: unset;
-              box-shadow: none;
-              box-sizing: unset;
-              @apply outline-none;
+            textarea.form-control {
+              height: 5rem;
             }
-          }
-          }
-
-          .form-control:focus {
-
-            @apply outline-none;
-            border-color: theme(digitv2.lightTheme.primary);
-          }
-
-          textarea.form-control {
-            height: 5rem;
-          }
+        }
 
           &.field-string {
             align-self: center;
