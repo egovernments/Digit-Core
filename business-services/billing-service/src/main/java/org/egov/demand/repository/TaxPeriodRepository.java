@@ -56,9 +56,11 @@ import java.util.List;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.demand.model.TaxPeriod;
+import org.egov.demand.util.Constants;
 import org.egov.demand.util.Util;
 import org.egov.demand.web.contract.TaxPeriodCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -85,6 +87,10 @@ public class TaxPeriodRepository {
 	 */
 	public List<TaxPeriod> getTaxPeriod(RequestInfo requestInfo, TaxPeriodCriteria taxPeriodCriteria) {
 
+		/*
+		 * setting tenantid value in mdc for tracer to read while making http calls
+		 */
+		MDC.put(Constants.TENANTID_MDC_STRING, taxPeriodCriteria.getTenantId());
 		MdmsCriteriaReq mdmsCriteriaReq = util.prepareMdMsRequest(taxPeriodCriteria.getTenantId(), MODULE_NAME,
 				Collections.singletonList(TAXPERIOD_MASTERNAME), null, requestInfo);
 
