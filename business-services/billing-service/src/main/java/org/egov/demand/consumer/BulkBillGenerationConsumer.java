@@ -60,6 +60,8 @@ public class BulkBillGenerationConsumer {
 				+ " with no of records " + billGenerator.getCreateDemands().size());
 		
 		try {
+			MDC.put(Constants.TENANTID_MDC_STRING, request.getDemands().get(0).getTenantId());
+
 			demandService.create(request);
 		} catch (Exception e) {
 			logError(" Demand creation ", e.getMessage(), billGenerator.getMigrationCount());
@@ -68,6 +70,8 @@ public class BulkBillGenerationConsumer {
 		request.setDemands(billGenerator.getUpdateDemands());
 		try {
 			if (!CollectionUtils.isEmpty(billGenerator.getUpdateDemands()))
+				MDC.put(Constants.TENANTID_MDC_STRING, request.getDemands().get(0).getTenantId());
+
 				demandService.updateAsync(request, null);
 		} catch (Exception e) {
 			logError(" Demand update ", e.getMessage(), billGenerator.getMigrationCount());
@@ -87,6 +91,7 @@ public class BulkBillGenerationConsumer {
 				.build();
 		
 		try {
+			MDC.put(Constants.TENANTID_MDC_STRING, tenantId);
 			billService.generateBill(genBillCriteria, billGenerator.getRequestInfo());
 		} catch (Exception e) {
 			logError(" Bill Gen ", e.getMessage(), billGenerator.getMigrationCount());

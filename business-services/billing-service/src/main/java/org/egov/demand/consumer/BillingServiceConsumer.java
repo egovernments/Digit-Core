@@ -27,6 +27,7 @@ import org.egov.demand.web.contract.ReceiptRequest;
 import org.egov.tracer.model.CustomException;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -66,12 +67,21 @@ public class BillingServiceConsumer {
 	
 	@Autowired
 	private Util util;
+	
+	@Value("${state.level.tenant.id}")
+	private String stateLevelTenantID;
 
 
 	@KafkaListener(topics = { "${kafka.topics.receipt.update.collecteReceipt}", "${kafka.topics.save.bill}",
 			"${kafka.topics.save.demand}", "${kafka.topics.update.demand}", "${kafka.topics.receipt.update.demand}",
 			"${kafka.topics.receipt.cancel.name}" })
 	public void processMessage(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+		
+		/*
+		 * setting tenantid value in mdc for tracer to read while making http calls
+		 */
+		
+		MDC.put(Constants.TENANTID_MDC_STRING, stateLevelTenantID);
 
 		log.debug("key:" + topic + ":" + "value:" + consumerRecord);
 
@@ -146,23 +156,24 @@ public class BillingServiceConsumer {
 		/*
 		 * update demand from receipt
 		 */
+		MDC.put(Constants.TENANTID_MDC_STRING, stateLevelTenantID);
 
-			Boolean isReceiptCancellation = false;
-			updateDemandsFromPayment(consumerRecord, isReceiptCancellation);
-
+		Boolean isReceiptCancellation = false;
+		updateDemandsFromPayment(consumerRecord, isReceiptCancellation);
 
 	}
 
 	@KafkaListener(topicPattern = "${kafka.topics.receipt.cancel.topic.pattern}")
-	public void processPaymentCancel(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+	public void processPaymentCancel(Map<String, Object> consumerRecord,
+			@Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
 
 		/*
 		 * update demand from receipt
 		 */
+		MDC.put(Constants.TENANTID_MDC_STRING, stateLevelTenantID);
 
 		Boolean isReceiptCancellation = true;
 		updateDemandsFromPayment(consumerRecord, isReceiptCancellation);
-
 
 	}
 
