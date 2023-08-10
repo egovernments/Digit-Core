@@ -103,6 +103,9 @@ public class Util {
 	 */
 	public DocumentContext getAttributeValues(MdmsCriteriaReq mdmsReq) {
 		StringBuilder uri = new StringBuilder(appProps.getMdmsHost()).append(appProps.getMdmsEndpoint());
+		
+		// Add the header to the URI
+		uri.append("?TENANTID=in.stateb.tenantu");
 
 		try {
 			return JsonPath.parse(serviceRequestRepository.fetchResult(uri.toString(), mdmsReq));
