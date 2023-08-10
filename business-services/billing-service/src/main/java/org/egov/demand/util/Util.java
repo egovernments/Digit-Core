@@ -66,8 +66,6 @@ public class Util {
 	@Autowired
 	private ServiceRequestRepository serviceRequestRepository;
 
-	@Autowired
-	private ApplicationProperties appProps;
 	/**
 	 * prepares mdms request
 	 * 

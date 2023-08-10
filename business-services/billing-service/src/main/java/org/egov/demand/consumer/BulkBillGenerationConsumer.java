@@ -10,8 +10,10 @@ import org.egov.demand.model.GenerateBillCriteria;
 import org.egov.demand.model.MigrationCount;
 import org.egov.demand.service.BillServicev2;
 import org.egov.demand.service.DemandService;
+import org.egov.demand.util.Constants;
 import org.egov.demand.web.contract.DemandRequest;
 import org.egov.tracer.kafka.CustomKafkaTemplate;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -49,6 +51,10 @@ public class BulkBillGenerationConsumer {
 				.requestInfo(billGenerator.getRequestInfo())
 				.demands(billGenerator.getCreateDemands())
 				.build();
+		/*
+		 * setting tenantid value in mdc for tracer to read while making http calls
+		 */
+		MDC.put(Constants.TENANTID_MDC_STRING, request.getDemands().get(0).getTenantId());
 		
 		log.info(" Billing-bulkbill-consumer-batch log for batch : " + billGenerator.getMigrationCount().getOffset()
 				+ " with no of records " + billGenerator.getCreateDemands().size());
