@@ -153,6 +153,7 @@ const useGetCustomFilterRequestValues = (filterConfigs, config={}) => {
 # Changelog
 
 ```bash
+1.5.38 Bug fixes = tooltip text not showing fully + Share whatsapp and email was not working
 1.5.37 Pie chart denomination and Horizontal bar white spaces fixes
 1.5.36 Bug Fix::Multiple tooltips showing in Tables
 1.5.35 Added the dynamic filter component 
