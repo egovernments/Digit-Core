@@ -4,17 +4,21 @@
   display: inherit;
 
   .digit-form-composer-sub-header {
-    @apply text-heading-m-dt;
+    @extend .typography.text-heading-m;
   }
 
   form {
     #digit_root {
-      width: 80%;
+      width: 100%;
 
       .field-wrapper {
         .form-group.field {
           display: flex;
-          padding:1em 0 0 1em;
+          padding: 1em 0 0 1em;
+
+          @media (max-width: 360px) {
+            flex-direction: column;
+          }
 
           &.field-error.has-error.has-danger {
             .control-label {
@@ -40,7 +44,6 @@
 
             .card-label-error {
               position: initial;
-              margin-left: 2rem;
               display: block;
               margin-top: 0.5rem;
 
@@ -48,33 +51,38 @@
           }
 
           .control-label {
-            max-width: 17.2rem;
-            margin-right: 1.6rem;
+            max-width: 12.5rem;
+            margin-right: 2.5rem;
             @extend .card-label;
             display: inline-flex;
             /* align-self: center; */
             line-height: 3rem;
+            @extend .typography.text-heading-s;
             /* web view*/
             @apply w-1/3;
 
             /* tablet view*/
 
-            @media (max-width: 768px) {
-              max-width: 13.2rem;
+            @media (max-width: 744px) {
+              max-width: 11rem;
+              margin-right: 1.5rem;
 
             }
+
             /* mobile view*/
 
-            @media (max-width: 368px) {
-              max-width: 10.2rem;
+            @media (max-width: 360px) {
+              /*max-width: 10.2rem;*/
+              @apply w-full;
 
             }
 
           }
 
-          .all-input-field-wrapper{
+          .all-input-field-wrapper {
 
-          @apply w-3/5;
+            @apply w-3/5;
+
             .form-control {
               @extend .light-input-border;
               @extend .employee-card-input;
@@ -84,35 +92,38 @@
 
               /* tablet view*/
 
-              @media (max-width: 768px) {
+              @media (max-width: 744px) {
                 max-width: 27.5rem;
                 min-width: 12.5rem;
 
               }
+
               /* mobile view*/
 
-              @media (max-width: 368px) {
+              @media (max-width: 360px) {
                 max-width: 20.5rem;
                 min-width: 9.5rem;
+                @apply w-full;
 
               }
-              &.form-select{
+
+              &.form-select {
                 padding: 0%;
                 border: 0px;
 
-              .digit__control {
-                @apply outline-none;
+                .digit__control {
+                  @apply outline-none;
 
-              }
+                }
 
-              .digit__control:hover {
-                
-                border-color: unset;
-                box-shadow: none;
-                box-sizing: unset;
-                @apply outline-none;
+                .digit__control:hover {
+
+                  border-color: unset;
+                  box-shadow: none;
+                  box-sizing: unset;
+                  @apply outline-none;
+                }
               }
-            }
             }
 
             .form-control:focus {
@@ -124,13 +135,21 @@
             textarea.form-control {
               height: 5rem;
             }
-        }
+          }
 
           &.field-string {
             align-self: center;
           }
 
           &.field-boolean {
+            .custom-checkbox{
+              display: inline-flex;
+              align-items: end;
+              .custom-checkbox-label{
+                @extend .typography.text-body-s-dt;
+                @apply pl-sm;
+              }
+            }
             .checkbox {
               width: 28rem;
 
@@ -174,8 +193,14 @@
                 @apply mr-sm;
               }
             }
+
+
+            
           }
 
+
+
+          
           &.field-object {
             display: block;
             @extend .light-background;
@@ -188,8 +213,9 @@
               top: unset;
               right: 1em;
             }
-            .object-wrapper{
-              .array-remove-button-wrapper{
+
+            .object-wrapper {
+              .array-remove-button-wrapper {
                 position: relative;
               }
             }
@@ -206,7 +232,7 @@
 
             @extend .light-paper-secondary;
             @extend .light-paper-border;
-            padding: 2rem;
+            padding: 1rem;
             margin: 1rem 0;
 
 
@@ -225,15 +251,16 @@
                   background-color: inherit !important;
                 }
               }
-        
-              span.all-input-field-wrapper{
-                @apply w-3/5;    
 
-                .form-control{
+              span.all-input-field-wrapper {
+                @apply w-3/5;
+
+                .form-control {
                   @apply w-full;
                 }
               }
-              .control-label{
+
+              .control-label {
                 @apply w-1/3;
 
               }
@@ -243,22 +270,28 @@
             .jk-digit-secondary-btn {
               height: 1.7em;
 
+              @media (max-width: 360px) {
+                height: auto;
+                width: 100%;
+              }
+
               h2 {
                 font-size: 1rem;
               }
             }
           }
-          .digit-expand-collapse-header{
-border: 0;
-background-color: inherit;
-padding: 0;
+
+          .digit-expand-collapse-header {
+            border: 0;
+            background-color: inherit;
+            padding: 0;
           }
         }
       }
     }
   }
 
-  div.form-action-footer {
+  div.action-bar-wrap {
     @extend .action-bar-wrap;
 
     .submit-bar {
