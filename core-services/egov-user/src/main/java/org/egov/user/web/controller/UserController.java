@@ -5,9 +5,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.user.domain.model.*;
 
-import org.apache.commons.lang3.StringUtils;
-import org.egov.common.contract.response.ResponseInfo;
-import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserDetail;
 import org.egov.user.domain.model.UserSearchCriteria;
@@ -21,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.SocketUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -85,6 +83,13 @@ public class UserController {
         User createdUser = userService.createCitizen(user, createUserRequest.getRequestInfo());
         return createResponse(createdUser);
     }
+    @PostMapping("/_jwt")
+    public String printUser(@RequestBody User user){
+        log.info("Received Citizen details" + user);
+        return "JWT TOKEN";
+
+    }
+
 
     /**
      * end-point to create the user without otp validation.
@@ -133,6 +138,8 @@ public class UserController {
     public UserSearchResponse getV1(@RequestBody UserSearchRequest request, @RequestHeader HttpHeaders headers) {
         return searchUsers(request, headers);
     }
+
+
 
     /**
      * end-point to fetch the user details by access-token
