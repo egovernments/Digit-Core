@@ -1,6 +1,7 @@
 package org.egov.persistence.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.domain.model.Category;
 import org.egov.domain.model.OtpRequest;
 import org.egov.domain.service.LocalizationService;
@@ -38,6 +39,9 @@ public class OtpSMSRepository {
     private LocalizationService localizationService;
 
     @Autowired
+    private MultiStateInstanceUtil centralInstanceUtil;
+
+    @Autowired
     public OtpSMSRepository(CustomKafkaTemplate<String, SMSRequest> kafkaTemplate,
                             @Value("${sms.topic}") String smsTopic) {
         this.kafkaTemplate = kafkaTemplate;
@@ -48,7 +52,8 @@ public class OtpSMSRepository {
     public void send(OtpRequest otpRequest, String otpNumber) {
 		Long currentTime = System.currentTimeMillis() + maxExecutionTime;
 		final String message = getMessage(otpNumber, otpRequest);
-        kafkaTemplate.send(smsTopic, new SMSRequest(otpRequest.getMobileNumber(), message, Category.OTP, currentTime));
+        String updatedTopic = centralInstanceUtil.getStateSpecificTopicName(otpRequest.getTenantId(), smsTopic);
+        kafkaTemplate.send(updatedTopic, new SMSRequest(otpRequest.getMobileNumber(), message, Category.OTP, currentTime));
     }
 
     private String getMessage(String otpNumber, OtpRequest otpRequest) {
