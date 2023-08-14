@@ -1,43 +1,44 @@
 package org.egov.wf.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.egov.wf.util.WorkflowConstants.SCHEMA_REPLACE_STRING;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
 import org.egov.wf.config.WorkflowConfig;
-import org.egov.wf.repository.BusinessServiceRepository;
-import org.egov.wf.web.models.*;
+import org.egov.wf.web.models.Action;
+import org.egov.wf.web.models.AuditDetails;
+import org.egov.wf.web.models.BusinessService;
+import org.egov.wf.web.models.ProcessInstanceSearchCriteria;
+import org.egov.wf.web.models.ProcessStateAndAction;
+import org.egov.wf.web.models.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.egov.wf.util.WorkflowConstants.SCHEMA_REPLACE_STRING;
 
 
 @Component
 public class WorkflowUtil {
 
-    private ObjectMapper mapper;
-
     private WorkflowConfig config;
 
-    private BusinessServiceRepository businessServiceRepository;
-
-
     @Autowired
-    public WorkflowUtil(ObjectMapper mapper, WorkflowConfig config, BusinessServiceRepository businessServiceRepository) {
-        this.mapper = mapper;
+    public WorkflowUtil( WorkflowConfig config) {
         this.config = config;
-        this.businessServiceRepository = businessServiceRepository;
     }
 
     @Autowired
-    private MultiStateInstanceUtil multiStateInstanceUtil;
+    private MultiStateInstanceUtil centralInstanceUtil;
 
 
 
@@ -243,9 +244,8 @@ public class WorkflowUtil {
      * @param criteria
      * @return
      */
-    public void enrichStatusesInSearchCriteria(RequestInfo requestInfo, ProcessInstanceSearchCriteria criteria){
+    public void enrichStatusesInSearchCriteria(RequestInfo requestInfo, ProcessInstanceSearchCriteria criteria, Map<String, Map<String,List<String>>> roleTenantAndStatusMapping){
 
-        Map<String, Map<String,List<String>>> roleTenantAndStatusMapping = businessServiceRepository.getRoleTenantAndStatusMapping();
         Map<String,List<String>> roleToTenantIdMap = getRoleToTenantId(requestInfo);
 
         List<String> tenantSpecificStatuses = new LinkedList<>();
@@ -451,10 +451,10 @@ public class WorkflowUtil {
     /**
      *  Checks if the tenantId is valid to take action
      * @param roleTenantId The tenantId of the role
-     * @param applicationTeanantId The tenantId of the application
+     * @param applicationTenantId The tenantId of the application
      * @return
      */
-    private Boolean isTenantIdValid(String roleTenantId, String applicationTeanantId){
+    private Boolean isTenantIdValid(String roleTenantId, String applicationTenantId){
 
         if(roleTenantId == null)
             return false;
@@ -462,11 +462,12 @@ public class WorkflowUtil {
         Boolean isTenantIdValid = false;
 
         // If the tenantId are same role can take action
-        if(roleTenantId.equalsIgnoreCase(applicationTeanantId))
+        if(roleTenantId.equalsIgnoreCase(applicationTenantId))
             isTenantIdValid = true;
 
         // If the role tenantId is statelevel it can take action
-        else if(roleTenantId.equalsIgnoreCase(applicationTeanantId.split("\\.")[0]))
+
+        else if(applicationTenantId.contains(roleTenantId))
             isTenantIdValid = true;
 
         return isTenantIdValid;
@@ -475,7 +476,7 @@ public class WorkflowUtil {
 
 
     private Boolean isTenantStateLevel(String tenantId){
-        return multiStateInstanceUtil.isTenantIdStateLevel(tenantId);
+        return centralInstanceUtil.isTenantIdStateLevel(tenantId);
     }
 
 
@@ -492,9 +493,9 @@ public class WorkflowUtil {
 
         String finalQuery = null;
         if (config.getIsEnvironmentCentralInstance()) {
-            String multiInstanceSchema = multiStateInstanceUtil.getStateLevelTenant(tenantId);
+            String multiInstanceSchema = centralInstanceUtil.getStateLevelTenant(tenantId);
             try {
-                finalQuery = multiStateInstanceUtil.replaceSchemaPlaceholder(query, multiInstanceSchema);
+                finalQuery = centralInstanceUtil.replaceSchemaPlaceholder(query, multiInstanceSchema);
             }catch (Exception e){
                 throw new CustomException("EG_WF_SEARCH_ERR", "Invalid tenantId provided as part of search");
             }
