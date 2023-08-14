@@ -13,6 +13,7 @@ import org.egov.tracer.model.CustomException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -30,10 +31,9 @@ import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
+import static org.egov.enc.utils.Constants.TENANTID_MDC_STRING;
 
 @Slf4j
 @Service
@@ -60,6 +60,8 @@ public class KeyManagementService implements ApplicationRunner {
 
     //Initialize active tenant id list and Check for any new tenants
     private void init() throws Exception {
+        // Adding in MDC so that tracer can add it in header
+        MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
         generateKeyForNewTenants();
     }
 
@@ -165,6 +167,7 @@ public class KeyManagementService implements ApplicationRunner {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(TENANTID_MDC_STRING,stateLevelTenantId);
 
         String requestJson = "{\"RequestInfo\":{},\"MdmsCriteria\":{\"tenantId\":\"" + stateLevelTenantId + "\"," +
                 "\"moduleDetails\":[{\"moduleName\":\"tenant\",\"masterDetails\":[{\"name\":\"tenants\"," +
