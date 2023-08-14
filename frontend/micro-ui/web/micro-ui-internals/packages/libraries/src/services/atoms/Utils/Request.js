@@ -83,6 +83,7 @@ export const Request = async ({
     if (locale) {
       data.RequestInfo = { ...data.RequestInfo, msgId: `${ts}|${Digit.StoreData.getCurrentLanguage()}` };
     }
+    
     if (noRequestInfo) {
       delete data.RequestInfo;
     }
@@ -94,7 +95,9 @@ export const Request = async ({
     */
     const privacy = Digit.Utils.getPrivacyObject();
     if (privacy && !url.includes("/edcr/rest/dcr/")) {
+      if(!noRequestInfo){
       data.RequestInfo = { ...data.RequestInfo, plainAccessRequest: { ...privacy } };
+      }
     }
   }
 

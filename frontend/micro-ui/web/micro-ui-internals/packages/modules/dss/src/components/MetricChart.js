@@ -83,7 +83,7 @@ const ColumnMetricData = ({data, setChartDenomination, index }) => {
           className="tooltiptext"
           style={{
             fontSize: "medium",
-            width:"fit-content" ,
+            width:"max-content" ,
             minWidth:  t(`TIP_${data.name}`).length < 20 ? t(`TIP_${data.name}`).length * 4 : 120,
             maxWidth: 400,
             whiteSpace: "normal",

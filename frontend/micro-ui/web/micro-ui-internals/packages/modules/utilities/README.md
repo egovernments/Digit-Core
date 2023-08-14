@@ -124,6 +124,7 @@ _Bill Module
 # Changelog
 
 ```bash
+0.0.8 fix response data for custom compnent in inbox composer
 0.0.7 updated the readme content
 0.0.6 fixed the module overriding issue
 0.0.5 fixed the instablility issue with previous version

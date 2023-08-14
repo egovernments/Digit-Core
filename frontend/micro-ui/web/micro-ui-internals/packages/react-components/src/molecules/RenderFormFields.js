@@ -308,6 +308,7 @@ const RenderFormFields = ({data,...props}) => {
                     onBlur={props.onBlur}
                     control={control}
                     getValues={getValues}
+                    responseData={data}
                   />
                 )}
                 name={config?.key}
