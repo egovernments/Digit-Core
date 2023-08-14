@@ -40,6 +40,7 @@
 
 package org.egov.demand.config;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -201,5 +202,6 @@ public class ApplicationProperties {
     @Value("${is.environment.central.instance}")
     private Boolean isEnvironmentCentralInstance;
 
-    
+	@Value("${statelevel.rolecode.excluded.list}")
+	private List<String> statelevelRolecodeExclusionList;
 }
