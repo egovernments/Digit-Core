@@ -133,19 +133,69 @@ module.exports = {
         "chart-5": "#0BABDE",
       },
       fontSize: {
-        "heading-xl": ["2rem", "2.25rem", "2.5rem"],
-        "heading-l": ["1.5rem", "1.75rem", "2rem"],
-        "heading-m": ["1.25rem", "1.375rem", "1.5rem"],
-        "heading-s": ["1rem"],
-        "heading-xs": ["0.75"],
-        "caption-l": ["1.5rem", "1.75rem", "1.75rem"],
-        "caption-m": ["1.25rem", "1.5rem", "1.5rem"],
-        "caption-s": ["1rem", "1.25rem", "1.25rem"],
-        "body-l": ["1rem", "1.25rem", "1.25rem"],
-        "body-s": ["0.875rem", "1rem", "1rem"],
-        "body-xs": ["0.75rem", "0.875rem", "0.875rem"],
-        label: ["1rem"],
-        link: ["1rem"],
+        "heading-xl": {
+          mobile: "2rem",
+          tablet: "2.25rem",
+          desktop: "2.5rem",
+        },
+        "heading-l": {
+          mobile: "1.5rem",
+          tablet: "1.75rem",
+          desktop: "2rem",
+        },
+        "heading-m": {
+          mobile: "1.25rem",
+          tablet: "1.375rem",
+          desktop: "1.5rem",
+        },
+        "heading-s": {
+          mobile: "1rem",
+          tablet: "1rem",
+          desktop: "1rem",
+        },
+        "heading-xs": {
+          mobile: "0.75rem",
+        },
+        "caption-l": {
+          mobile: "1.5rem",
+          tablet: "1.75rem",
+          desktop: "1.75rem",
+        },
+        "caption-m": {
+          mobile: "1.25rem",
+          tablet: "1.5rem",
+          desktop: "1.5rem",
+        },
+        "caption-s": {
+          mobile: "1rem",
+          tablet: "1.25rem",
+          desktop: "1.25rem",
+        },
+        "body-l": {
+          mobile: "1rem",
+          tablet: "1.25rem",
+          desktop: "1.25rem",
+        },
+        "body-s": {
+          mobile: "0.875rem",
+          tablet: "1rem",
+          desktop: "1rem",
+        },
+        "body-xs": {
+          mobile: "0.75rem",
+          tablet: "0.875rem",
+          desktop: "0.875rem",
+        },
+        label: {
+          mobile: "1rem",
+          tablet: "1rem",
+          desktop: "1rem",
+        },
+        link: {
+          mobile: "1rem",
+          tablet: "1rem",
+          desktop: "1rem",
+        },
       },
       fontFamily: {
         sans: ["Roboto"],
@@ -164,9 +214,9 @@ module.exports = {
         bold: 700,
       },
       lineHeight: {
-        "line-height-body-l": ["1.5rem", "1.75rem", "1.75rem"],
-        "line-height-body-s": ["1.0938rem", "1.5rem", "1.5rem"],
-        "line-height-body-xs": ["1.125rem", "1.5rem", "1.5rem"],
+        "line-height-body-l": { mobile: "1.5rem", tablet: "1.75rem", desktop: "1.75rem" },
+        "line-height-body-s": { mobile: "1.0938rem", tablet: "1.5rem", desktop: "1.5rem" },
+        "line-height-body-xs": { mobile: "1.125rem", tablet: "1.5rem", desktop: "1.5rem" },
         normal: "normal",
       },
       screens: {
