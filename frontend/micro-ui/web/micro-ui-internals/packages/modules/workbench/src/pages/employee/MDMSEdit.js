@@ -77,13 +77,14 @@ const MDMSEdit = ({...props}) => {
     const onSuccess = (resp) => {
       
       setShowToast({
-        label:`Success : Update Successfull with Id : ${resp?.mdms?.[0]?.id}`
+        label:`${t("WBH_SUCCESS_UPD_MDMS_MSG")} ${resp?.mdms?.[0]?.id}`
       });
       closeToast()
     };
+
     const onError = (resp) => {
       setShowToast({
-        label:`Error : Following error occured: ${resp?.response?.data?.Errors?.[0]?.description}`,
+        label:`${t("WBH_ERROR_MDMS_DATA")}  ${resp?.response?.data?.Errors?.[0]?.description}`,
         isError:true
       });
       

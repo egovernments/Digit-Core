@@ -16,7 +16,7 @@
           display: flex;
           padding: 1em 0 0 1em;
 
-          @media (max-width: 360px) {
+          @media (max-width: theme(digitv2.screens.mobile)) {
             flex-direction: column;
           }
 
@@ -63,7 +63,7 @@
 
             /* tablet view*/
 
-            @media (max-width: 744px) {
+            @media (max-width: theme(digitv2.screens.tablet)) {
               max-width: 11rem;
               margin-right: 1.5rem;
 
@@ -71,7 +71,7 @@
 
             /* mobile view*/
 
-            @media (max-width: 360px) {
+            @media (max-width: theme(digitv2.screens.mobile)) {
               /*max-width: 10.2rem;*/
               @apply w-full;
 
@@ -92,7 +92,7 @@
 
               /* tablet view*/
 
-              @media (max-width: 744px) {
+              @media (max-width: theme(digitv2.screens.tablet)) {
                 max-width: 27.5rem;
                 min-width: 12.5rem;
 
@@ -100,7 +100,7 @@
 
               /* mobile view*/
 
-              @media (max-width: 360px) {
+              @media (max-width: theme(digitv2.screens.mobile)) {
                 max-width: 20.5rem;
                 min-width: 9.5rem;
                 @apply w-full;
@@ -146,7 +146,7 @@
               display: inline-flex;
               align-items: end;
               .custom-checkbox-label{
-                @extend .typography.text-body-s-dt;
+                @extend .typography.text-body-s;
                 @apply pl-sm;
               }
             }
@@ -270,7 +270,7 @@
             .jk-digit-secondary-btn {
               height: 1.7em;
 
-              @media (max-width: 360px) {
+              @media (max-width: theme(digitv2.screens.mobile)) {
                 height: auto;
                 width: 100%;
               }

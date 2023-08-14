@@ -118,7 +118,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowToast(`${t("WBH_ERROR_MDMS_DATA")}  ${resp?.response?.data?.Errors?.[0]?.code}`);
+      setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${resp?.response?.data?.Errors?.[0]?.description}`);
       setShowErrorToast(true);
     };
 
@@ -206,7 +206,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     return (
       <Card>
         <span className="workbench-no-schema-found">
-          <h4>No Schema Found</h4>
+          <h4>{t("WBH_NO_SCHEMA_FOUND")}</h4>
           <SVG.NoResultsFoundIcon width="20em" height={"20em"} />
         </span>
       </Card>
