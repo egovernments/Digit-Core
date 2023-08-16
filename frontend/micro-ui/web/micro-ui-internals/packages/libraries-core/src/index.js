@@ -15,8 +15,6 @@ import Contexts from "./contexts";
 import Hooks from "./hooks";
 import Utils from "./utils";
 
-import { subFormRegistry } from "./subFormRegistry";
-
 const setupLibraries = (Library, props) => {
   window.Digit = window.Digit || {};
   window.Digit[Library] = window.Digit[Library] || {};
@@ -46,4 +44,4 @@ const initCoreLibraries = () => {
   });
 };
 
-export { initCoreLibraries, Hooks, subFormRegistry };
+export { initCoreLibraries, Hooks };
