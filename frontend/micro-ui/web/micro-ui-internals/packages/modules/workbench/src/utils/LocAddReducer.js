@@ -7,14 +7,15 @@ const reducer = (state, action) => {
     case "ADD_ROW":
       const { state: newRow } = action;
       return { ...state, tableState: [...state.tableState, newRow] };
-    case "UPDATE_ROW_KEYCODE":
+    case "UPDATE_ROW":
       const {
-        state: { id, value, row },
+        state: { id, value, row ,type},
       } = action;
       const {tableState} = state
 
-      let findIndex = tableState.findIndex(row => row[0].id === id)
-      tableState[findIndex][0].code = value
+      let findIndex = tableState.findIndex(row => row.id === id)
+      if(type==="keycode") tableState[findIndex].code = value
+      if(type==="message") tableState[findIndex].message = value
       return { ...state, tableState };
     
     case "CLEAR_STATE":

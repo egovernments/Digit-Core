@@ -9,7 +9,8 @@ import {
   TextInput,
   LabelFieldPair,
   CardLabel,
-  Header
+  Header,
+  Toast
 } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import reducer,{intialState} from "../utils/LocAddReducer"
@@ -54,13 +55,14 @@ const localeDropdownConfig = {
 
 const LocalisationAdd = () => {
   const [selectedLang, setSelectedLang] = useState(null);
+  const [showToast, setShowToast] = useState(false);
   const [selectedModule, setSelectedModule] = useState(null);
-  
+  const stateId = Digit.ULBService.getStateId();
   const [tableState, setTableState] = useState([]);
   const { t } = useTranslation();
 
   const [state,dispatch] = useReducer(reducer,intialState)
-console.log("outside",state.tableState);
+
   useEffect(() => {
     if(selectedLang && selectedModule){
 
@@ -70,13 +72,13 @@ console.log("outside",state.tableState);
 
       dispatch({
         type:"ADD_ROW",
-        state:[{
+        state:{
           code: "",
           message: "",
           locale: selectedLang.value,
           module: selectedModule.value,
           id: 0,
-        }]
+        }
       })
 
       // setTableState([{
@@ -117,14 +119,15 @@ console.log("outside",state.tableState);
             className={"field"}
             textInputStyle={{ width: "70%", marginLeft: "2%" }}
             onChange={(e) => {
-              dispatch({type:"UPDATE_ROW_KEYCODE",state:{
+              dispatch({type:"UPDATE_ROW",state:{
                 row,
                 value:e.target.value,
-                id:row.index
+                id:row.index,
+                type:"keycode"
               }})
               
             }}
-            // value={state.tableState[row.index][0].code}
+            value={state.tableState[row.index]?.code}
             defaultValue={""}
             style={{marginBottom:"0px"}}
             // onBlur={(e) => {
@@ -143,14 +146,14 @@ console.log("outside",state.tableState);
       Header: t("WBH_LOC_DEFAULT_VALUE"),
       accessor: "module",
       Cell: ({ value, col, row }) => {
-        return String(row.original?.[0].module ? row.original?.[0].module : t("ES_COMMON_NA"));
+        return String(value ? value : t("ES_COMMON_NA"));
       },
     },
     {
       Header: t("WBH_LOC_LOCALE"),
       accessor: "locale",
       Cell: ({ value, col, row }) => {
-        return String(row.original?.[0].locale ? row.original?.[0].locale : t("ES_COMMON_NA"));
+        return String(value ? value : t("ES_COMMON_NA"));
       },
     },
     {
@@ -162,9 +165,14 @@ console.log("outside",state.tableState);
             className={"field"}
             textInputStyle={{ width: "70%", marginLeft: "2%" }}
             onChange={(e) => {
-              console.log(e.target.value);
+              dispatch({type:"UPDATE_ROW",state:{
+                row,
+                value:e.target.value,
+                id:row.index,
+                type:"message"
+              }})
             }}
-            value={state.tableState[row.index]?.[0].message}
+            value={state.tableState[row.index]?.message}
             defaultValue={""}
             style={{marginBottom:"0px"}}
           />
@@ -173,83 +181,93 @@ console.log("outside",state.tableState);
     },
   ]), [])
 
-  // const columns =  [
-  //   {
-  //     Header: t("WBH_LOC_KEYCODE"),
-  //     accessor: "code",
-  //     Cell: ({ value, col, row, ...rest }) => {
-  //       return (
-  //         <TextInput
-  //           className={"field"}
-  //           textInputStyle={{ width: "70%", marginLeft: "2%" }}
-  //           onChange={(e) => {
-  //             dispatch({type:"UPDATE_ROW_KEYCODE",state:{
-  //               row,
-  //               value:e.target.value,
-  //               id:row.index
-  //             }})
-              
-  //           }}
-  //           // value={state.tableState[row.index][0].code}
-  //           defaultValue={""}
-  //           style={{marginBottom:"0px"}}
-  //           // onBlur={(e) => {
-  //           //   dispatch({type:"UPDATE_ROW_KEYCODE",state:{
-  //           //     row,
-  //           //     value:e.target.value,
-  //           //     id:row.index
-  //           //   }})
-              
-  //           // }}
-  //         />
-  //       );
-  //     },
-  //   },
-  //   {
-  //     Header: t("WBH_LOC_DEFAULT_VALUE"),
-  //     accessor: "module",
-  //     Cell: ({ value, col, row }) => {
-  //       return String(row.original[0].module ? row.original[0].module : t("ES_COMMON_NA"));
-  //     },
-  //   },
-  //   {
-  //     Header: t("WBH_LOC_LOCALE"),
-  //     accessor: "locale",
-  //     Cell: ({ value, col, row }) => {
-  //       return String(row.original[0].locale ? row.original[0].locale : t("ES_COMMON_NA"));
-  //     },
-  //   },
-  //   {
-  //     Header: t("WBH_LOC_MESSAGE_VALUE"),
-  //     accessor: "message",
-  //     Cell: ({ value, col, row }) => {
-  //       return (
-  //         <TextInput
-  //           className={"field"}
-  //           textInputStyle={{ width: "70%", marginLeft: "2%" }}
-  //           onChange={(e) => {
-  //             console.log(e.target.value);
-  //           }}
-  //           value={state.tableState[row.index][0].message}
-  //           defaultValue={""}
-  //           style={{marginBottom:"0px"}}
-  //         />
-  //       ); 
-  //     },
-  //   },
-  // ];
+  const reqCriteriaAdd = {
+    url: `/localization/messages/v1/_upsert`,
+    params: {},
+    body: {
+      tenantId:stateId
+    },
+    config: {
+      enabled: true,
+    },
+  };
 
-  const handleSubmit = () => {};
+
+
+  const mutation = Digit.Hooks.useCustomAPIMutationHook(reqCriteriaAdd);
+
+  const closeToast = () => {
+    setTimeout(() => {
+      setShowToast(null)
+    }, 5000);
+  }
+
+  const handleSubmit = () => {
+    //validations => if any then show respective toast and return 
+
+    const {tableState} = state 
+    //here create payload and call upsert
+
+    const onSuccess = (resp) => {
+      setShowToast({label:`${t("WBH_LOC_UPSERT_SUCCESS")}`});
+      closeToast()
+      dispatch({
+        type:"CLEAR_STATE",
+      })
+      dispatch({
+        type:"ADD_ROW",
+        state:{
+          code: "",
+          message: "",
+          locale: selectedLang.value,
+          module: selectedModule.value,
+          id: 0,
+        }
+      })
+    };
+    const onError = (resp) => {
+      setShowToast({label:`${t("WBH_LOC_UPSERT_FAIL")}`,isError:true});
+      closeToast()
+      // dispatch({
+      //   type:"CLEAR_STATE",
+      // })
+      // dispatch({
+      //   type:"ADD_ROW",
+      //   state:{
+      //     code: "",
+      //     message: "",
+      //     locale: selectedLang.value,
+      //     module: selectedModule.value,
+      //     id: 0,
+      //   }
+      // })
+    };
+
+    mutation.mutate(
+      {
+        params: {},
+        body: {
+          tenantId:stateId,
+          messages:tableState
+        },
+      },
+      {
+        onError,
+        onSuccess,
+      }
+    );
+
+  };
   const handleAddRow = () => {
     dispatch({
       type:"ADD_ROW",
-      state:[{
+      state:{
         code: "",
         message: "",
         locale: selectedLang.value,
         module: selectedModule.value,
         id: state.tableState.length,
-      }]
+      }
     })
   }
 
@@ -299,6 +317,7 @@ console.log("outside",state.tableState);
       />}
 
       {state.tableState.length>0 && <Table
+        pageSizeLimit={50}
         className={"table"}
         t={t}
         customTableWrapperClassName={"dss-table-wrapper"}
@@ -307,7 +326,7 @@ console.log("outside",state.tableState);
         data={state.tableState}
         totalRecords={state.tableState.length}
         columns={columns}
-        isPaginationRequired={true}
+        isPaginationRequired={false}
         manualPagination={false}
         getCellProps={(cellInfo) => {
           return {
@@ -321,9 +340,10 @@ console.log("outside",state.tableState);
         styles={{ marginTop: "3rem" }}
       />}
 
-      <ActionBar>
+      {state.tableState.length>0 && <ActionBar>
         <SubmitBar label={t("CORE_COMMON_SAVE")} onSubmit={handleSubmit} />
-      </ActionBar>
+      </ActionBar>}
+      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError} ></Toast>}
     </Card>
     </React.Fragment>
   );
