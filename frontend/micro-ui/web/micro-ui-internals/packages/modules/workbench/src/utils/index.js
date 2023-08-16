@@ -148,4 +148,15 @@ const getFormattedData = (data = {}) => {
   return formattedData;
 };
 
-export default { getConfig, getMDMSLabel, getFormattedData };
+
+const getUpdatedPath=(path="")=>{
+  if(!path?.includes('.')){
+    return path;
+  }else if(path?.includes('.*.')){
+    return Digit.Utils.locale.stringReplaceAll(path,".*.",".items.properties.")
+  }else {
+    return Digit.Utils.locale.stringReplaceAll(path,".",".properties.")
+  }
+}
+
+export default { getConfig, getMDMSLabel, getFormattedData ,getUpdatedPath};

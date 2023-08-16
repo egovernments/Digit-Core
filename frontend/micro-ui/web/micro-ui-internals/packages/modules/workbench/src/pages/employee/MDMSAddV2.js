@@ -17,9 +17,10 @@ const onFormError = (errors) => console.log("I have", errors.length, "errors to 
 
 const uiSchema = {};
 
-const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions, ...props }) => {
+const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions,onSubmitEditAction, ...props }) => {
+  
   const tenantId = Digit.ULBService.getCurrentTenantId();
-  const stateId = Digit.ULBService.getStateId();
+  // const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage(`MDMS_${screenType}`, {});
 
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
@@ -28,12 +29,12 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   const [noSchema, setNoSchema] = useState(false);
   const [loadDependent, setLoadDependent] = useState([]);
   const [showErrorToast, setShowErrorToast] = useState(false);
-
+  
   const [showToast, setShowToast] = useState(false);
   const { moduleName, masterName } = Digit.Hooks.useQueryParams();
-
+  
   useEffect(() => {
-    setSession({ ...session, ...defaultFormData });
+    setSession({  ...session,...defaultFormData });
   }, [defaultFormData]);
 
   const { t } = useTranslation();
@@ -43,7 +44,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       SchemaDefCriteria: {
-        tenantId: tenantId || stateId,
+        tenantId:  tenantId ,
         codes: [`${moduleName}.${masterName}`],
       },
     },
@@ -63,7 +64,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       MdmsCriteria: {
-        tenantId: tenantId || stateId,
+        tenantId: tenantId ,
         schemaCodes: loadDependent.map((e) => e.schemaCode),
       },
     },
@@ -88,7 +89,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       Mdms: {
-        tenantId: tenantId | stateId,
+        tenantId: tenantId ,
         schemaCode: `${moduleName}.${masterName}`,
         uniqueIdentifier: null,
         data: {},
@@ -117,7 +118,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${resp?.mdms?.[0]?.id}`);
     };
     const onError = (resp) => {
-      setShowToast(`${t("WBH_ERROR_MDMS_DATA")}  ${resp?.response?.data?.Errors?.[0]?.code}`);
+      setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${resp?.response?.data?.Errors?.[0]?.description}`);
       setShowErrorToast(true);
     };
 
@@ -126,7 +127,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
         params: {},
         body: {
           Mdms: {
-            tenantId: stateId,
+            tenantId: tenantId,
             schemaCode: `${moduleName}.${masterName}`,
             uniqueIdentifier: null,
             data: { ...data },
@@ -167,15 +168,16 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     if (loadDependent && loadDependent?.length > 0) {
       loadDependent?.map((dependent) => {
         if (dependent?.fieldPath && additonalData?.[dependent?.schemaCode]?.length > 0) {
-          if (schema?.definition?.properties?.[dependent?.fieldPath]) {
-            schema.definition.properties[dependent.fieldPath] = {
-              ...schema.definition.properties[dependent.fieldPath],
-              enum: additonalData?.[dependent?.schemaCode],
-            };
-            schema.definition.properties["temp_field"] = {
-              ...schema.definition.properties[dependent.fieldPath],
-              enum: additonalData?.[dependent?.schemaCode],
-            };
+          let updatedPath=Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
+          if (_.get(schema?.definition?.properties,updatedPath) ) {
+            if(_.get(schema?.definition?.properties,updatedPath)&&_.get(schema?.definition?.properties,updatedPath,{})?.type=="array"){
+              updatedPath+='.items';
+            }
+            _.set(schema?.definition?.properties,updatedPath,{..._.get(schema?.definition?.properties,updatedPath,{}),enum: additonalData?.[dependent?.schemaCode]})
+              schema.definition.properties["temp_field"] = {
+                ...schema.definition.properties[updatedPath],
+                enum: additonalData?.[dependent?.schemaCode],
+              }; 
           }
         }
       });
@@ -204,7 +206,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     return (
       <Card>
         <span className="workbench-no-schema-found">
-          <h4>No Schema Found</h4>
+          <h4>{t("WBH_NO_SCHEMA_FOUND")}</h4>
           <SVG.NoResultsFoundIcon width="20em" height={"20em"} />
         </span>
       </Card>
@@ -216,8 +218,8 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     return <Loader />;
   }
   const uiJSONSchema = formSchema?.["definition"]?.["x-ui-schema"];
-
-  return (
+  
+    return (
     <React.Fragment>
       {formSchema && (
         <DigitJSONForm
@@ -225,8 +227,8 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
           onFormChange={onFormValueChange}
           onFormError={onFormError}
           formData={session}
-          onSubmit={onSubmit}
-          uiSchema={{ ...uiSchema, ...uiJSONSchema, ...updatesToUISchema }}
+          onSubmit={screenType==="add" ? onSubmit : onSubmitEditAction}
+          uiSchema={{ ...uiSchema,...uiJSONSchema, ...updatesToUISchema }}
           showToast={showToast}
           showErrorToast={showErrorToast}
           screenType={screenType}

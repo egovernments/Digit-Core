@@ -428,10 +428,9 @@ export const UICustomizations = {
     },
     preProcess: (data,additionalDetails) => {
       
-      const tenant = Digit.ULBService.getStateId();
-      data.body.MdmsCriteria.tenantId = tenant
-      
-      data.body.MdmsCriteria.tenantId = "pg"
+      const tenantId = Digit.ULBService.getCurrentTenantId();
+      data.body.MdmsCriteria.tenantId = tenantId 
+     
       const filters = {}
       const custom = data.body.MdmsCriteria.custom
       const {field,value} = custom || {}

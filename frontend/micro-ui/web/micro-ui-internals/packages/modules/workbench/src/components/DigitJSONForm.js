@@ -10,6 +10,7 @@ import {
   CardLabelError,
   SVG,
   Menu,
+  CollapseAndExpandGroups,
 } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,6 +20,7 @@ import validator from "@rjsf/validator-ajv8";
 // import { UiSchema } from '@rjsf/utils';
 import { titleId } from "@rjsf/utils";
 import App from "./MultiSelect";
+import { CustomCheckbox } from "./checbox";
 /*
 
 created the foem using rjfs json form 
@@ -38,7 +40,6 @@ const uiSchema = {
   "ui:title": " ",
   "ui:classNames": "my-class",
 
-
   "ui:submitButtonOptions": {
     props: {
       disabled: false,
@@ -54,11 +55,16 @@ const uiSchema = {
   },
 };
 
-const transformErrors = (errors) => {
+function transformErrors(errors) {
+  const { t } = this;
   console.log(errors, "errors");
   // Custom validation logic for all widgets
   // You can modify or add error messages based on your requirements
   return errors.map((error) => {
+    error.message = t(Digit.Utils.workbench.getMDMSLabel(`WBH_ERROR_${error?.name}`));
+    if (error?.name === "pattern") {
+      error.message += ` : ${error?.params?.pattern}`;
+    }
     // if (error.property === '.name' && error.name === 'minLength') {
     //   error.message = 'Name must be at least 3 characters';
     // }
@@ -67,20 +73,27 @@ const transformErrors = (errors) => {
     // }
     return error;
   });
-};
+}
 
 function ArrayFieldItemTemplate(props) {
+  const { t } = useTranslation();
+
   const { children, className, index, onDropIndexClick } = props;
   return (
     <div className={className}>
       {children}
-      {props.hasRemove && (
+      {/* {props.hasRemove && (
         <div className="array-remove-button-wrapper">
-          <button type="button" className="array-remove-button" onClick={onDropIndexClick(index)}>
-            <SVG.Delete />
-          </button>
+            <Button
+          label={`${t("Delete")} ` + props?.title}
+          variation="secondary"
+          className="array-remove-button" 
+          icon={ <SVG.Delete />}
+          onButtonClick={onDropIndexClick(index)}
+          type="button"
+        />
         </div>
-      )}
+      )} */}
     </div>
   );
 }
@@ -106,7 +119,7 @@ function ArrayFieldTemplate(props) {
       {props.items.map((element, index) => {
         return (
           <span>
-            <ArrayFieldItemTemplate key={index} index={index} {...element}></ArrayFieldItemTemplate>
+            <ArrayFieldItemTemplate title={props?.title} key={index} index={index} {...element}></ArrayFieldItemTemplate>
           </span>
         );
       })}
@@ -124,17 +137,25 @@ function ArrayFieldTemplate(props) {
 }
 
 function ObjectFieldTemplate(props) {
+  const children = props.properties.map((element) => {
+    return (
+      <div className="field-wrapper object-wrapper" id={`${props?.idSchema?.["$id"]}_${element.name}`}>
+        {element.content}
+      </div>
+    );
+  });
+  const isRoot = props?.["idSchema"]?.["$id"] == "digit_root";
+
   return (
     <div id={props?.idSchema?.["$id"]}>
       {/* {props.title} */}
       {props.description}
-      {props.properties.map((element) => {
-        return (
-          <div className="field-wrapper" id={`${props?.idSchema?.["$id"]}_${element.name}`}>
-            {element.content}
-          </div>
-        );
-      })}
+
+      {isRoot ? (
+        children
+      ) : (
+        <CollapseAndExpandGroups showHelper={true} groupHeader={""} groupElements={true} children={children}></CollapseAndExpandGroups>
+      )}
     </div>
   );
 }
@@ -149,7 +170,7 @@ function CustomFieldTemplate(props) {
           {required ? "*" : null}
         </label>
         {description}
-        <span>
+        <span class="all-input-field-wrapper">
           {children}
           {errors}
           {help}
@@ -182,9 +203,15 @@ const DigitJSONForm = ({
   const onSubmitV2 = ({ formData }) => {
     onSubmit(formData);
   };
-  const customWidgets = { SelectWidget: App };
+  const customWidgets = { SelectWidget: App, CheckboxWidget: CustomCheckbox };
 
   const [displayMenu, setDisplayMenu] = useState(false);
+  const [liveValidate, setLiveValidate] = useState(false);
+  const onError = (errors) => {
+    setLiveValidate(true);
+    onFormError(errors);
+  };
+  const person = { t: t };
 
   return (
     <React.Fragment>
@@ -215,16 +242,18 @@ const DigitJSONForm = ({
             arrayMinItems: { populate: "requiredOnly" },
           }}
           widgets={customWidgets}
-          transformErrors={transformErrors}
+          transformErrors={transformErrors.bind(person)}
           uiSchema={{ ...uiSchema, ...inputUiSchema }}
-          onError={onFormError}
+          onError={onError}
           // disabled the error onload
           // focusOnFirstError={true}
+          /* added logic to show live validations after form submit is clicked */
+          liveValidate={liveValidate}
           // liveValidate={formData && Object.keys(formData) && Object.keys(formData)?.length > 0}
         >
-          {screenType === "add" && (
+          {(screenType === "add" || screenType === "edit") && (
             <ActionBar>
-              <SubmitBar label={t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
+              <SubmitBar label={screenType === "edit" ? t("WBH_ADD_MDMS_UPDATE_ACTION") : t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
               {/* <LinkButton style={props?.skipStyle} label={t(`CS_SKIP_CONTINUE`)}  /> */}
             </ActionBar>
           )}
