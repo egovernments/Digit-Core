@@ -14,8 +14,6 @@ import Download from "./services/atoms/Download";
 import { WorkflowService } from "./services/elements/WorkFlow";
 import { MdmsService } from "./services/elements/MDMS";
 import { UserService } from "./services/elements/User";
-import ShareFiles from "./services/molecules/ShareFiles";
-import { GetServiceDefinitions } from "./services/molecules/ServiceDefinitions";
 import { ULBService } from "./services/molecules/Ulb";
 import { ComponentRegistryService } from "./services/elements/ComponentRegistry";
 import StoreData from "./services/molecules/StoreData";
@@ -36,23 +34,19 @@ const initCoreLibraries = () => {
   setupLibraries("PersistantStorage", PersistantStorage);
   setupLibraries("UserService", UserService);
   setupLibraries("ULBService", ULBService);
-
   setupLibraries("Config", { mergeConfig });
   setupLibraries("Services", { useStore });
   setupLibraries("LocationService", LocationService);
   setupLibraries("LocalityService", LocalityService);
   setupLibraries("LoginService", LoginService);
   setupLibraries("LocalizationService", LocalizationService);
-
   setupLibraries("DateUtils", dateUtils);
   setupLibraries("WorkflowService", WorkflowService);
   setupLibraries("MDMSService", MdmsService);
   setupLibraries("UploadServices", UploadServices);
   setupLibraries("JsDictionary", JsDictionary);
-  setupLibraries("GetServiceDefinitions", GetServiceDefinitions);
   setupLibraries("ComponentRegistryService", ComponentRegistryService);
   setupLibraries("StoreData", StoreData);
-  setupLibraries("ShareFiles", ShareFiles);
   setupLibraries("Contexts", Contexts);
   setupLibraries("Hooks", Hooks);
   setupLibraries("Customizations", {});

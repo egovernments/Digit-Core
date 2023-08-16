@@ -1,11 +1,8 @@
 import BrowserUtil from "./browser";
 import * as date from "./date";
-import * as dss from "./dss";
 import * as locale from "./locale";
-import * as obps from "./obps";
-import * as pt from "./pt";
 import * as privacy from "./privacy";
-import PDFUtil, { downloadReceipt ,downloadPDFFromLink,downloadBill ,getFileUrl} from "./pdf";
+import PDFUtil, { downloadReceipt, downloadPDFFromLink, downloadBill, getFileUrl } from "./pdf";
 import getFileTypeFromFileStoreURL from "./fileType";
 import preProcessMDMSConfig from "./preProcessMDMSConfig";
 import preProcessMDMSConfigInboxSearch from "./preProcessMDMSConfigInboxSearch";
@@ -170,9 +167,7 @@ const NOCAccess = () => {
   const userInfo = Digit.UserService.getUser();
   const userRoles = userInfo?.info?.roles?.map((roleData) => roleData?.code);
 
-  const NOC_ROLES = [
-    "FIRE_NOC_APPROVER"
-  ]
+  const NOC_ROLES = ["FIRE_NOC_APPROVER"];
 
   const NOC_ACCESS = userRoles?.filter((role) => NOC_ROLES?.includes(role));
 
@@ -266,7 +261,7 @@ const hrmsAccess = () => {
 const wsAccess = () => {
   const userInfo = Digit.UserService.getUser();
   const userRoles = userInfo?.info?.roles?.map((roleData) => roleData?.code);
-  const waterRoles = ["WS_CEMP", "WS_APPROVER", "WS_FIELD_INSPECTOR", "WS_DOC_VERIFIER","WS_CLERK"];
+  const waterRoles = ["WS_CEMP", "WS_APPROVER", "WS_FIELD_INSPECTOR", "WS_DOC_VERIFIER", "WS_CLERK"];
 
   const WS_ACCESS = userRoles?.filter((role) => waterRoles?.includes(role));
 
@@ -276,7 +271,7 @@ const wsAccess = () => {
 const swAccess = () => {
   const userInfo = Digit.UserService.getUser();
   const userRoles = userInfo?.info?.roles?.map((roleData) => roleData?.code);
-  const sewerageRoles = ["SW_CEMP", "SW_APPROVER", "SW_FIELD_INSPECTOR", "SW_DOC_VERIFIER","SW_CLERK"];
+  const sewerageRoles = ["SW_CEMP", "SW_APPROVER", "SW_FIELD_INSPECTOR", "SW_DOC_VERIFIER", "SW_CLERK"];
 
   const SW_ACCESS = userRoles?.filter((role) => sewerageRoles?.includes(role));
 
@@ -307,9 +302,7 @@ export default {
   fsmAccess,
   BPAREGAccess,
   BPAAccess,
-  dss,
-  obps,
-  pt,
+
   ptAccess,
   NOCAccess,
   mCollectAccess,
@@ -325,5 +318,5 @@ export default {
   getConfigModuleName,
   preProcessMDMSConfig,
   preProcessMDMSConfigInboxSearch,
-  ...privacy
+  ...privacy,
 };
