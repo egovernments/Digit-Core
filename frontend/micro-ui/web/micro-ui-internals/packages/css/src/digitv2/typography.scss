@@ -12,7 +12,7 @@
       font-size: theme(digitv2.fontSize.heading-xl.desktop);
     }
 
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-xl.tablet);
     }
 
@@ -31,7 +31,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.heading-l.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-l.tablet);
     }
 
@@ -49,7 +49,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.heading-m.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-m.tablet);
     }
 
@@ -67,7 +67,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.heading-s.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-s.tablet);
     }
 
@@ -95,7 +95,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.caption-l.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.caption-l.tablet);
     }
 
@@ -114,7 +114,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.caption-m.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.caption-m.tablet);
     }
 
@@ -133,7 +133,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.caption-s.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.caption-s.tablet);
     }
 
@@ -151,7 +151,7 @@
       font-size: theme(digitv2.fontSize.body-l.desktop);
       line-height: theme(digitv2.lineHeight.line-height-body-l.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.body-l.tablet);
       line-height: theme(digitv2.lineHeight.line-height-body-l.tablet);
     }
@@ -171,7 +171,7 @@
       font-size: theme(digitv2.fontSize.body-s.desktop);
       line-height: theme(digitv2.lineHeight.line-height-body-s.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.body-s.tablet);
       line-height: theme(digitv2.lineHeight.line-height-body-s.tablet);
     }
@@ -191,7 +191,7 @@
       font-size: theme(digitv2.fontSize.body-xs.desktop);
       line-height: theme(digitv2.lineHeight.line-height-body-xs.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.body-xs.tablet);
       line-height: theme(digitv2.lineHeight.line-height-body-xs.tablet);
     }
@@ -211,7 +211,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.label.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.label.tablet);
     }
 
@@ -230,7 +230,7 @@
     @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.link.desktop);
     }
-    @media (min-width: theme(digitv2.screens.tablet)) and (max-width: theme(digitv2.screens.desktop)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.link.tablet);
     }
 
