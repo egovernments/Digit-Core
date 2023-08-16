@@ -12,11 +12,11 @@
       font-size: theme(digitv2.fontSize.heading-xl.desktop);
     }
 
-    @media (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-xl.tablet);
     }
 
-    @media (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.heading-xl.mobile);
     }
   }
@@ -28,14 +28,14 @@
     color: theme(digitv2.lightTheme.text-color-primary);
     line-height: theme(digitv2.lineHeight.normal);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.heading-l.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-l.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.heading-l.mobile);
     }
   }
@@ -46,14 +46,14 @@
     color: theme(digitv2.lightTheme.text-color-primary);
     line-height: theme(digitv2.lineHeight.normal);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.heading-m.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-m.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.heading-m.desktop);
     }
   }
@@ -64,19 +64,19 @@
     color: theme(digitv2.lightTheme.text-color-primary);
     line-height: theme(digitv2.lineHeight.normal);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.heading-s.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.heading-s.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.heading-s.mobile);
     }
   }
   &.text-heading-xs {
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.heading-xs.mobile);
       font-family: theme(digitv2.fontFamily.sans);
       font-style: theme(digitv2.fontStyle.normal);
@@ -92,14 +92,14 @@
     color: theme(digitv2.lightTheme.text-color-primary);
     line-height: theme(digitv2.lineHeight.normal);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.caption-l.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.caption-l.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.caption-l.mobile);
     }
   }
@@ -111,14 +111,14 @@
     color: theme(digitv2.lightTheme.text-color-primary);
     line-height: theme(digitv2.lineHeight.normal);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.caption-m.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.caption-m.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.caption-m.mobile);
     }
   }
@@ -130,14 +130,14 @@
     color: theme(digitv2.lightTheme.text-color-primary);
     line-height: theme(digitv2.lineHeight.normal);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.caption-s.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.caption-s.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.caption-s.desktop);
     }
   }
@@ -147,16 +147,16 @@
     font-weight: theme(digitv2.fontWeight.regular);
     color: theme(digitv2.lightTheme.text-color-primary);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.body-l.desktop);
       line-height: theme(digitv2.lineHeight.line-height-body-l.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.body-l.tablet);
       line-height: theme(digitv2.lineHeight.line-height-body-l.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.body-l.mobile);
       line-height: theme(digitv2.lineHeight.line-height-body-l.mobile);
     }
@@ -167,16 +167,16 @@
     font-weight: theme(digitv2.fontWeight.regular);
     color: theme(digitv2.lightTheme.text-color-primary);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.body-s.desktop);
       line-height: theme(digitv2.lineHeight.line-height-body-s.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.body-s.tablet);
       line-height: theme(digitv2.lineHeight.line-height-body-s.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.body-s.mobile);
       line-height: theme(digitv2.lineHeight.line-height-body-s.mobile);
     }
@@ -187,16 +187,16 @@
     font-weight: theme(digitv2.fontWeight.regular);
     color: theme(digitv2.lightTheme.text-color-primary);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.body-xs.desktop);
       line-height: theme(digitv2.lineHeight.line-height-body-xs.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.body-xs.tablet);
       line-height: theme(digitv2.lineHeight.line-height-body-xs.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.body-xs.mobile);
       line-height: theme(digitv2.lineHeight.line-height-body-xs.mobile);
     }
@@ -208,14 +208,14 @@
     color: theme(digitv2.lightTheme.text-color-primary);
     line-height: theme(digitv2.lineHeight.normal);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.label.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.label.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.label.mobile);
     }
   }
@@ -227,14 +227,14 @@
     line-height: theme(digitv2.lineHeight.normal);
     text-decoration: theme(digitv2.textDecorationLine.underline);
 
-    @media screen and (min-width: theme(digitv2.screens.desktop)) {
+    @media (min-width: theme(digitv2.screens.desktop)) {
       font-size: theme(digitv2.fontSize.link.desktop);
     }
-    @media screen and (min-width: theme(digitv2.screens.tablet)) {
+    @media (max-width: theme(digitv2.screens.tablet)) {
       font-size: theme(digitv2.fontSize.link.tablet);
     }
 
-    @media screen and (min-width: theme(digitv2.screens.mobile)) {
+    @media (max-width: theme(digitv2.screens.mobile)) {
       font-size: theme(digitv2.fontSize.link.mobile);
     }
   }
