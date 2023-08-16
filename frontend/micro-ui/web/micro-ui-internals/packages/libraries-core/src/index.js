@@ -13,7 +13,6 @@ import * as dateUtils from "./services/atoms/Utils/Date";
 import Download from "./services/atoms/Download";
 import { WorkflowService } from "./services/elements/WorkFlow";
 import { MdmsService } from "./services/elements/MDMS";
-import { UserService } from "./services/elements/User";
 import { ULBService } from "./services/molecules/Ulb";
 import { ComponentRegistryService } from "./services/elements/ComponentRegistry";
 import StoreData from "./services/molecules/StoreData";
@@ -21,6 +20,7 @@ import StoreData from "./services/molecules/StoreData";
 import Contexts from "./contexts";
 import Hooks from "./hooks";
 import Utils from "./utils";
+
 import { subFormRegistry } from "./subFormRegistry";
 
 const setupLibraries = (Library, props) => {
@@ -32,7 +32,6 @@ const setupLibraries = (Library, props) => {
 const initCoreLibraries = () => {
   setupLibraries("SessionStorage", Storage);
   setupLibraries("PersistantStorage", PersistantStorage);
-  setupLibraries("UserService", UserService);
   setupLibraries("ULBService", ULBService);
   setupLibraries("Config", { mergeConfig });
   setupLibraries("Services", { useStore });
