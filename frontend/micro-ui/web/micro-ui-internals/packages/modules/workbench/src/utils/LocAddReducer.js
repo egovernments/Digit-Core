@@ -20,10 +20,6 @@ const reducer = (state, action) => {
     
     case "CLEAR_STATE":
       return { ...state, tableState: [] };
-    case "clearSearchForm":
-      return { ...state, searchForm: action.state };
-    case "clearFilterForm":
-      return { ...state, filterForm: action.state };
     
     default:
       return state;
