@@ -123,8 +123,8 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
         setSession({});
       }, 1500);
       setShowErrorToast(false);
-      const jsonPath = api?.responseJson ? api?.responseJson : "resp.mdms[0].id";
-      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${jsonPath}`);
+      const jsonPath = api?.responseJson ? api?.responseJson : "mdms[0].id";
+      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp,jsonPath,"NA")}`);
     };
     const onError = (resp) => {
       setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${resp?.response?.data?.Errors?.[0]?.description}`);
