@@ -72,5 +72,8 @@ public class EmployeeRequest {
 	@NotEmpty
 	@JsonProperty("Employees")
 	private List<Employee> employees;
+	
+	@Builder.Default
+	private Boolean isJurisdictionEnabled = false;
 
 }
