@@ -38,8 +38,20 @@ const LocalisationSearch = () => {
   // if (isLoading) return <Loader />;
   return (
     <React.Fragment>
+      <div className="jk-header-btn-wrapper">
       <Header className="works-header-search">{t(Config?.label)}</Header>
-      
+      {Config && Digit.Utils.didEmployeeHasRole(Config?.actionRole) && (
+          <Button
+            label={t(Config?.actionLabel)}
+            variation="secondary"
+            icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
+            onButtonClick={() => {
+              history.push(`/${window?.contextPath}/employee/${Config?.actionLink}`);
+            }}
+            type="button"
+          />
+        )}
+      </div>
       {Config && <div className="inbox-search-wrapper">
         <InboxSearchComposer configs={Config}></InboxSearchComposer>
       </div>}

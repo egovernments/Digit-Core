@@ -113,9 +113,9 @@ export const Config = {
             jsonPath: "message",
           },
           {
-            label: "WBH_LOC_HEADER_MESSAGE",
+            label: "CS_COMMON_ACTION",
             // jsonPath: "message",
-            type:"action",
+            // type:"action",
             svg:"EditIcon"
           },
         ],
