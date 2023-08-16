@@ -9,7 +9,6 @@ import useRouteSubscription from "./useRouteSubscription";
 import useStore from "./useStore";
 import { useTenants } from "./useTenants";
 import useCustomAPIHook from "./useCustomAPIHook";
-import { usePrivacyContext } from "./usePrivacyContext";
 
 const Hooks = {
   useQueryParams,
@@ -19,7 +18,6 @@ const Hooks = {
   useCommonMDMS,
   useStore,
   useTenants,
-  usePrivacyContext,
   useRouteSubscription,
   useCustomAPIHook,
   useCustomMDMS,
