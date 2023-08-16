@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-svg-components",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
@@ -56,5 +56,11 @@
       "last 1 safari version"
     ]
   },
-  "keywords": ["digit","egov","dpg","digit-ui","svg","components"]
+  "keywords": [
+    "digit",
+    "svg",
+    "components",
+    "egov",
+    "DPG"
+  ]
 }

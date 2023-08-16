@@ -777,8 +777,13 @@ import { YoutubeSearchedFor } from "./svg/YoutubeSearchedFor";
 import { ZoomIn } from "./svg/ZoomIn";
 import { ZoomOut } from "./svg/ZoomOut";
 import { ZoomOutMap } from "./svg/ZoomOutMap";
+import { InfoBannerIcon } from "./svg/InfoBannerIcon";
+import { Success } from "./svg/Success";
+import { TickMark } from "./svg/TickMark";
 
 export {
+  Success,
+  TickMark,
   Rotation3D,
   SixFtApart,
   Rotate360,
@@ -1109,6 +1114,7 @@ export {
   ImportContacts,
   ImportExport,
   Info,
+  InfoBannerIcon,
   InfoOutline,
   Input,
   IntegrationInstructions,
