@@ -1,66 +1,62 @@
-import { AddFilled, Button, Header, InboxSearchComposer, Loader } from "@egovernments/digit-ui-react-components";
+import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
-import { Config } from "../../configs/searchLocalisationConfig";
+import _, { drop } from "lodash";
+import { Config } from "../../configs/LocalisationSearchConfig";
 
-// works-ui/employee/dss/search/commonMuktaUiConfig/SearchEstimateConfig
-const MDMSSearch = () => {
+const toDropdownObj = (master = "", mod = "") => {
+  return {
+    name: mod || master,
+    code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
+  };
+};
+
+
+const LocalisationSearch = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { moduleName, masterName } = useParams();
-  const [pageConfig, setPageConfig] = useState(null);
   const tenant = Digit.ULBService.getStateId();
-  // const { isLoading, data } = Digit.Hooks.useCustomMDMS(
-  //   tenant,
-  //   moduleName,
-  //   [
-  //     {
-  //       name: masterName,
-  //     },
-  //   ],
-  //   {
+  const tenantId = Digit.ULBService.getCurrentTenantId();
+  
+  
+  
+  // const { isLoading, data: dropdownData } = Digit.Hooks.useCustomAPIHook({
+  //   url: "/mdms-v2/schema/v1/_search",
+  //   params: {},
+  //   body: {
+      
+  //   },
+  //   config: {
   //     select: (data) => {
-  //       return data?.[moduleName]?.[masterName]?.[0];
+  //      return data
   //     },
-  //   }
-  // );
-  const isLoading = false;
-  let data = Config || {};
-  let configs = data || {};
+  //   },
+  // });
 
-  const updatedConfig = useMemo(() => Digit.Utils.preProcessMDMSConfigInboxSearch(t, pageConfig, "sections.search.uiConfig.fields", {}), [
-    data,
-    pageConfig,
-  ]);
 
-  useEffect(() => {
-    setPageConfig(_.cloneDeep(configs));
-  }, [data]);
-
-  if (isLoading || !pageConfig) return <Loader />;
-
+  // if (isLoading) return <Loader />;
   return (
     <React.Fragment>
       <div className="jk-header-btn-wrapper">
-        <Header styles={{ fontSize: "32px" }}>{t(updatedConfig?.label)}</Header>
-        {Digit.Utils.didEmployeeHasRole(updatedConfig?.actionRole) && (
+      <Header className="works-header-search">{t(Config?.label)}</Header>
+      {Config && Digit.Utils.didEmployeeHasRole(Config?.actionRole) && (
           <Button
-            label={t(updatedConfig?.actionLabel)}
+            label={t(Config?.actionLabel)}
             variation="secondary"
             icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
             onButtonClick={() => {
-              history.push(`/${window?.contextPath}/employee/${updatedConfig?.actionLink}`);
+              history.push(`/${window?.contextPath}/employee/${Config?.actionLink}`);
             }}
             type="button"
           />
         )}
       </div>
-      <div className="inbox-search-wrapper">
-        <InboxSearchComposer configs={updatedConfig}></InboxSearchComposer>
-      </div>
+      {Config && <div className="inbox-search-wrapper">
+        <InboxSearchComposer configs={Config}></InboxSearchComposer>
+      </div>}
     </React.Fragment>
   );
 };
 
-export default MDMSSearch;
+export default LocalisationSearch;

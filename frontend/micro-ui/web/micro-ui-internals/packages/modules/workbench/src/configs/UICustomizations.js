@@ -420,9 +420,14 @@ export const UICustomizations = {
   SearchMDMSConfig: {
     customValidationCheck: (data) => {
       //checking both to and from date are present
-      const { createdFrom, createdTo } = data;
+      
+      const { createdFrom, createdTo,field,value } = data;
       if ((createdFrom === "" && createdTo !== "") || (createdFrom !== "" && createdTo === ""))
         return { warning: true, label: "ES_COMMON_ENTER_DATE_RANGE" };
+
+      if((field && !value) || (!field && value)){
+        return { warning: true, label: "WBH_MDMS_SEARCH_VALIDATION_FIELD_VALUE_PAIR" };
+      }
 
       return false;
     },
@@ -496,7 +501,7 @@ export const UICustomizations = {
       //like if a cell is link then we return link
       //first we can identify which column it belongs to then we can return relevant result
       switch (key) {
-        case "Unique Identifier":
+        case "WBH_UNIQUE_IDENTIFIER":
           const [moduleName,masterName] = row.schemaCode.split(".")
           return (
             <span className="link">
@@ -543,4 +548,90 @@ export const UICustomizations = {
       }
     },
   },
+  SearchLocalisationConfig: {
+    customValidationCheck: (data) => {
+      //checking locale must be present 
+      const { locale } = data;
+      if (locale === "")
+        return { warning: true, label: "WBH_LOC_WARNING_LOCALE_MUST_BE_PRESENT" };
+
+      return false;
+    },
+    preProcess: (data,additionalDetails) => {
+      
+      delete data.body.custom
+      const tenant = Digit.ULBService.getStateId();
+      
+      const {locale=undefined,module:modulee=undefined,codes=undefined,message=undefined} = data.params
+      
+      delete data.params.locale 
+      delete data.params.module 
+      delete data.params.codes 
+      delete data.params.message 
+
+      data.params.tenantId = tenant
+      if(locale){
+        data.params.locale = locale.value  
+      }
+      if(modulee){
+        data.params.module = modulee.value 
+      }
+      if(codes){
+        data.params.codes = codes 
+      }
+
+      return data;
+    },
+    additionalCustomizations: (row, key, column, value, t, searchResult) => {
+      //here we can add multiple conditions
+      //like if a cell is link then we return link
+      //first we can identify which column it belongs to then we can return relevant result
+      switch (key) {
+        case "Unique Identifier":
+          const [moduleName,masterName] = row.schemaCode.split(".")
+          return (
+            <span className="link">
+              <Link to={`/${window.contextPath}/employee/workbench/mdms-view?moduleName=${moduleName}&masterName=${masterName}&uniqueIdentifier=${row.uniqueIdentifier}`}>
+                {String(value ? (column.translate ? t(column.prefix ? `${column.prefix}${value}` : value) : value) : t("ES_COMMON_NA"))}
+              </Link>
+            </span>
+          );
+
+        case "MASTERS_SOCIAL_CATEGORY":
+          return value ? <span style={{ whiteSpace: "nowrap" }}>{String(t(`MASTERS_${value}`))}</span> : t("ES_COMMON_NA");
+
+        case "CORE_COMMON_PROFILE_CITY":
+          return value ? <span style={{ whiteSpace: "nowrap" }}>{String(t(Digit.Utils.locale.getCityLocale(value)))}</span> : t("ES_COMMON_NA");
+
+        case "MASTERS_WARD":
+          return value ? (
+            <span style={{ whiteSpace: "nowrap" }}>{String(t(Digit.Utils.locale.getMohallaLocale(value, row?.tenantId)))}</span>
+          ) : (
+            t("ES_COMMON_NA")
+          );
+
+        case "MASTERS_LOCALITY":
+          return value ? (
+            <span style={{ whiteSpace: "break-spaces" }}>{String(t(Digit.Utils.locale.getMohallaLocale(value, row?.tenantId)))}</span>
+          ) : (
+            t("ES_COMMON_NA")
+          );
+        default:
+          return t("ES_COMMON_NA");
+      }
+    },
+    MobileDetailsOnClick: (row, tenantId) => {
+      let link;
+      Object.keys(row).map((key) => {
+        if (key === "MASTERS_WAGESEEKER_ID")
+          link = `/${window.contextPath}/employee/masters/view-wageseeker?tenantId=${tenantId}&wageseekerId=${row[key]}`;
+      });
+      return link;
+    },
+    additionalValidations: (type, data, keys) => {
+      if (type === "date") {
+        return data[keys.start] && data[keys.end] ? () => new Date(data[keys.start]).getTime() <= new Date(data[keys.end]).getTime() : true;
+      }
+    },
+  }
 };

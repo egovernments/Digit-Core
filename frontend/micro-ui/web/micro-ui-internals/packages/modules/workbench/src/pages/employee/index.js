@@ -9,6 +9,7 @@ import MDMSAddV2 from "./MDMSAddV2";
 import MDMSEdit from "./MDMSEdit";
 import MDMSView from "./MDMSView";
 import MDMSSearchv2 from "./MDMSSearchv2";
+import LocalisationAdd from "../LocalisationAdd";
 
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
@@ -68,6 +69,8 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/mdms-view`} component={() =>  <MDMSView parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-edit`} component={() =>  <MDMSEdit parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 parentRoute={path}/>} />
+          <PrivateRoute path={`${path}/localisation-add`} component={() => <LocalisationAdd parentRoute={path}/>} />
+          
         </div>
       </Switch>
     </React.Fragment>

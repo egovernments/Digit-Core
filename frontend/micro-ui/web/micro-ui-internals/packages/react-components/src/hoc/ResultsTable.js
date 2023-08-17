@@ -12,6 +12,7 @@ import NoResultsFound from '../atoms/NoResultsFound';
 import { InfoIcon } from "../atoms/svgindex";
 
 const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fullConfig,revalidate }) => {
+    
     const {apiDetails} = fullConfig
     const { t } = useTranslation();
     const resultsKey = config.resultsJsonPath
@@ -180,6 +181,7 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
                 showCheckBox={config?.showCheckBox ? true : false}
                 actionLabel={config?.checkBoxActionLabel}
                 tableSelectionHandler={Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.selectionHandler}
+                manualPagination={config.manualPagination}
                 getCellProps={(cellInfo) => {
                     return {
                         style: {
