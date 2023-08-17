@@ -1,4 +1,3 @@
-import { MdmsService } from "@egovernments/digit-ui-libraries/src/services/elements/MDMS";
 import { useQuery } from "react-query";
 // import { MdmsService } from "../services/elements/MDMS";
 /**
@@ -26,7 +25,7 @@ import { useQuery } from "react-query";
  * @returns {Object} Returns the object of the useQuery from react-query.
  */
 const useCustomMDMS = (tenantId, moduleName, masterDetails = [], config = {}) => {
-  return useQuery([tenantId, moduleName, masterDetails], () => MdmsService.getMultipleTypesWithFilter(tenantId, moduleName, masterDetails), config);
+  return useQuery([tenantId, moduleName, masterDetails], () => window?.Digit?.MdmsService.getMultipleTypesWithFilter(tenantId, moduleName, masterDetails), config);
 };
 
 export default useCustomMDMS;

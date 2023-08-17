@@ -13,6 +13,7 @@ import StoreData from "./services/molecules/StoreData";
 import Contexts from "./contexts";
 import Hooks from "./hooks";
 import Utils from "./utils";
+import { CustomService } from "./services/elements/CustomService";
 
 const setupLibraries = (Library, props) => {
   window.Digit = window.Digit || {};
@@ -30,6 +31,7 @@ const initCoreLibraries = () => {
   setupLibraries("LocalizationService", LocalizationService);
   setupLibraries("DateUtils", dateUtils);
   setupLibraries("MDMSService", MdmsService);
+  setupLibraries("CustomService", CustomService);
   setupLibraries("ComponentRegistryService", ComponentRegistryService);
   setupLibraries("StoreData", StoreData);
   setupLibraries("Contexts", Contexts);

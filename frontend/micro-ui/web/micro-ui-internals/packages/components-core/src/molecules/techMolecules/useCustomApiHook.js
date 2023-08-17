@@ -1,4 +1,3 @@
-import { CustomService } from "@egovernments/digit-ui-libraries/src/services/elements/CustomService";
 import { useQuery, useQueryClient } from "react-query";
 // import { CustomService } from "../services/elements/CustomService";
 
@@ -35,7 +34,7 @@ const useCustomAPIHook = ({ url, params, body, config = {}, plainAccessRequest, 
 
   const { isLoading, data, isFetching } = useQuery(
     [url, changeQueryName].filter((e) => e),
-    () => CustomService.getResponse({ url, params, body, plainAccessRequest }),
+    () => window?.Digit?.CustomService.getResponse({ url, params, body, plainAccessRequest }),
     {
       cacheTime: 0,
       ...config,
