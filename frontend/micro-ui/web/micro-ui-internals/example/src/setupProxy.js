@@ -72,6 +72,7 @@ module.exports = function (app) {
     "/report",
     "/inbox/v1/dss/_search",
     "/loi-service",
+    "/project/v1/",
     "/estimate-service",
     "/loi-service",
     "/works-inbox-service/v2/_search",

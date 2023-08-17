@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@egovernments/digit-ui-libraries": "1.5.7",
-    "@egovernments/digit-ui-module-workbench": "0.0.1",
+    "@egovernments/digit-ui-module-workbench": "0.0.3",
     "@egovernments/digit-ui-module-dss": "1.5.37",
     "@egovernments/digit-ui-module-core": "1.5.42",
     "@egovernments/digit-ui-module-common": "1.5.30",

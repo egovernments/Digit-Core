@@ -44,3 +44,6 @@ cd "$BASEDIR/packages/modules/utilities" &&   rm -rf dist && yarn&& npm publish 
 
 # msg "Building and publishing svg components"
 cd "$BASEDIR/packages/svg-components" && rm -rf dist && yarn && npm publish --access public
+
+# msg "Building and publishing Utilities module"
+cd "$BASEDIR/packages/modules/workbench" &&   rm -rf dist && yarn&& npm publish --tag core-1.0
