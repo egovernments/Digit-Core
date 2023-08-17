@@ -4,6 +4,7 @@
   "main": "index.js",
   "workspaces": [
     "packages/libraries",
+    "packages/libraries-core",
     "example",
     "packages/css",
     "packages/components-core",
