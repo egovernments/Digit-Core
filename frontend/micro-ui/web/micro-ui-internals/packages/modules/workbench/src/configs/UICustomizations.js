@@ -501,7 +501,7 @@ export const UICustomizations = {
       //like if a cell is link then we return link
       //first we can identify which column it belongs to then we can return relevant result
       switch (key) {
-        case "Unique Identifier":
+        case "WBH_UNIQUE_IDENTIFIER":
           const [moduleName,masterName] = row.schemaCode.split(".")
           return (
             <span className="link">

@@ -120,7 +120,7 @@ const MDMSSearchv2 = () => {
       //set the column config
       
       Config.sections.searchResult.uiConfig.columns = [{
-        label: "Unique Identifier",
+        label: "WBH_UNIQUE_IDENTIFIER",
         jsonPath: "uniqueIdentifier",
         additionalCustomization:true
       },...dropDownOptions.map(option => {
