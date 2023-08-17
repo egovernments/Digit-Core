@@ -420,9 +420,14 @@ export const UICustomizations = {
   SearchMDMSConfig: {
     customValidationCheck: (data) => {
       //checking both to and from date are present
-      const { createdFrom, createdTo } = data;
+      
+      const { createdFrom, createdTo,field,value } = data;
       if ((createdFrom === "" && createdTo !== "") || (createdFrom !== "" && createdTo === ""))
         return { warning: true, label: "ES_COMMON_ENTER_DATE_RANGE" };
+
+      if((field && !value) || (!field && value)){
+        return { warning: true, label: "WBH_MDMS_SEARCH_VALIDATION_FIELD_VALUE_PAIR" };
+      }
 
       return false;
     },

@@ -57,7 +57,7 @@ const MDMSView = ({...props}) => {
     }, 5000);
   }
 
-  const { isLoading, data, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
+  const { isLoading, data, isFetching,refetch,revalidate } = Digit.Hooks.useCustomAPIHook(reqCriteria);
 
   const reqCriteriaUpdate = {
     url: `/mdms-v2/v2/_update/${moduleName}.${masterName}`,
@@ -79,6 +79,7 @@ const MDMSView = ({...props}) => {
         label:`${t("WBH_SUCCESS_DIS_MDMS_MSG")} ${resp?.mdms?.[0]?.id}`
       });
       closeToast()
+      refetch()
     };
     const onError = (resp) => {
       setShowToast({
@@ -87,6 +88,7 @@ const MDMSView = ({...props}) => {
       });
       
       closeToast()
+      refetch()
     };
 
 
@@ -126,7 +128,7 @@ const MDMSView = ({...props}) => {
   return (
     <React.Fragment>
       <MDMSAdd defaultFormData = {data?.data} updatesToUISchema ={{"ui:readonly": true}} screenType={"view"} onViewActionsSelect={onActionSelect} viewActions={fetchActionItems(data)} />
-      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError}></Toast>}
+      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError} isDleteBtn={true} onClose={()=> setShowToast(null)}></Toast>}
     </React.Fragment>
   )
 }
