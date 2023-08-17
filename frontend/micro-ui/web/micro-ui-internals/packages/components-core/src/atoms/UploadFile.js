@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import Button from "./Button";
 import { useTranslation } from "react-i18next";
 import RemoveableTag from "./RemoveableTag";
-import { getUserType } from "../utils";
 import ErrorMessage from "./ErrorMessage";
 
 const getRandomId = () => {
@@ -15,7 +14,7 @@ const UploadFile = (props) => {
   const inpRef = useRef();
   const [hasFile, setHasFile] = useState(false);
   const [prevSate, setprevSate] = useState(null);
-  const user_type = getUserType();
+  const user_type = window?.Digit?.SessionStorage.get("userType");
   const handleChange = () => {
     if (inpRef.current.files[0]) {
       setHasFile(true);

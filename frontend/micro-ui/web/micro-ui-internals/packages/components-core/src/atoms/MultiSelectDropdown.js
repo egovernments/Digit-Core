@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import RemoveableTag from "./RemoveableTag";
 import { SVG } from "./SVG";
-import { useOnClickOutside } from "../utils";
 
 const MultiSelectDropdown = ({
   options,
@@ -66,7 +65,7 @@ const MultiSelectDropdown = ({
     setActive(false);
   }
 
-  useOnClickOutside(dropdownRef, handleOutsideClickAndSubmitSimultaneously, active, { capture: true });
+  window?.Digit?.Hooks.useClickOutside(dropdownRef, handleOutsideClickAndSubmitSimultaneously, active, { capture: true });
   const filtOptns =
     searchQuery?.length > 0
       ? options.filter(

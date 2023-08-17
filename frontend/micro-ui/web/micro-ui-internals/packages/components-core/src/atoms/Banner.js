@@ -2,11 +2,10 @@ import React from "react";
 import { SVG } from "./SVG";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { getUserType } from "../utils";
 
 const Successful = (props) => {
   const { t } = useTranslation();
-  const user_type = getUserType();
+  const user_type = Digit?.SessionStorage.get("userType");
 
   return (
     <div

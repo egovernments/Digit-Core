@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { SVG } from "./SVG";
-import { getUserType } from "../utils";
 
 const TextInput = (props) => {
-  const user_type = getUserType();
+  const user_type = window?.Digit?.SessionStorage.get("userType");
   const [date, setDate] = useState(props?.type === "date" && props?.value);
   const data = props?.watch
     ? {

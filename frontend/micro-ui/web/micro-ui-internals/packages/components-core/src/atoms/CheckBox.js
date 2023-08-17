@@ -2,11 +2,10 @@ import React, { Fragment } from "react";
 import { SVG } from "./SVG";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { getUserType } from "../utils";
 
 const CheckBox = ({ onChange, label, value, disable, ref, checked, inputRef, pageType, style, index, isLabelFirst, customLabelMarkup, ...props }) => {
   const { t } = useTranslation();
-  const userType = pageType || getUserType();
+  const userType = pageType || window?.Digit?.SessionStorage.get("userType");
   let styles = props.styles;
   if (isLabelFirst) {
     return (

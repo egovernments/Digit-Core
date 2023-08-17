@@ -1,9 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { getUserType } from "../utils";
 
 const TextArea = (props) => {
-  const user_type = getUserType();
+  const user_type = window?.Digit?.SessionStorage.get("userType");
 
   return (
     <React.Fragment>

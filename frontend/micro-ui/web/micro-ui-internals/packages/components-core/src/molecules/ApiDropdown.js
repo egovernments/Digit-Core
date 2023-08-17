@@ -5,7 +5,6 @@ import Dropdown from "../atoms/Dropdown";
 import { Loader } from "../atoms/Loader";
 import { useTranslation } from "react-i18next";
 import _ from "lodash";
-import useCustomAPIHook from "./techMolecules/useCustomApiHook";
 
 const ApiDropdown = ({ populators, formData, props, inputRef, errors }) => {
   const [options, setOptions] = useState([]);
@@ -14,7 +13,7 @@ const ApiDropdown = ({ populators, formData, props, inputRef, errors }) => {
 
   const reqCriteria = Digit?.Customizations?.[populators?.masterName]?.[populators?.moduleName]?.[populators?.customfn]();
 
-  const { isLoading: isApiLoading, data: apiData, revalidate, isFetching: isApiFetching } = useCustomAPIHook(reqCriteria);
+  const { isLoading: isApiLoading, data: apiData, revalidate, isFetching: isApiFetching } = window?.Digit?.Hooks.useCustomAPIHook(reqCriteria);
 
   useEffect(() => {
     setOptions(apiData);
