@@ -1,5 +1,7 @@
 package org.egov.user.web.controller;
 
+import com.auth0.jwt.JWT;
+import com.sun.javafx.scene.traversal.Algorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.egov.common.contract.response.ResponseInfo;
@@ -14,6 +16,7 @@ import org.egov.user.web.contract.*;
 import org.egov.user.web.contract.auth.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +47,8 @@ public class UserController {
 
     private UserService userService;
     private TokenService tokenService;
-
+    private final String secretKey = "B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF";
+    private final String issuer = "your_issuer";
     @Value("${mobile.number.validation.workaround.enabled}")
     private String mobileValidationWorkaroundEnabled;
 
@@ -84,10 +88,29 @@ public class UserController {
         return createResponse(createdUser);
     }
     @PostMapping("/_jwt")
-    public String printUser(@RequestBody User user){
-        log.info("Received Citizen details" + user);
-        return "JWT TOKEN";
+    public ResponseEntity<AuthenticationResponse> authenticateUserWithJWT(@RequestBody AuthenticationRequest authRequest){
+        log.info("Received JWT Authentication Request for User: " + authRequest.getUsername());
+        boolean isAuthenticated = authenticate(authRequest.getUsername(),authRequest.getPassword());
+        if (isAuthenticated) {
+            String jwtToken = generateJWTToken(authRequest.getUsername());
 
+            AuthenticationResponse response = new AuthenticationResponse(jwtToken);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+    private boolean authenticate(String username, String password) {
+        return true; 
+    }
+    private String generateJWTToken(String username) {
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        String token = JWT.create()
+                .withIssuer(issuer)
+                .withSubject(username)
+                .sign(algorithm);
+
+        return token;
     }
 
 
