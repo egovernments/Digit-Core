@@ -101,6 +101,9 @@ public class UserService {
 		userSearchRequest.put("RequestInfo", requestInfo);
 		userSearchRequest.put("tenantId", propertiesManager.getStateLevelTenantId());
 		userSearchRequest.put("roleCodes", Collections.singletonList(INTERNALMICROSERVICEROLE_CODE));
+		if(multiStateInstanceUtil.getIsEnvironmentCentralInstance()){
+			MDC.put(TENANTID_MDC_STRING, propertiesManager.getStateLevelTenantId());
+		}
 		try {
 			LinkedHashMap<String, Object> responseMap = (LinkedHashMap<String, Object>) restCallRepository.fetchResult(uri, userSearchRequest);
 			List<LinkedHashMap<String, Object>> users = (List<LinkedHashMap<String, Object>>) responseMap.get("user");
