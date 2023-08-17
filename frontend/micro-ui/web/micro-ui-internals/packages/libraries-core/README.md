@@ -17,7 +17,7 @@ import initCoreLibraries from "@egovernments/digit-ui-libraries-core";
 import defaultConfig from "./config";
 
 const App = ({ deltaConfig, stateCode, cityCode, moduleCode }) => {
-  initLibraries();
+  initCoreLibraries();
 
   const store = eGov.Services.useStore(defaultConfig, { deltaConfig, stateCode, cityCode, moduleCode });
 

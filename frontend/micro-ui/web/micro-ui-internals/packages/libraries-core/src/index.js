@@ -1,5 +1,4 @@
 import i18next from "i18next";
-import mergeConfig from "./config/mergeConfig";
 import { useStore } from "./services/index";
 import { initI18n } from "./translations/index";
 import { Storage, PersistantStorage } from "./services/atoms/Utils/Storage";
@@ -25,7 +24,6 @@ const initCoreLibraries = () => {
   setupLibraries("SessionStorage", Storage);
   setupLibraries("PersistantStorage", PersistantStorage);
   setupLibraries("ULBService", ULBService);
-  setupLibraries("Config", { mergeConfig });
   setupLibraries("Services", { useStore });
   setupLibraries("LocationService", LocationService);
   setupLibraries("LocalityService", LocalityService);
