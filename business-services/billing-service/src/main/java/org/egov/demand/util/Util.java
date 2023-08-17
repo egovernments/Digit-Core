@@ -259,9 +259,27 @@ public class Util {
 
 		String userType = requestInfo.getUserInfo().getType();
 
-		if (Constants.EMPLOYEE_TYPE_CODE.equalsIgnoreCase(userType) && centralInstanceUtil.isTenantIdStateLevel(tenantId)) {
-			throw new CustomException("EG_BS_INVALID_TENANTID",
-					"Employees cannot search based on state level tenantid");
+		if (Constants.EMPLOYEE_TYPE_CODE.equalsIgnoreCase(userType) && !tenantId.contains(".")) {
+
+			Set<String> rolesTenantList = new HashSet<>();
+			Set<String> rolecodeList = new HashSet<>();
+			for (Role role : requestInfo.getUserInfo().getRoles()) {
+				rolesTenantList.add(role.getTenantId());
+				rolecodeList.add(role.getCode());
+			}
+
+			//bypassing required roles from the validation
+			boolean isEmployeeSearchByStateTenantAllowed = false;
+			List<String> statelevelRolecodeExclusionList = appProps.getStatelevelRolecodeExclusionList();
+			for (String rolecode : rolecodeList) {
+				if (statelevelRolecodeExclusionList.contains(rolecode)) {
+					isEmployeeSearchByStateTenantAllowed = true;
+					break;
+				}
+			}
+
+			if (!isEmployeeSearchByStateTenantAllowed)
+				throw new CustomException("EG_BS_INVALID_TENANTID", "Employees cannot search based on state level tenantid");
 		}
 	}
 	
