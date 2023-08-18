@@ -31,7 +31,6 @@ const Template = (args) => (
     {...args}
     onSelect={(selectedOptions) => {
       onSelectAction(selectedOptions);
-      // Implement the onSelect handler here
       console.log("Selected Options:", selectedOptions);
     }}
   />
