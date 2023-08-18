@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { Loader } from "../atoms/Loader";
 import RadioButtons from "../atoms/RadioButtons";
 import Dropdown from "../atoms/Dropdown";
-import useCustomMDMS from "../hoc/techHoc/useCustomMDMS";
 import { createFunction } from "./techMolecules/createFunction";
 
 const CustomDropdown = ({ t, config, inputRef, label, onChange, value, errorStyle, disable, type, additionalWrapperClass = "" }) => {
@@ -13,7 +12,7 @@ const CustomDropdown = ({ t, config, inputRef, label, onChange, value, errorStyl
     master["filter"] = config?.mdmsConfig?.filter;
   }
 
-  const { isLoading, data } = useCustomMDMS(Digit?.ULBService?.getStateId(), config?.mdmsConfig?.moduleName, [master], {
+  const { isLoading, data } = window?.Digit?.Hooks.useCustomMDMS(Digit?.ULBService?.getStateId(), config?.mdmsConfig?.moduleName, [master], {
     select: config?.mdmsConfig?.select
       ? createFunction(config?.mdmsConfig?.select)
       : (data) => {

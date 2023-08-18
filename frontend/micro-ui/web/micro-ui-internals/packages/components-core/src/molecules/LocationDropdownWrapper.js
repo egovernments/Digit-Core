@@ -4,16 +4,15 @@ import MultiSelectDropdown from "../atoms/MultiSelectDropdown";
 import Dropdown from "../atoms/Dropdown";
 import { Loader } from "../atoms/Loader";
 import { useTranslation } from "react-i18next";
-import useLocation from "./techMolecules/useLocation";
 
 const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors, setValue }) => {
   const [options, setOptions] = useState([]);
 
   const { t } = useTranslation();
-  const tenantId = Digit?.ULBService?.getCurrentTenantId();
-  const headerLocale = Digit?.Utils?.locale?.getTransformedLocale(tenantId);
+  const tenantId = window?.Digit?.ULBService?.getCurrentTenantId();
+  const headerLocale = window?.Digit?.Utils?.locale?.getTransformedLocale(tenantId);
 
-  const { isLoading, data: wardsAndLocalities } = useLocation(tenantId, "Ward", {
+  const { isLoading, data: wardsAndLocalities } = window?.Digit?.Hooks.useLocation(tenantId, "Ward", {
     select: (data) => {
       const wards = [];
       const localities = {};

@@ -1,10 +1,9 @@
 import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
-import { getUserType } from "../utils/getUserType";
 
 const DatePicker = (props) => {
   const dateInp = useRef();
-  const isCitizen = getUserType() === "citizen" ? true : false;
+  const isCitizen = window?.Digit?.SessionStorage.get("userType") === "citizen" ? true : false;
 
   const selectDate = (e) => {
     const date = e.target.value;

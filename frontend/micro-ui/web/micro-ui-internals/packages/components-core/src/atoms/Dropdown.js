@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useRef, useState } from "react";
 import { SVG } from "./SVG";
-import { getUserType } from "../utils/getUserType";
 
 const TextField = (props) => {
   const [value, setValue] = useState(props.selectedVal ? props.selectedVal : "");
@@ -90,7 +89,7 @@ const translateDummy = (text) => {
 };
 
 const Dropdown = (props) => {
-  const user_type = getUserType();
+  const user_type = Digit.SessionStorage.get("userType");
   const [dropdownStatus, setDropdownStatus] = useState(false);
   const [selectedOption, setSelectedOption] = useState(props.selected ? props.selected : null);
   const [filterVal, setFilterVal] = useState("");
@@ -169,12 +168,12 @@ const Dropdown = (props) => {
       )}
       {!hasCustomSelector && (
         <div
-        className={`${dropdownStatus ? "digit-select-active" : "digit-select"} ${props.disable && "disabled"}`}
-        style={
-          props.errorStyle
-          ? { border: "1px solid red", ...(props.noBorder ? { border: "none" } : {}) }
-          : { ...(props.noBorder ? { border: "none" } : {}) }
-        }
+          className={`${dropdownStatus ? "digit-select-active" : "digit-select"} ${props.disable && "disabled"}`}
+          style={
+            props.errorStyle
+              ? { border: "1px solid red", ...(props.noBorder ? { border: "none" } : {}) }
+              : { ...(props.noBorder ? { border: "none" } : {}) }
+          }
         >
           <TextField
             autoComplete={props.autoComplete}
