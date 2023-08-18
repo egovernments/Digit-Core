@@ -151,6 +151,9 @@ public class PGRCustomDecorator {
 	public String getDepartmentCodeForPgrRequest(String kafkaJson) {
 		// Adding in MDC so that tracer can add it in header
 		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
+
+		log.info("MDC ----> " +MDC.get(TENANTID_MDC_STRING));
+
 		StringBuilder uri = new StringBuilder();
 		String serviceCode = JsonPath.read(kafkaJson, "$.service.serviceCode");
 		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, serviceCode, new RequestInfo());
