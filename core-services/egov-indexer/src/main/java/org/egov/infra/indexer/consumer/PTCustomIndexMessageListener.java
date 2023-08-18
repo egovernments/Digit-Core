@@ -5,6 +5,7 @@ import org.egov.infra.indexer.custom.pt.PTCustomDecorator;
 import org.egov.infra.indexer.custom.pt.PropertyRequest;
 import org.egov.infra.indexer.service.IndexerService;
 import org.egov.infra.indexer.util.IndexerUtils;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.listener.MessageListener;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
 
 @Service
 @Slf4j
@@ -30,6 +33,8 @@ public class PTCustomIndexMessageListener implements MessageListener<String, Str
 	@Value("${egov.indexer.pt.update.topic.name}")
 	private String ptUpdateTopic;
 
+	@Value("${egov.statelevel.tenantId}")
+	private  String stateLevelTenantId ;
 	@Override
 	/**
 	 * Messages listener which acts as consumer. This message listener is injected
@@ -39,6 +44,9 @@ public class PTCustomIndexMessageListener implements MessageListener<String, Str
 	 */
 	public void onMessage(ConsumerRecord<String, String> data) {
 		ObjectMapper mapper = indexerUtils.getObjectMapper();
+		// Adding in MDC so that tracer can add it in header
+		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
+
 		try {
 			PropertyRequest propertyRequest = mapper.readValue(data.value(), PropertyRequest.class);
 			if (data.topic().equals(ptUpdateTopic))
