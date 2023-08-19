@@ -13,7 +13,7 @@ import {
   Toast,
 } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
-import reducer, { intialState } from "../utils/LocAddReducer";
+import reducer, { intialState } from "../../utils/LocAddReducer";
 
 const langDropdownConfig = {
   label: "WBH_LOC_LANG",
@@ -121,12 +121,35 @@ const LocalisationAdd = () => {
         },
       },
       {
-        Header: t("WBH_LOC_DEFAULT_VALUE"),
+        Header: t("WBH_LOC_MODULE"),
         accessor: "module",
         Cell: ({ value, col, row }) => {
           return String(value ? value : t("ES_COMMON_NA"));
         },
       },
+      // {
+      //   Header: t("WBH_LOC_DEFAULT_VALUE"),
+      //   accessor: "defaultMessage",
+      //   Cell: ({ value, col, row, ...rest }) => {
+      //     return (
+      //       <TextInput
+      //         className={"field"}
+      //         textInputStyle={{ width: "70%", marginLeft: "2%" }}
+      //         disabled={true}
+      //         value={state.tableState[row.index]?.message}
+      //         defaultValue={""}
+      //         style={{ marginBottom: "0px" }}
+      //       />
+      //     );
+      //   }
+      // },
+      // {
+      //   Header: t("WBH_LOC_DEFAULT_VALUE"),
+      //   accessor: "module",
+      //   Cell: ({ value, col, row }) => {
+      //     return String(value ? value : t("ES_COMMON_NA"));
+      //   },
+      // },
       {
         Header: t("WBH_LOC_LOCALE"),
         accessor: "locale",
@@ -188,7 +211,13 @@ const LocalisationAdd = () => {
 
     const { tableState } = state;
     //here create payload and call upsert
-
+    
+    const payloadForDefault = tableState?.map(row => {
+      return {
+        ...row,
+        locale:"default"
+      }
+    })
     const onSuccess = (resp) => {
       setShowToast({ label: `${t("WBH_LOC_UPSERT_SUCCESS")}` });
       closeToast();
@@ -229,6 +258,20 @@ const LocalisationAdd = () => {
         params: {},
         body: {
           tenantId: stateId,
+          messages: payloadForDefault,
+        },
+      },
+      {
+        onError:()=>{},
+        onSuccess:()=>{},
+      }
+    );
+
+    mutation.mutate(
+      {
+        params: {},
+        body: {
+          tenantId: stateId,
           messages: tableState,
         },
       },
@@ -237,6 +280,8 @@ const LocalisationAdd = () => {
         onSuccess,
       }
     );
+
+    
   };
   const handleAddRow = () => {
     dispatch({
