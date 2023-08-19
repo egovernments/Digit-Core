@@ -9,7 +9,7 @@ import MDMSAddV2 from "./MDMSAddV2";
 import MDMSEdit from "./MDMSEdit";
 import MDMSView from "./MDMSView";
 import MDMSSearchv2 from "./MDMSSearchv2";
-import LocalisationAdd from "../LocalisationAdd";
+import LocalisationAdd from "./LocalisationAdd";
 
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
