@@ -5,14 +5,6 @@ import { useHistory, useParams } from "react-router-dom";
 import _, { drop } from "lodash";
 import { Config } from "../../configs/LocalisationSearchConfig";
 
-const toDropdownObj = (master = "", mod = "") => {
-  return {
-    name: mod || master,
-    code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
-  };
-};
-
-
 const LocalisationSearch = () => {
   const { t } = useTranslation();
   const history = useHistory();
