@@ -107,9 +107,13 @@ const InboxSearchComposer = ({configs,headerLabel}) => {
 
     const updatedReqCriteria = Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess(requestCriteria,configs.additionalDetails) : requestCriteria 
 
-    
-    const { isLoading, data, revalidate,isFetching } = Digit.Hooks.useCustomAPIHook(updatedReqCriteria);
-    
+    if(configs.customHookName){
+        var { isLoading, data, revalidate,isFetching } = eval(`Digit.Hooks.${configs.customHookName}(updatedReqCriteria)`);
+    }
+    else {
+       var { isLoading, data, revalidate,isFetching } = Digit.Hooks.useCustomAPIHook(updatedReqCriteria);
+        
+    }
     
     useEffect(() => {
         return () => {

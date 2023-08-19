@@ -106,7 +106,7 @@ export const Config = {
           },
           {
             label: "WBH_LOC_HEADER_DEFAULT",
-            jsonPath: "locale",
+            jsonPath: "defaultMessage",
           },
           {
             label: "WBH_LOC_HEADER_MESSAGE",
@@ -129,4 +129,5 @@ export const Config = {
     },
   },
   additionalSections: {},
+  customHookName:"useLocalisationSearch"
 };

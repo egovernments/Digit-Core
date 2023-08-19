@@ -28,6 +28,7 @@ import useStore from "./useStore";
 import { useTenants } from "./useTenants";
 import useWorkflowDetails from "./workflow";
 import useCustomAPIHook from "./useCustomAPIHook";
+import useLocalisationSearch from "./useLocalisationSearch";
 import useCustomAPIMutationHook from "./useCustomAPIMutationHook";
 import useUpdateCustom from "./useUpdateCustom";
 
@@ -199,6 +200,7 @@ const Hooks = {
   useGenderMDMS,
   useRouteSubscription,
   useCustomAPIHook,
+  useLocalisationSearch,
   useCustomAPIMutationHook,
   useWorkflowDetailsV2,
   useUpdateCustom,
