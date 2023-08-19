@@ -53,6 +53,20 @@ const localeDropdownConfig = {
   },
 };
 
+function hasDuplicatesByKey(arr, key) {
+  const seen = new Set();
+
+  for (const obj of arr) {
+    const value = obj[key];
+    if (seen.has(value)) {
+      return true; // Found a duplicate
+    }
+    seen.add(value);
+  }
+
+  return false; // No duplicates found
+}
+
 const LocalisationAdd = () => {
   const [selectedLang, setSelectedLang] = useState(null);
   const [showToast, setShowToast] = useState(false);
@@ -207,9 +221,20 @@ const LocalisationAdd = () => {
   };
 
   const handleSubmit = () => {
+    const { tableState } = state;
     //validations => if any then show respective toast and return
 
-    const { tableState } = state;
+    //same key validation
+    const hasDuplicateKeycode = hasDuplicatesByKey(tableState,"code")
+
+    if(hasDuplicateKeycode){
+      setShowToast({
+        label:"WBH_LOC_SAME_KEY_VALIDATION_ERR",
+        isError:true
+      })
+      return 
+    }
+    
     //here create payload and call upsert
     
     const payloadForDefault = tableState?.map(row => {
