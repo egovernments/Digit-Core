@@ -10,9 +10,6 @@
         @extend .light-text-color-primary;
         text-align: left;
       }
-      .field-container {
-        max-width: 540px;
-      }
       button {
         @extend .light-primary-button;
         max-width: 240px;
@@ -38,9 +35,6 @@
         max-width: 960px;
         h2 {
           text-align: left;
-        }
-        .field-container {
-          max-width: 540px;
         }
         button {
           max-width: 240px;

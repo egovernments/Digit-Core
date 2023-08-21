@@ -70,10 +70,6 @@
   @extend .light-text-color-primary;
 }
 
-.digit-field-container {
-  @apply flex  items-center;
-}
-
 .digit-employee-card {
   @extend .light-paper-primary;
   @apply shadow-card p-md mb-xl;
@@ -314,20 +310,6 @@
         .field {
           margin-right: unset;
         }
-      }
-    }
-
-    .digit-field-container {
-      span {
-        border: 2px solid black;
-        background: rgb(247, 247, 247);
-        width: 40px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: -16px;
-        border-right: none;
       }
     }
   }

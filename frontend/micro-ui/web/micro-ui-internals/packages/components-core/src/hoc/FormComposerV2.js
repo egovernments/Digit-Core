@@ -14,7 +14,9 @@ import LabelFieldPair from "../atoms/LabelFieldPair";
 import ErrorMessage from "../atoms/ErrorMessage";
 import HorizontalNav from "../atoms/HorizontalNav";
 import { CardText, Toast } from "../atoms";
-import Fields from "./Fields";
+
+// import Fields from "./Fields";    //This is a field selector pickup from formcomposer
+import FieldController from "./FieldController";
 
 const wrapperStyles = {
   display: "flex",
@@ -104,31 +106,35 @@ export const FormComposer = (props) => {
   }, [formData]);
 
   const fieldSelector = (type, populators, isMandatory, disable = false, component, config, sectionFormCategory) =>
-    Fields(
-      t,
-      errors,
+    // Calling field controller to render all label and fields
+    FieldController(
       type,
       populators,
       isMandatory,
-      (disable = false),
+      disable,
       component,
       config,
       sectionFormCategory,
       formData,
-      control,
       selectedFormCategory,
-      setValue,
-      register,
-      setError,
-      clearErrors,
-      formState,
-      getValues,
-      register,
-      handleSubmit,
-      reset,
-      watch,
-      trigger,
-      unregister
+      control,
+      (props = props),
+      errors,
+      {
+        register,
+        handleSubmit,
+        setValue,
+        getValues,
+        reset,
+        watch,
+        trigger,
+        control,
+        formState,
+        errors,
+        setError,
+        clearErrors,
+        unregister,
+      }
     );
 
   const getCombinedStyle = (placementinBox) => {
@@ -238,7 +244,7 @@ export const FormComposer = (props) => {
                   {errors && errors[field.populators?.name] && Object.keys(errors[field.populators?.name]).length ? (
                     <ErrorMessage>{t(field.populators.error || errors[field.populators?.name]?.message)}</ErrorMessage>
                   ) : null}
-                  <div style={field.withoutLabel ? { width: "100%" } : {}} className="field">
+                  <div style={field.withoutLabel ? { width: "100%" } : {}} className="digit-field">
                     {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field, sectionFormCategory)}
                     {field?.description && (
                       <Header
@@ -268,7 +274,9 @@ export const FormComposer = (props) => {
                     : { border: "none", background: "white", ...field?.populators?.customStyle }
                 }
               >
-                {!field.withoutLabel && (
+                {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field, sectionFormCategory)}
+                {/* Commenting to initialize & check Field Controller and composer which render label and field Should remove later*/}
+                {/*{!field.withoutLabel && (
                   <Header
                     style={{
                       color: field.isSectionText ? "#505A5F" : "",
@@ -282,15 +290,13 @@ export const FormComposer = (props) => {
                     {field.isMandatory ? " * " : null}
                   </Header>
                 )}
-                <div style={field.withoutLabel ? { width: "100%", ...props?.fieldStyle } : { ...props?.fieldStyle }} className="field">
+                <div style={field.withoutLabel ? { width: "100%", ...props?.fieldStyle } : { ...props?.fieldStyle }} className="digit-field">
                   {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field, sectionFormCategory)}
                   {field?.description && <CardText style={{ fontSize: "14px", marginTop: "-24px" }}>{t(field?.description)}</CardText>}
-                </div>
+                  </div> */}
               </LabelFieldPair>
               {field?.populators?.name && errors && errors[field?.populators?.name] && Object.keys(errors[field?.populators?.name]).length ? (
-                <ErrorMessage
-                  message={t(field?.populators?.error)}
-                />
+                <ErrorMessage message={t(field?.populators?.error)} />
               ) : // {t(field?.populators?.error)}
               // </ErrorMessage>
               null}

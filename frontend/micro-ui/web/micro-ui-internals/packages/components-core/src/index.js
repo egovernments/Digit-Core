@@ -48,7 +48,7 @@ import { ApiDropdown, CustomDropdown, LocationDropdownWrapper, MultiUploadWrappe
 import { UploadFileComposer, FormComposerV2 } from "./hoc";
 
 import { initCoreLibraries } from "@egovernments/digit-ui-libraries-core";
-debugger;
+
 initCoreLibraries().then(() => {
 console.log("DIGIT Contants enabled", window?.Digit)
 });
