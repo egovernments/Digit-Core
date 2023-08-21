@@ -126,7 +126,7 @@ const CustomHorizontalBarChart = ({
       {horizontalBarv2 ? 
        <ResponsiveContainer
        width="100%"
-       height={chartData?.length === 0 ? 250 : chartData?.length === 1 ? 40 : chartData?.length * 28 + 10}
+       height={chartData?.length === 0 ? 250 : chartData?.length === 1 ? 40 : chartData?.length * 48 + 10}
        margin={{
          top: 5,
          right: 8,
