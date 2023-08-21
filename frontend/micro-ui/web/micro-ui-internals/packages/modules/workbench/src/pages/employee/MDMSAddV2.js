@@ -127,7 +127,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp,jsonPath,"NA")}`);
     };
     const onError = (resp) => {
-      setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${resp?.response?.data?.Errors?.[0]?.description}`);
+      setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${t(resp?.response?.data?.Errors?.[0]?.code)}`);
       setShowErrorToast(true);
     };
 
@@ -162,7 +162,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     if (schema && schema?.definition) {
       Object.keys(schema?.definition?.properties).map((key) => {
         const title = Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`);
-        schema.definition.properties[key] = { ...schema.definition.properties[key], title: t(title) };
+        schema.definition.properties[key] = { ...schema.definition.properties[key], title: t(title) };        
       });
       setFormSchema(schema);
       if (schema?.definition?.["x-ref-schema"]?.length > 0) {

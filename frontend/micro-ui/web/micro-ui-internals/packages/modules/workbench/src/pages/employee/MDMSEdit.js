@@ -84,7 +84,7 @@ const MDMSEdit = ({...props}) => {
 
     const onError = (resp) => {
       setShowToast({
-        label:`${t("WBH_ERROR_MDMS_DATA")}  ${resp?.response?.data?.Errors?.[0]?.description}`,
+        label:`${t("WBH_ERROR_MDMS_DATA")} ${t(resp?.response?.data?.Errors?.[0]?.code)}`,
         isError:true
       });
       
