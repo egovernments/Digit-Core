@@ -3,7 +3,7 @@ const envVariables = {
   EGOV_LOCALISATION_HOST:
     process.env.EGOV_LOCALISATION_HOST || "http://localhost:8071/",
   EGOV_LOCALISATION_SEARCH:
-    process.env.EGOV_LOCALISATION_SEARCH || "localization/messages/v1/_search",
+    process.env.EGOV_LOCALISATION_SEARCH || "localization/messages/v2/_search",
   EGOV_FILESTORE_SERVICE_HOST:
     process.env.EGOV_FILESTORE_SERVICE_HOST || "http://localhost:8072",
   SERVER_PORT: process.env.SERVER_PORT || 7076,
