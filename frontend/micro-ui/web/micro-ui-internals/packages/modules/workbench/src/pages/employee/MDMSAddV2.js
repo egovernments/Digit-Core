@@ -131,9 +131,8 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       setShowErrorToast(true);
     };
 
-    if (api?.requestJson) {
       _.set(body, api?.requestJson ? api?.requestJson : "Mdms.data", { ...data });
-    }
+ 
 
     mutation.mutate(
       {
