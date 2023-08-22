@@ -114,6 +114,11 @@ function ArrayFieldTitleTemplate(props) {
 }
 function ArrayFieldTemplate(props) {
   const { t } = useTranslation();
+  console.log(props,'arrayprops');
+  if(props?.required&&!props?.schema?.minItems){
+    props.schema.minItems=1;
+  }
+
   return (
     <div className="array-wrapper">
       {props.items.map((element, index) => {

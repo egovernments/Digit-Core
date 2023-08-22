@@ -49,7 +49,7 @@ function App() {
       stateCode={stateCode}
       enabledModules={enabledModules}
       moduleReducers={moduleReducers}
-      // defaultLanding="employee"
+      defaultLanding="employee"
     />
   );
 }

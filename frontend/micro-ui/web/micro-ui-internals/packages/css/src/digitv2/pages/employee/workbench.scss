@@ -279,6 +279,11 @@
                 font-size: 1rem;
               }
             }
+            .all-input-field-wrapper{
+              .card-label-error {
+                position: unset !important;
+              }
+            }
           }
 
           .digit-expand-collapse-header {

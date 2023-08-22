@@ -16,13 +16,13 @@ const CollapseAndExpandGroups = ({ children, groupElements = false, groupHeader 
           <div onClick={() => setCollapse((prev) => !prev)} className="digit-icon-toggle ">
             {!collapse && (
               <span>
-                {showHelper&&<h5>Collapse</h5>}
+                {showHelper&&<h5>{t("COMMON_CORE_COLLAPSE")}</h5>}
                 <SVG.ArrowUpward />
               </span>
             )}
             {collapse && (
               <span>                
-                {showHelper&&<h5>Expand</h5>}
+                {showHelper&&<h5>{t("COMMON_CORE_EXPAND")}</h5>}
                 <SVG.ArrowDownward />
               </span>
             )}
