@@ -26,6 +26,12 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
     },
     {
       path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
+      content:  t(`WBH_MANAGE_MASTER_DATA`) ,
+      show: pathVar.includes("mdms-")?true: false,
+      // query:`moduleName=${moduleName}&masterName=${masterName}`
+    },
+    {
+      path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
       content:  t(`MDMS_SEARCH_V2`) ,
       show: pathVar.includes("mdms-search-v2")?false: true,
       query:`moduleName=${moduleName}&masterName=${masterName}`
