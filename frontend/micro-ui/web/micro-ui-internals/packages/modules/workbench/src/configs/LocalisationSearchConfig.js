@@ -106,11 +106,11 @@ export const Config = {
           },
           {
             label: "WBH_LOC_HEADER_DEFAULT",
-            jsonPath: "defaultMessage",
+            jsonPath: "message",
           },
           {
             label: "WBH_LOC_HEADER_MESSAGE",
-            jsonPath: "message",
+            jsonPath: "defaultMessage",
           },
           {
             label: "CS_COMMON_ACTION",

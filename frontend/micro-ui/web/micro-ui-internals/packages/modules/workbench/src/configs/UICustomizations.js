@@ -636,16 +636,26 @@ export const UICustomizations = {
     combineData : ({isLoading,isFetching,data,defaultData,refetch,refetchDefault}) => {
       
       //for every message in data we need to query defaultData , if same code is there then populate a field in data and return data
-      data?.messages?.forEach((message,idx) => {
+      // data?.messages?.forEach((message,idx) => {
+      //   message.defaultMessage = ""
+      //   defaultData?.messages?.forEach((defaultMessage,defaultIdx)=> {
+      //     if(message.code === defaultMessage.code){
+      //       message.defaultMessage = defaultMessage.message
+      //     }
+      //   })
+      // })
+      // return data
+
+      defaultData?.messages?.forEach((message,idx) => {
         message.defaultMessage = ""
-        defaultData?.messages?.forEach((defaultMessage,defaultIdx)=> {
+        data?.messages?.forEach((defaultMessage,defaultIdx)=> {
           if(message.code === defaultMessage.code){
             message.defaultMessage = defaultMessage.message
           }
         })
       })
+      return defaultData
       
-      return data
     }
   }
 };
