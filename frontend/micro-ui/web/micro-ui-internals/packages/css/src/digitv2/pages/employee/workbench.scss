@@ -5,6 +5,7 @@
 
   .digit-form-composer-sub-header {
     @extend .typography.text-heading-m;
+    padding-left: 1rem;
   }
 
   form {
@@ -206,7 +207,7 @@
             @extend .light-background;
             @extend .light-paper-border;
             padding: 1rem;
-            margin: 1rem 0;
+            margin: 1rem;
 
 
             .digit-icon-toggle {
@@ -233,12 +234,16 @@
             @extend .light-paper-secondary;
             @extend .light-paper-border;
             padding: 1rem;
-            margin: 1rem 0;
-
+            margin: 1rem;
 
             .array-wrapper .array-item {
-              @extend .light-background;
+              /* it has been removed since we dont need diff color for array items @extend .light-background;*/
               position: relative;
+              .field-object{
+               margin-left: 0;
+               margin-right: 0;
+              }
+          
 
               .array-remove-button-wrapper {
                 position: absolute;
@@ -284,6 +289,7 @@
                 position: unset !important;
               }
             }
+   
           }
 
           .digit-expand-collapse-header {

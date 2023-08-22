@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { SVG } from "./SVG";
 import PropTypes from "prop-types";
 
-const CollapseAndExpandGroups = ({ children, groupElements = false, groupHeader = "", headerLabel = "", headerValue = "", customClass = "" ,showHelper=false}) => {
+const CollapseAndExpandGroups = ({ children, groupElements = false, groupHeader = "", headerLabel = "", headerValue = "", customClass = "" ,showHelper=false,collapseState=false}) => {
   const { t } = useTranslation();
-  const [collapse, setCollapse] = useState(true);
+  const [collapse, setCollapse] = useState(collapseState);
   return (
     <div className={groupElements ? `digit-expand-collapse-wrapper ${customClass}` : `${customClass}`}>
       {groupHeader && <header style={{ marginBottom: "0px", fontSize: "24px" }}>{t(groupHeader)}</header>}

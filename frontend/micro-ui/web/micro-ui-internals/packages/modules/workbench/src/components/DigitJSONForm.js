@@ -114,7 +114,6 @@ function ArrayFieldTitleTemplate(props) {
 }
 function ArrayFieldTemplate(props) {
   const { t } = useTranslation();
-  console.log(props,'arrayprops');
   if(props?.required&&!props?.schema?.minItems){
     props.schema.minItems=1;
   }
@@ -123,7 +122,7 @@ function ArrayFieldTemplate(props) {
     <div className="array-wrapper">
       {props.items.map((element, index) => {
         return (
-          <span>
+          <span className="array-element-wrapper">
             <ArrayFieldItemTemplate title={props?.title} key={index} index={index} {...element}></ArrayFieldItemTemplate>
           </span>
         );
