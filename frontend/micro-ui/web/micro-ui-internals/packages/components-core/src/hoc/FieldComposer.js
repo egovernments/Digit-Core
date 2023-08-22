@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { CardText, CheckBox, Header, InputTextAmount, MobileNumber, MultiSelectDropdown, Paragraph, TextArea, TextInput } from "../atoms";
+import { CardText, CheckBox, ErrorMessage, Header, InputTextAmount, MobileNumber, MultiSelectDropdown, Paragraph, TextArea, TextInput } from "../atoms";
 import { ApiDropdown, CustomDropdown, LocationDropdownWrapper, MultiUploadWrapper } from "../molecules";
 import UploadFileComposer from "./UploadFileComposer";
 import { useTranslation } from "react-i18next";
@@ -308,6 +308,11 @@ const FieldComposer = ({
       <div style={config.withoutLabel ? { width: "100%", ...props?.fieldStyle } : { ...props?.fieldStyle }} className="digit-field">
         {renderField()}
         {config?.description && <CardText style={{ fontSize: "14px", marginTop: "-24px" }}>{t(config?.description)}</CardText>}
+        {populators?.name && errors && errors[populators?.name] && Object.keys(errors[populators?.name]).length ? (
+          <ErrorMessage message={t(populators?.error)} />
+        ) : // {t(field?.populators?.error)}
+        // </ErrorMessage>
+        null}
       </div>
     </>
   );

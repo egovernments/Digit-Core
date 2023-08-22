@@ -275,6 +275,7 @@ export const FormComposer = (props) => {
                 }
               >
                 {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field, sectionFormCategory)}
+                
                 {/* Commenting to initialize & check Field Controller and composer which render label and field Should remove later*/}
                 {/*{!field.withoutLabel && (
                   <Header
@@ -295,11 +296,14 @@ export const FormComposer = (props) => {
                   {field?.description && <CardText style={{ fontSize: "14px", marginTop: "-24px" }}>{t(field?.description)}</CardText>}
                   </div> */}
               </LabelFieldPair>
-              {field?.populators?.name && errors && errors[field?.populators?.name] && Object.keys(errors[field?.populators?.name]).length ? (
+
+              {/* Migrating error message to field container as here it renders outside the field */}
+              {/* {field?.populators?.name && errors && errors[field?.populators?.name] && Object.keys(errors[field?.populators?.name]).length ? (
                 <ErrorMessage message={t(field?.populators?.error)} />
               ) : // {t(field?.populators?.error)}
               // </ErrorMessage>
-              null}
+              null} */}
+              
             </Fragment>
           );
         })}
