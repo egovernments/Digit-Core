@@ -9,7 +9,7 @@ import MDMSAddV2 from "./MDMSAddV2";
 import MDMSEdit from "./MDMSEdit";
 import MDMSView from "./MDMSView";
 import MDMSSearchv2 from "./MDMSSearchv2";
-import LocalisationAdd from "../LocalisationAdd";
+import LocalisationAdd from "./LocalisationAdd";
 
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
@@ -23,6 +23,12 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
       path: `/${window?.contextPath}/employee`,
       content: t("WORKS_MUKTA"),
       show: true,
+    },
+    {
+      path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
+      content:  t(`WBH_MANAGE_MASTER_DATA`) ,
+      show: pathVar.includes("mdms-")?true: false,
+      // query:`moduleName=${moduleName}&masterName=${masterName}`
     },
     {
       path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,

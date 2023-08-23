@@ -1,13 +1,14 @@
 import { logoutV1 } from "./logout";
 import { UICreateConfigGenerator } from "./workbench";
 import utils from "../utils";
-
+import useLocalisationSearch from "./useLocalisationSearch";
 const UserService = {
   logoutV1,
 };
 
 const workbench = {
   UICreateConfigGenerator,
+  useLocalisationSearch
 };
 
 const contracts = {};

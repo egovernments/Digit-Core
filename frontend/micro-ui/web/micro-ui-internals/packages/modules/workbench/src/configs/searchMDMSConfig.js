@@ -15,7 +15,7 @@ export const Config = {
     minParametersForSearchForm: 0,
     masterName: "commonUiConfig",
     moduleName: "SearchMDMSConfig",
-    tableFormJsonPath: "requestBody.MdmsCriteria.custom",
+    tableFormJsonPath: "requestBody.MdmsCriteria",
     filterFormJsonPath: "requestBody.MdmsCriteria.custom",
     searchFormJsonPath: "requestBody.MdmsCriteria.custom"
   },

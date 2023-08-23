@@ -2,15 +2,17 @@ import React,{useState} from 'react'
 import MDMSAdd from './MDMSAddV2'
 import { Loader,Toast } from '@egovernments/digit-ui-react-components';
 import { useTranslation } from "react-i18next";
-
+import { useHistory } from "react-router-dom";
 const MDMSEdit = ({...props}) => {
+  const history = useHistory()
+
   const { t } = useTranslation()
 
   const { moduleName, masterName, tenantId,uniqueIdentifier } = Digit.Hooks.useQueryParams();
   const stateId = Digit.ULBService.getCurrentTenantId();
 
   const [showToast, setShowToast] = useState(false);
-
+  const [renderLoader,setRenderLoader] = useState(false)
   const reqCriteria = {
     url: `/mdms-v2/v2/_search`,
     params: {},
@@ -56,6 +58,13 @@ const MDMSEdit = ({...props}) => {
     }, 5000);
   }
 
+  const gotoView = () => { 
+    setTimeout(() => {
+      setRenderLoader(true)
+      history.push(`/${window?.contextPath}/employee/workbench/mdms-view?moduleName=${moduleName}&masterName=${masterName}&uniqueIdentifier=${uniqueIdentifier}`)
+    }, 2000);
+  }
+
   const { isLoading, data, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
   const { isLoading:isLoadingSchema,data: schemaData,isFetching: isFetchingSchema,...rest } = Digit.Hooks.useCustomAPIHook(reqCriteriaSchema);
   
@@ -79,7 +88,8 @@ const MDMSEdit = ({...props}) => {
       setShowToast({
         label:`${t("WBH_SUCCESS_UPD_MDMS_MSG")} ${resp?.mdms?.[0]?.id}`
       });
-      closeToast()
+      // closeToast()
+      gotoView()
     };
 
     const onError = (resp) => {
@@ -111,12 +121,12 @@ const MDMSEdit = ({...props}) => {
 
   }
 
-  if(isLoading || isLoadingSchema ) return <Loader />
+  if(isLoading || isLoadingSchema || renderLoader ) return <Loader />
   
   return (
     <React.Fragment>
       <MDMSAdd defaultFormData = {data?.data} screenType={"edit"} onSubmitEditAction={handleUpdate} updatesToUISchema ={schemaData?.updatesToUiSchema} />
-      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError} ></Toast>}
+      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError} onClose={()=>setShowToast(null)} ></Toast>}
     </React.Fragment>
   )
 }

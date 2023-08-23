@@ -2,7 +2,7 @@ export const Config = {
   label: "WBH_LOCALISATION_SEARCH_HEADER",
   type: "search",
   actionLabel: "WBH_ADD_LOCALISATION",
-  actionRole: "EMPLOYEE_COMMON",
+  actionRole: "LOC_ADMIN",
   actionLink: "workbench/localisation-add",
   apiDetails: {
     serviceName: "/localization/messages/v1/_search",
@@ -106,11 +106,11 @@ export const Config = {
           },
           {
             label: "WBH_LOC_HEADER_DEFAULT",
-            jsonPath: "locale",
+            jsonPath: "message",
           },
           {
             label: "WBH_LOC_HEADER_MESSAGE",
-            jsonPath: "message",
+            jsonPath: "defaultMessage",
           },
           {
             label: "CS_COMMON_ACTION",
@@ -129,4 +129,5 @@ export const Config = {
     },
   },
   additionalSections: {},
+  customHookName:"workbench.useLocalisationSearch"
 };
