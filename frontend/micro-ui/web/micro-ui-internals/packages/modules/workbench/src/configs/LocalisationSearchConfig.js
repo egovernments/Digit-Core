@@ -2,7 +2,7 @@ export const Config = {
   label: "WBH_LOCALISATION_SEARCH_HEADER",
   type: "search",
   actionLabel: "WBH_ADD_LOCALISATION",
-  actionRole: "EMPLOYEE",
+  actionRole: "LOC_ADMIN",
   actionLink: "workbench/localisation-add",
   apiDetails: {
     serviceName: "/localization/messages/v1/_search",
