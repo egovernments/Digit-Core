@@ -81,18 +81,20 @@ export const getTransformedLocale = (label) => {
       }
     };
 
-     console.log("headers------------>"+JSON.stringify(headers));
-      console.log("url------------>"+url);
-      console.log("request------------>"+JSON.stringify(request));
+    //  console.log("headers------------>"+JSON.stringify(headers));
+      // console.log("url------------>"+url);
+      // console.log("request------------>"+JSON.stringify(request));
 
     let responseBody = await axios.post(url,request,headers)
     .then(function (response) {
+      console.log("Response ------------>"+JSON.stringify(response.data));
       return response;
+      
     })
     .catch((error) => {
       throw error
      });
-  
+    //  console.log("Response ------------>"+JSON.stringify(responseBody));
     if(pdfKey!=null)
       cache.set(pdfKey, responseBody.data);
   
