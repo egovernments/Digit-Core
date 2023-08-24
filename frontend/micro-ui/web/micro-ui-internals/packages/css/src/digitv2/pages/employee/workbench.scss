@@ -212,7 +212,6 @@
             @extend .light-paper-border;
             padding: 1rem;
             margin: 1rem;
-            width: 63.5%;
 
             .digit-icon-toggle {
               top: unset;
@@ -234,7 +233,6 @@
 
           &.field-array {
             display: block;
-            width: 63.5%;
             @extend .light-paper-secondary;
             @extend .light-paper-border;
             padding: 1rem;
