@@ -148,6 +148,7 @@
               align-items: end;
               &.custom-checkbox-disabled {
                 pointer-events: none;
+                opacity: 0.6;
               }
               .custom-checkbox-label{
                 @extend .typography.text-body-s;
