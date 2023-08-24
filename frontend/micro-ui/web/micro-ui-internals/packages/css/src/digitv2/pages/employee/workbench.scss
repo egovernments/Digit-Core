@@ -212,7 +212,7 @@
             @extend .light-paper-border;
             padding: 1rem;
             margin: 1rem;
-
+            width: 63.5%;
 
             .digit-icon-toggle {
               top: unset;
@@ -234,12 +234,11 @@
 
           &.field-array {
             display: block;
-
+            width: 63.5%;
             @extend .light-paper-secondary;
             @extend .light-paper-border;
             padding: 1rem;
             margin: 1rem;
-
             .array-wrapper .array-item {
               /* it has been removed since we dont need diff color for array items @extend .light-background;*/
               position: relative;
