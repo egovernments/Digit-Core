@@ -195,8 +195,6 @@ export const externalAPIMapping = async function (
 
 
   try {
-  //  console.log("responsePromises -------->     "+JSON.stringify(responsePromises));
-
     responses = await Promise.all(responsePromises)
   } catch (error) {
     logger.error(error.stack || error);
