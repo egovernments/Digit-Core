@@ -134,6 +134,7 @@ function ArrayFieldTemplate(props) {
           icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
           onButtonClick={props.onAddClick}
           type="button"
+          isDisabled={props.disabled}
         />
       )}
     </div>
