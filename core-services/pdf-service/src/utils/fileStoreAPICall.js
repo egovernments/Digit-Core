@@ -22,7 +22,7 @@ export const fileStoreAPICall = async function(filename, tenantId, fileData, hea
     filename: filename,
     contentType: "application/pdf"
   });
- let tenantId = envVariables.STATE_LEVEL_TENANT_ID;
+ let tenant = envVariables.STATE_LEVEL_TENANT_ID;
   let temp ={...form.getHeaders()}
   // const myObject = { key1: 'value1', key2: 'value2' };
 // console.log(JSON.stringify(temp));
@@ -34,7 +34,7 @@ export const fileStoreAPICall = async function(filename, tenantId, fileData, hea
     maxBodyLength: Infinity,
     headers: {
       ...form.getHeaders(),
-      TENANTID : tenantId
+      TENANTID : tenant
     }
   });
   return get(response.data, "files[0].fileStoreId");
