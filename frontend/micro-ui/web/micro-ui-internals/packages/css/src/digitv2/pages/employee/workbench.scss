@@ -146,6 +146,9 @@
             .custom-checkbox{
               display: inline-flex;
               align-items: end;
+              &.custom-checkbox-disabled {
+                pointer-events: none;
+              }
               .custom-checkbox-label{
                 @extend .typography.text-body-s;
                 @apply pl-sm;

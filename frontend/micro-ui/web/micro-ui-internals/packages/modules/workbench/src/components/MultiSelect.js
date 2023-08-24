@@ -23,7 +23,7 @@ const CustomSelectWidget = (props) => {
       className="form-control form-select"
       classNamePrefix="digit"
       options={optionsList}
-      disabled={disabled || readonly}
+      isDisabled={disabled || readonly}
       placeholder={placeholder}
       onBlur={onBlur}
       onFocus={onFocus}
