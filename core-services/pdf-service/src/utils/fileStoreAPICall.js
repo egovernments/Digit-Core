@@ -22,15 +22,19 @@ export const fileStoreAPICall = async function(filename, tenantId, fileData, hea
     filename: filename,
     contentType: "application/pdf"
   });
+ let tenantId = envVariables.STATE_LEVEL_TENANT_ID;
   let temp ={...form.getHeaders()}
-  console.log("temp--->"+ temp);
+  // const myObject = { key1: 'value1', key2: 'value2' };
+// console.log(JSON.stringify(temp));
+  console.log("temp--->"+ JSON.stringify(temp));
   let headers = { header };
-  console.log("headers--->"+ headers);
+  console.log("headers--->"+ JSON.stringify(headers));
   let response = await axios.post(url, form, {
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
     headers: {
-      ...form.getHeaders()
+      ...form.getHeaders(),
+      TENANTID : tenantId
     }
   });
   return get(response.data, "files[0].fileStoreId");
