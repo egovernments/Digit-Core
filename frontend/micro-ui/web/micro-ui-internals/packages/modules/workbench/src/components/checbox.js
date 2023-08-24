@@ -8,8 +8,8 @@ export const CustomCheckbox = function (props) {
 
   return (
     <div onClick={() => props.onChange(!props.value)} className="custom-checkbox">
-      {props.value && <ToggleSwitch value={true}></ToggleSwitch>}
-      {!props.value && <ToggleSwitch value={false}></ToggleSwitch>}
+      {props.value && <ToggleSwitch value={true} {...props}></ToggleSwitch>}
+      {!props.value && <ToggleSwitch value={false} {...props}></ToggleSwitch>}
       <span className="custom-checkbox-label">{props.value ? t("WBH_BOOLEAN_VALUE_TRUE") :  t("WBH_BOOLEAN_VALUE_FALSE")}</span>
     </div>
   );
