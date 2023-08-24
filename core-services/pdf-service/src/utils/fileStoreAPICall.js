@@ -22,7 +22,10 @@ export const fileStoreAPICall = async function(filename, tenantId, fileData, hea
     filename: filename,
     contentType: "application/pdf"
   });
+  let temp ={...form.getHeaders()}
+  console.log("temp--->"+ temp);
   let headers = { header };
+  console.log("headers--->"+ headers);
   let response = await axios.post(url, form, {
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
