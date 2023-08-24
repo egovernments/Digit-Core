@@ -11,6 +11,7 @@ import {
   CardLabel,
   Header,
   Toast,
+  InfoBannerIcon
 } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import reducer, { intialState } from "../../utils/LocAddReducer";
@@ -172,7 +173,18 @@ const LocalisationAdd = () => {
         },
       },
       {
-        Header: t("WBH_LOC_MESSAGE_VALUE"),
+        Header: (
+          <div class="tooltip" style={{marginTop:"-10px"}}>
+            <span class="textoverflow" style={{ "--max-width": `20ch` }}>
+              {String(t("WBH_LOC_MESSAGE_VALUE"))}
+              <InfoBannerIcon styles={{marginTop:"-10px"}} fill={"#f47738"} />
+            </span>
+            {/* check condtion - if length greater than 20 */}
+            <span class="tooltiptext" style={{ whiteSpace: "normal",width:"15rem" }}>
+              {String(t("WBH_LOC_DEFAULT_INFO_MESSAGE"))}
+            </span>
+          </div>
+        ),
         accessor: "message",
         Cell: ({ value, col, row }) => {
           return (

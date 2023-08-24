@@ -16,6 +16,7 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const search = useLocation().search;
   const fromScreen = new URLSearchParams(search).get("from") || null;
   const pathVar=location.pathname.replace(defaultPath+'/',"").split("?")?.[0];
+  
   const {masterName,moduleName} = Digit.Hooks.useQueryParams()
 
   const crumbs = [
@@ -33,7 +34,7 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
     {
       path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
       content:  t(`MDMS_SEARCH_V2`) ,
-      show: pathVar.includes("mdms-search-v2")?false: true,
+      show:pathVar.includes("mdms-")? pathVar.includes("mdms-search-v2")?false: true:false,
       query:`moduleName=${moduleName}&masterName=${masterName}`
     },
     {
