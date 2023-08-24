@@ -23,7 +23,7 @@ const envVariables = {
   DB_HOST: process.env.DB_HOST || "localhost",
   DB_NAME: process.env.DB_NAME || "PdfGen",
   DB_PORT: process.env.DB_PORT || 5432,
-  EGOV_EXTERNAL_HOST: process.env.EGOV_EXTERNAL_HOST || "https://stateb.digit.org/" ,
+  EGOV_EXTERNAL_HOST: process.env.EGOV_EXTERNAL_HOST || "https://dev.digit.org/" ,
   IS_ENVIRONMENT_CENTRAL_INSTANCE: process.env.IS_ENVIRONMENT_CENTRAL_INSTANCE || false,
   STATE_SCHEMA_INDEX_POSITION_TENANTID: process.env.STATE_SCHEMA_INDEX_POSITION_TENANTID || 1,
   SAVE_PDF_DIR: process.env.SAVE_PDF_DIR || '/mnt/pdf/',
