@@ -14,27 +14,18 @@ let externalHost = envVariables.EGOV_EXTERNAL_HOST;
  * @param {*} tenantId - tenantID
  */
 export const fileStoreAPICall = async function(filename, tenantId, fileData, header) {
-  console.log("filename-->"+ filename + "tenantId :"+tenantId +"fileData:"+ fileData +"header :"+header);
   var url = `${egovFileHost}/filestore/v1/files?tenantId=${tenantId}&module=pdfgen&tag=00040-2017-QR`;
-  console.log("url-->"+ url);
   var form = new FormData();
   form.append("file", fileData, {
     filename: filename,
     contentType: "application/pdf"
   });
- let tenant = envVariables.STATE_LEVEL_TENANT_ID;
-  let temp ={...form.getHeaders()}
-  // const myObject = { key1: 'value1', key2: 'value2' };
-// console.log(JSON.stringify(temp));
-  console.log("temp--->"+ JSON.stringify(temp));
   let headers = { header };
-  console.log("headers--->"+ JSON.stringify(headers));
   let response = await axios.post(url, form, {
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
     headers: {
-      ...form.getHeaders(),
-      TENANTID : tenant
+      ...form.getHeaders()
     }
   });
   return get(response.data, "files[0].fileStoreId");

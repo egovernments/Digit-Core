@@ -34,7 +34,6 @@ export const externalAPIMapping = async function (
   unregisteredLocalisationCodes,
   header
 ) {
-  console.log("qqqqqqqqqaaaa",requestInfo);
   var jp = require("jsonpath");
   var objectOfExternalAPI = getValue(
     jp.query(dataconfig, "$.DataConfigs.mappings.*.mappings.*.externalAPI.*"),
@@ -174,7 +173,7 @@ export const externalAPIMapping = async function (
     let headerConfig = {
       headers: header
     };
-    console.log("EXTERNAL API CALL --> "+externalAPIArray[i].uri + "?" + externalAPIArray[i].queryParams);
+
     let resPromise;
     if (externalAPIArray[i].requesttype == "POST") {
       resPromise = await axios.post(
@@ -183,7 +182,6 @@ export const externalAPIMapping = async function (
         },headerConfig
       );
       let temp=resPromise.data
-      console.log("HEADER CONFIG",JSON.stringify(temp));
     } else {
       resPromise = axios.get(
         externalAPIArray[i].uri + "?" + externalAPIArray[i].queryParams, {
@@ -191,9 +189,6 @@ export const externalAPIMapping = async function (
         }
       );
     }
-    console.log("EXTERNAL API --> "+externalAPIArray[i].uri + "?" + externalAPIArray[i].queryParams);
-    // console.log("resPromise-------->     "+JSON.stringify(resPromise));
-    console.log("HEADER CONFIG",JSON.stringify(resPromise.data));
 
     responsePromises.push(resPromise)
   }

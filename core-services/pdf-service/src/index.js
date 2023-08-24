@@ -279,7 +279,6 @@ const uploadFiles = async (
     doc.on("end", function () {
       // console.log("enddddd "+cr++);
       var data = Buffer.concat(chunks);
-      console.log("filename-->"+ filename + "tenantId :"+tenantId +"fileData:"+ data +"header :"+headers);
       fileStoreAPICall(filename, tenantId, data, headers)
         .then((result) => {
           listOfFilestoreIds.push(result);
