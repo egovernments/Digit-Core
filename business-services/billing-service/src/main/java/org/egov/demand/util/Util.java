@@ -103,6 +103,7 @@ public class Util {
 	 */
 	public DocumentContext getAttributeValues(MdmsCriteriaReq mdmsReq) {
 		StringBuilder uri = new StringBuilder(appProps.getMdmsHost()).append(appProps.getMdmsEndpoint());
+		
 		try {
 			return JsonPath.parse(serviceRequestRepository.fetchResult(uri.toString(), mdmsReq));
 		} catch (Exception e) {
