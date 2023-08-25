@@ -153,6 +153,7 @@ const useGetCustomFilterRequestValues = (filterConfigs, config={}) => {
 # Changelog
 
 ```bash
+1.5.44 UI/UX Audit Fixes :: Refer PFM-4442(https://digit-discuss.atlassian.net/browse/PFM-4442)
 1.5.43 Alignment fixes
 1.5.39 Bug fixes = tooltip text not showing fully + Share whatsapp and email was not working
 1.5.38 updated the readme content

@@ -56,7 +56,7 @@ const CustomPieChart = ({ dataKey = "value", data, setChartDenomination,variant=
 
     if(variant==="pieChartv2" && entry){
       return (
-        <div style={{ display:"inline-flex",justifyContent:"space-between",fontSize: "16px",width:"90%",color:"black",height:"5px",alignItems:"center" }}>
+        <div style={{ display:"inline-flex",justifyContent:"space-between",fontSize: "16px",width:"95%",color:"black",height:"5px",alignItems:"center" }}>
           <p style={{display:"inline-block",maxWidth:"20rem",alignItems:"flex-start",paddingLeft:"0.5rem",whiteSpace:"nowrap",textOverflow:"ellipsis",height:"fit-content",overflow:"hidden"}}>{t(`COMMON_MASTERS_${val && Digit.Utils.locale.getTransformedLocale(val)}`)}</p>
           <p style={{ display:"inline-block",width:"2rem",alignItems:"flex-end",fontWeight:"bold",fontSize:"20px" }}>{Digit.Utils.dss.formatter(entry?.payload?.value, entry?.payload?.symbol, value?.denomination, true, t)}</p>
         </div>

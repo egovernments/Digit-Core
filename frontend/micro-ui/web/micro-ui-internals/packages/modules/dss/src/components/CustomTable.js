@@ -10,7 +10,10 @@ import ReactTooltip from "react-tooltip";
 
 const rowNamesToBeLocalised = ["Department", "", "Usage Type", "Ward", "Wards", "City Name"];
 
-const InsightView = ({ rowValue, insight, t }) => {
+const InsightView = ({ rowValue, insight, t ,disableInsights=false}) => {
+  if(disableInsights){
+    return <span>{rowValue}</span>
+  }
   return (
     <span>
       {rowValue}
@@ -28,7 +31,7 @@ const calculateFSTPCapacityUtilization = (value, totalCapacity, numberOfDays = 1
 };
 
 const CustomTable = ({ data = {}, onSearch, setChartData, setChartDenomination }) => {
-  const { id } = data;
+  const { id,disableInsights=false } = data;
   const [chartKey, setChartKey] = useState(id);
   const [filterStack, setFilterStack] = useState([{ id: chartKey }]);
   const { t } = useTranslation();
@@ -315,7 +318,7 @@ const CustomTable = ({ data = {}, onSearch, setChartData, setChartDenomination }
         Cell: (args) => {
           const { value: cellValue, column, row } = args;
           if (typeof cellValue === "object") {
-            return <InsightView insight={cellValue?.insight} rowValue={cellValue?.value} t={t} />;
+            return <InsightView insight={cellValue?.insight} rowValue={cellValue?.value} disableInsights={disableInsights} t={t} />;
           }
           const filter = response?.responseData?.filter?.find((elem) => elem?.column === column?.id);
           if (response?.responseData?.drillDownChartId !== "none" && filter !== undefined) {
