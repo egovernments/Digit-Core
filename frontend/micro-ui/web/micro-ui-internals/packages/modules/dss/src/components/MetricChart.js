@@ -200,7 +200,7 @@ const MetricChart = ({ data, setChartDenomination }) => {
   const { charts } = data;
   return (
     <>
-    <span className={`chart-metric-wrapper`} style={{flexWrap: "wrap", display: "flex"}}>
+    <span className={`chart-metric-wrapper`} style={data?.isHorizontalChart ?{flexWrap: "wrap", display: "flex",justifyContent: "space-evenly"} : {flexWrap: "wrap", display: "flex"}}>
   
       {charts.map((chart, index) => (
         
