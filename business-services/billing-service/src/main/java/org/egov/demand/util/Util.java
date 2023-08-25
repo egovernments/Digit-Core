@@ -104,8 +104,7 @@ public class Util {
 	 */
 	public DocumentContext getAttributeValues(MdmsCriteriaReq mdmsReq) {
 		StringBuilder uri = new StringBuilder(appProps.getMdmsHost()).append(appProps.getMdmsEndpoint());
-		String tenantId = mdmsReq.getMdmsCriteria().getTenantId();
-		MDC.put(Constants.TENANTID_MDC_STRING, tenantId);
+		
 		try {
 			return JsonPath.parse(serviceRequestRepository.fetchResult(uri.toString(), mdmsReq));
 		} catch (Exception e) {
