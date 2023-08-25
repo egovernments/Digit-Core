@@ -26,7 +26,7 @@ const CONFIGS_TEMPLATE = {
         pattern: /^[A-Za-z]+$/i,
       },
     },
-  }, 
+  },
   array: {
     inline: true,
     label: "",
@@ -123,16 +123,14 @@ const getConfig = (type = "text") => {
 
 const getMDMSLabel = (code = "") => {
   //enable this flag to get the localisation enabled for the mdms forms
-  let flag =true;
+  let flag = true;
   if (!flag) {
     return code
       .split(/(?=[A-Z])/)
       .reduce((acc, curr) => acc + curr.charAt(0).toUpperCase() + curr.slice(1) + " ", "")
       .trim();
   }
-  return Digit.Utils.locale.getTransformedLocale(
-    code
-  );
+  return Digit.Utils.locale.getTransformedLocale(code);
 };
 
 const getFormattedData = (data = {}) => {
@@ -147,16 +145,41 @@ const getFormattedData = (data = {}) => {
   });
   return formattedData;
 };
+/* Method currently used to find the path to insert enum to the schema*/
 
-
-const getUpdatedPath=(path="")=>{
-  if(!path?.includes('.')){
-    return path;
-  }else if(path?.includes('.*.')){
-    return Digit.Utils.locale.stringReplaceAll(path,".*.",".items.properties.")
-  }else {
-    return Digit.Utils.locale.stringReplaceAll(path,".",".properties.")
+const getUpdatedPath = (path = "") => {
+  let tempPath = path;
+  if (!tempPath?.includes(".")) {
+    return tempPath;
   }
-}
+  if (tempPath?.includes(".*.")) {
+    tempPath = Digit.Utils.locale.stringReplaceAll(tempPath, ".*.", "_ARRAY_OBJECT_");
+  }
+  if (tempPath?.includes(".*")) {
+    tempPath = Digit.Utils.locale.stringReplaceAll(tempPath, ".*", "_ARRAY_");
+  }
+  if (tempPath?.includes(".")) {
+    tempPath = Digit.Utils.locale.stringReplaceAll(tempPath, ".", "_OBJECT_");
+  }
+  let updatedPath = Digit.Utils.locale.stringReplaceAll(tempPath, "_ARRAY_OBJECT_", ".items.properties.");
+  updatedPath = Digit.Utils.locale.stringReplaceAll(updatedPath, "_ARRAY_", ".items");
+  updatedPath = Digit.Utils.locale.stringReplaceAll(updatedPath, "_OBJECT_", ".properties.");
+  return updatedPath;
+};
+/* Method currently used to update the title for the all data with localisation code*/
 
-export default { getConfig, getMDMSLabel, getFormattedData ,getUpdatedPath};
+const updateTitleToLocalisationCodeForObject = (definition, schemaCode) => {
+  Object.keys(definition?.properties).map((key) => {
+    const title = Digit.Utils.locale.getTransformedLocale(`${schemaCode}_${key}`);
+    definition.properties[key] = { ...definition.properties[key], title: title };
+    if (definition.properties[key]?.type == "object") {
+      updateTitleToLocalisationCodeForObject(definition.properties[key], schemaCode);
+    }
+    if (definition.properties[key]?.type == "array" && definition.properties[key]?.items?.type == "object") {
+      updateTitleToLocalisationCodeForObject(definition.properties[key]?.items, schemaCode);
+    }
+  });
+  return definition;
+};
+
+export default { getConfig, getMDMSLabel, getFormattedData, getUpdatedPath, updateTitleToLocalisationCodeForObject };

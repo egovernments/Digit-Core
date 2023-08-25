@@ -30,6 +30,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   const [noSchema, setNoSchema] = useState(false);
   const [loadDependent, setLoadDependent] = useState([]);
   const [showErrorToast, setShowErrorToast] = useState(false);
+  const [disableForm, setDisableForm] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
   const { moduleName, masterName } = Digit.Hooks.useQueryParams();
@@ -124,15 +125,14 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       }, 1500);
       setShowErrorToast(false);
       const jsonPath = api?.responseJson ? api?.responseJson : "mdms[0].id";
-      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp,jsonPath,"NA")}`);
+      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp, jsonPath, "NA")}`);
     };
     const onError = (resp) => {
       setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${t(resp?.response?.data?.Errors?.[0]?.code)}`);
       setShowErrorToast(true);
     };
 
-      _.set(body, api?.requestJson ? api?.requestJson : "Mdms.data", { ...data });
- 
+    _.set(body, api?.requestJson ? api?.requestJson : "Mdms.data", { ...data });
 
     mutation.mutate(
       {
@@ -159,11 +159,15 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     // setFormSchema(schema);
     /* localise */
     if (schema && schema?.definition) {
-      Object.keys(schema?.definition?.properties).map((key) => {
-        const title = Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`);
-        schema.definition.properties[key] = { ...schema.definition.properties[key], title: t(title) };        
-      });
+      // Object.keys(schema?.definition?.properties).map((key) => {
+      //   const title = Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`);
+      //   schema.definition.properties[key] = { ...schema.definition.properties[key], title: t(title) };
+      //   console.log(schema.definition.properties[key],'schema.definition.properties[key]',key)
+      // });
+      Digit.Utils.workbench.updateTitleToLocalisationCodeForObject(schema?.definition, schema?.code);
       setFormSchema(schema);
+      /* logic to search for the reference data from the mdms data api */
+
       if (schema?.definition?.["x-ref-schema"]?.length > 0) {
         setLoadDependent([...schema?.definition?.["x-ref-schema"]]);
       }
@@ -171,31 +175,24 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   }, [schema]);
 
   useEffect(() => {
+    /* logic to enable the enum values fetched from the mdms data api */
     if (loadDependent && loadDependent?.length > 0) {
       loadDependent?.map((dependent) => {
         if (dependent?.fieldPath && additonalData?.[dependent?.schemaCode]?.length > 0) {
           let updatedPath = Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
           if (_.get(schema?.definition?.properties, updatedPath)) {
-            if (_.get(schema?.definition?.properties, updatedPath) && _.get(schema?.definition?.properties, updatedPath, {})?.type == "array") {
-              updatedPath += ".items";
-            }
             _.set(schema?.definition?.properties, updatedPath, {
               ..._.get(schema?.definition?.properties, updatedPath, {}),
               enum: additonalData?.[dependent?.schemaCode],
             });
-            schema.definition.properties["temp_field"] = {
-              ...schema.definition.properties[updatedPath],
-              enum: additonalData?.[dependent?.schemaCode],
-            };
           }
         }
       });
       setFormSchema({ ...schema });
+      /* added disable to get the complete form re rendered to get the enum values reflected */
+      setDisableForm(true);
       setTimeout(() => {
-        setFormSchema((schema) => {
-          delete schema.definition.properties["temp_field"];
-          return { ...schema };
-        }, 500);
+        setDisableForm(false);
       });
     }
   }, [additonalData]);
@@ -243,6 +240,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
           screenType={screenType}
           viewActions={viewActions}
           onViewActionsSelect={onViewActionsSelect}
+          disabled={disableForm}
         ></DigitJSONForm>
       )}
     </React.Fragment>

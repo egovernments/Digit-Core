@@ -9,6 +9,9 @@
   }
 
   form {
+    #label_digit_root{
+      display: none;
+    }
     #digit_root {
       width: 100%;
 
@@ -235,7 +238,7 @@
             display: block;
             @extend .light-paper-secondary;
             @extend .light-paper-border;
-            padding: 1rem;
+            padding: 2rem;
             margin: 1rem;
             .array-wrapper .array-item {
               /* it has been removed since we dont need diff color for array items @extend .light-background;*/
@@ -388,5 +391,21 @@
 
   .digit-error-msg {
     margin-top: 2rem;
+  }
+}
+
+
+.tooltip .tooltiptext {
+ 
+  top: 2rem;
+  left: 0;
+  margin-left: 0rem;
+  width: fit-content;
+  height: max-content;
+  white-space: normal;
+  .tooltiptextvalue{
+    font-size: 14px; 
+    font-weight: 400px; 
+    color: white;
   }
 }
