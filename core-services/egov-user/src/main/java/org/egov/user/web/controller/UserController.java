@@ -103,7 +103,6 @@ public class UserController {
 
         // Generate JWT Token using java-jwt library
         String token = JWT.create()
-                .withIssuer("your-issuer")
                 .withSubject(username)
                 .withClaim("username", username)
                 .withClaim("roles", "user")
