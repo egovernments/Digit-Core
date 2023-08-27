@@ -1,12 +1,9 @@
 package org.egov.user.web.controller;
-
 import com.auth0.jwt.JWT;
-import com.sun.javafx.scene.traversal.Algorithm;
+import com.auth0.jwt.algorithms.Algorithm;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.user.domain.model.*;
-
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserDetail;
 import org.egov.user.domain.model.UserSearchCriteria;
@@ -16,24 +13,12 @@ import org.egov.user.web.contract.*;
 import org.egov.user.web.contract.auth.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.SocketUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -43,6 +28,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 @RestController
 @Slf4j
+@RequestMapping("/user")
 public class UserController {
 
     private UserService userService;
@@ -87,31 +73,7 @@ public class UserController {
         User createdUser = userService.createCitizen(user, createUserRequest.getRequestInfo());
         return createResponse(createdUser);
     }
-    @PostMapping("/_jwt")
-    public ResponseEntity<AuthenticationResponse> authenticateUserWithJWT(@RequestBody AuthenticationRequest authRequest){
-        log.info("Received JWT Authentication Request for User: " + authRequest.getUsername());
-        boolean isAuthenticated = authenticate(authRequest.getUsername(),authRequest.getPassword());
-        if (isAuthenticated) {
-            String jwtToken = generateJWTToken(authRequest.getUsername());
 
-            AuthenticationResponse response = new AuthenticationResponse(jwtToken);
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-    }
-    private boolean authenticate(String username, String password) {
-        return true; 
-    }
-    private String generateJWTToken(String username) {
-        Algorithm algorithm = Algorithm.HMAC256(secretKey);
-        String token = JWT.create()
-                .withIssuer(issuer)
-                .withSubject(username)
-                .sign(algorithm);
-
-        return token;
-    }
 
 
     /**
@@ -130,6 +92,28 @@ public class UserController {
         user.setOtpValidationMandatory(false);
         final User newUser = userService.createUser(user, createUserRequest.getRequestInfo());
         return createResponse(newUser);
+    }
+    @PostMapping("/_jwt")
+    public Map<String,String> generateJwtToken(@RequestBody User user){
+        String username= user.getUsername();
+        String password= user.getPassword();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
+        claims.put("roles", "user");
+
+        // Generate JWT Token using java-jwt library
+        String token = JWT.create()
+                .withIssuer("your-issuer")
+                .withSubject(username)
+                .withClaim("username", username)
+                .withClaim("roles", "user")
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 86400000))
+                .sign(Algorithm.HMAC256(secretKey));
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        return response;
     }
 
     /**
@@ -163,13 +147,14 @@ public class UserController {
     }
 
 
-
     /**
      * end-point to fetch the user details by access-token
      *
      * @param accessToken
      * @return
      */
+
+
     @PostMapping("/_details")
     public CustomUserDetails getUser(@RequestParam(value = "access_token") String accessToken) {
         final UserDetail userDetail = tokenService.getUser(accessToken);
