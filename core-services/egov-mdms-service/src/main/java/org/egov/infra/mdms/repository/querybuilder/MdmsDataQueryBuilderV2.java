@@ -79,6 +79,11 @@ public class MdmsDataQueryBuilderV2 {
             builder.append(" data.uniqueidentifier IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getUniqueIdentifiersForRefVerification().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getUniqueIdentifiersForRefVerification());
         }
+        if(!Objects.isNull(mdmsCriteriaV2.getIsActive())) {
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+            builder.append(" data.isactive = ? ");
+            preparedStmtList.add(mdmsCriteriaV2.getIsActive());
+        }
         return builder.toString();
     }
 

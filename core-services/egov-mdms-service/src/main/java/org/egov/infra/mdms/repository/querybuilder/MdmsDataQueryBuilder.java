@@ -55,6 +55,11 @@ public class MdmsDataQueryBuilder {
             builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(schemaCodeFilterMap.keySet().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
         }
+        if(!Objects.isNull(mdmsCriteria.getIsActive())) {
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+            builder.append(" data.isactive = ? ");
+            preparedStmtList.add(mdmsCriteria.getIsActive());
+        }
         return builder.toString();
     }
 

@@ -46,6 +46,9 @@ public class MdmsCriteria {
     @JsonIgnore
     private Map<String, String> schemaCodeFilterMap = null;
 
+    @JsonIgnore
+    private Boolean isActive = Boolean.TRUE;
+
 
     public MdmsCriteria addModuleDetailsItem(ModuleDetail moduleDetailsItem) {
         if (this.moduleDetails == null) {
