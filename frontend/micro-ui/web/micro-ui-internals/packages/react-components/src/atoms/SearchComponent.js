@@ -81,6 +81,9 @@ const SearchComponent = ({ uiConfig, header = "", screenType = "search", fullCon
       state: { ...uiConfig?.defaultValues }
       //need to pass form with empty strings 
     })
+    dispatch({
+      type:"clearTableForm"
+    })
   }
  
   const closeToast = () => {

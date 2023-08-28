@@ -30,8 +30,8 @@ export const Config = {
         defaultValues: {
           value: "",
           field: "",
-          createdFrom: "",
-          createdTo: "",
+          // createdFrom: "",
+          // createdTo: "",
         },
         fields: [
           {
@@ -70,36 +70,36 @@ export const Config = {
             },
           },
 
-          {
-            label: "CREATED_FROM_DATE",
-            type: "date",
-            isMandatory: false,
-            disable: false,
-            key: "createdFrom",
-            preProcess: {
-              updateDependent: ["populators.max"],
-            },
-            populators: { name: "createdFrom", max: "currentDate" },
-          },
-          {
-            label: "CREATED_TO_DATE",
-            type: "date",
-            isMandatory: false,
-            disable: false,
-            key: "createdTo",
-            preProcess: {
-              updateDependent: ["populators.max"],
-            },
-            populators: {
-              name: "createdTo",
-              error: "DATE_VALIDATION_MSG",
-              max: "currentDate",
-            },
-            additionalValidation: {
-              type: "date",
-              keys: { start: "createdFrom", end: "createdTo" },
-            },
-          },
+          // {
+          //   label: "CREATED_FROM_DATE",
+          //   type: "date",
+          //   isMandatory: false,
+          //   disable: false,
+          //   key: "createdFrom",
+          //   preProcess: {
+          //     updateDependent: ["populators.max"],
+          //   },
+          //   populators: { name: "createdFrom", max: "currentDate" },
+          // },
+          // {
+          //   label: "CREATED_TO_DATE",
+          //   type: "date",
+          //   isMandatory: false,
+          //   disable: false,
+          //   key: "createdTo",
+          //   preProcess: {
+          //     updateDependent: ["populators.max"],
+          //   },
+          //   populators: {
+          //     name: "createdTo",
+          //     error: "DATE_VALIDATION_MSG",
+          //     max: "currentDate",
+          //   },
+          //   additionalValidation: {
+          //     type: "date",
+          //     keys: { start: "createdFrom", end: "createdTo" },
+          //   },
+          // },
         ],
       },
       label: "",
