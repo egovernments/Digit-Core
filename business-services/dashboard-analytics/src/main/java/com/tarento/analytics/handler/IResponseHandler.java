@@ -1,15 +1,8 @@
 package com.tarento.analytics.handler;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.tarento.analytics.dto.AggregateDto;
 import com.tarento.analytics.dto.AggregateRequestDto;
 import com.tarento.analytics.dto.Data;
@@ -18,6 +11,11 @@ import com.tarento.analytics.enums.ChartType;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Handles Elastic search consolidate responses
@@ -76,9 +74,10 @@ public interface IResponseHandler {
 	public final String PERCENTAGE = "percentage";
     public final String DOC_COUNT = "doc_count"; 
     
-	public static final String COMPARE_TWO_INDICES = "compareTwoIndices";
     public static final String POST_AGGREGATION_THEORY = "postAggregationTheory";
-    
+
+	public static final String COMPARE_TWO_INDICES = "compareTwoIndices";
+	public static final String COMPARE_VALUE_TWO_INDICES = "compareValueOfTwoIndices";
     public static final String CHART_SPECIFIC = "chartSpecificProperty";
 	
 	public static final String XTABLE_COLUMN = "XtableColumnOrder";
@@ -209,6 +208,7 @@ public interface IResponseHandler {
 		logger.info("after appending missing plots : "+ sortedMap);
 		data.setPlots(sortedMap.values().stream().collect(Collectors.toList()));
 	}
+
 	default Double compareTwoIndices(List<List<String>> bucketList){
 		List<String> listA = bucketList.get(0);
 		List<String> listB = bucketList.get(1);
@@ -221,4 +221,25 @@ public interface IResponseHandler {
 		}
 		return  count;
 	}
+
+	default Double compareValueOfTwoIndices(List<Map<String ,Double>> valueMap){
+		Map<String ,Double> mapA = valueMap.get(0);
+		Map<String ,Double> mapB = valueMap.get(1);
+
+		final Double[] count = {0.0};
+		try {
+			mapA.forEach((key,value)->{
+				if(mapB.containsKey(key)){
+					count[0] += (value - mapB.get(key));
+				}else{
+					count[0] += value;
+				}
+			});
+		}catch (Exception e){
+			logger.error(String.valueOf(e));
+		}
+
+		return count[0];
+	}
+
 }
