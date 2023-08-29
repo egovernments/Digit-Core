@@ -210,17 +210,21 @@
 
 
 
-          
+          &.field-object > .control-label {
+            margin-left: 0.5rem;
+          }
           &.field-object {
             display: block;
             @extend .light-background;
             @extend .light-paper-border;
-            padding: 0.5rem;
-            margin: 0.5rem;
-
+            padding: 1rem;
+            margin: 1rem;
+            .digit-expand-collapse-wrapper{
+              margin-top:0px;
+            }
             .digit-icon-toggle {
-              top: unset;
-              right: 1em;
+              top: -1.5rem;
+              right: 1.5em;
             }
 
             .object-wrapper {
@@ -240,22 +244,23 @@
             display: block;
             @extend .light-paper-secondary;
             @extend .light-paper-border;
-            padding: 1rem;
-            margin: 0.5rem;
+            padding: 2rem;
+            margin: 1rem;
+            padding-top: 1rem;
             .array-wrapper .array-item {
               &.jk-array-objects >
                 .array-remove-button-wrapper{
                   display: block;
                 }
               &.jk-array-objects{
-
+                  margin-bottom: 2rem;
                   .array-children > span .form-group.field.field-object{
-                  padding-bottom: 2rem;
+                  padding-bottom: 3rem;
                   }
                   .array-obj{
                     position: absolute;
-                    bottom: 1rem;
-                    left: 1rem;
+                    bottom: 1.5rem;
+                    left: 2rem;
                     >.array-remove-button-wrapper{
                       position:unset;
                     }
@@ -266,16 +271,19 @@
               &.jk-array-of-non-objects >
                 .array-remove-button-wrapper{
                   display: inline;
+                  left: 64%;
+                  right: unset;
+                  top:0.7rem;
                 }
                 &.jk-array-of-non-objects .array-children{
                   span .form-group {
+                    padding-left: 0%;
                     .control-label{
                       display: none;
                     }
                     
                   }
                 }
-              
               /* it has been removed since we dont need diff color for array items @extend .light-background;*/
               position: relative;
               .field-object{
@@ -313,7 +321,7 @@
 
             .jk-digit-secondary-btn {
               height: 1.7em;
-
+              margin-top: 0.5rem;
               @media (max-width: theme(digitv2.screens.mobile)) {
                 height: auto;
                 width: 100%;
