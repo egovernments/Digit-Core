@@ -138,7 +138,7 @@ const SearchComponent = ({ uiConfig, header = "", screenType = "search", fullCon
                 apiDetails={apiDetails}
                 data={data}
               />  
-              <div className={`search-button-wrapper ${screenType} ${uiConfig?.type}`}>
+              <div className={`search-button-wrapper ${screenType} ${uiConfig?.type} ${uiConfig?.searchWrapperClassName}`} style={uiConfig?.searchWrapperStyles}>
                 { uiConfig?.secondaryLabel && <LinkLabel style={{marginBottom: 0, whiteSpace: 'nowrap'}} onClick={clearSearch}>{t(uiConfig?.secondaryLabel)}</LinkLabel> }
                 { uiConfig?.primaryLabel && <SubmitBar label={t(uiConfig?.primaryLabel)} submit="submit" disabled={false}/> }
               </div>

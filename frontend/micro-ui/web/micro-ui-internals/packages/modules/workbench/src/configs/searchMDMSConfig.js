@@ -22,6 +22,19 @@ export const Config = {
   sections: {
     search: {
       uiConfig: {
+        searchWrapperStyles:{
+          flexDirection:"column-reverse",
+          marginTop:"2rem",
+          alignItems:"center",
+          justifyContent:"end",
+          gridColumn:"4"
+        },
+        // submitContainerStyles:{
+        //   flexDirection:"column-reverse",
+        //   marginTop:"2rem",
+        //   alignItems:"center",
+        //   justifyContent:"end"
+        // },
         headerStyle: null,
         formClassName: "", //"custom-both-clear-search",
         primaryLabel: "ES_COMMON_SEARCH",
@@ -30,6 +43,7 @@ export const Config = {
         defaultValues: {
           value: "",
           field: "",
+          isActive:""
           // createdFrom: "",
           // createdTo: "",
         },
@@ -69,7 +83,27 @@ export const Config = {
               validation: { pattern: {}, maxlength: 140 },
             },
           },
-
+          {
+            label: "WBH_ISACTIVE",
+            type: "dropdown",
+            isMandatory: false,
+            disable: false,
+            populators: {
+              name: "isActive",
+              optionsKey: "code",
+              optionsCustomStyle: { top: "2.3rem" },
+              options: [
+                {
+                  code: "WBH_COMMON_YES",
+                  value: true,
+                },
+                {
+                  code: "WBH_COMMON_NO",
+                  value: false,
+                }
+              ],
+            },
+          }
           // {
           //   label: "CREATED_FROM_DATE",
           //   type: "date",
@@ -136,6 +170,7 @@ export const Config = {
         enableGlobalSearch: false,
         enableColumnSort: true,
         resultsJsonPath: "mdms",
+        rowClassName:"table-row-mdms"
       },
       children: {},
       show: true,

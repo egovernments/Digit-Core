@@ -1,4 +1,4 @@
-import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown,SubmitBar, ActionBar } from "@egovernments/digit-ui-react-components";
+import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
@@ -18,7 +18,7 @@ const toDropdownObj = (master = "", mod = "") => {
 };
 
 
-const MDMSSearchv2 = () => {
+const MDMSManageMaster = () => {
   let Config = _.clone(Configg)
   const { t } = useTranslation();
   const history = useHistory();
@@ -91,88 +91,60 @@ const MDMSSearchv2 = () => {
     //here set current schema based on module and master name
     if(masterName?.name && moduleName?.name){
     setCurrentSchema(availableSchemas.filter(schema => schema.code === `${masterName?.name}.${moduleName?.name}`)?.[0])
+    history.push(`/${window?.contextPath}/employee/workbench/mdms-search-v2?moduleName=${masterName.name}&masterName=${moduleName.name}`)
     }
   }, [moduleName])
   
-  useEffect(() => {
-    if (currentSchema) {
-      const dropDownOptions = [];
-      const {
-        definition: { properties },
-      } = currentSchema;
+  // useEffect(() => {
+  //   if (currentSchema) {
+  //     const dropDownOptions = [];
+  //     const {
+  //       definition: { properties },
+  //     } = currentSchema;
       
-      Object.keys(properties)?.forEach((key) => {
-        if (properties[key].type === "string" && !properties[key].format) {
-          dropDownOptions.push({
-            // name: key,
-            name:key,
-            code: key,
-            i18nKey:Digit.Utils.locale.getTransformedLocale(`${currentSchema.code}_${key}`)
-          });
-        }
-      });
+  //     Object.keys(properties)?.forEach((key) => {
+  //       if (properties[key].type === "string" && !properties[key].format) {
+  //         dropDownOptions.push({
+  //           // name: key,
+  //           name:key,
+  //           code: key,
+  //           i18nKey:Digit.Utils.locale.getTransformedLocale(`${currentSchema.code}_${key}`)
+  //         });
+  //       }
+  //     });
 
-      Config.sections.search.uiConfig.fields[0].populators.options = dropDownOptions;
-      Config.actionLink=Config.actionLink+`?moduleName=${masterName?.name}&masterName=${moduleName?.name}`;
-      // Config.apiDetails.serviceName = `/mdms-v2/v2/_search/${currentSchema.code}`
+  //     Config.sections.search.uiConfig.fields[0].populators.options = dropDownOptions;
+  //     Config.actionLink=Config.actionLink+`?moduleName=${masterName?.name}&masterName=${moduleName?.name}`;
+  //     // Config.apiDetails.serviceName = `/mdms-v2/v2/_search/${currentSchema.code}`
       
       
-      Config.additionalDetails = {
-        currentSchemaCode:currentSchema.code
-      }
-      //set the column config
+  //     Config.additionalDetails = {
+  //       currentSchemaCode:currentSchema.code
+  //     }
+  //     //set the column config
       
-      // Config.sections.searchResult.uiConfig.columns = [{
-      //   label: "WBH_UNIQUE_IDENTIFIER",
-      //   jsonPath: "uniqueIdentifier",
-      //   additionalCustomization:true
-      // },...dropDownOptions.map(option => {
-      //   return {
-      //     label:option.i18nKey,
-      //     i18nKey:option.i18nKey,
-      //     jsonPath:`data.${option.code}`,
-      //     dontShowNA:true
-      //   }
-      // })]
+  //     Config.sections.searchResult.uiConfig.columns = [{
+  //       label: "WBH_UNIQUE_IDENTIFIER",
+  //       jsonPath: "uniqueIdentifier",
+  //       additionalCustomization:true
+  //     },...dropDownOptions.map(option => {
+  //       return {
+  //         label:option.i18nKey,
+  //         i18nKey:option.i18nKey,
+  //         jsonPath:`data.${option.code}`,
+  //         dontShowNA:true
+  //       }
+  //     })]
 
-      Config.sections.searchResult.uiConfig.columns = [...dropDownOptions.map(option => {
-        return {
-          label:option.i18nKey,
-          i18nKey:option.i18nKey,
-          jsonPath:`data.${option.code}`,
-          dontShowNA:true
-        }
-      }),{
-        label:"WBH_ISACTIVE",
-        i18nKey:"WBH_ISACTIVE",
-        jsonPath:`isActive`,
-        additionalCustomization:true
-        // dontShowNA:true
-      }]
-
-      setUpdatedConfig(Config)
-    }
-  }, [currentSchema]);
-
-  const handleAddMasterData = () => {
-    let actionLink=updatedConfig?.actionLink
-    if(modulee&&master){
-      actionLink= `workbench/mdms-add-v2?moduleName=${master}&masterName=${modulee}`
-    }
-    history.push(`/${window?.contextPath}/employee/${actionLink}`);
-  }
-
-  const onClickRow = ({original:row}) => {
-    const [moduleName,masterName] = row.schemaCode.split(".")
-    history.push(`/${window.contextPath}/employee/workbench/mdms-view?moduleName=${moduleName}&masterName=${masterName}&uniqueIdentifier=${row.uniqueIdentifier}`)
-  }
+  //     setUpdatedConfig(Config)
+  //   }
+  // }, [currentSchema]);
 
   if (isLoading) return <Loader />;
   return (
     <React.Fragment>
-        {/* <Header className="works-header-search">{t(Config?.label)}</Header> */}
-      <Header className="digit-form-composer-sub-header">{t(Digit.Utils.workbench.getMDMSLabel(`SCHEMA_` + currentSchema?.code))}</Header>
-      {/* <div className="jk-header-btn-wrapper">
+        <Header className="works-header-search">{t(Config?.label)}</Header>
+      <div className="jk-header-btn-wrapper">
         <Dropdown
           option={masterOptions}
           style={{width:"25%",marginRight:"1rem" }}
@@ -205,37 +177,9 @@ const MDMSSearchv2 = () => {
           
           disable = {modulee ? true : false}
         />
-       {updatedConfig && Digit.Utils.didEmployeeHasRole(updatedConfig?.actionRole) && (
-          <Button
-            label={t(updatedConfig?.actionLabel)}
-            variation="secondary"
-            icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
-            onButtonClick={() => {
-              let actionLink=updatedConfig?.actionLink
-              if(modulee&&master){
-                actionLink= `workbench/mdms-add-v2?moduleName=${master}&masterName=${modulee}`
-              }
-              history.push(`/${window?.contextPath}/employee/${actionLink}`);
-            }}
-            type="button"
-          />
-        )}
-      </div> */}
-      {
-        updatedConfig && Digit.Utils.didEmployeeHasRole(updatedConfig?.actionRole) &&
-        <ActionBar >
-          <SubmitBar disabled={false} onSubmit={handleAddMasterData} label={t("WBH_ADD_MDMS")} />
-        </ActionBar>
-      }
-      {updatedConfig && <div className="inbox-search-wrapper">
-        <InboxSearchComposer configs={updatedConfig} additionalConfig = {{
-          resultsTable:{
-            onClickRow
-          }
-        }}></InboxSearchComposer>
-      </div>}
+      </div>
     </React.Fragment>
   );
 };
 
-export default MDMSSearchv2;
+export default MDMSManageMaster;

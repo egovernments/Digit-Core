@@ -59,7 +59,9 @@ const Table = ({
   isReportTable = false,
   showCheckBox = false,
   actionLabel = 'CS_COMMON_DOWNLOAD',
-  tableSelectionHandler = () => {}
+  tableSelectionHandler = () => {},
+  onClickRow= ()=>{},
+  rowClassName = ""
 }) => {
   const {
     getTableProps,
@@ -182,7 +184,7 @@ const Table = ({
               // rows.slice(0, 10).map((row, i) => {
               prepareRow(row);
               return (
-                <tr {...row.getRowProps()}>
+                <tr {...row.getRowProps()} onClick={()=>onClickRow(row)} className={rowClassName}>
                   {showAutoSerialNo && <td>{i + 1}</td>}
                   {row.cells.map((cell) => {
                     return (
