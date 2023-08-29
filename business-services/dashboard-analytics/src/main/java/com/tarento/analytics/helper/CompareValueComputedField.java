@@ -1,5 +1,6 @@
 package com.tarento.analytics.helper;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -9,16 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+
 import static com.tarento.analytics.handler.IResponseHandler.SYMBOL;
 import static com.tarento.analytics.handler.IResponseHandler.VALUE;
 import static com.tarento.analytics.handler.IResponseHandler.NAME;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 @Component
-public class CompareComputedField implements IComputedField<ObjectNode>{
+public class CompareValueComputedField implements IComputedField<ObjectNode>{
 
     public static final Logger logger = LoggerFactory.getLogger(AdditiveComputedField.class);
 
@@ -46,17 +47,20 @@ public class CompareComputedField implements IComputedField<ObjectNode>{
             if(fields.size() == 2 && data.get(fields.get(0)) != null && data.get(fields.get(1)) != null){
                 if(data.get(fields.get(0)).get(VALUE).isObject()
                         &&  data.get(fields.get(1)).get(VALUE).isObject()){
-                    List<String> listA = new ArrayList<>();
-                    data.get(fields.get(0)).get(VALUE).fieldNames().forEachRemaining(s -> listA.add(s));
-                    List<String> listB = new ArrayList<>();
-                    data.get(fields.get(1)).get(VALUE).fieldNames().forEachRemaining(s -> listB.add(s));
-                    for (String str : listA) {
-                        if (!listB.contains(str)) {
-                            count++;
-                        }
-                    }
+                    Map<String,Double> nodeA = mapper.convertValue(data.get(fields.get(0)).get(VALUE), new TypeReference<Map<String, Double>>() {
+                    });
+                    JsonNode nodeB = data.get(fields.get(1)).get(VALUE);
+                    final Double[] val = {0.0};
+                    nodeA.forEach((key,value) -> {
+                        val[0] += nodeB.has(key) ? (value - nodeB.get(key).asDouble()) : value;
+                    });
+                    count = val[0];
                 }else {
-                    count = data.get(fields.get(0)).get(VALUE).isObject() ? (double) data.get(fields.get(0)).get(VALUE).size()
+                    final Double[] nodeAVal = {0.0};
+                    data.get(fields.get(0)).get(VALUE).forEach(value-> {
+                        nodeAVal[0]=nodeAVal[0]+value.asDouble();
+                    });
+                    count = data.get(fields.get(0)).get(VALUE).isObject() ? nodeAVal[0]
                             : data.get(fields.get(0)).get(VALUE).asDouble();
                 }
             }
