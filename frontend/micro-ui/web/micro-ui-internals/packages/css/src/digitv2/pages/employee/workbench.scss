@@ -146,6 +146,8 @@
           }
 
           &.field-boolean {
+            padding-top: 0rem;
+            padding-bottom: 1rem;
             .custom-checkbox{
               display: inline-flex;
               align-items: end;
@@ -241,6 +243,31 @@
             padding: 2rem;
             margin: 1rem;
             .array-wrapper .array-item {
+              &.jk-array-objects >
+                .array-remove-button-wrapper{
+                  display: block;
+                }
+              &.jk-array-objects{
+
+                  .array-children > span .form-group.field.field-object{
+                  padding-bottom: 3rem;
+                  }
+                  .array-obj{
+                    position: absolute;
+                    bottom: 1.5rem;
+                    left: 1.5rem;
+                    >.array-remove-button-wrapper{
+                      position:unset;
+                    }
+                  }
+                
+              }
+              
+              &.jk-array-of-non-objects >
+                .array-remove-button-wrapper{
+                  display: inline;
+                }
+              
               /* it has been removed since we dont need diff color for array items @extend .light-background;*/
               position: relative;
               .field-object{

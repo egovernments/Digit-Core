@@ -78,22 +78,40 @@ function transformErrors(errors) {
 function ArrayFieldItemTemplate(props) {
   const { t } = useTranslation();
 
-  const { children, className, index, onDropIndexClick } = props;
+  const { children, className, index, onDropIndexClick ,schema} = props;
+  const isArrayOfObjects=schema?.type== "object";
+  const newClass=isArrayOfObjects?"jk-array-objects":"jk-array-of-non-objects";
   return (
-    <div className={className}>
-      {children}
-      {/* {props.hasRemove && (
+    <div className={`${className} ${newClass}`}>
+     <span className={"array-children"}>
+     {children}
+     </span>
+      {isArrayOfObjects ? <span className="array-obj">
+      {props.hasRemove && (
         <div className="array-remove-button-wrapper">
             <Button
-          label={`${t("Delete")} ` + props?.title}
+          label={`${t("Delete")}`}
           variation="secondary"
           className="array-remove-button" 
-          icon={ <SVG.Delete />}
+          icon={ <SVG.Delete width={"28"} height={"28"} />}
           onButtonClick={onDropIndexClick(index)}
           type="button"
         />
         </div>
-      )} */}
+      )}
+        </span>:
+      props.hasRemove && (
+        <div className="array-remove-button-wrapper">
+            <Button
+          label={`${t("Delete")}`}
+          variation="secondary"
+          className="array-remove-button" 
+          icon={ <SVG.Delete width={"28"} height={"28"} />}
+          onButtonClick={onDropIndexClick(index)}
+          type="button"
+        />
+        </div>
+      )}
     </div>
   );
 }
