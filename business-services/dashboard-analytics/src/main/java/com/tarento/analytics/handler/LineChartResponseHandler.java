@@ -52,6 +52,10 @@ public class LineChartResponseHandler implements IResponseHandler {
         JsonNode chartNode = requestDto.getChartNode();
         boolean isRequestInterval = null == requestDto.getRequestDate() ? false : requestDto.getRequestDate().getInterval()!=null && !requestDto.getRequestDate().getInterval().isEmpty();
         String interval = isRequestInterval ? requestDto.getRequestDate().getInterval(): chartNode.get(Constants.JsonPaths.INTERVAL).asText();
+        
+        if(chartNode.get(Constants.JsonPaths.OVERRIDE_REQUEST_INTERVAL) != null && chartNode.get(Constants.JsonPaths.OVERRIDE_REQUEST_INTERVAL).asBoolean()){
+            interval = chartNode.get(Constants.JsonPaths.INTERVAL).asText();
+        }
         if(interval == null || interval.isEmpty()){
             throw new RuntimeException("Interval must have value from config or request");
         }

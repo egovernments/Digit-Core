@@ -83,7 +83,7 @@ public class Constants {
 		final static String INSIGHT = "insight";
 		final static String DAYS = "days";
 		final static String TRANSLATE_CODE = "translateTenantCode";
-
+		final static String OVERRIDE_REQUEST_INTERVAL = "overrideRequestInterval";
 	}
 	
 	public interface Filters {
