@@ -295,7 +295,7 @@ const CustomAreaChart = ({ xDataKey = "name", yDataKey = getValue, data, setChar
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis dataKey="name" tick={{fontSize:"14px"}} />
             <YAxis
             tickFormatter={yAxistickFormatter}
             /*
