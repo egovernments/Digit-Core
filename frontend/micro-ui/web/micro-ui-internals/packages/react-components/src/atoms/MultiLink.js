@@ -1,15 +1,24 @@
-import React, { forwardRef, useCallback, useRef } from "react";
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import LinkButton from "./LinkButton";
 import { PrimaryDownlaodIcon } from "./svgindex";
 import { useTranslation } from "react-i18next";
 
-const MultiLink = forwardRef(({ className, onHeadClick, displayOptions = false, options, label, icon, showOptions, downloadBtnClassName, downloadOptionsClassName, optionsClassName, style, optionsStyle, reportStyles }, ref) => {
+const MultiLink = forwardRef(({ className, onHeadClick, displayOptions = false, options, label, icon, showOptions, setShowOptions = () => {}, downloadBtnClassName, downloadOptionsClassName, optionsClassName, style, optionsStyle, reportStyles }, ref) => {
   const { t } = useTranslation();
   const menuRef = useRef();
-  const handleOnClick = useCallback(() => {
-    showOptions?.(false)
-  }, [])
-  Digit.Hooks.useClickOutside(menuRef, handleOnClick, !displayOptions);
+  const [showMenu, setshowMenu] = useState(false);
+  const handleOnClick = () => {
+    if(!(setShowOptions.toString().replace(/\s+/g,``) === "function(){}" ||setShowOptions.toString().replace(/\s+/g,``) === "()=>{}"))
+    { 
+      setShowOptions(false);
+      setshowMenu(false);
+    }
+  }
+  Digit.Hooks.useClickOutside(menuRef, handleOnClick, showMenu);
+  
+  useMemo(() => {
+    setshowMenu(displayOptions);
+  },[displayOptions])
 
   const MenuWrapper = React.forwardRef((props, ref) => {
     return <div ref={ref} className={`multilink-optionWrap ${optionsClassName} ${downloadOptionsClassName}`} style={optionsStyle}>
@@ -23,12 +32,12 @@ const MultiLink = forwardRef(({ className, onHeadClick, displayOptions = false, 
   })
 
   return (
-    <div className={className} ref={ref} style={reportStyles}>
+    <div className={className} ref={menuRef} style={reportStyles}>
       <div className={`multilink-labelWrap ${downloadBtnClassName}`} onClick={onHeadClick} style={style}>
         {icon ? icon : <PrimaryDownlaodIcon />}
         <LinkButton label={label || t("CS_COMMON_DOWNLOAD")} className="multilink-link-button" />
       </div>
-      {displayOptions ? <MenuWrapper ref={ref} /> : null}
+      {showMenu ? <MenuWrapper ref={ref} /> : null}
     </div>
   );
 });

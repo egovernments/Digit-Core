@@ -280,6 +280,7 @@ const DashBoard = ({ stateCode }) => {
                   // showOptions={(e) => {
                   // setShowOptions(e)}
                   // }
+                  setShowOptions={setShowOptions}
                   onHeadClick={(e) => {
                     setShowOptions(!showOptions);
                   }}
