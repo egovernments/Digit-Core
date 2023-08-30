@@ -215,7 +215,6 @@ const CustomPieChart = ({ dataKey = "value", data, setChartDenomination,variant=
                 position="center"
                 fontSize={18}
                 fontWeight="bold"
-                offset={10}
               />}
             </Pie>
             <Tooltip content={renderTooltip} />
