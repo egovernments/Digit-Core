@@ -181,7 +181,6 @@ export const externalAPIMapping = async function (
           RequestInfo: requestInfo
         },headerConfig
       );
-      let temp=resPromise.data
     } else {
       resPromise = axios.get(
         externalAPIArray[i].uri + "?" + externalAPIArray[i].queryParams, {
