@@ -104,6 +104,7 @@ public class MdmsDataValidator {
         List<Mdms> masterData = fetchMasterData(MdmsCriteriaV2.builder()
                 .tenantId(mdmsRequest.getMdms().getTenantId())
                 .uniqueIdentifier(uniqueIdentifier)
+                .schemaCodes(Collections.singleton(mdmsRequest.getMdms().getSchemaCode()))
                 .build());
 
         // Throw error if the provided master data already exists
