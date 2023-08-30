@@ -90,7 +90,7 @@ function ArrayFieldItemTemplate(props) {
       {props.hasRemove && (
         <div className="array-remove-button-wrapper">
             <Button
-          label={`${t("Delete")}`}
+          label={`${t("WBH_DELETE_ACTION")}`}
           variation="secondary"
           className="array-remove-button" 
           icon={ <SVG.Delete width={"28"} height={"28"} />}
@@ -103,7 +103,7 @@ function ArrayFieldItemTemplate(props) {
       props.hasRemove && (
         <div className="array-remove-button-wrapper">
             <Button
-          label={`${t("Delete")}`}
+          label={`${t("WBH_DELETE_ACTION")}`}
           variation="secondary"
           className="array-remove-button" 
           icon={ <SVG.Delete width={"28"} height={"28"} />}
