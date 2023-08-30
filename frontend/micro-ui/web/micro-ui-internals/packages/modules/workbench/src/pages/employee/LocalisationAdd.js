@@ -444,7 +444,7 @@ const LocalisationAdd = () => {
   const handleBulkUpload = async (event) => {
     
    try {
-    const result = await Digit.ParsingUtils.parseXlsToJsonMultipleSheets(event);
+    const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
     const updatedResult = convertObjectOfArraysToSingleArray(result)
     //make result for default locale
     const updatedResultDefault = updatedResult.map(row=> {
