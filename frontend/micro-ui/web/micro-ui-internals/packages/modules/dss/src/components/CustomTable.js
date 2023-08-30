@@ -406,6 +406,7 @@ const CustomTable = ({ data = {}, onSearch, setChartData, setChartDenomination }
           disableSort={false}
           autoSort={true}
           manualPagination={false}
+          isPaginationRequired={tableData?.length > 5 ? true : false}
           globalSearch={filterValue}
           initSortId="S N "
           onSearch={onSearch}

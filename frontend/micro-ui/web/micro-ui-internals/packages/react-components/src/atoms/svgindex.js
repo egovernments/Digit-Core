@@ -1735,6 +1735,13 @@ const WarningIcon =({ className = "", fill = "none", style = {} })=>(<svg width=
 </defs>
 </svg>
 )
+
+const AttentionListIcon =({ className = "", fill = "none", style = {} })=>(
+<svg width="36" height="36" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M21.3333 3.00065H15.76C15.2 1.45398 13.7333 0.333984 12 0.333984C10.2667 0.333984 8.8 1.45398 8.24 3.00065H2.66667C1.2 3.00065 0 4.20065 0 5.66732V24.334C0 25.8007 1.2 27.0007 2.66667 27.0007H21.3333C22.8 27.0007 24 25.8007 24 24.334V5.66732C24 4.20065 22.8 3.00065 21.3333 3.00065ZM12 3.00065C12.7333 3.00065 13.3333 3.60065 13.3333 4.33398C13.3333 5.06732 12.7333 5.66732 12 5.66732C11.2667 5.66732 10.6667 5.06732 10.6667 4.33398C10.6667 3.60065 11.2667 3.00065 12 3.00065ZM12.6667 21.6673H5.33333V19.0007H12.6667V21.6673ZM18.6667 16.334H5.33333V13.6673H18.6667V16.334ZM18.6667 11.0007H5.33333V8.33398H18.6667V11.0007Z" fill="#F47738"/>
+</svg>
+)
+
 const ExpenditureIcon = BillsIcon;
 
 export {
@@ -1886,5 +1893,6 @@ export {
   InfoIcon,
   PaymentIcon,
   HistoryIcon,
-  WarningIcon
+  WarningIcon,
+  AttentionListIcon
 };
