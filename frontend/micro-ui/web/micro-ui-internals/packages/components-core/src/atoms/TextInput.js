@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { SVG } from "./SVG";
 
 const TextInput = (props) => {
+  const { variant } = props;
   const user_type = window?.Digit?.SessionStorage.get("userType");
   const [date, setDate] = useState(props?.type === "date" && props?.value);
   const data = props?.watch
@@ -28,7 +29,9 @@ const TextInput = (props) => {
   return (
     <React.Fragment>
       <div
-        className={`digit-text-input ${user_type === "employee" ? "" : "digit-text-input-width"} ${props?.className ? props?.className : ""}`}
+        className={`digit-text-input ${user_type === "employee" ? "" : "digit-text-input-width"} ${props?.className ? props?.className : ""} ${
+          variant === "error" ? "error" : ""
+        }`}
         style={props?.textInputStyle ? { ...props.textInputStyle } : {}}
       >
         {props.isMandatory ? (

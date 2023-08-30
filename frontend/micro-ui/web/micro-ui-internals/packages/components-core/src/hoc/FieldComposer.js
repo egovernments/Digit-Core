@@ -1,5 +1,16 @@
 import React, { Fragment } from "react";
-import { CardText, CheckBox, ErrorMessage, Header, InputTextAmount, MobileNumber, MultiSelectDropdown, Paragraph, TextArea, TextInput } from "../atoms";
+import {
+  CardText,
+  CheckBox,
+  ErrorMessage,
+  Header,
+  InputTextAmount,
+  MobileNumber,
+  MultiSelectDropdown,
+  Paragraph,
+  TextArea,
+  TextInput,
+} from "../atoms";
 import { ApiDropdown, CustomDropdown, LocationDropdownWrapper, MultiUploadWrapper } from "../molecules";
 import UploadFileComposer from "./UploadFileComposer";
 import { useTranslation } from "react-i18next";
@@ -22,6 +33,7 @@ const FieldComposer = ({
   errors,
   onBlur,
   controllerProps,
+  variant,
 }) => {
   const { t } = useTranslation();
   let disableFormValidation = false;
@@ -55,6 +67,7 @@ const FieldComposer = ({
             minlength={populators?.validation?.minlength}
             customIcon={populators?.customIcon}
             customClass={populators?.customClass}
+            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
           />
         );
       case "amount":
@@ -76,6 +89,7 @@ const FieldComposer = ({
             customClass={populators?.customClass}
             prefix={populators?.prefix}
             intlConfig={populators?.intlConfig}
+            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
           />
         );
       case "textarea":
@@ -92,6 +106,7 @@ const FieldComposer = ({
               style={{ marginTop: 0 }}
               maxlength={populators?.validation?.maxlength}
               minlength={populators?.validation?.minlength}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </div>
         );
@@ -104,6 +119,7 @@ const FieldComposer = ({
               inputRef={ref}
               customClass={populators?.customClass}
               customStyle={populators?.customStyle}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </div>
         );
@@ -117,6 +133,7 @@ const FieldComposer = ({
               disable={disable}
               // {...props}
               errorStyle={errors?.[populators.name]}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </div>
         );
@@ -139,6 +156,7 @@ const FieldComposer = ({
               styles={populators?.styles}
               style={populators?.labelStyles}
               customLabelMarkup={populators?.customLabelMarkup}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </div>
         );
@@ -159,6 +177,7 @@ const FieldComposer = ({
             customClass={populators?.customClass}
             customErrorMsg={populators?.errorMessage}
             containerStyles={{ ...populators?.containerStyles }}
+            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
           />
         );
       case "select":
@@ -178,6 +197,7 @@ const FieldComposer = ({
               config={populators}
               disable={config?.disable}
               errorStyle={errors?.[populators.name]}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </div>
         );
@@ -186,24 +206,24 @@ const FieldComposer = ({
           <Component
             userType={"employee"}
             t={t}
-            setValue={controllerProps.setValue}
-            onSelect={controllerProps.setValue}
+            setValue={controllerProps?.setValue}
+            onSelect={controllerProps?.setValue}
             config={config}
             data={formData}
             formData={formData}
-            register={controllerProps.register}
+            register={controllerProps?.register}
             errors={errors}
             props={{ ...props, ...customProps }}
-            setError={controllerProps.setError}
-            clearErrors={controllerProps.clearErrors}
-            formState={controllerProps.formState}
+            setError={controllerProps?.setError}
+            clearErrors={controllerProps?.clearErrors}
+            formState={controllerProps?.formState}
             onBlur={onBlur}
-            control={controllerProps.control}
+            control={controllerProps?.control}
             sectionFormCategory={sectionFormCategory}
             selectedFormCategory={selectedFormCategory}
-            getValues={controllerProps.getValues}
-            watch={controllerProps.watch}
-            unregister={controllerProps.unregister}
+            getValues={controllerProps?.getValues}
+            watch={controllerProps?.watch}
+            unregister={controllerProps?.unregister}
           />
         );
       case "documentUpload":
@@ -212,13 +232,14 @@ const FieldComposer = ({
             module={config?.module}
             config={config}
             // Controller={Controller}        // TODO: NEED TO DISCUSS ON THIS
-            register={controllerProps.register}
+            register={controllerProps?.register}
             formData={formData}
             errors={errors}
-            control={controllerProps.control}
+            control={controllerProps?.control}
             customClass={config?.customClass}
             customErrorMsg={config?.error}
             localePrefix={config?.localePrefix}
+            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
           />
         );
       case "form":
@@ -227,17 +248,18 @@ const FieldComposer = ({
             <Component
               userType={"employee"}
               t={t}
-              setValue={controllerProps.setValue}
-              onSelect={controllerProps.setValue}
+              setValue={controllerProps?.setValue}
+              onSelect={controllerProps?.setValue}
               config={config}
               data={formData}
               formData={formData}
-              register={controllerProps.register}
+              register={controllerProps?.register}
               errors={errors}
-              setError={controllerProps.setError}
-              clearErrors={controllerProps.clearErrors}
-              formState={controllerProps.formState}
-              control={controllerProps.control}
+              setError={controllerProps?.setError}
+              clearErrors={controllerProps?.clearErrors}
+              formState={controllerProps?.formState}
+              control={controllerProps?.control}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </form>
         );
@@ -250,14 +272,22 @@ const FieldComposer = ({
               formData={formData}
               inputRef={ref}
               errors={errors}
-              setValue={controllerProps.setValue}
+              setValue={controllerProps?.setValue}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </div>
         );
       case "apidropdown":
         return (
           <div style={{ display: "grid", gridAutoFlow: "row" }}>
-            <ApiDropdown props={props} populators={populators} formData={formData} inputRef={ref} errors={errors} />
+            <ApiDropdown
+              props={props}
+              populators={populators}
+              formData={formData}
+              inputRef={ref}
+              errors={errors}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+            />
           </div>
         );
       case "multiselectdropdown":
@@ -281,6 +311,7 @@ const FieldComposer = ({
               defaultLabel={t(populators?.defaultText)}
               defaultUnit={t(populators?.selectedText)}
               config={populators}
+              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
             />
           </div>
         );
@@ -294,9 +325,9 @@ const FieldComposer = ({
       {!config.withoutLabel && (
         <Header
           style={{
-            color: config.isSectionText ? "#505A5F" : "",
-            marginBottom: props.inline ? "8px" : "revert",
-            fontWeight: props.isDescriptionBold ? "600" : null,
+            color: config?.isSectionText ? "#505A5F" : "",
+            marginBottom: props?.inline ? "8px" : "revert",
+            fontWeight: props?.isDescriptionBold ? "600" : null,
           }}
           className="label"
         >

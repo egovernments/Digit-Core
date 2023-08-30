@@ -2,27 +2,36 @@ import React from "react";
 import FieldComposer from "./FieldComposer";
 import { Controller } from "react-hook-form";
 
-function FieldController(
-  type,
-  populators,
-  isMandatory,
-  disable,
-  component,
-  config,
-  sectionFormCategory,
-  formData,
-  selectedFormCategory,
-  control,
-  props,
-  errors,
-  controllerProps
-) {
+function FieldController(args) {
+  const {
+    type,
+    populators,
+    isMandatory,
+    disable,
+    component,
+    config,
+    sectionFormCategory,
+    formData,
+    selectedFormCategory,
+    control,
+    props,
+    errors,
+    controllerProps,
+  } = args;
+  let { apiDetails } = props;
   let disableFormValidation = false;
   if (sectionFormCategory && selectedFormCategory) {
     disableFormValidation = sectionFormCategory !== selectedFormCategory ? true : false;
   }
   const customValidation = config?.populators?.validation?.customValidation;
-  const customRules = customValidation ? { validate: customValidation } : {};
+  let customValidations = config?.additionalValidation
+    ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.additionalValidations(
+        config?.additionalValidation?.type,
+        formData,
+        config?.additionalValidation?.keys
+      )
+    : null;
+  const customRules = customValidation ? { validate: customValidation } : customValidations ? { validate: customValidation } : {};
   const customProps = config?.customProps;
   return (
     <Controller

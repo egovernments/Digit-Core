@@ -107,20 +107,20 @@ export const FormComposer = (props) => {
 
   const fieldSelector = (type, populators, isMandatory, disable = false, component, config, sectionFormCategory) =>
     // Calling field controller to render all label and fields
-    FieldController(
-      type,
-      populators,
-      isMandatory,
-      disable,
-      component,
-      config,
-      sectionFormCategory,
-      formData,
-      selectedFormCategory,
-      control,
-      (props = props),
-      errors,
-      {
+    FieldController({
+      type: type,
+      populators: populators,
+      isMandatory: isMandatory,
+      disable: disable,
+      component: component,
+      config: config,
+      sectionFormCategory: sectionFormCategory,
+      formData: formData,
+      selectedFormCategory: selectedFormCategory,
+      control: control,
+      props: props,
+      errors: errors,
+      controllerProps: {
         register,
         handleSubmit,
         setValue,
@@ -134,8 +134,8 @@ export const FormComposer = (props) => {
         setError,
         clearErrors,
         unregister,
-      }
-    );
+      },
+    });
 
   const getCombinedStyle = (placementinBox) => {
     switch (placementinBox) {
@@ -275,7 +275,7 @@ export const FormComposer = (props) => {
                 }
               >
                 {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field, sectionFormCategory)}
-                
+
                 {/* Commenting to initialize & check Field Controller and composer which render label and field Should remove later*/}
                 {/*{!field.withoutLabel && (
                   <Header
@@ -303,7 +303,6 @@ export const FormComposer = (props) => {
               ) : // {t(field?.populators?.error)}
               // </ErrorMessage>
               null} */}
-              
             </Fragment>
           );
         })}

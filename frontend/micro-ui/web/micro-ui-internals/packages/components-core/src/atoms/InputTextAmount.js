@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { getIntlConfig } from "../utils/amountFormatter";
 import { InputAmountWrapper } from "../utils/inputAmountWrapper";
 
-const InputTextAmount = ({ value, prefix = "₹ ", intlConfig = getIntlConfig(prefix), onChange, inputRef, ...otherProps }) => {
+const InputTextAmount = ({ value, prefix = "₹ ", intlConfig = getIntlConfig(prefix), onChange, inputRef, variant, ...otherProps }) => {
   return (
     <InputAmountWrapper
       ref={inputRef}
@@ -12,6 +12,7 @@ const InputTextAmount = ({ value, prefix = "₹ ", intlConfig = getIntlConfig(pr
       onValueChange={onChange}
       otherProps={otherProps}
       prefix={prefix}
+      variant={variant}
     />
   );
 };

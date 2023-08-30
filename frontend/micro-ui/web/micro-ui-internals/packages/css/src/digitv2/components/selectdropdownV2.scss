@@ -4,6 +4,14 @@
   .digit-select {
     @extend .light-input-border;
     @apply relative block w-full h-10 border border-solid border-input-border;
+    &.error {
+      border: 1px solid red;
+      border-color: red;
+    }
+    &.disabled {
+      @apply border-grey-dark text-grey-dark !important;
+      pointer-events: none !important;
+    }    
     &:hover {
       @extend .light-input-border;
       @apply border-2 border-solid border-primary-main;

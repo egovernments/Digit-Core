@@ -2,6 +2,13 @@
 .digit-employee-card-textarea {
   @apply block outline-none mt-md mb-lg border w-full border-input-border border-solid bg-white h-24 text-form-field text-text-primary p-sm;
   @extend .light-input-border;
+  &.error {
+    border: 1px solid red;
+  }
+  &.disabled {
+    @apply border-grey-dark text-grey-dark !important;
+    pointer-events: none !important;
+  }
 }
 .digit-employee-card-textarea {
   @apply w-full;

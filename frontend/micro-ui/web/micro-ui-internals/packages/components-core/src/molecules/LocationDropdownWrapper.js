@@ -5,7 +5,7 @@ import Dropdown from "../atoms/Dropdown";
 import { Loader } from "../atoms/Loader";
 import { useTranslation } from "react-i18next";
 
-const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors, setValue }) => {
+const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors, setValue, variant }) => {
   const [options, setOptions] = useState([]);
 
   const { t } = useTranslation();
@@ -78,6 +78,7 @@ const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors
             defaultLabel={t(populators?.defaultText)}
             defaultUnit={t(populators?.selectedText)}
             config={populators}
+            variant={variant}
           />
         </div>
       )}
@@ -97,6 +98,7 @@ const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors
           t={t}
           errorStyle={errors?.[populators.name]}
           optionCardStyles={populators?.optionsCustomStyle}
+          variant={variant}
         />
       )}
     </>
