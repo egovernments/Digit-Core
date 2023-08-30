@@ -397,7 +397,7 @@ app.post(
       res.status(400);
       res.json({
         ResponseInfo: requestInfo,
-        message: "some unknown error while creating 1: " + error.message,
+        message: "some unknown error while creating: " + error.message,
       });
     }
   })
@@ -471,7 +471,7 @@ app.post(
       logger.error(error.stack || error);
       res.status(400);
       res.json({
-        message: "some unknown error while creating 2: " + error.message,
+        message: "some unknown error while creating: " + error.message,
       });
     }
   })
