@@ -264,8 +264,14 @@ h1, h2, h3, h4, h5, h6 {
   color: theme(colors.text.primary) !important;
 }
 
-input:read-only {
+input[readonly] {
   @apply border-grey-dark text-grey-dark !important;
+  
+}
+
+.hide-input-type-file {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
   pointer-events: none !important;
 }
 
