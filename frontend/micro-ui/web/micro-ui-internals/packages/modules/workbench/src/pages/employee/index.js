@@ -9,6 +9,7 @@ import MDMSAddV2 from "./MDMSAddV2";
 import MDMSEdit from "./MDMSEdit";
 import MDMSView from "./MDMSView";
 import MDMSSearchv2 from "./MDMSSearchv2";
+import MDMSManageMaster from "./MDMSManageMaster";
 import LocalisationAdd from "./LocalisationAdd";
 
 const MastersBreadCrumb = ({ location ,defaultPath}) => {
@@ -26,17 +27,17 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
       show: true,
     },
     {
-      path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
+      path: `/${window.contextPath}/employee/workbench/manage-master-data`,
       content:  t(`WBH_MANAGE_MASTER_DATA`) ,
       show: pathVar.includes("mdms-")?true: false,
       // query:`moduleName=${moduleName}&masterName=${masterName}`
     },
-    {
-      path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
-      content:  t(`MDMS_SEARCH_V2`) ,
-      show:pathVar.includes("mdms-")? pathVar.includes("mdms-search-v2")?false: true:false,
-      query:`moduleName=${moduleName}&masterName=${masterName}`
-    },
+    // {
+    //   path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
+    //   content:  t(`MDMS_SEARCH_V2`) ,
+    //   show:pathVar.includes("mdms-")? pathVar.includes("mdms-search-v2")?false: true:false,
+    //   query:`moduleName=${moduleName}&masterName=${masterName}`
+    // },
     {
       path: `/${window.contextPath}/employee/masters/response`,
       content:  t(`${Digit.Utils.workbench.getMDMSLabel(pathVar)}`) ,
@@ -75,6 +76,7 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/mdms-add-v2`} component={() =>  <MDMSAddV2 parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-view`} component={() =>  <MDMSView parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-edit`} component={() =>  <MDMSEdit parentRoute={path}/>} />
+          <PrivateRoute path={`${path}/manage-master-data`} component={() => <MDMSManageMaster parentRoute={path}/>} />
           <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 parentRoute={path}/>} />
           <PrivateRoute path={`${path}/localisation-add`} component={() => <LocalisationAdd parentRoute={path}/>} />
           

@@ -11,8 +11,7 @@ import { Loader } from '../atoms/Loader';
 import NoResultsFound from '../atoms/NoResultsFound';
 import { InfoIcon } from "../atoms/svgindex";
 
-const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fullConfig,revalidate }) => {
-    
+const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fullConfig,revalidate,additionalConfig }) => {
     const {apiDetails} = fullConfig
     const { t } = useTranslation();
     const resultsKey = config.resultsJsonPath
@@ -197,6 +196,8 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
                         },
                     };
                 }}
+                onClickRow={additionalConfig?.resultsTable?.onClickRow}
+                rowClassName={config.rowClassName}
             />}
         </div>
     )

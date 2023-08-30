@@ -15,7 +15,7 @@ import Header from "../atoms/Header";
 import { useTranslation } from "react-i18next";
 
 
-const InboxSearchComposer = ({configs,headerLabel}) => {
+const InboxSearchComposer = ({configs,headerLabel,additionalConfig}) => {
     const { t } = useTranslation();
 
     const [enable, setEnable] = useState(false);
@@ -234,7 +234,9 @@ const InboxSearchComposer = ({configs,headerLabel}) => {
                                 data={data} 
                                 isLoading={isLoading} 
                                 isFetching={isFetching} 
-                                fullConfig={configs}/>
+                                fullConfig={configs}
+                                additionalConfig={additionalConfig}
+                                />
                             </MediaQuery>
                             <MediaQuery maxWidth={426}>
                             <MobileSearchResults

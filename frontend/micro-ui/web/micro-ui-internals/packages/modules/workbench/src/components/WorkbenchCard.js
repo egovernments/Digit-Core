@@ -19,14 +19,14 @@ const WorkbenchCard = () => {
 
   let links = [
     {
+      label: t("ACTION_TEST_MDMS"),
+      link: `/${window?.contextPath}/employee/workbench/manage-master-data`,
+      roles: ROLES.MDMS,
+    },
+    {
       label: t("ACTION_TEST_LOCALISATION"),
       link: `/${window?.contextPath}/employee/workbench/localisation-search`,
       roles: ROLES.LOCALISATION,
-    },
-    {
-      label: t("ACTION_TEST_MDMS"),
-      link: `/${window?.contextPath}/employee/workbench/mdms-search-v2`,
-      roles: ROLES.MDMS,
     },
     // {
     //   label: t("Sample Create master"),
