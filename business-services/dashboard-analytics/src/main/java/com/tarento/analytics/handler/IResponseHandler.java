@@ -210,24 +210,28 @@ public interface IResponseHandler {
 	}
 
 	default Double compareTwoIndices(List<List<String>> bucketList){
-		List<String> listA = bucketList.get(0);
-		List<String> listB = bucketList.get(1);
-
 		Double count = 0.0;
-		for (String str : listA) {
-			if (!listB.contains(str)) {
-				count++;
+
+		try {
+			List<String> listA = bucketList.get(0);
+			List<String> listB = bucketList.get(1);
+			for (String str : listA) {
+				if (!listB.contains(str)) {
+					count++;
+				}
 			}
+		}catch (Exception e){
+			logger.error(String.valueOf(e));
 		}
 		return  count;
 	}
 
 	default Double compareValueOfTwoIndices(List<Map<String ,Double>> valueMap){
-		Map<String ,Double> mapA = valueMap.get(0);
-		Map<String ,Double> mapB = valueMap.get(1);
 
 		final Double[] count = {0.0};
 		try {
+			Map<String ,Double> mapA = valueMap.get(0);
+			Map<String ,Double> mapB = valueMap.get(1);
 			mapA.forEach((key,value)->{
 				if(mapB.containsKey(key)){
 					count[0] += (value - mapB.get(key));
@@ -238,7 +242,6 @@ public interface IResponseHandler {
 		}catch (Exception e){
 			logger.error(String.valueOf(e));
 		}
-
 		return count[0];
 	}
 

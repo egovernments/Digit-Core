@@ -23,6 +23,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This handles ES response for single index, multiple index to represent data as objectNode with value as any dataType
+ * Creates plots by comparing/merging/computing(by summation) objectNode values for same key
+ */
 @Component
 public class CompareTableChartResponseHandler implements IResponseHandler{
 

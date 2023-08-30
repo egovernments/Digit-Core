@@ -26,6 +26,7 @@ import java.util.*;
  * Creates plots by merging/computing(by summation or by percentage) index values for same key
  * ACTION:  for the chart config defines the type either summation or computing percentage
  * AGGS_PATH : this defines the path/key to be used to search the tree
+ * compare the lists from two indices to give count of data within listA that are absent from listB and provide summation of value of filtered data
  *
  */
 @Component

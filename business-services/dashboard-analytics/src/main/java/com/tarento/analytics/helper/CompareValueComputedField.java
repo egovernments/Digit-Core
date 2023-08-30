@@ -18,6 +18,9 @@ import static com.tarento.analytics.handler.IResponseHandler.SYMBOL;
 import static com.tarento.analytics.handler.IResponseHandler.VALUE;
 import static com.tarento.analytics.handler.IResponseHandler.NAME;
 
+/**
+ * Data as objectNode compares the lists from two indices and filters data within listA that are absent from listB and provide summation of value of filtered data
+ */
 @Component
 public class CompareValueComputedField implements IComputedField<ObjectNode>{
 

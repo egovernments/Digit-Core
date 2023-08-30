@@ -9,14 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import static com.tarento.analytics.handler.IResponseHandler.SYMBOL;
-import static com.tarento.analytics.handler.IResponseHandler.VALUE;
-import static com.tarento.analytics.handler.IResponseHandler.NAME;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tarento.analytics.handler.IResponseHandler.*;
 
+
+/**
+ * Data as objectNode compares the lists from two indices to give count of data within listA that are absent from listB
+ */
 @Component
 public class CompareComputedField implements IComputedField<ObjectNode>{
 
