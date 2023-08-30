@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useReducer, useMemo } from "react";
+import React, { useState, useEffect, useReducer, useMemo, useRef } from "react";
 import {
   Card,
   CustomDropdown,
   Button,
+  AddFilled,
   ActionBar,
   SubmitBar,
   Table,
@@ -11,7 +12,8 @@ import {
   CardLabel,
   Header,
   Toast,
-  InfoBannerIcon
+  InfoBannerIcon,
+  UploadFile,
 } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import reducer, { intialState } from "../../utils/LocAddReducer";
@@ -54,6 +56,47 @@ const localeDropdownConfig = {
   },
 };
 
+
+function convertObjectOfArraysToSingleArray(objectOfObjects) {
+  const arrayOfArrays = Object.values(objectOfObjects)
+  return [].concat(...arrayOfArrays);
+}
+
+function splitArrayIntoDynamicSubsetsByProperty(array, propertyKey) {
+  const uniquePropertyValues = [...new Set(array.map(item => item[propertyKey]))];
+  const numberOfSubsets = uniquePropertyValues.length;
+  const subsets = Array.from({ length: numberOfSubsets }, () => []);
+
+  array.forEach(item => {
+    const propertyValue = item[propertyKey];
+    const subsetIndex = uniquePropertyValues.indexOf(propertyValue);
+    subsets[subsetIndex].push(item);
+  });
+
+  return subsets;
+}
+
+function splitArrayIntoDynamicSubsetsByPropertyAndKeys(array, propertyKey, keysToInclude) {
+  const uniquePropertyValues = [...new Set(array.map(item => item[propertyKey]))];
+  const numberOfSubsets = uniquePropertyValues.length;
+  const subsets = Array.from({ length: numberOfSubsets }, () => []);
+
+  array.forEach(item => {
+    const propertyValue = item[propertyKey];
+    const subsetIndex = uniquePropertyValues.indexOf(propertyValue);
+
+    const subsetItem = {};
+    keysToInclude.forEach(key => {
+      subsetItem[key] = item[key];
+    });
+
+    subsets[subsetIndex].push(subsetItem);
+  });
+
+  return subsets;
+}
+
+
 function hasDuplicatesByKey(arr, key) {
   const seen = new Set();
 
@@ -75,8 +118,11 @@ const LocalisationAdd = () => {
   const stateId = Digit.ULBService.getStateId();
   const [tableState, setTableState] = useState([]);
   const { t } = useTranslation();
-
+  const [jsonResult, setJsonResult] = useState(null);
+  const [jsonResultDefault,setJsonResultDefault] = useState(null)
   const [state, dispatch] = useReducer(reducer, intialState);
+
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (selectedLang && selectedModule) {
@@ -94,9 +140,7 @@ const LocalisationAdd = () => {
           id: 0,
         },
       });
-
     }
-
   }, [selectedLang, selectedModule]);
 
   const columns = useMemo(
@@ -174,13 +218,13 @@ const LocalisationAdd = () => {
       },
       {
         Header: (
-          <div class="tooltip" style={{marginTop:"-10px"}}>
+          <div class="tooltip" style={{ marginTop: "-10px" }}>
             <span class="textoverflow" style={{ "--max-width": `20ch` }}>
               {String(t("WBH_LOC_MESSAGE_VALUE"))}
-              <InfoBannerIcon styles={{marginTop:"-10px"}} fill={"#f47738"} />
+              <InfoBannerIcon styles={{ marginTop: "-10px" }} fill={"#f47738"} />
             </span>
             {/* check condtion - if length greater than 20 */}
-            <span class="tooltiptext" style={{ whiteSpace: "normal",width:"15rem" }}>
+            <span class="tooltiptext" style={{ whiteSpace: "normal", width: "15rem" }}>
               {String(t("WBH_LOC_DEFAULT_INFO_MESSAGE"))}
             </span>
           </div>
@@ -237,24 +281,24 @@ const LocalisationAdd = () => {
     //validations => if any then show respective toast and return
 
     //same key validation
-    const hasDuplicateKeycode = hasDuplicatesByKey(tableState,"code")
+    const hasDuplicateKeycode = hasDuplicatesByKey(tableState, "code");
 
-    if(hasDuplicateKeycode){
+    if (hasDuplicateKeycode) {
       setShowToast({
-        label:"WBH_LOC_SAME_KEY_VALIDATION_ERR",
-        isError:true
-      })
-      return 
+        label: "WBH_LOC_SAME_KEY_VALIDATION_ERR",
+        isError: true,
+      });
+      return;
     }
-    
+
     //here create payload and call upsert
-    
-    const payloadForDefault = tableState?.map(row => {
+
+    const payloadForDefault = tableState?.map((row) => {
       return {
         ...row,
-        locale:"default"
-      }
-    })
+        locale: "default",
+      };
+    });
     const onSuccess = (resp) => {
       setShowToast({ label: `${t("WBH_LOC_UPSERT_SUCCESS")}` });
       closeToast();
@@ -299,8 +343,8 @@ const LocalisationAdd = () => {
         },
       },
       {
-        onError:()=>{},
-        onSuccess:()=>{},
+        onError: () => {},
+        onSuccess: () => {},
       }
     );
 
@@ -317,9 +361,72 @@ const LocalisationAdd = () => {
         onSuccess,
       }
     );
-
-    
   };
+
+
+  const handleBulkSubmit = async () => {
+    //same key validation
+    let hasDuplicateKeycode = false;
+    jsonResult.forEach((json) => {
+      if (hasDuplicatesByKey(json, "code")) {
+        hasDuplicateKeycode = true;
+        return;
+      }
+    });
+
+    if (hasDuplicateKeycode) {
+      setShowToast({
+        label: "WBH_LOC_SAME_KEY_VALIDATION_ERR",
+        isError: true,
+      });
+      return;
+    }
+
+    const promises = [];
+
+    for (let i = 0; i < jsonResult.length; i++) {
+      promises.push(
+        mutation.mutateAsync(
+          {
+            params: {},
+            body: {
+              tenantId: stateId,
+              messages: jsonResult[i],
+            },
+          }
+        )
+      );
+
+      promises.push(
+        mutation.mutateAsync(
+          {
+            params: {},
+            body: {
+              tenantId: stateId,
+              messages: jsonResultDefault[i],
+            },
+          }
+        )
+      );
+    }
+
+    const onSuccess = (resp) => {
+      setShowToast({ label: `${t("WBH_LOC_UPSERT_SUCCESS")}` });
+      closeToast();
+    };
+    const onError = (resp) => {
+      setShowToast({ label: `${t("WBH_LOC_UPSERT_FAIL")}`, isError: true });
+      closeToast();
+    };
+
+    try {
+      await Promise.all(promises);
+      onSuccess();
+    } catch (error) {
+      onError();
+    }
+  };
+
   const handleAddRow = () => {
     dispatch({
       type: "ADD_ROW",
@@ -333,9 +440,74 @@ const LocalisationAdd = () => {
     });
   };
 
+
+  const handleBulkUpload = async (event) => {
+    
+   try {
+    const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
+    const updatedResult = convertObjectOfArraysToSingleArray(result)
+    //make result for default locale
+    const updatedResultDefault = updatedResult.map(row=> {
+      return {
+        ...row,
+        locale:"default"
+      }
+    })
+    const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
+    const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
+    setJsonResult(filteredResult)
+    setJsonResultDefault(filteredResultDefault)
+    //here the result will contain all the sheets in an object
+   } catch (error) {
+    setShowToast({
+      label: error.message || "Invalid file type. Please upload an Excel file.",
+      isError: true,
+    });
+
+   }
+
+  //   const result = await Digit.ParsingUtils.parseXlsToJsonMultipleSheets(event);
+  //  const updatedResult = convertObjectOfArraysToSingleArray(result)
+  //  //make result for default locale
+  //  const updatedResultDefault = updatedResult.map(row=> {
+  //   return {
+  //     ...row,
+  //     locale:"default"
+  //   }
+  //  })
+  //  const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
+  //  const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
+  //  setJsonResult(filteredResult)
+  //  setJsonResultDefault(filteredResultDefault)
+  //  //here the result will contain all the sheets in an object
+  };
+
+  const callInputClick = async (event) => {
+    inputRef.current.click();
+  };
+
+  useEffect(() => {
+    if(jsonResult?.length > 0 && jsonResultDefault?.length > 0  ){
+      handleBulkSubmit()
+    }
+  }, [jsonResult,jsonResultDefault])
+  
+
   return (
     <React.Fragment>
-      <Header className="works-header-search">{t("WBH_LOC_ADD")}</Header>
+      <div className="jk-header-btn-wrapper">
+        <Header className="works-header-search">{t("WBH_LOC_ADD")}</Header>
+        <div>
+          <Button
+            label={t("WBH_LOC_BULK_UPLOAD_XLS")}
+            variation="secondary"
+            icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
+            type="button"
+            onButtonClick={callInputClick}
+          />
+          <input className={"hide-input-type-file"} ref={inputRef} type="file" accept="xls xlsx" onChange={handleBulkUpload} />
+        </div>
+      </div>
       <Card>
         <LabelFieldPair style={{ alignItems: "flex-start" }}>
           <CardLabel style={{ marginBottom: "0.4rem" }}>{t("WBH_LOC_SELECT_LANG")}</CardLabel>

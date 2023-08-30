@@ -7,7 +7,7 @@ import { UICustomizations } from "./configs/UICustomizations";
 import HRMSCard from "./components/HRMSCard";
 import WorkbenchCard from "./components/WorkbenchCard";
 import DigitJSONForm from "./components/DigitJSONForm";
-
+import * as parsingUtils from "../src/utils/ParsingUtils"
 
 const WorkbenchModule = ({ stateCode, userType, tenants }) => {
   const moduleCode = ["workbench","mdms","schema"];
@@ -73,6 +73,7 @@ const setupLibraries = (Library, service, method) => {
 /* To Overide any existing config/middlewares  we need to use similar method */
 const updateCustomConfigs = () => {
   setupLibraries("Customizations", "commonUiConfig", { ...window?.Digit?.Customizations?.commonUiConfig, ...UICustomizations });
+  setupLibraries("Utils","parsingUtils",{...window?.Digit?.Utils?.parsingUtils,...parsingUtils})
 };
 
 
