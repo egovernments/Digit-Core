@@ -9,6 +9,10 @@
   }
 
   form {
+    #label_digit_root {
+      display: none;
+    }
+
     #digit_root {
       width: 100%;
 
@@ -115,7 +119,21 @@
                 .digit__control {
                   @apply outline-none;
 
+                  .digit__value-container:in-range {
+                    border-color: unset;
+                    box-shadow: none;
+                    box-sizing: unset;
+                    @apply outline-none;
+                  }
                 }
+
+                .digit__control--is-focused {
+                  border-color: theme(digitv2.lightTheme.primary) !important;
+                  box-shadow: none;
+                  box-sizing: unset;
+                  @apply outline-none;
+                }
+
 
                 .digit__control:hover {
 
@@ -124,6 +142,21 @@
                   box-sizing: unset;
                   @apply outline-none;
                 }
+
+                .digit__control:focus {
+                  border-color: theme(digitv2.lightTheme.primary);
+
+                  .digit__value-container:focus {
+                    border-color: theme(digitv2.lightTheme.primary);
+
+                  }
+                }
+              }
+
+              &.form-select:focus {
+                @apply outline-none;
+                border-color: theme(digitv2.lightTheme.primary);
+
               }
             }
 
@@ -143,18 +176,24 @@
           }
 
           &.field-boolean {
-            .custom-checkbox{
+            padding-top: 0rem;
+            padding-bottom: 1rem;
+
+            .custom-checkbox {
               display: inline-flex;
               align-items: end;
+
               &.custom-checkbox-disabled {
                 pointer-events: none;
                 opacity: 0.6;
               }
-              .custom-checkbox-label{
+
+              .custom-checkbox-label {
                 @extend .typography.text-body-s;
                 @apply pl-sm;
               }
             }
+
             .checkbox {
               width: 28rem;
 
@@ -200,12 +239,15 @@
             }
 
 
-            
+
           }
 
 
 
-          
+          &.field-object>.control-label {
+            margin-left: 0.5rem;
+          }
+
           &.field-object {
             display: block;
             @extend .light-background;
@@ -213,9 +255,13 @@
             padding: 1rem;
             margin: 1rem;
 
+            .digit-expand-collapse-wrapper {
+              margin-top: 0px;
+            }
+
             .digit-icon-toggle {
-              top: unset;
-              right: 1em;
+              top: -1.5rem;
+              right: 1.5em;
             }
 
             .object-wrapper {
@@ -235,16 +281,60 @@
             display: block;
             @extend .light-paper-secondary;
             @extend .light-paper-border;
-            padding: 1rem;
+            padding: 2rem;
             margin: 1rem;
+            padding-top: 1rem;
+
             .array-wrapper .array-item {
+              &.jk-array-objects>.array-remove-button-wrapper {
+                display: block;
+              }
+
+              &.jk-array-objects {
+                margin-bottom: 2rem;
+
+                .array-children>span .form-group.field.field-object {
+                  padding-bottom: 3rem;
+                }
+
+                .array-obj {
+                  position: absolute;
+                  bottom: 1.5rem;
+                  left: 2rem;
+
+                  >.array-remove-button-wrapper {
+                    position: unset;
+                  }
+                }
+
+              }
+
+              &.jk-array-of-non-objects>.array-remove-button-wrapper {
+                display: inline;
+                left: 64%;
+                right: unset;
+                top: 0.7rem;
+              }
+
+              &.jk-array-of-non-objects .array-children {
+                span .form-group {
+                  padding-left: 0%;
+
+                  .control-label {
+                    display: none;
+                  }
+
+                }
+              }
+
               /* it has been removed since we dont need diff color for array items @extend .light-background;*/
               position: relative;
-              .field-object{
-               margin-left: 0;
-               margin-right: 0;
+
+              .field-object {
+                margin-left: 0;
+                margin-right: 0;
               }
-          
+
 
               .array-remove-button-wrapper {
                 position: absolute;
@@ -275,6 +365,7 @@
 
             .jk-digit-secondary-btn {
               height: 1.7em;
+              margin-top: 0.5rem;
 
               @media (max-width: theme(digitv2.screens.mobile)) {
                 height: auto;
@@ -285,12 +376,13 @@
                 font-size: 1rem;
               }
             }
-            .all-input-field-wrapper{
+
+            .all-input-field-wrapper {
               .card-label-error {
                 position: unset !important;
               }
             }
-   
+
           }
 
           .digit-expand-collapse-header {
@@ -388,5 +480,22 @@
 
   .digit-error-msg {
     margin-top: 2rem;
+  }
+}
+
+
+.tooltip .tooltiptext {
+
+  top: 2rem;
+  left: 0;
+  margin-left: 0rem;
+  width: fit-content;
+  height: max-content;
+  white-space: normal;
+
+  .tooltiptextvalue {
+    font-size: 14px;
+    font-weight: 400px;
+    color: white;
   }
 }

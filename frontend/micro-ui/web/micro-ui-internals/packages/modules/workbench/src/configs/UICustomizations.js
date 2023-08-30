@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link,useHistory } from "react-router-dom";
 import _ from "lodash";
 import React from 'react';
+
 //create functions here based on module name set in mdms(eg->SearchProjectConfig)
 //how to call these -> Digit?.Customizations?.[masterName]?.[moduleName]
 // these functions will act as middlewares
@@ -438,8 +439,13 @@ export const UICustomizations = {
      
       const filters = {}
       const custom = data.body.MdmsCriteria.custom
-      const {field,value} = custom || {}
+      const {field,value,isActive} = custom || {}
       filters[field?.code] = value
+      if(isActive){
+        data.body.MdmsCriteria.isActive = isActive?.value
+      }else{
+        delete data.body.MdmsCriteria.isActive
+      }
       data.body.MdmsCriteria.filters = filters
       data.body.MdmsCriteria.schemaCodes = [additionalDetails?.currentSchemaCode]
       delete data.body.MdmsCriteria.custom
@@ -530,6 +536,8 @@ export const UICustomizations = {
           ) : (
             t("ES_COMMON_NA")
           );
+        case "WBH_ISACTIVE":
+          return value ?  <span style={{ color:"green" }}>{t("WBH_COMMON_YES")}</span> : <span style={{ color:"red" }}>{t("WBH_COMMON_NO")}</span>
         default:
           return t("ES_COMMON_NA");
       }
@@ -546,7 +554,7 @@ export const UICustomizations = {
       if (type === "date") {
         return data[keys.start] && data[keys.end] ? () => new Date(data[keys.start]).getTime() <= new Date(data[keys.end]).getTime() : true;
       }
-    },
+    }
   },
   SearchLocalisationConfig: {
     customValidationCheck: (data) => {

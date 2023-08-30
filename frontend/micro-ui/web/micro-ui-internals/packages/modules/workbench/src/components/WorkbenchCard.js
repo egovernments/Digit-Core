@@ -18,10 +18,9 @@ const WorkbenchCard = () => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
 
   let links = [
-    
     {
       label: t("ACTION_TEST_MDMS"),
-      link: `/${window?.contextPath}/employee/workbench/mdms-search-v2`,
+      link: `/${window?.contextPath}/employee/workbench/manage-master-data`,
       roles: ROLES.MDMS,
     },
     {

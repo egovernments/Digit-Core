@@ -78,22 +78,40 @@ function transformErrors(errors) {
 function ArrayFieldItemTemplate(props) {
   const { t } = useTranslation();
 
-  const { children, className, index, onDropIndexClick } = props;
+  const { children, className, index, onDropIndexClick ,schema} = props;
+  const isArrayOfObjects=schema?.type== "object";
+  const newClass=isArrayOfObjects?"jk-array-objects":"jk-array-of-non-objects";
   return (
-    <div className={className}>
-      {children}
-      {/* {props.hasRemove && (
+    <div className={`${className} ${newClass}`}>
+     <span className={"array-children"}>
+     {children}
+     </span>
+      {isArrayOfObjects ? <span className="array-obj">
+      {props.hasRemove && (
         <div className="array-remove-button-wrapper">
             <Button
-          label={`${t("Delete")} ` + props?.title}
+          label={`${t("WBH_DELETE_ACTION")}`}
           variation="secondary"
           className="array-remove-button" 
-          icon={ <SVG.Delete />}
+          icon={ <SVG.Delete width={"28"} height={"28"} />}
           onButtonClick={onDropIndexClick(index)}
           type="button"
         />
         </div>
-      )} */}
+      )}
+        </span>:
+      props.hasRemove && (
+        <div className="array-remove-button-wrapper">
+            <Button
+          label={`${t("WBH_DELETE_ACTION")}`}
+          variation="secondary"
+          className="array-remove-button" 
+          icon={ <SVG.Delete width={"28"} height={"28"} />}
+          onButtonClick={onDropIndexClick(index)}
+          type="button"
+        />
+        </div>
+      )}
     </div>
   );
 }
@@ -114,8 +132,8 @@ function ArrayFieldTitleTemplate(props) {
 }
 function ArrayFieldTemplate(props) {
   const { t } = useTranslation();
-  if(props?.required&&!props?.schema?.minItems){
-    props.schema.minItems=1;
+  if (props?.required && !props?.schema?.minItems) {
+    props.schema.minItems = 1;
   }
 
   return (
@@ -129,7 +147,7 @@ function ArrayFieldTemplate(props) {
       })}
       {props.canAdd && (
         <Button
-          label={t(`Add ` + props?.title)}
+          label={`${t(`WBH_ADD`)} ${t(props?.title)}`}
           variation="secondary"
           icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
           onButtonClick={props.onAddClick}
@@ -166,12 +184,26 @@ function ObjectFieldTemplate(props) {
 }
 
 function CustomFieldTemplate(props) {
+  const { t } = useTranslation();
+  const { moduleName, masterName } = Digit.Hooks.useQueryParams();
   const { id, classNames, style, label, help, required, description, errors, children } = props;
+  let titleCode = label;
+  let additionalCode = "";
+  if (!label?.toLowerCase().includes(moduleName?.toLowerCase()) && !label?.toLowerCase().includes(masterName?.toLowerCase())) {
+    titleCode = Digit.Utils.locale.getTransformedLocale(`${moduleName}.${moduleName}_${label?.slice(0, -2)}`);
+    additionalCode = label?.slice(-2);
+  }
   return (
     <span>
       <div className={classNames} style={style}>
-        <label htmlFor={id} className="control-label">
-          {label}
+        <label htmlFor={id} className="control-label" id={"label_" + id}>
+          {/* <span >{label}</span> */}
+          <span className={`tooltip`}>
+            {t(titleCode)} {additionalCode}
+            <span className="tooltiptext">
+              <span className="tooltiptextvalue">{t(`TIP_${titleCode}`)}</span>
+            </span>
+          </span>
           {required ? "*" : null}
         </label>
         {description}
@@ -202,6 +234,7 @@ const DigitJSONForm = ({
   screenType = "add",
   onViewActionsSelect,
   viewActions,
+  disabled = false,
 }) => {
   const { t } = useTranslation();
 
@@ -250,6 +283,7 @@ const DigitJSONForm = ({
           transformErrors={transformErrors.bind(person)}
           uiSchema={{ ...uiSchema, ...inputUiSchema }}
           onError={onError}
+          disabled={disabled}
           // disabled the error onload
           // focusOnFirstError={true}
           /* added logic to show live validations after form submit is clicked */
