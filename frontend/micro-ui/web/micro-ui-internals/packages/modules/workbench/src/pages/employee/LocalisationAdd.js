@@ -442,20 +442,44 @@ const LocalisationAdd = () => {
 
 
   const handleBulkUpload = async (event) => {
-   const result = await Digit.ParsingUtils.parseXlsToJsonMultipleSheets(event);
-   const updatedResult = convertObjectOfArraysToSingleArray(result)
-   //make result for default locale
-   const updatedResultDefault = updatedResult.map(row=> {
-    return {
-      ...row,
-      locale:"default"
-    }
-   })
-   const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
-   const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
-   setJsonResult(filteredResult)
-   setJsonResultDefault(filteredResultDefault)
-   //here the result will contain all the sheets in an object
+    
+   try {
+    const result = await Digit.ParsingUtils.parseXlsToJsonMultipleSheets(event);
+    const updatedResult = convertObjectOfArraysToSingleArray(result)
+    //make result for default locale
+    const updatedResultDefault = updatedResult.map(row=> {
+      return {
+        ...row,
+        locale:"default"
+      }
+    })
+    const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
+    const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
+    setJsonResult(filteredResult)
+    setJsonResultDefault(filteredResultDefault)
+    //here the result will contain all the sheets in an object
+   } catch (error) {
+    setShowToast({
+      label: error.message || "Invalid file type. Please upload an Excel file.",
+      isError: true,
+    });
+
+   }
+
+  //   const result = await Digit.ParsingUtils.parseXlsToJsonMultipleSheets(event);
+  //  const updatedResult = convertObjectOfArraysToSingleArray(result)
+  //  //make result for default locale
+  //  const updatedResultDefault = updatedResult.map(row=> {
+  //   return {
+  //     ...row,
+  //     locale:"default"
+  //   }
+  //  })
+  //  const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
+  //  const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
+  //  setJsonResult(filteredResult)
+  //  setJsonResultDefault(filteredResultDefault)
+  //  //here the result will contain all the sheets in an object
   };
 
   const callInputClick = async (event) => {

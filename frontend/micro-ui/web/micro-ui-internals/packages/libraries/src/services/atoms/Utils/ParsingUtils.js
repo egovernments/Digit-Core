@@ -18,7 +18,15 @@ export const parseXlsToJson = (event,setter) => {
 }
 
 export const parseXlsToJsonMultipleSheets  = (uploadEvent) => {
+  const allowedFileTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+
   return new Promise((resolve, reject) => {
+    const uploadedFile = uploadEvent.target.files[0];
+
+    if (!allowedFileTypes.includes(uploadedFile.type)) {
+      reject(new Error('WBH_LOC_INAVLID_FILY_TYPE'));
+      return;
+    }
     const reader = new FileReader();
 
     reader.onload = function(event) {
