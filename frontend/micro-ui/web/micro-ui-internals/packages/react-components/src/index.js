@@ -204,6 +204,8 @@ import {
   PaymentIcon,
   HistoryIcon,
   WarningIcon,
+  AttentionListIcon,
+
 } from "./atoms/svgindex";
 import Table from "./atoms/Table";
 import TelePhone from "./atoms/TelePhone";
@@ -557,6 +559,7 @@ export {
   PaymentIcon,
   HistoryIcon,
   WarningIcon,
+  AttentionListIcon,
 
 
   // Exported all svgs from svg-component library
