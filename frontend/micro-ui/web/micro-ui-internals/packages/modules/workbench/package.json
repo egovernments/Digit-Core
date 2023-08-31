@@ -29,7 +29,8 @@
     "react-i18next": "11.16.2",
     "react-query": "3.6.1",
     "react-router-dom": "5.3.0",
-    "react-select": "5.7.4"
+    "react-select": "5.7.4",
+    "xlsx": "0.17.5"
   },
   "author": "JaganKumar <jagan.kumar@egov.org.in>",
   "license": "MIT"
