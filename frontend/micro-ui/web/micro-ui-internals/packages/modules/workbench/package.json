@@ -33,9 +33,7 @@
     "xlsx": "0.17.5"
   },
   "browser": {
-    "fs": false,
-    "os": false,
-    "path": false
+    "fs": false
   },
   "author": "JaganKumar <jagan.kumar@egov.org.in>",
   "license": "MIT"
