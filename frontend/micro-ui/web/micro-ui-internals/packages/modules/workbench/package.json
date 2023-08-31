@@ -32,6 +32,11 @@
     "react-select": "5.7.4",
     "xlsx": "0.17.5"
   },
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
+  },
   "author": "JaganKumar <jagan.kumar@egov.org.in>",
   "license": "MIT"
 }

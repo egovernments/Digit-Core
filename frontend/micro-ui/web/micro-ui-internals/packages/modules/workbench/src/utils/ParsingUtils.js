@@ -1,5 +1,4 @@
 import XLSX from 'xlsx';
-import * as fs from 'node:fs/promises';
 
 export const parseXlsToJson = (event,setter) => {
   event.preventDefault()
