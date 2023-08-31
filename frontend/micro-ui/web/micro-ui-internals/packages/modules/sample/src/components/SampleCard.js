@@ -30,6 +30,10 @@ const SampleCard = () => {
         label: t("Advanced Form"),
         link: `/${window?.contextPath}/employee/sample/advanced`,
       },
+      {
+        label: t("View Screen"),
+        link: `/${window?.contextPath}/employee/sample/view`,
+      },
       
     ],
   };

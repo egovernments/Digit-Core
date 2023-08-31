@@ -89,6 +89,7 @@ import useGetHowItWorksJSON from "./useHowItWorksJSON";
 import { usePrivacyContext } from "./usePrivacyContext";
 import useStaticData from "./useStaticData";
 
+import useEstimateDetailsScreen from "./estimates/useEstimateDetailsScreen";
 
 
 const pgr = {
@@ -155,6 +156,10 @@ const survey = {
   useSurveyInbox,
 };
 
+const estimates = {
+  useEstimateDetailsScreen
+}
+
 const Hooks = {
   useSessionStorage,
   useQueryParams,
@@ -209,7 +214,8 @@ const Hooks = {
   useStaticData,
   useDynamicData,
   useBulkPdfDetails,
-  useLocation
+  useLocation,
+  estimates
 };
 
 export default Hooks;
