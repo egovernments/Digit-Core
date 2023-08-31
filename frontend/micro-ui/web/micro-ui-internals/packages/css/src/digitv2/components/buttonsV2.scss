@@ -1,8 +1,8 @@
 @import url("../index.scss");
 
 .digit-button-primary {
-  height: fit-content;
   @extend .light-primary-button;
+  height: fit-content;
   @apply text-center cursor-pointer outline-none px-lg;
 
   &.disabled {
@@ -18,8 +18,8 @@
 }
 
 .digit-button-secondary {
-  height: fit-content;
   @extend .light-paper-secondary;
+  height: fit-content;
   @apply text-center cursor-pointer border-primary-main border-b-2 border-solid outline-none px-lg;
 
   &:focus {
@@ -37,4 +37,8 @@
 
 .submit-bar:focus {
   @apply outline-none !important;
+}
+
+.digit-button-label {
+  width: 100%;
 }

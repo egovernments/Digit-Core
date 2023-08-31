@@ -1,6 +1,8 @@
 @import url("../index.scss");
+@import url("../typography.scss");
 
 .digit-header {
   @extend .light-text-color-primary;
-  @apply text-heading-l font-bold mb-md ml-md;
+  @extend .typography.text-heading-l;
+  @apply font-bold mb-md ml-md;
 }

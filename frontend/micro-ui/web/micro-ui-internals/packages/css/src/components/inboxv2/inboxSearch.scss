@@ -1,7 +1,7 @@
 @import url("../../digitv2/index.scss");
 
 .search-wrapper {
-    @extend .light-text-color-primary;
+  @extend .light-text-color-primary;
   @extend .light-paper-primary;
   height: 100%;
   width: 100%;
@@ -81,8 +81,8 @@
     &.search {
       grid-template-columns: repeat(4, 1fr);
     }
-    .text-input{
-        @extend .light-primary;
+    .text-input {
+      @extend .light-primary;
     }
   }
 

@@ -1,6 +1,6 @@
 @import url("../index.scss");
 
 .digit-break-line {
-  @apply border-solid border;
   @extend .light-input-border;
+  @apply border-solid border;
 }

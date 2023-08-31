@@ -30,7 +30,7 @@ const TextInput = (props) => {
     <React.Fragment>
       <div
         className={`digit-text-input ${user_type === "employee" ? "" : "digit-text-input-width"} ${props?.className ? props?.className : ""} ${
-          variant === "error" ? "error" : ""
+          variant ? variant : ""
         }`}
         style={props?.textInputStyle ? { ...props.textInputStyle } : {}}
       >

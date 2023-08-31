@@ -1,12 +1,15 @@
 @import url("../index.scss");
+@import url("../typography.scss");
 
 .digit-error-message {
   @extend .alert-error;
-  @apply block text-body-s mb-md;
+  @extend .typography.text-body-s;
+  @apply block mb-md;
 }
 
 .digit-employee-card {
   .digit-error-message {
+    @extend .typography.text-body-s;
     font-size: 12px;
     margin-top: -21px;
   }

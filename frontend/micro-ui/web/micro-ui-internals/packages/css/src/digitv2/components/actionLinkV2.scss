@@ -1,7 +1,9 @@
 @import url("../index.scss");
+@import url("../typography.scss");
 
 .digit-action-links {
   @extend .light-primary;
+  @extend .typography.text-link;
   @apply text-text-btn mr-lg !important;
   cursor: pointer;
 }

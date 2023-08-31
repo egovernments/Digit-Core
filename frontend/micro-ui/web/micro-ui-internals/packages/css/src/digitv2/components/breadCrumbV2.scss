@@ -1,4 +1,5 @@
 @import url("../index.scss");
+@import url("../typography.scss");
 
 .digit-bread-crumb {
   @extend .light-text-color-secondary;
@@ -22,6 +23,7 @@
   }
 
   span {
+    @extend .typography.text-body-s;
     cursor: pointer;
   }
 }

@@ -67,7 +67,7 @@ const FieldComposer = ({
             minlength={populators?.validation?.minlength}
             customIcon={populators?.customIcon}
             customClass={populators?.customClass}
-            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+            variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
           />
         );
       case "amount":
@@ -89,7 +89,7 @@ const FieldComposer = ({
             customClass={populators?.customClass}
             prefix={populators?.prefix}
             intlConfig={populators?.intlConfig}
-            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+            variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
           />
         );
       case "textarea":
@@ -106,7 +106,7 @@ const FieldComposer = ({
               style={{ marginTop: 0 }}
               maxlength={populators?.validation?.maxlength}
               minlength={populators?.validation?.minlength}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );
@@ -119,7 +119,7 @@ const FieldComposer = ({
               inputRef={ref}
               customClass={populators?.customClass}
               customStyle={populators?.customStyle}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );
@@ -133,7 +133,7 @@ const FieldComposer = ({
               disable={disable}
               // {...props}
               errorStyle={errors?.[populators.name]}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );
@@ -156,7 +156,7 @@ const FieldComposer = ({
               styles={populators?.styles}
               style={populators?.labelStyles}
               customLabelMarkup={populators?.customLabelMarkup}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );
@@ -177,7 +177,7 @@ const FieldComposer = ({
             customClass={populators?.customClass}
             customErrorMsg={populators?.errorMessage}
             containerStyles={{ ...populators?.containerStyles }}
-            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+            variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
           />
         );
       case "select":
@@ -197,7 +197,7 @@ const FieldComposer = ({
               config={populators}
               disable={config?.disable}
               errorStyle={errors?.[populators.name]}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );
@@ -239,7 +239,7 @@ const FieldComposer = ({
             customClass={config?.customClass}
             customErrorMsg={config?.error}
             localePrefix={config?.localePrefix}
-            variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+            variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
           />
         );
       case "form":
@@ -259,7 +259,7 @@ const FieldComposer = ({
               clearErrors={controllerProps?.clearErrors}
               formState={controllerProps?.formState}
               control={controllerProps?.control}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </form>
         );
@@ -273,7 +273,7 @@ const FieldComposer = ({
               inputRef={ref}
               errors={errors}
               setValue={controllerProps?.setValue}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );
@@ -286,7 +286,7 @@ const FieldComposer = ({
               formData={formData}
               inputRef={ref}
               errors={errors}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );
@@ -311,7 +311,7 @@ const FieldComposer = ({
               defaultLabel={t(populators?.defaultText)}
               defaultUnit={t(populators?.selectedText)}
               config={populators}
-              variant={variant ? variant : errors?.[populators.name] ? "error" : ""}
+              variant={variant ? variant : errors?.[populators.name] ? "digit-field-error" : ""}
             />
           </div>
         );

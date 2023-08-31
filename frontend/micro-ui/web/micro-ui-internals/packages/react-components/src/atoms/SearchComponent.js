@@ -8,6 +8,8 @@ import LinkLabel from '../atoms/LinkLabel';
 import SubmitBar from "../atoms/SubmitBar";
 import Toast from "../atoms/Toast";
 import { FilterIcon, RefreshIcon } from "./svgindex";
+import FieldController from "@egovernments/digit-ui-components-core/src/hoc/FieldController";
+import LabelFieldPair from "./LabelFieldPair";
 
 const SearchComponent = ({ uiConfig, header = "", screenType = "search", fullConfig, data}) => {
   const { t } = useTranslation();
@@ -111,7 +113,40 @@ const SearchComponent = ({ uiConfig, header = "", screenType = "search", fullCon
         return <Header styles={uiConfig?.headerStyle}>{t(header)}</Header>
       }
     }
-  }
+  };
+
+  const fieldSelector = (type, populators, isMandatory, disable = false, component, config) =>
+    // Calling field controller to render all label and fields
+    FieldController({
+      type: type,
+      populators: populators,
+      isMandatory: isMandatory,
+      disable: disable,
+      component: component,
+      config: config,
+      formData: formData,
+      control: control,
+      errors: errors,
+      props: {
+        apiDetails: apiDetails,
+        data: data,
+        labelStyle: { fontSize: "16px" },
+      },
+      controllerProps: {
+        register,
+        setValue,
+        getValues,
+        reset,
+        watch,
+        trigger,
+        control,
+        formState,
+        errors,
+        setError,
+        clearErrors,
+        unregister,
+      },
+    });
 
   return (
     <React.Fragment>
@@ -120,7 +155,17 @@ const SearchComponent = ({ uiConfig, header = "", screenType = "search", fullCon
         <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(e) => checkKeyDown(e)}>
           <div>
             {uiConfig?.showFormInstruction && <p className="search-instruction-header">{t(uiConfig?.showFormInstruction)}</p>}
-            <div className={`search-field-wrapper ${screenType} ${uiConfig?.type} ${uiConfig?.formClassName?uiConfig?.formClassName:""}`}>
+            <div className={`search-field-wrapper ${screenType} ${uiConfig?.type} ${uiConfig?.formClassName ? uiConfig?.formClassName : ""}`}>
+              
+              {/* Below commented line is the alternative of Render Form fields by using FieldComposer */}
+              {/* {uiConfig?.fields?.map((item, index) => {
+                return (
+                  <LabelFieldPair key={index}>
+                    {fieldSelector(item.type, item.populators, item.isMandatory, item?.disable, item?.component, item)}
+                  </LabelFieldPair>
+                );
+              })} */}
+              
               <RenderFormFields 
                 fields={uiConfig?.fields} 
                 control={control} 
@@ -151,7 +196,7 @@ const SearchComponent = ({ uiConfig, header = "", screenType = "search", fullCon
         }
       </div>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default SearchComponent
+export default SearchComponent;
