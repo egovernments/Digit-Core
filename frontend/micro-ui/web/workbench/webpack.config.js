@@ -4,6 +4,9 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
+  node: {
+    fs: 'empty', // Exclude 'fs' module
+  },
   // mode: 'development',
   entry: "./src/index.js",
   devtool: "source-map",

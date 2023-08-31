@@ -4,6 +4,9 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
   // mode: 'development',
+  node: {
+    fs: 'empty', // Exclude 'fs' module
+  },
   entry: "./src/index.js",
   devtool: "source-map",
   module: {
