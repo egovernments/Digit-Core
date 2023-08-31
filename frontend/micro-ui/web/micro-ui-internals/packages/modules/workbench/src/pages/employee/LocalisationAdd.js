@@ -90,7 +90,7 @@ function splitArrayIntoDynamicSubsetsByPropertyAndKeys(array, propertyKey, keysT
       subsetItem[key] = item[key];
     });
 
-    subsets[subsetIndex].push(subsetItem);
+    subsets[subsetIndex]?.push(subsetItem);
   });
 
   return subsets;
