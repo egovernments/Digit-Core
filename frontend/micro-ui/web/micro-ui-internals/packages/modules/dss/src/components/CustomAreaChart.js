@@ -51,6 +51,7 @@ const renderUnits = (t, denomination, symbol) => {
 };
 
 const CustomAreaChart = ({ xDataKey = "name", yDataKey = getValue, data, setChartDenomination }) => {
+  
   const lineLegend = {
     margin: "10px",
   };
@@ -290,7 +291,7 @@ const CustomAreaChart = ({ xDataKey = "name", yDataKey = getValue, data, setChar
             margin={{
               top: 15,
               right: 5,
-              left: 20,
+              left: 5,
               bottom: 5,
             }}
           >

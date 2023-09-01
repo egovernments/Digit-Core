@@ -288,9 +288,9 @@ const DashBoard = ({ stateCode }) => {
                   options={shareOptions}
                 />
               </div>
-              <div className="mrsm divToBeHidden" onClick={handlePrint} >
+              <div className="mrsm divToBeHidden icon-label-download" onClick={handlePrint} >
                 <DownloadIcon fill="#f18f5e" className="mrsm divToBeHidden" />
-                {t(`ES_DSS_DOWNLOAD`)}
+                <p>{t(`ES_DSS_DOWNLOAD`)}</p>
               </div>
             </div>
           )}
@@ -459,7 +459,7 @@ const DashBoard = ({ stateCode }) => {
                 options={shareOptions}
               />
             </div>
-            <div onClick={handlePrint} className="divToBeHidden" >
+            <div onClick={handlePrint} className="divToBeHidden icon-label-download" >
               <DownloadIcon fill="#f18f5e"/>
               {t(`ES_DSS_DOWNLOAD`)}
             </div>

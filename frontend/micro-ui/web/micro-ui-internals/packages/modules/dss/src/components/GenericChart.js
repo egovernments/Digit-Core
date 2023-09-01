@@ -84,7 +84,7 @@ const GenericChart = ({
       <div className={`chartHeader ${showSearch && "column-direction"}`}>
         <div>
           {showHeader && (
-            <CardLabel className={"dss-header-label"} style={{display:"flex",alignItems:"center"}}>
+            <CardLabel className={"dss-header-label dss-header-label-secondary"} style={{display:"flex",alignItems:"center"}}>
               {iconName&&IconComp&&<span><IconComp  className={"dss-primary"} /></span>}
               <span className={`tooltip ${headerName?.length < (isMobile ? 20 : 30) ? "dss-white-pre" : "dss-white-pre-line"}`}>
                 {headerName}
