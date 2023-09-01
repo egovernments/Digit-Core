@@ -51,11 +51,8 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 
 		if(data.topic().equals(pgrCreateTopic) || data.topic().equals(pgrBatchCreateTopic)){
 			String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
-			log.info("kafkaJson :"+kafkaJson);
 			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson);
-			log.info("deptCode : "+deptCode);
 			kafkaJson = kafkaJson.replace(IndexerConstants.DEPT_CODE, deptCode);
-			log.info("kafkaJson : "+kafkaJson);
 			try {
 				indexerService.esIndexer(data.topic(), kafkaJson);
 			}catch(Exception e){
@@ -64,8 +61,11 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 		}else {
 			ObjectMapper mapper = indexerUtils.getObjectMapper();
 			try {
+				log.info("data.value() : "+data.value());
 				ServiceResponse serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
+				log.info("serviceResponse : "+serviceResponse);
 				PGRIndexObject indexObject = pgrCustomDecorator.dataTransformationForPGR(serviceResponse);
+				log.info("indexObject : "+indexObject);
 				indexerService.esIndexer(data.topic(), mapper.writeValueAsString(indexObject));
 			} catch (Exception e) {
 				log.error("Couldn't parse pgrindex request: ", e);
