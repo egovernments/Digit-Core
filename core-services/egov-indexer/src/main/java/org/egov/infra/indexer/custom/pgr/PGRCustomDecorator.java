@@ -135,9 +135,9 @@ public class PGRCustomDecorator {
 		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, serviceCode, new RequestInfo());
 		try {
 			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
-			log.debug("response"+response);
+			log.debug("response:"+response);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
-			log.debug("depts"+depts);
+			log.debug("depts: "+depts);
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
 			}else

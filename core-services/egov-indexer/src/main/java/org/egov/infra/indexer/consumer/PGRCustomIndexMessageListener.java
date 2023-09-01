@@ -51,9 +51,9 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 
 		if(data.topic().equals(pgrCreateTopic) || data.topic().equals(pgrBatchCreateTopic)){
 			String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
-			log.debug("kafkaJson"+kafkaJson);
+			log.debug("kafkaJson :"+kafkaJson);
 			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson);
-			log.debug("deptCode"+deptCode);
+			log.debug("deptCode : "+deptCode);
 			kafkaJson = kafkaJson.replace(IndexerConstants.DEPT_CODE, deptCode);
 			log.debug("kafkaJson : "+kafkaJson);
 			try {
