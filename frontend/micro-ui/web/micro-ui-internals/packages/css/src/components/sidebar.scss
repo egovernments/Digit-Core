@@ -52,7 +52,7 @@
 .new-sidebar ul li.dropdown-toggle button::before {
   content: "►"; /* Closed state */
   position: absolute;
-  right: 10px;
+  right: 2px;
   transition: transform 0.3s ease-in-out;
 }
 
