@@ -78,7 +78,7 @@ function transformErrors(errors) {
 function ArrayFieldItemTemplate(props) {
   const { t } = useTranslation();
 
-  const { children, className, index, onDropIndexClick ,schema} = props;
+  const { children, className, index, onDropIndexClick ,schema,disabled} = props;
   const isArrayOfObjects=schema?.type== "object";
   const newClass=isArrayOfObjects?"jk-array-objects":"jk-array-of-non-objects";
   return (
@@ -96,6 +96,7 @@ function ArrayFieldItemTemplate(props) {
           icon={ <SVG.Delete width={"28"} height={"28"} />}
           onButtonClick={onDropIndexClick(index)}
           type="button"
+          isDisabled={disabled}
         />
         </div>
       )}
@@ -109,6 +110,7 @@ function ArrayFieldItemTemplate(props) {
           icon={ <SVG.Delete width={"28"} height={"28"} />}
           onButtonClick={onDropIndexClick(index)}
           type="button"
+          isDisabled={disabled}
         />
         </div>
       )}
