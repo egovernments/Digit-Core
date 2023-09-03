@@ -236,10 +236,14 @@ public class EmployeeService {
 		
 		
 		List <Employee> employees = new ArrayList<>();
+		List<Employee> filteredEmployees  = new ArrayList<>();
         if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())|| !StringUtils.isEmpty(criteria.getBoundaryType())|| !StringUtils.isEmpty(criteria.getBoundaryType())) && CollectionUtils.isEmpty(criteria.getUuids())))
             employees = repository.fetchEmployees(criteria, requestInfo, stateLevelTenantId);
-        	List<Employee> filteredEmployees = filterEmployeesByJurisdiction(employees, validBoundaryCodes);
-        List<String> uuids = filteredEmployees.stream().map(Employee :: getUuid).collect(Collectors.toList());
+         if(!StringUtils.isEmpty(criteria.getBoundary()))	
+        	 filteredEmployees = filterEmployeesByJurisdiction(employees, validBoundaryCodes);
+         else 
+        	 filteredEmployees = employees;
+         List<String> uuids = filteredEmployees.stream().map(Employee :: getUuid).collect(Collectors.toList());
 		if(!CollectionUtils.isEmpty(uuids)){
             Map<String, Object> UserSearchCriteria = new HashMap<>();
             UserSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_UUID,uuids);
@@ -319,14 +323,7 @@ public class EmployeeService {
 	}
 
 	private static List<Employee> filterEmployeesByJurisdiction(List<Employee> employees, List<String> parentCodes) {
-		List<Employee> filteredEmployees = new ArrayList<>();
-
-		// Filter employees at the target code level
-		for (Employee employee : employees) {
-			if (hasJurisdiction(employee, parentCodes.get(0))) {
-				filteredEmployees.add(employee);
-			}
-		}
+		 List<Employee> filteredEmployees = new ArrayList<>();
 
 		// If no employees at target code level, progressively go up to parent codes
 		if (filteredEmployees.isEmpty()) {
@@ -342,8 +339,7 @@ public class EmployeeService {
 			}
 		}
 
-		return filteredEmployees;
-	}
+	        return filteredEmployees;	}
 
 	private static boolean hasJurisdiction(Employee employee, String jurisdictionCode) {
 		for (Jurisdiction jurisdiction : employee.getJurisdictions()) {
