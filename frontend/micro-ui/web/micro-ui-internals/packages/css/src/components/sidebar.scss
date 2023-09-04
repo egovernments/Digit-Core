@@ -41,7 +41,6 @@
 
 .new-sidebar ul li.dropdown-toggle button {
   width: 100%;
-  padding: 5px 20px;
   background-color: #22394d;
   border: none;
   cursor: pointer;
@@ -81,6 +80,6 @@
 .option-container{
   display: flex;
 }
-.arrow-icon{
+.option-container .new-arrow-icon {
   float: right;
 }
