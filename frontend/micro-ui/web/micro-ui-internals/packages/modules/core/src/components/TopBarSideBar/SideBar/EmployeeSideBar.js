@@ -20,7 +20,7 @@ const EmployeeSideBar = () => {
   }, [isLoading]);
 
   const expandNav = () => {
-    sidebarRef.current.style.width = "260px";
+    sidebarRef.current.style.width = "250px";
     sidebarRef.current.style.overflow = "auto";
 
     sidebarRef.current.querySelectorAll(".new-sidebar-link").forEach((element) => {

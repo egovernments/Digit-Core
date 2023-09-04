@@ -73,15 +73,14 @@ const Sidebar = ({ data }) => {
           if (!subItemKeys && subItems && Object.keys(subItems).length > 0) {
             // If the item has sub-items, render a dropdown with toggle button
             const leftIconArray = extractLeftIcon(subItems);
-            console.log(leftIconArray);
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
-            debugger;
             return (
-              <div style={{ display: "flex" }}>
-                <span style={{ marginLeft: "0px", marginRight: "0px" }}>{leftIcon}</span>
+              <div className="option-container" key={index}>
+                <span style={{ marginLeft: "0px", marginRight: "0px", marginBottom: "10px", marginTop: "10px" }}>{leftIcon}</span>
                 <li key={index} className={`dropdown-toggle ${isSubItemOpen ? "open" : ""}`}>
-                  <button onClick={() => toggleSidebar(key)} style={{ marginLeft: "0px" }}>
-                    {isSubItemOpen} {key}
+                  <button onClick={() => toggleSidebar(key)} style={{ marginLeft: "0px", marginRight: "0px" }}>
+                    {key}
+                    <span className="new-arrow-icon">{isSubItemOpen ? <ArrowForward /> : <ArrowVectorDown />}</span>
                   </button>
                   {isSubItemOpen && renderSidebarItems(subItems)}
                 </li>
@@ -91,7 +90,7 @@ const Sidebar = ({ data }) => {
             // If the item is a link, render it
             return (
               <li key={subItems.item.id} className="actions">
-                <a className="new-sidebar-link" href={getOrigin + "/employee/" + subItems.item.navigationURL}>
+                <a className="new-sidebar-link" href={getOrigin + "employee/" + subItems.item.navigationURL}>
                   {subItems.item.displayName}
                 </a>
               </li>
