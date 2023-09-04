@@ -1,0 +1,87 @@
+/* Sidebar container */
+.new-sidebar {
+  background-color: #22394d;
+  color: #fff;
+  padding: 10px;
+  position: fixed;
+  left: -250px; /* Start closed */
+  transition: left 0.3s ease-in-out;
+  height: 100%;
+  overflow-y: auto; /* Enable scrolling if content exceeds height */
+  z-index: 1000; /* Ensure it's above other content */
+}
+
+/* Show the sidebar when opened */
+.new-sidebar.show {
+  left: 0;
+}
+
+/* Sidebar toggle button */
+.new-sidebar button {
+  display: block;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  font-size: large;
+}
+
+/* Sidebar item with dropdown */
+.new-sidebar ul {
+  list-style: none;
+  
+  padding-left: 0;
+  margin: 0;
+}
+
+.new-sidebar ul li.dropdown-toggle {
+  position: relative;
+}
+
+.new-sidebar ul li.dropdown-toggle button {
+  width: 100%;
+  padding: 10px 20px;
+  background-color: #22394d;
+  border: none;
+  cursor: pointer;
+}
+
+/* Dropdown icon */
+.new-sidebar ul li.dropdown-toggle button::before {
+  content: "►"; /* Closed state */
+  position: absolute;
+  right: 2px;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Opened state for dropdown icon */
+.new-sidebar ul li.open button::before {
+  content: "▼";
+  transform: rotate(0deg);
+}
+
+/* Sidebar sub-items */
+.new-sidebar ul ul {
+  display: none;
+  padding-left: 20px;
+}
+
+.new-sidebar ul li.open ul {
+  display: block;
+}
+
+/* Sidebar links */
+.new-sidebar ul li a {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  padding: 5px 20px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Sidebar links hover effect */
+.new-sidebar ul li a:hover {
+  background-color: #e3e3e3;
+}
