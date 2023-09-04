@@ -10,20 +10,20 @@ import java.util.Map;
 import static org.egov.elasticrequestcrypt.constants.CorrelatorConstants.SLASH_SEPARATOR;
 
 @Component
-public class IndexingUtil {
+public class IndexingInvocationUtil {
 
     private ApplicationProperties applicationProperties;
 
     private ServiceRequestRepository serviceRequestRepository;
 
     @Autowired
-    public IndexingUtil(ApplicationProperties applicationProperties, ServiceRequestRepository serviceRequestRepository) {
+    public IndexingInvocationUtil(ApplicationProperties applicationProperties, ServiceRequestRepository serviceRequestRepository) {
         this.applicationProperties = applicationProperties;
         this.serviceRequestRepository = serviceRequestRepository;
     }
 
     /**
-     * This method takes indexName, type and data to index it on ElasticSearch.
+     * This method takes indexName, type and data to index and makes a call to index it on ElasticSearch.
      * @param indexName
      * @param type
      * @param dataToBeIndexed

@@ -6,13 +6,13 @@ import org.egov.encryption.web.contract.EncryptionRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EncryptionDecryptionUtil {
+public class EncryptionDecryptionInvocationUtil {
 
     private ServiceRequestRepository serviceRequestRepository;
 
     private ApplicationProperties applicationProperties;
 
-    public EncryptionDecryptionUtil(ServiceRequestRepository serviceRequestRepository, ApplicationProperties applicationProperties) {
+    public EncryptionDecryptionInvocationUtil(ServiceRequestRepository serviceRequestRepository, ApplicationProperties applicationProperties) {
         this.serviceRequestRepository = serviceRequestRepository;
         this.applicationProperties = applicationProperties;
     }

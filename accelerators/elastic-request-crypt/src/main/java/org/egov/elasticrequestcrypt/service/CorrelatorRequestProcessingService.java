@@ -3,8 +3,8 @@ package org.egov.elasticrequestcrypt.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.elasticrequestcrypt.config.ApplicationProperties;
 import org.egov.elasticrequestcrypt.models.PlainCorrelator;
-import org.egov.elasticrequestcrypt.utils.EncryptionDecryptionUtil;
-import org.egov.elasticrequestcrypt.utils.IndexingUtil;
+import org.egov.elasticrequestcrypt.utils.EncryptionDecryptionInvocationUtil;
+import org.egov.elasticrequestcrypt.utils.IndexingInvocationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
@@ -14,18 +14,18 @@ import static org.egov.elasticrequestcrypt.constants.CorrelatorConstants.*;
 @Service
 public class CorrelatorRequestProcessingService {
 
-    private EncryptionDecryptionUtil encryptionDecryptionUtil;
+    private EncryptionDecryptionInvocationUtil encryptionDecryptionInvocationUtil;
 
-    private IndexingUtil indexingUtil;
+    private IndexingInvocationUtil indexingInvocationUtil;
 
     private ObjectMapper objectMapper;
 
     private ApplicationProperties applicationProperties;
 
     @Autowired
-    public CorrelatorRequestProcessingService(EncryptionDecryptionUtil encryptionDecryptionUtil, IndexingUtil indexingUtil, ObjectMapper objectMapper, ApplicationProperties applicationProperties) {
-        this.encryptionDecryptionUtil = encryptionDecryptionUtil;
-        this.indexingUtil = indexingUtil;
+    public CorrelatorRequestProcessingService(EncryptionDecryptionInvocationUtil encryptionDecryptionInvocationUtil, IndexingInvocationUtil indexingInvocationUtil, ObjectMapper objectMapper, ApplicationProperties applicationProperties) {
+        this.encryptionDecryptionInvocationUtil = encryptionDecryptionInvocationUtil;
+        this.indexingInvocationUtil = indexingInvocationUtil;
         this.objectMapper = objectMapper;
         this.applicationProperties = applicationProperties;
     }
@@ -37,7 +37,7 @@ public class CorrelatorRequestProcessingService {
      */
     public void processEncryptedCorrelatorRequest(PlainCorrelator plainCorrelator) {
         // Make a call to encryption service to encrypt incoming request
-        Object encryptedRequest = encryptionDecryptionUtil.encryptRequest(plainCorrelator.getEncryptionRequest());
+        Object encryptedRequest = encryptionDecryptionInvocationUtil.encryptRequest(plainCorrelator.getEncryptionRequest());
 
         // Prepare encrypted correlator map
         Map<String, Object> encryptedCorrelatorMap = new HashMap<>();
@@ -45,7 +45,7 @@ public class CorrelatorRequestProcessingService {
         encryptedCorrelatorMap.put(ENCRYPTED_REQUEST, encryptedRequest);
 
         // Index encrypted correlator information to ES
-        indexingUtil.indexDataOnEs(applicationProperties.getCorrelationIndexName(), applicationProperties.getCorrelationIndexType(),  encryptedCorrelatorMap);
+        indexingInvocationUtil.indexDataOnEs(applicationProperties.getCorrelationIndexName(), applicationProperties.getCorrelationIndexType(),  encryptedCorrelatorMap);
 
     }
 
