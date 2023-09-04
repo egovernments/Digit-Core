@@ -1,4 +1,5 @@
 @import url("../index.scss");
+@import url("../typography.scss");
 
 .digit-mobile-number-container {
   @apply flex  items-center;
@@ -9,6 +10,7 @@
     }
   }
   .digit-citizen-card-input--front {
+    @extend .typography.text-body-s;
     @extend .light-background;
     width: fit-content !important;
     display: flex;
@@ -19,10 +21,12 @@
   }
 
   .digit-citizen-card-input {
+    @extend .typography.text-body-s;
     @apply mb-lg pl-sm outline-none block border w-full h-10 border-input-border border-solid bg-white leading-10 text-form-field text-text-primary;
   }
 
   .digit-citizen-card-input--front {
+    @extend .typography.text-body-s;
     width: fit-content !important;
     display: flex;
     align-items: center;
@@ -31,8 +35,9 @@
     padding-right: 5px;
   }
   .digit-employee-card-input-error {
-    @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-solid bg-white leading-10 text-form-field text-text-primary;
+    @extend .typography.text-body-s;
     @extend .light-input-border;
     @extend .alert-error;
+    @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-solid bg-white leading-10 text-form-field text-text-primary;
   }
 }

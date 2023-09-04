@@ -1,10 +1,11 @@
 @import url("../index.scss");
+@import url("../typography.scss");
 
 .digit-info-banner-wrap {
+  @extend .alert-info-bg;
   @apply bg-opacity-25 m-sm p-md;
   max-width: 960px;
 
-  @extend .alert-info-bg;
   border-radius: 4px;
   svg {
     margin-top: 5px;
@@ -16,10 +17,12 @@
   }
 
   h2 {
+    @extend .typography.text-heading-m;
     @apply text-heading-m text-link-normal mb-md font-bold ml-sm;
   }
 
   p {
+    @extend .typography.text-body-l;
     @apply text-body-l text-link-normal whitespace-pre-line;
   }
 }

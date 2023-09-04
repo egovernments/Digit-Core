@@ -1,4 +1,7 @@
+@import url("../typography.scss");
+
 .digit-card-label {
   @extend .light-primary;
+  @extend .typography.text-label;
   @apply text-legend mb-sm;
 }

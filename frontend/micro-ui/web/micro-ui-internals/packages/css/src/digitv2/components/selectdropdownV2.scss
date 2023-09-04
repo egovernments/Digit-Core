@@ -4,21 +4,29 @@
   .digit-select {
     @extend .light-input-border;
     @apply relative block w-full h-10 border border-solid border-input-border;
+    &.digit-field-error {
+      border: 1px solid;
+      border-color: theme(digitv2.alert.error);
+    }
+    &.disabled {
+      @apply border-grey-dark text-grey-dark !important;
+      pointer-events: none !important;
+    }
     &:hover {
       @extend .light-input-border;
       @apply border-2 border-solid border-primary-main;
     }
     input[type="text"] {
-      width: calc(100% - 32px);
-      background-color: transparent;
       @extend .light-input-border;
       @extend .light-text-color-primary;
+      width: calc(100% - 32px);
+      background-color: transparent;
       @apply absolute z-10 w-full h-full outline-none text-text-primary text-form-field pl-sm;
     }
 
     p {
-      padding-top: 9px;
       @extend .light-text-color-primary;
+      padding-top: 9px;
       @apply text-form-field text-text-primary float-left ml-sm;
     }
 
@@ -32,13 +40,13 @@
   }
 
   .digit-select-active {
-    @apply relative block w-full h-10 border-2 border-solid border-primary-main;
     @extend .light-input-border;
+    @apply relative block w-full h-10 border-2 border-solid border-primary-main;
 
     input[type="text"] {
+      @extend .light-text-color-primary;
       width: calc(100% - 32px);
       background-color: transparent;
-      @extend .light-text-color-primary;
 
       @apply absolute z-10 w-full h-full outline-none text-text-primary text-form-field pl-sm;
     }
@@ -70,13 +78,13 @@
     @apply absolute z-20 bg-white max-w-full;
 
     p {
-      padding-top: 14px;
       @extend .light-text-color-primary;
+      padding-top: 14px;
       @apply w-full h-12 pl-sm text-text-primary text-form-field;
 
       &:hover {
-        @apply bg-grey-mid;
         @extend .light-background;
+        @apply bg-grey-mid;
       }
     }
   }
@@ -94,19 +102,19 @@
   max-width: 540px;
 
   .digit-select {
-    @apply relative block w-full h-10 border border-solid border-input-border;
     @extend .light-input-border;
+    @apply relative block w-full h-10 border border-solid border-input-border;
 
     input[type="text"] {
+      @extend .light-text-color-primary;
       width: calc(100% - 32px);
       background-color: transparent;
-      @extend .light-text-color-primary;
       @apply absolute z-10 w-full h-full outline-none text-text-primary text-form-field pl-sm;
     }
 
     p {
-      padding-top: 9px;
       @extend .light-text-color-primary;
+      padding-top: 9px;
       @apply text-form-field text-text-primary float-left ml-sm;
     }
 
@@ -124,9 +132,9 @@
     @apply relative block w-full h-10 border-2 border-solid border-primary-main;
 
     input[type="text"] {
+      @extend .light-text-color-primary;
       width: calc(100% - 32px);
       background-color: transparent;
-      @extend .light-text-color-primary;
       @apply absolute z-10 w-full h-full outline-none text-text-primary text-form-field pl-sm;
     }
 
@@ -149,14 +157,14 @@
   }
 
   .digit-options-card {
+    @extend .light-background;
     width: 100% !important;
     box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
-    @extend .light-background;
     @apply absolute z-20 mt-xs bg-white;
 
     p {
-      padding-top: 14px;
       @extend .light-text-color-primary;
+      padding-top: 14px;
       @apply w-full h-12 pl-sm text-text-primary text-form-field;
 
       &:hover {

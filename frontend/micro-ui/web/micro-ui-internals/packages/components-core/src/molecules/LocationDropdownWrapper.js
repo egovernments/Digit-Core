@@ -5,7 +5,7 @@ import Dropdown from "../atoms/Dropdown";
 import { Loader } from "../atoms/Loader";
 import { useTranslation } from "react-i18next";
 
-const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors, setValue }) => {
+const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors, setValue, variant }) => {
   const [options, setOptions] = useState([]);
 
   const { t } = useTranslation();
@@ -78,6 +78,7 @@ const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors
             defaultLabel={t(populators?.defaultText)}
             defaultUnit={t(populators?.selectedText)}
             config={populators}
+            variant={variant}
           />
         </div>
       )}
@@ -88,15 +89,16 @@ const LocationDropdownWrapper = ({ populators, formData, props, inputRef, errors
           option={options}
           key={populators.name}
           optionKey={populators?.optionsKey}
-          value={props.value?.[0]}
+          value={props?.value?.[0]}
           select={(e) => {
             props.onChange([e], populators.name);
           }}
-          selected={props.value?.[0] || populators.defaultValue}
-          defaultValue={props.value?.[0] || populators.defaultValue}
+          selected={props?.value?.[0] || populators.defaultValue}
+          defaultValue={props?.value?.[0] || populators.defaultValue}
           t={t}
           errorStyle={errors?.[populators.name]}
           optionCardStyles={populators?.optionsCustomStyle}
+          variant={variant}
         />
       )}
     </>
@@ -116,7 +118,7 @@ LocationDropdownWrapper.propTypes = {
   formData: PropTypes.object.isRequired,
   props: PropTypes.shape({
     onChange: PropTypes.func.isRequired,
-    value: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]).isRequired,
+    value: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   }).isRequired,
   inputRef: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   errors: PropTypes.object,

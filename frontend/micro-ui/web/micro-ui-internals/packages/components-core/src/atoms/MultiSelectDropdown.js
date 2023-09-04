@@ -160,7 +160,11 @@ const MultiSelectDropdown = ({
 
   return (
     <div>
-      <div className={`digit-multi-select-dropdown-wrap ${props?.className ? props?.className : ""}`} ref={dropdownRef} style={props?.style}>
+      <div
+        className={`digit-multi-select-dropdown-wrap ${props?.className ? props?.className : ""} ${props?.variant ? props?.variant : ""}`}
+        ref={dropdownRef}
+        style={props?.style}
+      >
         <div className={`digit-master${active ? `-active` : ``}`}>
           <input
             className="digit-cursorPointer"

@@ -4,10 +4,10 @@
   @apply flex mb-md relative items-baseline;
 
   input {
+    @extend .light-input-border;
     width: 38px;
     height: 38px;
     @apply opacity-0 absolute top-0 left-0 z-10;
-    @extend .light-input-border;
   }
 
   .input-emp {
@@ -17,10 +17,10 @@
   }
 
   .digit-custom-checkbox {
+    @extend .light-input-border;
     width: 38px;
     height: 38px;
     @apply absolute top-0 left-0 border border-solid border-input-border z-0;
-    @extend .light-input-border;
 
     img {
       @apply opacity-0;
@@ -39,8 +39,8 @@
 
   input:checked ~ .digit-custom-checkbox,
   input:hover ~ .digit-custom-checkbox {
-    @apply border-2 border-primary-main;
     @extend .light-input-border;
+    @apply border-2 border-primary-main;
   }
 
   input:checked ~ .digit-custom-checkbox img {
@@ -54,8 +54,8 @@
   }
 
   .label {
+    @extend .light-text-color-primary;
     margin-left: 56px;
     @apply text-form-field text-text-primary;
-    @extend .light-text-color-primary;
   }
 }

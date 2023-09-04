@@ -45,6 +45,7 @@ const MobileNumber = (props) => {
             step={props.step}
             autoFocus={props.autoFocus}
             onBlur={props.onBlur}
+            variant={props?.variant}
           />
         </div>
       </div>

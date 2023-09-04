@@ -168,7 +168,9 @@ const Dropdown = (props) => {
       )}
       {!hasCustomSelector && (
         <div
-          className={`${dropdownStatus ? "digit-select-active" : "digit-select"} ${props.disable && "disabled"}`}
+          className={`${dropdownStatus ? "digit-select-active" : "digit-select"} ${props?.variant ? props?.variant : ""} ${
+            props.disable && "disabled"
+          }`}
           style={
             props.errorStyle
               ? { border: "1px solid red", ...(props.noBorder ? { border: "none" } : {}) }

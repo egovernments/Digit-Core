@@ -1,7 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useLocation } from "react-router-dom";
 
-const Card = ({ onClick, style = {}, children, className = "", ReactRef, pathname, ...props }) => {
+const Card = ({ onClick, style = {}, children, className = "", ReactRef, ...props }) => {
+  const { pathname } = useLocation();
   const classname = window?.Digit?.Hooks?.useRouteSubscription(pathname) || "";
   const info = window?.Digit?.UserService?.getUser()?.info || null;
   const userType = info?.type || null;

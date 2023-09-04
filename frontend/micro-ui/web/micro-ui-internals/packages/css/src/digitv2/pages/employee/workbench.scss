@@ -12,15 +12,15 @@
         .form-group.field {
           display: flex;
           .control-label {
-            width: 13rem;
             @extend .card-label;
+            width: 13rem;
             display: inline-flex;
             align-self: center;
           }
           .form-control {
-            width: 28rem;
             @extend .light-input-border;
             @extend .employee-card-input;
+            width: 28rem;
           }
           &.field-string {
             align-self: center;
@@ -30,9 +30,9 @@
             flex-direction: row-reverse;
             */
             span {
+              @extend .card-label;
               width: 17rem;
               display: none;
-              @extend .card-label;
             }
             input[type="checkbox"] {
               @extend .light-input-border;
@@ -42,14 +42,14 @@
             }
             input:checked,
             input:hover {
-              @apply border-2 border-primary-main;
               @extend .light-input-border;
+              @apply border-2 border-primary-main;
             }
           }
           &.field-object {
-            display: block;
             @extend .light-divider;
             @extend .light-paper-border;
+            display: block;
             padding: 1rem;
             margin: 1rem 0;
 
@@ -60,10 +60,9 @@
         */
           }
           &.field-array {
-            display: block;
-
             @extend .light-paper-secondary;
             @extend .light-paper-border;
+            display: block;
             padding: 1rem;
             margin: 1rem 0;
 

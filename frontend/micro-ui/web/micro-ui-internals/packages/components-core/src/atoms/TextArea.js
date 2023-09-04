@@ -16,7 +16,7 @@ const TextArea = (props) => {
         onChange={props.onChange}
         className={`${user_type !== "citizen" ? "digit-employee-card-textarea" : "digit-card-textarea"} ${props.disable && "disabled"} ${
           props?.className ? props?.className : ""
-        }`}
+        } ${props?.variant ? props?.variant : ""}`}
         minLength={props.minlength}
         maxLength={props.maxlength}
         autoComplete="off"
