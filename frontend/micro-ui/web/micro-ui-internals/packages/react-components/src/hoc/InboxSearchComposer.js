@@ -15,7 +15,7 @@ import Header from "../atoms/Header";
 import { useTranslation } from "react-i18next";
 
 
-const InboxSearchComposer = ({configs,headerLabel,additionalConfig}) => {
+const InboxSearchComposer = ({configs,headerLabel,additionalConfig,onFormValueChange=()=>{}}) => {
     const { t } = useTranslation();
 
     const [enable, setEnable] = useState(false);
@@ -74,6 +74,11 @@ const InboxSearchComposer = ({configs,headerLabel,additionalConfig}) => {
     },[state])
     
 
+    useEffect(() => {
+        onFormValueChange(state)
+    }, [state])
+    
+
     let requestCriteria = {
         url:configs?.apiDetails?.serviceName,
         params:configs?.apiDetails?.requestParam,
@@ -106,15 +111,23 @@ const InboxSearchComposer = ({configs,headerLabel,additionalConfig}) => {
 
 
     const updatedReqCriteria = Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess(requestCriteria,configs.additionalDetails) : requestCriteria 
-
+    
     if(configs.customHookName){
-        var { isLoading, data, revalidate,isFetching } = eval(`Digit.Hooks.${configs.customHookName}(updatedReqCriteria)`);
+        var { isLoading, data, revalidate,isFetching,refetch,refetchDefault } = eval(`Digit.Hooks.${configs.customHookName}(updatedReqCriteria)`);
     }
     else {
        var { isLoading, data, revalidate,isFetching } = Digit.Hooks.useCustomAPIHook(updatedReqCriteria);
         
     }
     
+    useEffect(() => {
+        if(additionalConfig?.search?.callRefetch) {
+            refetch()
+            refetchDefault()
+        }
+    }, [additionalConfig?.search?.callRefetch])
+    
+
     useEffect(() => {
         return () => {
             revalidate();
