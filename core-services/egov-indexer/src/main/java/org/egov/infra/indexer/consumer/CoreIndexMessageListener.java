@@ -30,11 +30,9 @@ public class CoreIndexMessageListener implements MessageListener<String, String>
 	 * index 5. Core indexing
 	 */
 	public void onMessage(ConsumerRecord<String, String> data) {
-		log.info("Topic: " + data.topic());
+		log.info("Topic from CoreIndexMessageListener: " + data.topic());
 
-		// Adding in MDC so that tracer can add it in header
-		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
-		try {
+	try {
 			indexerService.esIndexer(data.topic(), data.value());
 		} catch (Exception e) {
 			log.error("error while indexing: ", e);
