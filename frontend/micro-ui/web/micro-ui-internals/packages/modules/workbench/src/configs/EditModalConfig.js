@@ -49,7 +49,7 @@ const getEditModalConfig = ({
                     disable:false,
                     populators: {
                         name: "message",
-                        defaultValue:editRow.defaultMessage,
+                        // defaultValue:editRow.defaultMessage,
                     },
                   }
                 ]
