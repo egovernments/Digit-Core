@@ -17,7 +17,6 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const search = useLocation().search;
   const fromScreen = new URLSearchParams(search).get("from") || null;
   const pathVar=location.pathname.replace(defaultPath+'/',"").split("?")?.[0];
-  
   const {masterName,moduleName} = Digit.Hooks.useQueryParams()
 
   const crumbs = [
@@ -40,7 +39,7 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
     // },
     {
       path: `/${window.contextPath}/employee/masters/response`,
-      content:  t(`${Digit.Utils.workbench.getMDMSLabel(pathVar)}`) ,
+      content:  t(`${Digit.Utils.workbench.getMDMSLabel(pathVar,masterName,moduleName)}`) ,
       show: true,
     },
   ];
