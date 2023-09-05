@@ -419,7 +419,7 @@ config:
   - name: builds/Digit-Core/accelerators/workbench-ui
     build:
       - work-dir: frontend/micro-ui/
-        dockerfile: frontend/micro-ui/web/workbench/Dockerfile
+        dockerfile: frontend/micro-ui/web/docker/Dockerfile
         image-name: workbench-ui
         
   - name: builds/Digit-Core/accelerators/storybook-svg
