@@ -99,6 +99,30 @@
     }
   }
 }
+
+.table-fixed-last-column {
+  thead {
+    th:last-child {
+      position: sticky;
+      background: #fff;
+      right: 0;
+      left:0;
+      border-right: 1px solid #b1b4b6;
+      border-top-left-radius: 4px;
+    }
+  }
+  tbody {
+    td:last-child {
+      position: sticky;
+      background: #fff;
+      color: theme(colors.primary.main);
+      left: 0;
+      right:0;
+      border-right: 1px solid #b1b4b6;
+    }
+  }
+}
+
 .table-fixed-column-common-pay {
   thead {
     th:first-child {

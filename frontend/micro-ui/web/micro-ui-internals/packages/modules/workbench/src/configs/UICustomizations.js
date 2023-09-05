@@ -642,7 +642,6 @@ export const UICustomizations = {
       }
     },
     combineData : ({isLoading,isFetching,data,defaultData,refetch,refetchDefault}) => {
-      
       //for every message in data we need to query defaultData , if same code is there then populate a field in data and return data
       // data?.messages?.forEach((message,idx) => {
       //   message.defaultMessage = ""
@@ -659,6 +658,7 @@ export const UICustomizations = {
         data?.messages?.forEach((defaultMessage,defaultIdx)=> {
           if(message.code === defaultMessage.code){
             message.defaultMessage = defaultMessage.message
+            message.originalLocale = defaultMessage.locale
           }
         })
       })

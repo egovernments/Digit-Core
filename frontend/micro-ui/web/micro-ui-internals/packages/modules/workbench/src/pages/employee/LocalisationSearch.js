@@ -1,33 +1,101 @@
-import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown } from "@egovernments/digit-ui-react-components";
+import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown,Toast,WorkflowModal } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
 import _, { drop } from "lodash";
 import { Config } from "../../configs/LocalisationSearchConfig";
+import getEditModalConfig from "../../configs/EditModalConfig";
+import { useQueryClient } from "react-query";
 
 const LocalisationSearch = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient()
   const history = useHistory();
-  const tenant = Digit.ULBService.getStateId();
   const tenantId = Digit.ULBService.getCurrentTenantId();
-  
-  
-  
-  // const { isLoading, data: dropdownData } = Digit.Hooks.useCustomAPIHook({
-  //   url: "/mdms-v2/schema/v1/_search",
-  //   params: {},
-  //   body: {
-      
-  //   },
-  //   config: {
-  //     select: (data) => {
-  //      return data
-  //     },
-  //   },
-  // });
+  const [showToast, setShowToast] = useState(false);
+  const [modalConfig, setModalConfig] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [editRow,setEditRow] = useState(null)
+  const [formData,setFormData] = useState(null)
+  const [callRefetch,setCallRefetch] = useState(false)
+  const reqCriteriaAdd = {
+    url: `/localization/messages/v1/_upsert`,
+    params: {},
+    body: {
+      tenantId,
+    },
+    config: {
+      enabled: true,
+    },
+  };
+
+  const mutation = Digit.Hooks.useCustomAPIMutationHook(reqCriteriaAdd);
+
+  const closeToast = () => {
+    setTimeout(() => {
+      setShowToast(null);
+    }, 5000);
+  };
+
+  const formUpdate = (form) => {
+    setFormData(form)
+  }
+
+  const onModalSubmit = async (payload) => {
+    const onSuccess = (resp) => {
+      setShowToast({ label: `${t("WBH_LOC_UPDATE_SUCCESS")}` });
+      setShowModal(null)
+      setEditRow(null)
+      setModalConfig(null)
+      // const queryCache = queryClient.getQueryCache()
+      // const queryKeys = queryCache.getAll().map(cache => cache.queryKey) // QueryKey[]
+      // queryClient.invalidateQueries([`/localization/messages/v1/_upsert`,`Random`])
+      // queryClient.invalidateQueries([`/localization/messages/v1/_upsert`,`Random`,`defaultLocale`])
+      closeToast();
+      // setCallRefetch(true)
+    };
+    const onError = (resp) => {
+      setShowToast({ label: `${t("WBH_LOC_UPDATE_FAIL")}:`+ `${resp.message}`, isError: true });
+      setShowModal(null)
+      setEditRow(null)
+      closeToast();
+    };
 
 
-  // if (isLoading) return <Loader />;
+    mutation.mutate(
+      {
+        params: {},
+        body: {
+          tenantId,
+          messages: [payload],
+        },
+      },
+      {
+        onError,
+        onSuccess,
+      }
+    );
+
+  }
+
+  const onClickSvg = (row) => {
+    setEditRow(row.original)
+    setShowModal(true)
+  }
+  
+  useEffect(() => {
+    if(editRow) {
+      console.log(formData);
+      setModalConfig(
+        getEditModalConfig({
+          t,
+          editRow,
+          formData
+        })
+      );
+    }
+  }, [editRow]);
+
   return (
     <React.Fragment>
       <div className="jk-header-btn-wrapper">
@@ -45,8 +113,17 @@ const LocalisationSearch = () => {
         )}
       </div>
       {Config && <div className="inbox-search-wrapper">
-        <InboxSearchComposer configs={Config}></InboxSearchComposer>
+        <InboxSearchComposer onFormValueChange={formUpdate} configs={Config} additionalConfig = {{
+          resultsTable:{
+            onClickSvg
+          },
+          search:{
+            callRefetch
+          }
+        }}></InboxSearchComposer>
       </div>}
+      {showModal && modalConfig && <WorkflowModal closeModal={() => setShowModal(false)} onSubmit={onModalSubmit} config={modalConfig} />}
+      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError}></Toast>}
     </React.Fragment>
   );
 };

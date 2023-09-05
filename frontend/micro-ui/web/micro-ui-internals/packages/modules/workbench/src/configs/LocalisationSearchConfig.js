@@ -95,6 +95,7 @@ export const Config = {
     searchResult: {
       label: "",
       uiConfig: {
+        tableClassName:"table-fixed-last-column table",
         columns: [
           {
             label: "WBH_LOC_HEADER_MODULENAME",
@@ -116,7 +117,7 @@ export const Config = {
             label: "CS_COMMON_ACTION",
             // jsonPath: "message",
             // type:"action",
-            svg:"EditIcon"
+            svg:"EditIcon",
           },
         ],
         enableGlobalSearch: false,
