@@ -14,6 +14,9 @@ import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
 @Slf4j
 public class LoggingAspect {
 
+    @Value("${egov.statelevel.tenantId}")
+    private String stateLevelTenantId;
+
     @Before("execution(* org.egov.infra.indexer.consumer.*.*(..))")
     public void beforeMethodCall() {
 
