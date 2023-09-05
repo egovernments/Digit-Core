@@ -16,6 +16,7 @@ import {
   FinanceChartIcon,
   CollectionIcon,
 } from "@egovernments/digit-ui-react-components";
+import ReactTooltip from "react-tooltip";
 
 const Sidebar = ({ data }) => {
   const [openItems, setOpenItems] = useState({});
@@ -65,7 +66,7 @@ const Sidebar = ({ data }) => {
 
   const renderSidebarItems = (items) => {
     return (
-      <ul>
+      <div className="submenu-container">
         {Object.keys(items).map((key, index) => {
           const subItems = items[key];
           const subItemKeys = Object.keys(subItems)[0] === "item";
@@ -75,29 +76,36 @@ const Sidebar = ({ data }) => {
             const leftIconArray = extractLeftIcon(subItems);
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
             return (
-              <div className="option-container" key={index}>
-                <span style={{ marginLeft: "0px", marginRight: "0px", marginBottom: "10px", marginTop: "10px" }}>{leftIcon}</span>
-                <li key={index} className={`dropdown-toggle ${isSubItemOpen ? "open" : ""}`}>
-                  <button onClick={() => toggleSidebar(key)} style={{ marginLeft: "0px", marginRight: "0px" }}>
-                    {key}
-                    <span className="new-arrow-icon">{isSubItemOpen ? <ArrowForward /> : <ArrowVectorDown />}</span>
-                  </button>
-                  {isSubItemOpen && renderSidebarItems(subItems)}
-                </li>
+              <div key={index} className={`sidebar-link`} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                <div className="actions" onClick={() => toggleSidebar(key)} style={{ display: "flex", flexDirection: "row" }}>
+                  <div>{leftIcon}</div>
+                  <div data-tip="React-tooltip" data-for={`jk-side-${key}`}>
+                    <span> {key} </span>
+                    {key?.includes("...") && (
+                      <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${key}`}>
+                        {t(`ACTION_TEST_${key}`)}
+                      </ReactTooltip>
+                    )}
+                  </div>
+                  <div style={{ position: "absolute", right: "15px" }} className={`arrow ${isSubItemOpen ? "" : "hidden-arrow"}`}>
+                    {isSubItemOpen ? <ArrowForward /> : <ArrowVectorDown />}
+                  </div>
+                </div>
+                <div>{isSubItemOpen && renderSidebarItems(subItems)}</div>
               </div>
             );
           } else if (subItemKeys) {
             // If the item is a link, render it
             return (
-              <li key={subItems.item.id} className="actions">
-                <a className="new-sidebar-link" href={getOrigin + "employee/" + subItems.item.navigationURL}>
+              <a key={index} className="dropdown-link">
+                <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`} style={{ marginLeft: "15px" }}>
                   {subItems.item.displayName}
-                </a>
-              </li>
+                </div>
+              </a>
             );
           }
         })}
-      </ul>
+      </div>
     );
   };
 
