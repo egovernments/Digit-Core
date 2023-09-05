@@ -45,6 +45,10 @@ const Sidebar = ({ data }) => {
     }));
   };
 
+  const closeSidebar = () => {
+    setOpenItems({});
+  };
+
   function extractLeftIcon(data) {
     for (const key in data) {
       const item = data[key];
@@ -64,7 +68,7 @@ const Sidebar = ({ data }) => {
     return null; // Return null if no non-empty leftIcon is found
   }
 
-  const renderSidebarItems = (items) => {
+  const renderSidebarItems = (items, flag = true) => {
     return (
       <div className="submenu-container">
         {Object.keys(items).map((key, index) => {
@@ -78,7 +82,7 @@ const Sidebar = ({ data }) => {
             return (
               <div key={index} className={`sidebar-link`} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                 <div className="actions" onClick={() => toggleSidebar(key)} style={{ display: "flex", flexDirection: "row" }}>
-                  <div>{leftIcon}</div>
+                  {flag && <div>{leftIcon}</div>}
                   <div data-tip="React-tooltip" data-for={`jk-side-${key}`}>
                     <span> {key} </span>
                     {key?.includes("...") && (
@@ -91,15 +95,18 @@ const Sidebar = ({ data }) => {
                     {isSubItemOpen ? <ArrowForward /> : <ArrowVectorDown />}
                   </div>
                 </div>
-                <div>{isSubItemOpen && renderSidebarItems(subItems)}</div>
+                <div>{isSubItemOpen && renderSidebarItems(subItems, false)}</div>
               </div>
             );
           } else if (subItemKeys) {
             // If the item is a link, render it
+            const leftIconArray = extractLeftIcon(subItems);
+            let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
             return (
-              <a key={index} className="dropdown-link">
-                <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`} style={{ marginLeft: "15px" }}>
-                  {subItems.item.displayName}
+              <a key={index} className="dropdown-link new-dropdown-link" style={{ marginLeft: "0px" }}>
+                <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
+                  {flag && <div style={{ display: isSubItemOpen ? "none" : "" }}>{leftIcon}</div>}
+                  <div style={{ marginLeft: "20px" }}>{subItems.item.displayName}</div>
                 </div>
               </a>
             );
@@ -109,7 +116,11 @@ const Sidebar = ({ data }) => {
     );
   };
 
-  return <div className={`new-sidebar ${openItems ? "show" : ""}`}>{renderSidebarItems(data)}</div>;
+  return (
+    <div className={`new-sidebar ${openItems ? "show" : ""}`} onMouseLeave={closeSidebar}>
+      {renderSidebarItems(data)}
+    </div>
+  );
 };
 
 export default Sidebar;

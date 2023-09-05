@@ -100,7 +100,6 @@ const EmployeeSideBar = () => {
         }
       }
     });
-
   const splitKeyValue = (configEmployeeSideBar) => {
     return <Sidebar data={configEmployeeSideBar} />;
   };
