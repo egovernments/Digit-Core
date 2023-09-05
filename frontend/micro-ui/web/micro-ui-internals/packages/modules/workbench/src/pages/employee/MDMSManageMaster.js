@@ -5,17 +5,22 @@ import { useHistory, useParams } from "react-router-dom";
 import { Config as Configg } from "../../configs/searchMDMSConfig";
 import _, { drop } from "lodash";
 
-const toDropdownObj = (master = "", mod = "") => {
-  return {
-    name: mod || master,
-    code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
-  };
 
-  // return {
-  //   name: mod || master,
-  //   code: mod ? `${mod}` : `${master}`,
-  // };
-};
+
+function sortByKey(arr, key) {
+  return arr.slice().sort((a, b) => {
+    const valueA = a[key];
+    const valueB = b[key];
+
+    if (valueA < valueB) {
+      return -1;
+    } else if (valueA > valueB) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+}
 
 
 const MDMSManageMaster = () => {
@@ -40,6 +45,15 @@ const MDMSManageMaster = () => {
   if(master && modulee ) {
     SchemaDefCriteria.codes = [`${master}.${modulee}`] 
   }
+
+  const toDropdownObj = (master = "", mod = "") => {
+    return {
+      name: mod || master,
+      code: Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`),
+      translatedValue:t(Digit.Utils.locale.getTransformedLocale(mod ? `WBH_MDMS_${master}_${mod}` : `WBH_MDMS_MASTER_${master}`))
+    };
+  };
+
   const { isLoading, data: dropdownData } = Digit.Hooks.useCustomAPIHook({
     url: "/mdms-v2/schema/v1/_search",
     params: {
@@ -70,9 +84,11 @@ const MDMSManageMaster = () => {
           obj[master] = obj[master]?.length > 0 ? [...obj[master], toDropdownObj(master, mod)] : [toDropdownObj(master, mod)];
           obj.mastersAvailable.push(master);
         });
-        obj.mastersAvailable = obj.mastersAvailable.filter(onlyUnique);
+        
+        obj.mastersAvailable = obj.mastersAvailable.filter(onlyUnique)
         obj.mastersAvailable = obj.mastersAvailable.map((mas) => toDropdownObj(mas));
-
+        //sorting based on localised value
+        obj.mastersAvailable = sortByKey(obj.mastersAvailable,'translatedValue')
         return obj;
       },
     },
@@ -84,7 +100,9 @@ const MDMSManageMaster = () => {
   }, [dropdownData])
 
   useEffect(() => {
-    setModuleOptions(dropdownData?.[masterName?.name])
+    if(dropdownData?.[masterName?.name]?.length>0){
+    setModuleOptions(sortByKey(dropdownData?.[masterName?.name],'translatedValue'))
+    }
   }, [masterName])
 
   useEffect(() => {

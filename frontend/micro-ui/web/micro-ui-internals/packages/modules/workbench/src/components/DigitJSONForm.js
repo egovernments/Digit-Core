@@ -237,6 +237,8 @@ const DigitJSONForm = ({
   onViewActionsSelect,
   viewActions,
   disabled = false,
+  setShowToast,
+  setShowErrorToast
 }) => {
   const { t } = useTranslation();
 
@@ -293,7 +295,7 @@ const DigitJSONForm = ({
           // liveValidate={formData && Object.keys(formData) && Object.keys(formData)?.length > 0}
         >
           {(screenType === "add" || screenType === "edit") && (
-            <ActionBar>
+            <ActionBar style={{zIndex:"0"}}>
               <SubmitBar label={screenType === "edit" ? t("WBH_ADD_MDMS_UPDATE_ACTION") : t("WBH_ADD_MDMS_ADD_ACTION")} submit="submit" />
               {/* <LinkButton style={props?.skipStyle} label={t(`CS_SKIP_CONTINUE`)}  /> */}
             </ActionBar>
@@ -315,7 +317,9 @@ const DigitJSONForm = ({
           )}
         </Form>
       </Card>
-      {showToast && <Toast label={t(showToast)} error={showErrorToast}></Toast>}
+      {showToast && <Toast label={t(showToast)} error={showErrorToast} onClose={()=>{
+        setShowToast(null)
+        }} isDleteBtn={true}></Toast> }
     </React.Fragment>
   );
 };
