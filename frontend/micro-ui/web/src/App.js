@@ -1,43 +1,35 @@
 import React from "react";
 import { initLibraries } from "@egovernments/digit-ui-libraries";
-import {
-  paymentConfigs, PaymentLinks, PaymentModule
-} from "@egovernments/digit-ui-module-common";
 import { DigitUI } from "@egovernments/digit-ui-module-core";
-import { initDSSComponents } from "@egovernments/digit-ui-module-dss";
-import { initEngagementComponents } from "@egovernments/digit-ui-module-engagement";
 import { initHRMSComponents } from "@egovernments/digit-ui-module-hrms";
-import { initUtilitiesComponents } from  "@egovernments/digit-ui-module-utilities";
 import { UICustomizations } from "./Customisations/UICustomizations";
-
+import {
+  initPGRComponents,
+  PGRReducers,
+} from "@egovernments/digit-ui-module-pgr";
 window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH");
 
 const enabledModules = ["DSS", "NDSS",  "Utilities",
-"HRMS", "Engagement"
+"HRMS", "Engagement",
+"Workbench"
+
 ];
 
+
+
 const moduleReducers = (initData) => ({
-  initData,
+  pgr: PGRReducers(initData),
 });
 
 
 const initDigitUI = () => {
-  window.Digit.ComponentRegistryService.setupRegistry({
-    PaymentModule,
-    ...paymentConfigs,
-    PaymentLinks,
-  });
-  
-  initDSSComponents();
-  initHRMSComponents();
-  initEngagementComponents();
-  initUtilitiesComponents();
-
- 
+  window.Digit.ComponentRegistryService.setupRegistry({});
   window.Digit.Customizations = {
     PGR: {},
     commonUiConfig: UICustomizations,
   };
+  initHRMSComponents();
+  initPGRComponents();
 };
 
 initLibraries().then(() => {
@@ -57,7 +49,7 @@ function App() {
       stateCode={stateCode}
       enabledModules={enabledModules}
       moduleReducers={moduleReducers}
-      // defaultLanding="employee"
+      defaultLanding="employee"
     />
   );
 }
