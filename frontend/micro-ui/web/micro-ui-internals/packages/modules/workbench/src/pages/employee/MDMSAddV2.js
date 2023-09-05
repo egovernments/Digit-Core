@@ -126,10 +126,14 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       setShowErrorToast(false);
       const jsonPath = api?.responseJson ? api?.responseJson : "mdms[0].id";
       setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp, jsonPath, "NA")}`);
+      closeToast()
+
+      //here redirect to search screen(check if it's required cos user might want  add multiple masters in one go)
     };
     const onError = (resp) => {
       setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${t(resp?.response?.data?.Errors?.[0]?.code)}`);
       setShowErrorToast(true);
+      closeToast()
     };
 
     _.set(body, api?.requestJson ? api?.requestJson : "Mdms.data", { ...data });
@@ -219,6 +223,12 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     );
   }
 
+  const closeToast = () => {
+    setTimeout(() => {
+      setShowToast(null);
+    }, 5000);
+  };
+
   /* use newConfig instead of commonFields for local development in case needed */
   if (isLoading || !formSchema || Object.keys(formSchema) == 0) {
     return <Loader />;
@@ -236,7 +246,10 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
           onSubmit={screenType === "add" ? onSubmit : onSubmitEditAction}
           uiSchema={{ ...uiSchema, ...uiJSONSchema, ...updatesToUISchema }}
           showToast={showToast}
+          closeToast={closeToast}
+          setShowToast={setShowToast}
           showErrorToast={showErrorToast}
+          setShowErrorToast={setShowErrorToast}
           screenType={screenType}
           viewActions={viewActions}
           onViewActionsSelect={onViewActionsSelect}

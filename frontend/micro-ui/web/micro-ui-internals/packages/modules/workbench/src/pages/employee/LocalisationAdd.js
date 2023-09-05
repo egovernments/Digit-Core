@@ -121,7 +121,7 @@ const LocalisationAdd = () => {
   const [jsonResult, setJsonResult] = useState(null);
   const [jsonResultDefault,setJsonResultDefault] = useState(null)
   const [state, dispatch] = useReducer(reducer, intialState);
-
+  
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -221,7 +221,7 @@ const LocalisationAdd = () => {
           <div class="tooltip" style={{ marginTop: "-10px" }}>
             <span class="textoverflow" style={{ "--max-width": `20ch` }}>
               {String(t("WBH_LOC_MESSAGE_VALUE"))}
-              <InfoBannerIcon styles={{ marginTop: "-10px" }} fill={"#f47738"} />
+              <InfoBannerIcon styles={{ marginLeft: "0.3rem",marginBottom:"-0.2rem" }} fill={"#f47738"} />
             </span>
             {/* check condtion - if length greater than 20 */}
             <span class="tooltiptext" style={{ whiteSpace: "normal", width: "15rem" }}>
@@ -305,19 +305,28 @@ const LocalisationAdd = () => {
       dispatch({
         type: "CLEAR_STATE",
       });
-      dispatch({
-        type: "ADD_ROW",
-        state: {
-          code: "",
-          message: "",
-          locale: selectedLang.value,
-          module: selectedModule.value,
-          id: 0,
-        },
-      });
+      // dispatch({
+      //   type: "ADD_ROW",
+      //   state: {
+      //     code: "",
+      //     message: "",
+      //     locale: selectedLang.value,
+      //     module: selectedModule.value,
+      //     id: 0,
+      //   },
+      // });
     };
     const onError = (resp) => {
-      setShowToast({ label: `${t("WBH_LOC_UPSERT_FAIL")}`, isError: true });
+      let label = `${t("WBH_LOC_UPSERT_FAIL")}: `
+      resp?.response?.data?.Errors?.map((err,idx) => {
+        if(idx===resp?.response?.data?.Errors?.length-1){
+          label = label + err?.code + '.'
+        }else{
+        label = label + err?.code + ', '
+        }
+      })
+      
+      setShowToast({ label, isError: true });
       closeToast();
       // dispatch({
       //   type:"CLEAR_STATE",
@@ -538,7 +547,7 @@ const LocalisationAdd = () => {
           />
         </LabelFieldPair>
 
-        {state.tableState.length > 0 && (
+        {selectedLang && selectedModule && (
           <div style={{ display: "flex" }}>
             <Button
               label={t("ADD_NEW_ROW")}
@@ -555,16 +564,16 @@ const LocalisationAdd = () => {
                 dispatch({
                   type: "CLEAR_STATE",
                 });
-                dispatch({
-                  type: "ADD_ROW",
-                  state: {
-                    code: "",
-                    message: "",
-                    locale: selectedLang.value,
-                    module: selectedModule.value,
-                    id: 0,
-                  },
-                });
+                // dispatch({
+                //   type: "ADD_ROW",
+                //   state: {
+                //     code: "",
+                //     message: "",
+                //     locale: selectedLang.value,
+                //     module: selectedModule.value,
+                //     id: 0,
+                //   },
+                // });
               }}
               type="button"
             />
@@ -602,7 +611,7 @@ const LocalisationAdd = () => {
             <SubmitBar label={t("CORE_COMMON_SAVE")} onSubmit={handleSubmit} />
           </ActionBar>
         )}
-        {showToast && <Toast label={t(showToast.label)} error={showToast?.isError}></Toast>}
+        {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)}></Toast>}
       </Card>
     </React.Fragment>
   );

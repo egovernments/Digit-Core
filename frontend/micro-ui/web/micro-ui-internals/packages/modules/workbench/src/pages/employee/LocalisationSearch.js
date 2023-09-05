@@ -55,7 +55,15 @@ const LocalisationSearch = () => {
       // setCallRefetch(true)
     };
     const onError = (resp) => {
-      setShowToast({ label: `${t("WBH_LOC_UPDATE_FAIL")}:`+ `${resp.message}`, isError: true });
+      let label = `${t("WBH_LOC_UPDATE_FAIL")}: `
+      resp?.response?.data?.Errors?.map((err,idx) => {
+        if(idx===resp?.response?.data?.Errors?.length-1){
+          label = label + err?.code + '.'
+        }else{
+        label = label + err?.code + ', '
+        }
+      })
+      setShowToast({ label, isError: true });
       setShowModal(null)
       setEditRow(null)
       closeToast();
@@ -85,7 +93,6 @@ const LocalisationSearch = () => {
   
   useEffect(() => {
     if(editRow) {
-      console.log(formData);
       setModalConfig(
         getEditModalConfig({
           t,
@@ -123,7 +130,7 @@ const LocalisationSearch = () => {
         }}></InboxSearchComposer>
       </div>}
       {showModal && modalConfig && <WorkflowModal closeModal={() => setShowModal(false)} onSubmit={onModalSubmit} config={modalConfig} />}
-      {showToast && <Toast label={t(showToast.label)} error={showToast?.isError}></Toast>}
+      {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)}></Toast>}
     </React.Fragment>
   );
 };
