@@ -18,7 +18,7 @@
     "@egovernments/digit-ui-module-dss": "1.5.52",
     "@egovernments/digit-ui-module-hrms": "1.5.26",
     "@egovernments/digit-ui-module-pgr": "1.7.0-beta.1",
-    "@egovernments/digit-ui-module-engagement": "1.5.25",
+    "@egovernments/digit-ui-module-engagement": "1.5.24",
     "@egovernments/digit-ui-react-components": "1.5.28",
     "@egovernments/digit-ui-libraries": "1.5.7",
     "babel-loader": "8.1.0",
