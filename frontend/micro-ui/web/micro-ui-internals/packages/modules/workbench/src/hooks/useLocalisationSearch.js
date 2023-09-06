@@ -1,47 +1,30 @@
 import { useQuery, useQueryClient } from "react-query";
+import { LocalisationSearch } from "./utils/LocalisationSearch";
 
-
-const useLocalisationSearch = ({ url, params, body, config = {}, plainAccessRequest,changeQueryName="Random" }) => {
-  
+const useLocalisationSearch = ({url, params, body, config = {}, plainAccessRequest,changeQueryName="Random",state }) => {
   const client = useQueryClient();
   const CustomService = Digit.CustomService
-  const { isLoading, data, isFetching,refetch } = useQuery(
+  const { isLoading, data, isFetching,refetch,error } = useQuery(
     [url,changeQueryName].filter((e) => e),
-    () => CustomService.getResponse({ url, params, body, plainAccessRequest }),
+    () => LocalisationSearch.fetchResults({ url, params, body, plainAccessRequest,state }),
     {
       cacheTime:0,
       ...config,
     }
   );
-
-  const { isLoading:isLoadingDefault, data:defaultData, isFetching:isFetchingDefault,refetch:refetchDefault } = useQuery(
-    [url,changeQueryName,"defaultLocale"].filter((e) => e),
-    () => CustomService.getResponse({ url, params:{...params,locale:"default"}, body, plainAccessRequest }),
-    {
-      cacheTime:0,
-      ...config,
-    }
-  );
-
-  const updatedData = Digit?.Customizations?.['commonUiConfig']?.['SearchLocalisationConfig']?.combineData({
-    data,
-    defaultData,
-    isLoading:isLoadingDefault || isLoading,
-    isFetching:isFetchingDefault || isFetching,
-    refetch,
-    refetchDefault
-  })
 
   return {
-    isLoading:isLoadingDefault || isLoading,
-    isFetching:isFetchingDefault || isFetching,
-    data:updatedData,
+    isLoading,
+    isFetching,
+    data,
     refetch,
-    refetchDefault,
     revalidate: () => {
-      updatedData && client.invalidateQueries({ queryKey: [url].filter((e) => e) });
+      data && client.invalidateQueries({ queryKey: [url].filter((e) => e) });
     },
+    error
   };
 };
+
+
 
 export default useLocalisationSearch;

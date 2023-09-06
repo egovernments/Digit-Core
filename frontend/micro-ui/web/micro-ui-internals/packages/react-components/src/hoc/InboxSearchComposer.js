@@ -1,4 +1,5 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState,useMemo } from "react";
+import Toast from "../atoms/Toast";
 import ResultsTable from "./ResultsTable"
 import reducer, { initialInboxState } from "./InboxSearchComposerReducer";
 import InboxSearchLinks from "../atoms/InboxSearchLinks";
@@ -20,7 +21,7 @@ const InboxSearchComposer = ({configs,headerLabel,additionalConfig,onFormValueCh
 
     const [enable, setEnable] = useState(false);
     const [state, dispatch] = useReducer(reducer, initialInboxState);
-
+    const [showToast, setShowToast] = useState(false);
     //for mobile view
     const [type, setType] = useState("");
     const [popup, setPopup] = useState(false);
@@ -108,22 +109,34 @@ const InboxSearchComposer = ({configs,headerLabel,additionalConfig,onFormValueCh
     //     };
     // }, [location]);
     
-
-
     const updatedReqCriteria = Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess(requestCriteria,configs.additionalDetails) : requestCriteria 
     
     if(configs.customHookName){
-        var { isLoading, data, revalidate,isFetching,refetch,refetchDefault } = eval(`Digit.Hooks.${configs.customHookName}(updatedReqCriteria)`);
+        var { isLoading, data, revalidate,isFetching,refetch,error } = eval(`Digit.Hooks.${configs.customHookName}(updatedReqCriteria)`);
     }
     else {
-       var { isLoading, data, revalidate,isFetching } = Digit.Hooks.useCustomAPIHook(updatedReqCriteria);
+       var { isLoading, data, revalidate,isFetching,error } = Digit.Hooks.useCustomAPIHook(updatedReqCriteria);
         
     }
+
+    const closeToast = () => {
+        setTimeout(() => {
+          setShowToast(null);
+        }, 5000);
+      };
+
+    useEffect(() => {
+        if(error){
+            setShowToast({ label:error?.message, isError: true });
+            closeToast()
+        }
+    }, [error])
+    
     
     useEffect(() => {
         if(additionalConfig?.search?.callRefetch) {
             refetch()
-            refetchDefault()
+            additionalConfig?.search?.setCallRefetch(false)
         }
     }, [additionalConfig?.search?.callRefetch])
     
@@ -303,6 +316,7 @@ const InboxSearchComposer = ({configs,headerLabel,additionalConfig,onFormValueCh
                 {/* One can use this Parent to add additional sub parents to render more sections */}
             </div>
             </div>   
+            {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)}></Toast>}
         </InboxContext.Provider>
     )
 }
