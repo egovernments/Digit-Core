@@ -54,6 +54,8 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 	 */
 	public void onMessage(ConsumerRecord<String, String> data) {
 		log.info("Topic from PGRCustomIndexMessageListener: " + data.topic());
+		// Adding in MDC so that tracer can add it in header
+		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 
 		if(data.topic().equals(pgrCreateTopic) || data.topic().equals(pgrBatchCreateTopic)){
 			String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
