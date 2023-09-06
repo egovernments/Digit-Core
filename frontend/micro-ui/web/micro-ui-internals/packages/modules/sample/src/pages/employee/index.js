@@ -9,6 +9,7 @@ import AdvancedCreate from "./AdvancedForm";
 import Response from "./Response";
 import View from "./View";
 
+
 const ProjectBreadCrumb = ({ location }) => {
   const { t } = useTranslation();
   const crumbs = [
@@ -41,6 +42,7 @@ const App = ({ path, stateCode, userType, tenants }) => {
         <PrivateRoute path={`${path}/search`} component={() => <SampleSearch></SampleSearch>} />
         <PrivateRoute path={`${path}/response`} component={() => <Response></Response>} />
         <PrivateRoute path={`${path}/view`} component={() => <View></View>} />
+
       </AppContainer>
     </Switch>
   );

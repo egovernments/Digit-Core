@@ -34,6 +34,7 @@ const SampleCard = () => {
         label: t("View Screen"),
         link: `/${window?.contextPath}/employee/sample/view`,
       },
+
       
     ],
   };
