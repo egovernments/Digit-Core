@@ -175,6 +175,7 @@ public class PGRCustomDecorator {
 
 			ParameterizedTypeReference<String> responseType = new ParameterizedTypeReference<String>() {};
 
+			log.info("Request: " + mapper.writeValueAsString(request));
 			// Make the HTTP request using the exchange method
 			ResponseEntity<String> responseEntity = restTemplate.exchange(
 					uri.toString(),
@@ -189,6 +190,7 @@ public class PGRCustomDecorator {
 //			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 
+			log.info("Department List" + depts.toString());
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
 			}else
