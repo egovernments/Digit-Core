@@ -173,18 +173,22 @@ public class PGRCustomDecorator {
 			// Create an HttpEntity with headers (if any)
 			HttpEntity<?> requestEntity = new HttpEntity<>(request, headers);
 
-			ParameterizedTypeReference<Object> responseType = new ParameterizedTypeReference<Object>() {};
+			ParameterizedTypeReference<String> responseType = new ParameterizedTypeReference<String>() {};
 
 			// Make the HTTP request using the exchange method
-			ResponseEntity<Object> response = restTemplate.exchange(
+			ResponseEntity<String> responseEntity = restTemplate.exchange(
 					uri.toString(),
 					HttpMethod.POST,
 					requestEntity,
 					responseType
 			);
 
+			// Extract the JSON content from the ResponseEntity
+			String response = responseEntity.getBody();
+
 //			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
+
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
 			}else
