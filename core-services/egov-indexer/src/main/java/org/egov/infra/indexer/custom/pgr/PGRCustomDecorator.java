@@ -1,5 +1,7 @@
 package org.egov.infra.indexer.custom.pgr;
 
+import java.net.http.HttpHeaders;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +163,23 @@ public class PGRCustomDecorator {
 //			Object responseObject =  serviceRequestRepository.fetchResult(uri, request, stateLevelTenantId);
 //			Object response =  mapper.convertValue(responseObject,  Map.class);
 
-			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
+			HttpHeaders headers = new HttpHeaders();
+			headers.set(TENANTID_MDC_STRING, stateLevelTenantId);
+
+			// Create an HttpEntity with headers (if any)
+			HttpEntity<?> requestEntity = new HttpEntity<>(request, headers);
+
+			ParameterizedTypeReference<Object> responseType = new ParameterizedTypeReference<>() {};
+
+			// Make the HTTP request using the exchange method
+			ResponseEntity<Object> response = restTemplate.exchange(
+					uri.toString(),
+					HttpMethod.POST,
+					requestEntity,
+					responseType
+			);
+
+//			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
