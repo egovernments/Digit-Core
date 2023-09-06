@@ -17,7 +17,7 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
   const search = useLocation().search;
   const fromScreen = new URLSearchParams(search).get("from") || null;
   const pathVar=location.pathname.replace(defaultPath+'/',"").split("?")?.[0];
-  const {masterName,moduleName} = Digit.Hooks.useQueryParams()
+  const {masterName,moduleName,uniqueIdentifier} = Digit.Hooks.useQueryParams()
 
   const crumbs = [
     {
@@ -31,17 +31,32 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
       show: pathVar.includes("mdms-")?true: false,
       // query:`moduleName=${moduleName}&masterName=${masterName}`
     },
-    // {
-    //   path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
-    //   content:  t(`MDMS_SEARCH_V2`) ,
-    //   show:pathVar.includes("mdms-")? pathVar.includes("mdms-search-v2")?false: true:false,
-    //   query:`moduleName=${moduleName}&masterName=${masterName}`
-    // },
+    {
+      path: `/${window.contextPath}/employee/workbench/localisation-search`,
+      content:  t(`LOCALISATION_SEARCH`) ,
+      show: pathVar.includes("localisation-")?true: false,
+      // query:`moduleName=${moduleName}&masterName=${masterName}`
+    },
+    
+    {
+      path: `/${window.contextPath}/employee/workbench/mdms-search-v2`,
+      query:`moduleName=${moduleName}&masterName=${masterName}`,
+      content:  t(`${Digit.Utils.workbench.getMDMSLabel(pathVar,masterName,moduleName)}`) ,
+      show: (masterName && moduleName) ? true : false,
+      isBack:false
+    },
+    {
+      path: `/${window.contextPath}/employee/workbench/mdms-view`,
+      content:  t(`MDMS_VIEW`) ,
+      show: pathVar.includes("mdms-edit")?true: false,
+      query:`moduleName=${moduleName}&masterName=${masterName}&uniqueIdentifier=${uniqueIdentifier}`
+    },
     {
       path: `/${window.contextPath}/employee/masters/response`,
-      content:  t(`${Digit.Utils.workbench.getMDMSLabel(pathVar,masterName,moduleName)}`) ,
-      show: true,
+      content:t(`${Digit.Utils.workbench.getMDMSLabel(pathVar,"","")}`) ,
+      show: Digit.Utils.workbench.getMDMSLabel(pathVar,"","",["mdms-search-v2","localisation-search"])? true:false,
     },
+    
   ];
   return <BreadCrumb crumbs={crumbs} spanStyle={{ maxWidth: "min-content" }} />;
 };

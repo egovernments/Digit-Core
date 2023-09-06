@@ -121,7 +121,11 @@ const getConfig = (type = "text") => {
   };
 };
 
-const getMDMSLabel = (code = "",masterName="",moduleName="") => {
+const getMDMSLabel = (code = "",masterName="",moduleName="",ignore=[]) => {
+  let ignoreThis = ignore?.some(url => url===code)
+  if(ignoreThis) {
+    return null
+  }
   //enable this flag to get the localisation enabled for the mdms forms
   let flag = true;
   if (!flag) {
@@ -131,7 +135,7 @@ const getMDMSLabel = (code = "",masterName="",moduleName="") => {
       .trim();
   }
   if(masterName && moduleName){
-    return Digit.Utils.locale.getTransformedLocale(`${code}_${masterName}_${moduleName}`);
+    return Digit.Utils.locale.getTransformedLocale(`SCHEMA_${moduleName}_${masterName}`);
   }
   return Digit.Utils.locale.getTransformedLocale(code);
 };
