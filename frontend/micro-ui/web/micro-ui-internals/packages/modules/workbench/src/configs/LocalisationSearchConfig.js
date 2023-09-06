@@ -20,6 +20,13 @@ export const Config = {
   sections: {
     search: {
       uiConfig: {
+        searchWrapperStyles:{
+          flexDirection:"column-reverse",
+          marginTop:"2rem",
+          alignItems:"center",
+          justifyContent:"end",
+          gridColumn:"4"
+        },
         headerStyle: null,
         formClassName: "", //"custom-both-clear-search",
         primaryLabel: "ES_COMMON_SEARCH",
@@ -28,8 +35,7 @@ export const Config = {
         defaultValues: {
           locale: "",
           module: "",
-          codes: "",
-          message:""
+          codes: ""
         },
         fields: [
           {
@@ -77,15 +83,15 @@ export const Config = {
                 name: "codes",
             }
           },
-          {
-            label: "WBH_LOC_MESSAGE",
-            type: "text",
-            isMandatory: false,
-            disable: false,
-            populators: { 
-                name: "message",
-            }
-          },
+          // {
+          //   label: "WBH_LOC_MESSAGE",
+          //   type: "text",
+          //   isMandatory: false,
+          //   disable: false,
+          //   populators: { 
+          //       name: "message",
+          //   }
+          // },
         ],
       },
       label: "",
