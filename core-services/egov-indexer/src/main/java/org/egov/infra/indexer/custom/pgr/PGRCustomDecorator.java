@@ -1,6 +1,7 @@
 package org.egov.infra.indexer.custom.pgr;
 
-import java.net.http.HttpHeaders;
+
+import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,11 @@ import org.egov.mdms.model.ModuleDetail;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
@@ -27,8 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 
 import lombok.extern.slf4j.Slf4j;
-
-import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
 
 @Component
 @Slf4j
@@ -169,7 +173,7 @@ public class PGRCustomDecorator {
 			// Create an HttpEntity with headers (if any)
 			HttpEntity<?> requestEntity = new HttpEntity<>(request, headers);
 
-			ParameterizedTypeReference<Object> responseType = new ParameterizedTypeReference<>() {};
+			ParameterizedTypeReference<Object> responseType = new ParameterizedTypeReference<Object>() {};
 
 			// Make the HTTP request using the exchange method
 			ResponseEntity<Object> response = restTemplate.exchange(
