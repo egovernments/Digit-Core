@@ -11,6 +11,8 @@ import {
   Row,
   StatusTable,
   Table,
+  WorkflowTimeline,
+  CitizenInfoLabel
 } from "@egovernments/digit-ui-react-components";
 import { values } from "lodash";
 import React, { Fragment, useCallback, useReducer, useState } from "react";
@@ -36,7 +38,14 @@ import DocumentsPreview from "./DocumentsPreview";
 import InfoDetails from "./InfoDetails";
 import ViewBreakup from "./ViewBreakup";
 import SubWorkTableDetails from "./SubWorkTableDetails";
-
+// import WeekAttendence from "../../../AttendenceMgmt/src/pageComponents/WeekAttendence";
+// import reducer from "../../../AttendenceMgmt/src/config/attendenceTableReducer";
+// import AttendanceDateRange from "../../../AttendenceMgmt/src/pageComponents/AttendanceDateRange";
+// import MustorRollDetailsTable from "../../../Expenditure/src/components/ViewBill/MustorRollDetailsTable";
+// import StatusTableWithRadio from "../../../Expenditure/src/components/ViewBill/StatusTableWithRadio";
+// import ShowTotalValue from "../../../Expenditure/src/components/ViewBill/ShowTotalValue";
+// import SkillDetails from "./SkillDetails";
+// import Photos from "./Photos";
 
 
 function ApplicationDetailsContent({
@@ -44,7 +53,6 @@ function ApplicationDetailsContent({
   workflowDetails,
   isDataLoading,
   applicationData,
-  businessService,
   timelineStatusPrefix,
   showTimeLine = true,
   statusAttribute = "status",
@@ -54,12 +62,21 @@ function ApplicationDetailsContent({
   noBoxShadow = false,
   sectionHeadStyle = false,
   modify,
-  setSaveAttendanceState
+  setSaveAttendanceState,
+  applicationNo,
+  tenantId="pg.citya",
+  businessService,
+  customClass,
+  setAttendanceError,
+  timeExtensionCreate=undefined
 }) {
   const { t } = useTranslation();
   const [localSearchParams, setLocalSearchParams] = useState(() => ({}));
   
-
+  const attendanceData = applicationDetails?.applicationDetails?.[0]?.additionalDetails?.table?.weekTable?.tableData
+  
+  let state = {}
+  const dispatch = ()=> {}
   const handleDateRangeChange = useCallback((data) => {
     setLocalSearchParams(() => ({ ...data }));
   }, []);
@@ -131,7 +148,6 @@ function ApplicationDetailsContent({
     window.location.href.includes("employee/tl") || window.location.href.includes("employee/obps") || window.location.href.includes("employee/noc");
   const isNocLocation = window.location.href.includes("employee/noc");
   const isBPALocation = window.location.href.includes("employee/obps");
-  let isWS = window.location.href.includes("employee/ws") || window.location.href.includes("employee/works")|| window.location.href.includes("employee/project") || window.location.href.includes("employee/estimate") ;
 
   
 
@@ -159,6 +175,9 @@ function ApplicationDetailsContent({
         marginBottom:"1rem"
       }
     }
+    else if(tab?.type==="statusColor"){
+      return tab?.style
+    }
     else {
       return {};
     }
@@ -170,6 +189,7 @@ function ApplicationDetailsContent({
         width:"100%"
       }
     }
+    
     else {
       return {};
     }
@@ -192,10 +212,14 @@ function ApplicationDetailsContent({
       window.location.href.includes("employee/noc") ||
       window.location.href.includes("employee/ws") ||
       window.location.href.includes("employee/works") ||
-      window.location.href.includes("employee/contracts")
+      window.location.href.includes("employee/contracts") || 
+      window.location.href.includes("employee/masters") ||
+      window.location.href.includes("employee/project") ||
+      window.location.href.includes("employee/expenditure") 
     ) {
       return { lineHeight: "19px", maxWidth: "950px", minWidth: "280px" };
-    } else if (checkLocation) {
+    } 
+    else if (checkLocation) {
       return { lineHeight: "19px", maxWidth: "600px", minWidth: "280px" };
     } else {
       return {};
@@ -248,9 +272,10 @@ function ApplicationDetailsContent({
       {applicationDetails?.applicationDetails?.map((detail, index) => (
         <CollapseAndExpandGroups groupElements={detail?.expandAndCollapse?.groupComponents} groupHeader={detail?.expandAndCollapse?.groupHeader} headerLabel={detail?.expandAndCollapse?.headerLabel} headerValue={detail?.expandAndCollapse?.headerValue} customClass={detail?.expandAndCollapse?.customClass}>
           <React.Fragment key={index}>
-          <div style={getMainDivStyles()}>
+          
+          <div style={detail.mainDivStyles ? detail.mainDivStyles : getMainDivStyles()} className={customClass}>
             {index === 0 && !detail.asSectionHeader ? (
-              <CardSubHeader style={{ marginBottom: "16px", fontSize: "24px" }}>{t(detail.title)}</CardSubHeader>
+              <CardSubHeader style={{ marginBottom: "16px", fontSize: "24px" }}>{t(detail?.title)}</CardSubHeader>
             ) : (
               <React.Fragment>
                 <CardSectionHeader
@@ -261,7 +286,8 @@ function ApplicationDetailsContent({
                   }
                 >
                   {isNocLocation ? `${t(detail.title)}` : t(detail.title)}
-                  {detail?.Component ? <detail.Component /> : null}
+                  
+                  {detail?.Component ? <detail.Component detail={detail} /> : null}
                 </CardSectionHeader>
               </React.Fragment>
             )}
@@ -290,6 +316,8 @@ function ApplicationDetailsContent({
               </table>
             )} */}
             {detail?.isTable && <SubWorkTableDetails data={detail} />}
+
+            {detail?.isInfoLabel && <CitizenInfoLabel info={detail?.infoHeader} text={detail?.infoText} fill={detail?.infoIconFill} className={"doc-banner"} style={detail?.style} textStyle={detail?.textStyle} ></CitizenInfoLabel>}
 
             <StatusTable style={getTableStyles()}>
               {detail?.title &&
@@ -336,7 +364,7 @@ function ApplicationDetailsContent({
                   return (
                     <Row
                       key={t(value.title)}
-                      label={isWS ? `${t(value.title)}:` : t(value.title)}
+                      label={t(value.title)}
                       text={value?.isImages ? <ViewImages fileStoreIds={value?.fileStoreIds}
                         tenantId={value?.tenant}
                         onClick={() => { }} />: getTextValue(value)}
@@ -347,25 +375,44 @@ function ApplicationDetailsContent({
                       privacy={value?.privacy}
                       // TODO, Later will move to classes
                       rowContainerStyle={getRowStyles(detail?.tab)}
-                      textStyle={getTextStyles(detail?.tab)}
+                      textStyle={getTextStyles(value?.tab)}
                       labelStyle={getLabelStyles(detail?.tab)}
+                      amountStyle={detail?.amountStyle}
                     />
                   );
                 })}
             </StatusTable>
           </div>
-   
-          
+          {detail?.additionalDetails?.statusWithRadio ? (
+            <StatusTableWithRadio
+              config={detail?.additionalDetails?.statusWithRadio?.radioConfig}
+              customClass={detail?.additionalDetails?.statusWithRadio?.customClass}
+            ></StatusTableWithRadio>
+          ) : null}
+          {detail?.additionalDetails?.dateRange ? (
+            <AttendanceDateRange
+              t={t}
+              values={localSearchParams?.range}
+              onFilterChange={handleDateRangeChange}
+              {...detail?.additionalDetails?.dateRange}
+            ></AttendanceDateRange>
+          ) : null}
           {detail?.additionalDetails?.table
             ? detail?.additionalDetails?.table?.weekTable?.tableHeader && (
                 <>
                   <CardSectionHeader style={{ marginBottom: "16px", marginTop: "32px", fontSize: "24px" }}>
                     {t(detail?.additionalDetails?.table?.weekTable?.tableHeader)}
                   </CardSectionHeader>
+                  {detail?.additionalDetails?.table.weekTable.renderTable && <WeekAttendence state={state} dispatch={dispatch} modify={modify} setSaveAttendanceState={setSaveAttendanceState} weekDates={detail?.additionalDetails?.table.weekTable.weekDates} workflowDetails={workflowDetails} setAttendanceError={setAttendanceError}/>}
                 </>
               )
             : null}
-            
+            {detail?.additionalDetails?.table
+              ? detail?.additionalDetails?.table?.mustorRollTable && (
+                <MustorRollDetailsTable musterData={detail?.additionalDetails?.table?.tableData}></MustorRollDetailsTable>
+                )
+            : null}
+            {detail?.additionalDetails?.showTotal && <ShowTotalValue topBreakLine={detail?.additionalDetails?.showTotal?.topBreakLine} bottomBreakLine={detail?.additionalDetails?.showTotal?.bottomBreakLine} label={detail?.additionalDetails?.showTotal?.label} value={detail?.additionalDetails?.showTotal?.value}></ShowTotalValue>}
           {detail?.additionalDetails?.inspectionReport && (
             <ScruntinyDetails scrutinyDetails={detail?.additionalDetails} paymentsList={paymentsList} />
           )}
@@ -431,51 +478,20 @@ function ApplicationDetailsContent({
           )}
           {detail?.additionalDetails?.estimationDetails && <WSFeeEstimation wsAdditionalDetails={detail} workflowDetails={workflowDetails} />}
           {detail?.additionalDetails?.estimationDetails && <ViewBreakup wsAdditionalDetails={detail} workflowDetails={workflowDetails} />}
+          {detail?.additionalDetails?.skills  &&  <SkillDetails data={detail?.additionalDetails?.skills} />}
+          {detail?.additionalDetails?.photo  &&  <Photos data={detail?.additionalDetails?.photo} OpenImage={OpenImage}/>}
+          {timeExtensionCreate && timeExtensionCreate.getTimeExtensionJSX()}
         </React.Fragment>
         </CollapseAndExpandGroups>
       ))}
-      {showTimeLine && workflowDetails?.data?.timeline?.length > 0 && (
-        <React.Fragment>
-          {workflowDetails?.breakLineRequired === undefined ? <BreakLine /> : workflowDetails?.breakLineRequired ? <BreakLine /> : null}
-          {(workflowDetails?.isLoading || isDataLoading) && <Loader />}
-          {!workflowDetails?.isLoading && !isDataLoading && (
-            <Fragment>
-              <CardSectionHeader style={{ marginBottom: "16px", marginTop: "32px" }}>
-                {/* {t("ES_APPLICATION_DETAILS_APPLICATION_TIMELINE")} */}
-                {t("WORKS_WORKFLOW_HISTORY")}
-              </CardSectionHeader>
-              {workflowDetails?.data?.timeline && workflowDetails?.data?.timeline?.length === 1 ? (
-                <CheckPoint
-                  isCompleted={true}
-                  label={t(`${timelineStatusPrefix}${workflowDetails?.data?.timeline[0]?.state}`)}
-                  customChild={getTimelineCaptions(workflowDetails?.data?.timeline[0])}
-                />
-              ) : (
-                <ConnectingCheckPoints>
-                  {workflowDetails?.data?.timeline &&
-                    workflowDetails?.data?.timeline.map((checkpoint, index, arr) => {
-                      return (
-                        <React.Fragment key={index}>
-                          <CheckPoint
-                            keyValue={index}
-                            isCompleted={index === 0}
-                            info={checkpoint.comment}
-                            label={t(
-                              `${timelineStatusPrefix}${
-                                checkpoint?.performedAction === "EDIT" ? `${checkpoint?.performedAction}_ACTION` : checkpoint?.[statusAttribute]
-                              }`
-                            )}
-                            customChild={getTimelineCaptions(checkpoint)}
-                          />
-                        </React.Fragment>
-                      );
-                    })}
-                </ConnectingCheckPoints>
-              )}
-            </Fragment>
-          )}
-        </React.Fragment>
-      )}
+      {showTimeLine && <WorkflowTimeline 
+        businessService={businessService} 
+        applicationNo={applicationNo} 
+        tenantId={tenantId} 
+        timelineStatusPrefix={timelineStatusPrefix}
+        statusAttribute={statusAttribute} 
+          />
+        }
     </Card>
     </CollapseAndExpandGroups>
   );

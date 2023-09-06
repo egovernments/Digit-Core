@@ -10,11 +10,13 @@ var Digit = window.Digit || {};
 
 const businessServiceMap = {
  
-  "muster roll": "MR"
+  "muster roll": "MR",
+  "estimate":"ESTIMATE"
 };
 
 const inboxModuleNameMap = {
   "muster-roll-approval": "muster-roll-service",
+  
 };
 
 export const UICustomizations = {

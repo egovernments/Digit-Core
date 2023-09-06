@@ -39,10 +39,11 @@ const Urls = {
     loiSearch:"/loi-service/v1/_search",
     createEstimate:"/estimate-service/estimate/v1/_create",
     approvedEstimateSearch:"/estimate-service/estimate/v1/_search",
-    searchEstimate:"/estimate-service/estimate/v1/_search",
+    // searchEstimate:"/estimate-service/estimate/v1/_search",
     updateLOI:"/loi-service/v1/_update",
     updateEstimate:"/estimate-service/estimate/v1/_update",
-    download_pdf:"/egov-pdf/download/WORKSESTIMATE/estimatepdf"
+    download_pdf:"/egov-pdf/download/WORKSESTIMATE/estimatepdf",
+    searchEstimate: "/estimate/v1/_search",
   },
 
   fsm: {
@@ -145,7 +146,6 @@ const Urls = {
     edcrreportdownload: "/bpa-services/v1/bpa/_permitorderedcr",
     getSearchDetails: "/inbox/v1/dss/_search"
   },
-
   edcr: {
     create: "/edcr/rest/dcr/scrutinize",
   },
