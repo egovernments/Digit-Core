@@ -1,4 +1,4 @@
-import { ArrowForward } from "@egovernments/digit-ui-react-components";
+import { SVG } from "@egovernments/digit-ui-components-core";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -12,7 +12,7 @@ const FaqComponent = (props) => {
       <div className="faq-question" style={{ justifyContent: "space-between", display: "flex" }}>
         <span>{t(question)}</span>
         <span className={isOpen ? "faqicon rotate" : "faqicon"} style={{ float: "right" }}>
-          {isOpen ? <ArrowForward /> : <ArrowForward />}
+          {isOpen ? <SVG.ArrowForward /> : <SVG.ArrowForward />}
         </span>
       </div>
 

@@ -1,3 +1,4 @@
+import { PrivateRoute } from "@egovernments/digit-ui-components-core";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Redirect, Route, Switch, useLocation, useRouteMatch, useHistory } from "react-router-dom";
@@ -10,7 +11,6 @@ import LanguageSelection from "./LanguageSelection";
 import EmployeeLogin from "./Login";
 import UserProfile from "../citizen/Home/UserProfile";
 import ErrorComponent from "../../components/ErrorComponent";
-import { PrivateRoute } from "@egovernments/digit-ui-react-components";
 
 const userScreensExempted = ["user/profile", "user/error"];
 

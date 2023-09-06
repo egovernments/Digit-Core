@@ -1,4 +1,4 @@
-import { FormStep } from "@egovernments/digit-ui-react-components";
+import { FormStep } from "@egovernments/digit-ui-components-core";
 import React from "react";
 
 const SelectMobileNumber = ({ t, onSelect, showRegisterLink, mobileNumber, onMobileChange, config, canSubmit }) => {

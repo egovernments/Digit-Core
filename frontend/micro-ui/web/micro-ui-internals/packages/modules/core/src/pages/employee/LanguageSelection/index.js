@@ -1,4 +1,4 @@
-import { Card, CustomButton, SubmitBar } from "@egovernments/digit-ui-react-components";
+import { Card, CustomButton, SubmitBar } from "@egovernments/digit-ui-components-core";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";

@@ -1,4 +1,4 @@
-import { AppContainer, BackButton, Toast } from "@egovernments/digit-ui-react-components";
+import { Toast, BackButton, AppContainer } from "@egovernments/digit-ui-components-core";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";

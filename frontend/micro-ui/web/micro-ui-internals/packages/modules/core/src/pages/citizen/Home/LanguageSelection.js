@@ -1,5 +1,5 @@
+import { PageBasedInput, Loader, RadioButtons, CardHeader } from "@egovernments/digit-ui-components-core";
 import React, { useMemo } from "react";
-import { PageBasedInput, Loader, RadioButtons, CardHeader } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 

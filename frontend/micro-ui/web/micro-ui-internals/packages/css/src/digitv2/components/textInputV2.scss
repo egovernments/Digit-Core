@@ -6,14 +6,20 @@
 }
 .digit-text-input {
   @apply relative w-full;
-  &.digit-field-error {
+  &.error {
     input {
       border: 1px solid theme(digitv2.alert.error);
     }
   }
   &.disabled {
-    @apply border-grey-dark text-grey-dark !important;
-    pointer-events: none !important;
+    input {
+      @apply border-grey-dark text-grey-dark !important;
+      pointer-events: none !important;
+      cursor: not-allowed;
+    }
+  }
+  input:focus {
+    border: 1px solid theme(digitv2.lightTheme.primary);
   }
 }
 
