@@ -91,6 +91,8 @@
             .form-control {
               @extend .light-input-border;
               @extend .employee-card-input;
+              font-style: inherit;
+              font-family: inherit;
               /* web view*/
               max-width: 37.5rem;
               min-width: 20.5rem;
@@ -215,7 +217,7 @@
                   height: 1.5rem;
                   /*              @apply ml-sm;*/
                 }
-
+         
                 input[type="checkbox"]#digit_root_active {
                   accent-color: theme(digitv2.lightTheme.primary);
                 }
