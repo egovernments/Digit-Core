@@ -17,9 +17,14 @@ import {
   CollectionIcon,
 } from "@egovernments/digit-ui-react-components";
 import ReactTooltip from "react-tooltip";
+import { set } from "lodash";
 
 const Sidebar = ({ data }) => {
   const [openItems, setOpenItems] = useState({});
+  const [selectedParent, setSelectedParent] = useState(null);
+  const [selectedChild, setSelectedChild] = useState(null);
+  const [subNav, setSubNav] = useState(false);
+
   const getOrigin = window.location.origin;
 
   const IconsObject = {
@@ -45,44 +50,71 @@ const Sidebar = ({ data }) => {
     }));
   };
 
+  const openSidebar = () => {
+    setSubNav(true);
+  };
   const closeSidebar = () => {
+    setSubNav(false);
     setOpenItems({});
   };
 
   function extractLeftIcon(data) {
-    for (const key in data) {
-      const item = data[key];
+    const results = [];
 
-      if (key === "item" && item?.leftIcon !== "") {
-        return item.leftIcon.split(":")[1];
-      }
+    function recursiveExtract(obj) {
+      for (const key in obj) {
+        const item = obj[key];
 
-      if (typeof data[key] === "object" && !Array.isArray(data[key])) {
-        const subResult = extractLeftIcon(data[key]);
-        if (subResult) {
-          return subResult; // Return as soon as a non-empty leftIcon is found
+        if (key === "item" && item?.leftIcon !== "") {
+          const splitValue = item.leftIcon.split(":");
+          if (splitValue) {
+            results.push(splitValue);
+          }
+        }
+
+        if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+          recursiveExtract(obj[key]);
         }
       }
     }
 
-    return null; // Return null if no non-empty leftIcon is found
-  }
+    recursiveExtract(data);
 
-  const renderSidebarItems = (items, flag = true) => {
+    return results;
+  }
+  const renderSidebarItems = (items, parentKey = null, flag = true) => {
     return (
       <div className="submenu-container">
         {Object.keys(items).map((key, index) => {
           const subItems = items[key];
           const subItemKeys = Object.keys(subItems)[0] === "item";
           const isSubItemOpen = openItems[key] || false;
+          var itemKey = parentKey ? `${parentKey}` : key;
           if (!subItemKeys && subItems && Object.keys(subItems).length > 0) {
             // If the item has sub-items, render a dropdown with toggle button
             const leftIconArray = extractLeftIcon(subItems);
-            let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
+            let leftIcon = IconsObject[leftIconArray[0][1]] || IconsObject.collections;
+            if (leftIconArray[0][0] == "dynamic") {
+              var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray[0][1]];
+              leftIcon = IconComp ? <IconComp /> : leftIcon;
+            }
+            const isParentActive = selectedParent === itemKey;
             return (
-              <div key={index} className={`sidebar-link`} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                <div className="actions" onClick={() => toggleSidebar(key)} style={{ display: "flex", flexDirection: "row" }}>
-                  {flag && <div>{leftIcon}</div>}
+              <div
+                key={index}
+                className={`sidebar-link ${isParentActive ? "active" : ""}`}
+                style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+              >
+                <div
+                  className="actions"
+                  onClick={() => {
+                    toggleSidebar(key);
+                    setSelectedParent(itemKey);
+                    setSelectedChild(null);
+                  }}
+                  style={{ display: "flex", flexDirection: "row" }}
+                >
+                  {flag && <div className="link-icon">{leftIcon}</div>}
                   <div data-tip="React-tooltip" data-for={`jk-side-${key}`}>
                     <span> {key} </span>
                     {key?.includes("...") && (
@@ -91,21 +123,35 @@ const Sidebar = ({ data }) => {
                       </ReactTooltip>
                     )}
                   </div>
-                  <div style={{ position: "absolute", right: "15px" }} className={`arrow ${isSubItemOpen ? "" : "hidden-arrow"}`}>
-                    {isSubItemOpen ? <ArrowForward /> : <ArrowVectorDown />}
+                  <div style={{ position: "absolute", right: "15px" }} className={`arrow ${isSubItemOpen && subNav ? "" : "hidden-arrow"}`}>
+                    {isSubItemOpen ? <ArrowVectorDown height="28px" width="28px" /> : <ArrowForward />}
                   </div>
                 </div>
-                <div>{isSubItemOpen && renderSidebarItems(subItems, false)}</div>
+                {subNav && <div>{isSubItemOpen && renderSidebarItems(subItems, itemKey, false)}</div>}
               </div>
             );
           } else if (subItemKeys) {
             // If the item is a link, render it
             const leftIconArray = extractLeftIcon(subItems);
-            let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
+            let leftIcon = IconsObject[leftIconArray[0][1]] || IconsObject.collections;
+            if (leftIconArray[0][0] == "dynamic") {
+              var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray[0][1]];
+              leftIcon = IconComp ? <IconComp /> : leftIcon;
+            }
+            const isChildActive = selectedChild === subItems.item.path;
             return (
-              <a key={index} className="dropdown-link new-dropdown-link" style={{ marginLeft: "0px" }}>
+              <a
+                key={index}
+                className={`dropdown-link new-dropdown-link ${isChildActive ? "active" : ""}`}
+                style={{ marginLeft: "0px" }}
+                onClick={() => {
+                  const keyToHighlight = subItems.item.path;
+                  setSelectedParent(parentKey); // Update the selected parent when a child is clicked
+                  setSelectedChild(keyToHighlight);
+                }}
+              >
                 <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
-                  {flag && <div style={{ display: isSubItemOpen ? "none" : "" }}>{leftIcon}</div>}
+                  {flag && <div className="link-icon">{leftIcon}</div>}
                   <div style={{ marginLeft: "20px" }}>{subItems.item.displayName}</div>
                 </div>
               </a>
@@ -117,7 +163,7 @@ const Sidebar = ({ data }) => {
   };
 
   return (
-    <div className={`new-sidebar ${openItems ? "show" : ""}`} onMouseLeave={closeSidebar}>
+    <div className={`new-sidebar ${openItems ? "show" : ""}`} onMouseEnter={openSidebar} onMouseLeave={closeSidebar}>
       {renderSidebarItems(data)}
     </div>
   );

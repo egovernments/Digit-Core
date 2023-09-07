@@ -186,6 +186,9 @@
         }
       }
       .search-icon-wrapper {
+        border: 2px solid theme(colors.white);
+        border-radius: 4px;
+        padding: 5px;
         svg {
           fill: theme(colors.white) !important;
           width: 21px;
