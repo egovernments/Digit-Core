@@ -1,5 +1,6 @@
 package org.egov.user.web.controller;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.response.ResponseInfo;
@@ -28,12 +29,12 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 @RestController
 @Slf4j
-@RequestMapping("/user")
 public class UserController {
 
     private UserService userService;
     private TokenService tokenService;
     private final String secretKey = "B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF";
+    private final String private_key = "B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B58CCF";
     private final String issuer = "your_issuer";
     @Value("${mobile.number.validation.workaround.enabled}")
     private String mobileValidationWorkaroundEnabled;
@@ -51,6 +52,7 @@ public class UserController {
     @Autowired
     public UserController(UserService userService, TokenService tokenService) {
         this.userService = userService;
+
         this.tokenService = tokenService;
     }
 
@@ -102,18 +104,22 @@ public class UserController {
         claims.put("roles", "user");
 
         // Generate JWT Token using java-jwt library
-        String token = JWT.create()
-                .withSubject(username)
-                .withClaim("username", username)
-                .withClaim("roles", "user")
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 86400000))
+        JWTCreator.Builder builder = JWT.create();
+        builder.withSubject(username);
+        builder.withClaim("username", username);
+        builder.withClaim("roles", "user");
+        builder.withIssuedAt(new Date());
+        builder.withExpiresAt(new Date(System.currentTimeMillis() + 86400000));
+        String token = builder
                 .sign(Algorithm.HMAC256(secretKey));
 
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
         return response;
     }
+
+
+
 
     /**
      * end-point to search the users by providing userSearchRequest. In Request
