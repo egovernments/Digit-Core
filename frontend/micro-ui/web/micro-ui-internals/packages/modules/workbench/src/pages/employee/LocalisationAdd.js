@@ -471,9 +471,11 @@ const LocalisationAdd = () => {
 
 
   const handleBulkUpload = async (event) => {
-    
+    debugger
    try {
+    debugger
     const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
+    console.log("result",result);
     const updatedResult = convertObjectOfArraysToSingleArray(result)
     //make result for default locale
     const updatedResultDefault = updatedResult.map(row=> {
@@ -488,6 +490,7 @@ const LocalisationAdd = () => {
     setJsonResultDefault(filteredResultDefault)
     //here the result will contain all the sheets in an object
    } catch (error) {
+    debugger
     setShowToast({
       label: error.message || "Invalid file type. Please upload an Excel file.",
       isError: true,

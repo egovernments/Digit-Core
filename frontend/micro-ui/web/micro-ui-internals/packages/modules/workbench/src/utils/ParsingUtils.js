@@ -20,6 +20,7 @@ export const parseXlsToJson = (event,setter) => {
 export const parseXlsToJsonMultipleSheets  = (uploadEvent) => {
   const allowedFileTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
 debugger
+console.log("inner")
   return new Promise((resolve, reject) => {
     debugger
     const uploadedFile = uploadEvent.target.files[0];
