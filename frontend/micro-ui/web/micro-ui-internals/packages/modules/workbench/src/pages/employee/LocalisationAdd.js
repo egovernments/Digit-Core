@@ -476,10 +476,11 @@ const LocalisationAdd = () => {
    try {
     debugger
     const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
-    console.log("result",result);
+    console.log("step1",result);
      Digit.Utils.parsingUtils.parseXlsToJson(event,setTest);
-    console.log("testing single sheet", test);
+    console.log("step1singlesheet", test);
     const updatedResult = convertObjectOfArraysToSingleArray(result)
+    console.log('step3',updatedResult);
     //make result for default locale
     const updatedResultDefault = updatedResult.map(row=> {
       return {
@@ -487,8 +488,14 @@ const LocalisationAdd = () => {
         locale:"default"
       }
     })
+    console.log('step4',updatedResultDefault);
+
     const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
+    console.log('step5',filteredResult);
+
     const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
+    console.log('step6',filteredResultDefault);
+
     setJsonResult(filteredResult)
     setJsonResultDefault(filteredResultDefault)
     //here the result will contain all the sheets in an object
