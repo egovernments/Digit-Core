@@ -333,6 +333,6 @@ export default {
   getConfigModuleName,
   preProcessMDMSConfig,
   preProcessMDMSConfigInboxSearch,
-  // parsingUtils,
+  parsingUtils,
   ...privacy
 };

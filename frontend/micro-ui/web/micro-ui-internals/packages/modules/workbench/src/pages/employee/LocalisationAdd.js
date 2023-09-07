@@ -77,7 +77,6 @@ function splitArrayIntoDynamicSubsetsByProperty(array, propertyKey) {
 }
 
 
-//this fn has issue with build
 function splitArrayIntoDynamicSubsetsByPropertyAndKeys(array, propertyKey, keysToInclude) {
   const uniquePropertyValuesSet = new Set(array.map(item => item[propertyKey]));
   const uniquePropertyValues = Array.from(uniquePropertyValuesSet)
