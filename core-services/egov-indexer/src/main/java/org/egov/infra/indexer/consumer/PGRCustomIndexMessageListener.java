@@ -63,16 +63,19 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 			ObjectMapper mapper = indexerUtils.getObjectMapper();
 			ServiceResponse serviceResponse = null;
 			try{
-				serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
+				 serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
 			}catch (Exception e)
 			{
 				log.error("Couldn't parse pgrindex request: ", e);
 			}
 			//Extracting tenantId
 			String tenantId = null;
-			if(serviceResponse!=null && serviceResponse.getServices().get(0) != null)
+			if(serviceResponse !=null )
 			{
-				tenantId = serviceResponse.getServices().get(0).getTenantId();
+				if(serviceResponse.getServices().get(0) != null)
+				{
+					tenantId = serviceResponse.getServices().get(0).getTenantId();
+				}
 			}
 
 			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson, tenantId);
