@@ -74,13 +74,24 @@ function transformErrors(errors) {
     return error;
   });
 }
+const getArrayWrapperClassName=(type)=>{
+  switch(type){
+    case "array":
+      return "jk-array-of-array";
+    case "object":
+      return "jk-array-objects";
+    default:
+      return "jk-array-of-non-objects";
+  }
+  
+}
 
 function ArrayFieldItemTemplate(props) {
   const { t } = useTranslation();
 
   const { children, className, index, onDropIndexClick ,schema,disabled} = props;
   const isArrayOfObjects=schema?.type== "object";
-  const newClass=isArrayOfObjects?"jk-array-objects":"jk-array-of-non-objects";
+  const newClass=getArrayWrapperClassName(schema?.type)
   return (
     <div className={`${className} ${newClass}`}>
      <span className={"array-children"}>
