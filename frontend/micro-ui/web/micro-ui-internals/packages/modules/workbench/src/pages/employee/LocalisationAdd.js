@@ -76,9 +76,12 @@ function splitArrayIntoDynamicSubsetsByProperty(array, propertyKey) {
   return subsets;
 }
 
+
 function splitArrayIntoDynamicSubsetsByPropertyAndKeys(array, propertyKey, keysToInclude) {
-  const uniquePropertyValues = [...new Set(array.map(item => item[propertyKey]))];
+  const uniquePropertyValuesSet = new Set(array.map(item => item[propertyKey]));
+  const uniquePropertyValues = Array.from(uniquePropertyValuesSet)
   const numberOfSubsets = uniquePropertyValues.length;
+  
   const subsets = Array.from({ length: numberOfSubsets }, () => []);
 
   array.forEach(item => {
@@ -469,9 +472,7 @@ const LocalisationAdd = () => {
     });
   };
 
-
   const handleBulkUpload = async (event) => {
-    
    try {
     const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
     const updatedResult = convertObjectOfArraysToSingleArray(result)
@@ -482,8 +483,11 @@ const LocalisationAdd = () => {
         locale:"default"
       }
     })
+
     const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
+
     const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
+
     setJsonResult(filteredResult)
     setJsonResultDefault(filteredResultDefault)
     //here the result will contain all the sheets in an object

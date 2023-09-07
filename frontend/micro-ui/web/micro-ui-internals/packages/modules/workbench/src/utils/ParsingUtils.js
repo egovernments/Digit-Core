@@ -1,5 +1,5 @@
-import XLSX from 'xlsx';
-
+// import XLSX from 'xlsx';
+import * as XLSX from "xlsx/dist/xlsx.full.min";
 export const parseXlsToJson = (event,setter) => {
   event.preventDefault()
 
@@ -17,9 +17,8 @@ export const parseXlsToJson = (event,setter) => {
   reader.readAsArrayBuffer(file);
 }
 
-export const parseXlsToJsonMultipleSheets  = (uploadEvent) => {
+export const parseXlsToJsonMultipleSheets  = async (uploadEvent) => {
   const allowedFileTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
-
   return new Promise((resolve, reject) => {
     const uploadedFile = uploadEvent.target.files[0];
 
