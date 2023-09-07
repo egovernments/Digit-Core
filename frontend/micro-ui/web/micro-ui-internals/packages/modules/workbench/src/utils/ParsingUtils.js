@@ -1,5 +1,5 @@
-import XLSX from 'xlsx';
-
+// import XLSX from 'xlsx';
+import * as XLSX from "xlsx/dist/xlsx.full.min";
 export const parseXlsToJson = (event,setter) => {
   event.preventDefault()
 
