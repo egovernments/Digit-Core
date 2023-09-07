@@ -191,7 +191,7 @@ function CustomFieldTemplate(props) {
   const { id, classNames, style, label, help, required, description, errors, children } = props;
   let titleCode = label;
   let additionalCode = "";
-  if (!label?.toLowerCase().includes(moduleName?.toLowerCase()) && !label?.toLowerCase().includes(masterName?.toLowerCase())) {
+  if (!label?.includes(Digit.Utils.locale.getTransformedLocale(moduleName)) && !label?.includes(Digit.Utils.locale.getTransformedLocale(masterName))) {
     titleCode = Digit.Utils.locale.getTransformedLocale(`${moduleName}.${moduleName}_${label?.slice(0, -2)}`);
     additionalCode = label?.slice(-2);
   }
