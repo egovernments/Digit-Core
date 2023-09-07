@@ -476,6 +476,8 @@ const LocalisationAdd = () => {
     debugger
     const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
     console.log("result",result);
+    const resultTest = await Digit.Utils.parsingUtils.parseXlsToJson(event);
+    console.log("testing single sheet", resultTest);
     const updatedResult = convertObjectOfArraysToSingleArray(result)
     //make result for default locale
     const updatedResultDefault = updatedResult.map(row=> {
