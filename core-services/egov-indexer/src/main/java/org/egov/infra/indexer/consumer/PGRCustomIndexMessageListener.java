@@ -70,7 +70,7 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 			}
 			//Extracting tenantId
 			String tenantId = null;
-			if(serviceResponse !=null )
+			if(!serviceResponse.getServices().isEmpty())
 			{
 				if(serviceResponse.getServices().get(0) != null)
 				{
