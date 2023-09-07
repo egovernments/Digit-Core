@@ -52,7 +52,7 @@ const LocalisationSearch = () => {
       // queryClient.invalidateQueries([`/localization/messages/v1/_upsert`,`Random`])
       // queryClient.invalidateQueries([`/localization/messages/v1/_upsert`,`Random`,`defaultLocale`])
       closeToast();
-      // setCallRefetch(true)
+      setCallRefetch(true)
     };
     const onError = (resp) => {
       let label = `${t("WBH_LOC_UPDATE_FAIL")}: `
@@ -125,7 +125,8 @@ const LocalisationSearch = () => {
             onClickSvg
           },
           search:{
-            callRefetch
+            callRefetch,
+            setCallRefetch
           }
         }}></InboxSearchComposer>
       </div>}
