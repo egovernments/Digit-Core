@@ -111,6 +111,16 @@ function hasDuplicatesByKey(arr, key) {
   return false; // No duplicates found
 }
 
+function hasFalsyValueIgnoringZero(arrOfObjects) {
+  return arrOfObjects.some(obj => {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] !== 0 && !obj[key]) {
+        return true; // Found a non-zero falsy value, exit early and return true
+      }
+    }
+    return false; // No non-zero falsy values found in this object
+  });
+}
 const LocalisationAdd = () => {
   const [selectedLang, setSelectedLang] = useState(null);
   const [showToast, setShowToast] = useState(false);
@@ -282,12 +292,22 @@ const LocalisationAdd = () => {
 
     //same key validation
     const hasDuplicateKeycode = hasDuplicatesByKey(tableState, "code");
-
+    const hasEmptyMessageOrCode = hasFalsyValueIgnoringZero(tableState);
+    
     if (hasDuplicateKeycode) {
       setShowToast({
         label: "WBH_LOC_SAME_KEY_VALIDATION_ERR",
         isError: true,
       });
+      closeToast()
+      return;
+    }
+    if (hasEmptyMessageOrCode) {
+      setShowToast({
+        label: "WBH_LOC_EMPTY_KEY_VALUE_VALIDATION_ERR",
+        isError: true,
+      });
+      closeToast()
       return;
     }
 
@@ -320,9 +340,9 @@ const LocalisationAdd = () => {
       let label = `${t("WBH_LOC_UPSERT_FAIL")}: `
       resp?.response?.data?.Errors?.map((err,idx) => {
         if(idx===resp?.response?.data?.Errors?.length-1){
-          label = label + err?.code + '.'
+          label = label + t(Digit.Utils.locale.getTransformedLocale(err?.code)) + '.'
         }else{
-        label = label + err?.code + ', '
+        label = label + t(Digit.Utils.locale.getTransformedLocale(err?.code)) + ', '
         }
       })
       
