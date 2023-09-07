@@ -81,12 +81,9 @@ function splitArrayIntoDynamicSubsetsByProperty(array, propertyKey) {
 function splitArrayIntoDynamicSubsetsByPropertyAndKeys(array, propertyKey, keysToInclude) {
   const uniquePropertyValuesSet = new Set(array.map(item => item[propertyKey]));
   const uniquePropertyValues = Array.from(uniquePropertyValuesSet)
-  console.log("1",uniquePropertyValues);
   const numberOfSubsets = uniquePropertyValues.length;
-  console.log("2",numberOfSubsets);
   
   const subsets = Array.from({ length: numberOfSubsets }, () => []);
-  console.log("3",subsets);
 
   array.forEach(item => {
     const propertyValue = item[propertyKey];
@@ -99,8 +96,6 @@ function splitArrayIntoDynamicSubsetsByPropertyAndKeys(array, propertyKey, keysT
 
     subsets[subsetIndex]?.push(subsetItem);
   });
-
-  console.log("4",subsets);
 
   return subsets;
 }
@@ -478,18 +473,10 @@ const LocalisationAdd = () => {
     });
   };
 
-  const [test,setTest] = useState(null)
-  console.log("testlog",test);
   const handleBulkUpload = async (event) => {
-    debugger
    try {
-    debugger
     const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
-    console.log("step1",result);
-     Digit.Utils.parsingUtils.parseXlsToJson(event,setTest);
-    console.log("step1singlesheet", test);
     const updatedResult = convertObjectOfArraysToSingleArray(result)
-    console.log('step3',updatedResult);
     //make result for default locale
     const updatedResultDefault = updatedResult.map(row=> {
       return {
@@ -497,19 +484,15 @@ const LocalisationAdd = () => {
         locale:"default"
       }
     })
-    console.log('step4',updatedResultDefault);
 
     const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
-    console.log('step5',filteredResult);
 
     const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
-    console.log('step6',filteredResultDefault);
 
     setJsonResult(filteredResult)
     setJsonResultDefault(filteredResultDefault)
     //here the result will contain all the sheets in an object
    } catch (error) {
-    debugger
     setShowToast({
       label: error.message || "Invalid file type. Please upload an Excel file.",
       isError: true,
