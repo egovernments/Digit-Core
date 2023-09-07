@@ -107,12 +107,11 @@ public class PGRCustomDecorator {
 		// Adding in MDC so that tracer can add it in header
 		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 		StringBuilder uri = new StringBuilder();
-		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, service.getServiceCode(), new RequestInfo());
+		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, service.getTenantId(), service.getServiceCode(), new RequestInfo());
 		try {
-//			Object responseObject =  serviceRequestRepository.fetchResult(uri, request, centralInstanceUtil.getStateLevelTenant(service.getTenantId()));
-//			Object response =  mapper.convertValue(responseObject,  Map.class);
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), request, service.getTenantId());
+			Object response = mapper.readValue(jsonContent, Map.class);
 
-			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
@@ -154,40 +153,21 @@ public class PGRCustomDecorator {
 		return builder.toString();
 	}
 
-	public String getDepartmentCodeForPgrRequest(String kafkaJson) {
+	public String getDepartmentCodeForPgrRequest(String kafkaJson, String tenantId) {
 		// Adding in MDC so that tracer can add it in header
-		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
+		if(tenantId == null)
+		{tenantId=stateLevelTenantId;}
 
+		MDC.put(TENANTID_MDC_STRING, tenantId );
 		log.info("MDC ----> " +MDC.get(TENANTID_MDC_STRING));
 
 		StringBuilder uri = new StringBuilder();
 		String serviceCode = JsonPath.read(kafkaJson, "$.service.serviceCode");
-		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, serviceCode, new RequestInfo());
+		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, tenantId, serviceCode, new RequestInfo());
 		try {
-//			Object responseObject =  serviceRequestRepository.fetchResult(uri, request, stateLevelTenantId);
+			Object response =  serviceRequestRepository.fetchResult(uri.toString(), request, tenantId);
 //			Object response =  mapper.convertValue(responseObject,  Map.class);
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.set(TENANTID_MDC_STRING, stateLevelTenantId);
-
-			// Create an HttpEntity with headers (if any)
-			HttpEntity<?> requestEntity = new HttpEntity<>(request, headers);
-
-			ParameterizedTypeReference<String> responseType = new ParameterizedTypeReference<String>() {};
-
-			log.info("Request: " + mapper.writeValueAsString(request));
-			// Make the HTTP request using the exchange method
-			ResponseEntity<String> responseEntity = restTemplate.exchange(
-					uri.toString(),
-					HttpMethod.POST,
-					requestEntity,
-					responseType
-			);
-
-			// Extract the JSON content from the ResponseEntity
-			String response = responseEntity.getBody();
-
-//			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 
 			log.info("Department List" + depts.toString());

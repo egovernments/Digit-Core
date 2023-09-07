@@ -2,9 +2,11 @@ package org.egov.infra.indexer.bulkindexer;
 
 import java.util.Map;
 
+import org.egov.infra.indexer.service.ServiceRequestRepository;
 import org.egov.infra.indexer.util.IndexerUtils;
 import org.egov.infra.indexer.web.contract.Index;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,6 +29,14 @@ public class BulkIndexer {
 	@Autowired
 	private IndexerUtils indexerUtils;
 
+	@Autowired
+	private ServiceRequestRepository serviceRequestRepository;
+
+	@Value("${egov.statelevel.tenantId}")
+	private  String stateLevelTenantId ;
+
+	private ObjectMapper mapper = new ObjectMapper();
+
 	/**
 	 * Methods that makes a REST API call to /_bulk API of the ES. This method
 	 * triggers the listener orchestration method in case the ES cluster is down.
@@ -43,7 +53,8 @@ public class BulkIndexer {
 			final HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 			final HttpEntity<String> entity = new HttpEntity<>(indexJson, headers);
-			Object response = restTemplate.postForObject(url.toString(), entity, Map.class);
+			String jsonContent = serviceRequestRepository.fetchResult(url.toString(), entity, stateLevelTenantId);
+			Object response = mapper.readValue(jsonContent, Map.class);
 			if (url.contains("_bulk")) {
 				if (JsonPath.read(mapper.writeValueAsString(response), "$.errors").equals(true)) {
 					log.info("Indexing FAILED!!!!");
@@ -95,7 +106,8 @@ public class BulkIndexer {
 		if (null != body) {
 			if (httpMethod.equals("POST")) {
 				try {
-					response = restTemplate.postForObject(url, body, Map.class);
+					String jsonContent = serviceRequestRepository.fetchResult(url, body, stateLevelTenantId);
+					response = mapper.readValue(jsonContent, Map.class);
 				} catch (Exception e) {
 					log.error("POST: Exception while fetching from es: " + e);
 				}

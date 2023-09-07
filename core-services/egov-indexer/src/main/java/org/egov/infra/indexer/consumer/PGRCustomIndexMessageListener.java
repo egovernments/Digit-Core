@@ -59,9 +59,26 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 
 		if(data.topic().equals(pgrCreateTopic) || data.topic().equals(pgrBatchCreateTopic)){
 			String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
-			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson);
+
+			ObjectMapper mapper = indexerUtils.getObjectMapper();
+			ServiceResponse serviceResponse = null;
+			try{
+				serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
+			}catch (Exception e)
+			{
+				log.error("Couldn't parse pgrindex request: ", e);
+			}
+			//Extracting tenantId
+			String tenantId = null;
+			if(serviceResponse!=null && serviceResponse.getServices().get(0) != null)
+			{
+				tenantId = serviceResponse.getServices().get(0).getTenantId();
+			}
+
+			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson, tenantId);
 			kafkaJson = kafkaJson.replace(IndexerConstants.DEPT_CODE, deptCode);
 			try {
+
 				indexerService.esIndexer(data.topic(), kafkaJson);
 			}catch(Exception e){
 				log.error("Error while indexing pgr-request: " + e);

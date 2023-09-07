@@ -2,6 +2,7 @@ package org.egov.infra.indexer.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
@@ -13,17 +14,20 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.infra.indexer.consumer.config.ReindexConsumerConfig;
 import org.egov.infra.indexer.models.AuditDetails;
 import org.egov.infra.indexer.producer.IndexerProducer;
+import org.egov.infra.indexer.service.ServiceRequestRepository;
 import org.egov.infra.indexer.web.contract.*;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.ModuleDetail;
+import org.egov.tracer.model.ServiceCallException;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -80,6 +84,9 @@ public class IndexerUtils {
 
 	@Autowired
 	private IndexerProducer producer;
+
+	@Autowired
+	private ServiceRequestRepository serviceRequestRepository;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -249,7 +256,19 @@ public class IndexerUtils {
 		RequestInfo requestInfo = new RequestInfo();
 		MdmsCriteriaReq req = MdmsCriteriaReq.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
 
-		return restTemplate.postForObject(uri, req, Map.class);
+		Object response = null;
+		try {
+			String jsonContent = serviceRequestRepository.fetchResult(uri, req, tenantId);
+			response = mapper.readValue(jsonContent, Map.class);
+		}catch(JsonProcessingException e) {
+			log.error("JsonProcessingException: ",e);
+			throw new ServiceCallException(e.getMessage());
+		}catch(Exception e) {
+			log.error("Exception while fetching from external service: ",e);
+		}
+
+
+		return response;
 	}
 
 
