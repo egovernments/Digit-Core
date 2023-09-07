@@ -17,7 +17,7 @@ export const parseXlsToJson = (event,setter) => {
   reader.readAsArrayBuffer(file);
 }
 
-export const parseXlsToJsonMultipleSheets  = (uploadEvent) => {
+export const parseXlsToJsonMultipleSheets  = async (uploadEvent) => {
   const allowedFileTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
 debugger
 console.log("inner")

@@ -469,15 +469,16 @@ const LocalisationAdd = () => {
     });
   };
 
-
+  const [test,setTest] = useState(null)
+  console.log("testlog",test);
   const handleBulkUpload = async (event) => {
     debugger
    try {
     debugger
     const result = await Digit.Utils.parsingUtils.parseXlsToJsonMultipleSheets(event);
     console.log("result",result);
-    const resultTest = await Digit.Utils.parsingUtils.parseXlsToJson(event);
-    console.log("testing single sheet", resultTest);
+     Digit.Utils.parsingUtils.parseXlsToJson(event,setTest);
+    console.log("testing single sheet", test);
     const updatedResult = convertObjectOfArraysToSingleArray(result)
     //make result for default locale
     const updatedResultDefault = updatedResult.map(row=> {
