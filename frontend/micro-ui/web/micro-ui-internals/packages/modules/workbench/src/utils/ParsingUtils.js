@@ -19,8 +19,9 @@ export const parseXlsToJson = (event,setter) => {
 
 export const parseXlsToJsonMultipleSheets  = (uploadEvent) => {
   const allowedFileTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
-
+debugger
   return new Promise((resolve, reject) => {
+    debugger
     const uploadedFile = uploadEvent.target.files[0];
 
     if (!allowedFileTypes.includes(uploadedFile.type)) {
@@ -45,6 +46,7 @@ export const parseXlsToJsonMultipleSheets  = (uploadEvent) => {
     };
 
     reader.onerror = function(error) {
+      debugger
       reject(error);
     };
 
