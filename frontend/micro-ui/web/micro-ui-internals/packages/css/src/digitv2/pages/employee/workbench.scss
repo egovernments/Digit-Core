@@ -412,11 +412,13 @@
 }
 
 .jk-digit-loader {
-  position: fixed;
+  position: absolute;
   z-index: 10000;
-  width: 100vh;
+  width: 100vw;
   background-color: rgba(189, 189, 189, 0.5);
-  height: 80vh;
+  height: 100vh;
+  left: 0;
+  top: 0;
 
   .jk-spinner-wrapper {
     width: 100%;

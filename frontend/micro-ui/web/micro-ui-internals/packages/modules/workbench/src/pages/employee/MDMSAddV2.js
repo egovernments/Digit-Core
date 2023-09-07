@@ -19,9 +19,9 @@ const uiSchema = {};
 
 const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onViewActionsSelect, viewActions, onSubmitEditAction, ...props }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
+  const [spinner, toggleSpinner] = useState(false);
   // const stateId = Digit.ULBService.getStateId();
   const FormSession = Digit.Hooks.useSessionStorage(`MDMS_${screenType}`, {});
-
   const [sessionFormData, setSessionFormData, clearSessionFormData] = FormSession;
   const [session, setSession] = useState(sessionFormData);
   const [formSchema, setFormSchema] = useState({});
@@ -117,27 +117,26 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
 
   const mutation = Digit.Hooks.useCustomAPIMutationHook(reqCriteriaAdd);
   const onSubmit = (data) => {
-    // const formattedData = Digit.Utils.workbench.getFormattedData(data);
+    toggleSpinner(true);
     const onSuccess = (resp) => {
-      setTimeout(() => {
-        setSessionFormData({});
-        setSession({});
-      }, 1500);
+      toggleSpinner(false);
+      setSessionFormData({});
+      setSession({});
       setShowErrorToast(false);
       const jsonPath = api?.responseJson ? api?.responseJson : "mdms[0].id";
       setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp, jsonPath, "NA")}`);
-      closeToast()
+      closeToast();
 
       //here redirect to search screen(check if it's required cos user might want  add multiple masters in one go)
     };
     const onError = (resp) => {
+      toggleSpinner(false);
       setShowToast(`${t("WBH_ERROR_MDMS_DATA")} ${t(resp?.response?.data?.Errors?.[0]?.code)}`);
       setShowErrorToast(true);
-      closeToast()
+      closeToast();
     };
 
     _.set(body, api?.requestJson ? api?.requestJson : "Mdms.data", { ...data });
-
     mutation.mutate(
       {
         params: {},
@@ -237,6 +236,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
 
   return (
     <React.Fragment>
+      {spinner && <DigitLoader />}
       {formSchema && (
         <DigitJSONForm
           schema={formSchema}
