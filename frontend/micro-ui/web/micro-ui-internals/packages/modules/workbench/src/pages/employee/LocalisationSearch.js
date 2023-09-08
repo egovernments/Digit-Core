@@ -42,6 +42,13 @@ const LocalisationSearch = () => {
   }
 
   const onModalSubmit = async (payload) => {
+    if(!payload?.message){
+      setShowToast({ label: `${t("WBH_LOC_ENTER_VALID_MESSAGE")}`,isError: true,style:{
+        zIndex:"10000"
+      } });
+      closeToast()
+      return
+    }
     const onSuccess = (resp) => {
       setShowToast({ label: `${t("WBH_LOC_UPDATE_SUCCESS")}` });
       setShowModal(null)
@@ -131,7 +138,7 @@ const LocalisationSearch = () => {
         }}></InboxSearchComposer>
       </div>}
       {showModal && modalConfig && <WorkflowModal closeModal={() => setShowModal(false)} onSubmit={onModalSubmit} config={modalConfig} />}
-      {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)}></Toast>}
+      {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)} style={showToast?.style}></Toast>}
     </React.Fragment>
   );
 };
