@@ -13,7 +13,7 @@ RUN ls -lah
 RUN cd web/ \
     &&  ./install-deps.sh \
     && yarn install \
-    && yarn build 
+    && yarn build:webpack 
 
 FROM nginx:mainline-alpine
 #FROM ghcr.io/egovernments/nginx:mainline-alpine
