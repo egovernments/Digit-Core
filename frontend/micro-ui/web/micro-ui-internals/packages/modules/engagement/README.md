@@ -53,6 +53,8 @@ const initDigitUI = () => {
 
 ```bash
 1.8.0-beta workbench base version beta release
+1.7.0 urban 2.9
+1.6.0 urban 2.8
 1.5.25 updated the readme content
 1.5.24 added the readme file
 1.5.23 base version
