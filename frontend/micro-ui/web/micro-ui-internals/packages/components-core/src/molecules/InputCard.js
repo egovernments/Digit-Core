@@ -4,10 +4,10 @@ import PropTypes from "prop-types";
 import Card from "../atoms/Card";
 import CardHeader from "../atoms/CardHeader";
 import CardText from "../atoms/CardText";
-import SubmitBar from "../atoms/SubmitBar";
-import LinkButton from "../atoms/LinkButton";
+import Button from "../atoms/Button";
 import CardCaption from "../atoms/CardCaption";
 import TextInput from "../atoms/TextInput";
+import ActionLinks from "../atoms/ActionLinks";
 
 const InputCard = ({
   t,
@@ -31,10 +31,10 @@ const InputCard = ({
       {texts?.header && <CardHeader>{t(texts.header)}</CardHeader>}
       {texts?.cardText && <CardText>{t(texts.cardText)}</CardText>}
       {children}
-      {texts.submitBarLabel ? <SubmitBar disabled={isDisable} submit={submit} label={t(texts.submitBarLabel)} onSubmit={onNext} /> : null}
+      {texts.submitBarLabel ? <Button disabled={isDisable} submit={submit} label={t(texts.submitBarLabel)} onClick={onNext} /> : null}
       {texts.skipLabel ? <CardText style={{ marginTop: "10px", textAlign: isMobile ? "center" : "left" }}> {t(texts.skipLabel)} </CardText> : null}
-      {texts.skipText ? <LinkButton label={t(texts.skipText)} onClick={onSkip} /> : null}
-      {isMultipleAllow && texts.addMultipleText ? <LinkButton label={t(texts.addMultipleText)} onClick={onAdd} /> : null}
+      {texts.skipText ? <ActionLinks label={t(texts.skipText)} onClick={onSkip} /> : null}
+      {isMultipleAllow && texts.addMultipleText ? <ActionLinks label={t(texts.addMultipleText)} onClick={onAdd} /> : null}
     </Card>
   );
 };

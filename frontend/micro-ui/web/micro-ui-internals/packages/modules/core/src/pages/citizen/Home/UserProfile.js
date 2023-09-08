@@ -10,7 +10,7 @@ import {
   BreadCrumb,
   BackButton,
   Loader,
-  SubmitBar,
+  Button,
 } from "@egovernments/digit-ui-components-core";
 import { CameraIcon } from "@egovernments/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
@@ -657,7 +657,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
 
       {userType === "employee" ? (
         <div className="action-bar-wrap">
-          <SubmitBar t={t} label={t("CORE_COMMON_SAVE")} onSubmit={updateProfile} />
+          <Button t={t} label={t("CORE_COMMON_SAVE")} onClick={updateProfile} />
           {/* <button
             onClick={updateProfile}
             style={{

@@ -1,16 +1,16 @@
 import React from "react";
 import Card from "../atoms/Card";
-import SubmitBar from "../atoms/SubmitBar";
+import Button from "./Button";
 
 const PageBasedInput = ({ children, texts, onSubmit }) => {
   return (
     <div className="PageBasedInputWrapper PageBased">
       <Card>
         {children}
-        <SubmitBar className="SubmitBarInCardInDesktopView" label={texts.submitBarLabel} onSubmit={onSubmit} />
+        <Button className="SubmitBarInCardInDesktopView" label={texts.submitBarLabel} onClick={onSubmit} />
       </Card>
       <div className="SubmitBar">
-        <SubmitBar label={texts.submitBarLabel} onSubmit={onSubmit} />
+        <Button label={texts.submitBarLabel} onClick={onSubmit} />
       </div>
     </div>
   );

@@ -13,7 +13,10 @@
   }
 
   h2 {
-    @apply font-rc font-medium text-legend text-white;
+    @apply font-rc font-medium text-white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
@@ -28,7 +31,10 @@
 
   h2 {
     @extend .light-primary;
-    @apply font-rc font-medium text-legend;
+    @apply font-rc font-medium;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   .disabled {
     opacity: 0.5;

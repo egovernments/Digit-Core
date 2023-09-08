@@ -3,8 +3,8 @@ import React, { useEffect, useState, useRef, forwardRef } from "react";
 import { ArrowBack, ArrowForward, ArrowToFirst, ArrowToLast, SortDown, SortUp, DoubleTickIcon } from "../../../react-components/src/atoms/svgindex";
 import CheckBox from "./CheckBox";
 import ActionBar from "./ActionBar";
-import SubmitBar from "./SubmitBar";
 import Toast from "./Toast";
+import Button from "./Button";
 
 const noop = () => {};
 
@@ -262,7 +262,7 @@ const Table = ({
               "COMMON_SELECTED"
             )}`}</p>
           </span>
-          <SubmitBar label={t(actionLabel)} onSubmit={handleSelection} />
+          <Button label={t(actionLabel)} onClick={handleSelection} />
         </ActionBar>
       )}
       {toast?.show && <Toast label={toast?.label} error={toast?.error} isDleteBtn={true} onClose={handleToastClose}></Toast>}

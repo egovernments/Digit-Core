@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import CitizenInfoLabel from "../atoms/CitizenInfoLabel";
 import  ActionBar from "../atoms/ActionBar";
-import SubmitBar from "../atoms/SubmitBar";
+import Button from "../atoms/Button";
 export const Details = ({ label, name, onClick}) => {
   return (
     <div className="detail" onClick={onClick}>
@@ -72,7 +72,7 @@ const DetailsCard = ({ data, serviceRequestIdKey, linkPrefix, handleSelect, sele
               fill={"#CC7B2F"}
             />:null}
             {showActionBar ? 
-              <SubmitBar onSubmit={() => handleDetailCardClick(object)} label={submitButtonLabel} />
+              <Button onClick={() => handleDetailCardClick(object)} label={submitButtonLabel} />
             :null}
           </div>
         );

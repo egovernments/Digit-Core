@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const ActionLinks = (props) => (
-  <span className={`digit-action-links ${props?.className ? props?.className : ""}`} style={props?.style}>
+  <span className={`digit-action-links ${props?.className ? props?.className : ""}`} style={props?.style} onClick={props?.onClick}>
     {props.children}
   </span>
 );

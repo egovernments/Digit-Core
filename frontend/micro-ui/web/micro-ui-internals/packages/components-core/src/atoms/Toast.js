@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { SVG } from "./SVG";
-import ButtonSelector from "./ButtonSelector";
+import Button from "./Button";
 
 const Toast = (props) => {
   if (props.error) {
@@ -31,8 +31,8 @@ const Toast = (props) => {
           }
           {props?.isWarningButtons ?
             <div style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
-              <ButtonSelector theme="border" label={"NO"} onSubmit={props.onNo} style={{ marginLeft: "10px" }} />
-              <ButtonSelector label={"YES"} onSubmit={props.onYes} style={{ marginLeft: "10px" }} />
+              <Button theme="border" label={"NO"} onClick={props.onNo} style={{ marginLeft: "10px" }} />
+              <Button label={"YES"} onClick={props.onYes} style={{ marginLeft: "10px" }} />
             </div> : null
           }
         </div>

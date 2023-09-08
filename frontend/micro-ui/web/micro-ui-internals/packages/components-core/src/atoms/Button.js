@@ -5,6 +5,7 @@ const Button = (props) => {
   let className = props?.variation !== "primary" ? `digit-button-secondary` : `digit-button-primary`;
   return (
     <button
+      ref={props?.ref}
       className={`${className} ${props?.className ? props?.className : ""} ${props?.isDisabled ? "disabled" : ""}`}
       type={props?.submit ? "submit" : props.type || "button"}
       form={props.formId}
