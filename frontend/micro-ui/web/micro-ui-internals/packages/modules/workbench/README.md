@@ -53,35 +53,35 @@ _Add this configuration to enable this module [MDMS Enabling Workbench Module](h
 
 ## List of Screens available in this versions were as follows
 
-1. Search Master Data
+1 . Search Master Data
     // TODO Add more information
 
 
-2. Add Master Data based on selected schema
+2 . Add Master Data based on selected schema
     // TODO Add more information
 
 
-3. Update Master data for selected data.
+3 . Update Master data for selected data.
     // TODO Add more information
 
 
 
-4. Localisation screens
+4 . Localisation screens
 
-5. MDMS UI Schema
+5 . MDMS UI Schema
 
-6. Data push for any API based on schema
+6 . Data push for any API based on schema
 
-# Mandatory changes to use Workbench module
+### Mandatory changes to use Workbench module
 
-1. Assuming core module is already updated with 1.5.38+ and related changes were taken
+1 . Assuming core module is already updated with 1.5.38+ and related changes were taken
 
-2. add the following hook method in micro-ui-internals/packages/libraries/src/hooks/useCustomAPIMutationHook.js
+2 . add the following hook method in micro-ui-internals/packages/libraries/src/hooks/useCustomAPIMutationHook.js
 
 reference:: 
 https://github.com/egovernments/DIGIT-Dev/blob/6e711bdc005c226c7debd533209681fc77078a3e/frontend/micro-ui/web/micro-ui-internals/packages/libraries/src/hooks/useCustomAPIMutationHook.js
 
-3. add the following utility method in micro-ui-internals/packages/libraries/src/utils/index.js
+3 . add the following utility method in micro-ui-internals/packages/libraries/src/utils/index.js
 ```jsx
 didEmployeeHasAtleastOneRole
 
@@ -91,7 +91,7 @@ const didEmployeeHasAtleastOneRole = (roles = []) => {
 
 ```
 
-4. stylesheet link has to be added 
+4 . stylesheet link has to be added 
 ```jsx
 <link rel="stylesheet" href="https://unpkg.com/@egovernments/digit-ui-css@1.2.114/dist/index.css" />
 ```
@@ -100,7 +100,7 @@ https://github.com/egovernments/DIGIT-OSS/pull/99/commits/6e711bdc005c226c7debd5
 
 
 
-# Changelog
+### Changelog
 
 ```bash
 1.0.0-beta workbench base version beta release
@@ -109,13 +109,26 @@ https://github.com/egovernments/DIGIT-OSS/pull/99/commits/6e711bdc005c226c7debd5
 0.0.1 base version
 ```
 
-# Contributors
+### Contributors
 
-[jagankumar-egov] [nipun-egov]
+- [jagankumar-egov](https://github.com/jagankumar-egov) 
+- [nipun-egov](https://github.com/nipun-egov)
 
-## Published from DIGIT Core 
-Digit Dev Repo (https://github.com/egovernments/Digit-Core/tree/digit-ui-core)
 
 ## License
 
-MIT © [jagankumar-egov](https://github.com/jagankumar-egov)
+[MIT](https://choosealicense.com/licenses/mit/)
+
+
+## Authors
+
+- [jagankumar-egov](https://www.github.com/jagankumar-egov)
+
+
+### Published from
+[Digit Core Repo](https://github.com/egovernments/Digit-Core/tree/digit-ui-core)
+
+
+
+![Logo](https://s3.ap-south-1.amazonaws.com/works-dev-asset/mseva-white-logo.png)
+
