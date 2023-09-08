@@ -17,7 +17,6 @@ import org.egov.inbox.web.model.elasticsearch.InboxElasticSearchCriteria;
 import org.egov.inbox.web.model.elasticsearch.InboxElasticSearchRequest;
 import org.egov.inbox.web.model.elasticsearch.UserDetailResponse;
 import org.egov.tracer.model.CustomException;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -61,21 +60,15 @@ public class ElasticSearchService {
 
     private String internalMicroserviceRoleUuid = null;
 
-    public static final String TENANTID_MDC_STRING = "TENANTID";
-
 
     @PostConstruct
     void initalizeSystemuser(){
-
-        // Adding in MDC so that tracer can add it in header
-        MDC.put(TENANTID_MDC_STRING, config.getStateLevelTenantId());
-
         RequestInfo requestInfo = new RequestInfo();
         StringBuilder uri = new StringBuilder();
         uri.append(config.getUserHost()).append(config.getUserSearchEndpoint()); // URL for user search call
         Map<String, Object> userSearchRequest = new HashMap<>();
         userSearchRequest.put("RequestInfo", requestInfo);
-        userSearchRequest.put("tenantId", config.getStateLevelTenantId());
+        userSearchRequest.put("tenantId", config.getParentLevelTenantId());
         userSearchRequest.put("roleCodes", Collections.singletonList(INTERNALMICROSERVICEROLE_CODE));
         try {
             LinkedHashMap<String, Object> responseMap = (LinkedHashMap<String, Object>) serviceRequestRepository.fetchResult(uri, userSearchRequest);
@@ -94,10 +87,10 @@ public class ElasticSearchService {
         //Creating role with INTERNAL_MICROSERVICE_ROLE
         Role role = Role.builder()
                 .name(INTERNALMICROSERVICEROLE_NAME).code(INTERNALMICROSERVICEROLE_CODE)
-                .tenantId(config.getStateLevelTenantId()).build();
+                .tenantId(config.getParentLevelTenantId()).build();
         User user = User.builder().userName(INTERNALMICROSERVICEUSER_USERNAME)
                 .name(INTERNALMICROSERVICEUSER_NAME).mobileNumber(INTERNALMICROSERVICEUSER_MOBILENO)
-                .type(INTERNALMICROSERVICEUSER_TYPE).tenantId( config.getStateLevelTenantId())
+                .type(INTERNALMICROSERVICEUSER_TYPE).tenantId(config.getParentLevelTenantId())
                 .roles(Collections.singletonList(role)).id(0L).build();
 
         userCreateRequest.put("RequestInfo", requestInfo);

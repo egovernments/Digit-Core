@@ -63,18 +63,14 @@ public class MDMSService {
 				if (i < countOfSubTenant)
 					tenantData = tenantIdMap.get(tenantIdWithData);
 
-				/*
-					Get data and break, so that it doesn't split tenantId any further.
-					Check before splitting tenantId if it contains '.'
-				 */
-				if(tenantData != null) {
-					getDataForTenatId(mdmsCriteriaReq, tenantIdWithData, responseMap);
-					break;
-				} else if (tenantIdWithData.contains(".")) {
+				if (tenantData == null) {
 					/*
 					 * trim the tenantId by "." separator to take the parent tenantId
 					 */
 					tenantIdWithData = tenantIdWithData.substring(0, tenantIdWithData.lastIndexOf("."));
+				} else {
+					getDataForTenatId(mdmsCriteriaReq, tenantIdWithData, responseMap);
+					break;
 				}
 			}
 		}

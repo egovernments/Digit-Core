@@ -29,11 +29,7 @@ public class InboxConstants {
 
     public static final String CREATED_TIME_KEY = "createdTime";
 
-    public static final String LAST_MODIFIED_TIME_KEY = "lastModifiedTime";
-
     public static final String BUSINESS_SERVICE_PATH = "$.currentProcessInstance.businessService";
-
-    public static final String STATE_UUID_PATH = "$.currentProcessInstance.state.uuid";
 
     public static final String APPLICATION_STATUS_KEY = "applicationstatus";
 
@@ -66,8 +62,6 @@ public class InboxConstants {
     public static final String ORDER_KEY = "order";
 
     public static final String SORT_KEY = "sort";
-
-    public static final String STATE_KEY = "state";
 
     public static final String TENANTID_KEY = "tenantId";
 

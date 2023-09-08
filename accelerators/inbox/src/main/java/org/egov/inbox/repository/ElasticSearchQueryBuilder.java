@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.inbox.config.InboxConfiguration;
 import org.egov.inbox.web.model.InboxSearchCriteria;
 import org.egov.tracer.model.CustomException;
@@ -33,9 +32,6 @@ public class ElasticSearchQueryBuilder {
     private InboxConfiguration config;
 
     private EncryptionService encryptionService;
-
-    @Autowired
-    private MultiStateInstanceUtil centralInstanceUtil;
 
     @Autowired
     public ElasticSearchQueryBuilder(ObjectMapper mapper, InboxConfiguration config, EncryptionService encryptionService) {
@@ -129,7 +125,7 @@ public class ElasticSearchQueryBuilder {
                 if (criteria == null) {
                     return null;
                 }
-                criteria.setModuleSearchCriteria(encryptionService.encryptJson(criteria.getModuleSearchCriteria(), "InboxWnS",centralInstanceUtil.getStateLevelTenant(criteria.getTenantId()), HashMap.class));
+                criteria.setModuleSearchCriteria(encryptionService.encryptJson(criteria.getModuleSearchCriteria(), "InboxWnS", criteria.getTenantId(), HashMap.class));
                 if (criteria == null) {
                     throw new CustomException("ENCRYPTION_NULL_ERROR", "Null object found on performing encryption");
                 }

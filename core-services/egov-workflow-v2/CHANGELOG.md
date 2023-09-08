@@ -3,9 +3,6 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
-## 1.3.1 - 2023-08-11
-- Central Instance Library Integration
-
 ## 1.3.0 - 2023-03-15
 - Separated out v1 and v2 business service APIs to maintain backward compatibility.
 - Added state level fallback on business service v2 search API.

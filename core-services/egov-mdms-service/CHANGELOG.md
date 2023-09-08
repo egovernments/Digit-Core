@@ -3,9 +3,6 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
-## 1.3.3 - 2023-08-11
-- Central Instance Library Integration
-
 ## 1.3.2 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 

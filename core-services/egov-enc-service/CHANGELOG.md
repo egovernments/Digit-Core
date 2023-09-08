@@ -3,9 +3,6 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
-## 1.1.4 - 2023-08-11
-- Central Instance Library Integration
-
 ## 1.1.3 - 2022007016
 - Fixed: In a multi pod cluster, the service now checks if another deployment of the service has added a new key to the 
   database,

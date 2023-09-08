@@ -231,21 +231,6 @@ public class WorkflowService {
 		return statusIdToApplicationStatusMap;
 	}
 
-	public Map<String, String> getStatusIdToStateMap(List<BusinessService> businessServices) {
-
-		Map<String,String> statusIdToStateMap = new HashMap<>();
-
-		businessServices.forEach(businessService -> {
-			businessService.getStates().forEach(state -> {
-						statusIdToStateMap.put(state.getUuid(), state.getState());
-				}
-			);
-		});
-
-		return statusIdToStateMap;
-
-	}
-
 	
 	private StringBuilder buildWorkflowUrl(ProcessInstanceSearchCriteria criteria, StringBuilder url,boolean noStatus) {
 		url.append("?tenantId=").append(criteria.getTenantId());

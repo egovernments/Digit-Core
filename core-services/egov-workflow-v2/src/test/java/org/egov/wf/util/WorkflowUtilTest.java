@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
@@ -41,13 +40,11 @@ class WorkflowUtilTest {
 
     @Autowired
     private WorkflowUtil workflowUtil;
-    
-    Map<String, Map<String,List<String>>> roleTenantAndStatusMapping = new HashMap<>();
 
    // @Test
 
     void testEnrichStatusesInSearchCriteria() {
-        when(this.businessServiceRepository.getRoleTenantAndStatusMapping("tenantId")).thenReturn(new HashMap<>());
+        when(this.businessServiceRepository.getRoleTenantAndStatusMapping()).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = new ProcessInstanceSearchCriteria();
         processInstanceSearchCriteria.setAssignee("Assignee");
@@ -75,7 +72,7 @@ class WorkflowUtilTest {
 
     void TestEnrichStatusesInSearchCriteria() {
 
-        when(this.businessServiceRepository.getRoleTenantAndStatusMapping("tenantId")).thenReturn(new HashMap<>());
+        when(this.businessServiceRepository.getRoleTenantAndStatusMapping()).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
@@ -104,7 +101,7 @@ class WorkflowUtilTest {
 
    // @Test
     void testEnrichStatusesInSearchCriteriaWithUser() {
-        when(this.businessServiceRepository.getRoleTenantAndStatusMapping("tenantId")).thenReturn(new HashMap<>());
+        when(this.businessServiceRepository.getRoleTenantAndStatusMapping()).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         User user = new User(123L, "janedoe", "Name", "Type", "42", "42", new ArrayList<>(), "42",
@@ -131,8 +128,8 @@ class WorkflowUtilTest {
         processInstanceSearchCriteria.setTenantId("42");
         processInstanceSearchCriteria.setTenantSpecifiStatus(new ArrayList<>());
         processInstanceSearchCriteria.setToDate(1L);
-        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria, roleTenantAndStatusMapping);
-        verify(this.businessServiceRepository).getRoleTenantAndStatusMapping("tenantId");
+        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria);
+        verify(this.businessServiceRepository).getRoleTenantAndStatusMapping();
         User userInfo = requestInfo.getUserInfo();
         assertSame(user, userInfo);
         assertEquals("Assignee", processInstanceSearchCriteria.getAssignee());
@@ -159,7 +156,7 @@ class WorkflowUtilTest {
 
    // @Test
     void testEnrichStatusesInSearchCriteriaWithAddRole() {
-        when(this.businessServiceRepository.getRoleTenantAndStatusMapping("tenantId")).thenReturn(new HashMap<>());
+        when(this.businessServiceRepository.getRoleTenantAndStatusMapping()).thenReturn(new HashMap<>());
 
         ArrayList<Role> roleList = new ArrayList<>();
         roleList.add(new Role());
@@ -188,13 +185,13 @@ class WorkflowUtilTest {
         processInstanceSearchCriteria.setTenantId("42");
         processInstanceSearchCriteria.setTenantSpecifiStatus(new ArrayList<>());
         processInstanceSearchCriteria.setToDate(1L);
-        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria, roleTenantAndStatusMapping);
-        verify(this.businessServiceRepository).getRoleTenantAndStatusMapping("tenantId");
+        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria);
+        verify(this.businessServiceRepository).getRoleTenantAndStatusMapping();
     }
 
   //  @Test
     void testEnrichStatusesInSearchCriteriaWithRoleList() {
-        when(this.businessServiceRepository.getRoleTenantAndStatusMapping("tenantId")).thenReturn(new HashMap<>());
+        when(this.businessServiceRepository.getRoleTenantAndStatusMapping()).thenReturn(new HashMap<>());
 
         ArrayList<Role> roleList = new ArrayList<>();
         roleList.add(new Role());
@@ -224,15 +221,15 @@ class WorkflowUtilTest {
         processInstanceSearchCriteria.setTenantId("42");
         processInstanceSearchCriteria.setTenantSpecifiStatus(new ArrayList<>());
         processInstanceSearchCriteria.setToDate(1L);
-        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria, roleTenantAndStatusMapping);
-        verify(this.businessServiceRepository).getRoleTenantAndStatusMapping("tenantId");
+        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria);
+        verify(this.businessServiceRepository).getRoleTenantAndStatusMapping();
     }
 
    // @Test
 
     void testEnrichStatusesInSearchCriteriaWithNull() {
 
-        when(this.businessServiceRepository.getRoleTenantAndStatusMapping("tenantId")).thenReturn(new HashMap<>());
+        when(this.businessServiceRepository.getRoleTenantAndStatusMapping()).thenReturn(new HashMap<>());
 
         ArrayList<Role> roleList = new ArrayList<>();
         roleList.add(null);
