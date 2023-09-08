@@ -28,5 +28,12 @@
         "react-time-picker": "4.2.1",
         "recharts": "^2.0.9"
     },
-    "keywords": ["digit","egov","dpg","digit-ui","engagement"]
+    "author": "JaganKumar <jagan.kumar@egov.org.in>",
+    "keywords": [
+        "digit",
+        "egov",
+        "dpg",
+        "digit-ui",
+        "engagement"
+    ]
 }

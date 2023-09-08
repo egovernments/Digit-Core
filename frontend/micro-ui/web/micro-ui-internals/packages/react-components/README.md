@@ -88,6 +88,7 @@ Syntax for the FormComposersV2
 # Changelog
 
 ```bash
+1.8.0-beta workbench base version beta release
 1.5.28 passing response data in case for custom component in inbox composer
 1.5.27 integrated with the svg library
 1.5.26 fixed shipping truck icon fill issue

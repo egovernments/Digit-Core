@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "react-query";
-import { LocalisationSearch } from "./utils/LocalisationSearch";
+import { LocalisationSearch } from "../utils/LocalisationSearch";
 
 const useLocalisationSearch = ({url, params, body, config = {}, plainAccessRequest,changeQueryName="Random",state }) => {
   const client = useQueryClient();

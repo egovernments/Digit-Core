@@ -1,5 +1,3 @@
-<!-- TODO: update this -->
-
 # digit-ui-module-workbench
 
 ## Install
@@ -23,7 +21,7 @@ frontend/micro-ui/web/package.json
 ```
 
 ```json
-"@egovernments/digit-ui-module-workbench":"0.0.1",
+"@egovernments/digit-ui-module-workbench":"0.1.0",
 ```
 
 then navigate to App.js
@@ -66,6 +64,14 @@ _Add this configuration to enable this module [MDMS Enabling Workbench Module](h
 3. Update Master data for selected data.
     // TODO Add more information
 
+
+
+4. Localisation screens
+
+5. MDMS UI Schema
+
+6. Data push for any API based on schema
+
 # Mandatory changes to use Workbench module
 
 1. Assuming core module is already updated with 1.5.38+ and related changes were taken
@@ -92,16 +98,12 @@ const didEmployeeHasAtleastOneRole = (roles = []) => {
 Reference commit for the enabling workbench
 https://github.com/egovernments/DIGIT-OSS/pull/99/commits/6e711bdc005c226c7debd533209681fc77078a3e
 
-## Coming Soon
-
-1. Localisation screens
-2. MDMS UI Schema
-3. Data push for any API based on schema
 
 
 # Changelog
 
 ```bash
+1.0.0-beta workbench base version beta release
 0.0.3 readme updated
 0.0.2 readme updated
 0.0.1 base version
@@ -109,7 +111,7 @@ https://github.com/egovernments/DIGIT-OSS/pull/99/commits/6e711bdc005c226c7debd5
 
 # Contributors
 
-[jagankumar-egov] 
+[jagankumar-egov] [nipun-egov]
 
 ## Published from DIGIT Core 
 Digit Dev Repo (https://github.com/egovernments/Digit-Core/tree/digit-ui-core)

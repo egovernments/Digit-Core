@@ -56,6 +56,7 @@ const initDigitUI = () => {
 # Changelog
 
 ```bash
+1.8.0-beta workbench base version beta release
 1.5.31 updated the readme content
 1.5.30 Fixes mannual receipt date range validation, Cheque and card number validation for FSM
 1.5.29 version upgraded for fixes in payment modules

@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-module-common",
-  "version": "1.5.31",
+  "version": "1.8.0-beta",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
@@ -22,5 +22,13 @@
     "react-query": "3.6.1",
     "react-router-dom": "5.3.0"
   },
-  "keywords": ["digit","egov","dpg","digit-ui","common","payment"]
+  "author": "JaganKumar <jagan.kumar@egov.org.in>",
+  "keywords": [
+    "digit",
+    "egov",
+    "dpg",
+    "digit-ui",
+    "common",
+    "payment"
+  ]
 }
