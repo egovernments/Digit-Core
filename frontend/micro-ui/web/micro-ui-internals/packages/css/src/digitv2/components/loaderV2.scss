@@ -1,0 +1,81 @@
+@import url("../index.scss");
+
+.digit-screen-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  @extend .light-background;
+  .digit-ldio-pjg92h09b2o div {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border: 12px solid theme(digitv2.lightTheme.primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+  }
+}
+
+.digit-page-loader,
+.digit-module-loader {
+  text-align: center;
+}
+
+.digit-page-loader {
+  padding-top: 88px;
+}
+
+.digit-module-loader {
+  padding: 16px;
+}
+
+@keyframes digit-ldio-pjg92h09b2o {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.digit-ldio-pjg92h09b2o div {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border: 12px solid theme(colors.secondary);
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+
+.digit-ldio-pjg92h09b2o div {
+  animation: digit-ldio-pjg92h09b2o 1s linear infinite;
+  top: 50px;
+  left: 50px;
+}
+
+.digit-loadingio-spinner-rolling-faewnb8ux8 {
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  overflow: hidden;
+  background: none;
+}
+
+.digit-ldio-pjg92h09b2o {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform: translateZ(0) scale(0.48);
+  backface-visibility: hidden;
+  transform-origin: 0 0;
+}
+
+.digit-ldio-pjg92h09b2o div {
+  box-sizing: content-box;
+}

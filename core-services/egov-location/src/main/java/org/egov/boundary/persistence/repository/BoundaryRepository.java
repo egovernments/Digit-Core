@@ -45,6 +45,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.egov.boundary.domain.model.Boundary;
@@ -80,8 +81,7 @@ public class BoundaryRepository {
 	private MdmsRepository mdmsRepository;
 
 	@Autowired
-	public BoundaryRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, JdbcTemplate jdbcTemplate,
-			MdmsRepository mdmsRepository) {
+	public BoundaryRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, JdbcTemplate jdbcTemplate, MdmsRepository mdmsRepository) {
 		this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
 		this.jdbcTemplate = jdbcTemplate;
 		this.mdmsRepository = mdmsRepository;
@@ -210,8 +210,7 @@ public class BoundaryRepository {
 		return BoundaryList.get(0);
 	}
 
-	public List<Boundary> getAllBoundariesByBoundaryTypeIdAndTenantId(final Long boundaryTypeId,
-			final String tenantId) {
+	public List<Boundary> getAllBoundariesByBoundaryTypeIdAndTenantId(final Long boundaryTypeId, final String tenantId) {
 		Map<String, Object> parametersMap = new HashMap<String, Object>();
 		parametersMap.put("boundaryTypeId", boundaryTypeId);
 		parametersMap.put("tenantId", tenantId);
@@ -227,8 +226,7 @@ public class BoundaryRepository {
 		return boundaryList;
 	}
 
-	public List<Boundary> getBoundariesByBndryTypeNameAndHierarchyTypeNameAndTenantId(final String boundaryTypeName,
-			final String hierarchyTypeName, final String tenantId) {
+	public List<Boundary> getBoundariesByBndryTypeNameAndHierarchyTypeNameAndTenantId(final String boundaryTypeName, final String hierarchyTypeName, final String tenantId) {
 		Map<String, Object> parametersMap = new HashMap<String, Object>();
 		parametersMap.put("boundaryTypeName", boundaryTypeName);
 		parametersMap.put("hierarchyTypeName", hierarchyTypeName);
@@ -304,7 +302,7 @@ public class BoundaryRepository {
 		if (boundarySearchRequest.getBoundaryTypeIds() != null
 				&& !boundarySearchRequest.getBoundaryTypeIds().isEmpty()) {
 			boundaryList = boundaryList.stream().filter(
-					p -> boundarySearchRequest.getBoundaryTypeIds().contains(Long.valueOf(p.getBoundaryType().getId())))
+							p -> boundarySearchRequest.getBoundaryTypeIds().contains(Long.valueOf(p.getBoundaryType().getId())))
 					.collect(Collectors.toList());
 		}
 		if (boundarySearchRequest.getHierarchyTypeIds() != null
@@ -342,8 +340,7 @@ public class BoundaryRepository {
 		return boundaryList;
 	}
 
-	public List<MdmsTenantBoundary> getBoundariesByTenantAndHierarchyType(BoundarySearchRequest boundarySearchRequest,
-			RequestInfo requestInfo) {
+	public List<MdmsTenantBoundary> getBoundariesByTenantAndHierarchyType(BoundarySearchRequest boundarySearchRequest, RequestInfo requestInfo) {
 		Long startTime = null;
 		Long endTime = null;
 		JSONArray responseJSONArray;
@@ -378,8 +375,12 @@ public class BoundaryRepository {
 				if (boundarySearchRequest.getCodes() != null && !boundarySearchRequest.getCodes().isEmpty()) {
 					list.clear();
 					start = new Date().getTime();
-					list = filterBoundaryCodes(tenantBndry.getBoundary().getChildren(),
-							boundarySearchRequest.getCodes());
+					if(isRootLevelBoundaryType){
+						list = filterBoundaryCodes(Collections.singletonList(tenantBndry.getBoundary()), boundarySearchRequest.getCodes());
+					}else {
+						list = filterBoundaryCodes(tenantBndry.getBoundary().getChildren(),
+								boundarySearchRequest.getCodes());
+					}
 					end = new Date().getTime();
 					logger.info("TIME TAKEN for filterBoundaryCodes() = " + (end - start) + "ms");
 				}
@@ -408,7 +409,11 @@ public class BoundaryRepository {
 					list = list.stream()
 							.filter(p -> boundarySearchRequest.getBoundaryTypeName().equalsIgnoreCase(p.getLabel()))
 							.collect(Collectors.toList());
-					list = filterBoundaryCodes(list, boundarySearchRequest.getCodes());
+					if(isRootLevelBoundaryType){
+						list = filterBoundaryCodes(Collections.singletonList(tenantBndry.getBoundary()), boundarySearchRequest.getCodes());
+					}else {
+						list = filterBoundaryCodes(list, boundarySearchRequest.getCodes());
+					}
 				}
 				mdmsBoundary.setBoundary(list);
 				boundaryList.add(mdmsBoundary);
@@ -416,7 +421,7 @@ public class BoundaryRepository {
 		}
 		endTime = new Date().getTime();
 		logger.info("TIME TAKEN to process the MDMS search result = " + (endTime - startTime) + "ms");
-		
+
 		return boundaryList;
 	}
 
@@ -500,6 +505,22 @@ public class BoundaryRepository {
 		}
 		if (boundaryList3 != null && !boundaryList3.isEmpty()) {
 			for (MdmsBoundary boundary12 : boundaryList3) {
+				boundaryList.add(boundary12);
+			}
+		}
+
+		List<MdmsBoundary> boundaryList4 = new ArrayList<>();
+		if (boundaryList3 != null && !boundaryList3.isEmpty()) {
+			for (MdmsBoundary bndry : boundaryList3) {
+				if (bndry.getChildren() != null) {
+					for (MdmsBoundary bndry1 : bndry.getChildren()) {
+						boundaryList4.add(bndry1);
+					}
+				}
+			}
+		}
+		if (boundaryList4 != null && !boundaryList4.isEmpty()) {
+			for (MdmsBoundary boundary12 : boundaryList4) {
 				boundaryList.add(boundary12);
 			}
 		}
