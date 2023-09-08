@@ -76,6 +76,17 @@ function splitArrayIntoDynamicSubsetsByProperty(array, propertyKey) {
   return subsets;
 }
 
+function filterObjectsByKeys(objArray, keysArray) {
+  return objArray.map(obj => {
+    const filteredObj = {};
+    keysArray.forEach(key => {
+      if (obj.hasOwnProperty(key)) {
+        filteredObj[key] = obj[key];
+      }
+    });
+    return filteredObj;
+  });
+}
 
 function splitArrayIntoDynamicSubsetsByPropertyAndKeys(array, propertyKey, keysToInclude) {
   const uniquePropertyValuesSet = new Set(array.map(item => item[propertyKey]));
@@ -492,9 +503,14 @@ const LocalisationAdd = () => {
       }
     })
 
-    const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
+    
+    const filteredResult = [filterObjectsByKeys(updatedResult,["message","module","locale","code"])]
+    const filteredResultDefault = [filterObjectsByKeys(updatedResultDefault,["message","module","locale","code"])]
+   
+    //commenting this code since we can upsert multiple modules in one go(reducing number of api calls)
+    // const filteredResult = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResult,"module",["message","module","locale","code"])
 
-    const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
+    // const filteredResultDefault = splitArrayIntoDynamicSubsetsByPropertyAndKeys(updatedResultDefault,"module",["message","module","locale","code"])
 
     setJsonResult(filteredResult)
     setJsonResultDefault(filteredResultDefault)
