@@ -271,15 +271,16 @@ const DashBoard = ({ stateCode }) => {
             {t(dashboardConfig?.[0]?.name)}
           </Header>
           {mobileView ? null : (
-            <div className="divToBeHidden">
-              <div className="mrlg divToBeHidden">
+            <div className="divToBeHidden" style={{marginRight:"1.5rem"}}>
+              <div className="mrlg divToBeHidden" >
                 <MultiLink
                   className="multilink-block-wrapper divToBeHidden"
                   label={t(`ES_DSS_SHARE`)}
-                  icon={<ShareIcon className="mrsm" />}
+                  icon={<ShareIcon className="mrsm" fill="#f18f5e"/>}
                   // showOptions={(e) => {
                   // setShowOptions(e)}
                   // }
+                  setShowOptions={setShowOptions}
                   onHeadClick={(e) => {
                     setShowOptions(!showOptions);
                   }}
@@ -287,9 +288,9 @@ const DashBoard = ({ stateCode }) => {
                   options={shareOptions}
                 />
               </div>
-              <div className="mrsm divToBeHidden" onClick={handlePrint}>
-                <DownloadIcon className="mrsm divToBeHidden" />
-                {t(`ES_DSS_DOWNLOAD`)}
+              <div className="mrsm divToBeHidden icon-label-download" onClick={handlePrint} >
+                <DownloadIcon fill="#f18f5e" className="mrsm divToBeHidden" />
+                <p>{t(`ES_DSS_DOWNLOAD`)}</p>
               </div>
             </div>
           )}
@@ -450,7 +451,7 @@ const DashBoard = ({ stateCode }) => {
               <MultiLink
                 className="multilink-block-wrapper"
                 label={t(`ES_DSS_SHARE`)}
-                icon={<ShareIcon className="mrsm" />}
+                icon={<ShareIcon className="mrsm" fill="#f18f5e"/>}
                 onHeadClick={(e) => {
                   setShowOptions(!showOptions);
                 }}
@@ -458,8 +459,8 @@ const DashBoard = ({ stateCode }) => {
                 options={shareOptions}
               />
             </div>
-            <div onClick={handlePrint} className="divToBeHidden">
-              <DownloadIcon />
+            <div onClick={handlePrint} className="divToBeHidden icon-label-download" >
+              <DownloadIcon fill="#f18f5e"/>
               {t(`ES_DSS_DOWNLOAD`)}
             </div>
           </div>

@@ -326,7 +326,7 @@ const Home = ({ stateCode }) => {
                 <MultiLink
                   className="multilink-block-wrapper"
                   label={t(`ES_DSS_SHARE`)}
-                  icon={<ShareIcon className="mrsm" />}
+                  icon={<ShareIcon className="mrsm" fill="#f18f5e" />}
                   showOptions={(e) => setShowOptions(e)}
                   onHeadClick={(e) => setShowOptions(e !== undefined ? e : !showOptions)}
                   displayOptions={showOptions}
@@ -334,7 +334,7 @@ const Home = ({ stateCode }) => {
                 />
               </div>
               <div className="mrsm" onClick={handlePrint}>
-                <DownloadIcon className="mrsm" />
+                <DownloadIcon className="mrsm" fill="#f18f5e"/>
                 {t(`ES_DSS_DOWNLOAD`)}
               </div>
             </div>
@@ -347,7 +347,7 @@ const Home = ({ stateCode }) => {
               <MultiLink
                 className="multilink-block-wrapper"
                 label={t(`ES_DSS_SHARE`)}
-                icon={<ShareIcon className="mrsm" />}
+                icon={<ShareIcon className="mrsm" fill="#f18f5e" />}
                 showOptions={(e) => setShowOptions(e)}
                 onHeadClick={(e) => setShowOptions(e !== undefined ? e : !showOptions)}
                 displayOptions={showOptions}
@@ -355,7 +355,7 @@ const Home = ({ stateCode }) => {
               />
             </div>
             <div onClick={handlePrint}>
-              <DownloadIcon />
+              <DownloadIcon fill="#f18f5e"/>
               {t(`ES_DSS_DOWNLOAD`)}
             </div>
           </div>

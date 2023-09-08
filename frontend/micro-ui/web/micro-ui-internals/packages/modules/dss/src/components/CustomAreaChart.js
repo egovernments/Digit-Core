@@ -51,6 +51,7 @@ const renderUnits = (t, denomination, symbol) => {
 };
 
 const CustomAreaChart = ({ xDataKey = "name", yDataKey = getValue, data, setChartDenomination }) => {
+  
   const lineLegend = {
     margin: "10px",
   };
@@ -290,12 +291,12 @@ const CustomAreaChart = ({ xDataKey = "name", yDataKey = getValue, data, setChar
             margin={{
               top: 15,
               right: 5,
-              left: 20,
+              left: 5,
               bottom: 5,
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis dataKey="name" tick={{fontSize:"14px"}} />
             <YAxis
             tickFormatter={yAxistickFormatter}
             /*

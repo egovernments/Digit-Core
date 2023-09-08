@@ -96,7 +96,8 @@ const CustomHorizontalBarChart = ({
 
   const tickFormatter = (value) => {
     if (typeof value === "string") {
-      return value.replace("-", ", ");
+      return value
+      // return value.replace("-", ", ");
     }
     else if(typeof value === "number")
       return Digit.Utils.dss.formatter(value, 'number', value?.denomination, true, t);
@@ -125,11 +126,11 @@ const CustomHorizontalBarChart = ({
     <Fragment>
       {horizontalBarv2 ? 
        <ResponsiveContainer
-       width="100%"
-       height={chartData?.length === 0 ? 250 : chartData?.length === 1 ? 40 : chartData?.length * 28 + 10}
+       width="90%"
+       height={chartData?.length === 0 ? 250 : chartData?.length === 1 ? 40 : chartData?.length * 48 + 10}
        margin={{
          top: 5,
-         right: 8,
+         right: 5,
          left: 0,
          bottom: 0,
        }}
@@ -138,11 +139,11 @@ const CustomHorizontalBarChart = ({
          <NoData t={t} />
        ) : (
          <BarChart 
-           width="100%"
+           width="110%"
            height="90%"
            margin={{
              top: 0,
-             right: 24,
+             right: 60,
              left: 0,
              bottom: -32,
            }}
@@ -199,7 +200,7 @@ const CustomHorizontalBarChart = ({
             width="100%"
             height="100%"
             margin={{
-              top: 5,
+              top: 40,
               right: 5,
               left: 5,
               bottom: 5,
@@ -230,7 +231,7 @@ const CustomHorizontalBarChart = ({
             <XAxis dataKey={xDataKey} type={xAxisType} tick={{ fontSize: "14px", fill: "#505A5F" }} tickCount={10} tickFormatter={tickFormatter} />
             {bars?.map((bar, id) => ( <Bar key={id} dataKey={t(bar)} fill={barColors[id]} stackId={bars?.length > 2 ? 1 : id} />
         ))}
-            <Legend formatter={renderLegend} iconType="circle" />
+            <Legend formatter={renderLegend} iconType="circle" wrapperStyle={{ marginBottom: '-1rem' }} />
             <Tooltip cursor={false} formatter={tooltipFormatter} />
           </BarChart>
         )}

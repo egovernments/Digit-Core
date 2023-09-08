@@ -75,7 +75,7 @@ const ColumnMetricData = ({data, setChartDenomination, index }) => {
   
     return (
       <div style={{marginLeft: "8px", marginRight: "8px", maxWidth: "21%", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
-        {response ? <p className="heading-m" style={{ textAlign: "center", paddingTop: "0px", wordWrap: "break-word", paddingBottom: "0px", marginLeft: "0px"}}>
+        {response ? <p className="heading-m" style={{ textAlign: "center", paddingTop: "0px", wordWrap: "break-word", paddingBottom: "0px", marginLeft: "0px",marginBottom:"0px"}}>
             {`${Digit.Utils.dss.formatter(response?.responseData?.data?.[0]?.headerValue, response?.responseData?.data?.[0]?.headerSymbol, value?.denomination, true, t)}`}
         </p> : <div style={{ whiteSpace: "pre" }}>{t("DSS_NO_DATA")}</div>}
         <div className={`tooltip`} style={{marginLeft: "42px", paddingLeft: "32px"}}>
@@ -200,7 +200,7 @@ const MetricChart = ({ data, setChartDenomination }) => {
   const { charts } = data;
   return (
     <>
-    <span className={`chart-metric-wrapper`} style={{flexWrap: "wrap", display: "flex"}}>
+    <span className={`chart-metric-wrapper`} style={data?.isHorizontalChart ?{flexWrap: "wrap", display: "flex",justifyContent: "space-evenly"} : {flexWrap: "wrap", display: "flex"}}>
   
       {charts.map((chart, index) => (
         
