@@ -53,6 +53,8 @@ const initDigitUI = () => {
 
 ```bash
 1.8.0-beta workbench base version beta release
+1.7.0 urban 2.9
+1.6.0 urban 2.8
 1.5.27 updated the readme content
 1.5.26 some issue
 1.5.25 corrected the bredcrumb issue

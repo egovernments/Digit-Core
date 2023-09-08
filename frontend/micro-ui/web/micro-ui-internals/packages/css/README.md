@@ -43,6 +43,8 @@ frontend/micro-ui/web/public/index.html
 
 ```bash
 1.8.0-beta added workbench related css and some new Digit v2 constants based on em
+1.7.0 urban 2.9
+1.6.0 urban 2.8
 1.5.37 updated the readme content
 1.5.36 enhanced the formcomposer with header attribute
 1.5.35 Fixed the card css issues
