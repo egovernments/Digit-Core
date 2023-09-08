@@ -187,6 +187,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
             _.set(schema?.definition?.properties, updatedPath, {
               ..._.get(schema?.definition?.properties, updatedPath, {}),
               enum: additonalData?.[dependent?.schemaCode],
+              schemaCode : dependent?.schemaCode
             });
           }
         }

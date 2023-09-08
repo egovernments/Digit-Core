@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Select from "react-select";
+import { useTranslation } from "react-i18next";
+
 
 const customStyles = {
   control: (provided, state) => ({
@@ -14,15 +16,20 @@ const customStyles = {
 
 /* Multiple support not added TODO jagan to fix this issue */
 const CustomSelectWidget = (props) => {
-  const { options, value, disabled, readonly, onChange, onBlur, onFocus, placeholder, multiple = false } = props;
+  const { t } = useTranslation();
+  const { moduleName, masterName } = Digit.Hooks.useQueryParams();
+  const { options, value, disabled, readonly, onChange, onBlur, onFocus, placeholder, multiple = false ,schema={schemaCode:""}} = props;
+  const {schemaCode=`${moduleName}.${masterName}`} = schema;
   const handleChange = (selectedValue) => onChange(multiple ? selectedValue?.value : selectedValue?.value);
   const optionsList = options?.enumOptions || options || [];
-  const selectedOption = optionsList?.filter((obj) => (multiple ? value?.includes(obj.value) : obj.value == value));
+  const formattedOptions=React.useMemo(()=>optionsList.map(e=>({label:t(Digit.Utils.locale.getTransformedLocale(`${schemaCode}_${e?.label}`)),value:e.value})),[optionsList,schemaCode]);
+  const selectedOption = formattedOptions?.filter((obj) => (multiple ? value?.includes(obj.value) : obj.value == value));
+ 
   return (
     <Select
       className="form-control form-select"
       classNamePrefix="digit"
-      options={optionsList}
+      options={formattedOptions}
       isDisabled={disabled || readonly}
       placeholder={placeholder}
       onBlur={onBlur}
