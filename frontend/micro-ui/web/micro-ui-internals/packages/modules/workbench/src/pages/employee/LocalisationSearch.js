@@ -58,9 +58,9 @@ const LocalisationSearch = () => {
       let label = `${t("WBH_LOC_UPDATE_FAIL")}: `
       resp?.response?.data?.Errors?.map((err,idx) => {
         if(idx===resp?.response?.data?.Errors?.length-1){
-          label = label + err?.code + '.'
+          label = label + t(Digit.Utils.locale.getTransformedLocale(err?.code)) + '.'
         }else{
-        label = label + err?.code + ', '
+        label = label + t(Digit.Utils.locale.getTransformedLocale(err?.code)) + ', '
         }
       })
       setShowToast({ label, isError: true });

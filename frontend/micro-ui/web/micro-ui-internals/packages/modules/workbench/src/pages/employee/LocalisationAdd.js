@@ -299,7 +299,7 @@ const LocalisationAdd = () => {
     
     if (hasDuplicateKeycode) {
       setShowToast({
-        label: "WBH_LOC_SAME_KEY_VALIDATION_ERR",
+        label: t("WBH_LOC_SAME_KEY_VALIDATION_ERR"),
         isError: true,
       });
       closeToast()
@@ -307,7 +307,7 @@ const LocalisationAdd = () => {
     }
     if (hasEmptyMessageOrCode) {
       setShowToast({
-        label: "WBH_LOC_EMPTY_KEY_VALUE_VALIDATION_ERR",
+        label: t("WBH_LOC_EMPTY_KEY_VALUE_VALIDATION_ERR"),
         isError: true,
       });
       closeToast()
@@ -447,7 +447,15 @@ const LocalisationAdd = () => {
       closeToast();
     };
     const onError = (resp) => {
-      setShowToast({ label: `${t("WBH_LOC_UPSERT_FAIL")}`, isError: true });
+      let label = `${t("WBH_LOC_UPSERT_FAIL")}: `
+      resp?.response?.data?.Errors?.map((err,idx) => {
+        if(idx===resp?.response?.data?.Errors?.length-1){
+          label = label + t(Digit.Utils.locale.getTransformedLocale(err?.code)) + '.'
+        }else{
+        label = label + t(Digit.Utils.locale.getTransformedLocale(err?.code)) + ', '
+        }
+      })
+      setShowToast({ label, isError: true });
       closeToast();
     };
 
@@ -455,7 +463,7 @@ const LocalisationAdd = () => {
       await Promise.all(promises);
       onSuccess();
     } catch (error) {
-      onError();
+      onError(error);
     }
   };
 
