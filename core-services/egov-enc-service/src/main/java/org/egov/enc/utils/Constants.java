@@ -6,4 +6,6 @@ public class Constants {
 
     public static final String INVALD_DATA_TYPE = " is an Invalid Data Type";
 
+    public static final String TENANTID_MDC_STRING = "TENANTID";
+
 }

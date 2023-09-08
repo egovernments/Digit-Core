@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.2.7 - 2023-08-11
+- Central Instance Library Integration
+
 ## 1.2.6 - 2023-03-31
 - Fixed bug where employee search causes server error in single instance clusters.
 

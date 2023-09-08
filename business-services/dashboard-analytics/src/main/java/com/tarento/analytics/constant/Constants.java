@@ -114,6 +114,8 @@ public class Constants {
 		final static String KEY = "key";
 		final static String TENANT_ID = "tenantId";
 
+		static final String TENANTID_MDC_STRING = "TENANTID";
+
 	}
 
 	public enum  Interval {

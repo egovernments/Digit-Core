@@ -18,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tarento.analytics.constant.Constants.MDMSKeys.TENANTID_MDC_STRING;
 import static javax.servlet.http.HttpServletRequest.BASIC_AUTH;
 import static org.apache.commons.codec.CharEncoding.US_ASCII;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -36,6 +37,9 @@ public class RestService {
     private String userName;
     @Value("${egov.es.password}")
     private String password;
+
+    @Value("${egov.statelevel.tenantId}")
+    private  String stateLevelTenantId ;
 
     @Autowired
     private RetryTemplate retryTemplate;
@@ -86,6 +90,9 @@ public class RestService {
         if(authToken != null && !authToken.isEmpty())
             headers.add("Authorization", "Bearer "+ authToken );
         headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // This line of code is only for central instance changes
+        headers.set(TENANTID_MDC_STRING,stateLevelTenantId);
 
         LOGGER.info("Request URI: " + uri + ", Node: " + requestNode);
         HttpEntity<String> requestEntity = null;

@@ -2,6 +2,7 @@ package org.egov.persistence.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.domain.model.OtpRequest;
 import org.egov.domain.model.OtpRequestType;
 import org.egov.domain.service.LocalizationService;
@@ -38,6 +39,8 @@ public class OtpEmailRepository {
 	@Value("${egov.localisation.tenantid.strip.suffix.count}")
 	private int tenantIdStripSuffixCount;
 
+	@Autowired
+	private MultiStateInstanceUtil centralInstanceUtil;
 
     @Autowired
     public OtpEmailRepository(CustomKafkaTemplate<String, EmailRequest> kafkaTemplate,
@@ -61,7 +64,8 @@ public class OtpEmailRepository {
 			.emailTo(Collections.singleton(emailId))
 			.build();
 		EmailRequest emailRequest = EmailRequest.builder().requestInfo(RequestInfo.builder().build()).email(email).build();
-		kafkaTemplate.send(emailTopic, emailRequest);
+		String updatedTopic = centralInstanceUtil.getStateSpecificTopicName(otpRequest.getTenantId(), emailTopic);
+		kafkaTemplate.send(updatedTopic, emailRequest);
 	}
 
 	private String getLocale(OtpRequest otpRequest){
