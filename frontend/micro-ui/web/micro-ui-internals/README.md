@@ -11,13 +11,7 @@ This repository contains source code for web implementation of the new Digit UI 
 
 #### Reference Docs
 
-###### Module wise reference docs
-
-| Module         | Reference Docs                                                                                               |
-| -------------- | ------------------------------------------------------------------------------------------------------------ |
-| PGR            | https://digit-discuss.atlassian.net/wiki/spaces/EPE/pages/1285587062/PGR+UI+Implementation+-+Guidelines+FAQs |
-| FSM            | https://digit-discuss.atlassian.net/wiki/spaces/EPE/pages/1290567710/FSM+UI+Implementation+-+Guidelines+FAQs |
-| DIGIT Services | https://digit-discuss.atlassian.net/wiki/spaces/DD/pages/647364616/DIGIT+Services                            |
+https://core.digit.org/guides/developer-guide/ui-developer-guide/run-application                 |
 
 ###### Dependencies and their references
 
