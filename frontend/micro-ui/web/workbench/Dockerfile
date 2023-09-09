@@ -16,6 +16,7 @@ RUN cd web/ \
     && cd workbench/ \
     &&  ./install-deps.sh \
     && cd ../ \
+    && yarn install \ 
     && yarn build:webpack 
 
 FROM nginx:mainline-alpine
