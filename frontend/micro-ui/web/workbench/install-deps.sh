@@ -14,11 +14,9 @@ cp workbench/inter-package.json $INTERNALS/package.json
 
 cp $INTERNALS/example/src/UICustomizations.js src/Customisations
 
-cd $INTERNALS && echo "UI :: Workbench " && echo "Branch: $(git branch --show-current)" && echo "$(git log -1 --pretty=%B)" && echo "installing packages" && yarn install && echo "starting build" && yarn build && echo "building finished"  && find . -name "node_modules" -type d -prune -print -exec rm -rf '{}' \; 
+echo "UI :: Workbench " && echo "Branch: $(git branch --show-current)" && echo "$(git log -1 --pretty=%B)" && echo "installing packages" && yarn install 
+cd $INTERNALS && echo "starting build" && yarn build && echo "building finished" 
 
 cd ..
-
-rm -rf node_modules
-rm -f yarn.lock
 
 # yarn install
