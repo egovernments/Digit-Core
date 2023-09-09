@@ -14,9 +14,6 @@ cp workbench/inter-package.json $INTERNALS/package.json
 
 cp $INTERNALS/example/src/UICustomizations.js src/Customisations
 
-echo "UI :: Workbench " && echo "Branch: $(git branch --show-current)" && echo "$(git log -1 --pretty=%B)" && echo "installing packages" && yarn install 
-cd $INTERNALS && echo "starting build" && yarn build && echo "building finished" 
-
-cd ..
+echo "UI :: Workbench " && echo "Branch: $(git branch --show-current)" && echo "$(git log -1 --pretty=%B)" && echo "installing packages" 
 
 # yarn install

@@ -49,7 +49,9 @@
     "start": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false SKIP_PREFLIGHT_CHECK=true react-scripts build",
     "build:prepare": "./build.sh",
-    "build:webpack": "webpack --mode production",
+    "build:libraries": "cd micro-ui-internals && yarn build",
+    "build:prod": "webpack --mode production",
+    "build:webpack":"yarn build:libraries &&cd .. && ls && cd ./web && ls && yarn build:prod",
     "clean": "rm -rf node_modules"
   },
   "eslintConfig": {
