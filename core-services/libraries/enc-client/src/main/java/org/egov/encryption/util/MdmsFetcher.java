@@ -53,6 +53,9 @@ public class MdmsFetcher {
             MDC.put(TENANTID_MDC_STRING, encProperties.getStateLevelTenantId());
         }
 
+        // Adding tenantId to MDC for making enc-client library compatible with central instance
+        MDC.put(TENANTID_MDC_STRING, encProperties.getStateLevelTenantId());
+
         try {
             ResponseEntity<MdmsResponse> response =
                     restTemplate.postForEntity(encProperties.getEgovMdmsHost() + encProperties.getEgovMdmsSearchEndpoint(),
