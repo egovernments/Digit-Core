@@ -15,13 +15,13 @@
   "homepage": "/digit-ui",
   "dependencies": {
     "@egovernments/digit-ui-libraries": "1.8.0-beta",
-    "@egovernments/digit-ui-module-workbench": "1.0.0-beta",
     "@egovernments/digit-ui-module-dss": "1.8.0-beta",
     "@egovernments/digit-ui-module-core": "1.8.0-beta",
     "@egovernments/digit-ui-module-common": "1.8.0-beta",
     "@egovernments/digit-ui-module-hrms": "1.8.0-beta.01",
     "@egovernments/digit-ui-module-utilities": "1.0.0-beta",
     "@egovernments/digit-ui-module-engagement": "1.5.20",
+    "@egovernments/digit-ui-module-workbench": "1.0.0-beta",
     "@egovernments/digit-ui-react-components": "1.8.0-beta",
     "babel-loader": "8.1.0",
     "clean-webpack-plugin": "4.0.0",
@@ -47,7 +47,9 @@
     "start": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false SKIP_PREFLIGHT_CHECK=true react-scripts build",
     "build:prepare": "./build.sh",
-    "build:webpack": "webpack --mode production",
+    "build:libraries": "cd micro-ui-internals && yarn build",
+    "build:prod": "webpack --mode production",
+    "build:webpack":"yarn build:libraries &&cd .. && ls && cd ./web && ls && yarn build:prod",
     "clean": "rm -rf node_modules"
   },
   "eslintConfig": {
