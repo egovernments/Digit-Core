@@ -52,6 +52,7 @@ const initDigitUI = () => {
 # Changelog
 
 ```bash
+1.8.0-beta.01 fixed compilation issue
 1.8.0-beta workbench base version beta release
 1.7.0 urban 2.9
 1.6.0 urban 2.8
