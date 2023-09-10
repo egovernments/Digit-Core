@@ -23,7 +23,6 @@ const InputCard = ({
   isMultipleAllow = false,
   cardStyle = {},
 }) => {
-  const isMobile = window.Digit.Utils.browser.isMobile();
   // TODO: inputs handle
   return (
     <Card style={cardStyle}>
@@ -32,7 +31,7 @@ const InputCard = ({
       {texts?.cardText && <CardText>{t(texts.cardText)}</CardText>}
       {children}
       {texts.submitBarLabel ? <Button disabled={isDisable} submit={submit} label={t(texts.submitBarLabel)} onClick={onNext} /> : null}
-      {texts.skipLabel ? <CardText style={{ marginTop: "10px", textAlign: isMobile ? "center" : "left" }}> {t(texts.skipLabel)} </CardText> : null}
+      {texts.skipLabel ? <CardText> {t(texts.skipLabel)} </CardText> : null}
       {texts.skipText ? <ActionLinks label={t(texts.skipText)} onClick={onSkip} /> : null}
       {isMultipleAllow && texts.addMultipleText ? <ActionLinks label={t(texts.addMultipleText)} onClick={onAdd} /> : null}
     </Card>

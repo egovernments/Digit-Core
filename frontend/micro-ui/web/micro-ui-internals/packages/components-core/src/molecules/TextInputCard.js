@@ -1,13 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
-
 import Card from "../atoms/Card";
 import CardHeader from "../atoms/CardHeader";
 import CardText from "../atoms/CardText";
 import Button from "../atoms/Button";
-// import LinkButton from "../atoms/LinkButton";
-import CardSubHeader from "../atoms/CardSubHeader";
 import CardLabel from "../atoms/CardLabel";
 import TextInput from "../atoms/TextInput";
 import ActionLinks from "../atoms/ActionLinks";
@@ -15,7 +12,7 @@ import ActionLinks from "../atoms/ActionLinks";
 const TextInputCard = ({ header, subHeader, cardText, cardLabel, nextText, skipAndContinueText, skip, onSave, onSkip, textInput }) => {
   return (
     <Card>
-      <CardSubHeader>{subHeader}</CardSubHeader>
+      <CardHeader variant="digit-card-sub-header">{subHeader}</CardHeader>
       <CardHeader>{header}</CardHeader>
       <CardText>
         {/* If you know the pincode of the complaint address, provide below. It will
