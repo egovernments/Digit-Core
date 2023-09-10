@@ -1,0 +1,6 @@
+@import url("../index.scss");
+
+.digit-validation-error {
+  @extend .alert-error;
+  @apply block text-body-s text-error;
+}

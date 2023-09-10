@@ -1,7 +1,13 @@
 import React from "react";
 
 const CardHeader = (props) => {
-  return <header className="card-header" style={props.styles ? props.styles : {}}>{props.children}</header>;
+  const variant = props?.variant ? props?.variant : "";
+  const className = props?.className ? props?.className : "";
+  return (
+    <header className={`digit-card-header ${variant} ${className}`} style={props.styles ? props.styles : {}}>
+      {props.children}
+    </header>
+  );
 };
 
 export default CardHeader;

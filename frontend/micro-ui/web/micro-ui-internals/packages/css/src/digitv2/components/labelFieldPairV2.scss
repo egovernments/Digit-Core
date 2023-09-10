@@ -31,3 +31,23 @@
     }
   }
 }
+
+@screen dt {
+  .digit-employee-card {
+    .digit-label-field-pair {
+      @apply flex items-center;
+
+      h2 {
+        width: 30%;
+      }
+
+      .digit-field {
+        width: 50%;
+        margin-right: 20%;
+        .field {
+          margin-right: unset;
+        }
+      }
+    }
+  }
+}

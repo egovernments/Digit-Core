@@ -41,10 +41,40 @@
   }
 }
 
-.submit-bar:focus {
-  @apply outline-none !important;
-}
-
 .digit-button-label {
   width: 100%;
+}
+
+.digit-submit-bar {
+  @extend .light-primary-button;
+  @apply h-10 text-center w-full outline-none;
+  box-shadow: inset 0px -2px 0px theme(colors.text.primary);
+  cursor: pointer;
+
+  &:focus {
+    @apply outline-none;
+  }
+
+  header {
+    @apply font-rc font-medium text-legend text-white leading-10;
+  }
+}
+
+.digit-submit-bar-disabled {
+  @apply h-10 bg-primary-main text-center w-full outline-none opacity-50;
+
+  &:focus {
+    @apply outline-none;
+  }
+
+  header {
+    @apply font-rc font-medium text-legend text-white leading-10;
+  }
+}
+
+@screen dt {
+  .digit-submit-bar,
+  .digit-submit-bar-disabled {
+    width: 240px;
+  }
 }
