@@ -140,7 +140,7 @@ const MobileSearchApplication = ({ Controller, register, control, t, reset, prev
         <DownloadBtn className="mrlg cursorPointer" onClick={() => handleExcelDownload(tabledata)} />
       </div>
       <Header>{t("PRIVACY_AUDIT_REPORT")}:</Header>
-      <div className="searchBox">
+      <div className="digit-search-box">
         <SearchAction
           text={t("ES_COMMON_SEARCH")}
           handleActionClick={() => setActiveMobileModal({ type: "set", payload: "SearchFormComponent" })}
