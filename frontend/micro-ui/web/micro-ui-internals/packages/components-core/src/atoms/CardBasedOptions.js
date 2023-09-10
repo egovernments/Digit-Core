@@ -2,21 +2,21 @@ import React from "react";
 
 const Option = ({ name, Icon, onClick, className }) => {
   return (
-    <div className={className || `CardBasedOptionsMainChildOption`} onClick={onClick}>
-      <div className="ChildOptionImageWrapper">{Icon}</div>
-      <p className="ChildOptionName">{name}</p>
+    <div className={className || `digit-card-based-options-main-child-option`} onClick={onClick}>
+      <div className="digit-child-option-image-wrapper">{Icon}</div>
+      <p className="digit-child-option-name">{name}</p>
     </div>
   );
 };
 
-const CardBasedOptions = ({ header, sideOption, options, styles = {}, style={} }) => {
+const CardBasedOptions = ({ header, sideOption, options, styles = {}, style = {} }) => {
   return (
-    <div className="CardBasedOptions" style={style}>
-      <div className="headContent">
+    <div className="digit-card-based-options" style={style}>
+      <div className="digit-head-content">
         <h2>{header}</h2>
         <p onClick={sideOption.onClick}>{sideOption.name}</p>
       </div>
-      <div className="mainContent">
+      <div className="digit-main-content">
         {options.map((props, index) => (
           <Option key={index} {...props} />
         ))}
