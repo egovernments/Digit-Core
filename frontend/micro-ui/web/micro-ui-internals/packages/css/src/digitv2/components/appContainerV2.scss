@@ -1,10 +1,10 @@
 @import url("../index.scss");
 
-.app-container {
+.digit-app-container {
   @extend .light-background;
   width: 100%;
   form {
-    .card {
+    .digit-card {
       max-width: 960px;
       h2 {
         @extend .light-text-color-primary;
@@ -14,8 +14,8 @@
         @extend .light-primary-button;
         max-width: 240px;
       }
-      .input-otp-wrap,
-      .card-text-button {
+      .digit-input-otp-wrap,
+      .digit-card-text-button {
         @extend .light-primary-button;
         text-align: left;
       }
@@ -24,14 +24,14 @@
 }
 
 @screen dt {
-  .employee-app-container {
+  .digit-employee-app-container {
     @apply w-full;
   }
 
-  .app-container {
+  .digit-app-container {
     width: 100%;
     form {
-      .card {
+      .digit-card {
         max-width: 960px;
         h2 {
           text-align: left;
@@ -39,8 +39,8 @@
         button {
           max-width: 240px;
         }
-        .input-otp-wrap,
-        .card-text-button {
+        .digit-input-otp-wrap,
+        .digit-card-text-button {
           text-align: left;
         }
       }
