@@ -1,0 +1,46 @@
+.digit-popup-module {
+  width: 480px;
+  margin: 0 auto;
+  @apply bg-white;
+
+  .digit-popup-module-main {
+    @apply px-lg pb-lg;
+  }
+
+  .digit-popup-module-action-bar {
+    gap: 16px;
+    @apply flex flex-row justify-end;
+
+    &.digit-variant-obps {
+      margin-right: 18px;
+      @media (max-width: theme(digitv2.screens.mobile)) {
+        position: absolute;
+        bottom: 5%;
+        right: 10%;
+      }
+      &.employee {
+        @media (max-width: theme(digitv2.screens.mobile)) {
+          left: 0%;
+        }
+      }
+    }
+  }
+}
+
+@screen dt {
+  .digit-popup-module {
+    width: 480px;
+    margin: auto;
+    @apply bg-white;
+
+    .digit-popup-module-main {
+      @apply px-lg pb-lg;
+      @apply w-full p-sm h-full;
+    }
+
+    .digit-popup-module-action-bar {
+      gap: 16px;
+      @apply flex flex-row justify-end;
+    }
+  }
+}
