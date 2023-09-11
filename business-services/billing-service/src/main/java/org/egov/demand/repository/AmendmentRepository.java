@@ -62,7 +62,7 @@ public class AmendmentRepository {
 
 		namedJdbcTemplate.update(sqlBill, getAmendmentSqlParameter(amendmentRequest));
 		saveTaxDetail(amendment.getDemandDetails(), amendment.getId(), amendment.getTenantId());
-		savedocs(amendment.getDocuments(), amendment.getId());
+		savedocs(amendment.getDocuments(), amendment.getId(), amendment.getTenantId());
 	}
 	
 	private void saveTaxDetail(List<DemandDetail> demandDetails, String amendmentId, String tenantId) {
@@ -78,10 +78,18 @@ public class AmendmentRepository {
 		namedJdbcTemplate.batchUpdate(sqlBill, sqlParameterSources.toArray(new MapSqlParameterSource[0]));
 	}
 	
-	private void savedocs(List<Document> documents, String amendmentId) {
+	private void savedocs(List<Document> documents, String amendmentId, String tenantId) {
 
 		List<MapSqlParameterSource> sqlParameterSources = getSqlParameterListForDocs(documents, amendmentId);
-		namedJdbcTemplate.batchUpdate(DOCUMET_INSERT_QUERY, sqlParameterSources.toArray(new MapSqlParameterSource[0]));
+		String sqlDocQuery;
+		try {
+			sqlDocQuery = centralInstanceUtil.replaceSchemaPlaceholder(AMENDMENT_TAXDETAIL_INSERT_QUERY, tenantId);
+		} catch (InvalidTenantIdException e) {
+			throw new CustomException("EG_PT_AS_TENANTID_ERROR",
+					"TenantId length is not sufficient to replace query schema in a multi state instance");
+		}
+
+		namedJdbcTemplate.batchUpdate(sqlDocQuery, sqlParameterSources.toArray(new MapSqlParameterSource[0]));
 	}
 
 	public List<Amendment> getAmendments (AmendmentCriteria amendmentCriteria) {
