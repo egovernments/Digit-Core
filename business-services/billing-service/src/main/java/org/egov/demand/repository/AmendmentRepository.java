@@ -83,7 +83,7 @@ public class AmendmentRepository {
 		List<MapSqlParameterSource> sqlParameterSources = getSqlParameterListForDocs(documents, amendmentId);
 		String sqlDocQuery;
 		try {
-			sqlDocQuery = centralInstanceUtil.replaceSchemaPlaceholder(AMENDMENT_TAXDETAIL_INSERT_QUERY, tenantId);
+			sqlDocQuery = centralInstanceUtil.replaceSchemaPlaceholder(DOCUMET_INSERT_QUERY, tenantId);
 		} catch (InvalidTenantIdException e) {
 			throw new CustomException("EG_PT_AS_TENANTID_ERROR",
 					"TenantId length is not sufficient to replace query schema in a multi state instance");
