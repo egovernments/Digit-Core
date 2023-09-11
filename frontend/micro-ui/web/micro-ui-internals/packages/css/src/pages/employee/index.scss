@@ -149,7 +149,8 @@
       &.active {
         color: theme(colors.primary.main) !important;
 
-        border-right: 4px solid theme(colors.primary.main);
+        
+        border-right: none;
         svg {
           fill: theme(colors.primary.main) !important;
         }
@@ -186,6 +187,9 @@
         }
       }
       .search-icon-wrapper {
+        border: 2px solid theme(colors.white);
+        border-radius: 4px;
+        padding: 5px;
         svg {
           fill: theme(colors.white) !important;
           width: 21px;
@@ -226,7 +230,8 @@
       &.active {
         color: theme(colors.primary.main) !important;
 
-        border-right: 4px solid theme(colors.primary.main);
+        border-left: 4px solid theme(colors.primary.main);
+        border-right: none;
         svg {
           fill: theme(colors.primary.main) !important;
         }

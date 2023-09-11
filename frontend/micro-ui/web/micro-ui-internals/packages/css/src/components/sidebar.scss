@@ -1,0 +1,67 @@
+.sidebar-link:hover .arrow {
+  display: block;
+}
+.hidden-arrow {
+  display: none;
+}
+.new-dropdown-link{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 15px 15px !important;
+  height: 3rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none; 
+  margin-left: 0px !important;
+  height: 61px !important; 
+}
+.selected {
+  background-color: #e0e0e0; /* Change this to your desired highlight color */
+}
+
+.selected-item {
+  background-color: #e0e0e0; /* Set your desired background color for the selected item */
+  color: #000; /* Set your desired text color for the selected item */
+  /* Add any other styles you want to apply to the selected item */
+}
+/* Style the container that acts as the viewport */
+.new-sidebar {
+  height: 100%; /* Set a fixed height for the viewport */
+  overflow: hidden; /* Hide the scrollbar */
+}
+
+/* Style the content inside the viewport */
+.new-sidebar > div {
+  height: auto; /* Allow content to expand vertically */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden;
+  padding-right: 2px; /* Add space for the hidden scrollbar (adjust as needed) */
+}
+
+/* Style the scrollbar thumb to make it transparent */
+.new-sidebar > div::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+.link-icon{
+  width: 24px !important;
+  height: 26px !important;
+}
+.link-icon svg{
+  width: 24px !important;
+  height: 26px !important;
+}
+
+.employee-search-input{
+  width: 150px;
+  background-color: transparent;
+}
+.search-icon-wrapper-new svg{
+          fill: theme(colors.white) !important;
+          width: 21px;
+          height: 21px;
+}
+.search-icon-wrapper-new svg path {
+            fill: theme(colors.white) !important;
+          }
