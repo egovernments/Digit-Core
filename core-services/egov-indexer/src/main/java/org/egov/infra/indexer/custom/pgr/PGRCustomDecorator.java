@@ -158,7 +158,6 @@ public class PGRCustomDecorator {
 		if(tenantId == null)
 		{tenantId=stateLevelTenantId;}
 
-		MDC.put(TENANTID_MDC_STRING, tenantId );
 		log.info("MDC ----> " +MDC.get(TENANTID_MDC_STRING));
 
 		StringBuilder uri = new StringBuilder();
@@ -166,11 +165,8 @@ public class PGRCustomDecorator {
 		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, tenantId, serviceCode, new RequestInfo());
 		try {
 			String jsonContent =  serviceRequestRepository.fetchResult(uri.toString(), request, tenantId);
-//			Object response =  mapper.convertValue(jsonContent,  Map.class);
-
 			List<String> depts = JsonPath.read(jsonContent, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 
-			log.info("Department List" + depts.toString());
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
 			}else

@@ -68,6 +68,7 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 			{
 				log.error("Couldn't parse pgrindex request: ", e);
 			}
+
 			//Extracting tenantId
 			String tenantId = null;
 			if(!serviceResponse.getServices().isEmpty())

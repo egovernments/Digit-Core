@@ -35,8 +35,6 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
     @Autowired
     private IndexerProducer  indexerProducer;
 
-    @Value("${egov.statelevel.tenantId}")
-    private  String stateLevelTenantId ;
 
     @Override
     /**
@@ -46,11 +44,13 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
      * index 5. Core indexing
      */
     public void onMessage(ConsumerRecord<String, String> data) {
-        // Adding in MDC so that tracer can add it in header
-        MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
+
         ObjectMapper mapper = indexerUtils.getObjectMapperWithNull();
         try {
             BPARequest bpaRequest = mapper.readValue(data.value(), BPARequest.class);
+            // Adding in MDC so that tracer can add it in header
+            MDC.put(TENANTID_MDC_STRING, bpaRequest.getBPA().getTenantId() );
+
             EnrichedBPARequest enrichedBPARequest = bpaCustomDecorator.transformData(bpaRequest);
             indexerService.esIndexer(data.topic(), mapper.writeValueAsString(enrichedBPARequest));
         } catch (Exception e) {

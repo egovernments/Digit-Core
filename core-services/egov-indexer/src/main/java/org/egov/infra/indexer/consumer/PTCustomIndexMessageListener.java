@@ -44,11 +44,13 @@ public class PTCustomIndexMessageListener implements MessageListener<String, Str
 	 */
 	public void onMessage(ConsumerRecord<String, String> data) {
 		ObjectMapper mapper = indexerUtils.getObjectMapper();
-		// Adding in MDC so that tracer can add it in header
-		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
+
 
 		try {
 			PropertyRequest propertyRequest = mapper.readValue(data.value(), PropertyRequest.class);
+			// Adding in MDC so that tracer can add it in header
+			MDC.put(TENANTID_MDC_STRING, propertyRequest.getProperties().get(0).getTenantId() );
+
 			if (data.topic().equals(ptUpdateTopic))
 				propertyRequest = ptCustomDecorator.dataTransformForPTUpdate(propertyRequest);
 			propertyRequest.setProperties(ptCustomDecorator.transformData(propertyRequest.getProperties()));
