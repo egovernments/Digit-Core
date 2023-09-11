@@ -132,7 +132,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
       >
         <Header />
       </FormComposerV2>
-      {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
+      {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} variant="digit-error" />}
       <div className="employee-login-home-footer" style={{ backgroundColor: "unset" }}>
         <img
           alt="Powered by DIGIT"

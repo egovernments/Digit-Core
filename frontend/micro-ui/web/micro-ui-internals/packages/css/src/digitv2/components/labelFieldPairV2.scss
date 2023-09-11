@@ -47,6 +47,10 @@
         .field {
           margin-right: unset;
         }
+        .digit-field {
+          @apply mb-lg;
+          margin-right: unset;
+        }
       }
     }
   }
