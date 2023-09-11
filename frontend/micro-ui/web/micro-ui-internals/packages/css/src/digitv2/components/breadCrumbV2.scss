@@ -6,7 +6,9 @@
   font-size: 14px;
   display: flex;
   margin-bottom: 10px;
+  padding: unset;
 }
+
 .digit-bread-crumb--item {
   margin-left: 5px;
 
@@ -23,10 +25,10 @@
   }
 
   span {
-    @extend .typography.text-body-s;
     cursor: pointer;
   }
 }
+
 ol,
 ul {
   list-style: none;

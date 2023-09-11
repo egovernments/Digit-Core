@@ -47,7 +47,9 @@ const Modal = ({
             className={`digit-popup-module-action-bar ${variant}`}
             style={popupModuleActionBarStyles}
           >
-            {actionCancelLabel ? <Button theme="border" label={actionCancelLabel} onClick={actionCancelOnSubmit} style={style} /> : null}
+            {actionCancelLabel ? (
+              <Button variation="digit-action-cancel" theme="border" label={actionCancelLabel} onClick={actionCancelOnSubmit} style={style} />
+            ) : null}
             {!hideSubmit ? (
               <Button label={actionSaveLabel} onClick={actionSaveOnSubmit} formId={formId} isDisabled={isDisabled} style={style} />
             ) : null}

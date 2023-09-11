@@ -17,6 +17,34 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0;
+  }
+}
+
+.digit-action-cancel {
+  background-color: #d6d5d4;
+  text-align: center;
+  border-color: #464646;
+  border-bottom: 1px;
+  border-style: solid;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  padding-left: 24px;
+  padding-right: 24px;
+
+  &.disabled {
+    opacity: 0.5;
+  }
+  &:focus {
+    @apply outline-none;
+  }
+
+  h2 {
+    @apply font-rc font-medium text-black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
   }
 }
 
@@ -35,6 +63,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0;
   }
   .disabled {
     opacity: 0.5;
@@ -43,6 +72,8 @@
 
 .digit-button-label {
   width: 100%;
+  font-family: Roboto Condensed,sans-serif;
+  font-weight: 500;
 }
 
 .digit-submit-bar {
@@ -55,8 +86,9 @@
     @apply outline-none;
   }
 
-  header {
+  h2 {
     @apply font-rc font-medium text-legend text-white leading-10;
+    margin: 0;
   }
 }
 
@@ -67,8 +99,9 @@
     @apply outline-none;
   }
 
-  header {
+  h2 {
     @apply font-rc font-medium text-legend text-white leading-10;
+    margin: 0;
   }
 }
 

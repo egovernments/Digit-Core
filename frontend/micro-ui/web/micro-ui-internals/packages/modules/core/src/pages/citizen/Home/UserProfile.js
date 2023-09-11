@@ -657,7 +657,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
 
       {userType === "employee" ? (
         <div className="action-bar-wrap">
-          <Button t={t} label={t("CORE_COMMON_SAVE")} onClick={updateProfile} />
+          <Button className="digit-submit-bar" t={t} label={t("CORE_COMMON_SAVE")} onClick={updateProfile} />
           {/* <button
             onClick={updateProfile}
             style={{
