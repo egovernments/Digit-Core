@@ -92,6 +92,9 @@ public class LegacyIndexService {
     @Value("${egov.core.index.thread.poll.ms}")
     private Long indexThreadPollInterval;
 
+    @Autowired
+    private ServiceRequestRepository serviceRequestRepository;
+
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
     private final ScheduledExecutorService schedulerofChildThreads = Executors.newScheduledThreadPool(1);
 
@@ -135,7 +138,7 @@ public class LegacyIndexService {
     /**
      * Method to start the index thread for indexing activity
      *
-     * @param reindexRequest
+     * @param legacyIndexRequest
      * @return
      */
     public Boolean beginLegacyIndex(LegacyIndexRequest legacyIndexRequest) {
@@ -152,7 +155,7 @@ public class LegacyIndexService {
      * and transformations pas per the config and then posts the data to es in bulk
      * 5. The process repeats until all the records are indexed.
      *
-     * @param reindexRequest
+     * @param legacyIndexRequest
      */
     private void indexThread(LegacyIndexRequest legacyIndexRequest) {
         final Runnable legacyIndexer = new Runnable() {
@@ -189,7 +192,9 @@ public class LegacyIndexService {
                                 map.put("RequestInfo", legacyIndexRequest.getRequestInfo());
                                 request = map;
                             }
-                            Object response = restTemplate.postForObject(uri, request, Map.class);
+                            String jsonContent = serviceRequestRepository.fetchResult(uri, request, legacyIndexRequest.getTenantId());
+                            Object response = mapper.readValue(jsonContent, Map.class);
+
                             if (null == response) {
                                 log.info("Request: " + request);
                                 log.info("URI: " + uri);

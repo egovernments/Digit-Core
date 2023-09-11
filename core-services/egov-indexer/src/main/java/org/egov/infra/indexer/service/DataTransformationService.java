@@ -37,6 +37,12 @@ public class DataTransformationService {
     @Autowired
     private IndexerUtils indexerUtils;
 
+    @Autowired
+    private ServiceRequestRepository serviceRequestRepository;
+
+    @Value("${egov.statelevel.tenantId}")
+    private  String stateLevelTenantId ;
+
     @Value("${egov.core.reindex.topic.name}")
     private String reindexTopic;
 
@@ -199,7 +205,8 @@ public class DataTransformationService {
                 String uri = null;
                 try {
                     uri = indexerUtils.buildUri(uriMapping, kafkaJson);
-                    response = restTemplate.postForObject(uri, uriMapping.getRequest(), Map.class);
+                    String jsonContent = serviceRequestRepository.fetchResult(uri, uriMapping.getRequest(), stateLevelTenantId);
+                    response = mapper.readValue(jsonContent, Map.class);
                     if (null == response)
                         continue;
                 } catch (Exception e) {

@@ -11,10 +11,13 @@ import org.egov.infra.indexer.custom.pt.PropertyRequest;
 import org.egov.infra.indexer.producer.IndexerProducer;
 import org.egov.infra.indexer.service.IndexerService;
 import org.egov.infra.indexer.util.IndexerUtils;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Service;
+
+import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
 
 @Service
 @Slf4j
@@ -32,6 +35,7 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
     @Autowired
     private IndexerProducer  indexerProducer;
 
+
     @Override
     /**
      * Messages listener which acts as consumer. This message listener is injected
@@ -40,9 +44,13 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
      * index 5. Core indexing
      */
     public void onMessage(ConsumerRecord<String, String> data) {
+
         ObjectMapper mapper = indexerUtils.getObjectMapperWithNull();
         try {
             BPARequest bpaRequest = mapper.readValue(data.value(), BPARequest.class);
+            // Adding in MDC so that tracer can add it in header
+            MDC.put(TENANTID_MDC_STRING, bpaRequest.getBPA().getTenantId() );
+
             EnrichedBPARequest enrichedBPARequest = bpaCustomDecorator.transformData(bpaRequest);
             indexerService.esIndexer(data.topic(), mapper.writeValueAsString(enrichedBPARequest));
         } catch (Exception e) {

@@ -13,6 +13,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.infra.indexer.custom.bpa.landInfo.EnrichedLandInfo;
 import org.egov.infra.indexer.custom.bpa.landInfo.EnrichedUnit;
 import org.egov.infra.indexer.custom.bpa.landInfo.Unit;
+import org.egov.infra.indexer.service.ServiceRequestRepository;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
@@ -68,6 +69,9 @@ public class BPACustomDecorator {
 
 	@Value("${egov.bpa.search.endpoint}")
 	private String bpaEndpoint;
+
+	@Autowired
+	private ServiceRequestRepository serviceRequestRepository;
 
 	/**
 	 * Transforms data
@@ -198,8 +202,8 @@ public class BPACustomDecorator {
 		BeanUtils.copyProperties(requestInfo, bpaRequestInfo);
 		LinkedHashMap responseMap = null;
 		try {
-			responseMap = (LinkedHashMap) fetchResult(uri,
-					new RequestInfoWrapper(bpaRequestInfo));
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), bpaRequestInfo, bpaObject.getTenantId());
+			responseMap =  (LinkedHashMap) mapper.readValue(jsonContent, Map.class);
 		} catch (Exception e) {
 			log.error("Exception while fetching edcr number from bpa response ",e);
 		}
@@ -237,8 +241,8 @@ public class BPACustomDecorator {
 		BeanUtils.copyProperties(requestInfo, edcrRequestInfo);
 		LinkedHashMap responseMap = null;
 		try {
-			responseMap = (LinkedHashMap) fetchResult(uri,
-					new RequestInfoWrapper(edcrRequestInfo));
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), edcrRequestInfo, bpa.getTenantId());
+			responseMap =  (LinkedHashMap) mapper.readValue(jsonContent, Map.class);
 		} catch (Exception e) {
 			log.error("Exception while fetching plot area from edcr response ",e);
 		}
@@ -272,8 +276,8 @@ public class BPACustomDecorator {
 		BeanUtils.copyProperties(requestInfo, edcrRequestInfo);
 		LinkedHashMap responseMap = null;
 		try {
-			responseMap = (LinkedHashMap) fetchResult(uri,
-					new RequestInfoWrapper(edcrRequestInfo));
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), edcrRequestInfo, bpa.getTenantId());
+			responseMap =  (LinkedHashMap) mapper.readValue(jsonContent, Map.class);
 		} catch (Exception e) {
 			log.error("Exception while fetching plot area from edcr response ",e);
 		}
@@ -300,7 +304,9 @@ public class BPACustomDecorator {
 
 		MdmsCriteriaReq mdmsCriteriaReq = getMdmsRequestForSubOccupancyType(requestInfo, tenantId.split("\\.")[0]);
 		try {
-			Object response = restTemplate.postForObject(uri.toString(), mdmsCriteriaReq, Map.class);
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), mdmsCriteriaReq, tenantId);
+			Object response = mapper.readValue(jsonContent, Map.class);
+
 			for(String subOccupancyType : usageCategory)
 			{
 				Filter masterDataFilter = filter(
@@ -349,7 +355,9 @@ public class BPACustomDecorator {
 
 		MdmsCriteriaReq mdmsCriteriaReq = getMdmsRequestForOccupancyType(requestInfo, tenantId.split("\\.")[0]);
 		try {
-			Object response = restTemplate.postForObject(uri.toString(), mdmsCriteriaReq, Map.class);
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), mdmsCriteriaReq, tenantId);
+			Object response = mapper.readValue(jsonContent, Map.class);
+
 			for(String occupancyTypeCode : occupancyType)
 			{
 				Filter masterDataFilter = filter(
@@ -425,8 +433,8 @@ public class BPACustomDecorator {
 		BeanUtils.copyProperties(requestInfo, bpaRequestInfo);
 		LinkedHashMap responseMap = null;
 		try {
-			responseMap = (LinkedHashMap) fetchResult(uri,
-					new RequestInfoWrapper(bpaRequestInfo));
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), bpaRequestInfo, bpa.getTenantId());
+			responseMap =  (LinkedHashMap) mapper.readValue(jsonContent, Map.class);
 		} catch (Exception e) {
 			log.error("Exception while fetching edcr number from bpa response ",e);
 		}

@@ -8,6 +8,7 @@ import org.egov.infra.indexer.service.DataTransformationService;
 import org.egov.infra.indexer.service.IndexerService;
 import org.egov.infra.indexer.util.IndexerConstants;
 import org.egov.infra.indexer.util.IndexerUtils;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.listener.MessageListener;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
 
 @Service
 @Slf4j
@@ -39,6 +42,9 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 	@Value("${pgr.batch.create.topic.name}")
 	private String pgrBatchCreateTopic;
 
+	@Value("${egov.statelevel.tenantId}")
+	private String stateLevelTenantId;
+
 	@Override
 	/**
 	 * Messages listener which acts as consumer. This message listener is injected
@@ -47,13 +53,36 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 	 * index 5. Core indexing
 	 */
 	public void onMessage(ConsumerRecord<String, String> data) {
-		log.info("Topic: " + data.topic());
+		log.info("Topic from PGRCustomIndexMessageListener: " + data.topic());
+		// Adding in MDC so that tracer can add it in header
+		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 
 		if(data.topic().equals(pgrCreateTopic) || data.topic().equals(pgrBatchCreateTopic)){
 			String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
-			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson);
+
+			ObjectMapper mapper = indexerUtils.getObjectMapper();
+			ServiceResponse serviceResponse = null;
+			try{
+				 serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
+			}catch (Exception e)
+			{
+				log.error("Couldn't parse pgrindex request: ", e);
+			}
+
+			//Extracting tenantId
+			String tenantId = null;
+			if(!serviceResponse.getServices().isEmpty())
+			{
+				if(serviceResponse.getServices().get(0) != null)
+				{
+					tenantId = serviceResponse.getServices().get(0).getTenantId();
+				}
+			}
+
+			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson, tenantId);
 			kafkaJson = kafkaJson.replace(IndexerConstants.DEPT_CODE, deptCode);
 			try {
+
 				indexerService.esIndexer(data.topic(), kafkaJson);
 			}catch(Exception e){
 				log.error("Error while indexing pgr-request: " + e);

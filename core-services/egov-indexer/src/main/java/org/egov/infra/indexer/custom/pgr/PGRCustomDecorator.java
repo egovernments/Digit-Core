@@ -1,19 +1,30 @@
 package org.egov.infra.indexer.custom.pgr;
 
+
+import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.infra.indexer.service.ServiceRequestRepository;
 import org.egov.infra.indexer.util.IndexerConstants;
 import org.egov.infra.indexer.util.IndexerUtils;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.ModuleDetail;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
@@ -41,6 +52,15 @@ public class PGRCustomDecorator {
 
 	@Value("${egov.statelevel.tenantId}")
 	private  String stateLevelTenantId ;
+
+	@Autowired
+	private ServiceRequestRepository serviceRequestRepository;
+
+	@Autowired
+	private ObjectMapper mapper;
+
+	@Autowired
+	private MultiStateInstanceUtil centralInstanceUtil;
 
 	/**
 	 * Builds a custom object for PGR that is common for core index and legacy index,
@@ -84,10 +104,14 @@ public class PGRCustomDecorator {
 	 * @return
 	 */
 	public String getDepartment(Service service) {
+		// Adding in MDC so that tracer can add it in header
+		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 		StringBuilder uri = new StringBuilder();
-		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, service.getServiceCode(), new RequestInfo());
+		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, service.getTenantId(), service.getServiceCode(), new RequestInfo());
 		try {
-			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
+			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), request, service.getTenantId());
+			Object response = mapper.readValue(jsonContent, Map.class);
+
 			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
@@ -129,13 +153,20 @@ public class PGRCustomDecorator {
 		return builder.toString();
 	}
 
-	public String getDepartmentCodeForPgrRequest(String kafkaJson) {
+	public String getDepartmentCodeForPgrRequest(String kafkaJson, String tenantId) {
+		// Adding in MDC so that tracer can add it in header
+		if(tenantId == null)
+		{tenantId=stateLevelTenantId;}
+
+		log.info("MDC ----> " +MDC.get(TENANTID_MDC_STRING));
+
 		StringBuilder uri = new StringBuilder();
 		String serviceCode = JsonPath.read(kafkaJson, "$.service.serviceCode");
-		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, stateLevelTenantId, serviceCode, new RequestInfo());
+		MdmsCriteriaReq request = prepareMdMsRequestForDept(uri, tenantId, serviceCode, new RequestInfo());
 		try {
-			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
-			List<String> depts = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
+			String jsonContent =  serviceRequestRepository.fetchResult(uri.toString(), request, tenantId);
+			List<String> depts = JsonPath.read(jsonContent, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs");
+
 			if(!CollectionUtils.isEmpty(depts)) {
 				return depts.get(0);
 			}else

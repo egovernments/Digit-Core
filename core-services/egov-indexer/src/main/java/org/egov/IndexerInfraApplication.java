@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @EnableCaching
 @PropertySource("classpath:application.properties")
+@EnableAspectJAutoProxy
 public class IndexerInfraApplication {
     @Autowired
     private Environment env;

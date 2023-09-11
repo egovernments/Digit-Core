@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.egov.infra.indexer.service.ServiceRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,15 @@ public class PTCustomDecorator {
 	
 	@Value("${egov.pt.search.endpoint}")
 	private String ptSearchEndPoint;
-	
-	
+
+	@Autowired
+	private ServiceRequestRepository serviceRequestRepository;
+
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
+	private ObjectMapper mapper = new ObjectMapper();
+
 	/**
 	 * Transforms data by adding consumer codes at the root level, this is needed for denormalization later on.
 	 * 
@@ -59,7 +65,9 @@ public class PTCustomDecorator {
 			Map<String, Object> apiRequest = new HashMap<>();
 			apiRequest.put("RequestInfo", request.getRequestInfo());
 			try {
-				PropertyResponse response = restTemplate.postForObject(uri.toString(), apiRequest, PropertyResponse.class);
+				String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), apiRequest, property.getTenantId());
+				PropertyResponse response = mapper.readValue(jsonContent, PropertyResponse.class);
+
 				if(null != response) {
 					if(!CollectionUtils.isEmpty(response.getProperties())) {
 						property.getPropertyDetails().addAll(response.getProperties().get(0).getPropertyDetails()); //for search on propertyId, always just one property is returned.
