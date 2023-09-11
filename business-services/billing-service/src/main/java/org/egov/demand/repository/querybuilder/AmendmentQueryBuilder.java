@@ -21,7 +21,7 @@ public class AmendmentQueryBuilder {
 	public static final String AMENDMENT_TAXDETAIL_INSERT_QUERY = "INSERT INTO {schema}.egbs_amendment_taxdetail(id, amendmentid, taxheadcode, taxamount)"
 			+ " VALUES (:id, :amendmentid, :taxheadcode, :taxamount);";
 
-	public static final String DOCUMET_INSERT_QUERY = "INSERT INTO egbs_document(id, amendmentid, documenttype, filestoreid, documentuid, status)"
+	public static final String DOCUMET_INSERT_QUERY = "INSERT INTO {schema}.egbs_document(id, amendmentid, documenttype, filestoreid, documentuid, status)"
 			+ " VALUES (:id, :amendmentid, :documenttype, :filestoreid, :documentuid, :status);";
 	
 	public static final String AMENDMENT_SEARCH_QUERY = "SELECT amendment.id as amendmentuuid, tenantid, amendment.amendmentid as amendmentid, businessservice,"
