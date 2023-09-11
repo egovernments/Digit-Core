@@ -14,7 +14,7 @@ const ChangeLanguage = (prop) => {
 
   if (isLoading) return null;
 
-  if (!isDropdown) {
+  if (isDropdown) {
     return (
       <div>
         <Dropdown
@@ -34,7 +34,7 @@ const ChangeLanguage = (prop) => {
         <div className="language-selector">
           {languages.map((language, index) => (
             <div className="language-button-container" key={index}>
-              <Button text={language.label} onClick={() => handleChangeLanguage(language)} variation={language.value === selected ? "primary" : ""} />
+              <Button label={language.label} onClick={() => handleChangeLanguage(language)} variation={language.value === selected ? "primary" : ""} />
             </div>
           ))}
         </div>

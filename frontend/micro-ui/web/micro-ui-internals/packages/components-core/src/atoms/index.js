@@ -25,6 +25,7 @@ import DisplayPhotos from "./DisplayPhotos";
 import Dropdown from "./Dropdown";
 import ErrorMessage from "./ErrorMessage";
 import Header from "./Header";
+import HeaderBar from "./HeaderBar";
 import HorizontalNav from "./HorizontalNav";
 import InfoBanner from "./InfoBanner";
 import InputTextAmount from "./InputTextAmount";
@@ -81,6 +82,7 @@ export {
   Dropdown,
   ErrorMessage,
   Header,
+  HeaderBar,
   HorizontalNav,
   InfoBanner,
   InputTextAmount,

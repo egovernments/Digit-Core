@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import PopUp from "../atoms/PopUp";
 import Button from "../atoms/Button";
 import Toast from "../atoms/Toast";
-import Header from "../atoms/Header";
+import HeaderBar from "../atoms/HeaderBar";
 
 const Modal = ({
   headerBarMain,
@@ -39,10 +39,7 @@ const Modal = ({
   return (
     <PopUp>
       <div className="digit-popup-module" style={popupStyles}>
-        <Header className="digit-header-wrap" styles={headerBarMainStyle ? headerBarMainStyle : {}}>
-          {headerBarMain ? <div className="digit-header-content">{headerBarMain}</div> : null}
-          {headerBarEnd ? <div className="digit-header-end">{headerBarEnd}</div> : null}
-        </Header>
+        <HeaderBar main={headerBarMain} end={headerBarEnd} style={headerBarMainStyle ? headerBarMainStyle : {}} />
         <div className="digit-popup-module-main" style={popupModuleMianStyles ? popupModuleMianStyles : {}}>
           {children}
           <div

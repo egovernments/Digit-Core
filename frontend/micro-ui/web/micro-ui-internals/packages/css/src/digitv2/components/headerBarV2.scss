@@ -1,0 +1,34 @@
+@import url("../index.scss");
+@import url("../typography.scss");
+
+.digit-header-wrap {
+  @apply flex mb-md;
+
+  .digit-header-start {
+    margin-right: auto;
+  }
+
+  .digit-header-content {
+  }
+
+  .digit-header-end {
+    margin-left: auto;
+  }
+}
+
+@screen dt {
+  .digit-header-wrap {
+    @apply flex mb-md;
+
+    .digit-header-start {
+      margin-right: auto;
+    }
+
+    .digit-header-content {
+    }
+
+    .digit-header-end {
+      margin-left: auto;
+    }
+  }
+}
