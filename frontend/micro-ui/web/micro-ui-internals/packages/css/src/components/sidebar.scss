@@ -13,7 +13,9 @@
   color: #fff;
   font-size: 1rem;
   font-weight: 500;
-  text-decoration: none;  
+  text-decoration: none; 
+  margin-left: 0px !important;
+  height: 61px !important; 
 }
 .selected {
   background-color: #e0e0e0; /* Change this to your desired highlight color */
@@ -50,3 +52,16 @@
   width: 24px !important;
   height: 26px !important;
 }
+
+.employee-search-input{
+  width: 150px;
+  background-color: transparent;
+}
+.search-icon-wrapper-new svg{
+          fill: theme(colors.white) !important;
+          width: 21px;
+          height: 21px;
+}
+.search-icon-wrapper-new svg path {
+            fill: theme(colors.white) !important;
+          }

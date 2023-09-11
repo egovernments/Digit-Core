@@ -10,6 +10,7 @@ const EmployeeSideBar = () => {
   const { isLoading, data } = Digit.Hooks.useAccessControl();
   const [search, setSearch] = useState("");
   const { t } = useTranslation();
+  const [subNav, setSubNav] = useState(false);
 
   useEffect(() => {
     if (isLoading) {
@@ -22,10 +23,12 @@ const EmployeeSideBar = () => {
   const expandNav = () => {
     sidebarRef.current.style.width = "250px";
     sidebarRef.current.style.overflow = "auto";
+    setSubNav(true);
   };
   const collapseNav = () => {
     sidebarRef.current.style.width = "55px";
     sidebarRef.current.style.overflow = "hidden";
+    setSubNav(false);
   };
 
   function mergeObjects(obj1, obj2) {
@@ -118,17 +121,23 @@ const EmployeeSideBar = () => {
     return (
       <div className="submenu-container">
         <div className="sidebar-link">
-          <div className="actions search-icon-wrapper">
-            <input
-              className="employee-search-input"
-              type="text"
-              placeholder={t(`ACTION_TEST_SEARCH`)}
-              name="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <SearchIcon className="search-icon" />
-          </div>
+          {subNav ? (
+            <div className="actions search-icon-wrapper">
+              <input
+                className="employee-search-input"
+                type="text"
+                placeholder={t(`ACTION_TEST_SEARCH`)}
+                name="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <SearchIcon className="search-icon" />
+            </div>
+          ) : (
+            <div className="actions search-icon-wrapper-new">
+              <SearchIcon className="search-icon" />
+            </div>
+          )}
         </div>
       </div>
     );

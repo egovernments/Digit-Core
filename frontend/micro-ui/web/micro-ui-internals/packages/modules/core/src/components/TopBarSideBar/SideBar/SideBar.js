@@ -59,28 +59,22 @@ const Sidebar = ({ data }) => {
   };
 
   function extractLeftIcon(data) {
-    const results = [];
+    for (const key in data) {
+      const item = data[key];
 
-    function recursiveExtract(obj) {
-      for (const key in obj) {
-        const item = obj[key];
+      if (key === "item" && item?.leftIcon !== "") {
+        return item.leftIcon.split(":")[1];
+      }
 
-        if (key === "item" && item?.leftIcon !== "") {
-          const splitValue = item.leftIcon.split(":");
-          if (splitValue) {
-            results.push(splitValue);
-          }
-        }
-
-        if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
-          recursiveExtract(obj[key]);
+      if (typeof data[key] === "object" && !Array.isArray(data[key])) {
+        const subResult = extractLeftIcon(data[key]);
+        if (subResult) {
+          return subResult; // Return as soon as a non-empty leftIcon is found
         }
       }
     }
 
-    recursiveExtract(data);
-
-    return results;
+    return null; // Return null if no non-empty leftIcon is found
   }
   const renderSidebarItems = (items, parentKey = null, flag = true) => {
     return (
@@ -93,11 +87,7 @@ const Sidebar = ({ data }) => {
           if (!subItemKeys && subItems && Object.keys(subItems).length > 0) {
             // If the item has sub-items, render a dropdown with toggle button
             const leftIconArray = extractLeftIcon(subItems);
-            let leftIcon = IconsObject[leftIconArray[0][1]] || IconsObject.collections;
-            if (leftIconArray[0][0] == "dynamic") {
-              var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray[0][1]];
-              leftIcon = IconComp ? <IconComp /> : leftIcon;
-            }
+            let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
             const isParentActive = selectedParent === itemKey;
             return (
               <div
@@ -133,17 +123,12 @@ const Sidebar = ({ data }) => {
           } else if (subItemKeys) {
             // If the item is a link, render it
             const leftIconArray = extractLeftIcon(subItems);
-            let leftIcon = IconsObject[leftIconArray[0][1]] || IconsObject.collections;
-            if (leftIconArray[0][0] == "dynamic") {
-              var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray[0][1]];
-              leftIcon = IconComp ? <IconComp /> : leftIcon;
-            }
+            let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
             const isChildActive = selectedChild === subItems.item.path;
             return (
               <a
                 key={index}
                 className={`dropdown-link new-dropdown-link ${isChildActive ? "active" : ""}`}
-                style={{ marginLeft: "0px" }}
                 onClick={() => {
                   const keyToHighlight = subItems.item.path;
                   setSelectedParent(parentKey); // Update the selected parent when a child is clicked

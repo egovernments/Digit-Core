@@ -149,7 +149,8 @@
       &.active {
         color: theme(colors.primary.main) !important;
 
-        border-right: 4px solid theme(colors.primary.main);
+        
+        border-right: none;
         svg {
           fill: theme(colors.primary.main) !important;
         }
@@ -229,7 +230,8 @@
       &.active {
         color: theme(colors.primary.main) !important;
 
-        border-right: 4px solid theme(colors.primary.main);
+        border-left: 4px solid theme(colors.primary.main);
+        border-right: none;
         svg {
           fill: theme(colors.primary.main) !important;
         }
