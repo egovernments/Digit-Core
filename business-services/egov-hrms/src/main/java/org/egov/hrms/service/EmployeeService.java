@@ -194,6 +194,7 @@ public class EmployeeService {
 		}
 		//checks if above criteria met and result is not  null will check for name search if list of names are given as user search on name is not bulk api
 
+		
 		if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !StringUtils.isEmpty(criteria.getPhone())) && CollectionUtils.isEmpty(criteria.getUuids()))){
 			if(!CollectionUtils.isEmpty(criteria.getNames())) {
 				List<String> userUUIDs = new ArrayList<>();
@@ -209,6 +210,7 @@ public class EmployeeService {
 					}
 					List<String> uuids = userResponse.getUser().stream().map(User :: getUuid).collect(Collectors.toList());
 					userUUIDs.addAll(uuids);
+						
 				}
 				if(!CollectionUtils.isEmpty(criteria.getUuids()))
 					criteria.setUuids(criteria.getUuids().stream().filter(userUUIDs::contains).collect(Collectors.toList()));
@@ -217,7 +219,6 @@ public class EmployeeService {
 			}
 		}
 		
-		// new logic to get valid list of boundary codes for an employee
 		List<String> validBoundaryCodes = new ArrayList<String>();
 		if (!StringUtils.isEmpty(criteria.getBoundary())){
 			
@@ -240,7 +241,7 @@ public class EmployeeService {
         if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())|| !StringUtils.isEmpty(criteria.getBoundaryType())|| !StringUtils.isEmpty(criteria.getBoundaryType())) && CollectionUtils.isEmpty(criteria.getUuids())))
             employees = repository.fetchEmployees(criteria, requestInfo, stateLevelTenantId);
          if(!StringUtils.isEmpty(criteria.getBoundary()))	
-        	 filteredEmployees = filterEmployeesByJurisdiction(employees, validBoundaryCodes);
+        	 filteredEmployees = filterEmployeesByJurisdiction(employees, validBoundaryCodes); //gives employees filtered based on Jurisdiction
          else 
         	 filteredEmployees = employees;
          List<String> uuids = filteredEmployees.stream().map(Employee :: getUuid).collect(Collectors.toList());
@@ -263,7 +264,11 @@ public class EmployeeService {
 	}
 		
 	
-	
+	/* method for  logic to get valid list of boundary codes for an employee
+	 * valid boundaries are for employee in SUN04 - SUN04, B1, Z1, pb.amritsar 
+	 * @param boundary, tenantid
+	 * @return list of all valid boundary codes 
+	 */
 	private List<String> getAllValidBoundaryTypesfromMDMS(RequestInfo requestInfo, String boundary, String tenantId) {
 
 		MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, tenantId);
@@ -295,7 +300,9 @@ public class EmployeeService {
 
 		return parentCodes;
 	}
-
+	
+	/* method to find the parent codes for a particular boundary code for eg Locality SUN04 will have parents as 
+	 * Block B1 whose parent is Z1 and the City pb.amritsar */
 	private static List<String> findParentCodes(TenantBoundary[] tenantBoundaries, String targetCode) {
 		Map<String, String> codeToParentMap = new HashMap<>();
 		for (TenantBoundary tenantBoundary : tenantBoundaries) {
@@ -322,6 +329,7 @@ public class EmployeeService {
 		}
 	}
 
+	/* method to get employees filtered based on the jurisdiction starting from bottom level to top level */
 	private static List<Employee> filterEmployeesByJurisdiction(List<Employee> employees, List<String> parentCodes) {
 		 List<Employee> filteredEmployees = new ArrayList<>();
 
