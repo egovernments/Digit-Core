@@ -50,7 +50,7 @@
     "dist"
   ],
   "dependencies": {
-    "@egovernments/digit-ui-css": "1.2.155",
+    "@egovernments/digit-ui-css": "1.2.156",
     "@egovernments/digit-ui-libraries-core": "0.0.1",
     "@egovernments/digit-ui-svg-components": "0.0.8",
     "@googlemaps/js-api-loader": "1.13.10",
