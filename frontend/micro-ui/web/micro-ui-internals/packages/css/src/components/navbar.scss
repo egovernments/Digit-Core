@@ -124,6 +124,7 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
+      
       .sidebar-link {
         display: flex;
         justify-content: space-between;
@@ -231,9 +232,11 @@
       }
 
       .submenu-container {
+        margin-left: 1.5rem;
         cursor: pointer;
         display: flex;
         flex-direction: column;
+        
         .sidebar-link {
           display: flex;
           justify-content: space-between;

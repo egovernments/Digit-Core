@@ -27,6 +27,8 @@ const Sidebar = ({ data }) => {
   const [openItems, setOpenItems] = useState({});
   const [selectedParent, setSelectedParent] = useState(null);
   const [selectedChild, setSelectedChild] = useState(null);
+  const [selectedChildLevelOne, setSelectedChildLevelOne] = useState(null);
+  
   const [subNav, setSubNav] = useState(false);
 
   const getOrigin = window.location.origin;
@@ -58,8 +60,13 @@ const Sidebar = ({ data }) => {
     setSubNav(true);
   };
   const closeSidebar = () => {
-    // setSubNav(false);
-    // setOpenItems({});
+    setSubNav(false);
+    setOpenItems({});
+    setSelectedParent(null)
+    setSelectedChild(null)
+    
+    
+    setSelectedChildLevelOne(null)
   };
 
   function extractLeftIcon(data) {
@@ -67,7 +74,10 @@ const Sidebar = ({ data }) => {
       const item = data[key];
 
       if (key === "item" && item?.leftIcon !== "") {
-        return item.leftIcon.split(":")[1];
+        return {
+          isDynamic:item.leftIcon.split(":")[0],
+          leftIconArray:item.leftIcon.split(":")[1]
+        };
       }
 
       if (typeof data[key] === "object" && !Array.isArray(data[key])) {
@@ -80,10 +90,10 @@ const Sidebar = ({ data }) => {
 
     return null; // Return null if no non-empty leftIcon is found
   }
-  const renderSidebarItems = (items, parentKey = null, flag = true) => {
+  const renderSidebarItems = (items, parentKey = null, flag = true,level=0) => {
     
     return (
-      <div className="submenu-container">
+      <div className={`submenu-container level-${level}`}>
         {Object.keys(items).map((key, index) => {
           
           const subItems = items[key];
@@ -96,24 +106,36 @@ const Sidebar = ({ data }) => {
           
           if (!subItemKeys && subItems && Object.keys(subItems).length > 0) {
             // If the item has sub-items, render a dropdown with toggle button
-            const leftIconArray = extractLeftIcon(subItems);
+            const {leftIconArray,isDynamic} = extractLeftIcon(subItems);
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
+            if(isDynamic === "dynamic"){
+              var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray];
+              leftIcon = IconComp ? <IconComp /> : leftIcon;
+            }
             const isParentActive = selectedParent === itemKey;
-            
+            const isChildActive = selectedChildLevelOne === trimModuleName
+            //we need to have a heirarchy such as parent -> child1 -> child2 to differentiate b/w different levels in the sidebar
             return (
               <div
                 key={index}
-                className={`sidebar-link ${isParentActive ? "active" : ""}`}
+                className={`sidebar-link level-${level} ${isParentActive?'select-level':''}`}
                 style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}
                 // onClick={() => history.push(`${subItems?.item?.navigationURL}`)}
               >
                 <div
-                  className="actions"
-                  onClick={() => {
+                  className={`actions ${isChildActive && level===1? `selected-action-level-1` :`default-${level}`}`}
+                  // className={`actions`}
+                  
+                  onClick={(e) => {
+                    // toggleSidebar(key);
+                    // setSelectedParent(itemKey);
+                    // setSelectedChild(null);
+
                     toggleSidebar(key);
                     setSelectedParent(itemKey);
+                    const itemToHighlight = e.target.innerText
+                    setSelectedChildLevelOne(itemToHighlight);
                     setSelectedChild(null);
-                    // history.push(`${subItems?.item?.navigationURL}`)
                   }}
                   style={{ display: "flex", flexDirection: "row" }}
                 >
@@ -130,23 +152,28 @@ const Sidebar = ({ data }) => {
                     {isSubItemOpen ? <ArrowVectorDown height="28px" width="28px" /> : <ArrowForward />}
                   </div>
                 </div>
-                {subNav && <div>{isSubItemOpen && renderSidebarItems(subItems, itemKey, false)}</div>}
+                {subNav && <div>{isSubItemOpen && renderSidebarItems(subItems, itemKey, false,level+1)}</div>}
               </div>
             );
           } else if (subItemKeys) {
-            console.log(trimModuleName);
             // If the item is a link, render it
-            const leftIconArray = extractLeftIcon(subItems);
+            const  {leftIconArray,isDynamic} = extractLeftIcon(subItems);
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
+            if(isDynamic === "dynamic"){
+              var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray];
+              leftIcon = IconComp ? <IconComp /> : leftIcon;
+            }
             const isChildActive = selectedChild === subItems.item.path;
             return (
               <a
                 key={index}
-                className={`dropdown-link new-dropdown-link ${isChildActive ? "active" : ""}`}
+                className={`dropdown-link new-dropdown-link ${isChildActive ? "active" : ""} level-${level}`}
                 onClick={() => {
                   const keyToHighlight = subItems.item.path;
                   setSelectedParent(parentKey); // Update the selected parent when a child is clicked
                   setSelectedChild(keyToHighlight);
+                  setOpenItems({});
+                  // setSelectedChildLevelOne(null)
                   history.push(`${subItems?.item?.navigationURL}`)
                 }}
               >
@@ -154,7 +181,7 @@ const Sidebar = ({ data }) => {
                   {flag && <div className="link-icon">{leftIcon}</div>}
                   <span>{trimModuleName}</span>
                 </div> */}
-                 <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${key}`}>
+                 <div className={`actions ${trimModuleName==="Home"?'custom':''}`} data-tip="React-tooltip" data-for={`jk-side-${key}`}>
                  {flag && <div className="link-icon">{leftIcon}</div>}
                     <span> {trimModuleName} </span>
                     {trimModuleName?.includes("...") && (

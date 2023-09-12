@@ -21,12 +21,12 @@ const EmployeeSideBar = () => {
   }, [isLoading]);
 
   const expandNav = () => {
-    sidebarRef.current.style.width = "250px";
+    sidebarRef.current.style.width = "260px";
     sidebarRef.current.style.overflow = "auto";
     setSubNav(true);
   };
   const collapseNav = () => {
-    sidebarRef.current.style.width = "55px";
+    sidebarRef.current.style.width = "60px";
     sidebarRef.current.style.overflow = "hidden";
     setSubNav(false);
   };
@@ -124,7 +124,7 @@ const EmployeeSideBar = () => {
           {subNav ? (
             <div className="actions search-icon-wrapper">
               <input
-                className="employee-search-input"
+                className="employee-search-input nav-bar"
                 type="text"
                 placeholder={t(`ACTION_TEST_SEARCH`)}
                 name="search"

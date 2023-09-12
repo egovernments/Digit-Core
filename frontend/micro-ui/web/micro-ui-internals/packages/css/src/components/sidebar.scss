@@ -8,14 +8,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 15px 15px !important;
-  height: 3rem;
+  padding: 10px 15px 15px !important;
   color: #fff;
   font-size: 1rem;
   font-weight: 500;
   text-decoration: none; 
   margin-left: 0px !important;
-  height: 61px !important; 
+  height: 3rem !important; 
+  margin-left: 1rem;
+  margin-top: 0.5rem;
 }
 .selected {
   background-color: #e0e0e0; /* Change this to your desired highlight color */
@@ -56,6 +57,12 @@
 .employee-search-input{
   width: 150px;
   background-color: transparent;
+  &.nav-bar {
+    color:#fff;
+  }
+  &.nav-bar::placeholder {
+      color: #fff;
+  }
 }
 .search-icon-wrapper-new svg{
           fill: theme(colors.white) !important;
@@ -65,3 +72,28 @@
 .search-icon-wrapper-new svg path {
             fill: theme(colors.white) !important;
           }
+
+.submenu-container {
+  &.level-2 {
+    border-left: 1px solid;
+    margin-left: 2rem;
+  }
+  &.level-1 {
+    margin-left: -1.5rem;
+  }
+}
+
+.actions {
+  &.selected-action-level-1 {
+    border-left:4px solid theme(colors.primary.main);
+    margin-left: -0.6rem;
+    height: 2rem;
+  }
+  &.default-1 {
+    margin-left: -0.6rem;
+    height: 2rem;
+  }
+  &.custom {
+    margin-left: 0.3rem;
+  }
+}
