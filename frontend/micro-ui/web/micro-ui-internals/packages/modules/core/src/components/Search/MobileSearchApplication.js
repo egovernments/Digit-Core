@@ -1,6 +1,5 @@
-import {
-  BackButton, CloseSvg, DetailsCard, DownloadBtnCommon, Header, Loader, PopUp, SearchAction, SearchForm
-} from "@egovernments/digit-ui-react-components";
+import { CloseSvg, DownloadBtnCommon } from "@egovernments/digit-ui-react-components";
+import { BackButton, DetailsCard, Header, Loader, PopUp, SearchAction, SearchForm } from "@egovernments/digit-ui-components-core";
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import SearchFormFields from "./SearchFields";
 // import { convertEpochToDateDMY } from "../../utils";

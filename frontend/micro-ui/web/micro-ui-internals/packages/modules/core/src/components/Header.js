@@ -1,6 +1,6 @@
+import { Loader } from "@egovernments/digit-ui-components-core";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Loader } from "@egovernments/digit-ui-react-components"
 
 const Header = () => {
   const { data: storeData, isLoading } = Digit.Hooks.useStore.getInitData();

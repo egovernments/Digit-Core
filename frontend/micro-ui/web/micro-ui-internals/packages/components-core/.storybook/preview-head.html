@@ -1,0 +1,24 @@
+<head>
+    <!-- .storybook/preview-head.html -->
+
+    <!-- Pull in static files served from your Static directory or the internet -->
+    <!-- Example: `main.js|ts` is configured with staticDirs: ['../public'] and your font is located in the `fonts` directory inside your `public` directory -->
+    <link rel="preload" href="/fonts/my-font.woff2" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap"
+        rel='stylesheet' type='text/css'>
+    <!-- Or you can load custom head-tag JavaScript: -->
+
+    <script src="https://use.typekit.net/xxxyyy.js"></script>
+    <script>
+        try {
+            Typekit.load();
+        } catch (e) { }
+    </script>
+</head>
+
+<body>
+    <!--  .storybook/preview-body.html -->
+
+    <div id="custom-root"></div>
+</body>

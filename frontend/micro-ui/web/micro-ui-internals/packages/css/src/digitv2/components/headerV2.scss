@@ -3,5 +3,9 @@
 
 .digit-header {
   @extend .light-text-color-primary;
-  @apply font-bold mb-md ml-md;
+  @apply font-bold mb-md;
+  &.label {
+    margin: 0;
+    margin-bottom: 0.25rem;
+  }
 }

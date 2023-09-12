@@ -1,4 +1,5 @@
-import { Dropdown, Hamburger, TopBar as TopBarComponent } from "@egovernments/digit-ui-react-components";
+import { Hamburger, TopBar as TopBarComponent } from "@egovernments/digit-ui-react-components";
+import { Dropdown } from "@egovernments/digit-ui-components-core";
 import React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import ChangeCity from "../ChangeCity";
@@ -134,7 +135,7 @@ const TopBar = ({
                   showArrow={true}
                   freeze={true}
                   style={mobileView ? { right: 0 } : {}}
-                  optionCardStyles={{ overflow: "revert",display:"table" }}
+                  optionCardStyles={{ overflow: "revert", display: "table" }}
                   customSelector={
                     profilePic == null ? (
                       <TextToImg name={userDetails?.info?.name || userDetails?.info?.userInfo?.name || "Employee"} />

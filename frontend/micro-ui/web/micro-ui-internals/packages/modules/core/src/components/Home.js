@@ -1,17 +1,5 @@
-import {
-  BackButton,
-  BillsIcon,
-  CitizenHomeCard,
-  CitizenInfoLabel,
-  FSMIcon,
-  Loader,
-  MCollectIcon,
-  OBPSIcon,
-  PGRIcon,
-  PTIcon,
-  TLIcon,
-  WSICon,
-} from "@egovernments/digit-ui-react-components";
+import { BackButton, CitizenHomeCard, CitizenInfoLabel, Loader } from "@egovernments/digit-ui-components-core";
+import { BillsIcon, FSMIcon, MCollectIcon, OBPSIcon, PGRIcon, PTIcon, TLIcon, WSICon } from "@egovernments/digit-ui-react-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
