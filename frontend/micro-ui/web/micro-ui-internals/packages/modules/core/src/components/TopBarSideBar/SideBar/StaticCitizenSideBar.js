@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { Loader } from "@egovernments/digit-ui-components-core";
 import {
   HomeIcon,
   EditPencilIcon,
   LogoutIcon,
-  Loader,
   AddressBookIcon,
   PropertyHouse,
   CaseIcon,
@@ -26,7 +26,6 @@ import { useHistory } from "react-router-dom";
 import LogoutDialog from "../../Dialog/LogoutDialog";
 import ChangeCity from "../../ChangeCity";
 import { defaultImage } from "../../utils";
-
 
 /* 
 Feature :: Citizen Webview sidebar
