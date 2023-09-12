@@ -9,8 +9,8 @@ const PageBasedInput = ({ children, texts, onSubmit }) => {
         {children}
         <Button className="digit-page-based-submit-bar" label={texts.submitBarLabel} onClick={onSubmit} />
       </Card>
-      <div className="digit-submit-bar">
-        <Button label={texts.submitBarLabel} onClick={onSubmit} />
+      <div className="digit-submit-bar-container">
+        <Button variation="digit-submit-bar" label={texts.submitBarLabel} onClick={onSubmit} />
       </div>
     </div>
   );

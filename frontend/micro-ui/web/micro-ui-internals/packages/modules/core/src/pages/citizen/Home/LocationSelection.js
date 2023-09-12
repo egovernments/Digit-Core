@@ -29,7 +29,7 @@ const LocationSelection = () => {
     return {
       options: cities,
       optionsKey: "i18nKey",
-      additionalWrapperClass: "reverse-radio-selection-wrapper",
+      additionalWrapperClass: "digit-reverse-radio-selection-wrapper",
       onSelect: selectCity,
       selectedOption: selectedCity,
     };

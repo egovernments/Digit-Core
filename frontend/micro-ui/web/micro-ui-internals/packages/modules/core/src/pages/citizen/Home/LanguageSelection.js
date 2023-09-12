@@ -22,7 +22,7 @@ const LanguageSelection = () => {
     () => ({
       options: languages,
       optionsKey: "label",
-      additionalWrapperClass: "reverse-radio-selection-wrapper",
+      additionalWrapperClass: "digit-reverse-radio-selection-wrapper",
       onSelect: (language) => Digit.LocalizationService.changeLanguage(language.value, stateInfo.code),
       selectedOption: languages?.filter((i) => i.value === selectedLanguage)[0],
     }),
