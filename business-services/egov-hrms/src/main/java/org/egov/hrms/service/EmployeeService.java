@@ -238,7 +238,7 @@ public class EmployeeService {
 		
 		List <Employee> employees = new ArrayList<>();
 		List<Employee> filteredEmployees  = new ArrayList<>();
-        if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())|| !StringUtils.isEmpty(criteria.getBoundaryType())|| !StringUtils.isEmpty(criteria.getBoundaryType())) && CollectionUtils.isEmpty(criteria.getUuids())))
+        if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())|| !StringUtils.isEmpty(criteria.getBoundary())|| !StringUtils.isEmpty(criteria.getBoundaryType())) && CollectionUtils.isEmpty(criteria.getUuids())))
             employees = repository.fetchEmployees(criteria, requestInfo, stateLevelTenantId);
          if(!StringUtils.isEmpty(criteria.getBoundary()))	
         	 filteredEmployees = filterEmployeesByJurisdiction(employees, validBoundaryCodes); //gives employees filtered based on Jurisdiction

@@ -91,13 +91,12 @@ public class EmployeeQueryBuilder {
 			preparedStmtList.add(criteria.getIsActive());
 		}
 		
-		if(!(StringUtils.isEmpty(criteria.getBoundaryType())) && StringUtils.isEmpty(criteria.getBoundary())) {
-			builder.append(" and jurisdiction.boundarytype = ?");
-			preparedStmtList.add(criteria.getBoundaryType());
-		}
-		else if(!(CollectionUtils.isEmpty(criteria.getValidBoundaryCodes()))) {
+		if(!(CollectionUtils.isEmpty(criteria.getValidBoundaryCodes()))) {
 			builder.append(" and jurisdiction.boundary IN (").append(createQuery(criteria.getValidBoundaryCodes())).append(")");
 			addToPreparedStatement(preparedStmtList, criteria.getValidBoundaryCodes());
+		}else if(!(StringUtils.isEmpty(criteria.getBoundaryType()))) {
+			builder.append(" and jurisdiction.boundarytype = ?");
+			preparedStmtList.add(criteria.getBoundaryType());
 		}
 	}
 	
