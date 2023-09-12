@@ -18,8 +18,12 @@ import {
 } from "@egovernments/digit-ui-react-components";
 import ReactTooltip from "react-tooltip";
 import { set } from "lodash";
+import { useHistory, useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Sidebar = ({ data }) => {
+  const { t } = useTranslation()
+  const history = useHistory();
   const [openItems, setOpenItems] = useState({});
   const [selectedParent, setSelectedParent] = useState(null);
   const [selectedChild, setSelectedChild] = useState(null);
@@ -54,8 +58,8 @@ const Sidebar = ({ data }) => {
     setSubNav(true);
   };
   const closeSidebar = () => {
-    setSubNav(false);
-    setOpenItems({});
+    // setSubNav(false);
+    // setOpenItems({});
   };
 
   function extractLeftIcon(data) {
@@ -77,23 +81,31 @@ const Sidebar = ({ data }) => {
     return null; // Return null if no non-empty leftIcon is found
   }
   const renderSidebarItems = (items, parentKey = null, flag = true) => {
+    
     return (
       <div className="submenu-container">
         {Object.keys(items).map((key, index) => {
+          
           const subItems = items[key];
           const subItemKeys = Object.keys(subItems)[0] === "item";
           const isSubItemOpen = openItems[key] || false;
           var itemKey = parentKey ? `${parentKey}` : key;
+          const getModuleName = key?.replace(/[ -]/g, "_");
+          const appendTranslate = t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${getModuleName}`));
+          const trimModuleName = t(appendTranslate?.length > 20 ? appendTranslate.substring(0, 20) + "..." : appendTranslate);
+          
           if (!subItemKeys && subItems && Object.keys(subItems).length > 0) {
             // If the item has sub-items, render a dropdown with toggle button
             const leftIconArray = extractLeftIcon(subItems);
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
             const isParentActive = selectedParent === itemKey;
+            
             return (
               <div
                 key={index}
                 className={`sidebar-link ${isParentActive ? "active" : ""}`}
                 style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                // onClick={() => history.push(`${subItems?.item?.navigationURL}`)}
               >
                 <div
                   className="actions"
@@ -101,15 +113,16 @@ const Sidebar = ({ data }) => {
                     toggleSidebar(key);
                     setSelectedParent(itemKey);
                     setSelectedChild(null);
+                    // history.push(`${subItems?.item?.navigationURL}`)
                   }}
                   style={{ display: "flex", flexDirection: "row" }}
                 >
                   {flag && <div className="link-icon">{leftIcon}</div>}
                   <div data-tip="React-tooltip" data-for={`jk-side-${key}`}>
-                    <span> {key} </span>
-                    {key?.includes("...") && (
+                    <span> {trimModuleName} </span>
+                    {trimModuleName?.includes("...") && (
                       <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${key}`}>
-                        {t(`ACTION_TEST_${key}`)}
+                        {t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${key}`))}
                       </ReactTooltip>
                     )}
                   </div>
@@ -121,6 +134,7 @@ const Sidebar = ({ data }) => {
               </div>
             );
           } else if (subItemKeys) {
+            console.log(trimModuleName);
             // If the item is a link, render it
             const leftIconArray = extractLeftIcon(subItems);
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
@@ -133,11 +147,21 @@ const Sidebar = ({ data }) => {
                   const keyToHighlight = subItems.item.path;
                   setSelectedParent(parentKey); // Update the selected parent when a child is clicked
                   setSelectedChild(keyToHighlight);
+                  history.push(`${subItems?.item?.navigationURL}`)
                 }}
               >
-                <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
+                {/* <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
                   {flag && <div className="link-icon">{leftIcon}</div>}
-                  <div style={{ marginLeft: "20px" }}>{subItems.item.displayName}</div>
+                  <span>{trimModuleName}</span>
+                </div> */}
+                 <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${key}`}>
+                 {flag && <div className="link-icon">{leftIcon}</div>}
+                    <span> {trimModuleName} </span>
+                    {trimModuleName?.includes("...") && (
+                      <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${key}`}>
+                        {t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${key}`))}
+                      </ReactTooltip>
+                    )}
                 </div>
               </a>
             );
