@@ -1,6 +1,5 @@
-import {
-  BackButton, CloseSvg, CustomButton, DownloadImgIcon, Header, Loader, PDFSvg
-} from "@egovernments/digit-ui-react-components";
+import { BackButton, Header, Loader, Button } from "@egovernments/digit-ui-components-core";
+import { CloseSvg, DownloadImgIcon, PDFSvg } from "@egovernments/digit-ui-react-components";
 import React, { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -66,11 +65,7 @@ const HowItWorks = ({ module }) => {
         <div className="language-selector" style={{ margin: "10px" }}>
           {languages.map((language, index) => (
             <div className="language-button-container" key={index}>
-              <CustomButton
-                selected={language.value === selected}
-                text={language.label}
-                onClick={() => handleChangeLanguage(language)}
-              ></CustomButton>
+              <Button text={language.label} onClick={() => handleChangeLanguage(language)} variation={language.value === selected ? "primary" : ""} />
             </div>
           ))}
         </div>

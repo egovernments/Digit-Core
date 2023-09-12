@@ -1,8 +1,9 @@
-import { BackButton, DownloadBtnCommon, Header, Loader, SearchForm, Table } from "@egovernments/digit-ui-react-components";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { BackButton, Loader, Header, SearchForm, SVG } from "@egovernments/digit-ui-components-core";
 import { Controller, useForm } from "react-hook-form";
 import MobileSearchApplication from "./MobileSearchApplication";
 import SearchFields from "./SearchFields";
+import { Table } from "@egovernments/digit-ui-react-components";
 
 const SearchApplication = ({ tenantId, t, onSubmit, data, count }) => {
   const initialValues = Digit.SessionStorage.get("AUDIT_APPLICATION_DETAIL") || {
@@ -42,7 +43,7 @@ const SearchApplication = ({ tenantId, t, onSubmit, data, count }) => {
   const DownloadBtn = (props) => {
     return (
       <div onClick={props.onClick}>
-        <DownloadBtnCommon />
+        <SVG.FileDownload />
       </div>
     );
   };

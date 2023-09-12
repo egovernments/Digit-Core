@@ -1,0 +1,17 @@
+.digit-details-container {
+  @apply flex flex-col m-sm pt-md pb-md pl-sm pr-sm bg-white rounded;
+  border: 2px solid #fff;
+  &.digit-selected {
+    border: 2px solid #f47738;
+  }
+  .digit-detail {
+    @apply grid grid-cols-2 gap-2 items-baseline;
+    .digit-label {
+      width: 138px;
+      @apply font-bold text-heading-s text-text-primary mb-md;
+    }
+    .digit-name {
+      @apply pt-md;
+    }
+  }
+}

@@ -10,6 +10,8 @@
   "workspaces": [
     "micro-ui-internals/packages/libraries",
     "micro-ui-internals/packages/react-components",
+    "micro-ui-internals/packages/components-core",
+    "micro-ui-internals/packages/svg-components",
     "micro-ui-internals/packages/modules/*"
   ],
   "homepage": "/digit-ui",

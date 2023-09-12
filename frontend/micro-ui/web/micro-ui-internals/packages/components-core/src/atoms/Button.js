@@ -2,9 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const Button = (props) => {
-  let className = props?.variation !== "primary" ? `digit-button-secondary` : `digit-button-primary`;
+  let className = props?.variation === "primary" ? "digit-button-primary" : props?.variation ? props?.variation : "digit-button-secondary";
   return (
     <button
+      ref={props?.ref}
       className={`${className} ${props?.className ? props?.className : ""} ${props?.isDisabled ? "disabled" : ""}`}
       type={props?.submit ? "submit" : props.type || "button"}
       form={props.formId}

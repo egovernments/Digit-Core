@@ -1,6 +1,5 @@
-import {
-  Loader, NavBar
-} from "@egovernments/digit-ui-react-components";
+import { Loader } from "@egovernments/digit-ui-components-core";
+import { NavBar } from "@egovernments/digit-ui-react-components";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -208,7 +207,9 @@ export const CitizenSideBar = ({ isOpen, isMobile = false, toggleSidebar, onLogo
         menuItems.splice(1, 0, {
           type: "dynamic",
           moduleName: t(`ACTION_TEST_${getParentDisplayName}`),
-          links: configEmployeeSideBar[keys[i]]?.map((ob) => {return {...ob, displayName: t(`ACTION_TEST_${ob?.displayName?.toUpperCase()?.replace(/[ -]/g, "_")}`)}}),
+          links: configEmployeeSideBar[keys[i]]?.map((ob) => {
+            return { ...ob, displayName: t(`ACTION_TEST_${ob?.displayName?.toUpperCase()?.replace(/[ -]/g, "_")}`) };
+          }),
           icon: configEmployeeSideBar[keys[i]][1]?.leftIcon,
         });
       }

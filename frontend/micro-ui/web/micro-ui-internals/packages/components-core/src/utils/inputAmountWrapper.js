@@ -15,7 +15,7 @@ export const InputAmountWrapper = ({ ref, ...props }) => {
   const [rawValue, setRawValue] = useState(" ");
 
   useEffect(() => {
-    props.onValueChange(value);
+    props.onValueChange ? props.onValueChange(value) : null;
   }, [value]);
 
   /**

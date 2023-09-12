@@ -1,6 +1,5 @@
-import {
-  Calender, CardBasedOptions, CaseIcon, ComplaintIcon, DocumentIcon, HomeIcon, Loader, OBPSIcon, PTIcon, WhatsNewCard
-} from "@egovernments/digit-ui-react-components";
+import { CardBasedOptions, WhatsNewCard, Loader } from "@egovernments/digit-ui-components-core";
+import { Calender, CaseIcon, ComplaintIcon, DocumentIcon, HomeIcon, OBPSIcon, PTIcon } from "@egovernments/digit-ui-react-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";

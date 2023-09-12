@@ -17,21 +17,21 @@ export default {
           "time",
           "amount",
           "textarea",
-          "paragraph",
           "mobileNumber",
-          "custom",
-          "checkbox",
-          "multiupload",
-          "select",
-          "radio",
-          "dropdown",
-          "radioordropdown",
-          "component",
-          "documentUpload",
-          "form",
-          "locationdropdown",
-          "apidropdown",
-          "multiselectdropdown",
+          // "paragraph",
+          // "custom",
+          // "checkbox",
+          // "multiupload",
+          // "select",
+          // "radio",
+          // "dropdown",
+          // "radioordropdown",
+          // "component",
+          // "documentUpload",
+          // "form",
+          // "locationdropdown",
+          // "apidropdown",
+          // "multiselectdropdown",
         ],
       },
     },
@@ -44,11 +44,14 @@ export default {
   },
 };
 
-const Template = (args) => <FieldComposer type={args?.type} {...args} />;
+const Template = (args) => {
+  return <FieldComposer {...args} />;
+};
 
 export const Playground = Template.bind({});
 Playground.args = {
-  type: args?.type,
+  type: "date",
+  variant: "default",
   populators: {
     name: "Label",
     error: "Required",

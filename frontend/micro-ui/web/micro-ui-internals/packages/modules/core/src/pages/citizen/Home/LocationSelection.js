@@ -1,4 +1,4 @@
-import { BackButton, CardHeader, CardLabelError, PageBasedInput, SearchOnRadioButtons } from "@egovernments/digit-ui-react-components";
+import { BackButton, CardHeader, CardLabelError, PageBasedInput, SearchOnRadioButtons } from "@egovernments/digit-ui-components-core";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useLocation } from "react-router-dom";
@@ -29,7 +29,7 @@ const LocationSelection = () => {
     return {
       options: cities,
       optionsKey: "i18nKey",
-      additionalWrapperClass: "reverse-radio-selection-wrapper",
+      additionalWrapperClass: "digit-reverse-radio-selection-wrapper",
       onSelect: selectCity,
       selectedOption: selectedCity,
     };

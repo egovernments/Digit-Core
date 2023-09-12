@@ -1,0 +1,33 @@
+.digit-page-based-input-wrapper {
+  .digit-submit-bar-container {
+    z-index: 60;
+    @apply p-sm fixed w-full bottom-0 left-0 text-right bg-white;
+    .digit-submit-bar {
+      @apply w-full;
+      height: 2.5rem;
+    }
+  }
+  .digit-page-based-submit-bar {
+    @apply hidden;
+  }
+  label {
+    margin-left: 0 !important;
+  }
+}
+
+@screen dt {
+  .digit-page-based-input-wrapper {
+    .digit-submit-bar {
+      @apply hidden;
+    }
+    .digit-page-based-submit-bar {
+      @apply block;
+    }
+    .digit-card {
+      max-width: 960px;
+    }
+    button {
+      max-width: 240px;
+    }
+  }
+}

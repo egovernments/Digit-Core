@@ -1,0 +1,55 @@
+.digit-home-footer {
+  &.citizen {
+    @apply flex w-full h-10 bg-grey-bg pb-md pt-sm justify-center;
+    img {
+      @apply ml-sm;
+      height: 1.2em;
+      cursor: pointer;
+    }
+  }
+}
+
+.digit-employee .digit-home-footer {
+  &.citizen {
+    @apply fixed bottom-0;
+  }
+}
+.digit-fill-path-primary-main {
+  path {
+    fill: theme(colors.primary.main);
+  }
+}
+
+.digit-home-footer {
+  &.sidebar {
+    width: 200px;
+    margin-left: 50px;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+}
+
+.digit-footer {
+  @apply flex h-4 mb-sm;
+  img {
+    @apply mr-sm;
+  }
+}
+
+.digit-home-footer {
+  &.employee {
+    @apply flex h-10 bg-grey-bg pb-md pt-sm justify-center w-full;
+    img {
+      height: 100%;
+    }
+  }
+}
+.digit-home-footer {
+  &.employee-login {
+    @apply flex fixed bottom-0 h-10 bg-grey-bg pb-md pt-sm justify-center w-full;
+    img {
+      @apply ml-sm;
+    }
+  }
+}

@@ -231,7 +231,7 @@ export const FormComposer = (props) => {
             return (
               <React.Fragment key={index}>
                 <div style={field.isInsideBox ? getCombinedStyle(field?.placementinbox) : field.inline ? { display: "flex" } : {}}>
-                  {!field.withoutLabel && (
+                  {/* {!field.withoutLabel && (
                     <Header
                       style={{ color: field.isSectionText ? "#505A5F" : "", marginBottom: props.inline ? "8px" : "revert" }}
                       className={` ${field?.disable ? `disabled ${props?.labelBold ? "bolder" : ""}` : `${props?.labelBold ? "bolder" : ""}`}`}
@@ -240,10 +240,10 @@ export const FormComposer = (props) => {
                       {field.isMandatory ? " * " : null}
                       {field.labelChildren && field.labelChildren}
                     </Header>
-                  )}
-                  {errors && errors[field.populators?.name] && Object.keys(errors[field.populators?.name]).length ? (
+                  )} */}
+                  {/* {errors && errors[field.populators?.name] && Object.keys(errors[field.populators?.name]).length ? (
                     <ErrorMessage>{t(field.populators.error || errors[field.populators?.name]?.message)}</ErrorMessage>
-                  ) : null}
+                  ) : null} */}
                   <div style={field.withoutLabel ? { width: "100%" } : {}} className="digit-field">
                     {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field, sectionFormCategory)}
                     {field?.description && (

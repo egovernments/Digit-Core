@@ -1,11 +1,11 @@
-import { BackButton, CardSubHeader, CardText, FormComposer, Toast } from "@egovernments/digit-ui-react-components";
+import { FormComposer } from "@egovernments/digit-ui-react-components";
+import { BackButton, CardText, Toast, CardHeader } from "@egovernments/digit-ui-components-core";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Background from "../../../components/Background";
 import Header from "../../../components/Header";
 import SelectOtp from "../../citizen/Login/SelectOtp";
-
 
 const ChangePasswordComponent = ({ config: propsConfig, t }) => {
   const [user, setUser] = useState(null);
@@ -120,7 +120,9 @@ const ChangePasswordComponent = ({ config: propsConfig, t }) => {
         className="employeeChangePassword"
       >
         <Header />
-        <CardSubHeader style={{ textAlign: "center" }}> {propsConfig.texts.header} </CardSubHeader>
+        {/* V2-> replacing cardSubHeader with CardHeader.
+        To implement CardSubHeader, just add props variant -> "digit-card-sub-header"*/}
+        <CardHeader variant="digit-card-sub-header">{propsConfig.texts.header}</CardHeader>
         <CardText>
           {`${t(`CS_LOGIN_OTP_TEXT`)} `}
           <b>
