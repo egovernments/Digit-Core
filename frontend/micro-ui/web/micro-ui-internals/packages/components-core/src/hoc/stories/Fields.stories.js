@@ -57,7 +57,6 @@ Playground.args = {
     error: "Required",
     validation: {
       pattern: {},
-      maxlength: 5,
     },
   },
   isMandatory: false,
@@ -74,7 +73,6 @@ Playground.args = {
       error: "Required",
       validation: {
         pattern: {},
-        maxlength: 5,
       },
     },
   },
@@ -98,7 +96,6 @@ Playground.args = {
               error: "Required",
               validation: {
                 pattern: {},
-                maxlength: 5,
               },
             },
           },
