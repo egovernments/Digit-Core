@@ -24,6 +24,7 @@ import DatePicker from "./DatePicker";
 import DisplayPhotos from "./DisplayPhotos";
 import Dropdown from "./Dropdown";
 import ErrorMessage from "./ErrorMessage";
+import Footer from "./Footer";
 import Header from "./Header";
 import HeaderBar from "./HeaderBar";
 import HorizontalNav from "./HorizontalNav";
@@ -81,6 +82,7 @@ export {
   DisplayPhotos,
   Dropdown,
   ErrorMessage,
+  Footer,
   Header,
   HeaderBar,
   HorizontalNav,
