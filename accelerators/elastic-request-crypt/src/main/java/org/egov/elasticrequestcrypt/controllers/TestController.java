@@ -1,6 +1,7 @@
 package org.egov.elasticrequestcrypt.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.elasticrequestcrypt.models.HttpRequestLog;
 import org.egov.elasticrequestcrypt.models.PlainCorrelator;
 import org.egov.elasticrequestcrypt.service.CorrelatorRequestProcessingService;
 import org.egov.encryption.web.contract.EncryptionRequest;
@@ -27,8 +28,8 @@ public class TestController {
     }
 
     @RequestMapping(value="/_test", method = RequestMethod.POST)
-    public ResponseEntity<Void> create(@RequestBody @Valid PlainCorrelator plainCorrelator) {
-        correlatorRequestProcessingService.processEncryptedCorrelatorRequest(plainCorrelator);
+    public ResponseEntity<Void> create(@RequestBody @Valid HttpRequestLog httpRequestLog) {
+//        correlatorRequestProcessingService.processEncryptedCorrelatorRequest(httpRequestLog);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

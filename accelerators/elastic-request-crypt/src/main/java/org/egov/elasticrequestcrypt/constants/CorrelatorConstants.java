@@ -8,4 +8,6 @@ public class CorrelatorConstants {
 
     public static final String SLASH_SEPARATOR = "/";
 
+    public static final String ENCRYPTION_TYPE_NORMAL = "Normal";
+
 }

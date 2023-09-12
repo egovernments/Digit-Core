@@ -30,5 +30,8 @@ public class ApplicationProperties {
     @Value("${enc.endpoint}")
     private String encEndpoint;
 
+    @Value("${enc.root.tenantid}")
+    private String encRootTenantId;
+
 
 }

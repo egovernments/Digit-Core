@@ -2,7 +2,7 @@ package org.egov.elasticrequestcrypt.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.egov.elasticrequestcrypt.models.PlainCorrelator;
+import org.egov.elasticrequestcrypt.models.HttpRequestLog;
 import org.egov.elasticrequestcrypt.service.CorrelatorRequestProcessingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -34,11 +34,11 @@ public class PlainCorrelatorRequestConsumer {
     @KafkaListener(topics = { "${process.correlator.requests.kafka.topic}"})
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         try {
-            // Convert incoming payload to PlainCorrelator request
-            PlainCorrelator plainCorrelator = mapper.convertValue(record, PlainCorrelator.class);
+            // Convert incoming payload to HttpRequestLog.
+            HttpRequestLog httpRequestLog = mapper.convertValue(record, HttpRequestLog.class);
 
-            // Process the plain correlator request received.
-            correlatorRequestProcessingService.processEncryptedCorrelatorRequest(plainCorrelator);
+            // Process the http request log which was consumed.
+            correlatorRequestProcessingService.processHttpLogRequest(httpRequestLog);
         } catch (Exception ex) {
             StringBuilder builder = new StringBuilder("Error while listening to value: ").append(record)
                     .append("on topic: ").append(topic);
