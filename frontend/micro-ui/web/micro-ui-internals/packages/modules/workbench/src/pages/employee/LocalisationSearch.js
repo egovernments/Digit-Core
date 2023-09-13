@@ -123,7 +123,7 @@ const LocalisationSearch = () => {
               history.push(`/${window?.contextPath}/employee/${Config?.actionLink}`);
             }}
             type="button"
-            style={{width:"15rem"}}
+            className={'header-btn'}
           />
         )}
       </div>
