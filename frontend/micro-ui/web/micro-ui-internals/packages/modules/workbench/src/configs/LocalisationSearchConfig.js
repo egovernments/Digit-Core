@@ -104,10 +104,6 @@ export const Config = {
         tableClassName:"table-fixed-last-column table",
         columns: [
           {
-            label: "WBH_LOC_HEADER_MODULENAME",
-            jsonPath: "module",
-          },
-          {
             label: "WBH_LOC_HEADER_CODE",
             jsonPath: "code",
           },
@@ -118,6 +114,10 @@ export const Config = {
           {
             label: "WBH_LOC_HEADER_MESSAGE",
             jsonPath: "defaultMessage",
+          },
+          {
+            label: "WBH_LOC_HEADER_MODULENAME",
+            jsonPath: "module",
           },
           {
             label: "CS_COMMON_ACTION",
