@@ -35,6 +35,7 @@ const WorkbenchBreadCrumb = ({ location ,defaultPath}) => {
       path: `/${window.contextPath}/employee/workbench/localisation-search`,
       content:  t(`LOCALISATION_SEARCH`) ,
       show: pathVar.includes("localisation-")?true: false,
+      isBack:pathVar.includes("localisation-search") ? true : false
       // query:`moduleName=${moduleName}&masterName=${masterName}`
     },
     
@@ -43,7 +44,7 @@ const WorkbenchBreadCrumb = ({ location ,defaultPath}) => {
       query:`moduleName=${moduleName}&masterName=${masterName}`,
       content:  t(`${Digit.Utils.workbench.getMDMSLabel(pathVar,masterName,moduleName)}`) ,
       show: (masterName && moduleName) ? true : false,
-      isBack:false
+      isBack:pathVar.includes("mdms-search-v2") ? true : false
     },
     {
       path: `/${window.contextPath}/employee/workbench/mdms-view`,
