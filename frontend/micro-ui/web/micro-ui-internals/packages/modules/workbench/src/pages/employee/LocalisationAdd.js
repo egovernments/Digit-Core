@@ -588,6 +588,7 @@ const LocalisationAdd = () => {
             icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
             type="button"
             onButtonClick={callInputClick}
+            style={{width:"15rem"}}
           />
           <input className={"hide-input-type-file"} ref={inputRef} type="file" accept="xls xlsx" onChange={handleBulkUpload} />
         </div>
