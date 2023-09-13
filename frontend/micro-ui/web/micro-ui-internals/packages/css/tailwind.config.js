@@ -220,7 +220,7 @@ module.exports = {
         normal: "normal",
       },
       screens: {
-        mobile: "360px",
+        mobile: "400px",
         tablet: "768px",
         desktop: "1024px",
       },

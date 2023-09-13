@@ -1,4 +1,4 @@
-import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown } from "@egovernments/digit-ui-react-components";
+import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown, Card } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
@@ -163,9 +163,9 @@ const MDMSManageMaster = () => {
     <React.Fragment>
         <Header className="works-header-search">{t(Config?.label)}</Header>
       <div className="jk-header-btn-wrapper">
+        <Card className="manage-master-wrapper">
         <Dropdown
           option={masterOptions}
-          style={{width:"25%",marginRight:"1rem" }}
           className={"form-field"}
           optionKey="code"
           selected={master && modulee ? toDropdownObj(master) : masterName}
@@ -182,7 +182,7 @@ const MDMSManageMaster = () => {
         />
         <Dropdown
           option={moduleOptions}
-          style={{width:"25%",marginRight:"auto" }}
+          style={{marginRight:"auto" }}
           className={"form-field"}
           optionKey="code"
           selected={master && modulee ? toDropdownObj(master,modulee) : moduleName}
@@ -195,6 +195,7 @@ const MDMSManageMaster = () => {
           
           disable = {modulee ? true : false}
         />
+        </Card>
       </div>
     </React.Fragment>
   );

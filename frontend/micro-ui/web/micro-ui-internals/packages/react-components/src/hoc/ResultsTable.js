@@ -209,6 +209,7 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
                 }}
                 onClickRow={additionalConfig?.resultsTable?.onClickRow}
                 rowClassName={config.rowClassName}
+                noColumnBorder={config?.noColumnBorder}
             />}
         </div>
     )

@@ -7,7 +7,7 @@ const Breadcrumb = (props) => {
     return index === props.crumbs.length - 1;
   }
   return (
-    <ol className="bread-crumb">
+    <ol className={`bread-crumb ${props?.className?props?.className:""}`}>
       {props?.crumbs?.map((crumb, ci) => {
         if (!crumb?.show) return;
         if (crumb?.isBack)

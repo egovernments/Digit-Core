@@ -170,7 +170,8 @@ export const Config = {
         enableGlobalSearch: false,
         enableColumnSort: true,
         resultsJsonPath: "mdms",
-        rowClassName:"table-row-mdms"
+        rowClassName:"table-row-mdms",
+        noColumnBorder:true
       },
       children: {},
       show: true,

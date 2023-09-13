@@ -12,7 +12,7 @@ import MDMSSearchv2 from "./MDMSSearchv2";
 import MDMSManageMaster from "./MDMSManageMaster";
 import LocalisationAdd from "./LocalisationAdd";
 
-const MastersBreadCrumb = ({ location ,defaultPath}) => {
+const WorkbenchBreadCrumb = ({ location ,defaultPath}) => {
   const { t } = useTranslation();
   const search = useLocation().search;
   const fromScreen = new URLSearchParams(search).get("from") || null;
@@ -58,7 +58,7 @@ const MastersBreadCrumb = ({ location ,defaultPath}) => {
     },
     
   ];
-  return <BreadCrumb crumbs={crumbs} spanStyle={{ maxWidth: "min-content" }} />;
+  return <BreadCrumb className="workbench-bredcrumb" crumbs={crumbs} spanStyle={{ maxWidth: "min-content" }} />;
 };
 
 const App = ({ path }) => {
@@ -80,9 +80,9 @@ const App = ({ path }) => {
 
   return (
     <React.Fragment>
-      <MastersBreadCrumb location={location} defaultPath={path} />
+      <WorkbenchBreadCrumb location={location} defaultPath={path} />
       <Switch>
-        <div>
+        <AppContainer className="workbench">
           <PrivateRoute path={`${path}/sample`} component={() => <div>Sample Screen loaded</div>} />
           <PrivateRoute path={`${path}/localisation-search`} component={() => <LocalisationSearch />} />
           <PrivateRoute path={`${path}/mdms-search`} component={() => <MDMSSearch />} />
@@ -94,7 +94,7 @@ const App = ({ path }) => {
           <PrivateRoute path={`${path}/mdms-search-v2`} component={() => <MDMSSearchv2 parentRoute={path}/>} />
           <PrivateRoute path={`${path}/localisation-add`} component={() => <LocalisationAdd parentRoute={path}/>} />
           
-        </div>
+        </AppContainer>
       </Switch>
     </React.Fragment>
   );
