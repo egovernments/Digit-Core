@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useMemo, useRef } from "react";
+import React, { useState, useEffect, useReducer, useMemo, useRef,useCallback } from "react";
 import {
   Card,
   CustomDropdown,
@@ -14,6 +14,7 @@ import {
   Toast,
   InfoBannerIcon,
   UploadFile,
+  DeleteIcon
 } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import reducer, { intialState } from "../../utils/LocAddReducer";
@@ -145,7 +146,7 @@ const LocalisationAdd = () => {
   const [jsonResult, setJsonResult] = useState(null);
   const [jsonResultDefault,setJsonResultDefault] = useState(null)
   const [state, dispatch] = useReducer(reducer, intialState);
-  
+  const [isDeleted,setIsDeleted] = useState(null)
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -167,6 +168,18 @@ const LocalisationAdd = () => {
     }
   }, [selectedLang, selectedModule]);
 
+  
+  
+  const handleDeleteRow =  ({row,val,col}) => {
+      dispatch({
+        type: "DELETE_ROW",
+        state: {
+          row
+        },
+      });
+      setIsDeleted(()=>!isDeleted)
+    }
+
   const columns = useMemo(
     () => [
       {
@@ -183,7 +196,8 @@ const LocalisationAdd = () => {
                   state: {
                     row,
                     value: e.target.value,
-                    id: row.index,
+                    // id: row.index,
+                    id: row.original.id,
                     type: "keycode",
                   },
                 });
@@ -265,7 +279,8 @@ const LocalisationAdd = () => {
                   state: {
                     row,
                     value: e.target.value,
-                    id: row.index,
+                    // id: row.index,
+                    id: row.original.id,
                     type: "message",
                   },
                 });
@@ -277,8 +292,19 @@ const LocalisationAdd = () => {
           );
         },
       },
+      {
+        Header: t("CS_COMMON_ACTION"),
+        // accessor: "code",
+        Cell: ({ value, col, row, ...rest }) => {
+          return (
+            <span onClick={() => handleDeleteRow({row,value,col})} className="icon-wrapper">
+              <DeleteIcon fill={"#B1B4B6"} />
+            </span>
+          );
+        },
+      },
     ],
-    []
+    [isDeleted]
   );
 
   const reqCriteriaAdd = {
@@ -339,16 +365,17 @@ const LocalisationAdd = () => {
       dispatch({
         type: "CLEAR_STATE",
       });
-      // dispatch({
-      //   type: "ADD_ROW",
-      //   state: {
-      //     code: "",
-      //     message: "",
-      //     locale: selectedLang.value,
-      //     module: selectedModule.value,
-      //     id: 0,
-      //   },
-      // });
+      dispatch({
+        type: "ADD_ROW",
+        state: {
+          code: "",
+          message: "",
+          locale: selectedLang.value,
+          module: selectedModule.value,
+          id: 0,
+        },
+      });
+      setIsDeleted(()=>!isDeleted)
     };
     const onError = (resp) => {
       let label = `${t("WBH_LOC_UPSERT_FAIL")}: `
@@ -594,7 +621,8 @@ const LocalisationAdd = () => {
             disable={localeDropdownConfig?.disable}
           />
         </LabelFieldPair>
-
+        </Card>
+        {selectedLang && selectedModule && <Card>
         {/* {selectedLang && selectedModule && (
           <div style={{ display: "flex" }}>
             <Button
@@ -650,7 +678,6 @@ const LocalisationAdd = () => {
                 },
               };
             }}
-            styles={{ marginTop: "3rem" }}
           />
         )}
         {selectedLang && selectedModule && (
@@ -691,7 +718,7 @@ const LocalisationAdd = () => {
           </ActionBar>
         )}
         {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)}></Toast>}
-      </Card>
+      </Card>}
     </React.Fragment>
   );
 };
