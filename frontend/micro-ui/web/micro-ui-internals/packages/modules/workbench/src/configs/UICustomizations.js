@@ -442,7 +442,8 @@ export const UICustomizations = {
       const {field,value,isActive} = custom || {}
       filters[field?.code] = value
       if(isActive){
-        data.body.MdmsCriteria.isActive = isActive?.value
+        if(isActive.value==="all") delete data.body.MdmsCriteria.isActive
+        else data.body.MdmsCriteria.isActive = isActive?.value
       }else{
         delete data.body.MdmsCriteria.isActive
       }

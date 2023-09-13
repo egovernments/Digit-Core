@@ -595,7 +595,7 @@ const LocalisationAdd = () => {
           />
         </LabelFieldPair>
 
-        {selectedLang && selectedModule && (
+        {/* {selectedLang && selectedModule && (
           <div style={{ display: "flex" }}>
             <Button
               label={t("ADD_NEW_ROW")}
@@ -626,7 +626,7 @@ const LocalisationAdd = () => {
               type="button"
             />
           </div>
-        )}
+        )} */}
 
         {state.tableState.length > 0 && (
           <Table
@@ -653,7 +653,38 @@ const LocalisationAdd = () => {
             styles={{ marginTop: "3rem" }}
           />
         )}
-
+        {selectedLang && selectedModule && (
+          <div style={{ display: "flex",marginTop:"2rem" }}>
+            <Button
+              label={t("ADD_NEW_ROW")}
+              variation="secondary"
+              onButtonClick={() => {
+                handleAddRow();
+              }}
+              type="button"
+            />
+            <Button
+              label={t("CLEAR_LOC_TABLE")}
+              variation="secondary"
+              onButtonClick={() => {
+                dispatch({
+                  type: "CLEAR_STATE",
+                });
+                // dispatch({
+                //   type: "ADD_ROW",
+                //   state: {
+                //     code: "",
+                //     message: "",
+                //     locale: selectedLang.value,
+                //     module: selectedModule.value,
+                //     id: 0,
+                //   },
+                // });
+              }}
+              type="button"
+            />
+          </div>
+        )}
         {state.tableState.length > 0 && (
           <ActionBar>
             <SubmitBar label={t("CORE_COMMON_SAVE")} onSubmit={handleSubmit} />
