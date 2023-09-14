@@ -44,14 +44,13 @@ public class FallbackUtil {
         List<Mdms> masterDataListAfterFallback = new ArrayList<>();
         List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
 
-        Map<String, Map<String, List<Mdms>>> schemaGroupedTenantMasterMap = masterDataList.stream()
-                .collect(Collectors.groupingBy(
-                        Mdms::getSchemaCode, // First level grouping by schemaCode
-                        Collectors.groupingBy(
-                                Mdms::getTenantId, // Second level grouping by tenantId
-                                Collectors.toList() // Collect Mdms objects into a List
-                        )
-                ));
+        Map<String, List<Mdms>> schemaMasterMap = masterDataList.parallelStream().collect(Collectors.groupingBy(Mdms::getSchemaCode));
+
+        Map<String, Map<String, List<Mdms>>> schemaGroupedTenantMasterMap = new HashMap<>();
+        schemaMasterMap.keySet().forEach(schemaCode -> {
+            Map<String, List<Mdms>> tenantMasterMap = schemaMasterMap.get(schemaCode).stream().collect(Collectors.groupingBy(Mdms::getTenantId));
+            schemaGroupedTenantMasterMap.put(schemaCode, tenantMasterMap);
+        });
 
         for (String schemaCode : schemaGroupedTenantMasterMap.keySet()) {
             Map<String, List<Mdms>> tenantMasterMap = schemaGroupedTenantMasterMap.get(schemaCode);
