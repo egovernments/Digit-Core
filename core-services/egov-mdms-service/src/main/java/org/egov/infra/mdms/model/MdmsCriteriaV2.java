@@ -39,8 +39,8 @@ public class MdmsCriteriaV2 {
     @Size(min = 1, max = 64)
     private String uniqueIdentifier = null;
 
-    @JsonProperty("schemaCodes")
-    private Set<String> schemaCodes = null;
+    @JsonProperty("schemaCode")
+    private String schemaCode = null;
 
     @JsonProperty("filters")
     private Map<String, String> filterMap = null;

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.egov.infra.mdms.utils.MDMSConstants.DOT_SEPARATOR;
@@ -31,13 +30,19 @@ public class FallbackUtil {
 
     public static Map<String, JSONArray> backTrackTenantMasterDataMap(Map<String, Map<String, JSONArray>> tenantMasterMap, String tenantId) {
         List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
-
+        Map<String, JSONArray> masterDataPostFallBack = new HashMap<>();
         for (String subTenant : subTenantListForFallback) {
-            if(tenantMasterMap.containsKey(subTenant))
-                return tenantMasterMap.get(subTenant);
+            if(tenantMasterMap.containsKey(subTenant)) {
+                for (Map.Entry<String, JSONArray> entry : tenantMasterMap.get(subTenant).entrySet()) {
+                    String schemaCode = entry.getKey();
+                    if(!masterDataPostFallBack.containsKey(schemaCode)) {
+                        masterDataPostFallBack.put(schemaCode, entry.getValue());
+                    }
+                }
+            }
         }
 
-        return new HashMap<>();
+        return masterDataPostFallBack;
     }
 
     public static List<Mdms> backTrackTenantMasterDataList(List<Mdms> masterDataList, String tenantId) {

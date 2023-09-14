@@ -45,8 +45,8 @@ public class MdmsDataQueryBuilderV2 {
         Map<String, String> schemaCodeFilterMap = mdmsCriteriaV2.getSchemaCodeFilterMap();
         if (!Objects.isNull(mdmsCriteriaV2.getTenantId())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.tenantid LIKE ? ");
-            preparedStmtList.add(mdmsCriteriaV2.getTenantId() + "%");
+            builder.append(" data.tenantid = ? ");
+            preparedStmtList.add(mdmsCriteriaV2.getTenantId());
         }
         if (!Objects.isNull(mdmsCriteriaV2.getIds())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
@@ -63,10 +63,10 @@ public class MdmsDataQueryBuilderV2 {
             builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(schemaCodeFilterMap.keySet().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
         }
-        if(!Objects.isNull(mdmsCriteriaV2.getSchemaCodes())){
+        if(!Objects.isNull(mdmsCriteriaV2.getSchemaCode())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getSchemaCodes().size())).append(" )");
-            QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getSchemaCodes());
+            builder.append(" data.schemacode = ? ");
+            preparedStmtList.add(mdmsCriteriaV2.getSchemaCode());
         }
         if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getFilterMap())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);

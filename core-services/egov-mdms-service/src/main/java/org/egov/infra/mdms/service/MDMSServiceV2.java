@@ -11,7 +11,9 @@ import org.egov.infra.mdms.utils.SchemaUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -72,17 +74,21 @@ public class MDMSServiceV2 {
          * Set incoming tenantId as state level tenantId for fallback in case master data for
          * concrete tenantId does not exist.
          */
-        String tenantId = new StringBuilder(mdmsCriteriaReqV2.getMdmsCriteria().getTenantId()).toString();
-        mdmsCriteriaReqV2.getMdmsCriteria().setTenantId(multiStateInstanceUtil.getStateLevelTenant(tenantId));
+        String tenantId = mdmsCriteriaReqV2.getMdmsCriteria().getTenantId();
 
+        List<Mdms> masterDataList = new ArrayList<>();
+        List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
 
         // Make a call to repository and get list of master data
-        List<Mdms> masterDataList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
+        for(String subTenantId : subTenantListForFallback) {
+            mdmsCriteriaReqV2.getMdmsCriteria().setTenantId(subTenantId);
+            masterDataList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
 
-        // Perform fallback
-        List<Mdms> masterDataListAfterFallback = FallbackUtil.backTrackTenantMasterDataList(masterDataList, tenantId);
+            if(!CollectionUtils.isEmpty(masterDataList))
+                break;
+        }
 
-        return masterDataListAfterFallback;
+        return masterDataList;
     }
 
     /**
