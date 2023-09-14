@@ -50,3 +50,34 @@ export const parseXlsToJsonMultipleSheets  = async (uploadEvent) => {
   });
 }
 
+export const parseXlsToJsonMultipleSheetsFile  = async (uploadedFile) => {
+  const allowedFileTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+  return new Promise((resolve, reject) => {
+
+    if (!allowedFileTypes.includes(uploadedFile.type)) {
+      reject(new Error('WBH_LOC_INAVLID_FILY_TYPE'));
+      return;
+    }
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+      const arrayBuffer = event.target.result;
+      const workbook = XLSX.read(arrayBuffer, { type: 'arraybuffer' });
+      const jsonData = {};
+
+      workbook.SheetNames.forEach(sheetName => {
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonSheetData = XLSX.utils.sheet_to_json(worksheet);
+        jsonData[sheetName] = jsonSheetData;
+      });
+
+      resolve(jsonData);
+    };
+
+    reader.onerror = function(error) {
+      reject(error);
+    };
+
+    reader.readAsArrayBuffer(uploadedFile);
+  });
+}

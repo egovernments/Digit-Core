@@ -552,3 +552,54 @@ a{
 .header-btn{
   width: 15rem;
 }
+
+.drag-drop-container {
+  background-color: #FAFAFA;
+  border: 1.5px dashed #D6D5D4;
+  border-radius: 5px;
+  margin:-1rem 1rem 1rem 1rem;
+  padding: 1rem 1rem 1rem 1rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  .drag-drop-text {
+    text-decoration: none;
+    .browse-text {
+      text-decoration: none;
+      color: #F47738; 
+      transition: color 0.3s;
+    }
+    .browse-text:hover {
+        color: #F47738; 
+        text-decoration: underline; 
+        cursor: pointer;
+    }
+  }
+
+}
+
+.uploaded-file-container {
+  background-color: #FAFAFA;
+  border: 1.5px solid #D6D5D4;
+  border-radius: 5px;
+  margin:0.5rem 1rem 2rem 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.6rem;
+  justify-content: space-between;
+
+  .uploaded-file-container-sub {
+    display: flex;
+    align-items: center;
+    
+    .icon:hover {
+      cursor: pointer;
+    }
+  }
+}
+
+button:hover {
+  cursor: pointer;
+}
