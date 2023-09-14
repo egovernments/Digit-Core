@@ -76,7 +76,7 @@ public class EmployeeValidator {
 		if(!CollectionUtils.isEmpty(employee.getJurisdictions())){
 			for(Jurisdiction jurisdiction: employee.getJurisdictions()){
 				if(!boundarytList.contains(jurisdiction.getBoundary()))
-					boundarytList.add(jurisdiction.getTenantId());
+					boundarytList.add(jurisdiction.getBoundary());
 			}
 			if(CollectionUtils.isEmpty(boundarytList))
 				boundarytList.add(employee.getTenantId());
