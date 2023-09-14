@@ -90,7 +90,7 @@ import java.util.*;
     {{#jdk8}}
         {{#operation}}
                 @RequestMapping(value="{{path}}", method = RequestMethod.{{httpMethod}})
-                public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+                public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}() {
             {{^isDelegate}}
                 {{^async}}
                         String accept = request.getHeader("Accept");
