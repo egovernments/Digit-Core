@@ -607,7 +607,11 @@ const LocalisationAdd = () => {
     }
   }, [jsonResult,jsonResultDefault])
   
-  
+  const fileValidator = (errMsg) => {
+    setShowToast({isError:true,label:t("WBH_BULK_UPLOAD_DOC_VALIDATION_MSG")})
+    closeToast()
+    setShowBulkUploadModal(false)
+  }
 
 
   return (
@@ -627,7 +631,7 @@ const LocalisationAdd = () => {
           <input className={"hide-input-type-file"} ref={inputRef} type="file" accept="xls xlsx" onChange={handleBulkUpload} />
         </div>
       </div>
-      {showBulkUploadModal && <FileUploadModal heading={"WBH_BULK_UPLOAD_HEADER"} cancelLabel={"WBH_LOC_EDIT_MODAL_CANCEL"} submitLabel={"WBH_BULK_UPLOAD_SUBMIT"} onSubmit={onBulkUploadModalSubmit} onClose={()=>setShowBulkUploadModal(false)} t={t} />}
+      {showBulkUploadModal && <FileUploadModal heading={"WBH_BULK_UPLOAD_HEADER"} cancelLabel={"WBH_LOC_EDIT_MODAL_CANCEL"} submitLabel={"WBH_BULK_UPLOAD_SUBMIT"} onSubmit={onBulkUploadModalSubmit} onClose={()=>setShowBulkUploadModal(false)} t={t} fileValidator={fileValidator}/>}
       <Card>
         <LabelFieldPair style={{ alignItems: "flex-start" }}>
           <CardLabel style={{ marginBottom: "0.4rem" }}>{t("WBH_LOC_SELECT_LANG")}</CardLabel>

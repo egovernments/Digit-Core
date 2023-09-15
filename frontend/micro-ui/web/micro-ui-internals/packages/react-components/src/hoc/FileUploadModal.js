@@ -3,7 +3,7 @@ import Modal from './Modal'
 import { CloseSvg,UploadIcon,FileIcon,DeleteIconv2 } from '../atoms/svgindex';
 import { FileUploader } from "react-drag-drop-files";
 
-const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fileTypes= ["JPEG", "PNG", "GIF", "XLS", "XLSX"],multiple=true,...props}) => {
+const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fileTypes= [ "XLS", "XLSX"],multiple=true,fileValidator,...props}) => {
 
   const [file, setFile] = useState(null);
 
@@ -53,7 +53,10 @@ const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fil
   }, [file])
 
   const handleChange = (file) => {
-    setFile(file);
+    // if(fileValidator(file)){
+    // setFile(file);
+    // }else return 
+    setFile(file)
   };
 
   return (
@@ -66,7 +69,7 @@ const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fil
       actionSaveOnSubmit={()=>onSubmit(file)}
       formId="modal-action"
     >
-      <FileUploader handleChange={handleChange} name="file" types={fileTypes} children={dragDropJSX} />
+      <FileUploader handleChange={handleChange} name="file" types={fileTypes} children={dragDropJSX} onTypeError={fileValidator} />
       {file && renderFileCard}
     </Modal>
   )
