@@ -47,6 +47,12 @@ public class EmployeeSearchCriteria {
 	
 	public Boolean isActive;
 
+	public String boundaryType;
+	
+	public String boundary;
+	
+	public List<String> validBoundaryCodes;
+	
 	@Size(max = 250)
 	public String tenantId;
 	
@@ -62,7 +68,8 @@ public class EmployeeSearchCriteria {
 				&& CollectionUtils.isEmpty(criteria.getIds()) && CollectionUtils.isEmpty(criteria.getEmployeestatuses())
 				&& CollectionUtils.isEmpty(criteria.getEmployeetypes()) && CollectionUtils.isEmpty(criteria.getUuids())
 				&& CollectionUtils.isEmpty(criteria.getPositions()) && StringUtils.isEmpty(criteria.getTenantId())
-				&& CollectionUtils.isEmpty(criteria.getRoles()) && null == criteria.getAsOnDate()) {
+				&& CollectionUtils.isEmpty(criteria.getRoles()) && null == criteria.getAsOnDate()
+				&& StringUtils.isEmpty(criteria.getBoundaryType())) {
 			return true;
 		}else {
 			return false;

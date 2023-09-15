@@ -55,7 +55,10 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.hrms.config.PropertiesManager;
 import org.egov.hrms.model.AuditDetails;
+import org.egov.hrms.model.Boundary;
 import org.egov.hrms.model.Employee;
+import org.egov.hrms.model.Jurisdiction;
+import org.egov.hrms.model.TenantBoundary;
 import org.egov.hrms.model.enums.UserType;
 import org.egov.hrms.producer.HRMSProducer;
 import org.egov.hrms.repository.EmployeeRepository;
@@ -69,12 +72,15 @@ import org.egov.hrms.web.contract.EmployeeSearchCriteria;
 import org.egov.hrms.web.contract.User;
 import org.egov.hrms.web.contract.UserRequest;
 import org.egov.hrms.web.contract.UserResponse;
+import org.egov.mdms.model.MdmsResponse;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
@@ -118,6 +124,10 @@ public class EmployeeService {
 	
 	@Autowired
 	private MultiStateInstanceUtil centralInstanceUtil;
+	
+	@Autowired
+	private MDMSService mdmsService;
+	
 
 	/**
 	 * Service method for create employee. Does following:
@@ -184,6 +194,7 @@ public class EmployeeService {
 		}
 		//checks if above criteria met and result is not  null will check for name search if list of names are given as user search on name is not bulk api
 
+		
 		if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !StringUtils.isEmpty(criteria.getPhone())) && CollectionUtils.isEmpty(criteria.getUuids()))){
 			if(!CollectionUtils.isEmpty(criteria.getNames())) {
 				List<String> userUUIDs = new ArrayList<>();
@@ -199,6 +210,7 @@ public class EmployeeService {
 					}
 					List<String> uuids = userResponse.getUser().stream().map(User :: getUuid).collect(Collectors.toList());
 					userUUIDs.addAll(uuids);
+						
 				}
 				if(!CollectionUtils.isEmpty(criteria.getUuids()))
 					criteria.setUuids(criteria.getUuids().stream().filter(userUUIDs::contains).collect(Collectors.toList()));
@@ -206,15 +218,33 @@ public class EmployeeService {
 					criteria.setUuids(userUUIDs);
 			}
 		}
+		
+		List<String> validBoundaryCodes = new ArrayList<String>();
+		if (!StringUtils.isEmpty(criteria.getBoundary())){
+			
+			
+			validBoundaryCodes = getAllValidBoundaryTypesfromMDMS(requestInfo, criteria.getBoundary(),
+					criteria.getTenantId());
+			validBoundaryCodes.add(0,criteria.getBoundary());
+			criteria.setValidBoundaryCodes(validBoundaryCodes);
+			
+		}
 
 		String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(criteria.getTenantId());
 		if(userChecked)
 			criteria.setTenantId(null);
-
+		
+		
+		
 		List <Employee> employees = new ArrayList<>();
-        if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())) && CollectionUtils.isEmpty(criteria.getUuids())))
+		List<Employee> filteredEmployees  = new ArrayList<>();
+        if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !CollectionUtils.isEmpty(criteria.getNames()) || !StringUtils.isEmpty(criteria.getPhone())|| !StringUtils.isEmpty(criteria.getBoundary())|| !StringUtils.isEmpty(criteria.getBoundaryType())) && CollectionUtils.isEmpty(criteria.getUuids())))
             employees = repository.fetchEmployees(criteria, requestInfo, stateLevelTenantId);
-        List<String> uuids = employees.stream().map(Employee :: getUuid).collect(Collectors.toList());
+         if(!StringUtils.isEmpty(criteria.getBoundary()))	
+        	 filteredEmployees = filterEmployeesByJurisdiction(employees, validBoundaryCodes); //gives employees filtered based on Jurisdiction
+         else 
+        	 filteredEmployees = employees;
+         List<String> uuids = filteredEmployees.stream().map(Employee :: getUuid).collect(Collectors.toList());
 		if(!CollectionUtils.isEmpty(uuids)){
             Map<String, Object> UserSearchCriteria = new HashMap<>();
             UserSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_UUID,uuids);
@@ -225,15 +255,109 @@ public class EmployeeService {
 						.collect(Collectors.toMap(User :: getUuid, Function.identity()));
             }
             }
-            for(Employee employee: employees){
+            for(Employee employee: filteredEmployees){
                 employee.setUser(mapOfUsers.get(employee.getUuid()));
             }
 		}
 		return EmployeeResponse.builder().responseInfo(factory.createResponseInfoFromRequestInfo(requestInfo, true))
-				.employees(employees).build();
+				.employees(filteredEmployees).build();
+	}
+		
+	
+	/* method for  logic to get valid list of boundary codes for an employee
+	 * valid boundaries are for employee in SUN04 - SUN04, B1, Z1, pb.amritsar 
+	 * @param boundary, tenantid
+	 * @return list of all valid boundary codes 
+	 */
+	private List<String> getAllValidBoundaryTypesfromMDMS(RequestInfo requestInfo, String boundary, String tenantId) {
+
+		MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, tenantId);
+		List<String> tenantBoundaryData = new ArrayList<>();
+		Map<String, List<String>> eachMasterMap = new HashMap<>();
+		Map<String, List<String>> masterData = new HashMap<>();
+		List<String> parentCodes = new ArrayList<String>();
+
+		if (!CollectionUtils.isEmpty(responseLoc.getMdmsRes().keySet())) {
+			if (null != responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE)) {
+				eachMasterMap = (Map) responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE);
+				tenantBoundaryData.addAll(eachMasterMap.get(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE));
+			}
+		}
+		if (!CollectionUtils.isEmpty(tenantBoundaryData))
+			masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, tenantBoundaryData);
+
+		JSONObject jsonObject = new JSONObject(masterData);
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(jsonObject.toString());
+			TenantBoundary[] tenantBoundaries = mapper.convertValue(jsonNode.get("TenantBoundary"),
+					TenantBoundary[].class);
+			String targetCode = boundary;
+			parentCodes = findParentCodes(tenantBoundaries, targetCode);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return parentCodes;
 	}
 	
-	
+	/* method to find the parent codes for a particular boundary code for eg Locality SUN04 will have parents as 
+	 * Block B1 whose parent is Z1 and the City pb.amritsar */
+	private static List<String> findParentCodes(TenantBoundary[] tenantBoundaries, String targetCode) {
+		Map<String, String> codeToParentMap = new HashMap<>();
+		for (TenantBoundary tenantBoundary : tenantBoundaries) {
+			Boundary boundary = tenantBoundary.getBoundary();
+			populateParentMap(boundary, null, codeToParentMap);
+		}
+
+		List<String> parentCodes = new ArrayList<>();
+		String parentCode = codeToParentMap.get(targetCode);
+		while (parentCode != null) {
+			parentCodes.add(parentCode);
+			parentCode = codeToParentMap.get(parentCode);
+		}
+		return parentCodes;
+	}
+
+	private static void populateParentMap(Boundary boundary, String parentCode, Map<String, String> codeToParentMap) {
+		String currentCode = boundary.getCode();
+		codeToParentMap.put(currentCode, parentCode);
+
+		List<Boundary> children = boundary.getChildren();
+		for (Boundary child : children) {
+			populateParentMap(child, currentCode, codeToParentMap);
+		}
+	}
+
+	/* method to get employees filtered based on the jurisdiction starting from bottom level to top level */
+	private static List<Employee> filterEmployeesByJurisdiction(List<Employee> employees, List<String> parentCodes) {
+		 List<Employee> filteredEmployees = new ArrayList<>();
+
+		// If no employees at target code level, progressively go up to parent codes
+		if (filteredEmployees.isEmpty()) {
+			for (String parentCode : parentCodes) {
+				for (Employee employee : employees) {
+					if (hasJurisdiction(employee, parentCode)) {
+						filteredEmployees.add(employee);
+					}
+				}
+				if (!filteredEmployees.isEmpty()) {
+					break; // Stop if employees are found
+				}
+			}
+		}
+
+	        return filteredEmployees;	}
+
+	private static boolean hasJurisdiction(Employee employee, String jurisdictionCode) {
+		for (Jurisdiction jurisdiction : employee.getJurisdictions()) {
+			if (jurisdiction.getBoundary().equals(jurisdictionCode)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Creates user by making call to egov-user.
 	 * 
