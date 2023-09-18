@@ -68,6 +68,7 @@ const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fil
       actionSaveLabel={t(submitLabel)}
       actionSaveOnSubmit={()=>onSubmit(file)}
       formId="modal-action"
+      popupModuleActionBarStyles={{justifyContent:"space-between"}}
     >
       <FileUploader handleChange={handleChange} name="file" types={fileTypes} children={dragDropJSX} onTypeError={fileValidator} />
       {file && renderFileCard}
