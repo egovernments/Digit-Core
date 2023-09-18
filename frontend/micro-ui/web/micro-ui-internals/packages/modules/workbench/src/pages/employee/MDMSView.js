@@ -37,7 +37,7 @@ const MDMSView = ({...props}) => {
     params: {},
     body: {
       MdmsCriteria: {
-        tenantId: tenantId ,
+        tenantId: Digit.ULBService.getStateId() ,
         uniqueIdentifier,
         schemaCodes:[`${moduleName}.${masterName}`]
       },

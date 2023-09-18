@@ -18,7 +18,7 @@ const MDMSEdit = ({...props}) => {
     params: {},
     body: {
       MdmsCriteria: {
-        tenantId: stateId,
+        tenantId: Digit.ULBService.getStateId(),
         uniqueIdentifier,
         schemaCodes:[`${moduleName}.${masterName}`]
       },

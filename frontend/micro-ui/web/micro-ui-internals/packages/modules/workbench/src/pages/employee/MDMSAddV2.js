@@ -69,7 +69,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     params: {},
     body: {
       MdmsCriteria: {
-        tenantId: tenantId,
+        tenantId: Digit.ULBService.getStateId(),
         schemaCodes: loadDependent.map((e) => e.schemaCode),
       },
     },
