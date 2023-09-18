@@ -70,7 +70,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     body: {
       MdmsCriteria: {
         tenantId: tenantId,
-        schemaCodes: loadDependent.map((e) => e.schemaCode),
+        schemaCode: loadDependent.map((e) => e.schemaCode)?.[0],
       },
     },
     config: {
