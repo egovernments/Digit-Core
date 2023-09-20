@@ -76,18 +76,19 @@ export const getTransformedLocale = (label) => {
     let headers = {
       headers:{
         "content-type": "application/json;charset=UTF-8",
-        accept: "application/json, text/plain, */*"
+        accept: "application/json, text/plain, */*",
+        "TENANTID":envVariables.STATE_LEVEL_TENANT_ID
       }
     };
-  
+
     let responseBody = await axios.post(url,request,headers)
     .then(function (response) {
       return response;
+      
     })
     .catch((error) => {
       throw error
      });
-  
     if(pdfKey!=null)
       cache.set(pdfKey, responseBody.data);
   

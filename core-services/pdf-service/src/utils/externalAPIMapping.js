@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import envVariables from "../EnvironmentVariables";
 import axios from "axios";
 import {
   getLocalisationkey,
@@ -167,16 +168,18 @@ export const externalAPIMapping = async function (
       accept: "application/json, text/plain"
     };*/
 
+    header.TENANTID = envVariables.STATE_LEVEL_TENANT_ID;
+
     let headerConfig = {
       headers: header
     };
 
     let resPromise;
     if (externalAPIArray[i].requesttype == "POST") {
-      resPromise = axios.post(
+      resPromise = await axios.post(
         externalAPIArray[i].uri + "?" + externalAPIArray[i].queryParams, {
           RequestInfo: requestInfo
-        }, headerConfig
+        },headerConfig
       );
     } else {
       resPromise = axios.get(
@@ -185,8 +188,10 @@ export const externalAPIMapping = async function (
         }
       );
     }
+
     responsePromises.push(resPromise)
   }
+
 
   try {
     responses = await Promise.all(responsePromises)

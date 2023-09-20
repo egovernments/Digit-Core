@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.2.3 - 2023-09-13
+Central Instance Library Integration
+
 ## 1.2.2 - 2023-03-15
 - Fixes bug where _create API creates duplicate PDF for each request.
 
