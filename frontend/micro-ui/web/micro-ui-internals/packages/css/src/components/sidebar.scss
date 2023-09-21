@@ -1,6 +1,7 @@
 .sidebar-link:hover .arrow {
   display: block;
 }
+
 .hidden-arrow {
   display: none;
 }
@@ -30,7 +31,16 @@
 /* Style the container that acts as the viewport */
 .new-sidebar {
   height: 100%; /* Set a fixed height for the viewport */
-  overflow: hidden; /* Hide the scrollbar */
+  overflow: scroll; /* Hide the scrollbar */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &::-webkit-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 }
 
 /* Style the content inside the viewport */
@@ -64,6 +74,11 @@
       color: #fff;
   }
 }
+
+.search-icon-wrapper-new {
+  margin-left: 0.35rem;
+}
+
 .search-icon-wrapper-new svg{
           fill: theme(colors.white) !important;
           width: 21px;
@@ -74,6 +89,13 @@
           }
 
 .submenu-container {
+  overflow: scroll; 
+  margin-bottom: 1rem;
+  /* Hide the scrollbar */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   &.level-2 {
     border-left: 1px solid;
     margin-left: 2rem;
@@ -92,8 +114,14 @@
   &.default-1 {
     margin-left: -0.6rem;
     height: 2rem;
+    width: 111% !important;
   }
+
+
   &.custom {
     margin-left: 0.3rem;
+  }
+  &:hover {
+    color: theme(colors.primary.main) !important;
   }
 }

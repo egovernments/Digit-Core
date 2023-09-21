@@ -22,7 +22,7 @@ const EmployeeSideBar = () => {
 
   const expandNav = () => {
     sidebarRef.current.style.width = "260px";
-    sidebarRef.current.style.overflow = "auto";
+    // sidebarRef.current.style.overflow = "auto";
     setSubNav(true);
   };
   const collapseNav = () => {

@@ -114,7 +114,7 @@
     background: #0B4B66;
     height: 100%;
     color: theme(colors.white);
-    margin-top: 80px;
+    margin-top: 83px;
     z-index: 10000;
     transition: 0.3s ease all;
     white-space: nowrap;
@@ -186,13 +186,11 @@
       }
 
       &:hover {
-        color: theme(colors.primary.main) !important;
+        
         background-color: #0B4B66;
 
         cursor: pointer;
-        svg {
-          fill: theme(colors.primary.main) !important;
-        }
+        
       }
       .search-icon-wrapper {
         border: 2px solid theme(colors.white);

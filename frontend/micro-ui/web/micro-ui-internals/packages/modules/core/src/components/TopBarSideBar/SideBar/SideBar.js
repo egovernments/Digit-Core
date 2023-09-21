@@ -137,7 +137,7 @@ const Sidebar = ({ data }) => {
                     setSelectedChildLevelOne(itemToHighlight);
                     setSelectedChild(null);
                   }}
-                  style={{ display: "flex", flexDirection: "row" }}
+                  style={{ display: "flex", flexDirection: "row",width:"100%" }}
                 >
                   {flag && <div className="link-icon">{leftIcon}</div>}
                   <div data-tip="React-tooltip" data-for={`jk-side-${key}`}>
@@ -148,11 +148,11 @@ const Sidebar = ({ data }) => {
                       </ReactTooltip>
                     )}
                   </div>
-                  <div style={{ position: "absolute", right: "15px" }} className={`arrow ${isSubItemOpen && subNav ? "" : "hidden-arrow"}`}>
+                  <div style={{ position: "relative", marginLeft: "auto" }} className={`arrow ${isSubItemOpen && subNav ? "" : ""}`}>
                     {isSubItemOpen ? <ArrowVectorDown height="28px" width="28px" /> : <ArrowForward />}
                   </div>
                 </div>
-                {subNav && <div>{isSubItemOpen && renderSidebarItems(subItems, itemKey, false,level+1)}</div>}
+                {subNav && <div style={{width:"100%"}} >{isSubItemOpen && renderSidebarItems(subItems, itemKey, false,level+1)}</div>}
               </div>
             );
           } else if (subItemKeys) {
