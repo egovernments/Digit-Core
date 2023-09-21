@@ -19,6 +19,8 @@ import {
 } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import reducer, { intialState } from "../../utils/LocAddReducer";
+// import sampleFile from "../../utils/file.xlsx"
+import GenerateXlsx from "../../components/GenerateXlsx";
 
 const langDropdownConfig = {
   label: "WBH_LOC_LANG",
@@ -628,10 +630,31 @@ const LocalisationAdd = () => {
             onButtonClick={() => setShowBulkUploadModal(true)}
             className={"header-btn"}
           />
-          <input className={"hide-input-type-file"} ref={inputRef} type="file" accept="xls xlsx" onChange={handleBulkUpload} />
+          <input className={"hide-input-type-file"} type="file" accept="xls xlsx" onChange={handleBulkUpload} />
         </div>
       </div>
-      {showBulkUploadModal && <FileUploadModal heading={"WBH_BULK_UPLOAD_HEADER"} cancelLabel={"WBH_LOC_EDIT_MODAL_CANCEL"} submitLabel={"WBH_BULK_UPLOAD_SUBMIT"} onSubmit={onBulkUploadModalSubmit} onClose={()=>setShowBulkUploadModal(false)} t={t} fileValidator={fileValidator}/>}
+      {showBulkUploadModal && (
+        <FileUploadModal
+          heading={"WBH_BULK_UPLOAD_HEADER"}
+          cancelLabel={"WBH_LOC_EDIT_MODAL_CANCEL"}
+          submitLabel={"WBH_BULK_UPLOAD_SUBMIT"}
+          onSubmit={onBulkUploadModalSubmit}
+          onClose={() => setShowBulkUploadModal(false)}
+          t={t}
+          fileValidator={fileValidator}
+          onClickDownloadSample = {callInputClick}
+        />
+      )}
+      {<GenerateXlsx inputRef={inputRef}/>}
+      {/* {
+        <div>
+          <h2>bobbyhadz.com</h2>
+
+          <a href={require("../../utils/file.xlsx")} download="Example-PDF-document" target="_blank" rel="noreferrer">
+            <button>Download .pdf file</button>
+          </a>
+        </div>
+      } */}
       <Card>
         <LabelFieldPair style={{ alignItems: "flex-start" }}>
           <CardLabel style={{ marginBottom: "0.4rem" }}>{t("WBH_LOC_SELECT_LANG")}</CardLabel>
