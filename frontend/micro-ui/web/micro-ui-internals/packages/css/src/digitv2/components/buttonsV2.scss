@@ -1,0 +1,40 @@
+@import url("../index.scss");
+
+.digit-button-primary {
+  height: fit-content;
+  @extend .light-primary-button;
+  @apply text-center cursor-pointer outline-none px-lg;
+
+  &.disabled {
+    opacity: 0.5;
+  }
+  &:focus {
+    @apply outline-none;
+  }
+
+  h2 {
+    @apply font-rc font-medium text-legend text-white;
+  }
+}
+
+.digit-button-secondary {
+  height: fit-content;
+  @extend .light-paper-secondary;
+  @apply text-center cursor-pointer border-primary-main border-b-2 border-solid outline-none px-lg;
+
+  &:focus {
+    @apply outline-none;
+  }
+
+  h2 {
+    @extend .light-primary;
+    @apply font-rc font-medium text-legend;
+  }
+  .disabled {
+    opacity: 0.5;
+  }
+}
+
+.submit-bar:focus {
+  @apply outline-none !important;
+}

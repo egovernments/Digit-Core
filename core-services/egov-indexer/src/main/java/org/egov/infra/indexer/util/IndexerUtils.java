@@ -180,9 +180,18 @@ public class IndexerUtils {
 					String[] queryParamExpression = queryParamsArray[i].trim().split("=");
 					Object queryParam = null;
 					try {
-						if (queryParamExpression[1].trim().contains("$.")) {
-							queryParam = JsonPath.read(kafkaJson, queryParamExpression[1].trim());
-						} else {
+						String trimmedParam = queryParamExpression[1].trim();
+						if (trimmedParam.contains("$.")) {
+
+							String[] paramElements= trimmedParam.split("\\+");
+							if(paramElements.length == 1)
+								queryParam = JsonPath.read(kafkaJson, queryParamExpression[1].trim());
+							else {
+								queryParam = JsonPath.read(kafkaJson, paramElements[1]);
+								queryParam = paramElements[0].concat((String)queryParam);
+							}
+
+						}else {
 							queryParam = queryParamExpression[1].trim();
 						}
 					} catch (Exception e) {

@@ -9,7 +9,7 @@ import PDFUtil, { downloadReceipt ,downloadPDFFromLink,downloadBill ,getFileUrl}
 import getFileTypeFromFileStoreURL from "./fileType";
 import preProcessMDMSConfig from "./preProcessMDMSConfig";
 import preProcessMDMSConfigInboxSearch from "./preProcessMDMSConfigInboxSearch";
-
+import * as parsingUtils from "../services/atoms/Utils/ParsingUtils"
 const GetParamFromUrl = (key, fallback, search) => {
   if (typeof window !== "undefined") {
     search = search || window.location.search;
@@ -126,13 +126,20 @@ const routeSubscription = (pathname) => {
   }
 };
 
-const didEmployeeHasRole = (role) => {
+
+/* to check the employee (loggedin user ) has given role  */
+const didEmployeeHasRole = (role = "") => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const userInfo = Digit.UserService.getUser();
   const rolearray = userInfo?.info?.roles.filter((item) => {
-    if (item.code == role && item.tenantId === tenantId) return true;
+    if (item.code === role && item.tenantId === tenantId) return true;
   });
-  return rolearray?.length;
+  return rolearray?.length > 0;
+};
+
+/* to check the employee (loggedin user ) has given roles  */
+const didEmployeeHasAtleastOneRole = (roles = []) => {
+  return roles.some((role) => didEmployeeHasRole(role));
 };
 
 const pgrAccess = () => {
@@ -315,6 +322,7 @@ export default {
   mCollectAccess,
   receiptsAccess,
   didEmployeeHasRole,
+  didEmployeeHasAtleastOneRole,
   hrmsAccess,
   getPattern,
   hrmsRoles,
@@ -325,5 +333,6 @@ export default {
   getConfigModuleName,
   preProcessMDMSConfig,
   preProcessMDMSConfigInboxSearch,
+  parsingUtils,
   ...privacy
 };

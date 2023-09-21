@@ -1,4 +1,5 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState,useMemo } from "react";
+import Toast from "../atoms/Toast";
 import ResultsTable from "./ResultsTable"
 import reducer, { initialInboxState } from "./InboxSearchComposerReducer";
 import InboxSearchLinks from "../atoms/InboxSearchLinks";
@@ -15,12 +16,12 @@ import Header from "../atoms/Header";
 import { useTranslation } from "react-i18next";
 
 
-const InboxSearchComposer = ({configs,headerLabel}) => {
+const InboxSearchComposer = ({configs,headerLabel,additionalConfig,onFormValueChange=()=>{}}) => {
     const { t } = useTranslation();
 
     const [enable, setEnable] = useState(false);
     const [state, dispatch] = useReducer(reducer, initialInboxState);
-
+    const [showToast, setShowToast] = useState(false);
     //for mobile view
     const [type, setType] = useState("");
     const [popup, setPopup] = useState(false);
@@ -74,6 +75,11 @@ const InboxSearchComposer = ({configs,headerLabel}) => {
     },[state])
     
 
+    useEffect(() => {
+        onFormValueChange(state)
+    }, [state])
+    
+
     let requestCriteria = {
         url:configs?.apiDetails?.serviceName,
         params:configs?.apiDetails?.requestParam,
@@ -103,14 +109,38 @@ const InboxSearchComposer = ({configs,headerLabel}) => {
     //     };
     // }, [location]);
     
-
-
-    const updatedReqCriteria = Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess(requestCriteria) : requestCriteria 
-
+    const updatedReqCriteria = Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.preProcess(requestCriteria,configs.additionalDetails) : requestCriteria 
     
-    const { isLoading, data, revalidate,isFetching } = Digit.Hooks.useCustomAPIHook(updatedReqCriteria);
+    if(configs.customHookName){
+        var { isLoading, data, revalidate,isFetching,refetch,error } = eval(`Digit.Hooks.${configs.customHookName}(updatedReqCriteria)`);
+    }
+    else {
+       var { isLoading, data, revalidate,isFetching,error } = Digit.Hooks.useCustomAPIHook(updatedReqCriteria);
+        
+    }
+
+    const closeToast = () => {
+        setTimeout(() => {
+          setShowToast(null);
+        }, 5000);
+      };
+
+    useEffect(() => {
+        if(error){
+            setShowToast({ label:error?.message, isError: true });
+            closeToast()
+        }
+    }, [error])
     
     
+    useEffect(() => {
+        if(additionalConfig?.search?.callRefetch) {
+            refetch()
+            additionalConfig?.search?.setCallRefetch(false)
+        }
+    }, [additionalConfig?.search?.callRefetch])
+    
+
     useEffect(() => {
         return () => {
             revalidate();
@@ -230,7 +260,9 @@ const InboxSearchComposer = ({configs,headerLabel}) => {
                                 data={data} 
                                 isLoading={isLoading} 
                                 isFetching={isFetching} 
-                                fullConfig={configs}/>
+                                fullConfig={configs}
+                                additionalConfig={additionalConfig}
+                                />
                             </MediaQuery>
                             <MediaQuery maxWidth={426}>
                             <MobileSearchResults
@@ -284,6 +316,7 @@ const InboxSearchComposer = ({configs,headerLabel}) => {
                 {/* One can use this Parent to add additional sub parents to render more sections */}
             </div>
             </div>   
+            {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)}></Toast>}
         </InboxContext.Provider>
     )
 }

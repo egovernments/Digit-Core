@@ -1,4 +1,18 @@
+const fs = require("fs");
+const { name, version, author, cssConfig } = JSON.parse(fs.readFileSync("package.json"));
+
+const headerString = `
+@charset "UTF-8";
+/*!
+ * ${name} - ${version}
+ *
+ * Copyright (c) ${new Date().getFullYear()} ${author}
+ * 
+ */
+  `;
 const { series, src, dest, watch, task } = require("gulp");
+const header = require("postcss-header");
+
 const clean = require("gulp-clean");
 const postcss = require("gulp-postcss");
 const sass = require("gulp-sass");
@@ -23,6 +37,7 @@ function styles() {
     postcssPresetEnv({ stage: 2, autoprefixer: { cascade: false }, features: { "custom-properties": true } }),
     require("autoprefixer"),
     require("cssnano"),
+    header({ header: headerString }),
   ];
   return src("src/index.scss").pipe(postcss(plugins)).pipe(sass()).pipe(dest(output));
 }

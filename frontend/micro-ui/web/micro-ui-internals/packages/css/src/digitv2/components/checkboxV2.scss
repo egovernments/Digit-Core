@@ -1,6 +1,6 @@
 @import url("../index.scss");
 
-.checkbox-wrap {
+.digit-checkbox-wrap {
   @apply flex mb-md relative items-baseline;
 
   input {
@@ -16,7 +16,7 @@
     height: 24px;
   }
 
-  .custom-checkbox {
+  .digit-custom-checkbox {
     width: 38px;
     height: 38px;
     @apply absolute top-0 left-0 border border-solid border-input-border z-0;
@@ -31,24 +31,26 @@
     }
   }
 
-  .custom-checkbox-emp {
-    @extend .custom-checkbox;
+  .digit-custom-checkbox-emp {
+    @extend .digit-custom-checkbox;
     width: 24px;
     height: 24px;
   }
 
-  input:checked ~ .custom-checkbox,
-  input:hover ~ .custom-checkbox {
+  input:checked ~ .digit-custom-checkbox,
+  input:hover ~ .digit-custom-checkbox {
     @apply border-2 border-primary-main;
     @extend .light-input-border;
   }
 
-  input:checked ~ .custom-checkbox img {
+  input:checked ~ .digit-custom-checkbox img {
     @apply opacity-100;
   }
 
-  input:checked ~ .custom-checkbox svg {
+  input:checked ~ .digit-custom-checkbox svg {
     @apply opacity-100;
+    width: 35px;
+    height: 35px;
   }
 
   .label {

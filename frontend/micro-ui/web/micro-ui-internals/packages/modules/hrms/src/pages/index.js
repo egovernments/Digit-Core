@@ -1,9 +1,8 @@
 import { PrivateRoute } from "@egovernments/digit-ui-react-components";
-import React,{ useEffect } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Switch, useLocation } from "react-router-dom";
 
-const {SixFtApart,Rotate360}=SVG;
 const EmployeeApp = ({ path, url, userType }) => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -22,24 +21,24 @@ const EmployeeApp = ({ path, url, userType }) => {
   const EditEmpolyee = Digit?.ComponentRegistryService?.getComponent("HREditEmpolyee");
 
   const employeeCreateSession = Digit.Hooks.useSessionStorage("NEW_EMPLOYEE_CREATE", {});
-  const [sessionFormData,setSessionFormData, clearSessionFormData] = employeeCreateSession;
+  const [sessionFormData, setSessionFormData, clearSessionFormData] = employeeCreateSession;
 
   // remove session form data if user navigates away from the estimate create screen
-  useEffect(()=>{
+  useEffect(() => {
     if (!window.location.href.includes("/hrms/create") && sessionFormData && Object.keys(sessionFormData) != 0) {
-    clearSessionFormData();
+      clearSessionFormData();
     }
-},[location]);
+  }, [location]);
 
   return (
     <Switch>
       <React.Fragment>
         <div className="ground-container">
           <p className="breadcrumb" style={{ marginLeft: mobileView ? "1vw" : "0px" }}>
-            <Link to= {`/${window?.contextPath}/employee`} style={{ cursor: "pointer", color: "#666" }}>
+            <Link to={`/${window?.contextPath}/employee`} style={{ cursor: "pointer", color: "#666" }}>
               {t("HR_COMMON_BUTTON_HOME")}
             </Link>{" "}
-            / <span>{location.pathname ===  `/${window?.contextPath}/employee/hrms/inbox` ? t("HR_COMMON_HEADER") : t("HR_COMMON_HEADER")}</span>
+            / <span>{location.pathname === `/${window?.contextPath}/employee/hrms/inbox` ? t("HR_COMMON_HEADER") : t("HR_COMMON_HEADER")}</span>
           </p>
           <PrivateRoute
             path={`${path}/inbox`}

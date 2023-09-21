@@ -119,6 +119,11 @@
   padding: unset !important;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-size: inherit;
+  font-weight: inherit; }
+
+
 .flex-one {
   @apply flex-1;
 }
@@ -176,6 +181,13 @@
 
 .mbsm {
   @apply mb-sm;
+}
+
+.employeeCard {
+  /*  TODO need to revisit that we need mx-md NABEEL/ANIL
+   @apply mb-md mx-md !important;
+  */
+  @apply mb-md !important;
 }
 
 .home-link {
@@ -253,6 +265,19 @@
   color: theme(colors.text.primary) !important;
 }
 
+input[readonly] {
+  @apply border-grey-dark text-grey-dark !important;
+  background-color:  theme(digitv2.lightTheme.background);
+  border-color: theme(digitv2.lightTheme.text-color-secondary);
+  color: theme(digitv2.lightTheme.text-color-secondary);
+}
+
+.hide-input-type-file {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none !important;
+}
+
 @media (hover: hover) {
   .primary-label-btn {
     &:hover {
@@ -310,6 +335,7 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
 
 .static {
   @apply flex flex-col;

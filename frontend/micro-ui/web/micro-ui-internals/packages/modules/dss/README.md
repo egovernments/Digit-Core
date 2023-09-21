@@ -153,6 +153,9 @@ const useGetCustomFilterRequestValues = (filterConfigs, config={}) => {
 # Changelog
 
 ```bash
+1.8.0-beta workbench base version beta release
+1.7.0 urban 2.9
+1.6.0 urban 2.8
 1.5.48 DSS fix for MUKTA fontsize of the line chart and making multilink dropdown clone on outside click
 1.5.44 UI/UX Audit Fixes :: Refer PFM-4442(https://digit-discuss.atlassian.net/browse/PFM-4442)
 1.5.43 Alignment fixes

@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-libraries",
-  "version": "1.5.7",
+  "version": "1.8.0-beta",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
@@ -38,5 +38,13 @@
     "react-router-dom": "5.3.0",
     "redux": "4.1.2",
     "xlsx": "0.17.5"
-  }
+  },
+  "author": "JaganKumar <jagan.kumar@egov.org.in>",
+  "keywords": [
+    "digit",
+    "egov",
+    "dpg",
+    "digit-ui",
+    "libraries"
+  ]
 }

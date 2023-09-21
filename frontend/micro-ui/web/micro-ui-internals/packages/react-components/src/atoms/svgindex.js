@@ -579,9 +579,9 @@ function PropertyHouse({ className, styles }) {
   );
 }
 
-const InfoBannerIcon = ({ fill = "#3498DB" }) => {
+const InfoBannerIcon = ({ fill = "#3498DB",styles }) => {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style={styles}>
       <path
         d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V9H11V15ZM11 7H9V5H11V7Z"
         fill={fill}
@@ -1068,6 +1068,57 @@ const AddIcon = ({ styles, className, fill = "white" }) => (
       d="M11.7896 2.58402C9.24786 0.0490554 5.13886 0.0490554 2.59717 2.58402C0.0554699 5.11898 0.0554701 9.21709 2.59717 11.752C5.13886 14.287 9.24786 14.287 11.7896 11.752C14.3312 9.21709 14.3312 5.11898 11.7896 2.58402ZM7.84142 11.1057H6.5453V7.81438H3.24523L3.24523 6.52169H6.5453V3.23036H7.84142V6.52169H11.1415L11.1415 7.81438H7.84142V11.1057Z"
       fill={fill}
     />
+  </svg>
+);
+
+const UploadIcon = ({styles, className, fill = "white",height="64",width="64" }) => (
+  <svg style={{...styles}} className={className} width={width} height={height} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#clip0_431_5084)">
+      <path
+        d="M24.0007 42.6667H40.0007V26.6667H50.6673L32.0007 8L13.334 26.6667H24.0007V42.6667ZM13.334 48H50.6673V53.3333H13.334V48Z"
+        fill="#B1B4B6"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_431_5084">
+        <rect width={width} height={height} fill={fill} />
+      </clipPath>
+    </defs>
+  </svg>
+);
+
+const DeleteIconv2 = ({styles, className, fill = "#F47738",height="24",width="24" }) => (
+  <svg width={width} style={styles} className={className} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#clip0_431_5088)">
+      <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill={fill}/>
+    </g>
+    <defs>
+      <clipPath id="clip0_431_5088">
+        <rect width="24" height="24" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+);
+
+const InfoIconOutline = ({styles, className, fill = "#505A5F",height="20",width="20" }) => (
+  <svg style={styles} className={className} xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 20 20" fill={fill}>
+  <path d="M8.7085 5.54171H10.2918V7.12504H8.7085V5.54171ZM8.7085 8.70837H10.2918V13.4584H8.7085V8.70837ZM9.50016 1.58337C5.13016 1.58337 1.5835 5.13004 1.5835 9.50004C1.5835 13.87 5.13016 17.4167 9.50016 17.4167C13.8702 17.4167 17.4168 13.87 17.4168 9.50004C17.4168 5.13004 13.8702 1.58337 9.50016 1.58337ZM9.50016 15.8334C6.00891 15.8334 3.16683 12.9913 3.16683 9.50004C3.16683 6.00879 6.00891 3.16671 9.50016 3.16671C12.9914 3.16671 15.8335 6.00879 15.8335 9.50004C15.8335 12.9913 12.9914 15.8334 9.50016 15.8334Z" fill="#505A5F"/>
+</svg>
+)
+
+const FileIcon = ({ styles, className, fill = "white", height = "64", width = "64" }) => (
+  <svg styles={styles} className={className} width="24" height="24" viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#clip0_431_5092)">
+      <path
+        d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM16 18H8V16H16V18ZM16 14H8V12H16V14ZM13 9V3.5L18.5 9H13Z"
+        fill="#505A5F"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_431_5092">
+        <rect width="24" height="24" fill={fill} />
+      </clipPath>
+    </defs>
   </svg>
 );
 
@@ -1894,5 +1945,9 @@ export {
   PaymentIcon,
   HistoryIcon,
   WarningIcon,
-  AttentionListIcon
+  AttentionListIcon,
+  UploadIcon,
+  FileIcon,
+  DeleteIconv2,
+  InfoIconOutline
 };

@@ -1,140 +1,132 @@
 @import url("../index.scss");
 
-.card {
+.digit-card {
   @apply bg-white m-sm px-md pt-md pb-lg shadow-card;
-  @extend .light-background;
+  @extend .light-paper-primary;
   border-radius: 4px;
   max-width: 960px;
 
-  .card-header {
-    @apply text-text-primary text-heading-xl font-bold font-rc align-middle text-left mb-md;
-    @extend .light-text-color-primary;
+  .digit-card-header {
+    @extend .light-primary;
+    @apply text-heading-xl font-bold font-rc align-middle text-left mb-md;
   }
 
-  .card-sub-header {
-    @apply text-text-primary text-caption-xl font-bold align-middle text-left mb-sm;
-    @extend .light-text-color-primary;
+  .digit-card-sub-header {
+    @extend .light-primary;
+    @apply text-caption-xl font-bold align-middle text-left mb-sm;
   }
 
-  .card-caption {
-    @apply text-text-secondary text-caption-xl mb-sm;
+  .digit-card-caption {
     @extend .light-text-color-secondary;
+    @apply text-caption-xl mb-sm;
   }
 
-  .card-text {
-    @apply text-text-secondary text-body-l align-middle text-left mb-lg;
+  .digit-card-text {
     @extend .light-text-color-secondary;
+    @apply text-body-l align-middle text-left mb-lg;
 
     span {
-      @apply text-text-primary;
       @extend .light-text-color-primary;
     }
   }
 
-  .card-text-primary {
-    @extend .light-text-color-primary;
-
-    @apply text-text-primary text-body-l;
+  .digit-card-text-primary {
+    @extend .light-primary;
+    @apply text-body-l;
   }
 
-  .card-text-button {
-    @extend .light-text-color-primary;
-
-    @apply text-primary-main text-text-btn;
+  .digit-card-text-button {
+    @extend .light-primary;
+    @apply text-text-btn;
   }
 
-  .card-label {
-    @extend .light-text-color-primary;
-
-    @apply text-legend text-text-primary mb-sm;
+  .digit-card-label {
+    @extend .light-primary;
+    @apply text-legend mb-sm;
   }
 
-  .card-label-error {
+  .digit-card-label-error {
     @extend .alert-error;
     @apply block text-body-s text-error mb-md;
   }
 
-  .card-label-desc {
+  .digit-card-label-desc {
     @extend .light-text-color-secondary;
-    @extend .light-text-color-secondary;
-    @apply font-bold text-text-secondary text-heading-s mb-md;
+    @apply font-bold text-heading-s mb-md;
   }
 
-  .card-link {
-    @extend .light-text-color-primary;
-    @apply block text-center text-link text-primary-main mt-md cursor-pointer;
+  .digit-card-link {
+    @extend .light-primary;
+    @apply block text-center text-link mt-md cursor-pointer;
   }
 }
 
-.validation-error {
+.digit-validation-error {
   @extend .alert-error;
   @apply block text-body-s text-error;
 }
 
-.docsDescription {
+.digit-docsDescription {
   @extend .light-text-color-primary;
-  color: theme(colors.text.primary) !important;
 }
 
-.field-container {
+.digit-field-container {
   @apply flex  items-center;
-  /*@apply flex  justify-center items-center;*/
 }
 
-.employeeCard {
-  @apply bg-white shadow-card p-md mb-xl;
-  @extend .light-background;
+.digit-employee-card {
+  @extend .light-paper-primary;
+  @apply shadow-card p-md mb-xl;
   border-radius: 4px;
 
-  .card-header {
-    @apply text-text-primary text-heading-xl font-bold font-rc align-middle text-left mb-md;
-    @extend .light-text-color-primary;
+  .digit-card-header {
+    @extend .light-primary;
+    @apply text-heading-xl font-bold font-rc align-middle text-left mb-md;
   }
 
-  .card-sub-header,
-  .employee-card-sub-header {
-    @extend .light-text-color-primary;
-    @apply text-text-primary text-caption-xl font-bold align-middle text-left;
+  .digit-card-sub-header,
+  .digit-employee-card-sub-header {
+    @extend .light-primary;
+    @apply text-caption-xl font-bold align-middle text-left;
   }
 
-  .card-section-header {
-    @extend .light-text-color-primary;
-    @apply text-text-primary text-heading-m font-bold;
+  .digit-card-section-header {
+    @extend .light-primary;
+    @apply text-heading-m font-bold;
   }
 
-  .card-section-sub-text {
-    @extend .light-text-color-primary;
-    @apply text-text-primary text-body-s;
+  .digit-card-section-sub-text {
+    @extend .light-primary;
+    @apply text-body-s;
   }
 
-  .card-caption {
+  .digit-card-caption {
     @extend .light-text-color-secondary;
-    @apply text-text-secondary text-caption-xl mb-sm;
+    @apply text-caption-xl mb-sm;
   }
 
-  .card-text {
+  .digit-card-text {
     @extend .light-text-color-secondary;
-    @apply text-text-secondary text-body-l align-middle text-left mb-lg;
+    @apply text-body-l align-middle text-left mb-lg;
 
     span {
-      @apply text-text-primary;
       @extend .light-text-color-primary;
     }
   }
 
   .card-text-primary {
-    @extend .light-text-color-primary;
-    @apply text-text-primary text-body-l;
+    @extend .light-primary;
+    @apply text-body-l;
   }
 
   .card-text-button {
-    @extend .light-text-color-primary;
-    @apply text-primary-main text-text-btn;
+    @extend .light-primary;
+    @apply text-text-btn;
   }
 
   .card-label {
-    @extend .light-text-color-primary;
-    @apply text-legend text-text-primary mb-md;
+    @extend .light-primary;
+    @apply text-legend mb-md;
   }
 
   .card-label-error {
@@ -144,7 +136,7 @@
 
   .card-label-desc {
     @extend .light-text-color-secondary;
-    @apply font-bold text-text-secondary text-heading-s mb-md;
+    @apply font-bold text-heading-s mb-md;
   }
 
   .card-link {
@@ -187,8 +179,7 @@
 
 .submit-bar {
   @extend .light-primary-button;
-  /* @extend .light-text-color-primary; */
-  @apply h-10 bg-primary-main text-center w-full outline-none;
+  @apply h-10 text-center w-full outline-none;
   box-shadow: inset 0px -2px 0px theme(colors.text.primary);
   cursor: pointer;
 
@@ -197,13 +188,11 @@
   }
 
   header {
-    /* @extend .light-text-color-primary; */
     @apply font-rc font-medium text-legend text-white leading-10;
   }
 }
 
 .submit-bar-disabled {
-  @extend .light-text-color-disabled;
   @apply h-10 bg-primary-main text-center w-full outline-none opacity-50;
 
   &:focus {
@@ -247,41 +236,37 @@
     }
   }
 
-  .employeeCard {
-    /*  TODO need to revisit that we need mx-md NABEEL/ANIL
-     @apply mb-md mx-md !important;
-    */
-    @apply mb-md !important;
+  .digit-employee-card {
+    @apply mb-md mx-md !important;
 
-
-    &.filter {
+    &.digit-filter {
       margin-left: auto;
       margin-right: auto;
     }
 
-    .card-header {
+    .digit-card-header {
       @apply text-heading-xl-dt;
     }
 
-    .card-sub-header {
+    .digit-card-sub-header {
       @apply text-heading-l-dt;
     }
 
-    .employee-card-sub-header {
+    .digit-employee-card-sub-header {
       margin-bottom: 40px;
       @apply text-heading-l-dt;
     }
 
-    .card-section-header {
+    .digit-card-section-header {
       margin-bottom: 40px;
       @apply text-heading-m-dt;
     }
 
-    .card-section-sub-text {
+    .digit-card-section-sub-text {
       @apply text-text-primary text-body-s-dt;
     }
 
-    .card-search-heading {
+    .digit-card-search-heading {
       margin-right: 0px !important;
       margin-left: 0px !important;
       margin-bottom: 0px !important;
@@ -289,20 +274,20 @@
       padding-left: 25px;
     }
 
-    .card-caption {
+    .digit-card-caption {
       @apply text-caption-xl-dt;
     }
 
-    .card-text,
-    .card-text-primary {
+    .digit-card-text,
+    .digit-card-text-primary {
       @apply text-body-l-dt;
     }
 
-    .card-link {
+    .digit-card-link {
       @apply text-left;
     }
 
-    .label-field-pair {
+    .digit-label-field-pair {
       @apply flex items-center;
 
       h2 {
@@ -318,7 +303,7 @@
       }
     }
 
-    .field-container {
+    .digit-field-container {
       span {
         border: 2px solid black;
         background: rgb(247, 247, 247);
@@ -333,7 +318,7 @@
     }
   }
 
-  .header-wrap {
+  .digit-header-wrap {
     @apply flex mb-md;
 
     .header-start {
@@ -349,12 +334,12 @@
   }
 }
 
-.card-section-header {
+.digit-card-section-header {
   @extend .light-text-color-primary;
   @apply text-text-primary text-heading-m font-bold;
 }
 
-.card-search-heading {
+.digit-card-search-heading {
   margin-right: 0px !important;
   margin-left: 0px !important;
   margin-bottom: 0px !important;
@@ -362,73 +347,38 @@
   padding-left: 25px;
 }
 
-.button-sub-text {
-  width: 100%;
-}
-
-.home-page-info-banner-wrap {
-  margin: "0px 16px 24px 16px";
-}
-
-@media (min-width: 780px) {
-  .button-sub-text {
-    width: 240px;
-  }
-  .home-page-info-banner-wrap {
-    max-width: 45%;
-    min-width: 40%;
-    margin-left: 0;
-    margin-right: 24px;
-    margin-bottom: 24px;
-  }
-  .info-banner-wrap-citizen-override {
-  }
-  .oc-aknowledgement-screen {
-    width: auto;
-    min-width: 240px;
-    max-width: 100%;
-    padding: 0px 10px;
-  }
-}
-
-.card-label-error {
+.digit-card-label-error {
   @extend .alert-error;
   @apply block text-body-s text-error mb-md;
 }
 
-.employeeCard-override {
+.digit-employee-card-override {
   margin-left: 0px !important;
 }
 
-.BPAemployeeCard {
-  margin-left: 0px !important;
-  margin-right: 0px !important;
-  margin-bottom: 64px !important;
-}
-
-.employee-application-details {
+.digit-employee-application-details {
   display: flex !important;
   justify-content: space-between !important;
   max-height: 60px !important;
   height: 60px !important;
 }
-.employee-main-application-details {
+.digit-employee-main-application-details {
   padding: 10px !important;
 }
 
-.employee-mulitlink-main-div {
+.digit-employee-mulitlink-main-div {
   @extend .light-primary;
   z-index: 10 !important;
   max-width: 41% !important;
 }
 
-.employee-download-btn-className {
+.digit-employee-download-btn-className {
   position: unset !important;
   display: flex !important;
   justify-content: flex-end !important;
 }
 
-.employee-options-btn-className {
+.digit-employee-options-btn-className {
   position: unset !important;
   margin: 0 !important;
   width: 100% !important;

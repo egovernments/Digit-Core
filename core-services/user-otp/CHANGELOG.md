@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.2.1 - 2023-08-11
+- Central Instance Library Integration
+
 ## 1.2.0 - 2023-03-15
 
 - Added support for sending otp via email by emitting email events.

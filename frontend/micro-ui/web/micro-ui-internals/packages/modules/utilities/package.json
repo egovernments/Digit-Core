@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-module-utilities",
-  "version": "0.0.8",
+  "version": "1.0.0-beta",
   "description": "Utilities Module UI",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
@@ -18,7 +18,7 @@
     "react-router-dom": "5.3.0"
   },
   "dependencies": {
-    "@egovernments/digit-ui-react-components": "1.5.28",
+    "@egovernments/digit-ui-react-components": "1.8.0-beta",
     "react": "17.0.2",
     "react-date-range": "^1.4.0",
     "react-dom": "17.0.2",
@@ -29,5 +29,11 @@
   },
   "author": "Jagankumar <jagan.kumar@egov.org.in>",
   "license": "MIT",
-  "keywords": ["digit","egov","dpg","digit-ui","utilities"]
+  "keywords": [
+    "digit",
+    "egov",
+    "dpg",
+    "digit-ui",
+    "utilities"
+  ]
 }

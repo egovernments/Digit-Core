@@ -32,6 +32,10 @@ import LocationDropdownWrapper from "../molecules/LocationDropdownWrapper";
 import ApiDropdown from "../molecules/ApiDropdown";
 import Header from "../atoms/Header";
 
+import { yupResolver } from '@hookform/resolvers/yup';
+// import { validateResolver } from "./validateResolver";
+import { buildYupConfig } from "./formUtils";
+
 const wrapperStyles = {
   // "display":"flex",
   // "flexDirection":"column",
@@ -67,6 +71,18 @@ const wrapperStyles = {
  */
 
 export const FormComposer = (props) => {
+  const { t } = useTranslation();
+/* added an enhancement for validate data with schema still some issue with sometype we have to solve it*/
+  const inputProps={
+    // context: "contactForm",
+    defaultValues: props.defaultValues,
+    // resolver: validateResolver,
+  }
+  if(props?.jsonSchema){
+    const yupSchema=props?.jsonSchema&&buildYupConfig(props?.jsonSchema,t);
+    inputProps["resolver"]=yupResolver(yupSchema);
+  }
+
   const {
     register,
     handleSubmit,
@@ -81,13 +97,12 @@ export const FormComposer = (props) => {
     setError,
     clearErrors,
     unregister,
-  } = useForm({
-    defaultValues: props.defaultValues,
-  });
-  const { t } = useTranslation();
+  } = useForm(inputProps);
+  // console.log(formState,'formState');
   const formData = watch();
   const selectedFormCategory = props?.currentFormCategory;
   const [showErrorToast, setShowErrorToast] = useState(false); 
+  const [customToast, setCustomToast] = useState(false); 
 
   //clear all errors if user has changed the form category. 
   //This is done in case user first click on submit and have errors in cat 1, switches to cat 2 and hit submit with errors
@@ -115,6 +130,10 @@ export const FormComposer = (props) => {
   useEffect(() => {
     props.getFormAccessors && props.getFormAccessors({ setValue, getValues });
   }, []);
+
+  useEffect(()=>{
+    setCustomToast(props?.customToast);
+  },[props?.customToast])
 
   function onSubmit(data) {
     props.onSubmit(data);
@@ -369,8 +388,7 @@ export const FormComposer = (props) => {
       case "radioordropdown":
         return (
           <Controller
-            render={(props) => (
-              <CustomDropdown
+            render={(props) =>(<CustomDropdown
                 t={t}
                 label={config?.label}
                 type={type}
@@ -456,7 +474,34 @@ export const FormComposer = (props) => {
             />
           </form>
         ); 
-      
+      case "object":
+        return <Controller
+        name={`${populators.name}`}
+        control={control}
+        defaultValue={formData?.[populators.name]}
+        rules={{ required: populators?.isMandatory, ...populators.validation }}
+        render={(props) => {
+          return (
+            <div style={{ display: "grid", gridAutoFlow: "row" }}>
+              object
+            </div>
+          );
+        }}
+      />
+      case "array":
+        return <Controller
+        name={`${populators.name}`}
+        control={control}
+        defaultValue={formData?.[populators.name]}
+        rules={{ required: populators?.isMandatory, ...populators.validation }}
+        render={(props) => {
+          return (
+            <div style={{ display: "grid", gridAutoFlow: "row" }}>
+              array
+            </div>
+          );
+        }}
+      />
       case "locationdropdown":
         return (
           <Controller
@@ -497,6 +542,15 @@ export const FormComposer = (props) => {
                     formData={formData}
                     inputRef={props.ref}
                     errors={errors}
+                    t={t}
+                    label={config?.label}
+                    type={type}
+                    onBlur={props.onBlur}
+                    value={props.value}
+                    onChange={props.onChange}
+                    config={populators}
+                    disable={config?.disable}
+                    errorStyle={errors?.[populators.name]}
                   />
                 </div>
               );
@@ -605,6 +659,8 @@ export const FormComposer = (props) => {
 
   const closeToast = () => {
     setShowErrorToast(false);
+    setCustomToast(false);
+    props?.updateCustomToast&&props?.updateCustomToast(false);
   }
 
   //remove Toast from 3s
@@ -690,7 +746,7 @@ export const FormComposer = (props) => {
               </LabelFieldPair>
               {field?.populators?.name && errors && errors[field?.populators?.name] && Object.keys(errors[field?.populators?.name]).length ? (
                 <CardLabelError style={{ width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" }}>
-                  {t(field?.populators?.error)}
+                  {t( errors?.[field?.populators?.name]?.message || field?.populators?.error)}
                 </CardLabelError>
               ) : null}
             </Fragment>
@@ -701,79 +757,7 @@ export const FormComposer = (props) => {
     ),
     [props.config, formData]
   );
-  const formFieldsAll = useMemo(
-    () =>
-      props.config?.map((section, index, array) => {
-        return (
-          <React.Fragment key={index}>
-            {section && getCombinedComponent(section)}
-            {section.body.map((field, index) => {
-              if (props.inline)
-                return (
-                  <React.Fragment key={index}>
-                    <div style={field.isInsideBox ? getCombinedStyle(field?.placementinbox) : {}}>
-                      {!field.withoutLabel && (
-                        <CardLabel
-                          style={{ color: field.isSectionText ? "#505A5F" : "", marginBottom: props.inline ? "8px" : "revert" }}
-                          className={field?.disable ? "disabled" : ""}
-                        >
-                          {t(field.label)}
-                          {field.isMandatory ? " * " : null}
-                          {field.labelChildren && field.labelChildren}
-                        </CardLabel>
-                      )}
-                      {errors && errors[field.populators?.name] && Object.keys(errors[field.populators?.name]).length ? (
-                        <CardLabelError>{t(field.populators.error || errors[field.populators?.name]?.message)}</CardLabelError>
-                      ) : null}
-                      <div style={field.withoutLabel ? { width: "100%" } : {}} className="field">
-                        {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field)}
-                        {field?.description && (
-                          <CardLabel
-                            style={{
-                              marginTop: "-24px",
-                              fontSize: "16px",
-                              fontWeight: "bold",
-                              color: "#505A5F",
-                              ...field?.descriptionStyles,
-                            }}
-                          >
-                            {t(field.description)}
-                          </CardLabel>
-                        )}
-                      </div>
-                    </div>
-                  </React.Fragment>
-                );
-              return (
-                <Fragment>
-                  <LabelFieldPair key={index}>
-                    {!field.withoutLabel && (
-                      <CardLabel
-                        style={{ color: field.isSectionText ? "#505A5F" : "", marginBottom: props.inline ? "8px" : "revert", ...props.fieldStyle }}
-                      >
-                        {t(field.label)}
-                        {field.isMandatory ? " * " : null}
-                      </CardLabel>
-                    )}
-                    <div style={field.withoutLabel ? { width: "100%", ...props?.fieldStyle } : {}} className="field">
-                      {fieldSelector(field.type, field.populators, field.isMandatory, field?.disable, field?.component, field)}
-                      {field?.description && <CardText style={{ fontSize: "14px", marginTop: "-24px" }}>{t(field?.description)}</CardText>}
-                    </div>
-                  </LabelFieldPair>
-                  {field?.populators?.name && errors && errors[field?.populators?.name] && Object.keys(errors[field?.populators?.name]).length ? (
-                    <CardLabelError style={{ width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" }}>
-                      {t(field?.populators?.error)}
-                    </CardLabelError>
-                  ) : null}
-                </Fragment>
-              );
-            })}
-            {!props.noBreakLine && (array.length - 1 === index ? null : <BreakLine style={props?.breaklineStyle ? props?.breaklineStyle : {}} />)}
-          </React.Fragment>
-        );
-      }),
-    [props.config, formData]
-  );
+
 
   const getCardStyles = (shouldDisplay = true) => {
     let styles = props.cardStyle || {};
@@ -893,6 +877,8 @@ export const FormComposer = (props) => {
         </ActionBar>
       )}
       {showErrorToast && <Toast error={true} label={t("ES_COMMON_PLEASE_ENTER_ALL_MANDATORY_FIELDS")} isDleteBtn={true} onClose={closeToast} />}
+      {customToast && <Toast error={customToast?.error} label={t(customToast?.label)} isDleteBtn={true} onClose={closeToast} />}
+
     </form>
   );
 };

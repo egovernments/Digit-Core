@@ -28,7 +28,9 @@ import useStore from "./useStore";
 import { useTenants } from "./useTenants";
 import useWorkflowDetails from "./workflow";
 import useCustomAPIHook from "./useCustomAPIHook";
+import useCustomAPIMutationHook from "./useCustomAPIMutationHook";
 import useUpdateCustom from "./useUpdateCustom";
+
 
 import useComplaintDetails from "./pgr/useComplaintDetails";
 import { useComplaintsList, useComplaintsListByMobile } from "./pgr/useComplaintList";
@@ -197,6 +199,7 @@ const Hooks = {
   useGenderMDMS,
   useRouteSubscription,
   useCustomAPIHook,
+  useCustomAPIMutationHook,
   useWorkflowDetailsV2,
   useUpdateCustom,
   useCustomMDMS,

@@ -23,7 +23,7 @@ const CloseBtn = (props) => {
     );
 };
 
-const WorkflowModal = ({ config, onSubmit, closeModal }) => {
+const WorkflowModal = ({ config, onSubmit, closeModal,popupModuleActionBarStyles,popupModuleMianStyles }) => {
   const { t } = useTranslation()
 
   return <Modal
@@ -34,6 +34,8 @@ const WorkflowModal = ({ config, onSubmit, closeModal }) => {
             actionSaveLabel={t(config.label.submit)}
             actionSaveOnSubmit={() => { }}
             formId="modal-action"
+            popupModuleActionBarStyles={popupModuleActionBarStyles}
+            popupModuleMianStyles={popupModuleMianStyles}
         >
             <FormComposer
                 config={config.form}

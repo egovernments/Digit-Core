@@ -1,33 +1,100 @@
-# Digit UI
+
+# workbench ui 
+
+A React App built on top of DIGIT UI Core.
+
+
+# DIGIT UI 
+
 DIGIT (Digital Infrastructure for Governance, Impact & Transformation) is India's largest platform for governance services. Visit https://www.digit.org for more details.
 
 This repository contains source code for web implementation of the new Digit UI modules with dependencies and libraries.
 
-#### Starting local server
-1. To run server locally first change directory to **web** subdirectory
-1. In the project run **yarn install** to install node modules and dependencies 
-1. Run **yarn start** to start the local server
+Workbench module is used to Manage the master data (MDMS V2 Service) used across the DIGIT Services / Applications
 
-#### Updating modules
-To update the modules run *install-dep.sh* script this will pull all the updates from *micro-ui-internals* subfolder
+It is also used to manage the Localisation data present in the system (Localisation service)
 
-#### Reference Docs
 
-###### Module wise reference docs
-Module | Reference Docs
------- | --------------
-PGR | https://digit-discuss.atlassian.net/wiki/spaces/EPE/pages/1285587062/PGR+UI+Implementation+-+Guidelines+FAQs
-FSM | https://digit-discuss.atlassian.net/wiki/spaces/EPE/pages/1290567710/FSM+UI+Implementation+-+Guidelines+FAQs
-DIGIT Services | https://digit-discuss.atlassian.net/wiki/spaces/DD/pages/647364616/DIGIT+Services
+## Run Locally
 
-###### Dependencies and their references
-1. https://www.npmjs.com/package/react-query
-2. https://react-redux.js.org/
-3. https://react-hook-form.com/
-4. https://www.npmjs.com/package/react-table
-5. https://www.npmjs.com/package/react-time-picker
-6. https://reactrouter.com/web/guides/quick-start
-7. https://recharts.org/
+Clone the project
 
-#### License
-These reference apps are released under MIT
+```bash
+  git clone https://github.com/egovernments/Digit-Core.git
+```
+
+Go to the Sub directory to run UI
+```bash
+    cd into frontend/micro-ui/web/micro-ui-internals
+```
+
+Install dependencies
+
+```bash
+  yarn install
+```
+
+Add .env file
+```bash
+    frontend/micro-ui/web/micro-ui-internals/example/.env
+```
+
+Start the server
+
+```bash
+  yarn start
+```
+
+
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+`REACT_APP_PROXY_API` ::  `{{server url}}`
+
+`REACT_APP_GLOBAL`  ::  `{{server url}}`
+
+`REACT_APP_PROXY_ASSETS`  ::  `{{server url}}`
+
+`REACT_APP_USER_TYPE`  ::  `{{EMPLOYEE||CITIZEN}}`
+
+`SKIP_PREFLIGHT_CHECK` :: `true`
+
+[sample .env file](https://github.com/egovernments/Digit-Core/blob/workbench/frontend/micro-ui/web/micro-ui-internals/example/.env-unifieddev)
+
+## Tech Stack
+
+**Libraries:** 
+
+[React](https://react.dev/)
+
+[React Hook Form](https://www.react-hook-form.com/)
+
+[React Query](https://tanstack.com/query/v3/)
+
+[Tailwind CSS](https://tailwindcss.com/)
+
+[Webpack](https://webpack.js.org/)
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
+
+## Author
+
+- [@jagankumar-egov](https://www.github.com/jagankumar-egov)
+
+
+## Documentation
+
+[Documentation](https://https://core.digit.org/guides/developer-guide/ui-developer-guide/digit-ui)
+
+
+## Support
+
+For support, add the issues in https://github.com/egovernments/DIGIT-core/issues.
+
+
+![Logo](https://s3.ap-south-1.amazonaws.com/works-dev-asset/mseva-white-logo.png)
+

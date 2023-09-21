@@ -135,6 +135,7 @@
   }
 
   .header-content {
+    margin-top: 0.2rem;
   }
 
   .header-end {
@@ -153,7 +154,7 @@
 .submit-bar {
   @apply h-10 bg-primary-main text-center w-full outline-none;
   box-shadow: inset 0px -2px 0px theme(colors.text.primary);
-
+  cursor: pointer;
   &:focus {
     @apply outline-none;
   }

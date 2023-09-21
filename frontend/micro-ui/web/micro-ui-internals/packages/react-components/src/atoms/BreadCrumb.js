@@ -7,7 +7,7 @@ const Breadcrumb = (props) => {
     return index === props.crumbs.length - 1;
   }
   return (
-    <ol className="bread-crumb">
+    <ol className={`bread-crumb ${props?.className?props?.className:""}`}>
       {props?.crumbs?.map((crumb, ci) => {
         if (!crumb?.show) return;
         if (crumb?.isBack)
@@ -23,7 +23,7 @@ const Breadcrumb = (props) => {
             {isLast(ci) || !crumb?.path ? (
               <span style={props?.spanStyle ? { ...props?.spanStyle, color: "#0B0C0C" } : { color: "#0B0C0C" }}>{crumb.content}</span>
             ) : (
-              <Link to={{ pathname:crumb.path, state: {count : crumb?.count} }}>{crumb.content}</Link>
+              <Link to={{ pathname:crumb.path, state: {count : crumb?.count} , search: crumb?.query}} >{crumb.content}</Link>
             )}
           </li>
         );

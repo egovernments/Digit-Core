@@ -1,10 +1,9 @@
 package org.egov.wf.repository.querybuilder;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.List;
+
 import org.egov.wf.web.models.EscalationSearchCriteria;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class EscalationQueryBuilder {
@@ -14,7 +13,7 @@ public class EscalationQueryBuilder {
 
     private static final String BASE_QUERY = "select businessId from (" +
             "  SELECT *,RANK () OVER (PARTITION BY businessId ORDER BY createdtime  DESC) rank_number " +
-            " FROM eg_wf_processinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE rank_number = 1 ";
+            " FROM {SCHEMA}.eg_wfprocessinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE rank_number = 1 ";
 
 
     /**

@@ -2,12 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { initLibraries } from "@egovernments/digit-ui-libraries";
-import { paymentConfigs, PaymentLinks, PaymentModule } from "@egovernments/digit-ui-module-common";
+// import { paymentConfigs, PaymentLinks, PaymentModule } from "@egovernments/digit-ui-module-common";
 import { DigitUI } from "@egovernments/digit-ui-module-core";
 import { initDSSComponents } from "@egovernments/digit-ui-module-dss";
 import { initEngagementComponents } from "@egovernments/digit-ui-module-engagement";
 import { initHRMSComponents } from "@egovernments/digit-ui-module-hrms";
-import { initUtilitiesComponents } from  "@egovernments/digit-ui-module-utilities";
+// import { initUtilitiesComponents } from  "@egovernments/digit-ui-module-utilities";
+import {initWorkbenchComponents} from "@egovernments/digit-ui-module-workbench";
 
 import "@egovernments/digit-ui-css/example/index.css";
 
@@ -17,6 +18,7 @@ import { UICustomizations } from "./UICustomizations";
 var Digit = window.Digit || {};
 
 const enabledModules = [ "DSS", "HRMS",
+"Workbench"
 //  "Engagement", "NDSS","QuickPayLinks", "Payment",
   // "Utilities",
 //added to check fsm
@@ -51,30 +53,30 @@ const initTokens = (stateCode) => {
 
 const initDigitUI = () => {
   window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH") || "digit-ui";
-
+  window.Digit.Customizations = {
+    PGR: pgrCustomizations,
+    commonUiConfig: UICustomizations
+  };
   window?.Digit.ComponentRegistryService.setupRegistry({
-    PaymentModule,
-    ...paymentConfigs,
-    PaymentLinks,
+    // PaymentModule,
+    // ...paymentConfigs,
+    // PaymentLinks,
   });
 
   initDSSComponents();
   initHRMSComponents();
   initEngagementComponents();
   // initUtilitiesComponents();
+  initWorkbenchComponents();
+
 
   const moduleReducers = (initData) => initData;
 
-  window.Digit.Customizations = {
-    PGR: pgrCustomizations,
-    commonUiConfig: UICustomizations
-
-  };
 
   const stateCode = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID") || "pb";
   initTokens(stateCode);
 
-  ReactDOM.render(<DigitUI stateCode={stateCode} enabledModules={enabledModules} moduleReducers={moduleReducers} />, document.getElementById("root"));
+  ReactDOM.render(<DigitUI stateCode={stateCode} enabledModules={enabledModules}       defaultLanding="employee"  moduleReducers={moduleReducers} />, document.getElementById("root"));
 };
 
 initLibraries().then(() => {

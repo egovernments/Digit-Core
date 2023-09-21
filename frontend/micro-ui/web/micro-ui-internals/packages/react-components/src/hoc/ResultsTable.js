@@ -9,9 +9,9 @@ import { InboxContext } from './InboxSearchComposerContext';
 import { Link } from "react-router-dom";
 import { Loader } from '../atoms/Loader';
 import NoResultsFound from '../atoms/NoResultsFound';
-import { InfoIcon } from "../atoms/svgindex";
+import { InfoIcon,EditIcon } from "../atoms/svgindex";
 
-const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fullConfig,revalidate }) => {
+const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fullConfig,revalidate,additionalConfig }) => {
     const {apiDetails} = fullConfig
     const { t } = useTranslation();
     const resultsKey = config.resultsJsonPath
@@ -45,6 +45,17 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
         //test if accessor can take jsonPath value only and then check sort and global search work properly
         return config?.columns?.map(column => {
             
+            if(column?.svg) {
+                // const icon = Digit.ComponentRegistryService.getComponent(column.svg);
+                return {
+                    Header: t(column?.label) || t("ES_COMMON_NA"),
+                    accessor:column.jsonPath,
+                    Cell: ({ value, col, row }) => {
+                        return <div className='cursorPointer' style={{marginLeft:"1rem"}} onClick={()=>additionalConfig?.resultsTable?.onClickSvg(row)}> <EditIcon /></div>
+                    }
+                }
+            }
+
             if (column.additionalCustomization){
                 return {
                     Header: t(column?.label) || t("ES_COMMON_NA"),
@@ -60,7 +71,7 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
                 accessor: column.jsonPath,
                 headerAlign: column?.headerAlign,
                 Cell: ({ value, col, row }) => {
-                    return String(value ? column.translate? t(column.prefix?`${column.prefix}${value}`:value) : value : t("ES_COMMON_NA"));
+                    return String(value ? column.translate? t(column.prefix?`${column.prefix}${value}`:value) : value : column?.dontShowNA ? " " : t("ES_COMMON_NA"));
                 }
             }
         })
@@ -117,6 +128,12 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
         register("offset", 0);
         register("limit", 10);
     }, [register]);
+
+    useEffect(() => {
+      setValue("offset",state.tableForm.offset)
+      setValue("limit",state.tableForm.limit)
+    })
+    
 
     function onPageSizeChange(e) {
         setValue("limit", Number(e.target.value));
@@ -180,6 +197,7 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
                 showCheckBox={config?.showCheckBox ? true : false}
                 actionLabel={config?.checkBoxActionLabel}
                 tableSelectionHandler={Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.selectionHandler}
+                manualPagination={config.manualPagination}
                 getCellProps={(cellInfo) => {
                     return {
                         style: {
@@ -189,6 +207,9 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
                         },
                     };
                 }}
+                onClickRow={additionalConfig?.resultsTable?.onClickRow}
+                rowClassName={config.rowClassName}
+                noColumnBorder={config?.noColumnBorder}
             />}
         </div>
     )

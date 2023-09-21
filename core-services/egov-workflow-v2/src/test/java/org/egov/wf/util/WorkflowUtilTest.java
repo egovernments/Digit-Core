@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
@@ -40,6 +41,8 @@ class WorkflowUtilTest {
 
     @Autowired
     private WorkflowUtil workflowUtil;
+    
+    Map<String, Map<String,List<String>>> roleTenantAndStatusMapping = new HashMap<>();
 
    // @Test
 
@@ -128,7 +131,7 @@ class WorkflowUtilTest {
         processInstanceSearchCriteria.setTenantId("42");
         processInstanceSearchCriteria.setTenantSpecifiStatus(new ArrayList<>());
         processInstanceSearchCriteria.setToDate(1L);
-        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria);
+        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria, roleTenantAndStatusMapping);
         verify(this.businessServiceRepository).getRoleTenantAndStatusMapping("tenantId");
         User userInfo = requestInfo.getUserInfo();
         assertSame(user, userInfo);
@@ -185,7 +188,7 @@ class WorkflowUtilTest {
         processInstanceSearchCriteria.setTenantId("42");
         processInstanceSearchCriteria.setTenantSpecifiStatus(new ArrayList<>());
         processInstanceSearchCriteria.setToDate(1L);
-        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria);
+        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria, roleTenantAndStatusMapping);
         verify(this.businessServiceRepository).getRoleTenantAndStatusMapping("tenantId");
     }
 
@@ -221,7 +224,7 @@ class WorkflowUtilTest {
         processInstanceSearchCriteria.setTenantId("42");
         processInstanceSearchCriteria.setTenantSpecifiStatus(new ArrayList<>());
         processInstanceSearchCriteria.setToDate(1L);
-        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria);
+        this.workflowUtil.enrichStatusesInSearchCriteria(requestInfo, processInstanceSearchCriteria, roleTenantAndStatusMapping);
         verify(this.businessServiceRepository).getRoleTenantAndStatusMapping("tenantId");
     }
 

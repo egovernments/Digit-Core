@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/digit-ui-module-hrms",
-  "version": "1.5.27",
+  "version": "1.8.0-beta.01",
   "description": "HRMS",
   "license": "MIT",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
     "prepublish": "yarn build"
   },
   "dependencies": {
-    "@egovernments/digit-ui-react-components": "1.5.27",
+    "@egovernments/digit-ui-react-components": "1.5.22",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "6.15.8",
@@ -24,5 +24,6 @@
     "react-router-dom": "5.3.0",
     "rooks": "^4.4.0"
   },
+  "author": "JaganKumar <jagan.kumar@egov.org.in>",
   "keywords": ["digit","egov","dpg","digit-ui","hrms","employee","management"]
 }

@@ -65,6 +65,10 @@ with
 # Changelog
 
 ```bash
+1.8.0-beta workbench base version beta release
+1.7.0 urban 2.9
+1.6.0 urban 2.8
+1.5.43 redirection issue fix incase of no roles in selected city
 1.5.42 fixed the mdms call in login component for dynamic updating
 1.5.41 updated the readme content
 1.5.40 Updated the login componenet to handle mdms config, which can be accessed from master - commonUiConfig and module - LoginConfig
