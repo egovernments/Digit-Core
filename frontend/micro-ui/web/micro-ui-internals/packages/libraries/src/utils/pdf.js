@@ -157,7 +157,7 @@ const jsPdfGenerator = async ({ breakPageLimit = null, tenantId, logo, name, ema
     },
   };
   pdfMake.vfs = Fonts;
-  let locale = Digit.SessionStorage.get("locale") || "en_IN";
+  let locale = Digit.SessionStorage.get("locale") || Digit.Utils.getDefaultLanguage();
   let Hind = pdfFonts[locale] || pdfFonts["Hind"];
   pdfMake.fonts = { Hind: { ...Hind } };
   const generatedPDF = pdfMake.createPdf(dd);
@@ -236,7 +236,7 @@ const jsPdfGeneratorv1 = async ({ breakPageLimit = null, tenantId, logo, name, e
   };
   
   pdfMake.vfs = Fonts;
-  let locale = Digit.SessionStorage.get("locale") || "en_IN";
+  let locale = Digit.SessionStorage.get("locale") || Digit.Utils.getDefaultLanguage();
   let Hind = pdfFonts[locale] || pdfFonts["Hind"];
   pdfMake.fonts = { Hind: { ...Hind } };
   const generatedPDF = pdfMake.createPdf(dd);

@@ -19,7 +19,7 @@ const MDMSAdd = ({ FormSession }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const reqCriteria = {
-    url: "/mdms-v2/schema/v1/_search",
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/schema/v1/_search`,
     params: {},
     body: {
       SchemaDefCriteria: {
@@ -35,7 +35,7 @@ const MDMSAdd = ({ FormSession }) => {
     },
   };
   const reqCriteriaAdd = {
-    url: `/mdms-v2/v2/_create/${moduleName}.${masterName}`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_create/${moduleName}.${masterName}`,
     params: {},
     body: {
       Mdms: {

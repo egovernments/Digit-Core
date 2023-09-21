@@ -4,7 +4,7 @@ import ReactPostprocessor from "i18next-react-postprocessor";
 
 const i18nextConfig = () => ({
   lng: Digit.StoreData.getCurrentLanguage(),
-  fallbackLng: "en_IN",
+  fallbackLng: Digit.Utils.getDefaultLanguage(),
   debug: false,
   ns: ["translations"],
   defaultNS: "translations",
@@ -22,7 +22,7 @@ const i18nextConfig = () => ({
     bindI18nStore: "added",
   },
   resources: {
-    en_IN: {
+    [Digit.Utils.getDefaultLanguage()]: {
       translations: {
         welcome: "Welcome",
       },

@@ -41,7 +41,7 @@ const MDMSSearchv2 = () => {
     SchemaDefCriteria.codes = [`${master}.${modulee}`] 
   }
   const { isLoading, data: dropdownData } = Digit.Hooks.useCustomAPIHook({
-    url: "/mdms-v2/schema/v1/_search",
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/schema/v1/_search`,
     params: {
       
     },
@@ -134,7 +134,7 @@ const MDMSSearchv2 = () => {
       //     dontShowNA:true
       //   }
       // })]
-
+    
       Config.sections.searchResult.uiConfig.columns = [...dropDownOptions.map(option => {
         return {
           label:option.i18nKey,
@@ -149,7 +149,8 @@ const MDMSSearchv2 = () => {
         additionalCustomization:true
         // dontShowNA:true
       }]
-
+      Config.apiDetails.serviceName=`/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`;
+        
       setUpdatedConfig(Config)
     }
   }, [currentSchema]);

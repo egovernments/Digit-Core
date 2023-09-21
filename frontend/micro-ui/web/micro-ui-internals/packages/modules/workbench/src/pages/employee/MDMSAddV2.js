@@ -42,7 +42,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   const { t } = useTranslation();
   const history = useHistory();
   const reqCriteria = {
-    url: "/mdms-v2/schema/v1/_search",
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/schema/v1/_search`,
     params: {},
     body: {
       SchemaDefCriteria: {
@@ -66,7 +66,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   };
   /*
   const reqCriteriaForData = {
-    url: `/mdms-v2/v2/_search`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`,
     params: {},
     body: {
       MdmsCriteria: {
@@ -128,7 +128,7 @@ console.log(additonalData,'additonalData--')
         },
       };
   const reqCriteriaAdd = {
-    url: api ? api?.url : `/mdms-v2/v2/_create/${moduleName}.${masterName}`,
+    url: api ? api?.url : `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_create/${moduleName}.${masterName}`,
     params: {},
     body: { ...body },
     config: {

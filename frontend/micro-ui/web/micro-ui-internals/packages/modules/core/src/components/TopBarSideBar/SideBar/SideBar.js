@@ -69,7 +69,7 @@ const Sidebar = ({ data }) => {
     setSelectedChildLevelOne(null)
   };
 
-  function extractLeftIcon(data) {
+  function extractLeftIcon(data={}) {
     for (const key in data) {
       const item = data[key];
 
@@ -106,7 +106,7 @@ const Sidebar = ({ data }) => {
           
           if (!subItemKeys && subItems && Object.keys(subItems).length > 0) {
             // If the item has sub-items, render a dropdown with toggle button
-            const {leftIconArray,isDynamic} = extractLeftIcon(subItems);
+            const {leftIconArray,isDynamic} = extractLeftIcon(subItems) || {};
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
             if(isDynamic === "dynamic"){
               var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray];
@@ -157,7 +157,7 @@ const Sidebar = ({ data }) => {
             );
           } else if (subItemKeys) {
             // If the item is a link, render it
-            const  {leftIconArray,isDynamic} = extractLeftIcon(subItems);
+            const  {leftIconArray,isDynamic} = extractLeftIcon(subItems) || {};
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
             if(isDynamic === "dynamic"){
               var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray];

@@ -61,7 +61,7 @@ export const StoreService = {
     const localities = {};
     const revenue_localities = {};
     const initData = {
-      languages: stateInfo.hasLocalisation ? stateInfo.languages : [{ label: "ENGLISH", value: "en_IN" }],
+      languages: stateInfo.hasLocalisation ? stateInfo.languages : [{ label: "ENGLISH", value: Digit.Utils.getDefaultLanguage() }],
       stateInfo: {
         code: stateInfo.code,
         name: stateInfo.name,

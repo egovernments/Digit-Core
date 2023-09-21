@@ -1,14 +1,16 @@
 import { logoutV1 } from "./logout";
-import { UICreateConfigGenerator } from "./workbench";
+import { UICreateConfigGenerator , getMDMSContextPath } from "./workbench";
 import utils from "../utils";
 import useLocalisationSearch from "./useLocalisationSearch";
+
 const UserService = {
   logoutV1,
 };
 
 const workbench = {
   UICreateConfigGenerator,
-  useLocalisationSearch
+  useLocalisationSearch,
+  getMDMSContextPath
 };
 
 const contracts = {};

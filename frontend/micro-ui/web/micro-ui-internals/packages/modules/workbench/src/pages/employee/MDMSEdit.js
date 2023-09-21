@@ -14,7 +14,7 @@ const MDMSEdit = ({...props}) => {
   const [showToast, setShowToast] = useState(false);
   const [renderLoader,setRenderLoader] = useState(false)
   const reqCriteria = {
-    url: `/mdms-v2/v2/_search`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`,
     params: {},
     body: {
       MdmsCriteria: {
@@ -32,7 +32,7 @@ const MDMSEdit = ({...props}) => {
   };
 
   const reqCriteriaSchema = {
-    url: `/mdms-v2/schema/v1/_search`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/schema/v1/_search`,
     params: {},
     body: {
       SchemaDefCriteria: {
@@ -70,7 +70,7 @@ const MDMSEdit = ({...props}) => {
   
 
   const reqCriteriaUpdate = {
-    url: `/mdms-v2/v2/_update/${moduleName}.${masterName}`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_update/${moduleName}.${masterName}`,
     params: {},
     body: {
       
@@ -104,7 +104,7 @@ const MDMSEdit = ({...props}) => {
 
     mutation.mutate(
       {
-        url:`/mdms-v2/v2/_update/${moduleName}.${masterName}`,
+        url:`/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_update/${moduleName}.${masterName}`,
         params: {},
         body: {
           Mdms:{

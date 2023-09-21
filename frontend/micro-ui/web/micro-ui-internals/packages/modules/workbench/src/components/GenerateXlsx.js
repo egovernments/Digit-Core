@@ -9,7 +9,7 @@ const GenerateXlsx = ({inputRef}) =>  {
         "code": "WBH_MDMS_MASTER_ACCESSCONTROL_ACTIONS_TEST",
         "message": "Access Control",
         "module": "rainmaker-workbench",
-        "locale": "en_IN"
+        "locale": Digit.Utils.getDefaultLanguage()
     }
     ];
 
