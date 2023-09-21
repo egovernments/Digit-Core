@@ -208,6 +208,7 @@ import {
   UploadIcon,
   FileIcon,
   DeleteIconv2,
+  InfoIconOutline
 } from "./atoms/svgindex";
 import Table from "./atoms/Table";
 import TelePhone from "./atoms/TelePhone";
@@ -546,6 +547,7 @@ export {
   UploadIcon,
   FileIcon,
   DeleteIconv2,
+  InfoIconOutline,
 
   /* Works Management  */
 
