@@ -14,8 +14,11 @@ import {
   Toast,
   InfoBannerIcon,
   UploadFile,
-  DeleteIcon,
-  FileUploadModal
+  DeleteIconv2,
+  FileUploadModal,
+  BreakLine,
+  InfoIconOutline,
+  UploadIcon
 } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import reducer, { intialState } from "../../utils/LocAddReducer";
@@ -264,7 +267,7 @@ const LocalisationAdd = () => {
           <div class="tooltip" style={{ marginTop: "-10px" }}>
             <span class="textoverflow" style={{ "--max-width": `20ch` }}>
               {String(t("WBH_LOC_MESSAGE_VALUE"))}
-              <InfoBannerIcon styles={{ marginLeft: "0.3rem",marginBottom:"-0.2rem" }} fill={"#f47738"} />
+              <InfoIconOutline styles={{ marginLeft: "0.3rem",marginBottom:"-0.2rem" }}  />
             </span>
             {/* check condtion - if length greater than 20 */}
             <span class="tooltiptext" style={{ whiteSpace: "normal", width: "15rem" }}>
@@ -303,7 +306,7 @@ const LocalisationAdd = () => {
         Cell: ({ value, col, row, ...rest }) => {
           return (
             <span onClick={() => handleDeleteRow({row,value,col})} className="icon-wrapper">
-              <DeleteIcon fill={"#B1B4B6"} />
+              <DeleteIconv2 fill={"#F47738"} />
             </span>
           );
         },
@@ -624,7 +627,7 @@ const LocalisationAdd = () => {
           <Button
             label={t("WBH_LOC_BULK_UPLOAD_XLS")}
             variation="secondary"
-            icon={<AddFilled style={{ height: "20px", width: "20px" }} />}
+            icon={<UploadIcon styles={{ height: "2.2rem", width: "2.2rem" }} />}
             type="button"
             // onButtonClick={callInputClick}
             onButtonClick={() => setShowBulkUploadModal(true)}
@@ -745,8 +748,9 @@ const LocalisationAdd = () => {
               }}
             />
           )}
+          <BreakLine style={{height:"0.01rem"}} />
           {selectedLang && selectedModule && (
-            <div style={{ display: "flex", marginTop: "2rem" }}>
+            <div style={{ display: "flex",justifyContent:"space-between", marginTop: "2rem" }}>
               <Button
                 label={t("ADD_NEW_ROW")}
                 variation="secondary"

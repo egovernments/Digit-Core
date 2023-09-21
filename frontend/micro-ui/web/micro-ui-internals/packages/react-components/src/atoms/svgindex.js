@@ -1100,6 +1100,12 @@ const DeleteIconv2 = ({styles, className, fill = "#F47738",height="24",width="24
   </svg>
 );
 
+const InfoIconOutline = ({styles, className, fill = "#505A5F",height="20",width="20" }) => (
+  <svg style={styles} className={className} xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 20 20" fill={fill}>
+  <path d="M8.7085 5.54171H10.2918V7.12504H8.7085V5.54171ZM8.7085 8.70837H10.2918V13.4584H8.7085V8.70837ZM9.50016 1.58337C5.13016 1.58337 1.5835 5.13004 1.5835 9.50004C1.5835 13.87 5.13016 17.4167 9.50016 17.4167C13.8702 17.4167 17.4168 13.87 17.4168 9.50004C17.4168 5.13004 13.8702 1.58337 9.50016 1.58337ZM9.50016 15.8334C6.00891 15.8334 3.16683 12.9913 3.16683 9.50004C3.16683 6.00879 6.00891 3.16671 9.50016 3.16671C12.9914 3.16671 15.8335 6.00879 15.8335 9.50004C15.8335 12.9913 12.9914 15.8334 9.50016 15.8334Z" fill="#505A5F"/>
+</svg>
+)
+
 const FileIcon = ({ styles, className, fill = "white", height = "64", width = "64" }) => (
   <svg styles={styles} className={className} width="24" height="24" viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
     <g clip-path="url(#clip0_431_5092)">
@@ -1942,5 +1948,6 @@ export {
   AttentionListIcon,
   UploadIcon,
   FileIcon,
-  DeleteIconv2
+  DeleteIconv2,
+  InfoIconOutline
 };
