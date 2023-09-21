@@ -20,7 +20,7 @@ const MDMSEdit = ({...props}) => {
       MdmsCriteria: {
         tenantId: stateId,
         uniqueIdentifier,
-        schemaCode:`${moduleName}.${masterName}`
+        schemaCodes:[`${moduleName}.${masterName}`]
       },
     },
     config: {

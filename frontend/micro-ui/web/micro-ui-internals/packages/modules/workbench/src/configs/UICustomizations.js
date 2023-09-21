@@ -448,7 +448,7 @@ export const UICustomizations = {
         delete data.body.MdmsCriteria.isActive
       }
       data.body.MdmsCriteria.filters = filters
-      data.body.MdmsCriteria.schemaCode = additionalDetails?.currentSchemaCode
+      data.body.MdmsCriteria.schemaCodes = [additionalDetails?.currentSchemaCode]
       delete data.body.MdmsCriteria.custom
       // const {field,value} = data.body.MdmsCriteria.moduleDetails[0].masterDetails[0].custom || {}
       
