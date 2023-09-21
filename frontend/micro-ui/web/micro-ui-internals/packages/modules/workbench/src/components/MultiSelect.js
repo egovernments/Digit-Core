@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import Select from "react-select";
 import { useTranslation } from "react-i18next";
+import { Loader } from "@egovernments/digit-ui-react-components";
 
 
 const customStyles = {
@@ -19,12 +20,34 @@ const CustomSelectWidget = (props) => {
   const { t } = useTranslation();
   const { moduleName, masterName } = Digit.Hooks.useQueryParams();
   const { options, value, disabled, readonly, onChange, onBlur, onFocus, placeholder, multiple = false ,schema={schemaCode:""}} = props;
-  const {schemaCode=`${moduleName}.${masterName}`} = schema;
+  const {schemaCode=`${moduleName}.${masterName}`,tenantId} = schema;
   const handleChange = (selectedValue) => onChange(multiple ? selectedValue?.value : selectedValue?.value);
-  const optionsList = options?.enumOptions || options || [];
-  const formattedOptions=React.useMemo(()=>optionsList.map(e=>({label:t(Digit.Utils.locale.getTransformedLocale(`${schemaCode}_${e?.label}`)),value:e.value})),[optionsList,schemaCode]);
+  const reqCriteriaForData = {
+    url: `/mdms-v2/v2/_search`,
+    params: {},
+    body: {
+      MdmsCriteria: {
+        tenantId: tenantId,
+        // schemaCodes: loadDependent.map((e) => e.schemaCode),
+        schemaCode: schemaCode,
+
+      },
+    },
+    config: {
+      enabled: schemaCode && schemaCode?.length > 0,
+      select: (data) => data?.mdms?.map(e=>({label:e?.uniqueIdentifier,value:e?.uniqueIdentifier}))
+    },
+    changeQueryName: `data-${schemaCode}`,
+  };
+
+  const { isLoading, data } = Digit.Hooks.useCustomAPIHook(reqCriteriaForData);
+  const optionsList = data||options?.enumOptions || options || [];
+
+  const formattedOptions=React.useMemo(()=>optionsList.map(e=>({label:t(Digit.Utils.locale.getTransformedLocale(`${schemaCode}_${e?.label}`)),value:e.value})),[optionsList,schemaCode,data]);
   const selectedOption = formattedOptions?.filter((obj) => (multiple ? value?.includes(obj.value) : obj.value == value));
- 
+  if(isLoading){
+    return <Loader/>
+    }
   return (
     <Select
       className="form-control form-select"
