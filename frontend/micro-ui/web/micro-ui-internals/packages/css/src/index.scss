@@ -266,9 +266,9 @@ h1, h2, h3, h4, h5, h6 {
 
 input[readonly] {
   @apply border-grey-dark text-grey-dark !important;
-  background-color: #EEEEEE;
-  border-color: #505A5F;
-  color: #505A5F;
+  background-color:  theme(digitv2.lightTheme.background);
+  border-color: theme(digitv2.lightTheme.text-color-secondary);
+  color: theme(digitv2.lightTheme.text-color-secondary);
 }
 
 .hide-input-type-file {
