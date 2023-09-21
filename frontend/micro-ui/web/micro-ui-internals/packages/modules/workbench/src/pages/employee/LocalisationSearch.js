@@ -1,4 +1,4 @@
-import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown,Toast,WorkflowModal } from "@egovernments/digit-ui-react-components";
+import { AddFilled, Button, Header, InboxSearchComposer, Loader, Dropdown,Toast,WorkflowModal,ActionBar,SubmitBar } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
@@ -114,7 +114,7 @@ const LocalisationSearch = () => {
     <React.Fragment>
       <div className="jk-header-btn-wrapper">
       <Header className="works-header-search">{t(Config?.label)}</Header>
-      {Config && Digit.Utils.didEmployeeHasRole(Config?.actionRole) && (
+      {/* {Config && Digit.Utils.didEmployeeHasRole(Config?.actionRole) && (
           <Button
             label={t(Config?.actionLabel)}
             variation="secondary"
@@ -125,7 +125,15 @@ const LocalisationSearch = () => {
             type="button"
             className={'header-btn'}
           />
-        )}
+        )} */}
+      {
+        Config && Digit.Utils.didEmployeeHasRole(Config?.actionRole) &&
+        <ActionBar >
+          <SubmitBar disabled={false} onSubmit={() => {
+              history.push(`/${window?.contextPath}/employee/${Config?.actionLink}`);
+            }} label={t("WBH_ADD_LOCALISATION")} />
+        </ActionBar>
+      }
       </div>
       {Config && <div className="inbox-search-wrapper">
         <InboxSearchComposer onFormValueChange={formUpdate} configs={Config} additionalConfig = {{
@@ -138,7 +146,7 @@ const LocalisationSearch = () => {
           }
         }}></InboxSearchComposer>
       </div>}
-      {showModal && modalConfig && <WorkflowModal closeModal={() => setShowModal(false)} onSubmit={onModalSubmit} config={modalConfig} />}
+      {showModal && modalConfig && <WorkflowModal closeModal={() => setShowModal(false)} onSubmit={onModalSubmit} config={modalConfig} popupModuleActionBarStyles={{marginTop:"-1rem"}} popupModuleMianStyles={{marginTop:"-2rem"}} />}
       {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=>setShowToast(null)} style={showToast?.style}></Toast>}
     </React.Fragment>
   );

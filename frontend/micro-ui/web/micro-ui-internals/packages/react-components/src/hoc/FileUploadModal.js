@@ -3,7 +3,7 @@ import Modal from './Modal'
 import { CloseSvg,UploadIcon,FileIcon,DeleteIconv2 } from '../atoms/svgindex';
 import { FileUploader } from "react-drag-drop-files";
 
-const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fileTypes= [ "XLS", "XLSX"],multiple=true,fileValidator,...props}) => {
+const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fileTypes= [ "XLS", "XLSX"],multiple=true,fileValidator,onClickDownloadSample,...props}) => {
 
   const [file, setFile] = useState(null);
 
@@ -52,10 +52,7 @@ const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fil
     )
   }, [file])
 
-  const handleChange = (file) => {
-    // if(fileValidator(file)){
-    // setFile(file);
-    // }else return 
+  const handleChange = (file) => { 
     setFile(file)
   };
 
@@ -64,11 +61,12 @@ const FileUploadModal = ({heading,cancelLabel,submitLabel,onSubmit,onClose,t,fil
       headerBarMain={<Heading t={t} heading={t(heading)} />}
       headerBarEnd={<CloseBtn onClick={onClose} />}
       actionCancelLabel={t("WBH_DOWLOAD_TEMPLATE")}
-      actionCancelOnSubmit={onClose}
+      actionCancelOnSubmit={onClickDownloadSample}
       actionSaveLabel={t(submitLabel)}
       actionSaveOnSubmit={()=>onSubmit(file)}
       formId="modal-action"
       popupModuleActionBarStyles={{justifyContent:"space-between"}}
+      isDisabled={file ? false : true}
     >
       <FileUploader handleChange={handleChange} name="file" types={fileTypes} children={dragDropJSX} onTypeError={fileValidator} />
       {file && renderFileCard}
