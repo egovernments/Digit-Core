@@ -64,18 +64,22 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     },
     changeQueryName: "schema",
   };
+  /*
   const reqCriteriaForData = {
     url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`,
     params: {},
     body: {
       MdmsCriteria: {
         tenantId: tenantId,
+        // schemaCodes: loadDependent.map((e) => e.schemaCode),
         schemaCode: loadDependent.map((e) => e.schemaCode)?.[0],
+
       },
     },
     config: {
       enabled: loadDependent && loadDependent?.length > 0,
       select: (data) => {
+        console.log(data,"data");
         const dependentData = {};
         data?.mdms?.map((ele) => {
           if (dependentData?.[ele?.schemaCode] && dependentData?.[ele?.schemaCode]?.length > 0) {
@@ -90,7 +94,27 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     changeQueryName: "data",
   };
 
-  const { isLoading: additonalLoading, data: additonalData } = Digit.Hooks.useCustomAPIHook(reqCriteriaForData);
+  const { isLoading: additonalLoading, data: additonalData } = Digit.Hooks.useCustomMultipleAPIHook(
+    loadDependent && loadDependent?.length > 0
+      ? loadDependent?.map((ele) => ({
+          ...reqCriteriaForData,
+          body: {
+            MdmsCriteria: {
+              tenantId: tenantId,
+              // schemaCodes: loadDependent.map((e) => e.schemaCode),
+              schemaCode: ele?.schemaCode,
+            },
+          },
+        }))
+      : [],
+    {
+      enabled: loadDependent && loadDependent.length > 0,
+    }
+  ); //reqCriteriaForData);
+  useEffect(()=>{
+console.log(additonalData,'additonalData--')
+  },[additonalData&&[...additonalData]])
+  */
   const { isLoading, data: schema, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
   const body = api?.requestBody
     ? { ...api?.requestBody }
@@ -162,44 +186,33 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     // setFormSchema(schema);
     /* localise */
     if (schema && schema?.definition) {
-      // Object.keys(schema?.definition?.properties).map((key) => {
-      //   const title = Digit.Utils.locale.getTransformedLocale(`${schema?.code}_${key}`);
-      //   schema.definition.properties[key] = { ...schema.definition.properties[key], title: t(title) };
-      //   console.log(schema.definition.properties[key],'schema.definition.properties[key]',key)
-      // });
       Digit.Utils.workbench.updateTitleToLocalisationCodeForObject(schema?.definition, schema?.code);
       setFormSchema(schema);
       /* logic to search for the reference data from the mdms data api */
 
       if (schema?.definition?.["x-ref-schema"]?.length > 0) {
-        setLoadDependent([...schema?.definition?.["x-ref-schema"]]);
+        schema?.definition?.["x-ref-schema"]?.map((dependent) => {
+          if (dependent?.fieldPath) {
+            let updatedPath = Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
+            if (_.get(schema?.definition?.properties, updatedPath)) {
+              _.set(schema?.definition?.properties, updatedPath, {
+                ..._.get(schema?.definition?.properties, updatedPath, {}),
+                enum: [],
+                schemaCode: dependent?.schemaCode,
+                tenantId,
+              });
+            }
+          }
+        });
+        setFormSchema({ ...schema });
+        /* added disable to get the complete form re rendered to get the enum values reflected */
+        setDisableForm(true);
+        setTimeout(() => {
+          setDisableForm(false);
+        });
       }
     }
   }, [schema]);
-
-  useEffect(() => {
-    /* logic to enable the enum values fetched from the mdms data api */
-    if (loadDependent && loadDependent?.length > 0) {
-      loadDependent?.map((dependent) => {
-        if (dependent?.fieldPath && additonalData?.[dependent?.schemaCode]?.length > 0) {
-          let updatedPath = Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
-          if (_.get(schema?.definition?.properties, updatedPath)) {
-            _.set(schema?.definition?.properties, updatedPath, {
-              ..._.get(schema?.definition?.properties, updatedPath, {}),
-              enum: additonalData?.[dependent?.schemaCode],
-              schemaCode : dependent?.schemaCode
-            });
-          }
-        }
-      });
-      setFormSchema({ ...schema });
-      /* added disable to get the complete form re rendered to get the enum values reflected */
-      setDisableForm(true);
-      setTimeout(() => {
-        setDisableForm(false);
-      });
-    }
-  }, [additonalData]);
 
   useEffect(() => {
     if (!_.isEqual(sessionFormData, session)) {
