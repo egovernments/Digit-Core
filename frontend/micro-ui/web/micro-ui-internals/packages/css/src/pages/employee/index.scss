@@ -111,10 +111,10 @@
   .sidebar {
     position: fixed;
     left: 0;
-    background: theme(colors.secondary);
+    background: #0B4B66;
     height: 100%;
     color: theme(colors.white);
-    margin-top: 80px;
+    margin-top: 83px;
     z-index: 10000;
     transition: 0.3s ease all;
     white-space: nowrap;
@@ -146,10 +146,19 @@
       align-items: center;
       padding: 20px;
       font-size: 14px;
+      
+      &.level-0 {
+        margin:0 0.3rem 0 0.3rem;
+        &.select-level{
+          border-top: 1px solid;
+          border-bottom: 1px solid;
+        }
+      }
+
       &.active {
         color: theme(colors.primary.main) !important;
 
-        border-right: 4px solid theme(colors.primary.main);
+        border-right: none;
         svg {
           fill: theme(colors.primary.main) !important;
         }
@@ -177,15 +186,16 @@
       }
 
       &:hover {
-        color: theme(colors.primary.main) !important;
-        background-color: #486480;
+        
+        background-color: #0B4B66;
 
         cursor: pointer;
-        svg {
-          fill: theme(colors.primary.main) !important;
-        }
+        
       }
       .search-icon-wrapper {
+        border: 2px solid theme(colors.white);
+        border-radius: 4px;
+        padding: 5px;
         svg {
           fill: theme(colors.white) !important;
           width: 21px;
@@ -217,7 +227,7 @@
       }
       &:hover {
         color: #fe7a51 !important;
-        background-color: #486480;
+        background-color: #0B4B66;
         cursor: pointer;
         svg {
           fill: #fe7a51 !important;
@@ -225,8 +235,14 @@
       }
       &.active {
         color: theme(colors.primary.main) !important;
-
-        border-right: 4px solid theme(colors.primary.main);
+        border-left: 4px solid theme(colors.primary.main);
+        border-right: none;
+        &.level-1 {
+          border-left: 13.5px solid theme(colors.primary.main);
+        }
+        &.level-0 {
+          
+        }
         svg {
           fill: theme(colors.primary.main) !important;
         }

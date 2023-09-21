@@ -60,7 +60,9 @@ const SubMenu = ({ item }) => {
       <div className="submenu-container">
         <div className={`sidebar-link  ${pathname === item?.navigationURL ? "active" : ""}`}>
           <div className="actions">
-            <span style={{marginLeft:"0px"}} onClick={()=> history.push(`${ item.navigationURL}`)}>{leftIcon}</span>
+            <span style={{ marginLeft: "0px" }} onClick={() => history.push(`${item.navigationURL}`)}>
+              {leftIcon}
+            </span>
             {item.navigationURL?.indexOf(`/${window?.contextPath}`) === -1 ? (
               <a
                 data-tip="React-tooltip"

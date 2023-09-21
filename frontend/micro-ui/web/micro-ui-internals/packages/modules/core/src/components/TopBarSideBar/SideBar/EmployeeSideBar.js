@@ -1,17 +1,17 @@
 import React, { useRef, useEffect, useState } from "react";
-import SubMenu from "./SubMenu";
 import { Loader, SearchIcon } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
+import Sidebar from "./SideBar";
 
-const checkMatch=(path="",searchCriteria="")=>(path.toLowerCase().includes(searchCriteria.toLowerCase()))
-
-
+const checkMatch = (path = "", searchCriteria = "") => path.toLowerCase().includes(searchCriteria.toLowerCase());
 
 const EmployeeSideBar = () => {
   const sidebarRef = useRef(null);
   const { isLoading, data } = Digit.Hooks.useAccessControl();
   const [search, setSearch] = useState("");
   const { t } = useTranslation();
+  const [subNav, setSubNav] = useState(false);
+
   useEffect(() => {
     if (isLoading) {
       return <Loader />;
@@ -22,94 +22,98 @@ const EmployeeSideBar = () => {
 
   const expandNav = () => {
     sidebarRef.current.style.width = "260px";
-    sidebarRef.current.style.overflow = "auto";
-
-    sidebarRef.current.querySelectorAll(".dropdown-link").forEach((element) => {
-      element.style.display = "flex";
-    });
+    // sidebarRef.current.style.overflow = "auto";
+    setSubNav(true);
   };
   const collapseNav = () => {
-    sidebarRef.current.style.width = "55px";
+    sidebarRef.current.style.width = "60px";
     sidebarRef.current.style.overflow = "hidden";
-
-    sidebarRef.current.querySelectorAll(".dropdown-link").forEach((element) => {
-      element.style.display = "none";
-    });
-    sidebarRef.current.querySelectorAll(".actions").forEach((element) => {
-      element.style.padding = "0";
-    });
+    setSubNav(false);
   };
+
+  function mergeObjects(obj1, obj2) {
+    for (const key in obj2) {
+      if (obj2.hasOwnProperty(key)) {
+        if (typeof obj2[key] === "object" && !Array.isArray(obj2[key])) {
+          if (!obj1[key]) {
+            obj1[key] = {};
+          }
+          mergeObjects(obj1[key], obj2[key]);
+        } else {
+          if (obj1[key]) {
+            if (!Array.isArray(obj1[key])) {
+              obj1[key] = [obj1[key]];
+            }
+            obj1[key].push(obj2[key]);
+          } else {
+            obj1[key] = obj2[key];
+          }
+        }
+      }
+    }
+  }
+
   const configEmployeeSideBar = {};
   data?.actions
     .filter((e) => e.url === "url")
     .forEach((item) => {
       let index = item?.path?.split(".")?.[0] || "";
       if (search == "" && item.path !== "") {
-        index = item.path.split(".")[0];
-        if (!configEmployeeSideBar[index]) {
-          configEmployeeSideBar[index] = [item];
-        } else {
-          configEmployeeSideBar[index].push(item);
-        }
+        const keys = item.path.split(".");
+        let hierarchicalMap = {};
+
+        keys.reduce((acc, key, index) => {
+          if (index === keys.length - 1) {
+            // If it's the last key, set the value to an empty object or whatever you need.
+            acc[key] = { item }; // You can set the value to any other value or object.
+          } else {
+            acc[key] = {};
+            return acc[key]; // Return the nested object for the next iteration.
+          }
+        }, hierarchicalMap);
+        mergeObjects(configEmployeeSideBar, hierarchicalMap);
       } else if (
-       checkMatch(t(`ACTION_TEST_${index?.toUpperCase()?.replace(/[ -]/g, "_")}`),search) || checkMatch(t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${item?.displayName}`)),search)
+        checkMatch(t(`ACTION_TEST_${index?.toUpperCase()?.replace(/[ -]/g, "_")}`), search) ||
+        checkMatch(t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${item?.displayName}`)), search)
       ) {
-        index = item.path.split(".")[0];
-        if (!configEmployeeSideBar[index]) {
-          configEmployeeSideBar[index] = [item];
-        } else {
-          configEmployeeSideBar[index].push(item);
-        }
+        const keys = item.path.split(".");
+        let hierarchicalMap = {};
+
+        keys.reduce((acc, key, index) => {
+          if (index === keys.length - 1) {
+            // If it's the last key, set the value to an empty object or whatever you need.
+            acc[key] = { item }; // You can set the value to any other value or object.
+          } else {
+            acc[key] = {};
+            return acc[key]; // Return the nested object for the next iteration.
+          }
+        }, hierarchicalMap);
+        mergeObjects(configEmployeeSideBar, hierarchicalMap);
       }
     });
-  let res = [];
-  const splitKeyValue = () => {
-    const keys = Object.keys(configEmployeeSideBar);
-    keys.sort((a, b) => a.orderNumber - b.orderNumber);
-    for (let i = 0; i < keys.length; i++) {
-      if (configEmployeeSideBar[keys[i]][0].path.indexOf(".") === -1) {
-        if (configEmployeeSideBar[keys[i]][0].displayName === "Home") {
-          const homeURL = `/${window?.contextPath}/employee`;
-          res.unshift({
-            moduleName: keys[i].toUpperCase(),
-            icon: configEmployeeSideBar[keys[i]][0],
-            navigationURL: homeURL,
-            type: "single",
-          });
-        } else {
-          res.push({
-            moduleName: configEmployeeSideBar[keys[i]][0]?.displayName.toUpperCase(),
-            type: "single",
-            icon: configEmployeeSideBar[keys[i]][0],
-            navigationURL: configEmployeeSideBar[keys[i]][0].navigationURL,
-          });
-        }
-      } else {
-        res.push({
-          moduleName: keys[i].toUpperCase(),
-          links: configEmployeeSideBar[keys[i]],
-          icon: configEmployeeSideBar[keys[i]][0],
-          orderNumber: configEmployeeSideBar[keys[i]][0].orderNumber,
-        });
-      }
-    }
-    if (res.find((a) => a.moduleName === "HOME")) {
-      const home = res?.filter((ob) => ob?.moduleName === "HOME");
-      let res1 = res?.filter((ob) => ob?.moduleName !== "HOME");
-      res = res1.sort((a, b) => a.moduleName.localeCompare(b.moduleName));
-      home?.[0] && res.unshift(home[0]);
-    } else {
-      res.sort((a, b) => a.moduleName.localeCompare(b.moduleName));
-    }
-    return res?.map((item, index) => {
-      return <SubMenu item={item} key={index + 1} />;
+
+  const splitKeyValue = (configEmployeeSideBar) => {
+    const objectArray = Object.entries(configEmployeeSideBar);
+
+    // Sort the array based on the 'orderNumber' or the length of the object if 'orderNumber' is not present
+    objectArray.sort((a, b) => {
+      const orderNumberA = a[1].item
+        ? a[1].item.orderNumber || Object.keys(configEmployeeSideBar).length + 1
+        : Object.keys(configEmployeeSideBar).length + 1;
+      const orderNumberB = b[1].item
+        ? b[1].item.orderNumber || Object.keys(configEmployeeSideBar).length + 1
+        : Object.keys(configEmployeeSideBar).length + 1;
+      return orderNumberA - orderNumberB;
     });
+    const sortedObject = Object.fromEntries(objectArray);
+    configEmployeeSideBar = sortedObject;
+    return <Sidebar data={configEmployeeSideBar} />;
   };
 
   if (isLoading) {
     return <Loader />;
   }
-  if (!res) {
+  if (!configEmployeeSideBar) {
     return "";
   }
 
@@ -117,17 +121,23 @@ const EmployeeSideBar = () => {
     return (
       <div className="submenu-container">
         <div className="sidebar-link">
-          <div className="actions search-icon-wrapper">
-            <SearchIcon className="search-icon" />
-            <input
-              className="employee-search-input"
-              type="text"
-              placeholder={t(`ACTION_TEST_SEARCH`)}
-              name="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+          {subNav ? (
+            <div className="actions search-icon-wrapper">
+              <input
+                className="employee-search-input nav-bar"
+                type="text"
+                placeholder={t(`ACTION_TEST_SEARCH`)}
+                name="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <SearchIcon className="search-icon" />
+            </div>
+          ) : (
+            <div className="actions search-icon-wrapper-new">
+              <SearchIcon className="search-icon" />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -136,7 +146,7 @@ const EmployeeSideBar = () => {
   return (
     <div className="sidebar" ref={sidebarRef} onMouseOver={expandNav} onMouseLeave={collapseNav}>
       {renderSearch()}
-      {splitKeyValue()}
+      {splitKeyValue(configEmployeeSideBar)}
     </div>
   );
 };
