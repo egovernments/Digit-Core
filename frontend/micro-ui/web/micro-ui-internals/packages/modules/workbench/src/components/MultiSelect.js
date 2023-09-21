@@ -23,7 +23,7 @@ const CustomSelectWidget = (props) => {
   const {schemaCode=`${moduleName}.${masterName}`,tenantId} = schema;
   const handleChange = (selectedValue) => onChange(multiple ? selectedValue?.value : selectedValue?.value);
   const reqCriteriaForData = {
-    url: `/mdms-v2/v2/_search`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`,
     params: {},
     body: {
       MdmsCriteria: {
