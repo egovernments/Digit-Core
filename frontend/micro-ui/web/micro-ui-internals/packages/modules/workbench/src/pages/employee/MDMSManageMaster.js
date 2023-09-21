@@ -55,7 +55,7 @@ const MDMSManageMaster = () => {
   };
 
   const { isLoading, data: dropdownData } = Digit.Hooks.useCustomAPIHook({
-    url: "/mdms-v2/schema/v1/_search",
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/schema/v1/_search`,
     params: {
       
     },

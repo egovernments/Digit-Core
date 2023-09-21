@@ -33,7 +33,7 @@ const MDMSView = ({...props}) => {
   
 
   const reqCriteria = {
-    url: `/mdms-v2/v2/_search`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`,
     params: {},
     body: {
       MdmsCriteria: {
@@ -60,7 +60,7 @@ const MDMSView = ({...props}) => {
   const { isLoading, data, isFetching,refetch,revalidate } = Digit.Hooks.useCustomAPIHook(reqCriteria);
 
   const reqCriteriaUpdate = {
-    url: `/mdms-v2/v2/_update/${moduleName}.${masterName}`,
+    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_update/${moduleName}.${masterName}`,
     params: {},
     body: {
       
@@ -94,7 +94,7 @@ const MDMSView = ({...props}) => {
 
     mutation.mutate(
       {
-        url:`/mdms-v2/v2/_update/${moduleName}.${masterName}`,
+        url:`/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_update/${moduleName}.${masterName}`,
         params: {},
         body: {
           Mdms:{

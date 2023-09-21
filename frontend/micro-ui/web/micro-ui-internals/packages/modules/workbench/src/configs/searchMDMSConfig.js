@@ -5,7 +5,7 @@ export const Config = {
   actionRole: "MDMS_ADMIN",
   actionLink: "workbench/mdms-add-v2",
   apiDetails: {
-    serviceName: "/mdms-v2/v2/_search",
+    serviceName: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`,
     requestParam: {},
     requestBody: {
       MdmsCriteria: {
