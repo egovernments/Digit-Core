@@ -39,7 +39,7 @@ const MDMSView = ({...props}) => {
       MdmsCriteria: {
         tenantId: tenantId ,
         uniqueIdentifier,
-        schemaCodes:[`${moduleName}.${masterName}`]
+        schemaCode:`${moduleName}.${masterName}`
       },
     },
     config: {
