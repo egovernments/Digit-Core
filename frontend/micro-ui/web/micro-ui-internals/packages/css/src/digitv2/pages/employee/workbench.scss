@@ -174,8 +174,9 @@ a{
               }
             }
 
-            .form-control:disabled {
+            .form-control:read-only {
               background-color: theme(digitv2.lightTheme.background);
+              color: theme(digitv2.lightTheme["text-color-secondary"]);
             }
 
             .form-control:focus {

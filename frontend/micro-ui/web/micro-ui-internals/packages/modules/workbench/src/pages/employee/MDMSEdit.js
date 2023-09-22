@@ -45,7 +45,7 @@ const MDMSEdit = ({...props}) => {
       select: (data) => { 
         const uniqueFields = data?.SchemaDefinitions?.[0]?.definition?.["x-unique"]
         const updatesToUiSchema = {}
-        uniqueFields.forEach(field => updatesToUiSchema[field] = {"ui:disabled":true})
+        uniqueFields.forEach(field => updatesToUiSchema[field] = {"ui:readonly":true})
         return {schema:data?.SchemaDefinitions?.[0],updatesToUiSchema}
       },
     },

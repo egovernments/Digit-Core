@@ -127,7 +127,7 @@ const MDMSView = ({...props}) => {
 
   return (
     <React.Fragment>
-      <MDMSAdd defaultFormData = {data?.data} updatesToUISchema ={{"ui:readonly": true,"ui:disabled":true}} screenType={"view"} onViewActionsSelect={onActionSelect} viewActions={fetchActionItems(data)} />
+      <MDMSAdd defaultFormData = {data?.data} updatesToUISchema ={{"ui:readonly": true}} screenType={"view"} onViewActionsSelect={onActionSelect} viewActions={fetchActionItems(data)} />
       {showToast && <Toast label={showToast.label} error={showToast?.isError} isDleteBtn={true} onClose={()=> setShowToast(null)}></Toast>}
     </React.Fragment>
   )

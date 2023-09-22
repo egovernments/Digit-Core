@@ -266,7 +266,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 input[readonly] {
-  @apply border-grey-dark text-grey-dark !important;
+  @apply border-grey-dark !important;
   background-color:  theme(digitv2.lightTheme.background);
   border-color: theme(digitv2.lightTheme.text-color-secondary);
   color: theme(digitv2.lightTheme.text-color-secondary);

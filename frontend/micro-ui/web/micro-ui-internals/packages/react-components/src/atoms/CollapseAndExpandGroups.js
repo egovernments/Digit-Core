@@ -17,13 +17,13 @@ const CollapseAndExpandGroups = ({ children, groupElements = false, groupHeader 
             {!collapse && (
               <span>
                 {showHelper&&<h5>{t("COMMON_CORE_COLLAPSE")}</h5>}
-                <SVG.ArrowUpward />
+                <SVG.ArrowDropUp height="40" width="40"/>
               </span>
             )}
             {collapse && (
               <span>                
                 {showHelper&&<h5>{t("COMMON_CORE_EXPAND")}</h5>}
-                <SVG.ArrowDownward />
+                <SVG.ArrowDropDown height="40" width="40"/>
               </span>
             )}
           </div>
