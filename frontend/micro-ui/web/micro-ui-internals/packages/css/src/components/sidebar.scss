@@ -106,6 +106,9 @@
 }
 
 .actions {
+  &.level-0 {
+    margin-left: 0.4rem;
+  }
   &.selected-action-level-1 {
     border-left:4px solid theme(colors.primary.main);
     margin-left: -0.6rem;

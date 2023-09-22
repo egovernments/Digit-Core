@@ -181,7 +181,7 @@ const Sidebar = ({ data }) => {
                   {flag && <div className="link-icon">{leftIcon}</div>}
                   <span>{trimModuleName}</span>
                 </div> */}
-                 <div className={`actions ${trimModuleName==="Home"?'custom':''}`} data-tip="React-tooltip" data-for={`jk-side-${key}`}>
+                 <div className={`actions level-${level} ${trimModuleName==="Home"?'custom':''}`} data-tip="React-tooltip" data-for={`jk-side-${key}`}>
                  {flag && <div className="link-icon">{leftIcon}</div>}
                     <span> {trimModuleName} </span>
                     {trimModuleName?.includes("...") && (
