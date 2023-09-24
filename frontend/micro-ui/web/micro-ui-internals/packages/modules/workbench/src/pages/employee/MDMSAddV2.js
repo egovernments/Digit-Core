@@ -64,57 +64,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     },
     changeQueryName: "schema",
   };
-  /*
-  const reqCriteriaForData = {
-    url: `/${Digit.Hooks.workbench.getMDMSContextPath()}/v2/_search`,
-    params: {},
-    body: {
-      MdmsCriteria: {
-        tenantId: tenantId,
-        // schemaCodes: loadDependent.map((e) => e.schemaCode),
-        schemaCode: loadDependent.map((e) => e.schemaCode)?.[0],
 
-      },
-    },
-    config: {
-      enabled: loadDependent && loadDependent?.length > 0,
-      select: (data) => {
-        console.log(data,"data");
-        const dependentData = {};
-        data?.mdms?.map((ele) => {
-          if (dependentData?.[ele?.schemaCode] && dependentData?.[ele?.schemaCode]?.length > 0) {
-            dependentData[ele?.schemaCode]?.push(ele?.uniqueIdentifier);
-          } else {
-            dependentData[ele?.schemaCode] = [ele?.uniqueIdentifier];
-          }
-        });
-        return dependentData;
-      },
-    },
-    changeQueryName: "data",
-  };
-
-  const { isLoading: additonalLoading, data: additonalData } = Digit.Hooks.useCustomMultipleAPIHook(
-    loadDependent && loadDependent?.length > 0
-      ? loadDependent?.map((ele) => ({
-          ...reqCriteriaForData,
-          body: {
-            MdmsCriteria: {
-              tenantId: tenantId,
-              // schemaCodes: loadDependent.map((e) => e.schemaCode),
-              schemaCode: ele?.schemaCode,
-            },
-          },
-        }))
-      : [],
-    {
-      enabled: loadDependent && loadDependent.length > 0,
-    }
-  ); //reqCriteriaForData);
-  useEffect(()=>{
-console.log(additonalData,'additonalData--')
-  },[additonalData&&[...additonalData]])
-  */
   const { isLoading, data: schema, isFetching } = Digit.Hooks.useCustomAPIHook(reqCriteria);
   const body = api?.requestBody
     ? { ...api?.requestBody }
@@ -199,6 +149,7 @@ console.log(additonalData,'additonalData--')
                 ..._.get(schema?.definition?.properties, updatedPath, {}),
                 enum: [],
                 schemaCode: dependent?.schemaCode,
+                fieldPath: dependent?.fieldPath,
                 tenantId,
               });
             }
