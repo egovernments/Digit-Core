@@ -21,17 +21,29 @@ import { set } from "lodash";
 import { useHistory, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+const DIGIT_UI_CONTEXTS = ["digit-ui", "works-ui", "workbench-ui", "health-ui", "sanitation-ui", "core-ui"];
+/*
+Used to navigate to other mission's ui if user has access
+*/
+const navigateToRespectiveURL = (history = {}, url = "") => {
+  if (url?.indexOf(`/${window?.contextPath}`) === -1) {
+    const hostUrl = window.location.origin;
+    const updatedURL = DIGIT_UI_CONTEXTS?.every((e) => url?.indexOf(`/${e}`) === -1) ? hostUrl + "/employee/" + url : hostUrl + url;
+    window.location.href = updatedURL;
+  } else {
+    history.push(url);
+  }
+};
+
 const Sidebar = ({ data }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const history = useHistory();
   const [openItems, setOpenItems] = useState({});
   const [selectedParent, setSelectedParent] = useState(null);
   const [selectedChild, setSelectedChild] = useState(null);
   const [selectedChildLevelOne, setSelectedChildLevelOne] = useState(null);
-  
-  const [subNav, setSubNav] = useState(false);
 
-  const getOrigin = window.location.origin;
+  const [subNav, setSubNav] = useState(false);
 
   const IconsObject = {
     home: <HomeIcon />,
@@ -62,21 +74,19 @@ const Sidebar = ({ data }) => {
   const closeSidebar = () => {
     setSubNav(false);
     setOpenItems({});
-    setSelectedParent(null)
-    setSelectedChild(null)
-    
-    
-    setSelectedChildLevelOne(null)
+    setSelectedParent(null);
+    setSelectedChild(null);
+    setSelectedChildLevelOne(null);
   };
 
-  function extractLeftIcon(data={}) {
+  function extractLeftIcon(data = {}) {
     for (const key in data) {
       const item = data[key];
 
       if (key === "item" && item?.leftIcon !== "") {
         return {
-          isDynamic:item.leftIcon.split(":")[0],
-          leftIconArray:item.leftIcon.split(":")[1]
+          isDynamic: item.leftIcon.split(":")[0],
+          leftIconArray: item.leftIcon.split(":")[1],
         };
       }
 
@@ -90,12 +100,10 @@ const Sidebar = ({ data }) => {
 
     return null; // Return null if no non-empty leftIcon is found
   }
-  const renderSidebarItems = (items, parentKey = null, flag = true,level=0) => {
-    
+  const renderSidebarItems = (items, parentKey = null, flag = true, level = 0) => {
     return (
       <div className={`submenu-container level-${level}`}>
         {Object.keys(items).map((key, index) => {
-          
           const subItems = items[key];
           const subItemKeys = Object.keys(subItems)[0] === "item";
           const isSubItemOpen = openItems[key] || false;
@@ -103,41 +111,34 @@ const Sidebar = ({ data }) => {
           const getModuleName = key?.replace(/[ -]/g, "_");
           const appendTranslate = t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${getModuleName}`));
           const trimModuleName = t(appendTranslate?.length > 20 ? appendTranslate.substring(0, 20) + "..." : appendTranslate);
-          
+
           if (!subItemKeys && subItems && Object.keys(subItems).length > 0) {
             // If the item has sub-items, render a dropdown with toggle button
-            const {leftIconArray,isDynamic} = extractLeftIcon(subItems) || {};
+            const { leftIconArray, isDynamic } = extractLeftIcon(subItems) || {};
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
-            if(isDynamic === "dynamic"){
+            if (isDynamic === "dynamic") {
               var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray];
               leftIcon = IconComp ? <IconComp /> : leftIcon;
             }
             const isParentActive = selectedParent === itemKey;
-            const isChildActive = selectedChildLevelOne === trimModuleName
+            const isChildActive = selectedChildLevelOne === trimModuleName;
             //we need to have a heirarchy such as parent -> child1 -> child2 to differentiate b/w different levels in the sidebar
             return (
               <div
                 key={index}
-                className={`sidebar-link level-${level} ${isParentActive?'select-level':''}`}
+                className={`sidebar-link level-${level} ${isParentActive ? "select-level" : ""}`}
                 style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}
-                // onClick={() => history.push(`${subItems?.item?.navigationURL}`)}
               >
                 <div
-                  className={`actions ${isChildActive && level===1? `selected-action-level-1` :`default-${level}`}`}
-                  // className={`actions`}
-                  
+                  className={`actions ${isChildActive && level === 1 ? `selected-action-level-1` : `default-${level}`}`}
                   onClick={(e) => {
-                    // toggleSidebar(key);
-                    // setSelectedParent(itemKey);
-                    // setSelectedChild(null);
-
                     toggleSidebar(key);
                     setSelectedParent(itemKey);
-                    const itemToHighlight = e.target.innerText
+                    const itemToHighlight = e.target.innerText;
                     setSelectedChildLevelOne(itemToHighlight);
                     setSelectedChild(null);
                   }}
-                  style={{ display: "flex", flexDirection: "row",width:"100%" }}
+                  style={{ display: "flex", flexDirection: "row", width: "100%" }}
                 >
                   {flag && <div className="link-icon">{leftIcon}</div>}
                   <div data-tip="React-tooltip" data-for={`jk-side-${key}`}>
@@ -152,14 +153,14 @@ const Sidebar = ({ data }) => {
                     {isSubItemOpen ? <ArrowVectorDown height="28px" width="28px" /> : <ArrowForward />}
                   </div>
                 </div>
-                {subNav && <div style={{width:"100%"}} >{isSubItemOpen && renderSidebarItems(subItems, itemKey, false,level+1)}</div>}
+                {subNav && <div style={{ width: "100%" }}>{isSubItemOpen && renderSidebarItems(subItems, itemKey, false, level + 1)}</div>}
               </div>
             );
           } else if (subItemKeys) {
             // If the item is a link, render it
-            const  {leftIconArray,isDynamic} = extractLeftIcon(subItems) || {};
+            const { leftIconArray, isDynamic } = extractLeftIcon(subItems) || {};
             let leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
-            if(isDynamic === "dynamic"){
+            if (isDynamic === "dynamic") {
               var IconComp = require("@egovernments/digit-ui-react-components")?.[leftIconArray];
               leftIcon = IconComp ? <IconComp /> : leftIcon;
             }
@@ -173,22 +174,21 @@ const Sidebar = ({ data }) => {
                   setSelectedParent(parentKey); // Update the selected parent when a child is clicked
                   setSelectedChild(keyToHighlight);
                   setOpenItems({});
-                  // setSelectedChildLevelOne(null)
-                  history.push(`${subItems?.item?.navigationURL}`)
+                  navigateToRespectiveURL(history, `${subItems?.item?.navigationURL}`);
                 }}
               >
-                {/* <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
+                <div
+                  className={`actions level-${level} ${trimModuleName === "Home" ? "custom" : ""}`}
+                  data-tip="React-tooltip"
+                  data-for={`jk-side-${key}`}
+                >
                   {flag && <div className="link-icon">{leftIcon}</div>}
-                  <span>{trimModuleName}</span>
-                </div> */}
-                 <div className={`actions level-${level} ${trimModuleName==="Home"?'custom':''}`} data-tip="React-tooltip" data-for={`jk-side-${key}`}>
-                 {flag && <div className="link-icon">{leftIcon}</div>}
-                    <span> {trimModuleName} </span>
-                    {trimModuleName?.includes("...") && (
-                      <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${key}`}>
-                        {t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${key}`))}
-                      </ReactTooltip>
-                    )}
+                  <span> {trimModuleName} </span>
+                  {trimModuleName?.includes("...") && (
+                    <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${key}`}>
+                      {t(Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${key}`))}
+                    </ReactTooltip>
+                  )}
                 </div>
               </a>
             );
