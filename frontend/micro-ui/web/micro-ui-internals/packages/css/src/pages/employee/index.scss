@@ -226,23 +226,32 @@
         fill: theme(colors.white);
       }
       &:hover {
-        color: #fe7a51 !important;
-        background-color: #0B4B66;
+        background-color: #6A8E9D;
+        opacity: 0.8;
         cursor: pointer;
         svg {
           fill: #fe7a51 !important;
         }
       }
+
+
       &.active {
-        color: theme(colors.primary.main) !important;
         border-left: 4px solid theme(colors.primary.main);
-        border-right: none;
-        &.level-1 {
-          border-left: 13.5px solid theme(colors.primary.main);
-        }
         &.level-0 {
-          
+        
         }
+        &.level-1 {
+          border-left: 8.5px solid theme(colors.primary.main);
+        }
+        &.level-2 {
+          border-left: 4px solid theme(colors.primary.main);
+        }
+
+        &.level-3{
+
+        }
+        color: theme(colors.primary.main) !important;
+        border-right: none;
         svg {
           fill: theme(colors.primary.main) !important;
         }
