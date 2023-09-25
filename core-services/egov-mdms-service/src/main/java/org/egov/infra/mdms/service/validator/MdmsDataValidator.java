@@ -148,6 +148,8 @@ public class MdmsDataValidator {
 
                     if (refResult instanceof String) {
                         uniqueIdentifiersForRefVerification.add((String) refResult);
+                    } else if(refResult instanceof Number){
+                        uniqueIdentifiersForRefVerification.add(String.valueOf(refResult));
                     } else if (refResult instanceof List) {
                         uniqueIdentifiersForRefVerification.addAll((Collection<? extends String>) refResult);
                     } else {
