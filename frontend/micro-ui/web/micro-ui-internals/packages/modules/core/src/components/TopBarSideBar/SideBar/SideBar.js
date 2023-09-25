@@ -123,7 +123,7 @@ const Sidebar = ({ data }) => {
                 // onClick={() => history.push(`${subItems?.item?.navigationURL}`)}
               >
                 <div
-                  className={`actions ${isChildActive && level===1? `selected-action-level-1` :`default-${level}`}`}
+                  className={`actions ${isChildActive && level===1? `selected-action-level-1` :isParentActive? `default-${level} active` : `default-${level}`}`}
                   // className={`actions`}
                   
                   onClick={(e) => {
@@ -132,10 +132,28 @@ const Sidebar = ({ data }) => {
                     // setSelectedChild(null);
 
                     toggleSidebar(key);
-                    setSelectedParent(itemKey);
+                    setSelectedParent((prevItem)=> {
+                      if(prevItem===itemKey ){
+                        return null
+                      }
+                      else return itemKey  
+                      
+                    });
                     const itemToHighlight = e.target.innerText
-                    setSelectedChildLevelOne(itemToHighlight);
+                    setSelectedChildLevelOne((prevItem)=>{
+                      if(prevItem===itemToHighlight || isSubItemOpen){
+                        return null
+                      }
+                      else return itemToHighlight
+                    });
                     setSelectedChild(null);
+                    // setOpenItems(prevState => {
+                    //   if(Object(openItems)?.keys?.length > 0){
+                    //     return {}
+                    //   }else{
+                    //     return prevState
+                    //   }
+                    // })
                   }}
                   style={{ display: "flex", flexDirection: "row",width:"100%" }}
                 >
@@ -148,7 +166,7 @@ const Sidebar = ({ data }) => {
                       </ReactTooltip>
                     )}
                   </div>
-                  <div style={{ position: "relative", marginLeft: "auto" }} className={`arrow ${isSubItemOpen && subNav ? "" : ""}`}>
+                  <div style={{ position: "relative", marginLeft: "auto" }} className={`arrow ${isSubItemOpen && subNav ? "" : ""} ${isChildActive && level===1? "selected-arrow" : ""} `}>
                     {isSubItemOpen ? <ArrowVectorDown height="28px" width="28px" /> : <ArrowForward />}
                   </div>
                 </div>
@@ -172,7 +190,8 @@ const Sidebar = ({ data }) => {
                   const keyToHighlight = subItems.item.path;
                   setSelectedParent(parentKey); // Update the selected parent when a child is clicked
                   setSelectedChild(keyToHighlight);
-                  setOpenItems({});
+                  setSelectedChildLevelOne(null)
+                  // setOpenItems({});
                   // setSelectedChildLevelOne(null)
                   history.push(`${subItems?.item?.navigationURL}`)
                 }}

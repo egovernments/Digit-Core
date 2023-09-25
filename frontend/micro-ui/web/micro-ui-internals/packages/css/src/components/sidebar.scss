@@ -30,7 +30,7 @@
 }
 /* Style the container that acts as the viewport */
 .new-sidebar {
-  height: 100%; /* Set a fixed height for the viewport */
+  height: 90%; /* Set a fixed height for the viewport */
   overflow: scroll; /* Hide the scrollbar */
 
   &::-webkit-scrollbar {
@@ -109,10 +109,20 @@
   &.level-0 {
     margin-left: 0.4rem;
   }
+  &.selected-action-level-0 {
+    color: theme(colors.primary.main) !important;
+  }
   &.selected-action-level-1 {
     border-left:4px solid theme(colors.primary.main);
     margin-left: -0.6rem;
     height: 2rem;
+    color: theme(colors.primary.main) !important;
+  }
+
+  &.default-0 {
+    &.active {
+
+    }
   }
   &.default-1 {
     margin-left: -0.6rem;
@@ -125,6 +135,7 @@
     margin-left: 0.3rem;
   }
   &:hover {
-    color: theme(colors.primary.main) !important;
+    background-color: #6A8E9D;
+    opacity: 0.8;
   }
 }

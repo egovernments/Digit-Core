@@ -119,7 +119,7 @@ const EmployeeSideBar = () => {
 
   const renderSearch = () => {
     return (
-      <div className="submenu-container">
+      <div className="">
         <div className="sidebar-link">
           {subNav ? (
             <div className="actions search-icon-wrapper">
