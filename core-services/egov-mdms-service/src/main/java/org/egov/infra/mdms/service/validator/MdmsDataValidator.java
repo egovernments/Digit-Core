@@ -144,6 +144,7 @@ public class MdmsDataValidator {
                 IntStream.range(0, referenceSchema.length()).forEach(i -> {
                     JSONObject jsonObject = referenceSchema.getJSONObject(i);
                     String refFieldPath = jsonObject.getString(FIELD_PATH_KEY);
+                    String schemaCode = jsonObject.getString(SCHEMA_CODE_KEY);
                     Object refResult = JsonPath.read(mdmsData.toString(), CompositeUniqueIdentifierGenerationUtil.getJsonPathExpressionFromDotSeparatedPath(refFieldPath));
 
                     if (refResult instanceof String) {
@@ -156,14 +157,14 @@ public class MdmsDataValidator {
                         throw new CustomException("REFERENCE_VALIDATION_ERR", "Reference must only be of the type string or a list of strings");
                     }
 
+                    List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
+                            MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).schemaCode(schemaCode).build());
+
+                    if (moduleMasterData.size() != uniqueIdentifiersForRefVerification.size()) {
+                        throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
+                    }
+
                 });
-
-                List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
-                        MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).build());
-
-                if (moduleMasterData.size() != uniqueIdentifiersForRefVerification.size()) {
-                    throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
-                }
             }
         }
     }
