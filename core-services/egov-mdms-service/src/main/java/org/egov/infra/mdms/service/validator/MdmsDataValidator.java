@@ -138,24 +138,17 @@ public class MdmsDataValidator {
             org.json.JSONArray referenceSchema = (org.json.JSONArray) schemaObject.get(X_REFERENCE_SCHEMA_KEY);
 
             if (referenceSchema != null && referenceSchema.length() > 0) {
-                Set<String> uniqueIdentifiersForRefVerification = new HashSet<>();
                 JsonNode mdmsData = mdms.getData();
 
                 IntStream.range(0, referenceSchema.length()).forEach(i -> {
+                    Set<String> uniqueIdentifiersForRefVerification = new HashSet<>();
+
                     JSONObject jsonObject = referenceSchema.getJSONObject(i);
                     String refFieldPath = jsonObject.getString(FIELD_PATH_KEY);
                     String schemaCode = jsonObject.getString(SCHEMA_CODE_KEY);
                     Object refResult = JsonPath.read(mdmsData.toString(), CompositeUniqueIdentifierGenerationUtil.getJsonPathExpressionFromDotSeparatedPath(refFieldPath));
 
-                    if (refResult instanceof String) {
-                        uniqueIdentifiersForRefVerification.add((String) refResult);
-                    } else if(refResult instanceof Number){
-                        uniqueIdentifiersForRefVerification.add(String.valueOf(refResult));
-                    } else if (refResult instanceof List) {
-                        uniqueIdentifiersForRefVerification.addAll((Collection<? extends String>) refResult);
-                    } else {
-                        throw new CustomException("REFERENCE_VALIDATION_ERR", "Reference must only be of the type string or a list of strings");
-                    }
+                    addTypeCastedUniqueIdentifiersToVerificationSet(refResult, uniqueIdentifiersForRefVerification);
 
                     List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
                             MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).schemaCode(schemaCode).build());
@@ -164,10 +157,26 @@ public class MdmsDataValidator {
                         throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
                     }
 
-                    uniqueIdentifiersForRefVerification.clear();
-
                 });
             }
+        }
+    }
+
+    /**
+     * This method takes the reference object provided in the data create request, type casts it into String
+     * and adds it to the uniqueIdentifiers set for performing search.
+     * @param refResult
+     * @param uniqueIdentifiersForRefVerification
+     */
+    private void addTypeCastedUniqueIdentifiersToVerificationSet(Object refResult, Set<String> uniqueIdentifiersForRefVerification) {
+        if (refResult instanceof String) {
+            uniqueIdentifiersForRefVerification.add((String) refResult);
+        } else if(refResult instanceof Number){
+            uniqueIdentifiersForRefVerification.add(String.valueOf(refResult));
+        } else if (refResult instanceof List) {
+            uniqueIdentifiersForRefVerification.addAll((Collection<? extends String>) refResult);
+        } else {
+            throw new CustomException("REFERENCE_VALIDATION_ERR", "Reference must only be of the type string, number or a list of strings/numbers");
         }
     }
 
