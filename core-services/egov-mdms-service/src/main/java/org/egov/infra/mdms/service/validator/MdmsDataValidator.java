@@ -103,7 +103,7 @@ public class MdmsDataValidator {
         // Fetch master data
         List<Mdms> masterData = fetchMasterData(MdmsCriteriaV2.builder()
                 .tenantId(mdmsRequest.getMdms().getTenantId())
-                .uniqueIdentifier(uniqueIdentifier)
+                .uniqueIdentifiers(Collections.singleton(uniqueIdentifier))
                 .schemaCode(mdmsRequest.getMdms().getSchemaCode())
                 .build());
 
