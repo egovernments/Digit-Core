@@ -164,6 +164,8 @@ public class MdmsDataValidator {
                         throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
                     }
 
+                    uniqueIdentifiersForRefVerification.clear();
+
                 });
             }
         }
