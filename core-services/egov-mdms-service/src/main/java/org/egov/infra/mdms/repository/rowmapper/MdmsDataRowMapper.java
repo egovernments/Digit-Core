@@ -18,10 +18,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 
@@ -47,11 +44,11 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, Map<Str
         while(resultSet.next()){
             JSONArray jsonArray = null;
             Map<String, JSONArray> masterMap = new HashMap<>();
-            JsonNode data = null;
+            LinkedHashMap<String, Object> data = null;
             if( ! isNull(resultSet.getObject("data"))){
                 String dataStr = ((PGobject) resultSet.getObject("data")).getValue();
                 try {
-                    data = objectMapper.readTree(dataStr);
+                    data = objectMapper.readValue(dataStr, LinkedHashMap.class);
                 } catch (IOException e) {
                     throw new CustomException(INVALID_JSON, INVALID_JSON_MSG);
                 }
