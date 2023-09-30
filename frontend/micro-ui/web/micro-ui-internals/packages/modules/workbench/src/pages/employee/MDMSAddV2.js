@@ -79,7 +79,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       ],
     },
     config: {
-      enabled: autogenerate?.[0]?.id && true,
+      enabled: autogenerate?.[0]?.id && screenType == "add" && true,
       select: (data) => {
         if (data?.idResponses?.[0]?.id) {
           setAutoGenerate([{ ...autogenerate?.[0], value: data?.idResponses?.[0]?.id }]);
