@@ -19,7 +19,7 @@ const MDMSEdit = ({...props}) => {
     body: {
       MdmsCriteria: {
         tenantId: stateId,
-        uniqueIdentifier,
+        uniqueIdentifiers:[uniqueIdentifier],
         schemaCode:`${moduleName}.${masterName}`
       },
     },

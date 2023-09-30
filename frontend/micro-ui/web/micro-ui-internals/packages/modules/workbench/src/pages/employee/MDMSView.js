@@ -38,7 +38,7 @@ const MDMSView = ({...props}) => {
     body: {
       MdmsCriteria: {
         tenantId: tenantId ,
-        uniqueIdentifier,
+        uniqueIdentifiers:[uniqueIdentifier],
         schemaCode:`${moduleName}.${masterName}`
       },
     },
