@@ -105,6 +105,7 @@ public class MdmsDataValidator {
                 .tenantId(mdmsRequest.getMdms().getTenantId())
                 .uniqueIdentifiers(Collections.singleton(uniqueIdentifier))
                 .schemaCode(mdmsRequest.getMdms().getSchemaCode())
+                .isActive(Boolean.TRUE)
                 .build());
 
         // Throw error if the provided master data already exists
