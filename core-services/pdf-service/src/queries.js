@@ -115,6 +115,7 @@ export const insertStoreIds = (
 
   payloads.push({
     topic: createJobKafkaTopic,
+    key: id,
     messages: JSON.stringify({ jobs: dbInsertRecords })
   });
   producer.send(payloads, function(err, data) {
