@@ -3,6 +3,7 @@ package org.egov.enc.repository;
 import org.egov.enc.models.MDMSConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,7 @@ public class MDMSConfigRepository {
     private static final String selectAllConfigurationsQuery = "select * from eg_enc_mdms_config";
 
 
-    public List<MDMSConfig> fetchMDMSConfig() {
+    public List<MDMSConfig> fetchMDMSConfig() throws DataAccessException {
         return jdbcTemplate.query(selectAllConfigurationsQuery, new BeanPropertyRowMapper<>(MDMSConfig.class));
     }
 }
