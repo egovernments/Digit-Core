@@ -259,6 +259,8 @@ public class SpringBootCodegen extends AbstractJavaCodegen
 
         typeMapping.put("file", "Resource");
         importMapping.put("Resource", "org.springframework.core.io.Resource");
+        importMapping.put("RequestInfo", "org.egov.common.contract.request.RequestInfo");
+        ignoreImportMapping=false;
 
         if (useOptional) {
             writePropertyBack(USE_OPTIONAL, useOptional);
