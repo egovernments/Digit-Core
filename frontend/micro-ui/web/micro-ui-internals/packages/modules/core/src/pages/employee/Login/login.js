@@ -125,10 +125,10 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
         secondaryActionLabel={propsConfig.texts.secondaryButtonLabel}
         onSecondayActionClick={onForgotPassword}
         heading={propsConfig.texts.header}
-        headingStyle={{ textAlign: "center" }}
-        cardStyle={{ margin: "auto", minWidth: "408px" }}
         className="loginFormStyleEmployee"
-        buttonStyle={{ maxWidth: "100%", width: "100%" }}
+        cardSubHeaderClassName="loginCardSubHeaderClassName"
+        cardClassName="loginCardClassName"
+        buttonClassName="buttonClassName"
       >
         <Header />
       </FormComposerV2>
