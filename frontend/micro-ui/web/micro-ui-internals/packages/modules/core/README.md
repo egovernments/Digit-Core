@@ -65,6 +65,7 @@ with
 # Changelog
 
 ```bash
+1.5.44 updated login scss and alignment issues
 1.5.42 fixed the mdms call in login component for dynamic updating
 1.5.41 updated the readme content
 1.5.40 Updated the login componenet to handle mdms config, which can be accessed from master - commonUiConfig and module - LoginConfig

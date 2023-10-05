@@ -186,3 +186,27 @@
   }
 }
 
+
+.loginFormStyleEmployee {
+  .loginCardSubHeaderClassName {
+    text-align: center !important;
+  }
+  .loginCardClassName {
+    margin: auto !important; 
+    min-width: 408px !important;
+  }
+  .buttonClassName {
+    max-width: 100% !important;
+    width: 100% !important
+  }
+  .field .field-container .text-input input {
+    margin-bottom: 5px !important;
+  }
+  .bannerHeader {
+    margin-bottom: 0px !important;
+  }
+  
+  .primary-label-btn {
+    margin: 20px auto 0 auto !important;
+  }
+}
