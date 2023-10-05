@@ -42,6 +42,7 @@ frontend/micro-ui/web/public/index.html
 # Changelog
 
 ```bash
+1.5.40 aligment issue in edit and logout
 1.5.39 updated login scss and alignment issues
 1.5.37 updated the readme content
 1.5.36 enhanced the formcomposer with header attribute

@@ -65,6 +65,7 @@ with
 # Changelog
 
 ```bash
+1.5.45 aligment issue in edit and logout
 1.5.44 updated login scss and alignment issues
 1.5.42 fixed the mdms call in login component for dynamic updating
 1.5.41 updated the readme content
