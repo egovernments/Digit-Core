@@ -106,6 +106,11 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
     config[0].body[2].isMandatory = false;
     config[0].body[2].populators.defaultValue = defaultValue;
   }
+
+  config[0]?.body?.forEach(value => {
+    value.populators.styles = { margin: 0 }
+  });
+  
   return isLoading || isStoreLoading ? (
     <Loader />
   ) : (
@@ -126,18 +131,18 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
         onSecondayActionClick={onForgotPassword}
         heading={propsConfig.texts.header}
         headingStyle={{ textAlign: "center" }}
-        cardStyle={{ margin: "auto", minWidth: "408px" }}
+        cardStyle={{ margin: "auto", minWidth: "408px", maxHeight: "95vh", overflow: "auto" }}
         className="loginFormStyleEmployee"
-        buttonStyle={{ maxWidth: "100%", width: "100%" }}
+        buttonStyle={{ maxWidth: "100%", width: "100%", marginTop: "12px" }}
       >
-        <Header />
+        <Header styles={{margin: "0"}}/>
       </FormComposerV2>
       {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
-      <div className="employee-login-home-footer" style={{ backgroundColor: "unset" }}>
+      <div className="employee-login-home-footer" style={{ backgroundColor: "unset", paddingBottom: "10px", height: "1.5rem", justifyContent: "center" }}>
         <img
           alt="Powered by DIGIT"
           src={window?.globalConfigs?.getConfig?.("DIGIT_FOOTER_BW")}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: "pointer", height: "15px", marginLeft: "0px" }}
           onClick={() => {
             window.open(window?.globalConfigs?.getConfig?.("DIGIT_HOME_URL"), "_blank").focus();
           }}
