@@ -27,7 +27,7 @@ public class MdmsResponse {
     @Valid
     private ResponseInfo responseInfo = null;
 
-    @JsonProperty("mdmsRes")
+    @JsonProperty("MdmsRes")
     private Map<String, Map<String, JSONArray>> mdmsRes = null;
 
 }
