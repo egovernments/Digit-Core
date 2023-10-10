@@ -65,10 +65,15 @@ with
 # Changelog
 
 ```bash
+1.8.0-beta.5 fix for login screen alignments
+1.8.0-beta.4 made the default localisation in globalconfig
 1.8.0-beta workbench base version beta release
 1.7.0 urban 2.9
 1.6.0 urban 2.8
 1.5.43 redirection issue fix incase of no roles in selected city
+1.5.46 added classname for topbar options dropdown.
+1.5.45 aligment issue in edit and logout
+1.5.44 updated login scss and alignment issues
 1.5.42 fixed the mdms call in login component for dynamic updating
 1.5.41 updated the readme content
 1.5.40 Updated the login componenet to handle mdms config, which can be accessed from master - commonUiConfig and module - LoginConfig

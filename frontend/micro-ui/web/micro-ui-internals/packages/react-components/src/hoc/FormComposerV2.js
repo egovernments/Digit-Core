@@ -799,13 +799,13 @@ export const FormComposer = (props) => {
   const renderFormFields = (props, section, index, array, sectionFormCategory) => (
       <React.Fragment key={index}>
           {!props.childrenAtTheBottom && props.children}
-          {props.heading && <CardSubHeader style={{ ...props.headingStyle }}> {props.heading} </CardSubHeader>}
+          {props.heading && <CardSubHeader className={props?.cardSubHeaderClassName ? props?.cardSubHeaderClassName : ""} style={{ ...props.headingStyle }}> {props.heading} </CardSubHeader>}
           {props.description && <CardLabelDesc className={"repos"}> {props.description} </CardLabelDesc>}
           {props.text && <CardText>{props.text}</CardText>}
           {formFields(section, index, array, sectionFormCategory)}
           {props.childrenAtTheBottom && props.children}
           {props.submitInForm && (
-            <SubmitBar label={t(props.label)} style={{ ...props?.buttonStyle }} submit="submit" disabled={isDisabled} className="w-full" />
+            <SubmitBar label={t(props.label)} style={{ ...props?.buttonStyle }} submit="submit" disabled={isDisabled} className={`w-full ${props?.buttonClassName ? props?.buttonClassName : ""}`} />
           )}
           {props.secondaryActionLabel && (
           <div className="primary-label-btn" style={{ margin: "20px auto 0 auto" }} onClick={onSecondayActionClick}>

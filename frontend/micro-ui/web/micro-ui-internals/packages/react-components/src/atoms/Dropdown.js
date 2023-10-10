@@ -208,7 +208,7 @@ const Dropdown = (props) => {
         props.optionKey ? (
           <div
             id="jk-dropdown-unique"
-            className={`${hasCustomSelector ? "margin-top-10 display: table" : ""} options-card`}
+            className={`${hasCustomSelector ? "margin-top-10 display: table" : ""} options-card ${props?.topbarOptionsClassName ? props?.topbarOptionsClassName : ""}`}
             style={{ ...props.optionCardStyles }}
             ref={optionRef}
           >
