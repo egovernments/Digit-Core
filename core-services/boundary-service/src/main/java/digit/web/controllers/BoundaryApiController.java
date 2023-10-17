@@ -1,6 +1,7 @@
 package digit.web.controllers;
 
 
+import digit.service.BoundaryService;
 import digit.web.models.BoundaryRelationshipRequest;
 import digit.web.models.BoundaryRelationshipResponse;
 import digit.web.models.BoundaryRequest;
@@ -9,24 +10,17 @@ import digit.web.models.BoundarySearchResponse;
 import digit.web.models.BoundaryTypeHierarchyRequest;
 import digit.web.models.BoundaryTypeHierarchyResponse;
 import digit.web.models.BoundaryTypeHierarchySearchRequest;
-import digit.web.models.ErrorRes;
-    import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.io.IOException;
 import java.util.*;
@@ -34,21 +28,23 @@ import java.util.*;
     import javax.validation.constraints.*;
     import javax.validation.Valid;
     import javax.servlet.http.HttpServletRequest;
-        import java.util.Optional;
+
 @javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-10-16T17:02:11.361704+05:30[Asia/Kolkata]")
 @Controller
     @RequestMapping("")
     public class BoundaryApiController{
 
-        private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-        private final HttpServletRequest request;
+    private final HttpServletRequest request;
+    private final BoundaryService boundaryService;
 
-        @Autowired
-        public BoundaryApiController(ObjectMapper objectMapper, HttpServletRequest request) {
+    @Autowired
+    public BoundaryApiController(ObjectMapper objectMapper, HttpServletRequest request, BoundaryService boundaryService) {
         this.objectMapper = objectMapper;
         this.request = request;
-        }
+        this.boundaryService = boundaryService;
+    }
 
                 @RequestMapping(value="/boundary/boundary-relationships/_create", method = RequestMethod.POST)
                 public ResponseEntity<BoundaryRelationshipResponse> boundaryBoundaryRelationshipsCreatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody BoundaryRelationshipRequest body) {
@@ -92,19 +88,11 @@ import java.util.*;
                         return new ResponseEntity<BoundaryRelationshipResponse>(HttpStatus.NOT_IMPLEMENTED);
                 }
 
-                @RequestMapping(value="/boundary/_create", method = RequestMethod.POST)
-                public ResponseEntity<BoundaryResponse> boundaryCreatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody BoundaryRequest body) {
-                        String accept = request.getHeader("Accept");
-                            if (accept != null && accept.contains("application/json")) {
-                            try {
-                            return new ResponseEntity<BoundaryResponse>(objectMapper.readValue("{  \"ResponseInfo\" : {    \"ver\" : \"ver\",    \"resMsgId\" : \"resMsgId\",    \"msgId\" : \"msgId\",    \"apiId\" : \"apiId\",    \"ts\" : 0,    \"status\" : \"SUCCESSFUL\"  },  \"Boundary\" : [ {    \"code\" : \"code\",    \"tenantId\" : \"tenantId\",    \"geometry\" : {      \"coordinates\" : [ [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ], [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ] ],      \"type\" : \"Polygon\"    },    \"id\" : \"id\"  }, {    \"code\" : \"code\",    \"tenantId\" : \"tenantId\",    \"geometry\" : {      \"coordinates\" : [ [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ], [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ] ],      \"type\" : \"Polygon\"    },    \"id\" : \"id\"  } ]}", BoundaryResponse.class), HttpStatus.NOT_IMPLEMENTED);
-                            } catch (IOException e) {
-                            return new ResponseEntity<BoundaryResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
-                            }
-                            }
-
-                        return new ResponseEntity<BoundaryResponse>(HttpStatus.NOT_IMPLEMENTED);
-                }
+    @RequestMapping(value = "/boundary/_create", method = RequestMethod.POST)
+    public ResponseEntity<BoundaryResponse> boundaryCreatePost(@Valid @RequestBody BoundaryRequest body) {
+        BoundaryResponse boundaryResponse = boundaryService.createBoundary(body);
+        return new ResponseEntity<BoundaryResponse>(boundaryResponse,HttpStatus.OK);
+    }
 
                 @RequestMapping(value="/boundary/hierarchy-definition/_create", method = RequestMethod.POST)
                 public ResponseEntity<BoundaryTypeHierarchyResponse> boundaryHierarchyDefinitionCreatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody BoundaryTypeHierarchyRequest body) {
