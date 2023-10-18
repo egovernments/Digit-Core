@@ -1,12 +1,15 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -21,31 +24,28 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoundaryRelation   {
-        @JsonProperty("id")
+public class BoundaryRelation {
 
-                private String id = null;
+    @JsonProperty("id")
+    private String id = null;
 
-        @JsonProperty("code")
-          @NotNull
+    @JsonProperty("code")
+    @NotNull
+    private String code = null;
 
-                private String code = null;
+    @JsonProperty("tenantId")
+    private String tenantId = null;
 
-        @JsonProperty("tenantId")
+    @JsonProperty("hierarchyType")
+    private String hierarchyType = null;
 
-                private String tenantId = null;
+    @JsonProperty("boundaryType")
 
-        @JsonProperty("hierarchyType")
+    private String boundaryType = null;
 
-                private String hierarchyType = null;
+    @JsonProperty("parent")
 
-        @JsonProperty("boundaryType")
-
-                private String boundaryType = null;
-
-        @JsonProperty("parent")
-
-                private String parent = null;
+    private String parent = null;
 
 
 }

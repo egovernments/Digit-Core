@@ -7,13 +7,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-@Component
+
 public class BoundaryEntityEnricher {
+
+    private BoundaryEntityEnricher() {}
 
     /**
      *  Enrich the create boundary request
      */
-    public void enrichCreateBoundaryRequest(BoundaryRequest boundaryRequest) {
+    public static void enrichCreateBoundaryRequest(BoundaryRequest boundaryRequest) {
         boundaryRequest.getBoundary().forEach(boundary -> {
             UUIDEnrichmentUtil.enrichRandomUuid(boundary,"id");
             boundary.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(boundary.getAuditDetails(),boundaryRequest.getRequestInfo(),Boolean.TRUE));

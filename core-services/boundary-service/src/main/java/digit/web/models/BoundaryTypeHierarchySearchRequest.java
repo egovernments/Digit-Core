@@ -1,14 +1,10 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.BoundaryTypeHierarchySearchCriteria;
-import digit.web.models.RequestInfo1;
-import io.swagger.v3.oas.annotations.media.Schema;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -27,7 +23,7 @@ public class BoundaryTypeHierarchySearchRequest   {
         @JsonProperty("RequestInfo")
 
           @Valid
-                private RequestInfo1 requestInfo = null;
+                private RequestInfo requestInfo = null;
 
         @JsonProperty("BoundaryTypeHierarchySearchCriteria")
 

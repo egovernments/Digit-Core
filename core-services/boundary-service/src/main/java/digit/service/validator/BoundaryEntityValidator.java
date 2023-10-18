@@ -2,6 +2,7 @@ package digit.service.validator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import digit.errors.ErrorCodes;
 import digit.util.ErrorUtil;
 import digit.util.GeoUtil;
 import digit.web.models.Boundary;
@@ -19,7 +20,7 @@ import java.util.Map;
 @Component
 public class BoundaryEntityValidator {
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public BoundaryEntityValidator(ObjectMapper objectMapper) {
@@ -52,15 +53,14 @@ public class BoundaryEntityValidator {
                 } else if(boundary.getGeometry().get("type").asText().equals("Polygon")) {
                     GeoUtil.validatePolygonGeometry(objectMapper.treeToValue(boundary.getGeometry(), PolygonGeometry.class), exceptions);
                 } else {
-                    throw new CustomException("INVALID_GEOMETRY_TYPE", "Provided geometry type is not supported. Supported geometry types are Point and Polygon.");
+                    throw new CustomException(ErrorCodes.INVALID_GEOMETRY_TYPE_CODE, ErrorCodes.INVALID_GEOMETRY_TYPE_MSG);
                 }
             } catch (JsonProcessingException e) {
-                throw new CustomException("INVALID_GEOJSON", "Provided geometry object contains invalid JSON");
+                throw new CustomException(ErrorCodes.INVALID_GEOJSON_CODE, ErrorCodes.INVALID_GEOJSON_MSG);
             }
         });
 
         ErrorUtil.throwCustomExceptions(exceptions);
     }
-
 
 }

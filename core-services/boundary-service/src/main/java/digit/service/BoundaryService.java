@@ -14,14 +14,12 @@ import org.springframework.stereotype.Service;
 public class BoundaryService {
 
     private final BoundaryEntityValidator boundaryEntityValidator;
-    private  final BoundaryEntityEnricher boundaryEntityEnricher;
     private final Producer producer;
     private final ResponseUtil responseUtil;
     private final Configuration configuration;
 
     @Autowired
-    public BoundaryService(BoundaryEntityEnricher boundaryEntityEnricher, BoundaryEntityValidator boundaryEntityValidator, Producer producer, ResponseUtil responseUtil, Configuration configuration) {
-        this.boundaryEntityEnricher = boundaryEntityEnricher;
+    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, Producer producer, ResponseUtil responseUtil, Configuration configuration) {
         this.boundaryEntityValidator = boundaryEntityValidator;
         this.producer = producer;
         this.responseUtil = responseUtil;
@@ -39,13 +37,13 @@ public class BoundaryService {
         boundaryEntityValidator.validateCreateBoundaryRequest(boundaryRequest);
 
         // enrich the request
-        boundaryEntityEnricher.enrichCreateBoundaryRequest(boundaryRequest);
+        BoundaryEntityEnricher.enrichCreateBoundaryRequest(boundaryRequest);
 
         // create response
         BoundaryResponse boundaryResponse = responseUtil.createBoundaryResponse(boundaryRequest);
 
         // push to kafka
-//        producer.push(configuration.getCreateBoundaryTopic(), boundaryRequest);
+        producer.push(configuration.getCreateBoundaryTopic(), boundaryRequest);
 
         return boundaryResponse;
     }
