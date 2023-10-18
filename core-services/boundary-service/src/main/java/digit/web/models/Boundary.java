@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.JsonNode;
 import digit.web.models.Geometry;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -42,5 +43,6 @@ public class Boundary {
     @Valid
     private JsonNode geometry = null;
 
-
+    @JsonProperty("auditDetails")
+    private AuditDetails auditDetails = null;
 }

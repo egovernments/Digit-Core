@@ -1,6 +1,7 @@
 package digit.service.enrichment;
 
 import digit.web.models.BoundaryRequest;
+import org.egov.common.utils.AuditDetailsEnrichmentUtil;
 import org.egov.common.utils.UUIDEnrichmentUtil;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ public class BoundaryEntityEnricher {
     public void enrichCreateBoundaryRequest(BoundaryRequest boundaryRequest) {
         boundaryRequest.getBoundary().forEach(boundary -> {
             UUIDEnrichmentUtil.enrichRandomUuid(boundary,"id");
+            boundary.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(boundary.getAuditDetails(),boundaryRequest.getRequestInfo(),Boolean.TRUE));
         });
     }
 }

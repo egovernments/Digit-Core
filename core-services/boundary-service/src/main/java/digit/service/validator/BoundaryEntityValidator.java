@@ -47,9 +47,9 @@ public class BoundaryEntityValidator {
 
         boundaryList.forEach(boundary -> {
             try {
-                if(boundary.getGeometry().get("type").equals("Point")) {
+                if(boundary.getGeometry().get("type").asText().equals("Point")) {
                     GeoUtil.validatePointGeometry(objectMapper.treeToValue(boundary.getGeometry(), PointGeometry.class), exceptions);
-                } else if(boundary.getGeometry().get("type").equals("Polygon")) {
+                } else if(boundary.getGeometry().get("type").asText().equals("Polygon")) {
                     GeoUtil.validatePolygonGeometry(objectMapper.treeToValue(boundary.getGeometry(), PolygonGeometry.class), exceptions);
                 } else {
                     throw new CustomException("INVALID_GEOMETRY_TYPE", "Provided geometry type is not supported. Supported geometry types are Point and Polygon.");
