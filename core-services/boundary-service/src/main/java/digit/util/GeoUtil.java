@@ -6,6 +6,7 @@ import digit.web.models.PolygonGeometry;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GeoUtil {
 
@@ -44,10 +45,11 @@ public class GeoUtil {
     }
 
     private static void validateIfPolygonIsClosed(List<List<Double>> coordinatesList, Map<String, String> exceptions) {
+        // Won't work if the coordinates are not in order but valid
         if(coordinatesList.size() >= 5) {
             List<Double> startCoordinate = coordinatesList.get(0);
             List<Double> endCoordinate = coordinatesList.get(coordinatesList.size() - 1);
-            if(startCoordinate.get(0) != endCoordinate.get(0) || startCoordinate.get(1) != endCoordinate.get(1)) {
+            if(!Objects.equals(startCoordinate.get(0), endCoordinate.get(0)) || !Objects.equals(startCoordinate.get(1), endCoordinate.get(1))) {
                 exceptions.put("INVALID_POLYGON_DEFINITION", "Polygon coordinates must begin and end with the same coordinate according to RFC 7946 standard.");
             }
         }
