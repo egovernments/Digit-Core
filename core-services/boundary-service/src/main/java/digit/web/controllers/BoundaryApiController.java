@@ -2,26 +2,18 @@ package digit.web.controllers;
 
 
 import digit.service.BoundaryService;
-import digit.web.models.BoundaryRelationshipRequest;
-import digit.web.models.BoundaryRelationshipResponse;
-import digit.web.models.BoundaryRequest;
-import digit.web.models.BoundaryResponse;
-import digit.web.models.BoundarySearchResponse;
-import digit.web.models.BoundaryTypeHierarchyRequest;
-import digit.web.models.BoundaryTypeHierarchyResponse;
-import digit.web.models.BoundaryTypeHierarchySearchRequest;
+import digit.web.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.auth.In;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -124,9 +116,9 @@ public class BoundaryApiController {
     }
 
     @RequestMapping(value = "/boundary/_search", method = RequestMethod.POST)
-    public ResponseEntity<BoundaryResponse> boundarySearchPost(@NotNull @Parameter(in = ParameterIn.QUERY, description = "unique list of boundary codes.", required = true, schema = @Schema()) @Valid @RequestParam(value = "codes", required = true) List<String> codes) {
-        BoundaryResponse boundaryResponse = boundaryService.searchBoundary(codes);
-        return new ResponseEntity<BoundaryResponse>(boundaryResponse,HttpStatus.OK);
+    public ResponseEntity<BoundaryResponse> boundarySearchPost(@Valid @ModelAttribute BoundarySearchCriteria boundarySearchCriteria, @RequestBody RequestInfo requestInfo) {
+        BoundaryResponse boundaryResponse = boundaryService.searchBoundary(boundarySearchCriteria,requestInfo);
+        return new ResponseEntity<BoundaryResponse>(boundaryResponse, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/boundary/_update", method = RequestMethod.POST)

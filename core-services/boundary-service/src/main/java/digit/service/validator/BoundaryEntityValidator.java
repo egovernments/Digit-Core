@@ -47,16 +47,19 @@ public class BoundaryEntityValidator {
         Map<String, String> exceptions = new HashMap<>();
 
         boundaryList.forEach(boundary -> {
-            try {
-                if(boundary.getGeometry().get("type").asText().equals("Point")) {
-                    GeoUtil.validatePointGeometry(objectMapper.treeToValue(boundary.getGeometry(), PointGeometry.class), exceptions);
-                } else if(boundary.getGeometry().get("type").asText().equals("Polygon")) {
-                    GeoUtil.validatePolygonGeometry(objectMapper.treeToValue(boundary.getGeometry(), PolygonGeometry.class), exceptions);
-                } else {
-                    throw new CustomException(ErrorCodes.INVALID_GEOMETRY_TYPE_CODE, ErrorCodes.INVALID_GEOMETRY_TYPE_MSG);
+            // Only execute if geometry is present
+            if(boundary.getGeometry()!=null) {
+                try {
+                    if(boundary.getGeometry().get("type").asText().equals("Point")) {
+                        GeoUtil.validatePointGeometry(objectMapper.treeToValue(boundary.getGeometry(), PointGeometry.class), exceptions);
+                    } else if(boundary.getGeometry().get("type").asText().equals("Polygon")) {
+                        GeoUtil.validatePolygonGeometry(objectMapper.treeToValue(boundary.getGeometry(), PolygonGeometry.class), exceptions);
+                    } else {
+                        throw new CustomException(ErrorCodes.INVALID_GEOMETRY_TYPE_CODE, ErrorCodes.INVALID_GEOMETRY_TYPE_MSG);
+                    }
+                } catch (JsonProcessingException e) {
+                    throw new CustomException(ErrorCodes.INVALID_GEOJSON_CODE, ErrorCodes.INVALID_GEOJSON_MSG);
                 }
-            } catch (JsonProcessingException e) {
-                throw new CustomException(ErrorCodes.INVALID_GEOJSON_CODE, ErrorCodes.INVALID_GEOJSON_MSG);
             }
         });
 

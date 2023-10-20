@@ -1,7 +1,11 @@
 package digit.repository.rowmapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.web.models.Boundary;
 import org.egov.common.contract.models.AuditDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
@@ -14,6 +18,8 @@ import java.util.List;
 @Component
 public class BoundaryEntityRowMapper implements ResultSetExtractor<List<Boundary>> {
 
+    @Autowired
+    private ObjectMapper mapper;
     @Override
     public List<Boundary> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
 
@@ -26,12 +32,18 @@ public class BoundaryEntityRowMapper implements ResultSetExtractor<List<Boundary
                     lastModifiedBy(resultSet.getString("lastmodifiedby")).
                     lastModifiedTime(resultSet.getLong("lastmodifiedtime")).build();
 
-            Boundary boundary = Boundary.builder()
-                    .id(resultSet.getString("id"))
-                    .code(resultSet.getString("code"))
-                    .auditDetails(auditDetails)
-                    .tenantId(resultSet.getString("tenantid"))
-                    .build();
+            Boundary boundary = null;
+            try {
+                boundary = Boundary.builder()
+                        .id(resultSet.getString("id"))
+                        .code(resultSet.getString("code"))
+                        .auditDetails(auditDetails)
+                        .geometry(mapper.readTree(resultSet.getString("geometry")))
+                        .tenantId(resultSet.getString("tenantid"))
+                        .build();
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
 
             boundaryList.add(boundary);
         }

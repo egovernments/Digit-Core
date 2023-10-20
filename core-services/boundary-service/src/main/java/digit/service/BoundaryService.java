@@ -9,6 +9,10 @@ import digit.util.ResponseUtil;
 import digit.web.models.Boundary;
 import digit.web.models.BoundaryRequest;
 import digit.web.models.BoundaryResponse;
+import digit.web.models.BoundarySearchCriteria;
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
+import org.egov.common.utils.ResponseInfoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,16 +59,18 @@ public class BoundaryService {
     }
 
     /**
-     * This method is used to search a boundary entity
-     * @param codes
+     * This method is used to search for boundary entity
+     * @param boundarySearchCriteria
      * @return
      */
-    public BoundaryResponse searchBoundary(List<String> codes) {
+    public BoundaryResponse searchBoundary(BoundarySearchCriteria boundarySearchCriteria, RequestInfo requestInfo) {
 
-        List<Boundary> boundaryList = repository.searchBoundaryEntity(codes);
-        BoundaryResponse boundaryResponse = BoundaryResponse.builder()
-                .boundary(boundaryList)
-                .build();
+        List<Boundary> boundaryList = repository.searchBoundaryEntity(boundarySearchCriteria);
+
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo,Boolean.TRUE);
+
+        BoundaryResponse boundaryResponse = BoundaryResponse.builder().boundary(boundaryList).responseInfo(responseInfo).build();
+
         return boundaryResponse;
 
     }

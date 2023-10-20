@@ -93,4 +93,10 @@ public class Configuration {
     // Kafka Config
     @Value("${kafka.topics.create.boundary}")
     private String createBoundaryTopic;
+
+    @Value("${boundary.default.offset}")
+    private Integer defaultOffset;
+
+    @Value("${boundary.default.limit}")
+    private Integer defaultLimit;
 }
