@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 
 import lombok.AllArgsConstructor;
@@ -23,23 +24,23 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoundarySearchResponse   {
-        @JsonProperty("ResponseInfo")
+public class BoundarySearchResponse {
 
-          @Valid
-                private ResponseInfo responseInfo = null;
+    @JsonProperty("ResponseInfo")
+    @Valid
+    private ResponseInfo responseInfo = null;
 
-        @JsonProperty("TenantBoundary")
-          @Valid
-                private List<HierarchyRelation> tenantBoundary = null;
+    @JsonProperty("TenantBoundary")
+    @Valid
+    private List<HierarchyRelation> tenantBoundary = null;
 
 
-        public BoundarySearchResponse addTenantBoundaryItem(HierarchyRelation tenantBoundaryItem) {
-            if (this.tenantBoundary == null) {
+    public BoundarySearchResponse addTenantBoundaryItem(HierarchyRelation tenantBoundaryItem) {
+        if (this.tenantBoundary == null) {
             this.tenantBoundary = new ArrayList<>();
-            }
+        }
         this.tenantBoundary.add(tenantBoundaryItem);
         return this;
-        }
+    }
 
 }

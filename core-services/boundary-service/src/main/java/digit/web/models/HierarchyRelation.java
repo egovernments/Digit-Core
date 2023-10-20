@@ -1,13 +1,16 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import digit.web.models.EnrichedBoundary;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -22,19 +25,17 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class HierarchyRelation   {
-        @JsonProperty("tenantId")
+public class HierarchyRelation {
 
-                private String tenantId = null;
+    @JsonProperty("tenantId")
+    private String tenantId = null;
 
-        @JsonProperty("hierarchyType")
+    @JsonProperty("hierarchyType")
+    private String hierarchyType = null;
 
-                private String hierarchyType = null;
-
-        @JsonProperty("boundary")
-
-          @Valid
-                private EnrichedBoundary boundary = null;
+    @JsonProperty("boundary")
+    @Valid
+    private EnrichedBoundary boundary = null;
 
 
 }

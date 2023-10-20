@@ -3,6 +3,7 @@ package digit.web.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 
 import lombok.AllArgsConstructor;
@@ -19,16 +20,15 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoundaryTypeHierarchyResponse   {
-        @JsonProperty("RequestInfo")
+public class BoundaryTypeHierarchyResponse {
 
-          @Valid
-                private ResponseInfo requestInfo = null;
+    @JsonProperty("RequestInfo")
+    @Valid
+    private ResponseInfo requestInfo = null;
 
-        @JsonProperty("BoundaryHierarchy")
-
-          @Valid
-                private BoundaryTypeHierarchyDefinition boundaryHierarchy = null;
+    @JsonProperty("BoundaryHierarchy")
+    @Valid
+    private BoundaryTypeHierarchyDefinition boundaryHierarchy = null;
 
 
 }

@@ -1,12 +1,15 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -21,23 +24,20 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class HierarchyType   {
-        @JsonProperty("tenantId")
+public class HierarchyType {
 
-                private String tenantId = null;
+    @JsonProperty("tenantId")
+    private String tenantId = null;
 
-        @JsonProperty("id")
+    @JsonProperty("id")
+    private String id = null;
 
-                private String id = null;
+    @JsonProperty("code")
+    @NotNull
+    private String code = null;
 
-        @JsonProperty("code")
-          @NotNull
-
-                private String code = null;
-
-        @JsonProperty("active")
-
-                private Boolean active = null;
+    @JsonProperty("active")
+    private Boolean active = null;
 
 
 }

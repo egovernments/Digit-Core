@@ -40,11 +40,9 @@ public class BoundaryRelation {
     private String hierarchyType = null;
 
     @JsonProperty("boundaryType")
-
     private String boundaryType = null;
 
     @JsonProperty("parent")
-
     private String parent = null;
 
 

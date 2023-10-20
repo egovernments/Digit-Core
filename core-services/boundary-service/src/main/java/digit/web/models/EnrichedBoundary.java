@@ -1,15 +1,20 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import digit.web.models.EnrichedBoundary;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -24,35 +29,32 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EnrichedBoundary   {
-        @JsonProperty("id")
+public class EnrichedBoundary {
 
-                private String id = null;
+    @JsonProperty("id")
+    private String id = null;
 
-        @JsonProperty("tenantId")
+    @JsonProperty("tenantId")
+    private String tenantId = null;
 
-                private String tenantId = null;
+    @JsonProperty("code")
+    @NotNull
+    private String code = null;
 
-        @JsonProperty("code")
-          @NotNull
+    @JsonProperty("boundaryType")
+    private String boundaryType = null;
 
-                private String code = null;
-
-        @JsonProperty("boundaryType")
-
-                private String boundaryType = null;
-
-        @JsonProperty("children")
-          @Valid
-                private List<EnrichedBoundary> children = null;
+    @JsonProperty("children")
+    @Valid
+    private List<EnrichedBoundary> children = null;
 
 
-        public EnrichedBoundary addChildrenItem(EnrichedBoundary childrenItem) {
-            if (this.children == null) {
+    public EnrichedBoundary addChildrenItem(EnrichedBoundary childrenItem) {
+        if (this.children == null) {
             this.children = new ArrayList<>();
-            }
+        }
         this.children.add(childrenItem);
         return this;
-        }
+    }
 
 }

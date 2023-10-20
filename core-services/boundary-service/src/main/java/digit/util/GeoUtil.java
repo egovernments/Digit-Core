@@ -45,7 +45,6 @@ public class GeoUtil {
     }
 
     private static void validateIfPolygonIsClosed(List<List<Double>> coordinatesList, Map<String, String> exceptions) {
-        // Won't work if the coordinates are not in order but valid
         if(coordinatesList.size() >= 5) {
             List<Double> startCoordinate = coordinatesList.get(0);
             List<Double> endCoordinate = coordinatesList.get(coordinatesList.size() - 1);
