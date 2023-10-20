@@ -11,5 +11,6 @@ CREATE TABLE boundary (
 
   CONSTRAINT check_id_length CHECK (length(id) <= 64),
   CONSTRAINT check_tenantId_length CHECK (length(tenantId) <= 64),
-  CONSTRAINT check_code_length CHECK (length(code) <= 64)
+  CONSTRAINT check_code_length CHECK (length(code) <= 64),
+  CONSTRAINT unique_code_tenantId UNIQUE (code, tenantId)
 );
