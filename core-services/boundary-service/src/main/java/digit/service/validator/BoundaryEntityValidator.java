@@ -3,6 +3,7 @@ package digit.service.validator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.errors.ErrorCodes;
+import digit.repository.ServiceRequestRepository;
 import digit.util.ErrorUtil;
 import digit.util.GeoUtil;
 import digit.web.models.Boundary;
@@ -13,18 +14,18 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class BoundaryEntityValidator {
 
     private final ObjectMapper objectMapper;
+    private final ServiceRequestRepository boundaryRepository;
 
     @Autowired
-    public BoundaryEntityValidator(ObjectMapper objectMapper) {
+    public BoundaryEntityValidator(ObjectMapper objectMapper, ServiceRequestRepository boundaryRepository) {
         this.objectMapper = objectMapper;
+        this.boundaryRepository = boundaryRepository;
     }
 
     /**
@@ -35,7 +36,7 @@ public class BoundaryEntityValidator {
     public void validateCreateBoundaryRequest(BoundaryRequest boundaryRequest) {
         // validate the request
         validateBoundaryGeometry(boundaryRequest.getBoundary());
-
+        validateUniqueTenantIdAndCode(boundaryRequest);
     }
 
     /**
@@ -66,4 +67,44 @@ public class BoundaryEntityValidator {
         ErrorUtil.throwCustomExceptions(exceptions);
     }
 
+    /**
+     * This method is used to create a map of tenantId to code from the request
+     * @param boundaryRequest
+     * @return
+     */
+    public Map<String,Set<String>> createTenantIdtoCodeMap(BoundaryRequest boundaryRequest) {
+        Map<String, Set<String>> tenantIdToCodeMap = new HashMap<>();
+        boundaryRequest.getBoundary().forEach(boundary -> {
+            if(tenantIdToCodeMap.containsKey(boundary.getTenantId())) {
+                tenantIdToCodeMap.get(boundary.getTenantId()).add(boundary.getCode());
+            } else {
+                Set<String> codeSet = new HashSet<>();
+                codeSet.add(boundary.getCode());
+                tenantIdToCodeMap.put(boundary.getTenantId(), codeSet);
+            }
+        });
+        return tenantIdToCodeMap;
+    }
+
+    /**
+     * This method is used to validate the uniqueness of tenantId and code in the request
+     * @param boundaryRequest
+     */
+    public void validateUniqueTenantIdAndCode(BoundaryRequest boundaryRequest) {
+
+        // create a map of tenantId to code from request
+        Map<String, Set<String>> tenantIdToCodeMap = createTenantIdtoCodeMap(boundaryRequest);
+
+        tenantIdToCodeMap.forEach((tenantId, codes) -> {
+
+            // get the set of codes for a given tenantId from db
+            Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
+
+            // check if the code already exists in db
+            for (String code:codes) {
+                if(codeSet.contains(code))
+                    throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE,ErrorCodes.DUPLICATE_CODE_MSG + " (" + tenantId + "," + code + ")" );
+            }
+        });
+    }
 }

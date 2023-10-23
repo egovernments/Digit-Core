@@ -8,5 +8,7 @@ public class ErrorCodes {
     public static final String INVALID_GEOMETRY_TYPE_MSG = "Provided geometry type is not supported. Supported geometry types are Point and Polygon.";
     public static final String INVALID_GEOJSON_CODE = "INVALID_GEOJSON";
     public static final String INVALID_GEOJSON_MSG = "Provided geometry object contains invalid JSON.";
+    public static final String DUPLICATE_CODE_CODE = "DUPLICATE_CODE";
+    public static final String DUPLICATE_CODE_MSG = "Boundary entity with same code and tenantId already exists.";
 
 }

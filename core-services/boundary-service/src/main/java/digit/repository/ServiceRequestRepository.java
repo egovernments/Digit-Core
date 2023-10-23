@@ -15,9 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static digit.config.ServiceConstants.*;
 
@@ -72,4 +70,19 @@ public class ServiceRequestRepository {
         return boundaryList;
     }
 
+    /**
+     * This method returns the set of codes for a given tenantId
+     * @param tenantId
+     * @return
+     */
+    public Set<String> getCodeListByTenantId(String tenantId) {
+        Set<String> codesList = new HashSet<>();
+        BoundarySearchCriteria boundarySearchCriteria = new BoundarySearchCriteria();
+        boundarySearchCriteria.setTenantId(tenantId);
+        List<Boundary> boundaryList = searchBoundaryEntity(boundarySearchCriteria);
+        for(Boundary boundary:boundaryList) {
+            codesList.add(boundary.getCode());
+        }
+        return codesList;
+    }
 }
