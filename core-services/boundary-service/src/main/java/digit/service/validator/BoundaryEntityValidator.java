@@ -3,7 +3,7 @@ package digit.service.validator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.errors.ErrorCodes;
-import digit.repository.ServiceRequestRepository;
+import digit.repository.BoundaryRepositoryImpl;
 import digit.util.ErrorUtil;
 import digit.util.GeoUtil;
 import digit.web.models.Boundary;
@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 public class BoundaryEntityValidator {
 
     private final ObjectMapper objectMapper;
-    private final ServiceRequestRepository boundaryRepository;
+    private final BoundaryRepositoryImpl boundaryRepository;
 
     @Autowired
-    public BoundaryEntityValidator(ObjectMapper objectMapper, ServiceRequestRepository boundaryRepository) {
+    public BoundaryEntityValidator(ObjectMapper objectMapper, BoundaryRepositoryImpl boundaryRepository) {
         this.objectMapper = objectMapper;
         this.boundaryRepository = boundaryRepository;
     }

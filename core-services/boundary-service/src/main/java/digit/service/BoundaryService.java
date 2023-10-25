@@ -2,7 +2,7 @@ package digit.service;
 
 import digit.config.Configuration;
 import digit.kafka.Producer;
-import digit.repository.ServiceRequestRepository;
+import digit.repository.BoundaryRepositoryImpl;
 import digit.service.enrichment.BoundaryEntityEnricher;
 import digit.service.validator.BoundaryEntityValidator;
 import digit.util.ResponseUtil;
@@ -25,10 +25,10 @@ public class BoundaryService {
     private final Producer producer;
     private final ResponseUtil responseUtil;
     private final Configuration configuration;
-    private final ServiceRequestRepository repository;
+    private final BoundaryRepositoryImpl repository;
 
     @Autowired
-    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, Producer producer, ResponseUtil responseUtil, Configuration configuration, ServiceRequestRepository repository) {
+    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, Producer producer, ResponseUtil responseUtil, Configuration configuration, BoundaryRepositoryImpl repository) {
         this.boundaryEntityValidator = boundaryEntityValidator;
         this.producer = producer;
         this.responseUtil = responseUtil;
