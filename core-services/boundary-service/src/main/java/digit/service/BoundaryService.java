@@ -65,13 +65,33 @@ public class BoundaryService {
      */
     public BoundaryResponse searchBoundary(BoundarySearchCriteria boundarySearchCriteria, RequestInfo requestInfo) {
 
+        // Search for boundary entity
         List<Boundary> boundaryList = repository.searchBoundaryEntity(boundarySearchCriteria);
 
+        // create response info
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo,Boolean.TRUE);
 
+        // create response
         BoundaryResponse boundaryResponse = BoundaryResponse.builder().boundary(boundaryList).responseInfo(responseInfo).build();
 
         return boundaryResponse;
 
+    }
+
+    public BoundaryResponse updateBoundary(BoundaryRequest boundaryRequest) {
+
+        // validate the request
+        boundaryEntityValidator.validateUpdateBoundaryRequest(boundaryRequest);
+
+        // enrich the request
+        BoundaryEntityEnricher.enrichUpdateBoundaryRequest(boundaryRequest);
+
+        // create response
+        BoundaryResponse boundaryResponse = responseUtil.createBoundaryResponse(boundaryRequest);
+
+        // push to kafka
+        producer.push(configuration.getUpdateBoundaryTopic(), boundaryRequest);
+
+        return boundaryResponse;
     }
 }

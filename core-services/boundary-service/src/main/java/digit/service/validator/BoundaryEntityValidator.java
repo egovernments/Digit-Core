@@ -35,9 +35,25 @@ public class BoundaryEntityValidator {
      * @param boundaryRequest
      */
     public void validateCreateBoundaryRequest(BoundaryRequest boundaryRequest) {
-        // validate the request
+
+        // validate the geometry
         validateBoundaryGeometry(boundaryRequest.getBoundary());
+
+        // validate for unique tenantId and code
         validateUniqueTenantIdAndCode(boundaryRequest);
+    }
+
+    /**
+     * This method is used to validate the update boundary entity request
+     * @param boundaryRequest
+     */
+    public void validateUpdateBoundaryRequest(BoundaryRequest boundaryRequest) {
+
+        // validate for code and tenantId to exist
+        validateIfCodeAndTenantIdExist(boundaryRequest);
+
+        // validate for valid geometry
+        validateBoundaryGeometry(boundaryRequest.getBoundary());
     }
 
     /**
@@ -98,5 +114,27 @@ public class BoundaryEntityValidator {
                     throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE,ErrorCodes.DUPLICATE_CODE_MSG + " (" + tenantId + "," + code + ")" );
             }
         });
+    }
+
+    /**
+     * This method is used to validate if the code and tenantId exist in the db before updating
+     * @param boundaryRequest
+     */
+    public void validateIfCodeAndTenantIdExist(BoundaryRequest boundaryRequest) {
+
+            // create a map of tenantId to code from request
+            Map<String, Set<String>> tenantIdToCodeMap = createTenantIdtoCodeMap(boundaryRequest);
+
+            tenantIdToCodeMap.forEach((tenantId, codes) -> {
+
+                // get the set of codes for a given tenantId from db
+                Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
+
+                // check if the code already exists in dbb
+                for (String code:codes) {
+                    if(!codeSet.contains(code))
+                        throw new CustomException(ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_CODE,ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_MSG + " (" + tenantId + "," + code + ")" );
+                }
+            });
     }
 }

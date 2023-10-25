@@ -122,17 +122,9 @@ public class BoundaryApiController {
     }
 
     @RequestMapping(value = "/boundary/_update", method = RequestMethod.POST)
-    public ResponseEntity<BoundaryResponse> boundaryUpdatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody BoundaryRequest body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<BoundaryResponse>(objectMapper.readValue("{  \"ResponseInfo\" : {    \"ver\" : \"ver\",    \"resMsgId\" : \"resMsgId\",    \"msgId\" : \"msgId\",    \"apiId\" : \"apiId\",    \"ts\" : 0,    \"status\" : \"SUCCESSFUL\"  },  \"Boundary\" : [ {    \"code\" : \"code\",    \"tenantId\" : \"tenantId\",    \"geometry\" : {      \"coordinates\" : [ [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ], [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ] ],      \"type\" : \"Polygon\"    },    \"id\" : \"id\"  }, {    \"code\" : \"code\",    \"tenantId\" : \"tenantId\",    \"geometry\" : {      \"coordinates\" : [ [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ], [ [ 6.027456183070403, 6.027456183070403 ], [ 6.027456183070403, 6.027456183070403 ] ] ],      \"type\" : \"Polygon\"    },    \"id\" : \"id\"  } ]}", BoundaryResponse.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                return new ResponseEntity<BoundaryResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<BoundaryResponse>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<BoundaryResponse> boundaryUpdatePost(@Valid @RequestBody BoundaryRequest body) {
+        BoundaryResponse boundaryResponse = boundaryService.updateBoundary(body);
+        return new ResponseEntity<BoundaryResponse>(boundaryResponse,HttpStatus.OK);
     }
 
 }

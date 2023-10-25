@@ -26,3 +26,22 @@ serviceMaps:
             - jsonPath: $.Boundary.*.auditDetails.createdTime
 
             - jsonPath: $.Boundary.*.auditDetails.lastModifiedTime
+    - version: 1.0
+      description: Persists the boundary entity data
+      fromTopic: update-boundary-entity
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE boundary SET geometry = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE code = ? AND tenantId = ?;
+          basePath: $.Boundary.*
+          jsonMaps:
+            - jsonPath: $.Boundary.*.geometry
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.Boundary.*.code
+
+            - jsonPath: $.Boundary.*.tenantId

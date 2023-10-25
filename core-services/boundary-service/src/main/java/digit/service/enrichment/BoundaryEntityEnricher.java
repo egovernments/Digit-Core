@@ -21,4 +21,14 @@ public class BoundaryEntityEnricher {
             boundary.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(boundary.getAuditDetails(),boundaryRequest.getRequestInfo(),Boolean.TRUE));
         });
     }
+
+    /**
+     * Enrich the update boundary request
+     * @param boundaryRequest
+     */
+    public static void enrichUpdateBoundaryRequest(BoundaryRequest boundaryRequest) {
+        boundaryRequest.getBoundary().forEach(boundary -> {
+            boundary.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(boundary.getAuditDetails(),boundaryRequest.getRequestInfo(),Boolean.FALSE));
+        });
+    }
 }
