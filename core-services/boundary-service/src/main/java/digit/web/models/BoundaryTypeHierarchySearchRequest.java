@@ -3,6 +3,7 @@ package digit.web.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 
 import lombok.AllArgsConstructor;
@@ -19,16 +20,14 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoundaryTypeHierarchySearchRequest   {
-        @JsonProperty("RequestInfo")
+public class BoundaryTypeHierarchySearchRequest {
 
-          @Valid
-                private RequestInfo requestInfo = null;
+    @JsonProperty("RequestInfo")
+    @Valid
+    private RequestInfo requestInfo = null;
 
-        @JsonProperty("BoundaryTypeHierarchySearchCriteria")
-
-          @Valid
-                private BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria = null;
-
+    @JsonProperty("BoundaryTypeHierarchySearchCriteria")
+    @Valid
+    private BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria = null;
 
 }

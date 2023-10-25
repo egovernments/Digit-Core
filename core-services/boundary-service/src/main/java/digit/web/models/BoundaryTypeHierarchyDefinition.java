@@ -1,15 +1,22 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.JsonNode;
 import digit.web.models.BoundaryTypeHierarchy;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -24,26 +31,25 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoundaryTypeHierarchyDefinition   {
-        @JsonProperty("tenantId")
+public class BoundaryTypeHierarchyDefinition {
 
-                private String tenantId = null;
+    @JsonProperty("id")
+    private String id = null;
 
-        @JsonProperty("hierarchyType")
+    @JsonProperty("tenantId")
+    private String tenantId = null;
 
-                private String hierarchyType = null;
+    @JsonProperty("hierarchyType")
+    private String hierarchyType = null;
 
-        @JsonProperty("boundaryHierarchy")
-          @Valid
-                private List<BoundaryTypeHierarchy> boundaryHierarchy = null;
+    @JsonProperty("boundaryHierarchy")
+    @Valid
+    private List<BoundaryTypeHierarchy> boundaryHierarchy = null;
 
+    @JsonProperty("auditDetails")
+    private AuditDetails auditDetails = null;
 
-        public BoundaryTypeHierarchyDefinition addBoundaryHierarchyItem(BoundaryTypeHierarchy boundaryHierarchyItem) {
-            if (this.boundaryHierarchy == null) {
-            this.boundaryHierarchy = new ArrayList<>();
-            }
-        this.boundaryHierarchy.add(boundaryHierarchyItem);
-        return this;
-        }
+    @JsonProperty("boundaryHierarchyJsonNode")
+    private JsonNode boundaryHierarchyJsonNode = null;
 
 }
