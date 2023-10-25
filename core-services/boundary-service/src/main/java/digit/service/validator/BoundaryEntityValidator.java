@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class BoundaryEntityValidator {
@@ -72,18 +73,9 @@ public class BoundaryEntityValidator {
      * @param boundaryRequest
      * @return
      */
-    public Map<String,Set<String>> createTenantIdtoCodeMap(BoundaryRequest boundaryRequest) {
-        Map<String, Set<String>> tenantIdToCodeMap = new HashMap<>();
-        boundaryRequest.getBoundary().forEach(boundary -> {
-            if(tenantIdToCodeMap.containsKey(boundary.getTenantId())) {
-                tenantIdToCodeMap.get(boundary.getTenantId()).add(boundary.getCode());
-            } else {
-                Set<String> codeSet = new HashSet<>();
-                codeSet.add(boundary.getCode());
-                tenantIdToCodeMap.put(boundary.getTenantId(), codeSet);
-            }
-        });
-        return tenantIdToCodeMap;
+    public Map<String, Set<String>> createTenantIdtoCodeMap(BoundaryRequest boundaryRequest) {
+        return boundaryRequest.getBoundary().stream()
+                .collect(Collectors.groupingBy(Boundary::getTenantId, Collectors.mapping(Boundary::getCode, Collectors.toSet())));
     }
 
     /**
@@ -100,7 +92,7 @@ public class BoundaryEntityValidator {
             // get the set of codes for a given tenantId from db
             Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
 
-            // check if the code already exists in db
+            // check if the code already exists in dbb
             for (String code:codes) {
                 if(codeSet.contains(code))
                     throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE,ErrorCodes.DUPLICATE_CODE_MSG + " (" + tenantId + "," + code + ")" );
