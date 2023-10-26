@@ -1,5 +1,6 @@
 package digit.service.validator;
 
+import digit.errors.ErrorCodes;
 import digit.repository.BoundaryHierarchyRepository;
 import digit.web.models.BoundaryTypeHierarchyRequest;
 import digit.web.models.BoundaryTypeHierarchySearchCriteria;
@@ -54,11 +55,11 @@ public class BoundaryHierarchyValidator {
             if(!ObjectUtils.isEmpty(boundaryTypeHierarchy.getParentBoundaryType())) {
 
                 if(!parentToChildMap.containsKey(boundaryTypeHierarchy.getParentBoundaryType())) {
-                    throw new CustomException("INVALID_HIERARCHY_DEFINITION", "Given parent type is not part of boundary hierarchy definition - " + boundaryTypeHierarchy.getParentBoundaryType());
+                    throw new CustomException(ErrorCodes.INVALID_HIERARCHY_DEFINITION_CODE , ErrorCodes.INVALID_HIERARCHY_DEFINITION_MSG + boundaryTypeHierarchy.getParentBoundaryType());
                 }
 
                 if(!ObjectUtils.isEmpty(parentToChildMap.get(boundaryTypeHierarchy.getParentBoundaryType()))) {
-                    throw new CustomException("INVALID_HIERARCHY_DEFINITION", "Hierarchy entities must not form a cycle.");
+                    throw new CustomException(ErrorCodes.INVALID_HIERARCHY_ENTITY_DEFINITION_CODE, ErrorCodes.INVALID_HIERARCHY_ENTITY_DEFINITION_MSG);
                 }
 
                 parentToChildMap.put(boundaryTypeHierarchy.getParentBoundaryType(), boundaryTypeHierarchy.getBoundaryType());
@@ -80,7 +81,7 @@ public class BoundaryHierarchyValidator {
 
         // Check if boundary type with the provided tenantId and hierarchy type already exists
         if(!CollectionUtils.isEmpty(boundaryHierarchyRepository.search(boundaryTypeHierarchySearchCriteria))) {
-            throw new CustomException("DUPLICATE_RECORD", "Boundary hierarchy with the provided tenantId and hierarchy type already exists.");
+            throw new CustomException(ErrorCodes.DUPLICATE_RECORD_CODE, ErrorCodes.DUPLICATE_RECORD_MSG);
         }
     }
 

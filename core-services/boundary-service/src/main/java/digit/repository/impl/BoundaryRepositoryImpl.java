@@ -63,7 +63,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
      * it pushes the request to kafka for persister to pick it up and perform insert.
      * @param boundaryRequest
      */
-   @Override
+    @Override
     public void create(BoundaryRequest boundaryRequest) {
         producer.push(applicationProperties.getCreateBoundaryTopic(), boundaryRequest);
     }
@@ -73,7 +73,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
      * it pushes the request to kafka for persister to pick it up and perform update.
      * @param boundaryRequest
      */
-   @Override
+    @Override
     public void update(BoundaryRequest boundaryRequest) {
         producer.push(applicationProperties.getUpdateBoundaryTopic(), boundaryRequest);
     }
@@ -83,6 +83,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
      * @param tenantId
      * @return
      */
+    @Override
     public Set<String> getCodeListByTenantId(String tenantId) {
 
         // create a boundary search criteria object with the given tenantId

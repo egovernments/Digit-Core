@@ -20,4 +20,11 @@ public class ErrorCodes {
     public static final String INVALID_POLYGON_COORDINATES_DEFINITION_MSG = "Polygon must be defined with minimum 4 coordinates.";
     public static final String INVALID_POLYGON_DEFINITION_CODE = "INVALID_POLYGON_DEFINITION";
     public static final String INVALID_POLYGON_DEFINITION_MSG = "Polygon coordinates must begin and end with the same coordinate according to RFC 7946 standard.";
+    public static final String INVALID_HIERARCHY_DEFINITION_CODE = "INVALID_HIERARCHY_DEFINITION";
+    public static final String INVALID_HIERARCHY_DEFINITION_MSG = "Given parent type is not part of boundary hierarchy definition - ";
+    public static final String INVALID_HIERARCHY_ENTITY_DEFINITION_CODE = "INVALID_HIERARCHY_DEFINITION";
+    public static final String INVALID_HIERARCHY_ENTITY_DEFINITION_MSG = "Hierarchy entities must not form a cycle.";
+    public static final String DUPLICATE_RECORD_CODE = "DUPLICATE_RECORD";
+    public static final String DUPLICATE_RECORD_MSG = "Boundary hierarchy with the provided tenantId and hierarchy type already exists.";
+
 }
