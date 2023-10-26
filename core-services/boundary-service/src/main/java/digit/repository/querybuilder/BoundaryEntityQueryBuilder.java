@@ -1,6 +1,6 @@
 package digit.repository.querybuilder;
 
-import digit.config.Configuration;
+import digit.config.ApplicationProperties;
 import digit.util.QueryUtil;
 import digit.web.models.BoundarySearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import java.util.*;
 public class BoundaryEntityQueryBuilder {
 
     @Autowired
-    private Configuration config;
+    private ApplicationProperties config;
     private static final String SEARCH_BOUNDARY_ENTITY_QUERY = "SELECT boundary.id , boundary.tenantid , boundary.createdtime , boundary.createdby , boundary.lastmodifiedby , boundary.lastmodifiedtime, boundary.code, boundary.geometry FROM boundary";
     private static final String BOUNDARY_DATA_QUERY_ORDER_BY_CLAUSE = " order by createdtime desc ";
 

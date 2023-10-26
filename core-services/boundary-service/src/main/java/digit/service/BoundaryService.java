@@ -1,8 +1,8 @@
 package digit.service;
 
-import digit.config.Configuration;
+import digit.config.ApplicationProperties;
 import digit.kafka.Producer;
-import digit.repository.BoundaryRepositoryImpl;
+import digit.repository.impl.BoundaryRepositoryImpl;
 import digit.service.enrichment.BoundaryEntityEnricher;
 import digit.service.validator.BoundaryEntityValidator;
 import digit.util.ResponseUtil;
@@ -24,11 +24,11 @@ public class BoundaryService {
     private final BoundaryEntityValidator boundaryEntityValidator;
     private final Producer producer;
     private final ResponseUtil responseUtil;
-    private final Configuration configuration;
+    private final ApplicationProperties configuration;
     private final BoundaryRepositoryImpl repository;
 
     @Autowired
-    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, Producer producer, ResponseUtil responseUtil, Configuration configuration, BoundaryRepositoryImpl repository) {
+    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, Producer producer, ResponseUtil responseUtil, ApplicationProperties configuration, BoundaryRepositoryImpl repository) {
         this.boundaryEntityValidator = boundaryEntityValidator;
         this.producer = producer;
         this.responseUtil = responseUtil;
@@ -53,7 +53,7 @@ public class BoundaryService {
         BoundaryResponse boundaryResponse = responseUtil.createBoundaryResponse(boundaryRequest);
 
         // push to kafka
-        producer.push(configuration.getCreateBoundaryTopic(), boundaryRequest);
+        repository.create(boundaryRequest);
 
         return boundaryResponse;
     }
@@ -66,7 +66,7 @@ public class BoundaryService {
     public BoundaryResponse searchBoundary(BoundarySearchCriteria boundarySearchCriteria, RequestInfo requestInfo) {
 
         // Search for boundary entity
-        List<Boundary> boundaryList = repository.searchBoundaryEntity(boundarySearchCriteria);
+        List<Boundary> boundaryList = repository.search(boundarySearchCriteria);
 
         // create response info
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo,Boolean.TRUE);
@@ -90,7 +90,7 @@ public class BoundaryService {
         BoundaryResponse boundaryResponse = responseUtil.createBoundaryResponse(boundaryRequest);
 
         // push to kafka
-        producer.push(configuration.getUpdateBoundaryTopic(), boundaryRequest);
+        repository.update(boundaryRequest);
 
         return boundaryResponse;
     }

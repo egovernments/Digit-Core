@@ -1,4 +1,4 @@
-package digit.config;
+package digit.constants;
 
 
 import org.springframework.stereotype.Component;

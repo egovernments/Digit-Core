@@ -1,5 +1,6 @@
 package digit.repository.querybuilder;
 
+import digit.util.QueryUtil;
 import digit.web.models.BoundaryTypeHierarchySearchCriteria;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -18,8 +19,7 @@ public class BoundaryHierarchyTypeQueryBuilder {
 
     public String getBoundaryHierarchyTypeSearchQuery(BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(boundaryTypeHierarchySearchCriteria, preparedStmtList);
-//        query = QueryUtil.addOrderByClause(query, ORDER_BY_CLAUSE);
-        query = query + ORDER_BY_CLAUSE;
+        query = QueryUtil.addOrderByClause(query, ORDER_BY_CLAUSE);
         return query;
     }
 
@@ -27,33 +27,17 @@ public class BoundaryHierarchyTypeQueryBuilder {
         StringBuilder builder = new StringBuilder(BOUNDARY_HIERARCHY_TYPE_BASE_SEARCH_QUERY);
 
         if (!ObjectUtils.isEmpty(boundaryTypeHierarchySearchCriteria.getTenantId())) {
-            addClauseIfRequired(builder, preparedStmtList);
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" tenantid = ? ");
             preparedStmtList.add(boundaryTypeHierarchySearchCriteria.getTenantId());
         }
 
         if (!ObjectUtils.isEmpty(boundaryTypeHierarchySearchCriteria.getHierarchyType())) {
-            addClauseIfRequired(builder, preparedStmtList);
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" hierarchytype = ? ");
             preparedStmtList.add(boundaryTypeHierarchySearchCriteria.getHierarchyType());
         }
 
         return builder.toString();
     }
-
-    /**
-     * This method aids in adding "WHERE" clause and "AND" condition depending on preparedStatementList i.e.,
-     * if preparedStatementList is empty, it will understand that it is the first clause being added so it
-     * will add "WHERE" to the query and otherwise it will
-     * @param query
-     * @param preparedStmtList
-     */
-    public static void addClauseIfRequired(StringBuilder query, List<Object> preparedStmtList){
-        if(preparedStmtList.isEmpty()){
-            query.append(" WHERE ");
-        }else{
-            query.append(" AND ");
-        }
-    }
-
 }

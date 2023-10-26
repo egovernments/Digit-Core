@@ -3,7 +3,7 @@ package digit.service.validator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.errors.ErrorCodes;
-import digit.repository.BoundaryRepositoryImpl;
+import digit.repository.impl.BoundaryRepositoryImpl;
 import digit.util.ErrorUtil;
 import digit.util.GeoUtil;
 import digit.web.models.Boundary;
