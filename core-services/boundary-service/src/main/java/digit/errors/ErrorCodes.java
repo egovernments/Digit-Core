@@ -12,5 +12,12 @@ public class ErrorCodes {
     public static final String DUPLICATE_CODE_MSG = "Boundary entity with same code and tenantId already exists.";
     public static final String NOT_FOUND_CODE_AND_TENANT_ID_CODE = "NOT_FOUND_CODE_AND_TENANT_ID_CODE";
     public static final String NOT_FOUND_CODE_AND_TENANT_ID_MSG = "Tenant Id and Code combination not found.";
-
+    public static final String INVALID_POSITION_CODE = "INVALID_POSITION";
+    public static final String INVALID_POSITION_MSG = "Position array must contain 2 values";
+    public static final String INVALID_POLYGON_CODE = "INVALID_POLYGON";
+    public static final String INVALID_POLYGON_MSG = "Polygon must not be empty neither should it contain any holes.";
+    public static final String INVALID_POLYGON_COORDINATES_DEFINITION_CODE = "INVALID_POLYGON_COORDINATES_DEFINITION";
+    public static final String INVALID_POLYGON_COORDINATES_DEFINITION_MSG = "Polygon must be defined with minimum 4 coordinates.";
+    public static final String INVALID_POLYGON_DEFINITION_CODE = "INVALID_POLYGON_DEFINITION";
+    public static final String INVALID_POLYGON_DEFINITION_MSG = "Polygon coordinates must begin and end with the same coordinate according to RFC 7946 standard.";
 }

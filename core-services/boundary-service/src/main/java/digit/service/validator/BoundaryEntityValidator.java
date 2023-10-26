@@ -2,9 +2,9 @@ package digit.service.validator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import digit.constants.BoundaryConstants;
 import digit.errors.ErrorCodes;
 import digit.repository.impl.BoundaryRepositoryImpl;
-import digit.util.ErrorUtil;
 import digit.util.GeoUtil;
 import digit.web.models.Boundary;
 import digit.web.models.BoundaryRequest;
@@ -62,26 +62,28 @@ public class BoundaryEntityValidator {
      * @param boundaryList
      */
     private void validateBoundaryGeometry(List<Boundary> boundaryList) {
-        Map<String, String> exceptions = new HashMap<>();
 
         boundaryList.forEach(boundary -> {
             // Only execute if geometry is present
-            if(boundary.getGeometry()!=null) {
+            if (boundary.getGeometry() != null) {
                 try {
-                    if(boundary.getGeometry().get("type").asText().equals("Point")) {
-                        GeoUtil.validatePointGeometry(objectMapper.treeToValue(boundary.getGeometry(), PointGeometry.class), exceptions);
-                    } else if(boundary.getGeometry().get("type").asText().equals("Polygon")) {
-                        GeoUtil.validatePolygonGeometry(objectMapper.treeToValue(boundary.getGeometry(), PolygonGeometry.class), exceptions);
+                    if (boundary.getGeometry().get(BoundaryConstants.TYPE).asText().equals(BoundaryConstants.POINT)) {
+                        GeoUtil.validatePointGeometry(objectMapper.treeToValue(boundary.getGeometry(), PointGeometry.class));
+
+                    } else if (boundary.getGeometry().get(BoundaryConstants.TYPE).asText().equals(BoundaryConstants.POLYGON)) {
+                        GeoUtil.validatePolygonGeometry(objectMapper.treeToValue(boundary.getGeometry(), PolygonGeometry.class));
+
                     } else {
                         throw new CustomException(ErrorCodes.INVALID_GEOMETRY_TYPE_CODE, ErrorCodes.INVALID_GEOMETRY_TYPE_MSG);
+
                     }
                 } catch (JsonProcessingException e) {
+
                     throw new CustomException(ErrorCodes.INVALID_GEOJSON_CODE, ErrorCodes.INVALID_GEOJSON_MSG);
                 }
             }
         });
 
-        ErrorUtil.throwCustomExceptions(exceptions);
     }
 
     /**
@@ -109,9 +111,9 @@ public class BoundaryEntityValidator {
             Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
 
             // check if the code already exists in dbb
-            for (String code:codes) {
+            for (String code : codes) {
                 if(codeSet.contains(code))
-                    throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE,ErrorCodes.DUPLICATE_CODE_MSG + " (" + tenantId + "," + code + ")" );
+                    throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE , ErrorCodes.DUPLICATE_CODE_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + code + BoundaryConstants.CLOSING_BRACKET);
             }
         });
     }
@@ -131,9 +133,9 @@ public class BoundaryEntityValidator {
                 Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
 
                 // check if the code already exists in dbb
-                for (String code:codes) {
+                for (String code : codes) {
                     if(!codeSet.contains(code))
-                        throw new CustomException(ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_CODE,ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_MSG + " (" + tenantId + "," + code + ")" );
+                        throw new CustomException(ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_CODE , ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + code + BoundaryConstants.CLOSING_BRACKET );
                 }
             });
     }

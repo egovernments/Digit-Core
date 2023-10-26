@@ -89,13 +89,13 @@ public class BoundaryApiController {
     @RequestMapping(value = "/boundary/_create", method = RequestMethod.POST)
     public ResponseEntity<BoundaryResponse> boundaryCreatePost(@Valid @RequestBody BoundaryRequest body) {
         BoundaryResponse boundaryResponse = boundaryService.createBoundary(body);
-        return new ResponseEntity<BoundaryResponse>(boundaryResponse, HttpStatus.OK);
+        return new ResponseEntity<BoundaryResponse>(boundaryResponse, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/boundary/boundary-hierarchy-definition/_create", method = RequestMethod.POST)
     public ResponseEntity<BoundaryTypeHierarchyResponse> boundaryHierarchyDefinitionCreatePost(@Valid @RequestBody BoundaryTypeHierarchyRequest body) {
         BoundaryTypeHierarchyResponse boundaryTypeHierarchyResponse = boundaryHierarchyDefinitionService.createBoundaryHierarchyDefinition(body);
-        return new ResponseEntity<BoundaryTypeHierarchyResponse>(boundaryTypeHierarchyResponse, HttpStatus.OK);
+        return new ResponseEntity<BoundaryTypeHierarchyResponse>(boundaryTypeHierarchyResponse, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/boundary/boundary-hierarchy-definition/_search", method = RequestMethod.POST)
@@ -113,7 +113,7 @@ public class BoundaryApiController {
     @RequestMapping(value = "/boundary/_update", method = RequestMethod.POST)
     public ResponseEntity<BoundaryResponse> boundaryUpdatePost(@Valid @RequestBody BoundaryRequest body) {
         BoundaryResponse boundaryResponse = boundaryService.updateBoundary(body);
-        return new ResponseEntity<BoundaryResponse>(boundaryResponse,HttpStatus.OK);
+        return new ResponseEntity<BoundaryResponse>(boundaryResponse,HttpStatus.ACCEPTED);
     }
 
 }

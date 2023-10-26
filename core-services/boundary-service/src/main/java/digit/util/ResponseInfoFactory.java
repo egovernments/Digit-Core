@@ -4,7 +4,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.stereotype.Component;
 
-import static digit.constants.ServiceConstants.*;
+import static digit.constants.BoundaryConstants.*;
 
 @Component
 public class ResponseInfoFactory {
