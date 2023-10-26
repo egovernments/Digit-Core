@@ -45,3 +45,28 @@ serviceMaps:
             - jsonPath: $.Boundary.*.code
 
             - jsonPath: $.Boundary.*.tenantId
+    - version: 1.0
+      description: Persists the boundary hierarchy definition data
+      fromTopic: save-boundary-hierarchy-definition
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary_hierarchy (id, tenantId, hierarchyType, boundaryHierarchy, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.BoundaryHierarchy
+          jsonMaps:
+            - jsonPath: $.BoundaryHierarchy.id
+
+            - jsonPath: $.BoundaryHierarchy.tenantId
+
+            - jsonPath: $.BoundaryHierarchy.hierarchyType
+
+            - jsonPath: $.BoundaryHierarchy.boundaryHierarchyJsonNode
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.createdTime
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.createdBy
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.lastModifiedBy

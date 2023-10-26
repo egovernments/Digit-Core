@@ -22,9 +22,9 @@ import lombok.Builder;
 @Builder
 public class BoundaryTypeHierarchyResponse {
 
-    @JsonProperty("RequestInfo")
+    @JsonProperty("ResponseInfo")
     @Valid
-    private ResponseInfo requestInfo = null;
+    private ResponseInfo responseInfo = null;
 
     @JsonProperty("BoundaryHierarchy")
     @Valid

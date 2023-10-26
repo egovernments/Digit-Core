@@ -4,12 +4,14 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.JsonNode;
 import digit.web.models.BoundaryTypeHierarchy;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -31,6 +33,9 @@ import lombok.Builder;
 @Builder
 public class BoundaryTypeHierarchyDefinition {
 
+    @JsonProperty("id")
+    private String id = null;
+
     @JsonProperty("tenantId")
     private String tenantId = null;
 
@@ -41,13 +46,10 @@ public class BoundaryTypeHierarchyDefinition {
     @Valid
     private List<BoundaryTypeHierarchy> boundaryHierarchy = null;
 
+    @JsonProperty("auditDetails")
+    private AuditDetails auditDetails = null;
 
-    public BoundaryTypeHierarchyDefinition addBoundaryHierarchyItem(BoundaryTypeHierarchy boundaryHierarchyItem) {
-        if (this.boundaryHierarchy == null) {
-            this.boundaryHierarchy = new ArrayList<>();
-        }
-        this.boundaryHierarchy.add(boundaryHierarchyItem);
-        return this;
-    }
+    @JsonProperty("boundaryHierarchyJsonNode")
+    private JsonNode boundaryHierarchyJsonNode = null;
 
 }

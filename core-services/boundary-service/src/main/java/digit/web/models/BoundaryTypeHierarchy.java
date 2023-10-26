@@ -29,14 +29,10 @@ public class BoundaryTypeHierarchy {
     @JsonProperty("boundaryType")
     private String boundaryType = null;
 
-    @JsonProperty("id")
-    private String id = null;
-
     @JsonProperty("parentBoundaryType")
     private String parentBoundaryType = null;
 
     @JsonProperty("active")
     private Boolean active = null;
-
 
 }

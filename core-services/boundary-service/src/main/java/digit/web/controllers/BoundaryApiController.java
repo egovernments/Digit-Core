@@ -1,6 +1,7 @@
 package digit.web.controllers;
 
 
+import digit.service.BoundaryHierarchyDefinitionService;
 import digit.service.BoundaryService;
 import digit.web.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,13 +31,17 @@ public class BoundaryApiController {
     private final ObjectMapper objectMapper;
 
     private final HttpServletRequest request;
+
     private final BoundaryService boundaryService;
 
+    private final BoundaryHierarchyDefinitionService boundaryHierarchyDefinitionService;
+
     @Autowired
-    public BoundaryApiController(ObjectMapper objectMapper, HttpServletRequest request, BoundaryService boundaryService) {
+    public BoundaryApiController(ObjectMapper objectMapper, HttpServletRequest request, BoundaryService boundaryService, BoundaryHierarchyDefinitionService boundaryHierarchyDefinitionService) {
         this.objectMapper = objectMapper;
         this.request = request;
         this.boundaryService = boundaryService;
+        this.boundaryHierarchyDefinitionService = boundaryHierarchyDefinitionService;
     }
 
     @RequestMapping(value = "/boundary/boundary-relationships/_create", method = RequestMethod.POST)
@@ -87,32 +92,16 @@ public class BoundaryApiController {
         return new ResponseEntity<BoundaryResponse>(boundaryResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/boundary/hierarchy-definition/_create", method = RequestMethod.POST)
-    public ResponseEntity<BoundaryTypeHierarchyResponse> boundaryHierarchyDefinitionCreatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody BoundaryTypeHierarchyRequest body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<BoundaryTypeHierarchyResponse>(objectMapper.readValue("{  \"BoundaryHierarchy\" : {    \"boundaryHierarchy\" : [ {      \"parentBoundaryType\" : \"parentBoundaryType\",      \"active\" : true,      \"boundaryType\" : \"boundaryType\",      \"id\" : \"id\"    }, {      \"parentBoundaryType\" : \"parentBoundaryType\",      \"active\" : true,      \"boundaryType\" : \"boundaryType\",      \"id\" : \"id\"    } ],    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\"  },  \"RequestInfo\" : {    \"ver\" : \"ver\",    \"resMsgId\" : \"resMsgId\",    \"msgId\" : \"msgId\",    \"apiId\" : \"apiId\",    \"ts\" : 0,    \"status\" : \"SUCCESSFUL\"  }}", BoundaryTypeHierarchyResponse.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                return new ResponseEntity<BoundaryTypeHierarchyResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<BoundaryTypeHierarchyResponse>(HttpStatus.NOT_IMPLEMENTED);
+    @RequestMapping(value = "/boundary/boundary-hierarchy-definition/_create", method = RequestMethod.POST)
+    public ResponseEntity<BoundaryTypeHierarchyResponse> boundaryHierarchyDefinitionCreatePost(@Valid @RequestBody BoundaryTypeHierarchyRequest body) {
+        BoundaryTypeHierarchyResponse boundaryTypeHierarchyResponse = boundaryHierarchyDefinitionService.createBoundaryHierarchyDefinition(body);
+        return new ResponseEntity<BoundaryTypeHierarchyResponse>(boundaryTypeHierarchyResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/boundary/hierarchy-definition/_search", method = RequestMethod.POST)
-    public ResponseEntity<BoundaryTypeHierarchyResponse> boundaryHierarchyDefinitionSearchPost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody BoundaryTypeHierarchySearchRequest body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<BoundaryTypeHierarchyResponse>(objectMapper.readValue("{  \"BoundaryHierarchy\" : {    \"boundaryHierarchy\" : [ {      \"parentBoundaryType\" : \"parentBoundaryType\",      \"active\" : true,      \"boundaryType\" : \"boundaryType\",      \"id\" : \"id\"    }, {      \"parentBoundaryType\" : \"parentBoundaryType\",      \"active\" : true,      \"boundaryType\" : \"boundaryType\",      \"id\" : \"id\"    } ],    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\"  },  \"RequestInfo\" : {    \"ver\" : \"ver\",    \"resMsgId\" : \"resMsgId\",    \"msgId\" : \"msgId\",    \"apiId\" : \"apiId\",    \"ts\" : 0,    \"status\" : \"SUCCESSFUL\"  }}", BoundaryTypeHierarchyResponse.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                return new ResponseEntity<BoundaryTypeHierarchyResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<BoundaryTypeHierarchyResponse>(HttpStatus.NOT_IMPLEMENTED);
+    @RequestMapping(value = "/boundary/boundary-hierarchy-definition/_search", method = RequestMethod.POST)
+    public ResponseEntity<BoundaryTypeHierarchyResponse> boundaryHierarchyDefinitionSearchPost(@Valid @RequestBody BoundaryTypeHierarchySearchRequest body) {
+        BoundaryTypeHierarchyResponse boundaryTypeHierarchyResponse = boundaryHierarchyDefinitionService.searchBoundaryHierarchyDefinition(body);
+        return new ResponseEntity<BoundaryTypeHierarchyResponse>(boundaryTypeHierarchyResponse, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/boundary/_search", method = RequestMethod.POST)

@@ -30,5 +30,4 @@ public class BoundaryTypeHierarchySearchRequest {
     @Valid
     private BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria = null;
 
-
 }
