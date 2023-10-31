@@ -4,6 +4,7 @@ CREATE TABLE boundary (
   tenantId VARCHAR,
   code VARCHAR,
   geometry JSONB,
+  additionalDetails JSONB,
   createdtime BIGINT NOT NULL,
   createdby VARCHAR(64) NOT NULL,
   lastmodifiedtime BIGINT,

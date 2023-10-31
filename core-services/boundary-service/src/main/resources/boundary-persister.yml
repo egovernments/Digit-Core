@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: create-boundary-entity
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO boundary (id ,tenantId, code, geometry, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO boundary (id, tenantId, code, geometry, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.Boundary.*
           jsonMaps:
             - jsonPath: $.Boundary.*.id
@@ -16,6 +16,10 @@ serviceMaps:
             - jsonPath: $.Boundary.*.code
 
             - jsonPath: $.Boundary.*.geometry
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.additionalDetails
               type: JSON
               dbType: JSONB
 

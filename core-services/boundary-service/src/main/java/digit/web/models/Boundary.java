@@ -40,4 +40,7 @@ public class Boundary {
 
     @JsonProperty("auditDetails")
     private AuditDetails auditDetails = null;
+
+    @JsonProperty("additionalDetails")
+    private JsonNode additionalDetails = null;
 }

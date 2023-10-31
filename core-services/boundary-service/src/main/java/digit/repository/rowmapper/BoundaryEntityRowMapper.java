@@ -39,6 +39,7 @@ public class BoundaryEntityRowMapper implements ResultSetExtractor<List<Boundary
                         .code(resultSet.getString("code"))
                         .auditDetails(auditDetails)
                         .geometry(mapper.readTree(resultSet.getString("geometry")))
+                        .additionalDetails(mapper.readTree(resultSet.getString("additionaldetails")))
                         .tenantId(resultSet.getString("tenantid"))
                         .build();
             } catch (JsonProcessingException e) {
