@@ -87,6 +87,11 @@ public class ApplicationProperties {
     @Value("${kafka.topics.update.boundary}")
     private String updateBoundaryTopic;
 
+    @Value("${kafka.topics.create.boundary.hierarchy}")
+    private String createBoundaryHierarchyTopic;
+
+    @Value("${kafka.topics.update.boundary.hierarchy}")
+    private String updateBoundaryHierarchyTopic;
 
     @Value("${boundary.default.offset}")
     private Integer defaultOffset;

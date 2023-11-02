@@ -1,5 +1,6 @@
 package digit.repository.impl;
 
+import digit.config.ApplicationProperties;
 import digit.kafka.Producer;
 import digit.repository.BoundaryHierarchyRepository;
 import digit.repository.querybuilder.BoundaryHierarchyTypeQueryBuilder;
@@ -26,12 +27,15 @@ public class BoundaryHierarchyRepositoryImpl implements BoundaryHierarchyReposit
 
     private BoundaryHierarchyTypeRowMapper boundaryHierarchyTypeRowMapper;
 
+    private ApplicationProperties applicationProperties;
+
     public BoundaryHierarchyRepositoryImpl(Producer producer, BoundaryHierarchyTypeQueryBuilder boundaryHierarchyTypeQueryBuilder,
-                                           JdbcTemplate jdbcTemplate, BoundaryHierarchyTypeRowMapper boundaryHierarchyTypeRowMapper) {
+                                           JdbcTemplate jdbcTemplate, BoundaryHierarchyTypeRowMapper boundaryHierarchyTypeRowMapper, ApplicationProperties applicationProperties) {
         this.producer = producer;
         this.boundaryHierarchyTypeQueryBuilder = boundaryHierarchyTypeQueryBuilder;
         this.jdbcTemplate = jdbcTemplate;
         this.boundaryHierarchyTypeRowMapper = boundaryHierarchyTypeRowMapper;
+        this.applicationProperties = applicationProperties;
     }
 
     /**
@@ -41,7 +45,7 @@ public class BoundaryHierarchyRepositoryImpl implements BoundaryHierarchyReposit
      */
     @Override
     public void create(BoundaryTypeHierarchyRequest boundaryTypeHierarchyRequest) {
-        producer.push("save-boundary-hierarchy-definition", boundaryTypeHierarchyRequest);
+        producer.push(applicationProperties.getCreateBoundaryHierarchyTopic(), boundaryTypeHierarchyRequest);
     }
 
     /**
@@ -51,7 +55,7 @@ public class BoundaryHierarchyRepositoryImpl implements BoundaryHierarchyReposit
      */
     @Override
     public void update(BoundaryTypeHierarchyRequest boundaryTypeHierarchyRequest) {
-        producer.push("update-boundary-hierarchy-definition", boundaryTypeHierarchyRequest);
+        producer.push(applicationProperties.getUpdateBoundaryHierarchyTopic(), boundaryTypeHierarchyRequest);
     }
 
     /**
