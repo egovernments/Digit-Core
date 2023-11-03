@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class BoundaryHierarchyValidator {
@@ -28,6 +31,9 @@ public class BoundaryHierarchyValidator {
      */
     public void validateBoundaryTypeHierarchy(BoundaryTypeHierarchyRequest body) {
 
+        // validate if only single parent exists
+        validateIfSingleParentExists(body);
+
         // Validate if provided boundary hierarchy forms a directed acyclic graph dependency
         validateIfBoundaryHierarchyFormsDAG(body);
 
@@ -44,6 +50,7 @@ public class BoundaryHierarchyValidator {
     private void validateIfBoundaryHierarchyFormsDAG(BoundaryTypeHierarchyRequest body) {
 
         Map<String, String> parentToChildMap = new LinkedHashMap<>();
+        int nullParentCount = 0;
 
         // Populate parent boundaries
         body.getBoundaryHierarchy().getBoundaryHierarchy().forEach(boundaryTypeHierarchy -> {
@@ -65,6 +72,17 @@ public class BoundaryHierarchyValidator {
                 parentToChildMap.put(boundaryTypeHierarchy.getParentBoundaryType(), boundaryTypeHierarchy.getBoundaryType());
             }
         });
+    }
+
+    private void validateIfSingleParentExists(BoundaryTypeHierarchyRequest body) {
+
+        long nullParentCount = body.getBoundaryHierarchy().getBoundaryHierarchy().stream()
+                .filter(boundaryTypeHierarchy -> ObjectUtils.isEmpty(boundaryTypeHierarchy.getParentBoundaryType()))
+                .count();
+
+        if(nullParentCount > 1) {
+            throw new CustomException(ErrorCodes.MULTIPLE_PARENT_CODE , ErrorCodes.MULTIPLE_PARENT_MSG);
+        }
     }
 
     /**

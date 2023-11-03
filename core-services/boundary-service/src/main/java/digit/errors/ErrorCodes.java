@@ -26,5 +26,7 @@ public class ErrorCodes {
     public static final String INVALID_HIERARCHY_ENTITY_DEFINITION_MSG = "Hierarchy entities must not form a cycle.";
     public static final String DUPLICATE_RECORD_CODE = "DUPLICATE_RECORD";
     public static final String DUPLICATE_RECORD_MSG = "Boundary hierarchy with the provided tenantId and hierarchy type already exists.";
+    public static final String MULTIPLE_PARENT_CODE = "MULTIPLE_PARENT";
+    public static final String MULTIPLE_PARENT_MSG = "Boundary hierarchy must have only one parent.";
 
 }
