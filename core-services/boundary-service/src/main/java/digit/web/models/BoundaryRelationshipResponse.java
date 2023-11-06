@@ -34,13 +34,4 @@ public class BoundaryRelationshipResponse {
     @Valid
     private List<BoundaryRelation> tenantBoundary = null;
 
-
-    public BoundaryRelationshipResponse addTenantBoundaryItem(BoundaryRelation tenantBoundaryItem) {
-        if (this.tenantBoundary == null) {
-            this.tenantBoundary = new ArrayList<>();
-        }
-        this.tenantBoundary.add(tenantBoundaryItem);
-        return this;
-    }
-
 }

@@ -1,25 +1,21 @@
 package digit.web.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
-import lombok.Builder;
 
-/**
- * BoundaryRelation
- */
+import javax.validation.constraints.NotNull;
+
 @Validated
-@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-10-16T17:02:11.361704+05:30[Asia/Kolkata]")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoundaryRelation {
+public class BoundaryRelationshipDTO {
 
     @JsonProperty("id")
     private String id = null;
@@ -46,7 +42,7 @@ public class BoundaryRelation {
     @JsonProperty("auditDetails")
     private AuditDetails auditDetails = null;
 
-    @JsonIgnore
-    private String ancestralMaterializedPath = "";
+    @JsonProperty("ancestralMaterializedPath")
+    private String ancestralMaterializedPath = null;
 
 }

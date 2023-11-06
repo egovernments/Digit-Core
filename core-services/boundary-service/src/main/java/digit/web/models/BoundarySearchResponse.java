@@ -1,15 +1,10 @@
 package digit.web.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.ArrayList;
 import java.util.List;
-
 import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.validation.annotation.Validated;
-
 import javax.validation.Valid;
-
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -33,14 +28,5 @@ public class BoundarySearchResponse {
     @JsonProperty("TenantBoundary")
     @Valid
     private List<HierarchyRelation> tenantBoundary = null;
-
-
-    public BoundarySearchResponse addTenantBoundaryItem(HierarchyRelation tenantBoundaryItem) {
-        if (this.tenantBoundary == null) {
-            this.tenantBoundary = new ArrayList<>();
-        }
-        this.tenantBoundary.add(tenantBoundaryItem);
-        return this;
-    }
 
 }

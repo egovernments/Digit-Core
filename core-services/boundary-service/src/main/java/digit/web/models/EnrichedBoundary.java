@@ -2,6 +2,7 @@ package digit.web.models;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import digit.web.models.EnrichedBoundary;
@@ -34,9 +35,6 @@ public class EnrichedBoundary {
     @JsonProperty("id")
     private String id = null;
 
-    @JsonProperty("tenantId")
-    private String tenantId = null;
-
     @JsonProperty("code")
     @NotNull
     private String code = null;
@@ -48,13 +46,7 @@ public class EnrichedBoundary {
     @Valid
     private List<EnrichedBoundary> children = null;
 
-
-    public EnrichedBoundary addChildrenItem(EnrichedBoundary childrenItem) {
-        if (this.children == null) {
-            this.children = new ArrayList<>();
-        }
-        this.children.add(childrenItem);
-        return this;
-    }
+    @JsonIgnore
+    private String parent = null;
 
 }
