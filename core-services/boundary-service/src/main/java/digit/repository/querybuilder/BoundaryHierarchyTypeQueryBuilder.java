@@ -4,10 +4,7 @@ import digit.util.QueryUtil;
 import digit.web.models.BoundaryTypeHierarchySearchCriteria;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-
 import java.util.List;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 @Component
 public class BoundaryHierarchyTypeQueryBuilder {
