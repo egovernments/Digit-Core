@@ -1,5 +1,6 @@
 package digit.web.models;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,7 +36,6 @@ public class HierarchyRelation {
 
     @JsonProperty("boundary")
     @Valid
-    private EnrichedBoundary boundary = null;
-
+    private List<EnrichedBoundary> boundary = null;
 
 }

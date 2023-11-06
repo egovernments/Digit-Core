@@ -2,6 +2,7 @@ package digit.web.controllers;
 
 
 import digit.service.BoundaryHierarchyDefinitionService;
+import digit.service.BoundaryRelationshipService;
 import digit.service.BoundaryService;
 import digit.web.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,54 +37,33 @@ public class BoundaryApiController {
 
     private final BoundaryHierarchyDefinitionService boundaryHierarchyDefinitionService;
 
+    private final BoundaryRelationshipService boundaryRelationshipService;
+
     @Autowired
-    public BoundaryApiController(ObjectMapper objectMapper, HttpServletRequest request, BoundaryService boundaryService, BoundaryHierarchyDefinitionService boundaryHierarchyDefinitionService) {
+    public BoundaryApiController(ObjectMapper objectMapper, HttpServletRequest request, BoundaryService boundaryService,
+                                 BoundaryHierarchyDefinitionService boundaryHierarchyDefinitionService, BoundaryRelationshipService boundaryRelationshipService) {
         this.objectMapper = objectMapper;
         this.request = request;
         this.boundaryService = boundaryService;
         this.boundaryHierarchyDefinitionService = boundaryHierarchyDefinitionService;
+        this.boundaryRelationshipService = boundaryRelationshipService;
     }
 
     @RequestMapping(value = "/boundary/boundary-relationships/_create", method = RequestMethod.POST)
-    public ResponseEntity<BoundaryRelationshipResponse> boundaryBoundaryRelationshipsCreatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody BoundaryRelationshipRequest body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<BoundaryRelationshipResponse>(objectMapper.readValue("{  \"ResponseInfo\" : {    \"ver\" : \"ver\",    \"resMsgId\" : \"resMsgId\",    \"msgId\" : \"msgId\",    \"apiId\" : \"apiId\",    \"ts\" : 0,    \"status\" : \"SUCCESSFUL\"  },  \"TenantBoundary\" : [ {    \"parent\" : \"parent\",    \"code\" : \"code\",    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\",    \"boundaryType\" : \"boundaryType\",    \"id\" : \"id\"  }, {    \"parent\" : \"parent\",    \"code\" : \"code\",    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\",    \"boundaryType\" : \"boundaryType\",    \"id\" : \"id\"  } ]}", BoundaryRelationshipResponse.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                return new ResponseEntity<BoundaryRelationshipResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<BoundaryRelationshipResponse>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<BoundaryRelationshipResponse> boundaryBoundaryRelationshipsCreatePost(@Valid @RequestBody BoundaryRelationshipRequest body) {
+        BoundaryRelationshipResponse boundaryRelationshipResponse = boundaryRelationshipService.createBoundaryRelationship(body);
+        return new ResponseEntity<BoundaryRelationshipResponse>(boundaryRelationshipResponse, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/boundary/boundary-relationships/_search", method = RequestMethod.POST)
-    public ResponseEntity<BoundarySearchResponse> boundaryBoundaryRelationshipsSearchPost(@NotNull @Size(max = 256) @Parameter(in = ParameterIn.QUERY, description = "unique id for a tenant.", required = true, schema = @Schema()) @Valid @RequestParam(value = "tenantId", required = true) String tenantId, @Size(max = 64) @Parameter(in = ParameterIn.QUERY, description = "boundary type within the tenant boundary structure.", schema = @Schema()) @Valid @RequestParam(value = "boundaryType", required = false) String boundaryType, @Size(max = 128) @Parameter(in = ParameterIn.QUERY, description = "Type Of the BoundaryType Like REVENUE, ADMIN", schema = @Schema()) @Valid @RequestParam(value = "hierarchyType", required = false) String hierarchyType, @Parameter(in = ParameterIn.QUERY, description = "boolean flag to inform the service if children need to be part of search.", schema = @Schema()) @Valid @RequestParam(value = "includeChildren", required = false) Boolean includeChildren, @Parameter(in = ParameterIn.QUERY, description = "boolean flag to inform the service if parents need to be part of search.", schema = @Schema()) @Valid @RequestParam(value = "includeParents", required = false) Boolean includeParents, @Parameter(in = ParameterIn.QUERY, description = "unique List of boundary codes.", schema = @Schema()) @Valid @RequestParam(value = "codes", required = false) List<String> codes) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<BoundarySearchResponse>(objectMapper.readValue("{  \"ResponseInfo\" : {    \"ver\" : \"ver\",    \"resMsgId\" : \"resMsgId\",    \"msgId\" : \"msgId\",    \"apiId\" : \"apiId\",    \"ts\" : 0,    \"status\" : \"SUCCESSFUL\"  },  \"TenantBoundary\" : [ {    \"boundary\" : {      \"code\" : \"code\",      \"children\" : [ null, null ],      \"tenantId\" : \"tenantId\",      \"boundaryType\" : \"boundaryType\",      \"id\" : \"id\"    },    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\"  }, {    \"boundary\" : {      \"code\" : \"code\",      \"children\" : [ null, null ],      \"tenantId\" : \"tenantId\",      \"boundaryType\" : \"boundaryType\",      \"id\" : \"id\"    },    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\"  } ]}", BoundarySearchResponse.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                return new ResponseEntity<BoundarySearchResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<BoundarySearchResponse>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<BoundarySearchResponse> boundaryBoundaryRelationshipsSearchPost(@Valid @ModelAttribute BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria, @RequestBody RequestInfo requestInfo) {
+        BoundarySearchResponse boundarySearchResponse = boundaryRelationshipService.getBoundaryRelationships(boundaryRelationshipSearchCriteria);
+        return new ResponseEntity<BoundarySearchResponse>(boundarySearchResponse, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/boundary/boundary-relationships/_update", method = RequestMethod.POST)
     public ResponseEntity<BoundaryRelationshipResponse> boundaryBoundaryRelationshipsUpdatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody BoundaryRelationshipRequest body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<BoundaryRelationshipResponse>(objectMapper.readValue("{  \"ResponseInfo\" : {    \"ver\" : \"ver\",    \"resMsgId\" : \"resMsgId\",    \"msgId\" : \"msgId\",    \"apiId\" : \"apiId\",    \"ts\" : 0,    \"status\" : \"SUCCESSFUL\"  },  \"TenantBoundary\" : [ {    \"parent\" : \"parent\",    \"code\" : \"code\",    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\",    \"boundaryType\" : \"boundaryType\",    \"id\" : \"id\"  }, {    \"parent\" : \"parent\",    \"code\" : \"code\",    \"hierarchyType\" : \"hierarchyType\",    \"tenantId\" : \"tenantId\",    \"boundaryType\" : \"boundaryType\",    \"id\" : \"id\"  } ]}", BoundaryRelationshipResponse.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                return new ResponseEntity<BoundaryRelationshipResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<BoundaryRelationshipResponse>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<BoundaryRelationshipResponse>(HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/boundary/_create", method = RequestMethod.POST)
