@@ -107,7 +107,7 @@ public class BoundaryRelationshipValidator {
     }
 
     private void validateIfBoundaryEntityExists(BoundaryRelationshipRequest body) {
-        List<Boundary> boundaryList = boundaryRepository.searchBoundaryEntity(BoundarySearchCriteria.builder()
+        List<Boundary> boundaryList = boundaryRepository.search(BoundarySearchCriteria.builder()
                 .tenantId(body.getBoundaryRelationship().getTenantId())
                 .codes(Collections.singletonList(body.getBoundaryRelationship().getCode()))
                 .build());
