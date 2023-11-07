@@ -421,33 +421,18 @@ public class BoundaryRepository {
 	}
 
 	private List<MdmsBoundary> filterBoundaryCodes(List<MdmsBoundary> boundaryList, List<String> codes) {
-		List<MdmsBoundary> list = new ArrayList<MdmsBoundary>();
-		for (String code : codes) {
-			for (MdmsBoundary boundary : boundaryList) {
-				if (boundary.getCode().equals(code)) {
-					list.add(boundary);
-				} else if (boundary.getChildren() != null) {
-					for (MdmsBoundary boundary1 : boundary.getChildren()) {
-						if (boundary1.getCode().equals(code)) {
-							list.add(boundary);
-						} else if (boundary1.getChildren() != null) {
-							for (MdmsBoundary boundary2 : boundary1.getChildren()) {
-								if (boundary2.getCode().equals(code)) {
-									list.add(boundary);
-								} else if (boundary2.getChildren() != null) {
-									for (MdmsBoundary boundary3 : boundary2.getChildren()) {
-										if (boundary3.getCode().equals(code)) {
-											list.add(boundary);
-										}
-									}
-								}
-							}
-						}
-					}
+		List<MdmsBoundary> filteredList = new ArrayList<>();
+		for (MdmsBoundary boundary : boundaryList) {
+			if (codes.contains(boundary.getCode())) {
+				filteredList.add(boundary);
+			} else if (boundary.getChildren() != null) {
+				List<MdmsBoundary> childFilteredList = filterBoundaryCodes(boundary.getChildren(), codes);
+				if (!childFilteredList.isEmpty()) {
+					filteredList.add(boundary);
 				}
 			}
 		}
-		return list;
+		return filteredList;
 	}
 
 	private List<MdmsBoundary> prepareChildBoundaryList(TenantBoundary tenantBndry) {
