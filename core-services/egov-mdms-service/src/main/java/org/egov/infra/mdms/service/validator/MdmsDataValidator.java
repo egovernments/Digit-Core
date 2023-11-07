@@ -10,6 +10,7 @@ import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
 import org.egov.infra.mdms.utils.CompositeUniqueIdentifierGenerationUtil;
 import org.egov.infra.mdms.utils.ErrorUtil;
+import org.egov.infra.mdms.utils.FallbackUtil;
 import org.egov.tracer.model.CustomException;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
@@ -150,11 +151,21 @@ public class MdmsDataValidator {
                     Object refResult = JsonPath.read(mdmsData.toString(), CompositeUniqueIdentifierGenerationUtil.getJsonPathExpressionFromDotSeparatedPath(refFieldPath));
 
                     addTypeCastedUniqueIdentifiersToVerificationSet(refResult, uniqueIdentifiersForRefVerification);
+                    List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(mdms.getTenantId());
 
-                    List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
-                            MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).schemaCode(schemaCode).build());
+                    Boolean isRefDataFound = Boolean.FALSE;
 
-                    if (moduleMasterData.size() != uniqueIdentifiersForRefVerification.size()) {
+                    for(String subTenant : subTenantListForFallback) {
+                        List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
+                                MdmsCriteriaV2.builder().tenantId(subTenant).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).schemaCode(schemaCode).build());
+
+                        if (moduleMasterData.size() == uniqueIdentifiersForRefVerification.size()) {
+                            isRefDataFound = Boolean.TRUE;
+                            break;
+                        }
+                    }
+
+                    if(!isRefDataFound) {
                         throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
                     }
 
