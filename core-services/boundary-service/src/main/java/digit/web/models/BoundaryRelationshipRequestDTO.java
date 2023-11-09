@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.egov.common.contract.request.RequestInfo;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,5 +20,8 @@ public class BoundaryRelationshipRequestDTO {
 
     @JsonProperty("RequestInfo")
     private RequestInfo requestInfo;
+
+    @JsonProperty("BoundaryRelationshipList")
+    private List<BoundaryRelationshipDTO> boundaryRelationshipDTOList;
 
 }

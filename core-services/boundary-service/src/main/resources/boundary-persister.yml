@@ -99,3 +99,20 @@ serviceMaps:
             - jsonPath: $.BoundaryRelationship.auditDetails.lastModifiedTime
 
             - jsonPath: $.BoundaryRelationship.auditDetails.lastModifiedBy
+    - version: 1.0
+      description: Updates boundary relationship data
+      fromTopic: update-boundary-relationship
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE boundary_relationship SET parent = ?, ancestralmaterializedpath = ?, lastmodifiedtime = ?, lastmodifiedby = ? WHERE id = ?;
+          basePath: $.BoundaryRelationshipList.*
+          jsonMaps:
+            - jsonPath: $.BoundaryRelationshipList.*.parent
+
+            - jsonPath: $.BoundaryRelationshipList.*.ancestralMaterializedPath
+
+            - jsonPath: $.BoundaryRelationshipList.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryRelationshipList.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.BoundaryRelationshipList.*.id
