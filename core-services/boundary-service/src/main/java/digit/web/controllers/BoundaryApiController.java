@@ -62,8 +62,9 @@ public class BoundaryApiController {
     }
 
     @RequestMapping(value = "/boundary/boundary-relationships/_update", method = RequestMethod.POST)
-    public ResponseEntity<BoundaryRelationshipResponse> boundaryBoundaryRelationshipsUpdatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody BoundaryRelationshipRequest body) {
-        return new ResponseEntity<BoundaryRelationshipResponse>(HttpStatus.ACCEPTED);
+    public ResponseEntity<BoundaryRelationshipResponse> boundaryBoundaryRelationshipsUpdatePost(@Valid @RequestBody BoundaryRelationshipRequest body) {
+        BoundaryRelationshipResponse boundaryRelationshipResponse = boundaryRelationshipService.updateBoundaryRelationship(body);
+        return new ResponseEntity<BoundaryRelationshipResponse>(boundaryRelationshipResponse, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/boundary/_create", method = RequestMethod.POST)
