@@ -25,7 +25,7 @@ public class BoundaryRelationshipEnricher {
      * @param body
      * @param ancestralMaterializedPath
      */
-    public void enrichBoundaryRelationshipRequest(BoundaryRelationshipRequest body, String ancestralMaterializedPath) {
+    public void enrichBoundaryRelationshipCreateRequest(BoundaryRelationshipRequest body, String ancestralMaterializedPath) {
         // Enrich uuid
         UUIDEnrichmentUtil.enrichRandomUuid(body.getBoundaryRelationship(), "id");
 
@@ -132,10 +132,15 @@ public class BoundaryRelationshipEnricher {
             }
         });
 
-        return;
-
     }
 
+    /**
+     * This method gets the boundaries based on hierarchy order, returning the list
+     * of boundaries belonging to the first boundary hierarchy type that it finds.
+     * @param boundaryTypeVsEnrichedBoundaries
+     * @param hierarchyOrder
+     * @return
+     */
     private List<EnrichedBoundary> getSeedBoundaryList(Map<String, List<EnrichedBoundary>> boundaryTypeVsEnrichedBoundaries, List<String> hierarchyOrder) {
         List<EnrichedBoundary> seedBoundaryList = new ArrayList<>();
 
@@ -149,6 +154,11 @@ public class BoundaryRelationshipEnricher {
         return seedBoundaryList;
     }
 
+    /**
+     * This method converts list of boundary relationship DTOs into response POJO i.e. EnrichedBoundary.
+     * @param boundaryRelationships
+     * @return
+     */
     private List<EnrichedBoundary> convertBoundaryRelationshipToResponsePOJO(List<BoundaryRelationshipDTO> boundaryRelationships) {
         List<EnrichedBoundary> enrichedBoundaryList = new ArrayList<>();
 
@@ -165,4 +175,32 @@ public class BoundaryRelationshipEnricher {
         return enrichedBoundaryList;
     }
 
+    /**
+     * This method enriches boundary relationship update request and returns back old parent
+     * of the boundary relationship being updated.
+     * @param body
+     * @param validatedBoundaryRelationshipDTOFromDB
+     * @return
+     */
+    public String enrichBoundaryRelationshipUpdateRequest(BoundaryRelationshipRequest body, BoundaryRelationshipRequestDTO validatedBoundaryRelationshipDTOFromDB) {
+        // Capture old parent code
+        StringBuilder oldParentCode = new StringBuilder(validatedBoundaryRelationshipDTOFromDB
+                .getBoundaryRelationshipDTO()
+                .getParent());
+
+        // Set parent for update
+        validatedBoundaryRelationshipDTOFromDB.getBoundaryRelationshipDTO()
+                .setParent(body.getBoundaryRelationship().getParent());
+
+        // Enrich audit details for update
+        validatedBoundaryRelationshipDTOFromDB.getBoundaryRelationshipDTO()
+                .setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(validatedBoundaryRelationshipDTOFromDB
+                        .getBoundaryRelationshipDTO().getAuditDetails(), body.getRequestInfo(), Boolean.FALSE));
+
+        // Enrich id and audit details back into the incoming request
+        body.getBoundaryRelationship().setId(validatedBoundaryRelationshipDTOFromDB.getBoundaryRelationshipDTO().getId());
+        body.getBoundaryRelationship().setAuditDetails(validatedBoundaryRelationshipDTOFromDB.getBoundaryRelationshipDTO().getAuditDetails());
+
+        return oldParentCode.toString();
+    }
 }

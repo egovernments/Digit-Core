@@ -31,6 +31,11 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
         this.boundaryRelationshipRowMapper = boundaryRelationshipRowMapper;
     }
 
+    /**
+     * This method implements boundary relationship interface. In this implementation
+     * it pushes the request to kafka for persister to pick it up and perform create.
+     * @param boundaryRelationshipRequest
+     */
     @Override
     public void create(BoundaryRelationshipRequest boundaryRelationshipRequest) {
         // Transform boundary relationship request
@@ -40,19 +45,41 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
         producer.push("save-boundary-relationship", boundaryRelationshipRequestDTO);
     }
 
+    /**
+     * This method implements boundary relationship interface's update method. In this implementation
+     * it pushes the request to kafka for persister to pick it up and perform update.
+     * @param boundaryRelationshipRequestDTO
+     */
     @Override
-    public void update(BoundaryRelationshipRequest boundaryRelationshipRequest) {
+    public void update(BoundaryRelationshipRequestDTO boundaryRelationshipRequestDTO) {
         // Push to event bus for updating asynchronously
-        producer.push("update-boundary-relationship", boundaryRelationshipRequest);
+        producer.push("update-boundary-relationship", boundaryRelationshipRequestDTO);
     }
 
+    /**
+     * This method implements boundary relationship repository interface. In this implementation
+     * it creates query to search data in PostgreSQL database and returns the search response back
+     * to the caller.
+     * @param boundaryRelationshipSearchCriteria
+     * @return
+     */
     @Override
     public List<BoundaryRelationshipDTO> search(BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria) {
+        // Declare prepared statement list
         List<Object> preparedStmtList = new ArrayList<>();
+
+        // Get query for searching boundary relationship
         String query = boundaryRelationshipQueryBuilder.getBoundaryRelationshipSearchQuery(boundaryRelationshipSearchCriteria, preparedStmtList);
+
+        // Return search response based on provided search criteria
         return jdbcTemplate.query(query, preparedStmtList.toArray(), boundaryRelationshipRowMapper);
     }
 
+    /**
+     * Helper method to convert boundary relationship POJOs into boundary relationship DTOs
+     * @param contractBean
+     * @return
+     */
     private BoundaryRelationshipRequestDTO convertContractPOJOToDTO(BoundaryRelationshipRequest contractBean) {
         // Declare boundary relationship request DTO
         BoundaryRelationshipRequestDTO boundaryRelationshipRequestDTO = new BoundaryRelationshipRequestDTO();

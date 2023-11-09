@@ -39,10 +39,10 @@ public class BoundaryRelationshipService {
     public BoundaryRelationshipResponse createBoundaryRelationship(BoundaryRelationshipRequest body) {
 
         // Validate boundary relationship and get ancestral materialized path if successfully validated
-        String ancestralMaterializedPath = boundaryRelationshipValidator.validateBoundaryRelationshipRequest(body);
+        String ancestralMaterializedPath = boundaryRelationshipValidator.validateBoundaryRelationshipCreateRequest(body);
 
         // Enrich boundary relationship
-        boundaryRelationshipEnricher.enrichBoundaryRelationshipRequest(body, ancestralMaterializedPath);
+        boundaryRelationshipEnricher.enrichBoundaryRelationshipCreateRequest(body, ancestralMaterializedPath);
 
         // Delegate request to repository
         boundaryRelationshipRepository.create(body);
@@ -133,6 +133,66 @@ public class BoundaryRelationshipService {
         }
 
         return parentBoundaries;
+    }
+
+    /**
+     * Request handler for processing boundary relationship update requests.
+     * @param body
+     * @return
+     */
+    public BoundaryRelationshipResponse updateBoundaryRelationship(BoundaryRelationshipRequest body) {
+
+        // Validate update request
+        BoundaryRelationshipRequestDTO validatedRelationshipDTORequest = boundaryRelationshipValidator.validateBoundaryRelationshipUpdateRequest(body);
+
+        // Enrich update request
+        String oldParentCode = boundaryRelationshipEnricher.enrichBoundaryRelationshipUpdateRequest(body, validatedRelationshipDTORequest);
+
+        // Fetch children boundaries
+        List<BoundaryRelationshipDTO> childrenBoundaryRelationships = getChildrenBoundaries(Collections
+                .singletonList(validatedRelationshipDTORequest.getBoundaryRelationshipDTO()), BoundaryRelationshipSearchCriteria.builder()
+                .tenantId(validatedRelationshipDTORequest.getBoundaryRelationshipDTO().getTenantId())
+                .hierarchyType(validatedRelationshipDTORequest.getBoundaryRelationshipDTO().getHierarchyType())
+                .includeChildren(Boolean.TRUE)
+                .build());
+
+        // Update ancestral materialized path of children boundary relationships
+        preProcessNodesForUpdate(validatedRelationshipDTORequest, childrenBoundaryRelationships, oldParentCode);
+
+        // Delegate request to repository
+        boundaryRelationshipRepository.update(validatedRelationshipDTORequest);
+
+        // Return response
+        return BoundaryRelationshipResponse.builder()
+                .responseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(body.getRequestInfo(), Boolean.TRUE))
+                .tenantBoundary(Collections.singletonList(body.getBoundaryRelationship()))
+                .build();
+    }
+
+    /**
+     * This method updates ancestral materialized path in the node being updated along with its
+     * children nodes.
+     * @param validatedRelationshipDTORequest
+     * @param childrenBoundaryRelationships
+     * @param oldParentCode
+     */
+    private void preProcessNodesForUpdate(BoundaryRelationshipRequestDTO validatedRelationshipDTORequest, List<BoundaryRelationshipDTO> childrenBoundaryRelationships, String oldParentCode) {
+        // Add children boundary relationships to the list of nodes to be updated
+        List<BoundaryRelationshipDTO> allNodesToBeUpdated = new ArrayList<>(childrenBoundaryRelationships);
+
+        // Add the concerned boundary relationship which is being updated
+        allNodesToBeUpdated.add(validatedRelationshipDTORequest.getBoundaryRelationshipDTO());
+
+        // For each node, update ancestral materialized path - replace old parent code with new parent code
+        allNodesToBeUpdated.forEach(boundaryRelationship -> {
+            boundaryRelationship.setAncestralMaterializedPath(boundaryRelationship.getAncestralMaterializedPath()
+                    .replace(oldParentCode,
+                            validatedRelationshipDTORequest.getBoundaryRelationshipDTO().getParent()));
+        });
+
+        // Set list of nodes to be updated
+        validatedRelationshipDTORequest.setBoundaryRelationshipDTOList(allNodesToBeUpdated);
+
     }
 
     /**
