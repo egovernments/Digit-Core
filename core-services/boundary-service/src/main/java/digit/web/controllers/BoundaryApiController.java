@@ -2,11 +2,12 @@ package digit.web.controllers;
 
 
 import digit.service.BoundaryHierarchyDefinitionService;
+import digit.service.BoundaryMigrate;
 import digit.service.BoundaryRelationshipService;
 import digit.service.BoundaryService;
 import digit.web.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.models.auth.In;
+import digit.web.models.legacy.BoundaryMigrateRequest;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,10 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.*;
-
-import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 
@@ -39,14 +36,17 @@ public class BoundaryApiController {
 
     private final BoundaryRelationshipService boundaryRelationshipService;
 
+    private final BoundaryMigrate boundaryMigrate;
+
     @Autowired
     public BoundaryApiController(ObjectMapper objectMapper, HttpServletRequest request, BoundaryService boundaryService,
-                                 BoundaryHierarchyDefinitionService boundaryHierarchyDefinitionService, BoundaryRelationshipService boundaryRelationshipService) {
+                                 BoundaryHierarchyDefinitionService boundaryHierarchyDefinitionService, BoundaryRelationshipService boundaryRelationshipService, BoundaryMigrate boundaryMigrate) {
         this.objectMapper = objectMapper;
         this.request = request;
         this.boundaryService = boundaryService;
         this.boundaryHierarchyDefinitionService = boundaryHierarchyDefinitionService;
         this.boundaryRelationshipService = boundaryRelationshipService;
+        this.boundaryMigrate = boundaryMigrate;
     }
 
     @RequestMapping(value = "/boundary/boundary-relationships/_create", method = RequestMethod.POST)
@@ -96,4 +96,14 @@ public class BoundaryApiController {
         return new ResponseEntity<BoundaryResponse>(boundaryResponse,HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Migrate boundary data from old format to new format
+     * @param requestBody
+     * @return
+     */
+    @RequestMapping(value = "/boundary/_migrate", method = RequestMethod.POST)
+    public ResponseEntity<BoundaryResponse> boundaryMigrate(@RequestBody BoundaryMigrateRequest requestBody) {
+        boundaryMigrate.migrate(requestBody);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
