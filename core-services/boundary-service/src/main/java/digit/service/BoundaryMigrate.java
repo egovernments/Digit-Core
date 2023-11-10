@@ -77,7 +77,6 @@ public class BoundaryMigrate {
 
             if( boundary.getChildren().get(i) != null ) {
                 boundaryTypeHierarchyList = parseBoundaryHierarchy(boundary.getChildren().get(i),boundary.getLabel());
-                break;
             }
         }
 
