@@ -1,5 +1,6 @@
 package digit.repository.impl;
 
+import digit.config.ApplicationProperties;
 import digit.kafka.Producer;
 import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.querybuilder.BoundaryRelationshipQueryBuilder;
@@ -23,12 +24,15 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
     private BoundaryRelationshipRowMapper boundaryRelationshipRowMapper;
 
+    private ApplicationProperties applicationProperties;
+
     public BoundaryRelationshipRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
-                                              BoundaryRelationshipQueryBuilder boundaryRelationshipQueryBuilder, BoundaryRelationshipRowMapper boundaryRelationshipRowMapper) {
+                                              BoundaryRelationshipQueryBuilder boundaryRelationshipQueryBuilder, BoundaryRelationshipRowMapper boundaryRelationshipRowMapper, ApplicationProperties applicationProperties) {
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.boundaryRelationshipQueryBuilder = boundaryRelationshipQueryBuilder;
         this.boundaryRelationshipRowMapper = boundaryRelationshipRowMapper;
+        this.applicationProperties = applicationProperties;
     }
 
     /**
@@ -42,7 +46,7 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
         BoundaryRelationshipRequestDTO boundaryRelationshipRequestDTO = convertContractPOJOToDTO(boundaryRelationshipRequest);
 
         // Push to event bus for creating asynchronously
-        producer.push("save-boundary-relationship", boundaryRelationshipRequestDTO);
+        producer.push(applicationProperties.getCreateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
     }
 
     /**
@@ -53,7 +57,7 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
     @Override
     public void update(BoundaryRelationshipRequestDTO boundaryRelationshipRequestDTO) {
         // Push to event bus for updating asynchronously
-        producer.push("update-boundary-relationship", boundaryRelationshipRequestDTO);
+        producer.push(applicationProperties.getUpdateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
     }
 
     /**
