@@ -1,7 +1,6 @@
 package digit.service;
 
 import digit.config.ApplicationProperties;
-import digit.kafka.Producer;
 import digit.repository.impl.BoundaryRepositoryImpl;
 import digit.service.enrichment.BoundaryEntityEnricher;
 import digit.service.validator.BoundaryEntityValidator;
@@ -13,7 +12,6 @@ import digit.web.models.BoundarySearchCriteria;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.ResponseInfoUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,13 +19,17 @@ import java.util.List;
 @Service
 public class BoundaryService {
 
-    private final BoundaryEntityValidator boundaryEntityValidator;
-    private final ResponseUtil responseUtil;
-    private final ApplicationProperties configuration;
-    private final BoundaryRepositoryImpl repository;
+    private  BoundaryEntityValidator boundaryEntityValidator;
 
-    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, ResponseUtil responseUtil,
-                           ApplicationProperties configuration, BoundaryRepositoryImpl repository) {
+    private  ResponseUtil responseUtil;
+
+    private  ApplicationProperties configuration;
+
+    private  BoundaryRepositoryImpl repository;
+
+    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator , ResponseUtil responseUtil,
+                           ApplicationProperties configuration , BoundaryRepositoryImpl repository) {
+
         this.boundaryEntityValidator = boundaryEntityValidator;
         this.responseUtil = responseUtil;
         this.configuration = configuration;
@@ -35,7 +37,7 @@ public class BoundaryService {
     }
 
     /**
-     * This method is used to create a boundary entity
+     * This method is used to process a boundary entity creation request
      * @param boundaryRequest is the request object
      * @return boundaryResponse
      */
@@ -50,7 +52,7 @@ public class BoundaryService {
         // create response
         BoundaryResponse boundaryResponse = responseUtil.createBoundaryResponse(boundaryRequest);
 
-        // push to kafka
+        // delegating the request to repository to further persist in db
         repository.create(boundaryRequest);
 
         return boundaryResponse;
@@ -61,13 +63,13 @@ public class BoundaryService {
      * @param boundarySearchCriteria
      * @return
      */
-    public BoundaryResponse searchBoundary(BoundarySearchCriteria boundarySearchCriteria, RequestInfo requestInfo) {
+    public BoundaryResponse searchBoundary(BoundarySearchCriteria boundarySearchCriteria , RequestInfo requestInfo) {
 
         // Search for boundary entity
         List<Boundary> boundaryList = repository.search(boundarySearchCriteria);
 
         // create response info
-        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo,Boolean.TRUE);
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo , Boolean.TRUE);
 
         // create response
         BoundaryResponse boundaryResponse = BoundaryResponse.builder()
@@ -79,6 +81,10 @@ public class BoundaryService {
 
     }
 
+    /** This method is used to process the update boundary entity request
+     * @param boundaryRequest is the request object
+     * @return boundaryResponse
+     */
     public BoundaryResponse updateBoundary(BoundaryRequest boundaryRequest) {
 
         // validate the request
@@ -90,7 +96,7 @@ public class BoundaryService {
         // create response
         BoundaryResponse boundaryResponse = responseUtil.createBoundaryResponse(boundaryRequest);
 
-        // push to kafka
+        // delegating the request to repository to update the record in db
         repository.update(boundaryRequest);
 
         return boundaryResponse;

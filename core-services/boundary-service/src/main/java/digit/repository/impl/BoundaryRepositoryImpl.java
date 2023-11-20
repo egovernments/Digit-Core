@@ -24,15 +24,21 @@ import java.util.stream.Collectors;
 public class BoundaryRepositoryImpl implements BoundaryRepository {
 
     private final ObjectMapper mapper;
+
     private final RestTemplate restTemplate;
+
     private final JdbcTemplate jdbcTemplate;
+
     private final BoundaryEntityRowMapper boundaryEntityRowMapper;
+
     private final BoundaryEntityQueryBuilder boundaryEntityQueryBuilder;
+
     private final Producer producer;
+
     private final ApplicationProperties applicationProperties;
 
-    @Autowired
-    public BoundaryRepositoryImpl(ObjectMapper mapper, RestTemplate restTemplate, JdbcTemplate jdbcTemplate, BoundaryEntityRowMapper boundaryEntityRowMapper, BoundaryEntityQueryBuilder boundaryEntityQueryBuilder, Producer producer, ApplicationProperties applicationProperties) {
+    public BoundaryRepositoryImpl(ObjectMapper mapper , RestTemplate restTemplate , JdbcTemplate jdbcTemplate , BoundaryEntityRowMapper boundaryEntityRowMapper
+            , BoundaryEntityQueryBuilder boundaryEntityQueryBuilder , Producer producer , ApplicationProperties applicationProperties) {
         this.mapper = mapper;
         this.restTemplate = restTemplate;
         this.jdbcTemplate = jdbcTemplate;
@@ -40,6 +46,16 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
         this.boundaryEntityQueryBuilder = boundaryEntityQueryBuilder;
         this.producer = producer;
         this.applicationProperties = applicationProperties;
+    }
+
+    /**
+     * This method implements boundary entity repository interface. In this implementation
+     * it pushes the request to kafka for persister to pick it up and perform insert.
+     * @param boundaryRequest
+     */
+    @Override
+    public void create(BoundaryRequest boundaryRequest) {
+        producer.push(applicationProperties.getCreateBoundaryTopic() , boundaryRequest);
     }
 
     /**
@@ -52,21 +68,11 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
 
         List<Object> preparedStmtList = new ArrayList<>();
 
-        String query = boundaryEntityQueryBuilder.getBoundaryDataSearchQuery(boundarySearchCriteria, preparedStmtList);
+        String query = boundaryEntityQueryBuilder.getBoundaryDataSearchQuery(boundarySearchCriteria , preparedStmtList);
 
-        List<Boundary> boundaryList = jdbcTemplate.query(query, preparedStmtList.toArray(), boundaryEntityRowMapper);
+        List<Boundary> boundaryList = jdbcTemplate.query(query , preparedStmtList.toArray() , boundaryEntityRowMapper);
 
         return boundaryList;
-    }
-
-    /**
-     * This method implements boundary entity repository interface. In this implementation
-     * it pushes the request to kafka for persister to pick it up and perform insert.
-     * @param boundaryRequest
-     */
-    @Override
-    public void create(BoundaryRequest boundaryRequest) {
-        producer.push(applicationProperties.getCreateBoundaryTopic(), boundaryRequest);
     }
 
     /**
@@ -76,7 +82,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
      */
     @Override
     public void update(BoundaryRequest boundaryRequest) {
-        producer.push(applicationProperties.getUpdateBoundaryTopic(), boundaryRequest);
+        producer.push(applicationProperties.getUpdateBoundaryTopic() , boundaryRequest);
     }
 
     /**
@@ -84,7 +90,6 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
      * @param tenantId
      * @return
      */
-    @Override
     public Set<String> getCodeListByTenantId(String tenantId) {
 
         // create a boundary search criteria object with the given tenantId

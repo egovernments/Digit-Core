@@ -23,7 +23,6 @@ public class BoundaryEntityValidator {
     private final ObjectMapper objectMapper;
     private final BoundaryRepositoryImpl boundaryRepository;
 
-    @Autowired
     public BoundaryEntityValidator(ObjectMapper objectMapper, BoundaryRepositoryImpl boundaryRepository) {
         this.objectMapper = objectMapper;
         this.boundaryRepository = boundaryRepository;
@@ -110,7 +109,7 @@ public class BoundaryEntityValidator {
             // get the set of codes for a given tenantId from db
             Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
 
-            // check if the code already exists in dbb
+            // check if the code already exists in db
             for (String code : codes) {
                 if(codeSet.contains(code))
                     throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE , ErrorCodes.DUPLICATE_CODE_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + code + BoundaryConstants.CLOSING_BRACKET);

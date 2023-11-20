@@ -36,8 +36,10 @@ public class BoundaryRequest {
     @Valid
     private RequestInfo requestInfo = null;
 
-    @JsonProperty("Boundary")
     @Valid
+    @NotNull
+    @JsonProperty("Boundary")
+    @Size(min = 1, max = 300)
     private List<Boundary> boundary = null;
 
 }

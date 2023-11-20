@@ -1,5 +1,6 @@
 package digit.web.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,13 +20,17 @@ public class BoundarySearchCriteria {
 
     @NotNull
     @Size(min = 1)
+    @JsonProperty("codes")
     private List<String> codes;
 
     @NotNull
+    @JsonProperty("tenantId")
     private String tenantId;
 
+    @JsonProperty("offset")
     private Integer offset;
 
+    @JsonProperty("limit")
     private Integer limit;
 
 }

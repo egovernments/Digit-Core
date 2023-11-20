@@ -14,6 +14,7 @@ public class BoundaryEntityEnricher {
 
     /**
      *  Enrich the create boundary request
+     *  param boundaryRequest
      */
     public static void enrichCreateBoundaryRequest(BoundaryRequest boundaryRequest) {
         boundaryRequest.getBoundary().forEach(boundary -> {

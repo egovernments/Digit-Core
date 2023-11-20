@@ -1,11 +1,10 @@
 package digit.repository.rowmapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.web.models.Boundary;
 import org.egov.common.contract.models.AuditDetails;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.egov.tracer.model.CustomException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
@@ -18,10 +17,14 @@ import java.util.List;
 @Component
 public class BoundaryEntityRowMapper implements ResultSetExtractor<List<Boundary>> {
 
-    @Autowired
     private ObjectMapper mapper;
+
+    public BoundaryEntityRowMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
     @Override
-    public List<Boundary> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+    public List<Boundary> extractData(ResultSet resultSet) throws SQLException , DataAccessException {
 
         List<Boundary> boundaryList = new ArrayList<>();
 
@@ -32,7 +35,7 @@ public class BoundaryEntityRowMapper implements ResultSetExtractor<List<Boundary
                     lastModifiedBy(resultSet.getString("lastmodifiedby")).
                     lastModifiedTime(resultSet.getLong("lastmodifiedtime")).build();
 
-            Boundary boundary = null;
+            Boundary boundary;
             try {
                 boundary = Boundary.builder()
                         .id(resultSet.getString("id"))
@@ -43,7 +46,7 @@ public class BoundaryEntityRowMapper implements ResultSetExtractor<List<Boundary
                         .tenantId(resultSet.getString("tenantid"))
                         .build();
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                throw new CustomException("JSON_PARSE_ERROR" , "Failed to parse either additional details or geometry json");
             }
 
             boundaryList.add(boundary);
