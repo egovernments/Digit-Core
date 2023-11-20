@@ -22,15 +22,13 @@ import java.util.List;
 public class BoundaryService {
 
     private final BoundaryEntityValidator boundaryEntityValidator;
-    private final Producer producer;
     private final ResponseUtil responseUtil;
     private final ApplicationProperties configuration;
     private final BoundaryRepositoryImpl repository;
 
-    @Autowired
-    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, Producer producer, ResponseUtil responseUtil, ApplicationProperties configuration, BoundaryRepositoryImpl repository) {
+    public BoundaryService(BoundaryEntityValidator boundaryEntityValidator, ResponseUtil responseUtil,
+                           ApplicationProperties configuration, BoundaryRepositoryImpl repository) {
         this.boundaryEntityValidator = boundaryEntityValidator;
-        this.producer = producer;
         this.responseUtil = responseUtil;
         this.configuration = configuration;
         this.repository = repository;
@@ -72,7 +70,10 @@ public class BoundaryService {
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo,Boolean.TRUE);
 
         // create response
-        BoundaryResponse boundaryResponse = BoundaryResponse.builder().boundary(boundaryList).responseInfo(responseInfo).build();
+        BoundaryResponse boundaryResponse = BoundaryResponse.builder()
+                .boundary(boundaryList)
+                .responseInfo(responseInfo)
+                .build();
 
         return boundaryResponse;
 

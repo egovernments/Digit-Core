@@ -30,7 +30,7 @@ public class BoundaryRelationshipValidator {
     }
 
     /**
-     *
+     * This method performs business validations on boundary relationship create request.
      * @param body
      * @return
      */
@@ -52,7 +52,7 @@ public class BoundaryRelationshipValidator {
     }
 
     /**
-     *
+     * This method performs validations on boundary relationship update request.
      * @param body
      */
     public BoundaryRelationshipRequestDTO validateBoundaryRelationshipUpdateRequest(BoundaryRelationshipRequest body) {
@@ -70,15 +70,21 @@ public class BoundaryRelationshipValidator {
                 .build();
     }
 
+    /**
+     * This method validates existence of parent and ensures that hierarchy is not being disturbed by update.
+     * @param boundaryRelationshipDTO
+     * @param boundaryRelationship
+     */
     private void validateParentAndHierarchy(BoundaryRelationshipDTO boundaryRelationshipDTO, BoundaryRelation boundaryRelationship) {
-        // Validate root node hierarchy in case of updation in root node
+        // Validate root node hierarchy in case of update in root node
         if(ObjectUtils.isEmpty(boundaryRelationshipDTO.getParent()) && !ObjectUtils.isEmpty(boundaryRelationship.getParent())) {
             throw new CustomException("HIERARCHY_DISTURBED_ERR", "If a boundary relationship is created with root boundary type, it can't be made a child of any other boundary");
         }
 
         // Validate parent's existence and hierarchy
         if(!ObjectUtils.isEmpty(boundaryRelationship.getParent())) {
-            List<BoundaryRelationshipDTO> boundaryRelationshipDTOList = boundaryRelationshipRepository.search(BoundaryRelationshipSearchCriteria.builder()
+            List<BoundaryRelationshipDTO> boundaryRelationshipDTOList = boundaryRelationshipRepository.search(
+                    BoundaryRelationshipSearchCriteria.builder()
                     .tenantId(boundaryRelationship.getTenantId())
                     .codes(Collections.singletonList(boundaryRelationship.getParent()))
                     .build());
@@ -96,7 +102,7 @@ public class BoundaryRelationshipValidator {
     }
 
     /**
-     *
+     * This method validates existence of boundary relationship.
      * @param body
      */
     private BoundaryRelationshipDTO validateExistence(BoundaryRelationshipRequest body) {
@@ -113,6 +119,10 @@ public class BoundaryRelationshipValidator {
         return boundaryRelationshipDTOList.get(0);
     }
 
+    /**
+     * This method checks if the given boundary relationship already exists.
+     * @param body
+     */
     private void checkDuplicates(BoundaryRelationshipRequest body) {
         List<BoundaryRelationshipDTO> boundaryRelationshipDTOList = boundaryRelationshipRepository.search(BoundaryRelationshipSearchCriteria.builder()
                 .tenantId(body.getBoundaryRelationship().getTenantId())
@@ -125,6 +135,12 @@ public class BoundaryRelationshipValidator {
         }
     }
 
+    /**
+     * This method validates if parent boundary exists and returns its attributes namely its
+     * materialized path and boundary type if it is found.
+     * @param body
+     * @return
+     */
     private GenericPair<String, String> validateParentAndReturnAttributes(BoundaryRelationshipRequest body) {
         String ancestralMaterializedPath = "";
         String boundaryType = body.getBoundaryRelationship().getBoundaryType();
@@ -152,6 +168,11 @@ public class BoundaryRelationshipValidator {
         return ancestralMaterializedPathAndBoundaryTypePair;
     }
 
+    /**
+     * This helper method validates boundary relationship for proper hierarchy.
+     * @param body
+     * @param parentBoundaryType
+     */
     private void validateRelationshipForProperHierarchy(BoundaryRelationshipRequest body, String parentBoundaryType) {
         List<String> hierarchyOrder = hierarchyUtil.getHierarchyOrder(body.getBoundaryRelationship().getTenantId(),
                 body.getBoundaryRelationship().getHierarchyType());
@@ -171,6 +192,10 @@ public class BoundaryRelationshipValidator {
         }
     }
 
+    /**
+     * This method validates if boundary entity exists.
+     * @param body
+     */
     private void validateIfBoundaryEntityExists(BoundaryRelationshipRequest body) {
         List<Boundary> boundaryList = boundaryRepository.search(BoundarySearchCriteria.builder()
                 .tenantId(body.getBoundaryRelationship().getTenantId())

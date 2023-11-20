@@ -31,8 +31,8 @@ public class BoundaryHierarchyValidator {
      */
     public void validateBoundaryTypeHierarchy(BoundaryTypeHierarchyRequest body) {
 
-        // validate if only single parent exists
-        validateIfSingleParentExists(body);
+        // Validate if only single root node exists
+        validateIfSingleRootNodeExists(body);
 
         // Validate if provided boundary hierarchy forms a directed acyclic graph dependency
         validateIfBoundaryHierarchyFormsDAG(body);
@@ -50,7 +50,6 @@ public class BoundaryHierarchyValidator {
     private void validateIfBoundaryHierarchyFormsDAG(BoundaryTypeHierarchyRequest body) {
 
         Map<String, String> parentToChildMap = new LinkedHashMap<>();
-        int nullParentCount = 0;
 
         // Populate parent boundaries
         body.getBoundaryHierarchy().getBoundaryHierarchy().forEach(boundaryTypeHierarchy -> {
@@ -74,14 +73,18 @@ public class BoundaryHierarchyValidator {
         });
     }
 
-    private void validateIfSingleParentExists(BoundaryTypeHierarchyRequest body) {
-
-        long nullParentCount = body.getBoundaryHierarchy().getBoundaryHierarchy().stream()
+    /**
+     * This method validates if only a single root node has been defined in hierarchy definition.
+     * @param body
+     */
+    private void validateIfSingleRootNodeExists(BoundaryTypeHierarchyRequest body) {
+        // Get number of nodes whose parent is null
+        Long nullParentCount = body.getBoundaryHierarchy().getBoundaryHierarchy().stream()
                 .filter(boundaryTypeHierarchy -> ObjectUtils.isEmpty(boundaryTypeHierarchy.getParentBoundaryType()))
                 .count();
 
         if(nullParentCount > 1) {
-            throw new CustomException(ErrorCodes.MULTIPLE_PARENT_CODE , ErrorCodes.MULTIPLE_PARENT_MSG);
+            throw new CustomException(ErrorCodes.MULTIPLE_ROOT_NODES_ERR_CODE, ErrorCodes.MULTIPLE_ROOT_NODES_ERR_MSG);
         }
     }
 

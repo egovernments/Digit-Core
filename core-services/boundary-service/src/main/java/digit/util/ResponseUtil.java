@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ResponseUtil {
+
     @Autowired
     private ResponseInfoFactory responseInfoFactory;
+
     public BoundaryResponse createBoundaryResponse(BoundaryRequest boundaryRequest) {
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(boundaryRequest.getRequestInfo(), true);
         BoundaryResponse boundaryResponse = BoundaryResponse.builder().responseInfo(responseInfo).boundary(boundaryRequest.getBoundary()).build();

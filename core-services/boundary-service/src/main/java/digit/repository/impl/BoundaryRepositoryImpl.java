@@ -30,6 +30,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
     private final BoundaryEntityQueryBuilder boundaryEntityQueryBuilder;
     private final Producer producer;
     private final ApplicationProperties applicationProperties;
+
     @Autowired
     public BoundaryRepositoryImpl(ObjectMapper mapper, RestTemplate restTemplate, JdbcTemplate jdbcTemplate, BoundaryEntityRowMapper boundaryEntityRowMapper, BoundaryEntityQueryBuilder boundaryEntityQueryBuilder, Producer producer, ApplicationProperties applicationProperties) {
         this.mapper = mapper;
@@ -51,7 +52,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
 
         List<Object> preparedStmtList = new ArrayList<>();
 
-        String query = boundaryEntityQueryBuilder.getBoundaryDataSearchQuery(boundarySearchCriteria,preparedStmtList);
+        String query = boundaryEntityQueryBuilder.getBoundaryDataSearchQuery(boundarySearchCriteria, preparedStmtList);
 
         List<Boundary> boundaryList = jdbcTemplate.query(query, preparedStmtList.toArray(), boundaryEntityRowMapper);
 
