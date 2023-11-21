@@ -7,6 +7,8 @@ CREATE TABLE boundary_hierarchy (
     createdby VARCHAR(64),
     lastmodifiedtime BIGINT,
     lastmodifiedby VARCHAR(64),
-    CONSTRAINT uk_boundary_hierarchy UNIQUE (id),
-    CONSTRAINT pk_boundary_hierarchy PRIMARY KEY (tenantId, hierarchyType)
+    CONSTRAINT pk_boundary_hierarchy PRIMARY KEY (id),
+    CONSTRAINT uk_boundary_hierarchy UNIQUE (tenantId , hierarchyType)
 );
+-- Create an index on tenantId and hierarchyType
+CREATE INDEX idx_boundary_hierarchy_tenantId_hierarchyType ON boundary_hierarchy (tenantId , hierarchyType);

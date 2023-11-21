@@ -10,6 +10,8 @@ import digit.web.models.*;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class BoundaryEntityValidator {
 
     private final ObjectMapper objectMapper;
+
     private final BoundaryRepositoryImpl boundaryRepository;
 
     public BoundaryEntityValidator(ObjectMapper objectMapper, BoundaryRepositoryImpl boundaryRepository) {
@@ -37,8 +40,8 @@ public class BoundaryEntityValidator {
         // validate the geometry
         validateBoundaryGeometry(boundaryRequest.getBoundary());
 
-        // validate for unique tenantId and code
-        validateUniqueTenantIdAndCode(boundaryRequest);
+        // validate for duplicate tenantId and code in the request
+        checkForDuplicatesInDB(boundaryRequest);
 
         // validate for unique boundaries in the request
         validateUniqueBoundaries(boundaryRequest);
@@ -51,7 +54,7 @@ public class BoundaryEntityValidator {
     public void validateUpdateBoundaryRequest(BoundaryRequest boundaryRequest) {
 
         // validate for code and tenantId to exist
-        validateIfCodeAndTenantIdExist(boundaryRequest);
+        validateIfBoundaryEntityExist(boundaryRequest);
 
         // validate for valid geometry
         validateBoundaryGeometry(boundaryRequest.getBoundary());
@@ -101,7 +104,7 @@ public class BoundaryEntityValidator {
      * This method is used to validate the uniqueness of tenantId and code in the request
      * @param boundaryRequest
      */
-    public void validateUniqueTenantIdAndCode(BoundaryRequest boundaryRequest) {
+    public void checkForDuplicatesInDB(BoundaryRequest boundaryRequest) {
 
         // create a map of tenantId to code from request
         Map<String, Set<String>> tenantIdToCodeMap = createTenantIdtoCodeMap(boundaryRequest);
@@ -116,8 +119,8 @@ public class BoundaryEntityValidator {
                             .build());
 
             // check if the code already exists in db
-            if (boundaryList.size() == codes.size()) {
-                    throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE , ErrorCodes.DUPLICATE_CODE_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + codes + BoundaryConstants.CLOSING_BRACKET);
+            if (!CollectionUtils.isEmpty(boundaryList)) {
+                throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE , ErrorCodes.DUPLICATE_CODE_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + codes + BoundaryConstants.CLOSING_BRACKET);
             }
         });
     }
@@ -126,7 +129,7 @@ public class BoundaryEntityValidator {
      * This method is used to validate if the code and tenantId exist in the db before updating
      * @param boundaryRequest
      */
-    public void validateIfCodeAndTenantIdExist(BoundaryRequest boundaryRequest) {
+    public void validateIfBoundaryEntityExist(BoundaryRequest boundaryRequest) {
 
             // create a map of tenantId to code from request
             Map<String, Set<String>> tenantIdToCodeMap = createTenantIdtoCodeMap(boundaryRequest);
@@ -134,7 +137,7 @@ public class BoundaryEntityValidator {
             tenantIdToCodeMap.forEach((tenantId, codes) -> {
 
                 // get the list of boundaries for a given tenantId and codes from db
-                List<Boundary> boundaryList = boundaryRepository.search( BoundarySearchCriteria.builder()
+                List<Boundary> boundaryList = boundaryRepository.search(BoundarySearchCriteria.builder()
                         .tenantId(tenantId)
                         .codes(new ArrayList<>(codes))
                         .limit(codes.size())
@@ -147,6 +150,10 @@ public class BoundaryEntityValidator {
             });
     }
 
+    /**
+     * This method checks for unique boundaries in the request
+     * @param boundaryRequest
+     */
     public void validateUniqueBoundaries(BoundaryRequest boundaryRequest) {
 
         Set<Boundary> boundarySet = new HashSet<>(boundaryRequest.getBoundary());
