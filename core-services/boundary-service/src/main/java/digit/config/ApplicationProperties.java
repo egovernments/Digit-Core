@@ -104,4 +104,7 @@ public class ApplicationProperties {
 
     @Value("${boundary.default.limit}")
     private Integer defaultLimit;
+
+    @Value("${boundary.max.default.limit}")
+    private Integer maxDefaultLimit;
 }

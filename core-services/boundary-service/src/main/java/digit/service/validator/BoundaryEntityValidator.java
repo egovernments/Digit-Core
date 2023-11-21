@@ -44,7 +44,7 @@ public class BoundaryEntityValidator {
         checkForDuplicatesInDB(boundaryRequest);
 
         // validate for unique boundaries in the request
-        validateUniqueBoundaries(boundaryRequest);
+        checkForDuplicatesInRequest(boundaryRequest);
     }
 
     /**
@@ -154,7 +154,7 @@ public class BoundaryEntityValidator {
      * This method checks for unique boundaries in the request
      * @param boundaryRequest
      */
-    public void validateUniqueBoundaries(BoundaryRequest boundaryRequest) {
+    public void checkForDuplicatesInRequest(BoundaryRequest boundaryRequest) {
 
         Set<Boundary> boundarySet = new HashSet<>(boundaryRequest.getBoundary());
 

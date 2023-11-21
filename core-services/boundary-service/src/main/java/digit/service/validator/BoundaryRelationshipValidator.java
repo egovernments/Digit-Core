@@ -85,9 +85,10 @@ public class BoundaryRelationshipValidator {
         if(!ObjectUtils.isEmpty(boundaryRelationship.getParent())) {
             List<BoundaryRelationshipDTO> boundaryRelationshipDTOList = boundaryRelationshipRepository.search(
                     BoundaryRelationshipSearchCriteria.builder()
-                    .tenantId(boundaryRelationship.getTenantId())
-                    .codes(Collections.singletonList(boundaryRelationship.getParent()))
-                    .build());
+                            .hierarchyType(boundaryRelationship.getHierarchyType())
+                            .tenantId(boundaryRelationship.getTenantId())
+                            .codes(Collections.singletonList(boundaryRelationship.getParent()))
+                            .build());
 
             if(CollectionUtils.isEmpty(boundaryRelationshipDTOList)) {
                 throw new CustomException("BOUNDARY_RELATIONSHIP_DOES_NOT_EXIST", "Parent boundary relationship provided in update request does not exist");

@@ -74,7 +74,7 @@ public class BoundaryEntityQueryBuilder {
 
         // Append limit
         paginatedQuery.append(" LIMIT ? ");
-        preparedStmtList.add(ObjectUtils.isEmpty(boundarySearchCriteria.getLimit()) ? config.getDefaultLimit() : boundarySearchCriteria.getLimit());
+        preparedStmtList.add(ObjectUtils.isEmpty(boundarySearchCriteria.getLimit()) ? config.getDefaultLimit() : (boundarySearchCriteria.getLimit() > config.getMaxDefaultLimit() ? config.getMaxDefaultLimit() : boundarySearchCriteria.getLimit()) );
 
         return paginatedQuery.toString();
     }
