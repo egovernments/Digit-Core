@@ -21,18 +21,34 @@ public class BoundaryController {
         this.boundaryService = boundaryService;
     }
 
+    /**
+     * Request handler for serving boundary entities create request.
+     * @param body
+     * @return
+     */
     @RequestMapping(value = "/_create", method = RequestMethod.POST)
     public ResponseEntity<BoundaryResponse> create(@Valid @RequestBody BoundaryRequest body) {
         BoundaryResponse boundaryResponse = boundaryService.createBoundary(body);
         return new ResponseEntity<>(boundaryResponse, HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Request handler for serving boundary entities search request.
+     * @param boundarySearchCriteria
+     * @param requestInfo
+     * @return
+     */
     @RequestMapping(value = "/_search", method = RequestMethod.POST)
     public ResponseEntity<BoundaryResponse> search(@Valid @ModelAttribute BoundarySearchCriteria boundarySearchCriteria, @RequestBody RequestInfo requestInfo) {
         BoundaryResponse boundaryResponse = boundaryService.searchBoundary(boundarySearchCriteria,requestInfo);
         return new ResponseEntity<>(boundaryResponse, HttpStatus.OK);
     }
 
+    /**
+     * Request handler for serving boundary entities update request.
+     * @param body
+     * @return
+     */
     @RequestMapping(value = "/_update", method = RequestMethod.POST)
     public ResponseEntity<BoundaryResponse> update(@Valid @RequestBody BoundaryRequest body) {
         BoundaryResponse boundaryResponse = boundaryService.updateBoundary(body);
