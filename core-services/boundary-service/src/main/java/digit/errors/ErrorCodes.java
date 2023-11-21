@@ -28,5 +28,7 @@ public class ErrorCodes {
     public static final String DUPLICATE_RECORD_MSG = "Boundary hierarchy with the provided tenantId and hierarchy type already exists.";
     public static final String MULTIPLE_ROOT_NODES_ERR_CODE = "MULTIPLE_ROOT_NODES_ERR";
     public static final String MULTIPLE_ROOT_NODES_ERR_MSG = "Hierarchy definition must have only one root node.";
+    public static final String DUPLICATE_BOUNDARY_CODE = "DUPLICATE_BOUNDARY";
+    public static final String DUPLICATE_BOUNDARY_MSG = "Duplicate boundary entities found in the request.";
 
 }

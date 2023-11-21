@@ -6,10 +6,7 @@ import digit.constants.BoundaryConstants;
 import digit.errors.ErrorCodes;
 import digit.repository.impl.BoundaryRepositoryImpl;
 import digit.util.GeoUtil;
-import digit.web.models.Boundary;
-import digit.web.models.BoundaryRequest;
-import digit.web.models.PointGeometry;
-import digit.web.models.PolygonGeometry;
+import digit.web.models.*;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,8 +26,10 @@ public class BoundaryEntityValidator {
     }
 
     /**
-     * This method is used to validate the create boundary entity request
-     * Validate for valid geometry
+     * This method performs various validation for the boundary entity create request
+     * @1. Validate for valid geometry
+     * @2. Validate for unique tenantId and code
+     * @3. Validate for unique boundaries in the request
      * @param boundaryRequest
      */
     public void validateCreateBoundaryRequest(BoundaryRequest boundaryRequest) {
@@ -40,6 +39,9 @@ public class BoundaryEntityValidator {
 
         // validate for unique tenantId and code
         validateUniqueTenantIdAndCode(boundaryRequest);
+
+        // validate for unique boundaries in the request
+        validateUniqueBoundaries(boundaryRequest);
     }
 
     /**
@@ -106,13 +108,16 @@ public class BoundaryEntityValidator {
 
         tenantIdToCodeMap.forEach((tenantId, codes) -> {
 
-            // get the set of codes for a given tenantId from db
-            Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
+            // get the list of boundaries with the given tenantId and codes
+            List<Boundary> boundaryList = boundaryRepository.search( BoundarySearchCriteria.builder()
+                            .tenantId(tenantId)
+                            .codes(new ArrayList<>(codes))
+                            .limit(codes.size())
+                            .build());
 
             // check if the code already exists in db
-            for (String code : codes) {
-                if(codeSet.contains(code))
-                    throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE , ErrorCodes.DUPLICATE_CODE_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + code + BoundaryConstants.CLOSING_BRACKET);
+            if (boundaryList.size() == codes.size()) {
+                    throw new CustomException(ErrorCodes.DUPLICATE_CODE_CODE , ErrorCodes.DUPLICATE_CODE_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + codes + BoundaryConstants.CLOSING_BRACKET);
             }
         });
     }
@@ -128,14 +133,27 @@ public class BoundaryEntityValidator {
 
             tenantIdToCodeMap.forEach((tenantId, codes) -> {
 
-                // get the set of codes for a given tenantId from db
-                Set<String> codeSet = boundaryRepository.getCodeListByTenantId(tenantId);
+                // get the list of boundaries for a given tenantId and codes from db
+                List<Boundary> boundaryList = boundaryRepository.search( BoundarySearchCriteria.builder()
+                        .tenantId(tenantId)
+                        .codes(new ArrayList<>(codes))
+                        .limit(codes.size())
+                        .build());
 
-                // check if the code already exists in dbb
-                for (String code : codes) {
-                    if(!codeSet.contains(code))
-                        throw new CustomException(ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_CODE , ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + code + BoundaryConstants.CLOSING_BRACKET );
+                // check if the code does not exists in db
+                if (boundaryList.size() != codes.size()) {
+                        throw new CustomException(ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_CODE , ErrorCodes.NOT_FOUND_CODE_AND_TENANT_ID_MSG + BoundaryConstants.OPENING_BRACKET + tenantId + "," + codes + BoundaryConstants.CLOSING_BRACKET );
                 }
             });
+    }
+
+    public void validateUniqueBoundaries(BoundaryRequest boundaryRequest) {
+
+        Set<Boundary> boundarySet = new HashSet<>(boundaryRequest.getBoundary());
+
+        // check if the size of the set is not equal to the size of the list then there are duplicates
+        if (boundarySet.size() != boundaryRequest.getBoundary().size()) {
+            throw new CustomException(ErrorCodes.DUPLICATE_BOUNDARY_CODE, ErrorCodes.DUPLICATE_BOUNDARY_MSG);
+        }
     }
 }
