@@ -2,7 +2,9 @@ package digit.service.enrichment;
 
 import digit.util.HierarchyUtil;
 import digit.web.models.*;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.AuditDetailsEnrichmentUtil;
+import org.egov.common.utils.ResponseInfoUtil;
 import org.egov.common.utils.UUIDEnrichmentUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -75,7 +77,7 @@ public class BoundaryRelationshipEnricher {
      * @param hierarchyType
      * @return boundarySearchResponse
      */
-    public BoundarySearchResponse createBoundaryRelationshipSearchResponse(List<BoundaryRelationshipDTO> boundaryRelationships, String tenantId, String hierarchyType) {
+    public BoundarySearchResponse createBoundaryRelationshipSearchResponse(List<BoundaryRelationshipDTO> boundaryRelationships, String tenantId, String hierarchyType, RequestInfo requestInfo) {
 
         // Get hierarchy order
         List<String> hierarchyOrder = hierarchyUtil.getHierarchyOrder(tenantId, hierarchyType);
@@ -107,7 +109,7 @@ public class BoundaryRelationshipEnricher {
 
         // Return response
         return BoundarySearchResponse.builder()
-                .responseInfo(null)
+                .responseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE))
                 .tenantBoundary(Collections.singletonList(hierarchyRelation))
                 .build();
     }

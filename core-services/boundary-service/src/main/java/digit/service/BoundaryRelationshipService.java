@@ -5,6 +5,7 @@ import digit.service.enrichment.BoundaryRelationshipEnricher;
 import digit.service.validator.BoundaryRelationshipValidator;
 import digit.util.HierarchyUtil;
 import digit.web.models.*;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -60,7 +61,7 @@ public class BoundaryRelationshipService {
      * @param boundaryRelationshipSearchCriteria
      * @return
      */
-    public BoundarySearchResponse getBoundaryRelationships(BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria) {
+    public BoundarySearchResponse getBoundaryRelationships(BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria, RequestInfo requestInfo) {
 
         // Enrich search criteria
         boundaryRelationshipEnricher.enrichSearchCriteria(boundaryRelationshipSearchCriteria);
@@ -78,7 +79,7 @@ public class BoundaryRelationshipService {
         addParentsAndChildrenToBoundariesList(boundaries, parentBoundaries, childrenBoundaries);
 
         // Prepare search response for boundary search
-        BoundarySearchResponse boundarySearchResponse = boundaryRelationshipEnricher.createBoundaryRelationshipSearchResponse(boundaries, boundaryRelationshipSearchCriteria.getTenantId(), boundaryRelationshipSearchCriteria.getHierarchyType());
+        BoundarySearchResponse boundarySearchResponse = boundaryRelationshipEnricher.createBoundaryRelationshipSearchResponse(boundaries, boundaryRelationshipSearchCriteria.getTenantId(), boundaryRelationshipSearchCriteria.getHierarchyType(), requestInfo);
 
         // Return boundary search response
         return boundarySearchResponse;
