@@ -1,12 +1,10 @@
 package digit.service;
 
+import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.impl.BoundaryHierarchyRepositoryImpl;
 import digit.repository.impl.BoundaryRepositoryImpl;
 import digit.service.enrichment.BoundaryHierarchyEnricher;
-import digit.web.models.BoundaryRequest;
-import digit.web.models.BoundaryTypeHierarchy;
-import digit.web.models.BoundaryTypeHierarchyDefinition;
-import digit.web.models.BoundaryTypeHierarchyRequest;
+import digit.web.models.*;
 import digit.web.models.legacy.Boundary;
 import digit.web.models.legacy.BoundaryMigrateRequest;
 import digit.web.models.legacy.TenantBoundary;
@@ -22,15 +20,22 @@ import java.util.List;
 @Service
 public class BoundaryMigrate {
 
-    private final BoundaryHierarchyRepositoryImpl boundaryHierarchyRepository;
-    private final BoundaryHierarchyEnricher boundaryHierarchyEnricher;
+    private BoundaryHierarchyRepositoryImpl boundaryHierarchyRepository;
 
-    private final BoundaryRepositoryImpl boundaryRepository;
+    private BoundaryHierarchyEnricher boundaryHierarchyEnricher;
 
-    public BoundaryMigrate(BoundaryHierarchyRepositoryImpl boundaryHierarchyRepository, BoundaryHierarchyEnricher boundaryHierarchyEnricher, BoundaryRepositoryImpl boundaryRepository) {
+    private BoundaryRepositoryImpl boundaryRepository;
+
+    private BoundaryRelationshipRepository boundaryRelationshipRepository;
+
+    private BoundaryRelationshipService boundaryRelationshipService;
+
+    public BoundaryMigrate(BoundaryHierarchyRepositoryImpl boundaryHierarchyRepository, BoundaryHierarchyEnricher boundaryHierarchyEnricher, BoundaryRepositoryImpl boundaryRepository, BoundaryRelationshipRepository boundaryRelationshipRepository, BoundaryRelationshipService boundaryRelationshipService) {
         this.boundaryHierarchyRepository = boundaryHierarchyRepository;
         this.boundaryHierarchyEnricher = boundaryHierarchyEnricher;
         this.boundaryRepository = boundaryRepository;
+        this.boundaryRelationshipRepository = boundaryRelationshipRepository;
+        this.boundaryRelationshipService = boundaryRelationshipService;
     }
 
     public void migrate(BoundaryMigrateRequest body) {
@@ -43,7 +48,43 @@ public class BoundaryMigrate {
 
             // create hierarchy definition
             createBoundaryHierarchyDefinition(body.getTenantId() , tenantBoundary , body.getRequestInfo());
+
+            // create boundary relationships
+            createBoundaryRelationships(tenantBoundary , body.getRequestInfo() , body.getTenantId() , null);
+
         });
+
+    }
+
+    public void createBoundaryRelationships(TenantBoundary tenantBoundary , RequestInfo requestInfo , String tenantId , String Parent) {
+
+        parseBoundaryRelationships(tenantBoundary.getBoundary() , requestInfo , tenantId , Parent , tenantBoundary.getHierarchyType().getCode());
+
+    }
+
+    public void parseBoundaryRelationships(Boundary boundary , RequestInfo requestInfo , String tenantId , String Parent , String hierarchyType) {
+
+        BoundaryRelation boundaryRelation = BoundaryRelation.builder()
+                .tenantId(tenantId)
+                .code(boundary.getCode())
+                .parent(Parent)
+                .boundaryType(boundary.getLabel())
+                .hierarchyType(hierarchyType)
+                .build();
+
+        BoundaryRelationshipRequest boundaryRelationshipRequest = BoundaryRelationshipRequest.builder()
+                .boundaryRelationship(boundaryRelation)
+                .requestInfo(requestInfo)
+                .build();
+
+        // create this relationship
+        boundaryRelationshipService.createBoundaryRelationship(boundaryRelationshipRequest);
+
+        for(int i=0;i<boundary.getChildren().size();i++) {
+            if( boundary.getChildren().get(i) != null ) {
+                parseBoundaryRelationships(boundary.getChildren().get(i) , requestInfo , tenantId , boundary.getCode() , hierarchyType);
+            }
+        }
 
     }
 
@@ -88,6 +129,7 @@ public class BoundaryMigrate {
         }
 
     }
+
     public void createBoundaryHierarchyDefinition(String tenantId , TenantBoundary tenantBoundary , RequestInfo requestInfo) {
 
         List<BoundaryTypeHierarchy> boundaryHierarchy = parseBoundaryHierarchy(tenantBoundary.getBoundary(),null);
