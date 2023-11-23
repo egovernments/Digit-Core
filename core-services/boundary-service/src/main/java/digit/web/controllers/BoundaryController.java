@@ -1,7 +1,9 @@
 package digit.web.controllers;
 
+import digit.service.BoundaryMigrate;
 import digit.service.BoundaryService;
 import digit.web.models.*;
+import digit.web.models.legacy.BoundaryMigrateRequest;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,12 @@ public class BoundaryController {
 
     private BoundaryService boundaryService;
 
+    private BoundaryMigrate boundaryMigrate;
+
     @Autowired
-    public BoundaryController(BoundaryService boundaryService) {
+    public BoundaryController(BoundaryService boundaryService, BoundaryMigrate boundaryMigrate) {
         this.boundaryService = boundaryService;
+        this.boundaryMigrate = boundaryMigrate;
     }
 
     /**
@@ -53,6 +58,17 @@ public class BoundaryController {
     public ResponseEntity<BoundaryResponse> update(@Valid @RequestBody BoundaryRequest body) {
         BoundaryResponse boundaryResponse = boundaryService.updateBoundary(body);
         return new ResponseEntity<>(boundaryResponse,HttpStatus.ACCEPTED);
+    }
+
+    /**
+     * Migrate boundary data from old format to new format
+     * @param requestBody
+     * @return
+     */
+    @RequestMapping(value = "/_migrate", method = RequestMethod.POST)
+    public ResponseEntity<BoundaryResponse> boundaryMigrate(@RequestBody BoundaryMigrateRequest requestBody) {
+        boundaryMigrate.migrate(requestBody);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

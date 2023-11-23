@@ -47,6 +47,7 @@ public class BoundaryRelation {
     private AuditDetails auditDetails = null;
 
     @JsonIgnore
+    @Builder.Default
     private String ancestralMaterializedPath = "";
 
 }

@@ -62,7 +62,8 @@ public class BoundaryRelationshipService {
      * @return
      */
     public BoundarySearchResponse getBoundaryRelationships(BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria, RequestInfo requestInfo) {
-
+        // TODO: add start and end time stamp to measure performance
+        long startTime = System.currentTimeMillis();
         // Enrich search criteria
         boundaryRelationshipEnricher.enrichSearchCriteria(boundaryRelationshipSearchCriteria);
 
@@ -80,6 +81,10 @@ public class BoundaryRelationshipService {
 
         // Prepare search response for boundary search
         BoundarySearchResponse boundarySearchResponse = boundaryRelationshipEnricher.createBoundaryRelationshipSearchResponse(boundaries, boundaryRelationshipSearchCriteria.getTenantId(), boundaryRelationshipSearchCriteria.getHierarchyType(), requestInfo);
+
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("Time taken to fetch boundary relationships: " + (endTime - startTime) + "ms");
 
         // Return boundary search response
         return boundarySearchResponse;
