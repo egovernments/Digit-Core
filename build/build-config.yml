@@ -157,10 +157,10 @@ config:
   - name: "builds/Digit-Core/core-services/egov-location"
     build:
       - work-dir: "core-services/egov-location"
-        image-name: "egov-location"
+        image-name: "health-location"
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/egov-location/src/main/resources/db"
-        image-name: "egov-location-db"
+        image-name: "health-location-db"
 
   - name: "builds/Digit-Core/core-services/boundary-service"
     build:
