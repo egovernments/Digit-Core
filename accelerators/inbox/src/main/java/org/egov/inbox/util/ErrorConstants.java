@@ -7,5 +7,7 @@ public class ErrorConstants {
 	public static final String INVALID_MODULE_SEARCH_PATH = "INVALID_MODULE_SEARCH_PATH";
 	public static final String INVALID_MODULE = "INVALID_MODULE";
 	public static final String INVALID_MODULE_DATA = "INVALID_MODULE_DATA";
+	public static final String INVALID_OPERATOR_DATA = "INVALID_OPERATOR_DATA";
+
 
 }
