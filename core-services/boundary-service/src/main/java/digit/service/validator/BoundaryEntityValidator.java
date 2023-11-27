@@ -69,7 +69,7 @@ public class BoundaryEntityValidator {
 
         boundaryList.forEach(boundary -> {
             // Only execute if geometry is present
-            if (boundary.getGeometry() != null) {
+            if (!boundary.getGeometry().isNull()) {
                 try {
                     if (boundary.getGeometry().get(BoundaryConstants.TYPE).asText().equals(BoundaryConstants.POINT)) {
                         GeoUtil.validatePointGeometry(objectMapper.treeToValue(boundary.getGeometry(), PointGeometry.class));
