@@ -40,11 +40,7 @@
 
 package org.egov.boundary.persistence.repository;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.egov.boundary.domain.model.Boundary;
@@ -384,12 +380,16 @@ public class BoundaryRepository {
 					logger.info("TIME TAKEN for filterBoundaryCodes() = " + (end - start) + "ms");
 				}
 
-				// Filter through children boundaries only if boundaryType parameter is not root level
-				if (!isRootLevelBoundaryType && boundarySearchRequest.getBoundaryTypeName() != null
+				if (boundarySearchRequest.getBoundaryTypeName() != null
 						&& !boundarySearchRequest.getBoundaryTypeName().isEmpty()) {
 					list.clear();
 					start = new Date().getTime();
-					list = prepareChildBoundaryList(tenantBndry);
+					if (isRootLevelBoundaryType) {
+						list = filterBoundaryCodes(Collections.singletonList(tenantBndry.getBoundary()), boundarySearchRequest.getCodes());
+					} else {
+						list = filterBoundaryCodes(tenantBndry.getBoundary().getChildren(),
+								boundarySearchRequest.getCodes());
+					}
 					end = new Date().getTime();
 					logger.info("TIME TAKEN for prepareChildBoundaryList() = " + (end - start) + "ms");
 					list = list.stream()
@@ -408,7 +408,11 @@ public class BoundaryRepository {
 					list = list.stream()
 							.filter(p -> boundarySearchRequest.getBoundaryTypeName().equalsIgnoreCase(p.getLabel()))
 							.collect(Collectors.toList());
-					list = filterBoundaryCodes(list, boundarySearchRequest.getCodes());
+					if (isRootLevelBoundaryType) {
+						list = filterBoundaryCodes(Collections.singletonList(tenantBndry.getBoundary()), boundarySearchRequest.getCodes());
+					} else {
+						list = filterBoundaryCodes(list, boundarySearchRequest.getCodes());
+					}
 				}
 				mdmsBoundary.setBoundary(list);
 				boundaryList.add(mdmsBoundary);
@@ -438,57 +442,18 @@ public class BoundaryRepository {
 	private List<MdmsBoundary> prepareChildBoundaryList(TenantBoundary tenantBndry) {
 
 		List<MdmsBoundary> boundaryList = new ArrayList<>();
-		if (tenantBndry.getBoundary().getChildren() != null) {
-			for (MdmsBoundary bndry : tenantBndry.getBoundary().getChildren()) {
-				boundaryList.add(bndry);
-			}
-		}
-		List<MdmsBoundary> boundaryList1 = new ArrayList<>();
-		if (boundaryList != null && !boundaryList.isEmpty()) {
-			for (MdmsBoundary bndry : boundaryList) {
-				if (bndry.getChildren() != null) {
-					for (MdmsBoundary bndry1 : bndry.getChildren()) {
-						boundaryList1.add(bndry1);
-					}
-				}
-			}
-		}
-		if (boundaryList1 != null && !boundaryList1.isEmpty()) {
-			for (MdmsBoundary boundary12 : boundaryList1) {
-				boundaryList.add(boundary12);
-			}
-		}
-		List<MdmsBoundary> boundaryList2 = new ArrayList<>();
-		if (boundaryList1 != null && !boundaryList1.isEmpty()) {
-			for (MdmsBoundary bndry : boundaryList1) {
-				if (bndry.getChildren() != null) {
-					for (MdmsBoundary bndry1 : bndry.getChildren()) {
-						boundaryList2.add(bndry1);
-					}
-				}
-			}
-		}
-		if (boundaryList2 != null && !boundaryList2.isEmpty()) {
-			for (MdmsBoundary boundary12 : boundaryList2) {
-				boundaryList.add(boundary12);
-			}
-		}
-		List<MdmsBoundary> boundaryList3 = new ArrayList<>();
-		if (boundaryList2 != null && !boundaryList2.isEmpty()) {
-			for (MdmsBoundary bndry : boundaryList2) {
-				if (bndry.getChildren() != null) {
-					for (MdmsBoundary bndry1 : bndry.getChildren()) {
-						boundaryList3.add(bndry1);
-					}
-				}
-			}
-		}
-		if (boundaryList3 != null && !boundaryList3.isEmpty()) {
-			for (MdmsBoundary boundary12 : boundaryList3) {
-				boundaryList.add(boundary12);
-			}
-		}
-
+		traverseBoundaryHierarchy(tenantBndry.getBoundary(), boundaryList);
 		return boundaryList;
+	}
+
+	private void traverseBoundaryHierarchy(MdmsBoundary boundary, List<MdmsBoundary> boundaryList) {
+		if (boundary != null) {
+			boundaryList.add(boundary);
+			if (boundary.getChildren() != null) {
+				for (MdmsBoundary childBoundary : boundary.getChildren()) {
+					traverseBoundaryHierarchy(childBoundary, boundaryList);
+				}
+			}
+		}
 	}
 }
