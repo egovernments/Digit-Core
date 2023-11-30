@@ -104,10 +104,13 @@ var fontDescriptors = {
   Roboto: {
     bold: "src/fonts/Roboto-Bold.ttf",
     normal: "src/fonts/Roboto-Regular.ttf",
+    italics: "src/fonts/Roboto-Italic.ttf",
+    bolditalics: "src/fonts/Roboto-BoldItalic.ttf",
   },
   BalooBhaina: {
     normal: "src/fonts/BalooBhaina2-Regular.ttf",
-    bold: "src/fonts/BalooBhaina2-Bold.ttf"
+    bold: "src/fonts/BalooBhaina2-Bold.ttf",
+    bolditalics: "src/fonts/BalooBhaina2-BoldItalic.ttf",
   },
   BalooPaaji:{
     normal: "src/fonts/BalooPaaji2-Regular.ttf",

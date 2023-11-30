@@ -10,8 +10,10 @@ import org.egov.demand.model.GenerateBillCriteria;
 import org.egov.demand.model.MigrationCount;
 import org.egov.demand.service.BillServicev2;
 import org.egov.demand.service.DemandService;
+import org.egov.demand.util.Constants;
 import org.egov.demand.web.contract.DemandRequest;
 import org.egov.tracer.kafka.CustomKafkaTemplate;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -49,6 +51,8 @@ public class BulkBillGenerationConsumer {
 				.requestInfo(billGenerator.getRequestInfo())
 				.demands(billGenerator.getCreateDemands())
 				.build();
+		String tenantId = billGenerator.getCreateDemands().get(0).getTenantId();
+		MDC.put(Constants.TENANTID_MDC_STRING, tenantId);
 		
 		log.info(" Billing-bulkbill-consumer-batch log for batch : " + billGenerator.getMigrationCount().getOffset()
 				+ " with no of records " + billGenerator.getCreateDemands().size());
@@ -71,7 +75,6 @@ public class BulkBillGenerationConsumer {
 				.stream()
 				.map(Demand::getConsumerCode)
 				.collect(Collectors.toSet());
-		String tenantId = billGenerator.getCreateDemands().get(0).getTenantId();
 		String businessService = billGenerator.getCreateDemands().get(0).getBusinessService();
 		
 		GenerateBillCriteria genBillCriteria = GenerateBillCriteria.builder()

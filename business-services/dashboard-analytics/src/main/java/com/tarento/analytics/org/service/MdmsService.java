@@ -17,6 +17,8 @@ import java.util.Map;
 
 import static com.tarento.analytics.constant.Constants.MDMS_REQUESTINFO;
 import static com.tarento.analytics.constant.Constants.TENANTID_PLACEHOLDER;
+import static com.tarento.analytics.constant.Constants.MDMSKeys.TENANTID_MDC_STRING;
+import org.slf4j.MDC;
 
 @Component
 public class MdmsService {
@@ -44,6 +46,9 @@ public class MdmsService {
     public void loadMdmsService() throws Exception{
 
         String REQUEST_INFO_STR = MDMS_REQUESTINFO.replace(TENANTID_PLACEHOLDER,stateLevelTenantId);
+        // Adding in MDC so that tracer can add it in header
+        MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
+
         JsonNode requestInfo = mapper.readTree(REQUEST_INFO_STR);
         try {
             JsonNode response = restService.post(mdmsServiceHost + mdmsSearchEndpoint, "", requestInfo);

@@ -18,7 +18,7 @@
 # -
 config:
 # Business Services
-  - name: "builds/Core-Platform/business-services/billing-service"
+  - name: "builds/Digit-Core/business-services/billing-service"
     build:
       - work-dir: "business-services/billing-service"
         image-name: "billing-service"
@@ -26,7 +26,7 @@ config:
       - work-dir: "business-services/billing-service/src/main/resources/db"
         image-name: "billing-service-db"
 
-  - name: "builds/Core-Platform/business-services/collection-services"
+  - name: "builds/Digit-Core/business-services/collection-services"
     build:
       - work-dir: "business-services/collection-services"
         image-name: "collection-services"
@@ -34,7 +34,7 @@ config:
       - work-dir: "business-services/collection-services/src/main/resources/db"
         image-name: "collection-services-db"
 
-  - name: "builds/Core-Platform/business-services/egf-instrument"
+  - name: "builds/Digit-Core/business-services/egf-instrument"
     build:
       - work-dir: "business-services/egf-instrument"
         image-name: "egf-instrument"
@@ -42,7 +42,7 @@ config:
       - work-dir: "business-services/egf-instrument/src/main/resources/db"
         image-name: "egf-instrument-db"
 
-  - name: "builds/Core-Platform/business-services/egf-master"
+  - name: "builds/Digit-Core/business-services/egf-master"
     build:
       - work-dir: "business-services/egf-master"
         image-name: "egf-master"
@@ -50,7 +50,7 @@ config:
       - work-dir: "business-services/egf-master/src/main/resources/db"
         image-name: "egf-master-db"
 
-  - name: "builds/Core-Platform/business-services/egov-apportion-service"
+  - name: "builds/Digit-Core/business-services/egov-apportion-service"
     build:
       - work-dir: "business-services/egov-apportion-service"
         image-name: "egov-apportion-service"
@@ -58,7 +58,7 @@ config:
       - work-dir: "business-services/egov-apportion-service/src/main/resources/db"
         image-name: "egov-apportion-service-db"
         
-  - name: "builds/Core-Platform/business-services/egov-hrms"
+  - name: "builds/Digit-Core/business-services/egov-hrms"
     build:
       - work-dir: "business-services/egov-hrms"
         image-name: "egov-hrms"
@@ -66,7 +66,7 @@ config:
       - work-dir: "business-services/egov-hrms/src/main/resources/db"
         image-name: "egov-hrms-db"
 
-  - name: "builds/Core-Platform/business-services/finance-collections-voucher-consumer"
+  - name: "builds/Digit-Core/business-services/finance-collections-voucher-consumer"
     build:
       - work-dir: "business-services/finance-collections-voucher-consumer"
         image-name: "finance-collections-voucher-consumer"
@@ -74,31 +74,31 @@ config:
       - work-dir: "business-services/finance-collections-voucher-consumer/src/main/resources/db"
         image-name: "finance-collections-voucher-consumer-db"
 
-  - name: "builds/Core-Platform/business-services/dashboard-analytics"
+  - name: "builds/Digit-Core/business-services/dashboard-analytics"
     build:
       - work-dir: "business-services/dashboard-analytics"
         image-name: "dashboard-analytics"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/business-services/dashboard-ingest"
+  - name: "builds/Digit-Core/business-services/dashboard-ingest"
     build:
       - work-dir: "business-services/dashboard-ingest"
         image-name: "dashboard-ingest"
         dockerfile: "build/maven/Dockerfile"
-  - name: "builds/Core-Platform/core-services/egov-accesscontrol"
+  - name: "builds/Digit-Core/core-services/egov-accesscontrol"
     build:
       - work-dir: "core-services/egov-accesscontrol"
         image-name: "egov-accesscontrol"
         dockerfile: "build/maven/Dockerfile"
 # Core Services
-  - name: "builds/Core-Platform/core-services/audit-service"
+  - name: "builds/Digit-Core/core-services/audit-service"
     build:
       - work-dir: "core-services/audit-service"
         image-name: "audit-service"
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/audit-service/src/main/resources/db"
         image-name: "audit-service-db"
-  - name: "builds/Core-Platform/core-services/egov-common-masters"
+  - name: "builds/Digit-Core/core-services/egov-common-masters"
     build:
       - work-dir: "core-services/egov-common-masters"
         image-name: "egov-common-masters"
@@ -106,7 +106,7 @@ config:
       - work-dir: "core-services/egov-common-masters/src/main/resources/db"
         image-name: "egov-common-masters-db"
 
-  - name: "builds/Core-Platform/core-services/egov-data-uploader"
+  - name: "builds/Digit-Core/core-services/egov-data-uploader"
     build:
       - work-dir: "core-services/egov-data-uploader"
         image-name: "egov-data-uploader"
@@ -114,7 +114,7 @@ config:
       - work-dir: "core-services/egov-data-uploader/src/main/resources/db"
         image-name: "egov-data-uploader-db"
 
-  - name: "builds/Core-Platform/core-services/egov-enc-service"
+  - name: "builds/Digit-Core/core-services/egov-enc-service"
     build:
       - work-dir: "core-services/egov-enc-service"
         image-name: "egov-enc-service"
@@ -122,7 +122,7 @@ config:
       - work-dir: "core-services/egov-enc-service/src/main/resources/db"
         image-name: "egov-enc-service-db"
 
-  - name: "builds/Core-Platform/core-services/egov-filestore"
+  - name: "builds/Digit-Core/core-services/egov-filestore"
     build:
       - work-dir: "core-services/egov-filestore"
         image-name: "egov-filestore"
@@ -130,7 +130,7 @@ config:
       - work-dir: "core-services/egov-filestore/src/main/resources/db"
         image-name: "egov-filestore-db"
 
-  - name: "builds/Core-Platform/core-services/egov-idgen"
+  - name: "builds/Digit-Core/core-services/egov-idgen"
     build:
       - work-dir: "core-services/egov-idgen"
         image-name: "egov-idgen"
@@ -138,7 +138,7 @@ config:
       - work-dir: "core-services/egov-idgen/src/main/resources/db"
         image-name: "egov-idgen-db"
 
-  - name: "builds/Core-Platform/core-services/egov-indexer"
+  - name: "builds/Digit-Core/core-services/egov-indexer"
     build:
       - work-dir: "core-services/egov-indexer"
         image-name: "egov-indexer"
@@ -146,7 +146,7 @@ config:
       - work-dir: "core-services/egov-indexer/src/main/resources/db"
         image-name: "egov-indexer-db"
 
-  - name: "builds/Core-Platform/core-services/egov-localization"
+  - name: "builds/Digit-Core/core-services/egov-localization"
     build:
       - work-dir: "core-services/egov-localization"
         image-name: "egov-localization"
@@ -154,7 +154,7 @@ config:
       - work-dir: "core-services/egov-localization/src/main/resources/db"
         image-name: "egov-localization-db"
 
-  - name: "builds/Core-Platform/core-services/egov-location"
+  - name: "builds/Digit-Core/core-services/egov-location"
     build:
       - work-dir: "core-services/egov-location"
         image-name: "egov-location"
@@ -162,7 +162,7 @@ config:
       - work-dir: "core-services/egov-location/src/main/resources/db"
         image-name: "egov-location-db"
 
-  - name: "builds/Core-Platform/core-services/egov-mdms-service"
+  - name: "builds/Digit-Core/core-services/egov-mdms-service"
     build:
       - work-dir: "core-services/egov-mdms-service"
         image-name: "egov-mdms-service"
@@ -176,19 +176,19 @@ config:
       - work-dir: "core-services/egov-mdms-service/src/main/resources/db"
         image-name: "health-mdms-v2-db"
 
-  - name: "builds/Core-Platform/core-services/egov-notification-mail"
+  - name: "builds/Digit-Core/core-services/egov-notification-mail"
     build:
       - work-dir: "core-services/egov-notification-mail"
         image-name: "egov-notification-mail"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/egov-notification-sms"
+  - name: "builds/Digit-Core/core-services/egov-notification-sms"
     build:
       - work-dir: "core-services/egov-notification-sms"
         image-name: "egov-notification-sms"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/egov-otp"
+  - name: "builds/Digit-Core/core-services/egov-otp"
     build:
       - work-dir: "core-services/egov-otp"
         image-name: "egov-otp"
@@ -196,13 +196,13 @@ config:
       - work-dir: "core-services/egov-otp/src/main/resources/db"
         image-name: "egov-otp-db"
 
-  - name: "builds/Core-Platform/core-services/egov-persister"
+  - name: "builds/Digit-Core/core-services/egov-persister"
     build:
       - work-dir: "core-services/egov-persister"
         image-name: "egov-persister"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/egov-pg-service"
+  - name: "builds/Digit-Core/core-services/egov-pg-service"
     build:
       - work-dir: "core-services/egov-pg-service"
         image-name: "egov-pg-service"
@@ -210,19 +210,19 @@ config:
       - work-dir: "core-services/egov-pg-service/src/main/resources/db"
         image-name: "egov-pg-service-db"
 
-  - name: "builds/Core-Platform/core-services/egov-searcher"
+  - name: "builds/Digit-Core/core-services/egov-searcher"
     build:
       - work-dir: "core-services/egov-searcher"
         image-name: "egov-searcher"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/egov-telemetry"
+  - name: "builds/Digit-Core/core-services/egov-telemetry"
     build:
       - work-dir: "core-services/egov-telemetry"
         image-name: "egov-telemetry"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/egov-user"
+  - name: "builds/Digit-Core/core-services/egov-user"
     build:
       - work-dir: "core-services/egov-user"
         image-name: "egov-user"
@@ -230,7 +230,7 @@ config:
       - work-dir: "core-services/egov-user/src/main/resources/db"
         image-name: "egov-user-db"
 
-  - name: "builds/Core-Platform/core-services/egov-workflow-v2"
+  - name: "builds/Digit-Core/core-services/egov-workflow-v2"
     build:
       - work-dir: "core-services/egov-workflow-v2"
         image-name: "egov-workflow-v2"
@@ -238,7 +238,7 @@ config:
       - work-dir: "core-services/egov-workflow-v2/src/main/resources/db"
         image-name: "egov-workflow-v2-db"
 
-  - name: "builds/Core-Platform/core-services/egov-document-uploader"
+  - name: "builds/Digit-Core/core-services/egov-document-uploader"
     build:
       - work-dir: "core-services/egov-document-uploader"
         image-name: "egov-document-uploader"
@@ -246,7 +246,7 @@ config:
       - work-dir: "core-services/egov-document-uploader/src/main/resources/db"
         image-name: "egov-document-uploader-db"
 
-  - name: "builds/Core-Platform/core-services/national-dashboard-ingest"
+  - name: "builds/Digit-Core/core-services/national-dashboard-ingest"
     build:
       - work-dir: "core-services/national-dashboard-ingest"
         image-name: "national-dashboard-ingest"
@@ -254,13 +254,13 @@ config:
       - work-dir: "core-services/national-dashboard-ingest/src/main/resources/db"
         image-name: "national-dashboard-ingest-db"
 
-  - name: "builds/Core-Platform/core-services/national-dashboard-kafka-pipeline"
+  - name: "builds/Digit-Core/core-services/national-dashboard-kafka-pipeline"
     build:
       - work-dir: "core-services/national-dashboard-kafka-pipeline"
         image-name: "national-dashboard-kafka-pipeline"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/egov-survey-services"
+  - name: "builds/Digit-Core/core-services/egov-survey-services"
     build:
       - work-dir: "core-services/egov-survey-services"
         image-name: "egov-survey-services"
@@ -269,13 +269,13 @@ config:
         image-name: "egov-survey-services-db"
 
 
-  - name: "builds/Core-Platform/core-services/report"
+  - name: "builds/Digit-Core/core-services/report"
     build:
       - work-dir: "core-services/report"
         image-name: "report"
         dockerfile: "build/maven/Dockerfile"   
 
-  - name: "builds/Core-Platform/core-services/tenant"
+  - name: "builds/Digit-Core/core-services/tenant"
     build:
       - work-dir: "core-services/tenant"
         image-name: "tenant"
@@ -283,25 +283,25 @@ config:
       - work-dir: "core-services/tenant/src/main/resources/db"
         image-name: "tenant-db"
 
-  - name: "builds/Core-Platform/core-services/user-otp"
+  - name: "builds/Digit-Core/core-services/user-otp"
     build:
       - work-dir: "core-services/user-otp"
         image-name: "user-otp"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/zuul"
+  - name: "builds/Digit-Core/core-services/zuul"
     build:
       - work-dir: "core-services/zuul"
         image-name: "zuul"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/internal-gateway"
+  - name: "builds/Digit-Core/core-services/internal-gateway"
     build:
       - work-dir: "core-services/internal-gateway"
         image-name: "internal-gateway"
         dockerfile: "build/maven/Dockerfile"
         
-  - name: "builds/Core-Platform/core-services/egov-user-event"
+  - name: "builds/Digit-Core/core-services/egov-user-event"
     build:
       - work-dir: "core-services/egov-user-event"
         image-name: "egov-user-event"
@@ -309,25 +309,25 @@ config:
       - work-dir: "core-services/egov-user-event/src/main/resources/db"
         image-name: "egov-user-event-db"       
 
-  - name: "builds/Core-Platform/core-services/pdf-service"
+  - name: "builds/Digit-Core/core-services/pdf-service"
     build:
       - work-dir: "core-services/pdf-service"
         image-name: "pdf-service"
       - work-dir: "core-services/pdf-service/migration"
         image-name: "pdf-service-db"
         
-  - name: "builds/Core-Platform/core-services/telemetry/egov-telemetry-kafka-streams"
+  - name: "builds/Digit-Core/core-services/telemetry/egov-telemetry-kafka-streams"
     build:
       - work-dir: "core-services/egov-telemetry/egov-telemetry-kafka-streams"
         image-name: "egov-telemetry-kafka-streams"
 
-  - name: "builds/Core-Platform/core-services/telemetry/egov-telemetry-batch-process"
+  - name: "builds/Digit-Core/core-services/telemetry/egov-telemetry-batch-process"
     build:
       - work-dir: "core-services/egov-telemetry/egov-telemetry-batch-process"
         image-name: "egov-telemetry-batch-process"
         dockerfile: "build/maven/Dockerfile"
   
-  - name: "builds/Core-Platform/core-services/egov-url-shortening"
+  - name: "builds/Digit-Core/core-services/egov-url-shortening"
     build:
       - work-dir: "core-services/egov-url-shortening"
         image-name: "egov-url-shortening"
@@ -335,7 +335,7 @@ config:
       - work-dir: "core-services/egov-url-shortening/src/main/resources/db"
         image-name: "egov-url-shortening-db"
   
-  - name: "builds/Core-Platform/core-services/chatbot"
+  - name: "builds/Digit-Core/core-services/chatbot"
     build:
       - work-dir: "core-services/chatbot"
         image-name: "chatbot"
@@ -343,73 +343,99 @@ config:
       - work-dir: "core-services/chatbot/src/main/resources/db"
         image-name: "chatbot-db"
         
-  - name: "builds/Core-Platform/core-services/http-to-kafka-connector"
+  - name: "builds/Digit-Core/core-services/http-to-kafka-connector"
     build:
       - work-dir: "core-services/http-to-kafka-connector"
         image-name: "whatsapp-webhook"
 
-  - name: "builds/Core-Platform/core-services/egov-user-chatbot"
+  - name: "builds/Digit-Core/core-services/egov-user-chatbot"
     build:
       - work-dir: "core-services/egov-user"
         image-name: "egov-user-chatbot"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/mailbot"
+  - name: "builds/Digit-Core/core-services/mailbot"
     build:
       - work-dir: "core-services/mailbot"
         image-name: "mailbot"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/libraries/enc-client"
+  - name: "builds/Digit-Core/core-services/libraries/enc-client"
     build:
       - work-dir: "core-services/libraries/enc-client"
         image-name: "enc-client"
 
-  - name: "builds/Core-Platform/core-services/libraries/tracer"
+  - name: "builds/Digit-Core/core-services/libraries/tracer"
     build:
       - work-dir: "core-services/libraries/tracer"
         image-name: "tracer"
 
-  - name: "builds/Core-Platform/core-services/libraries/digit-models"
+  - name: "builds/Digit-Core/core-services/libraries/digit-models"
     build:
       - work-dir: "core-services/libraries/digit-models"
         image-name: "digit-models"
 
-  - name: "builds/Core-Platform/core-services/libraries/services-common"
+  - name: "builds/Digit-Core/core-services/libraries/services-common"
     build:
       - work-dir: "core-services/libraries/services-common"
         image-name: "services-common"
 
-  - name: "builds/Core-Platform/core-services/nlp-engine"
+  - name: "builds/Digit-Core/core-services/nlp-engine"
     build:
       - work-dir: "core-services/nlp-engine"
         image-name: "nlp-engine"
         dockerfile: "nlp-engine/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/xstate-chatbot"
+  - name: "builds/Digit-Core/core-services/xstate-chatbot"
     build:
       - work-dir: "core-services/xstate-chatbot/nodejs"
         image-name: "xstate-chatbot"
       - work-dir: "core-services/xstate-chatbot/nodejs/db"
         image-name: "xstate-chatbot-db"
 
-  - name: "builds/Core-Platform/core-services/xstate-webchat"
+  - name: "builds/Digit-Core/core-services/xstate-webchat"
     build:
       - work-dir: "core-services/xstate-webchat/nodejs"
         image-name: "xstate-webchat"
       - work-dir: "core-services/xstate-webchat/nodejs/db"
         image-name: "xstate-webchat-db"
 
-  - name: "builds/Core-Platform/accelerators/inbox"
+  - name: "builds/Digit-Core/accelerators/inbox"
     build:
       - work-dir: "accelerators/inbox"
         image-name: "inbox"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Core-Platform/core-services/service-request"
+  - name: "builds/Digit-Core/core-services/service-request"
     build:
       - work-dir: "core-services/service-request"
         image-name: "service-request"
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/service-request/src/main/resources/db"
-        image-name: "service-request-db"
+
+
+# frontend
+  - name: builds/Digit-Core/accelerators/workbench-ui
+    build:
+      - work-dir: frontend/micro-ui/
+        dockerfile: frontend/micro-ui/web/workbench/Dockerfile
+        image-name: workbench-ui
+        
+  - name: builds/Digit-Core/accelerators/storybook-svg
+    build:
+    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/
+      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/docker/Dockerfile
+      image-name: storybook-svg
+      
+  - name: builds/Digit-Core/accelerators/storybook
+    build:
+    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/components-core/
+      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/components-core/docker/Dockerfile
+      image-name: storybook
+
+  - name: builds/Digit-Core/accelerators/digit-ui
+    build:
+      - work-dir: frontend/micro-ui/
+        dockerfile: frontend/micro-ui/web/docker/Dockerfile
+        image-name: digit-ui
+

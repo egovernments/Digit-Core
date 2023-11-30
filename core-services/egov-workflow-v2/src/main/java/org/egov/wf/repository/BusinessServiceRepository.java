@@ -64,6 +64,7 @@ public class BusinessServiceRepository {
         criteria.setTenantId(null);
         List<Object> preparedStmtList = new ArrayList<>();
         query = queryBuilder.getBusinessServices(criteria, preparedStmtList);
+        query = util.replaceSchemaPlaceholder(query, tenantId);
         List<BusinessService> searchResults = jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
 
         if(CollectionUtils.isEmpty(searchResults))
@@ -150,7 +151,7 @@ public class BusinessServiceRepository {
     }
 
     /**
-     * Returns all the avialable businessServices
+     * Returns all the available businessServices
      * @return
      */
     private List<BusinessService> getAllBusinessService(String tenantIdForState){

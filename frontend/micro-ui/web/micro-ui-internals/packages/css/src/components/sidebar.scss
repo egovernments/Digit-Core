@@ -1,0 +1,141 @@
+.sidebar-link:hover .arrow {
+  display: block;
+}
+
+.hidden-arrow {
+  display: none;
+}
+.new-dropdown-link{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px 15px !important;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none; 
+  margin-left: 0px !important;
+  height: 3rem !important; 
+  margin-left: 1rem;
+  margin-top: 0.5rem;
+}
+.selected {
+  background-color: #e0e0e0; /* Change this to your desired highlight color */
+}
+
+.selected-item {
+  background-color: #e0e0e0; /* Set your desired background color for the selected item */
+  color: #000; /* Set your desired text color for the selected item */
+  /* Add any other styles you want to apply to the selected item */
+}
+/* Style the container that acts as the viewport */
+.new-sidebar {
+  height: 90%; /* Set a fixed height for the viewport */
+  overflow: scroll; /* Hide the scrollbar */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &::-webkit-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
+/* Style the content inside the viewport */
+.new-sidebar > div {
+  height: auto; /* Allow content to expand vertically */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden;
+  padding-right: 2px; /* Add space for the hidden scrollbar (adjust as needed) */
+}
+
+/* Style the scrollbar thumb to make it transparent */
+.new-sidebar > div::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+.link-icon{
+  width: 24px !important;
+  height: 26px !important;
+}
+.link-icon svg{
+  width: 24px !important;
+  height: 26px !important;
+}
+
+.employee-search-input{
+  width: 150px;
+  background-color: transparent;
+  &.nav-bar {
+    color:#fff;
+  }
+  &.nav-bar::placeholder {
+      color: #fff;
+  }
+}
+
+.search-icon-wrapper-new {
+  margin-left: 0.35rem;
+}
+
+.search-icon-wrapper-new svg{
+          fill: theme(colors.white) !important;
+          width: 21px;
+          height: 21px;
+}
+.search-icon-wrapper-new svg path {
+            fill: theme(colors.white) !important;
+          }
+
+.submenu-container {
+  overflow: scroll; 
+  margin-bottom: 1rem;
+  /* Hide the scrollbar */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &.level-2 {
+    border-left: 1px solid;
+    margin-left: 2rem;
+  }
+  &.level-1 {
+    margin-left: -1.5rem;
+  }
+}
+
+.actions {
+  &.level-0 {
+    margin-left: 0.4rem;
+  }
+  &.selected-action-level-0 {
+    color: theme(colors.primary.main) !important;
+  }
+  &.selected-action-level-1 {
+    border-left:4px solid theme(colors.primary.main);
+    margin-left: -0.6rem;
+    height: 2rem;
+    color: theme(colors.primary.main) !important;
+  }
+
+  &.default-0 {
+    &.active {
+
+    }
+  }
+  &.default-1 {
+    margin-left: -0.6rem;
+    height: 2rem;
+    width: 111% !important;
+  }
+
+
+  &.custom {
+    margin-left: 0.3rem;
+  }
+  &:hover {
+    background-color: #6A8E9D;
+    opacity: 0.8;
+  }
+}

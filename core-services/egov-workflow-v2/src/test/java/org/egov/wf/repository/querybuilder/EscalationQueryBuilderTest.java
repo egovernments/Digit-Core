@@ -33,7 +33,7 @@ class EscalationQueryBuilderTest {
         ArrayList<Object> objectList = new ArrayList<>();
         assertEquals(
                 "select businessId from (  SELECT *,RANK () OVER (PARTITION BY businessId ORDER BY createdtime  DESC)"
-                        + " rank_number  FROM eg_wf_processinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE"
+                        + " rank_number  FROM {SCHEMA}.eg_wfprocessinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE"
                         + " rank_number = 1  AND wf.status = ?  AND (select extract(epoch from current_timestamp)) * 1000 -"
                         + " wf.createdtime - wf.statesla > ?  AND (select extract(epoch from current_timestamp)) * 1000 -"
                         + " wf.createdtime - wf.businessservicesla > ? ",
@@ -58,7 +58,7 @@ class EscalationQueryBuilderTest {
         ArrayList<Object> objectList = new ArrayList<>();
         assertEquals(
                 "select businessId from (  SELECT *,RANK () OVER (PARTITION BY businessId ORDER BY createdtime  DESC)"
-                        + " rank_number  FROM eg_wf_processinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE"
+                        + " rank_number  FROM {SCHEMA}.eg_wfprocessinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE"
                         + " rank_number = 1  AND wf.status = ?  AND (select extract(epoch from current_timestamp)) * 1000 -"
                         + " wf.createdtime - wf.statesla > ? ",
                 this.escalationQueryBuilder.getEscalationQuery(escalationSearchCriteria, objectList));
@@ -81,7 +81,7 @@ class EscalationQueryBuilderTest {
         ArrayList<Object> objectList = new ArrayList<>();
         assertEquals(
                 "select businessId from (  SELECT *,RANK () OVER (PARTITION BY businessId ORDER BY createdtime  DESC)"
-                        + " rank_number  FROM eg_wf_processinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE"
+                        + " rank_number  FROM {SCHEMA}.eg_wfprocessinstance_v2 WHERE businessservice = ? AND tenantid= ? ) wf  WHERE"
                         + " rank_number = 1  AND wf.status = ?  AND (select extract(epoch from current_timestamp)) * 1000 -"
                         + " wf.createdtime - wf.businessservicesla > ? ",
                 this.escalationQueryBuilder.getEscalationQuery(escalationSearchCriteria, objectList));
