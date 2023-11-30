@@ -28,7 +28,7 @@ public class MasterDetail {
 
     @JsonProperty("filter")
 
-    @Size(min = 1, max = 500)
+    @Size(min = 1, max = 2000)
     private String filter = null;
 
 
