@@ -201,7 +201,7 @@ const Create = () => {
   return (
     <FormComposerV2
       heading={t("Application Heading")}
-      label={t("Submit Bar")}
+      label={t("Submit")}
       description={"Description"}
       text={"Sample Text if required"}
       config={configs.map((config) => {

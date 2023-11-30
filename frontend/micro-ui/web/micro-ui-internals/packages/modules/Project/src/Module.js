@@ -1,11 +1,11 @@
 import { Loader} from "@egovernments/digit-ui-react-components";
 import React from "react";
 import { useRouteMatch } from "react-router-dom";
-import { default as EmployeeApp } from "./pages/employee";
-import SampleCard from "./components/SampleCard";
-import ViewEstimateComponent from "./components/ViewEstimateComponent";
-import SampleComponent from "./components/SampleComponent";
-export const SampleModule = ({ stateCode, userType, tenants }) => {
+import { default as DemoPackage } from "./pages/demopackage";
+import ProjectCard from "./components/ProjectCard";
+import ProjectComponent from "./components/ProjectComponent";
+
+export const ProjectModule = ({ stateCode, userType, tenants }) => {
   const { path, url } = useRouteMatch();
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const moduleCode = ["sample", "common","workflow", tenantId];
@@ -19,17 +19,16 @@ export const SampleModule = ({ stateCode, userType, tenants }) => {
   if (isLoading) {
     return <Loader />;
   }
-  return <EmployeeApp path={path} stateCode={stateCode} userType={userType} tenants={tenants} />;
+  return <DemoPackage path={path} stateCode={stateCode} userType={userType} tenants={tenants} />;
 };
 
 const componentsToRegister = {
-  SampleModule,
-  SampleCard,
-  ViewEstimatePage: ViewEstimateComponent,
-  SampleComponent
+    ProjectModule,
+    ProjectCard,
+    ProjectComponent
 };
 //init <modulename >component
-export const initSampleComponents = () => {
+export const initProjectComponents = () => {
   Object.entries(componentsToRegister).forEach(([key, value]) => {
     Digit.ComponentRegistryService.setComponent(key, value);
   });

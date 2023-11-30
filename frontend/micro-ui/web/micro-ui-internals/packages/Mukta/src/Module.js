@@ -34,7 +34,7 @@ const componentsToRegister = {
   AttendenceMgmtCard:null , // TO HIDE THE Attendance Mgmt CARD IN HOME SCREEN as per MUKTA
   HRMSCard ,// Overridden the HRMS card as per MUKTA
   
-  SampleComponent
+  SampleComponent,
 };
 
 const overrideHooks = () => {

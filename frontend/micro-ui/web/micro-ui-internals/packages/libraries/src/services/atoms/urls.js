@@ -218,6 +218,9 @@ const Urls = {
   bills:{
     cancelBill:"/billing-service/bill/v2/_cancelbill"
   },
+  package:{
+    create: "/product/v1/_create",
+  },
   access_control: "/access/v1/actions/mdms/_get",
   billgenie: "/egov-searcher",
 };
