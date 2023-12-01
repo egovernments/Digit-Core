@@ -58,7 +58,11 @@ public class MdmsDataRowMapper implements ResultSetExtractor<Map<String, Map<Str
             jsonArray = tenantMasterMap.getOrDefault(tenantId, new HashMap<>()).getOrDefault(schemaCode, new JSONArray());
             jsonArray.add(data);
             masterMap.put(schemaCode, jsonArray);
-            tenantMasterMap.put(tenantId, masterMap);
+            if(tenantMasterMap.containsKey(tenantId)) {
+                tenantMasterMap.get(tenantId).put(schemaCode, jsonArray);
+            } else {
+                tenantMasterMap.put(tenantId, masterMap);
+            }
         }
 
         return tenantMasterMap;
