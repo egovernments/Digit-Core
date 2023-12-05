@@ -163,7 +163,9 @@ public class EmployeeService {
 		}
 		//checks if above criteria met and result is not  null will check for name search if list of names are given as user search on name is not bulk api
 
-		if(!((!CollectionUtils.isEmpty(criteria.getRoles()) || !StringUtils.isEmpty(criteria.getPhone())) && CollectionUtils.isEmpty(criteria.getUuids()))){
+		if(!((!CollectionUtils.isEmpty(criteria.getRoles())
+				|| !StringUtils.isEmpty(criteria.getPhone()))
+				&& CollectionUtils.isEmpty(criteria.getUuids()))){
 			if(!CollectionUtils.isEmpty(criteria.getNames())) {
 				List<String> userUUIDs = new ArrayList<>();
 				for(String name: criteria.getNames()) {
@@ -245,7 +247,9 @@ public class EmployeeService {
 		pwdParams.add(employee.getUser().getMobileNumber());
 		pwdParams.add(employee.getTenantId());
 		pwdParams.add(employee.getUser().getName().toUpperCase());
-		employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
+		if (propertiesManager.isAutoGeneratePassword()) {
+			employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
+		}
 		employee.getUser().setUserName(employee.getCode());
 		employee.getUser().setActive(true);
 		employee.getUser().setType(UserType.EMPLOYEE.toString());
@@ -270,11 +274,13 @@ public class EmployeeService {
 			if(null == jurisdiction.getIsActive())
 				jurisdiction.setIsActive(true);
 		});
-		employee.getAssignments().stream().forEach(assignment -> {
-			assignment.setId(UUID.randomUUID().toString());
-			assignment.setAuditDetails(auditDetails);
-			assignment.setPosition(getPosition());
-		});
+		if (employee.getAssignments() != null && !employee.getAssignments().isEmpty()) {
+			employee.getAssignments().stream().forEach(assignment -> {
+				assignment.setId(UUID.randomUUID().toString());
+				assignment.setAuditDetails(auditDetails);
+				assignment.setPosition(getPosition());
+			});
+		}
 		if(!CollectionUtils.isEmpty(employee.getServiceHistory())) {
 			employee.getServiceHistory().stream().forEach(serviceHistory -> {
 				serviceHistory.setId(UUID.randomUUID().toString());

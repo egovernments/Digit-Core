@@ -58,6 +58,7 @@ public class EmployeeValidator {
 	public void validateCreateEmployee(EmployeeRequest request) {
 		Map<String, String> errorMap = new HashMap<>();
 		validateExistingDuplicates(request ,errorMap);
+		validatePassword(request, errorMap);
 		if(!CollectionUtils.isEmpty(errorMap.keySet()))
 			throw new CustomException(errorMap);
 		Map<String, List<String>> boundaryMap = getBoundaryList(request.getRequestInfo(),request.getEmployees().get(0));
@@ -162,6 +163,16 @@ public class EmployeeValidator {
 		validateDataUniqueness(employees,errorMap);
         validateUserMobile(employees,errorMap,request.getRequestInfo());
         validateUserName(employees,errorMap,request.getRequestInfo());
+	}
+
+	private void validatePassword(EmployeeRequest request, Map<String, String> errorMap) {
+		List<Employee> employees = request.getEmployees();
+		if (!propertiesManager.isAutoGeneratePassword()) {
+			employees.forEach(employee -> {
+				if (StringUtils.isEmpty(employee.getUser().getPassword()))
+					errorMap.put(ErrorConstants.HRMS_PASSWORD_REQUIRED, ErrorConstants.HRMS_PASSWORD_REQUIRED_MSG);
+			});
+		}
 	}
 
 	/**
@@ -347,46 +358,48 @@ public class EmployeeValidator {
 	 * @param mdmsData
 	 */
 	private void validateAssignments(Employee employee, Map<String, String> errorMap, Map<String, List<String>> mdmsData) {
-		List<Assignment> currentAssignments = employee.getAssignments().stream().filter(assignment -> assignment.getIsCurrentAssignment()).collect(Collectors.toList());
-		if(currentAssignments.size() != 1){
-			errorMap.put(ErrorConstants.HRMS_INVALID_CURRENT_ASSGN_CODE, ErrorConstants.HRMS_INVALID_CURRENT_ASSGN_MSG);
-		}
-		employee.getAssignments().sort(new Comparator<Assignment>() {
-			@Override
-			public int compare(Assignment assignment1, Assignment assignment2) {
-				return assignment1.getFromDate().compareTo(assignment2.getFromDate());
+		if (employee.getAssignments() != null && !employee.getAssignments().isEmpty()) {
+			List<Assignment> currentAssignments = employee.getAssignments().stream().filter(Assignment::getIsCurrentAssignment).collect(Collectors.toList());
+			if (currentAssignments.size() != 1) {
+				errorMap.put(ErrorConstants.HRMS_INVALID_CURRENT_ASSGN_CODE, ErrorConstants.HRMS_INVALID_CURRENT_ASSGN_MSG);
 			}
-		});
-		int length = employee.getAssignments().size();
-		boolean overlappingCheck =false;
-		for(int i=0;i<length-1;i++){
-			if(null != employee.getAssignments().get(i).getToDate() && employee.getAssignments().get(i).getToDate() > employee.getAssignments().get(i+1).getFromDate())
-				overlappingCheck=true;
-		}
-		if(overlappingCheck)
-			errorMap.put(ErrorConstants.HRMS_OVERLAPPING_ASSGN_CODE, ErrorConstants.HRMS_OVERLAPPING_ASSGN_MSG);
+			employee.getAssignments().sort(new Comparator<Assignment>() {
+				@Override
+				public int compare(Assignment assignment1, Assignment assignment2) {
+					return assignment1.getFromDate().compareTo(assignment2.getFromDate());
+				}
+			});
+			int length = employee.getAssignments().size();
+			boolean overlappingCheck = false;
+			for (int i = 0; i < length - 1; i++) {
+				if (null != employee.getAssignments().get(i).getToDate() && employee.getAssignments().get(i).getToDate() > employee.getAssignments().get(i + 1).getFromDate())
+					overlappingCheck = true;
+			}
+			if (overlappingCheck)
+				errorMap.put(ErrorConstants.HRMS_OVERLAPPING_ASSGN_CODE, ErrorConstants.HRMS_OVERLAPPING_ASSGN_MSG);
 
-		for(Assignment assignment: employee.getAssignments()) {
-			if(!assignment.getIsCurrentAssignment() && !CollectionUtils.isEmpty(currentAssignments) && null != assignment.getToDate()&& currentAssignments.get(0).getFromDate() < assignment.getToDate() )
-				errorMap.put(ErrorConstants.HRMS_OVERLAPPING_ASSGN_CURRENT_CODE,ErrorConstants.HRMS_OVERLAPPING_ASSGN_CURRENT_MSG);
-		    if(!mdmsData.get(HRMSConstants.HRMS_MDMS_DEPT_CODE).contains(assignment.getDepartment()))
+
+			for (Assignment assignment : employee.getAssignments()) {
+				if (!assignment.getIsCurrentAssignment() && !CollectionUtils.isEmpty(currentAssignments) && null != assignment.getToDate() && currentAssignments.get(0).getFromDate() < assignment.getToDate())
+					errorMap.put(ErrorConstants.HRMS_OVERLAPPING_ASSGN_CURRENT_CODE, ErrorConstants.HRMS_OVERLAPPING_ASSGN_CURRENT_MSG);
+		    /*if(!mdmsData.get(HRMSConstants.HRMS_MDMS_DEPT_CODE).contains(assignment.getDepartment()))
 				errorMap.put(ErrorConstants.HRMS_INVALID_DEPT_CODE, ErrorConstants.HRMS_INVALID_DEPT_MSG);
 			if(!mdmsData.get(HRMSConstants.HRMS_MDMS_DESG_CODE).contains(assignment.getDesignation()))
-				errorMap.put(ErrorConstants.HRMS_INVALID_DESG_CODE, ErrorConstants.HRMS_INVALID_DESG_MSG);
-            if( assignment.getIsCurrentAssignment() && null != assignment.getToDate())
-                errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_CURRENT_TO_DATE_CODE,ErrorConstants.HRMS_INVALID_ASSIGNMENT_CURRENT_TO_DATE_MSG);
-            if(!assignment.getIsCurrentAssignment() && null == assignment.getToDate())
-                errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_NON_CURRENT_TO_DATE_CODE,ErrorConstants.HRMS_INVALID_ASSIGNMENT_NON_CURRENT_TO_DATE_MSG);
-			if(null != assignment.getToDate() && assignment.getFromDate() > assignment.getToDate())
-                errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_PERIOD_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_PERIOD_MSG);
-			if(employee.getUser().getDob()!=null )
-				if(assignment.getFromDate() < employee.getUser().getDob() || (null != assignment.getToDate() && assignment.getToDate() < employee.getUser().getDob()))
-                	errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_MSG);
-			if(null != employee.getDateOfAppointment() && assignment.getFromDate() <	 employee.getDateOfAppointment())
-				errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_APPOINTMENT_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_APPOINTMENT_MSG);
+				errorMap.put(ErrorConstants.HRMS_INVALID_DESG_CODE, ErrorConstants.HRMS_INVALID_DESG_MSG);*/
+				if (assignment.getIsCurrentAssignment() && null != assignment.getToDate())
+					errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_CURRENT_TO_DATE_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_CURRENT_TO_DATE_MSG);
+				if (!assignment.getIsCurrentAssignment() && null == assignment.getToDate())
+					errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_NON_CURRENT_TO_DATE_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_NON_CURRENT_TO_DATE_MSG);
+				if (null != assignment.getToDate() && assignment.getFromDate() > assignment.getToDate())
+					errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_PERIOD_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_PERIOD_MSG);
+				if (employee.getUser().getDob() != null)
+					if (assignment.getFromDate() < employee.getUser().getDob() || (null != assignment.getToDate() && assignment.getToDate() < employee.getUser().getDob()))
+						errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_MSG);
+				if (null != employee.getDateOfAppointment() && assignment.getFromDate() < employee.getDateOfAppointment())
+					errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_APPOINTMENT_CODE, ErrorConstants.HRMS_INVALID_ASSIGNMENT_DATES_APPOINTMENT_MSG);
 
-        }
-		
+			}
+		}
 	}
 
 	/**
@@ -401,29 +414,30 @@ public class EmployeeValidator {
 	 * @param errorMap
 	 * @param mdmsData
 	 */
-	private void validateServiceHistory(Employee employee, Map<String, String> errorMap, Map<String, List<String>> mdmsData) {
-		if(!CollectionUtils.isEmpty(employee.getServiceHistory())){
-			List<ServiceHistory> currentService = employee.getServiceHistory().stream().filter(serviceHistory -> null!= serviceHistory.getIsCurrentPosition() && serviceHistory.getIsCurrentPosition()).collect(Collectors.toList());
-			if(currentService.size() > 1){
-				errorMap.put(ErrorConstants.HRMS_INVALID_CURRENT_SERVICE_CODE, ErrorConstants.HRMS_INVALID_CURRENT_SERVICE_MSG);
+	private void validateServiceHistory(Employee employee, Map<String, String> errorMap, Map<String, List<String>> mdmsData)
+		{
+			if (!CollectionUtils.isEmpty(employee.getServiceHistory())) {
+				List<ServiceHistory> currentService = employee.getServiceHistory().stream().filter(serviceHistory -> null != serviceHistory.getIsCurrentPosition() && serviceHistory.getIsCurrentPosition()).collect(Collectors.toList());
+				if (currentService.size() > 1) {
+					errorMap.put(ErrorConstants.HRMS_INVALID_CURRENT_SERVICE_CODE, ErrorConstants.HRMS_INVALID_CURRENT_SERVICE_MSG);
+				}
+				for (ServiceHistory history : employee.getServiceHistory()) {
+					if ((null == history.getIsCurrentPosition() || !history.getIsCurrentPosition()) && !CollectionUtils.isEmpty(currentService) && null != currentService.get(0).getServiceFrom() && null != history.getServiceTo() && currentService.get(0).getServiceFrom() < history.getServiceTo())
+						errorMap.put(ErrorConstants.HRMS_OVERLAPPING_SERVICEHISTORY_CURRENT_CODE, ErrorConstants.HRMS_OVERLAPPING_SERVICEHISTORY_CURRENT_MSG);
+					if (null != history.getIsCurrentPosition() && history.getIsCurrentPosition() && null != history.getServiceTo())
+						errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_CURRENT_TO_DATE_CODE, ErrorConstants.HRMS_INVALID_SERVICE_CURRENT_TO_DATE_MSG);
+					if ((null == history.getIsCurrentPosition() || !history.getIsCurrentPosition()) && null == history.getServiceTo())
+						errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_NON_CURRENT_TO_DATE_CODE, ErrorConstants.HRMS_INVALID_SERVICE_NON_CURRENT_TO_DATE_MSG);
+					if (!StringUtils.isEmpty(history.getServiceStatus()) && !mdmsData.get(HRMSConstants.HRMS_MDMS_EMP_STATUS_CODE).contains(history.getServiceStatus()))
+						errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_STATUS_CODE, ErrorConstants.HRMS_INVALID_SERVICE_STATUS_MSG);
+					if ((null != history.getServiceFrom() && history.getServiceFrom() > new Date().getTime()) || (null != history.getServiceTo() && history.getServiceTo() > new Date().getTime())
+							|| (null != history.getServiceFrom() && null != history.getServiceTo() && history.getServiceFrom() > history.getServiceTo()))
+						errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_PERIOD_CODE, ErrorConstants.HRMS_INVALID_SERVICE_PERIOD_MSG);
+					if (employee.getUser().getDob() != null)
+						if ((null != history.getServiceFrom() && history.getServiceFrom() < employee.getUser().getDob()) || (null != history.getServiceTo() && history.getServiceTo() < employee.getUser().getDob()))
+							errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_DATES_CODE, ErrorConstants.HRMS_INVALID_SERVICE_DATES_MSG);
+				}
 			}
-			for(ServiceHistory history: employee.getServiceHistory()) {
-				if( (null== history.getIsCurrentPosition() || !history.getIsCurrentPosition()) && !CollectionUtils.isEmpty(currentService) && null != currentService.get(0).getServiceFrom() && null != history.getServiceTo() && currentService.get(0).getServiceFrom()<history.getServiceTo() )
-					errorMap.put(ErrorConstants.HRMS_OVERLAPPING_SERVICEHISTORY_CURRENT_CODE, ErrorConstants.HRMS_OVERLAPPING_SERVICEHISTORY_CURRENT_MSG);
-				if( null!= history.getIsCurrentPosition() && history.getIsCurrentPosition() && null != history.getServiceTo())
-					errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_CURRENT_TO_DATE_CODE,ErrorConstants.HRMS_INVALID_SERVICE_CURRENT_TO_DATE_MSG);
-				if((null == history.getIsCurrentPosition() || !history.getIsCurrentPosition()) && null == history.getServiceTo())
-					errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_NON_CURRENT_TO_DATE_CODE,ErrorConstants.HRMS_INVALID_SERVICE_NON_CURRENT_TO_DATE_MSG);
-				if(!StringUtils.isEmpty(history.getServiceStatus()) && !mdmsData.get(HRMSConstants.HRMS_MDMS_EMP_STATUS_CODE).contains(history.getServiceStatus()))
-					errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_STATUS_CODE, ErrorConstants.HRMS_INVALID_SERVICE_STATUS_MSG);
-				if( (null != history.getServiceFrom() &&  history.getServiceFrom() > new Date().getTime()) || (null != history.getServiceTo() && history.getServiceTo() > new Date().getTime())
-						|| (null != history.getServiceFrom() && null != history.getServiceTo() && history.getServiceFrom() > history.getServiceTo()))
-					errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_PERIOD_CODE, ErrorConstants.HRMS_INVALID_SERVICE_PERIOD_MSG);
-				if(employee.getUser().getDob()!=null )
-					if((null != history.getServiceFrom() && history.getServiceFrom() < employee.getUser().getDob()) || (null != history.getServiceTo() && history.getServiceTo() < employee.getUser().getDob()))
-						errorMap.put(ErrorConstants.HRMS_INVALID_SERVICE_DATES_CODE, ErrorConstants.HRMS_INVALID_SERVICE_DATES_MSG);
-			}
-		}
 	}
 	
 	/**

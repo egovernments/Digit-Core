@@ -91,6 +91,7 @@ public class EmployeeQueryBuilder {
 			builder.append(" and employee.active = ?");
 			preparedStmtList.add(criteria.getIsActive());
 		}
+
 	}
 	
 	public String paginationClause(EmployeeSearchCriteria criteria, StringBuilder builder) {
@@ -159,4 +160,9 @@ public class EmployeeQueryBuilder {
 	}
 
 
+	public String getUnassignedEmployeesSearchQuery(EmployeeSearchCriteria criteria, List<Object> preparedStmtList) {
+		StringBuilder builder = new StringBuilder(EmployeeQueries.HRMS_GET_UNASSIGNED_EMPLOYEES);
+		addWhereClauseAssignment(criteria, builder, preparedStmtList);
+		return builder.toString();
+	}
 }

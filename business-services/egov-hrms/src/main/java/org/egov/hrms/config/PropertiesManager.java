@@ -116,4 +116,7 @@ public class PropertiesManager {
 
 	@Value("${decryption.abac.enable}")
 	private Boolean isDecryptionEnable;
+
+	@Value("${egov.hrms.auto.generate.password}")
+	private boolean autoGeneratePassword;
 }
