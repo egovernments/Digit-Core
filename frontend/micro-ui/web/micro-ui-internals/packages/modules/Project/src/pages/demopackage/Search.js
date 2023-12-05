@@ -61,7 +61,7 @@ export const newConfig = [
         "type": "component",
         "component": "ProjectComponent",
         "withoutLabel": true,
-        "key": "comments"
+        "key": "comments",
       },
     ],
   },
@@ -74,10 +74,31 @@ const Create = () => {
   const history = useHistory();
 
   const onSubmit = (formData) => {
-    console.log("formdata is"+ formData)
-    setPropFormData(formData)
-
-      Digit.PackageService.create(formData, tenantId).then((result,err)=>{
+    console.log("formdata is"+ JSON.stringify(formData))
+    var dataObject={
+      "tenantId":"mz",
+        "Product": [
+          {
+                  "tenantId": "mz",
+                  "type": formData.type,
+                  "name": formData.name,
+                  "manufacturer": formData.manu,
+                  "additionalFields": {
+                      "schema": "test_3e1c7976b4d6",
+                      "version": 1,
+                      "fields": [
+                          {
+                              "key": "form",
+                              "value": "tablet"
+                          }
+                      ]
+                  },
+                  "isDeleted": false
+          }
+        ],
+        "apiOperation": "CREATE"
+    }
+      Digit.PackageService.create(dataObject, tenantId).then((result,err)=>{
         return result.json();
       })
       .then(()=>{

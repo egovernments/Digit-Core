@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const ProjectComponent = (props) => {
   const { formData } = props;
+
+
 
   return (
     <div>
@@ -17,7 +19,13 @@ const ProjectComponent = (props) => {
           {Object.keys(formData).map((key) => (
             <tr key={key}>
               <td>{key}</td>
-              <td>{JSON.stringify(formData[key])}</td>
+              <td>
+                <input
+                  type="text"
+                  value={formData[key] || ""}
+                  onChange={(e) => props.onSelect(key, e.target.value)}
+                />
+              </td>
             </tr>
           ))}
         </tbody>

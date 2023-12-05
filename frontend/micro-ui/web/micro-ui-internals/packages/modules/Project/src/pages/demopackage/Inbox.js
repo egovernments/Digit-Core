@@ -2,69 +2,48 @@ import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Header, InboxSearchComposer, Loader, Button, AddFilled } from "@egovernments/digit-ui-react-components";
 import { useHistory, useLocation } from "react-router-dom";
-
+import inboxConfig from "../../../../../modules/sample/src/configs/inboxConfig";
 const SearchWageSeeker = () => {
   const { t } = useTranslation();
   const history = useHistory()
   const location = useLocation()
 
-  const wageSeekerSession = Digit.Hooks.useSessionStorage("WAGE_SEEKER_CREATE", {});
-  const [sesionFormData, clearSessionFormData] = wageSeekerSession;
 
-  //const indConfigs = searchWageSeekerConfig();
-  const configModuleName = Digit.Utils.getConfigModuleName()
-  const tenant = Digit.ULBService.getStateId();
-  const { isLoading, data } = Digit.Hooks.useCustomMDMS(
-      tenant,
-      configModuleName,
-   [
-    {
-      name: "SearchIndividualConfig",
+  var demoObject=  {
+    "RequestInfo": {
+      "authToken": "3c32223d-addb-4506-af5d-58ff6705b728"
     },
-  ]);
-
-  const indConfigs = data?.[configModuleName]?.SearchIndividualConfig?.[0]
-
-  let configs = useMemo(
-    () => Digit.Utils.preProcessMDMSConfigInboxSearch(t, indConfigs, "sections.search.uiConfig.fields",{
-      updateDependent : [
-        {
-          key : "createdFrom",
-          value : [new Date().toISOString().split("T")[0]]
-        },
-        {
-          key : "createdTo",
-          value : [new Date().toISOString().split("T")[0]]
-        }
-      ]
+    "tenantId":"mz",
+    "HouseholdMember": {
+        "id": [
+             "0071c052-c7ff-4fce-82aa-cb28aa4685db"
+        ],
+            "householdId": "H-2023-11-07-009079",
+         "householdClientReferenceId": "49d777d4-5f1a-45ec-b211-a59c6a18bcae",
+            "individualId": "699220a8-f500-418d-9568-a470727506e1",
+            "individualClientReferenceId": "394ba865-d608-43f8-8ec5-742fce037020",
+        "isHeadOfHousehold": true
     }
-    ),[indConfigs]);
+}
 
-  useEffect(() => {
-    if (!window.location.href.includes("modify-wageseeker") && sesionFormData && Object.keys(sesionFormData) != 0) {
-      clearSessionFormData();
-    }
-  }, [location])
+  
 
-  if (isLoading) return <Loader />;
+  const democonfig = inboxConfig()
+
+  console.log("config detail",democonfig)
+
+  const updatedConfig = useMemo(
+    () => Digit.Utils.preProcessMDMSConfigInboxSearch(t, democonfig,"sections.search.uiConfig.fields",{}),
+    [democonfig]);
+
+    console.log("updated config is", updatedConfig)
+
+    
+
   return (
     <React.Fragment>
-      <div className="jk-header-btn-wrapper">
-        <Header className="works-header-search">{t(configs?.label)}</Header>
-        {Digit.Utils.didEmployeeHasRole(configs?.actionRole) && (
-          <Button
-            label={t(configs?.actionLabel)}
-            variation="secondary"
-            icon={<AddFilled />}
-            onButtonClick={() => {
-              history.push(`/${window?.contextPath}/employee/${configs?.actionLink}`)
-            }}
-            type="button"
-          />
-        )}
-      </div>
       <div className="inbox-search-wrapper">
-        <InboxSearchComposer configs={configs}></InboxSearchComposer>
+        <InboxSearchComposer configs={updatedConfig}></InboxSearchComposer>
       </div>
     </React.Fragment>
   );

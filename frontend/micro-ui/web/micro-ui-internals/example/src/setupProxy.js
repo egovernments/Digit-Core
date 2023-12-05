@@ -80,6 +80,7 @@ module.exports = function (app) {
     "/mdms-v2",
     "/estimate",
     "/product/v1/_create",
+    "/household/member/v1/_search"
   ].forEach((location) => app.use(location, createProxy));
   ["/pb-egov-assets"].forEach((location) => app.use(location, assetsProxy));
 };

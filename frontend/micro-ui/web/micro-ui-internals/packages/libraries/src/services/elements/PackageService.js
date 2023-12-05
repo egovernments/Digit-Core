@@ -5,9 +5,9 @@ const PackageService = {
   
   create: (data, tenantId) =>
     Request({
+      data: data,
       method: "POST",
       url: Urls.package.create,
-      data: data,
       useCache: false,
       params: { tenantId },
       auth: true,

@@ -37,7 +37,7 @@ const LocalizationStore = {
     modules.forEach((module) => {
       if (!Namespaces.includes(module)) {
         Namespaces.push(module);
-        const moduleMessages = messages.filter((message) => message.module === module);
+      const moduleMessages = messages.filter((message) => message.module === module);
         LocalizationStore.setCacheData(LOCALE_MODULE(locale, module), moduleMessages);
       }
     });
