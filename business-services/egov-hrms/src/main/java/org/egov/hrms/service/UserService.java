@@ -40,42 +40,30 @@
 
 package org.egov.hrms.service;
 
-import static org.egov.hrms.utils.HRMSConstants.INTERNALMICROSERVICEROLE_CODE;
-import static org.egov.hrms.utils.HRMSConstants.INTERNALMICROSERVICEROLE_NAME;
-import static org.egov.hrms.utils.HRMSConstants.INTERNALMICROSERVICEUSER_MOBILENO;
-import static org.egov.hrms.utils.HRMSConstants.INTERNALMICROSERVICEUSER_NAME;
-import static org.egov.hrms.utils.HRMSConstants.INTERNALMICROSERVICEUSER_TYPE;
-import static org.egov.hrms.utils.HRMSConstants.INTERNALMICROSERVICEUSER_USERNAME;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.hrms.config.PropertiesManager;
+import org.egov.hrms.model.Employee;
+import org.egov.hrms.model.enums.UserType;
 import org.egov.hrms.repository.RestCallRepository;
 import org.egov.hrms.utils.HRMSConstants;
 import org.egov.hrms.web.contract.UserRequest;
 import org.egov.hrms.web.contract.UserResponse;
 import org.egov.tracer.model.CustomException;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.annotation.PostConstruct;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.egov.hrms.utils.HRMSConstants.*;
 
 @Slf4j
 @Service
@@ -103,12 +91,6 @@ public class UserService {
 	private String userUpdateEndpoint;
 
 	private String internalMicroserviceRoleUuid = null;
-	
-	@Autowired
-	private MultiStateInstanceUtil multiStateInstanceUtil;
-
-	public static final String TENANTID_MDC_STRING = "TENANTID";
-
 
 	@PostConstruct
 	void initalizeSystemuser(){
@@ -119,9 +101,6 @@ public class UserService {
 		userSearchRequest.put("RequestInfo", requestInfo);
 		userSearchRequest.put("tenantId", propertiesManager.getStateLevelTenantId());
 		userSearchRequest.put("roleCodes", Collections.singletonList(INTERNALMICROSERVICEROLE_CODE));
-		if(multiStateInstanceUtil.getIsEnvironmentCentralInstance()){
-			MDC.put(TENANTID_MDC_STRING, propertiesManager.getStateLevelTenantId());
-		}
 		try {
 			LinkedHashMap<String, Object> responseMap = (LinkedHashMap<String, Object>) restCallRepository.fetchResult(uri, userSearchRequest);
 			List<LinkedHashMap<String, Object>> users = (List<LinkedHashMap<String, Object>>) responseMap.get("user");

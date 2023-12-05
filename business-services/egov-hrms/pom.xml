@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.egov</groupId>
   <artifactId>egov-hrms</artifactId>
-  <version>1.2.7-SNAPSHOT</version>
+  <version>1.2.5_beta-SNAPSHOT</version>
   <name>egov-hrms</name>
   <description>HR Management System</description>
   <properties>
@@ -80,7 +80,7 @@
     <dependency>
       <groupId>org.egov</groupId>
       <artifactId>mdms-client</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <version>0.0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.egov.services</groupId>
@@ -100,14 +100,14 @@
   </dependencies>
   <repositories>
     <repository>
-      <id>repo.digit.org</id>
-      <name>eGov DIGIT Releases Repository</name>
-      <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
-    </repository>
-    <repository>
       <id>repo.egovernments.org</id>
       <name>eGov ERP Releases Repository</name>
       <url>https://nexus-repo.egovernments.org/nexus/content/repositories/releases/</url>
+    </repository>
+    <repository>
+      <id>repo.egovernments.org.snapshots</id>
+      <name>eGov ERP Releases Repository</name>
+      <url>https://nexus-repo.egovernments.org/nexus/content/repositories/snapshots/</url>
     </repository>
   </repositories>
   <build>
