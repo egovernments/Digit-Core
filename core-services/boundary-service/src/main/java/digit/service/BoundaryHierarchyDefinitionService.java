@@ -8,6 +8,11 @@ import org.egov.common.utils.ResponseInfoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -45,7 +50,7 @@ public class BoundaryHierarchyDefinitionService {
 
         // Build response and return
         return BoundaryTypeHierarchyResponse.builder()
-                .boundaryHierarchy(body.getBoundaryHierarchy())
+                .boundaryHierarchy(Collections.singletonList(body.getBoundaryHierarchy()))
                 .responseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(body.getRequestInfo(), Boolean.TRUE))
                 .build();
     }
@@ -61,12 +66,13 @@ public class BoundaryHierarchyDefinitionService {
         List<BoundaryTypeHierarchyDefinition> boundaryTypeHierarchyDefinitionList = boundaryHierarchyRepository.search(body.getBoundaryTypeHierarchySearchCriteria());
 
         // Set boundary hierarchy definition as null if not found
-        BoundaryTypeHierarchyDefinition boundaryTypeHierarchyDefinition = CollectionUtils.isEmpty(boundaryTypeHierarchyDefinitionList) ? null : boundaryTypeHierarchyDefinitionList.get(0);
+        List<BoundaryTypeHierarchyDefinition> boundaryTypeHierarchyDefinition = CollectionUtils.isEmpty(boundaryTypeHierarchyDefinitionList) ? null : boundaryTypeHierarchyDefinitionList;
 
         // Build response and return
         return BoundaryTypeHierarchyResponse.builder()
                 .boundaryHierarchy(boundaryTypeHierarchyDefinition)
                 .responseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(body.getRequestInfo(), Boolean.TRUE))
+                .totalCount(1)
                 .build();
     }
 

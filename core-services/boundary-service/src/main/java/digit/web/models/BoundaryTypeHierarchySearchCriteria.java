@@ -26,7 +26,12 @@ public class BoundaryTypeHierarchySearchCriteria {
 
     @JsonProperty("hierarchyType")
     @Size(min = 1, max = 100)
-    @NotNull
     private String hierarchyType = null;
+
+    @JsonProperty("offset")
+    private Integer offset;
+
+    @JsonProperty("limit")
+    private Integer limit;
 
 }
