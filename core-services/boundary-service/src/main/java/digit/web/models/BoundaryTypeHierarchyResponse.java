@@ -1,5 +1,6 @@
 package digit.web.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.validation.annotation.Validated;
@@ -10,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 import lombok.Builder;
+
+import java.util.List;
 
 /**
  * BoundaryTypeHierarchyResponse
@@ -26,9 +29,11 @@ public class BoundaryTypeHierarchyResponse {
     @Valid
     private ResponseInfo responseInfo = null;
 
+    @JsonProperty("totalCount")
+    private Integer totalCount = null;
+
     @JsonProperty("BoundaryHierarchy")
     @Valid
-    private BoundaryTypeHierarchyDefinition boundaryHierarchy = null;
-
+    private List<BoundaryTypeHierarchyDefinition> boundaryHierarchy = null;
 
 }
