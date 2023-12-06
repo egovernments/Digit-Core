@@ -34,7 +34,6 @@ public class BoundaryHierarchyTypeQueryBuilder {
 
     public String getBoundaryHierarchyTypeCountQuery(BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(boundaryTypeHierarchySearchCriteria, preparedStmtList, BOUNDARY_HIERARCHY_TYPE_COUNT_QUERY);
-        query = QueryUtil.addOrderByClause(query, ORDER_BY_CLAUSE);
         return query;
     }
     private String buildQuery(BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria, List<Object> preparedStmtList, String Query) {

@@ -1,10 +1,12 @@
 package digit.util;
 
 import digit.repository.BoundaryHierarchyRepository;
+import digit.repository.querybuilder.BoundaryHierarchyTypeQueryBuilder;
 import digit.web.models.BoundaryTypeHierarchy;
 import digit.web.models.BoundaryTypeHierarchyDefinition;
 import digit.web.models.BoundaryTypeHierarchySearchCriteria;
 import org.egov.tracer.model.CustomException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -20,8 +22,14 @@ public class HierarchyUtil {
 
     private BoundaryHierarchyRepository boundaryHierarchyRepository;
 
-    public HierarchyUtil(BoundaryHierarchyRepository boundaryHierarchyRepository) {
+    private BoundaryHierarchyTypeQueryBuilder boundaryHierarchyTypeQueryBuilder;
+
+    private JdbcTemplate jdbcTemplate;
+
+    public HierarchyUtil(BoundaryHierarchyRepository boundaryHierarchyRepository, BoundaryHierarchyTypeQueryBuilder boundaryHierarchyTypeQueryBuilder, JdbcTemplate jdbcTemplate) {
         this.boundaryHierarchyRepository = boundaryHierarchyRepository;
+        this.boundaryHierarchyTypeQueryBuilder = boundaryHierarchyTypeQueryBuilder;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     /**
@@ -72,5 +80,16 @@ public class HierarchyUtil {
         });
 
         return parentToChildMap;
+    }
+
+    /**
+     * This method gives the total count of hierarchy definition based on the search criteria.
+     * @param boundaryTypeHierarchySearchCriteria
+     * @return
+     */
+    public Integer getBoundaryTypeHierarchyDefinitionCount(BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria) {
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = boundaryHierarchyTypeQueryBuilder.getBoundaryHierarchyTypeCountQuery(boundaryTypeHierarchySearchCriteria, preparedStmtList);
+        return jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
     }
 }
