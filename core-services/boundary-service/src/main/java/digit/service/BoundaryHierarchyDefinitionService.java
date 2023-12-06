@@ -3,15 +3,13 @@ package digit.service;
 import digit.repository.BoundaryHierarchyRepository;
 import digit.service.enrichment.BoundaryHierarchyEnricher;
 import digit.service.validator.BoundaryHierarchyValidator;
+import digit.util.HierarchyUtil;
 import digit.web.models.*;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,12 +22,15 @@ public class BoundaryHierarchyDefinitionService {
 
     private BoundaryHierarchyRepository boundaryHierarchyRepository;
 
+    private HierarchyUtil hierarchyUtil;
+
     @Autowired
     public BoundaryHierarchyDefinitionService(BoundaryHierarchyValidator boundaryHierarchyValidator, BoundaryHierarchyEnricher boundaryHierarchyEnricher,
-                                              BoundaryHierarchyRepository boundaryHierarchyRepository) {
+                                              BoundaryHierarchyRepository boundaryHierarchyRepository, HierarchyUtil hierarchyUtil) {
         this.boundaryHierarchyValidator = boundaryHierarchyValidator;
         this.boundaryHierarchyEnricher = boundaryHierarchyEnricher;
         this.boundaryHierarchyRepository = boundaryHierarchyRepository;
+        this.hierarchyUtil = hierarchyUtil;
     }
 
     /**
@@ -65,6 +66,8 @@ public class BoundaryHierarchyDefinitionService {
         // Search for boundary hierarchy depending on the provided search criteria
         List<BoundaryTypeHierarchyDefinition> boundaryTypeHierarchyDefinitionList = boundaryHierarchyRepository.search(body.getBoundaryTypeHierarchySearchCriteria());
 
+        Integer totalCount = hierarchyUtil.getBoundaryTypeHierarchyDefinitionCount(body.getBoundaryTypeHierarchySearchCriteria());
+
         // Set boundary hierarchy definition as null if not found
         List<BoundaryTypeHierarchyDefinition> boundaryTypeHierarchyDefinition = CollectionUtils.isEmpty(boundaryTypeHierarchyDefinitionList) ? null : boundaryTypeHierarchyDefinitionList;
 
@@ -72,7 +75,7 @@ public class BoundaryHierarchyDefinitionService {
         return BoundaryTypeHierarchyResponse.builder()
                 .boundaryHierarchy(boundaryTypeHierarchyDefinition)
                 .responseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(body.getRequestInfo(), Boolean.TRUE))
-                .totalCount(1)
+                .totalCount(totalCount)
                 .build();
     }
 
