@@ -45,7 +45,7 @@ public class ValidatorDefaultImplementation implements SearchCriteriaValidatorIn
             .filter(entry -> Boolean.TRUE.equals(entry.getValue()))
             .map(Entry::getKey)
             .collect(Collectors.toSet());
-        if (!mandatoryTrueFields.isEmpty() && moduleSearchCriteria.keySet()
+        if (!mandatoryTrueFields.isEmpty() && !moduleSearchCriteria.keySet()
             .containsAll(mandatoryTrueFields)) {
             throw new CustomException("INVALID_SEARCH_CRITERIA",
                 "Mandatory fields are missing in the moduleSearchCriteria");
