@@ -380,16 +380,11 @@ public class BoundaryRepository {
 					logger.info("TIME TAKEN for filterBoundaryCodes() = " + (end - start) + "ms");
 				}
 
-				if (boundarySearchRequest.getBoundaryTypeName() != null
+				if (!isRootLevelBoundaryType && boundarySearchRequest.getBoundaryTypeName() != null
 						&& !boundarySearchRequest.getBoundaryTypeName().isEmpty()) {
 					list.clear();
 					start = new Date().getTime();
-					if (isRootLevelBoundaryType) {
-						list = filterBoundaryCodes(Collections.singletonList(tenantBndry.getBoundary()), boundarySearchRequest.getCodes());
-					} else {
-						list = filterBoundaryCodes(tenantBndry.getBoundary().getChildren(),
-								boundarySearchRequest.getCodes());
-					}
+					list = prepareChildBoundaryList(tenantBndry);
 					end = new Date().getTime();
 					logger.info("TIME TAKEN for prepareChildBoundaryList() = " + (end - start) + "ms");
 					list = list.stream()
