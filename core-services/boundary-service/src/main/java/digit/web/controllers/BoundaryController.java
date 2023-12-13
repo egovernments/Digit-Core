@@ -1,6 +1,7 @@
 package digit.web.controllers;
 
 import digit.service.BoundaryService;
+import digit.service.ReverseGeocodingService;
 import digit.web.models.*;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,12 @@ public class BoundaryController {
 
     private BoundaryService boundaryService;
 
+    private ReverseGeocodingService reverseGeocodingService;
+
     @Autowired
-    public BoundaryController(BoundaryService boundaryService) {
+    public BoundaryController(BoundaryService boundaryService, ReverseGeocodingService reverseGeocodingService) {
         this.boundaryService = boundaryService;
+        this.reverseGeocodingService = reverseGeocodingService;
     }
 
     /**
@@ -53,6 +57,12 @@ public class BoundaryController {
     public ResponseEntity<BoundaryResponse> update(@Valid @RequestBody BoundaryRequest body) {
         BoundaryResponse boundaryResponse = boundaryService.updateBoundary(body);
         return new ResponseEntity<>(boundaryResponse,HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/_getStateFromCoordinates", method = RequestMethod.POST)
+    public ResponseEntity<Object> getState(@Valid @RequestBody CoordinateRequest body) {
+        String stateResponse = reverseGeocodingService.getState(body);
+        return new ResponseEntity<>(stateResponse, HttpStatus.ACCEPTED);
     }
 
 }
