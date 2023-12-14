@@ -1,4 +1,4 @@
-name: Java CI Build
+name: Build and Push Docker Images
 
 on:
   push:
@@ -18,21 +18,30 @@ jobs:
       with:
         java-version: '8'
         distribution: 'adopt'
-
-    - name: Cache Maven Packages
-      uses: actions/cache@v2
+    - name: Set up Kaniko
+      uses: GoogleContainerTools/kaniko-action@v0.1
       with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        image: gcr.io/kaniko-project/executor:debug
+        args: >
+          --context "${{ github.workspace }}"
+          --dockerfile "${{ github.workspace }}/Dockerfile"
+          --destination "${{ env.REGISTRY_IMAGE }}:${{ matrix.ARCH }}"
 
-    - name: Maven Build
-      run: mvn -B package --file pom.xml
+      
+    # - name: Cache Maven Packages
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: ~/.m2
+    #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+    #     restore-keys: ${{ runner.os }}-m2
 
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: build/maven/Dockerfile
-        push: true
-        tags: user/repo:tag
+    # - name: Maven Build
+    #   run: mvn -B package --file pom.xml
+
+    # - name: Build and Push Docker Image
+    #   uses: docker/build-push-action@v2
+    #   with:
+    #     context: .
+    #     file: build/maven/Dockerfile
+    #     push: true
+    #     tags: user/repo:tag
