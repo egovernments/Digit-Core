@@ -62,7 +62,7 @@ public class BoundaryController {
     @RequestMapping(value = "/_getStateFromCoordinates", method = RequestMethod.POST)
     public ResponseEntity<Object> getState(@Valid @RequestBody CoordinateRequest body) {
         String stateResponse = reverseGeocodingService.getState(body);
-        return new ResponseEntity<>(stateResponse, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(stateResponse, HttpStatus.OK);
     }
 
 }
