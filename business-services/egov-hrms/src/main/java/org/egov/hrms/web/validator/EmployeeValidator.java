@@ -66,8 +66,13 @@ public class EmployeeValidator {
 		if(!CollectionUtils.isEmpty(mdmsData.keySet())){
 			request.getEmployees().stream().forEach(employee -> validateMdmsData(employee, errorMap, mdmsData,boundaryMap));
 		}
-		if(!CollectionUtils.isEmpty(errorMap.keySet()))
+		if(!CollectionUtils.isEmpty(errorMap.keySet())){
+			log.info("mdms data");
+			log.info(mdmsData.toString());
+			log.info(request.toString());
 			throw new CustomException(errorMap);
+		}
+		
 	}
 
 	public Map<String, List<String>> getBoundaryList(RequestInfo requestInfo,Employee employee){
