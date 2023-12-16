@@ -31,6 +31,9 @@ public class MDMSController {
      */
     @RequestMapping(value="_search", method = RequestMethod.POST)
     public ResponseEntity<?> search(@Valid @RequestBody MdmsCriteriaReq body) {
+        log.info("tenantId: "+body.getMdmsCriteria().getTenantId());
+        log.info("v1 criteria: "+body.getMdmsCriteria().getModuleDetails().toString());
+
         Map<String,Map<String,JSONArray>>  moduleMasterMap = mdmsService.search(body);
         MdmsResponse mdmsResponse = MdmsResponse.builder()
                 .mdmsRes(moduleMasterMap)

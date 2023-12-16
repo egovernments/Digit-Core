@@ -43,6 +43,8 @@ public class MDMSControllerV2 {
      */
     @RequestMapping(value="_search", method = RequestMethod.POST)
     public ResponseEntity<MdmsResponseV2> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
+        log.info("tenantId: "+masterDataSearchCriteria.getMdmsCriteria().getTenantId());
+        log.info("v2 criteria: "+masterDataSearchCriteria.getMdmsCriteria().getSchemaCode().toString());
         List<Mdms> masterDataList = mdmsServiceV2.search(masterDataSearchCriteria);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(RequestInfo.builder().build(), masterDataList), HttpStatus.OK);
     }
