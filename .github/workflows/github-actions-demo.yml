@@ -7,15 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  list_files:
-    runs-on: arc-runner-set-uat
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: List Files
-        run: ls -R
-
   Explore-GitHub-Actions:
     runs-on: arc-runner-set-uat
     steps:
