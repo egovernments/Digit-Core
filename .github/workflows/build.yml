@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: [self-hosted, arc-runner-set-uat]
+    runs-on: arc-runner-set-uat
 
     steps:
     - uses: actions/checkout@v3
