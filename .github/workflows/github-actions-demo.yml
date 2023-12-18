@@ -11,8 +11,7 @@ jobs:
 
         steps:
             - name: Checkout Repository
-                uses: actions/checkout@v2
+              uses: actions/checkout@v2
 
-            - name: 
-                List Files
-                run: ls -R
+            - name: List Files
+              run: ls -R
