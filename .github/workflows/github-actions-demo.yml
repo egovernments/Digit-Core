@@ -1,17 +1,22 @@
-name: List Files
+name: Actions Runner Controller Demo
 
 on:
-    push:
-        branches:
-            - githubactions-deploy
+  push:
+    branches:
+      - githubactions-deploy
+  workflow_dispatch:
 
 jobs:
-    list_files:
-        runs-on: ubuntu-latest
+  list_files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v2
+      - name: List Files
+        run: ls -R
 
-            - name: List Files
-              run: ls -R
+  Explore-GitHub-Actions:
+    runs-on: arc-runner-set
+    steps:
+      - run: echo "🎉 This job uses runner scale set runners!"
