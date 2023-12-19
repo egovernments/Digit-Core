@@ -46,7 +46,8 @@ public class MdmsCriteriaV2 {
     private Map<String, String> filterMap = null;
 
     @JsonProperty("isActive")
-    private Boolean isActive = null;
+    @Builder.Default
+    private Boolean isActive = Boolean.TRUE;
 
     @JsonIgnore
     private Map<String, String> schemaCodeFilterMap = null;
