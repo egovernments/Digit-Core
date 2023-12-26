@@ -2,6 +2,8 @@ package org.egov.infra.mdms.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
+import org.egov.common.utils.ResponseInfoUtil;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.MDMSServiceV2;
 import org.egov.infra.mdms.utils.ResponseUtil;
@@ -42,9 +44,16 @@ public class MDMSControllerV2 {
      * @return
      */
     @RequestMapping(value="_search", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
-        List<Mdms> masterDataList = mdmsServiceV2.search(masterDataSearchCriteria);
-        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(RequestInfo.builder().build(), masterDataList), HttpStatus.OK);
+    public ResponseEntity<MasterDataSearchResponse> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
+
+        List<MasterDataResponse> masterDataResponses = mdmsServiceV2.bulkSearch(masterDataSearchCriteria);
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(masterDataSearchCriteria.getRequestInfo(), Boolean.TRUE);
+        MasterDataSearchResponse masterDataSearchResponse = MasterDataSearchResponse.builder()
+                .masterDataResponse(masterDataResponses)
+                .responseInfo(responseInfo)
+                .build();
+
+        return new ResponseEntity<>(masterDataSearchResponse , HttpStatus.OK);
     }
 
     /**

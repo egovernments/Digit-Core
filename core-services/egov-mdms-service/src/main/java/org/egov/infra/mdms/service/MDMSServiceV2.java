@@ -1,21 +1,22 @@
 package org.egov.infra.mdms.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.common.utils.ResponseInfoUtil;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
 import org.egov.infra.mdms.utils.FallbackUtil;
+import org.egov.infra.mdms.utils.ResponseUtil;
 import org.egov.infra.mdms.utils.SchemaUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -89,6 +90,29 @@ public class MDMSServiceV2 {
         }
 
         return masterDataList;
+    }
+
+    /**
+     * This method is a wrapper on search to process the search request with multiple schema code.
+     * @param mdmsCriteriaReqV2
+     * @return
+     */
+    public List<MasterDataResponse> bulkSearch(MdmsCriteriaReqV2 mdmsCriteriaReqV2){
+
+        Set<String> schemaCode = mdmsCriteriaReqV2.getMdmsCriteria().getSchemaCode();
+        List<MasterDataResponse> masterDataResponses = new ArrayList<>();
+        for(String code : schemaCode){
+
+            // override the schema code in existing mdms-search-criteria
+            mdmsCriteriaReqV2.getMdmsCriteria().setSchemaCode(Collections.singleton(code));
+            MasterDataResponse masterDataResponse = MasterDataResponse.builder()
+                    .masterData(search(mdmsCriteriaReqV2))
+                    .schemaCode(code)
+                    .build();
+
+            masterDataResponses.add(masterDataResponse);
+        }
+        return masterDataResponses;
     }
 
     /**

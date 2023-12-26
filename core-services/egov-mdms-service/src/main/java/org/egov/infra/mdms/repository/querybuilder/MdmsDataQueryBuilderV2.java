@@ -63,10 +63,10 @@ public class MdmsDataQueryBuilderV2 {
             builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(schemaCodeFilterMap.keySet().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
         }
-        if(!Objects.isNull(mdmsCriteriaV2.getSchemaCode())){
+        if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getSchemaCode())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.schemacode = ? ");
-            preparedStmtList.add(mdmsCriteriaV2.getSchemaCode());
+            preparedStmtList.addAll(mdmsCriteriaV2.getSchemaCode());
         }
         if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getFilterMap())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
