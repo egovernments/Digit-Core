@@ -9,6 +9,7 @@ import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
 import org.egov.infra.mdms.utils.FallbackUtil;
+import org.egov.infra.mdms.utils.MdmsUtil;
 import org.egov.infra.mdms.utils.ResponseUtil;
 import org.egov.infra.mdms.utils.SchemaUtil;
 import org.json.JSONObject;
@@ -32,14 +33,17 @@ public class MDMSServiceV2 {
 
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
+    private MdmsUtil mdmsUtil;
+
     @Autowired
     public MDMSServiceV2(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil) {
+                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil, MdmsUtil mdmsUtil) {
         this.mdmsDataValidator = mdmsDataValidator;
         this.mdmsDataEnricher = mdmsDataEnricher;
         this.mdmsDataRepository = mdmsDataRepository;
         this.schemaUtil = schemaUtil;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
+        this.mdmsUtil = mdmsUtil;
     }
 
     /**
@@ -94,24 +98,34 @@ public class MDMSServiceV2 {
 
     /**
      * This method is a wrapper on search to process the search request with multiple schema code.
-     * @param mdmsCriteriaReqV2
+     * @param multiSchemaSearchReq
      * @return
      */
-    public List<MasterDataResponse> bulkSearch(MdmsCriteriaReqV2 mdmsCriteriaReqV2){
+    public List<MasterDataResponse> multiSchemaSearch(MultiSchemaSearchReq multiSchemaSearchReq){
 
-        Set<String> schemaCode = mdmsCriteriaReqV2.getMdmsCriteria().getSchemaCode();
         List<MasterDataResponse> masterDataResponses = new ArrayList<>();
-        for(String code : schemaCode){
 
-            // override the schema code in existing mdms-search-criteria
-            mdmsCriteriaReqV2.getMdmsCriteria().setSchemaCode(Collections.singleton(code));
+        // convert multi-schema-search-request to mdms-criteria-request
+        MdmsCriteriaReqV2 mdmsCriteriaReqV2 = mdmsUtil.convertToMdmsCriteriaReqV2(multiSchemaSearchReq);
+
+        for(String schemaCode: multiSchemaSearchReq.getMdmsCriteria().getSchemaCode()){
+
+            // set schema code in mdms criteria request
+            mdmsCriteriaReqV2.getMdmsCriteria().setSchemaCode(schemaCode);
+
+            // search master-data for each schema code
+            List<Mdms> masterDataList = search(mdmsCriteriaReqV2);
+
+            // build master-data-response for each schema code
             MasterDataResponse masterDataResponse = MasterDataResponse.builder()
-                    .masterData(search(mdmsCriteriaReqV2))
-                    .schemaCode(code)
+                    .masterData(masterDataList)
+                    .schemaCode(schemaCode)
                     .build();
 
+            // add master-data-response to list of master-data-responses
             masterDataResponses.add(masterDataResponse);
         }
+
         return masterDataResponses;
     }
 

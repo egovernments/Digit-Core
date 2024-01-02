@@ -40,14 +40,16 @@ public class MDMSControllerV2 {
 
     /**
      * Request handler for serving search requests
-     * @param masterDataSearchCriteria
+     * @param multiSchemaSearchReq
      * @return
      */
     @RequestMapping(value="_search", method = RequestMethod.POST)
-    public ResponseEntity<MasterDataSearchResponse> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
+    public ResponseEntity<MasterDataSearchResponse> search(@Valid @RequestBody MultiSchemaSearchReq multiSchemaSearchReq) {
 
-        List<MasterDataResponse> masterDataResponses = mdmsServiceV2.bulkSearch(masterDataSearchCriteria);
-        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(masterDataSearchCriteria.getRequestInfo(), Boolean.TRUE);
+        List<MasterDataResponse> masterDataResponses = mdmsServiceV2.multiSchemaSearch(multiSchemaSearchReq);
+
+        // Create master data search response
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(multiSchemaSearchReq.getRequestInfo(), Boolean.TRUE);
         MasterDataSearchResponse masterDataSearchResponse = MasterDataSearchResponse.builder()
                 .masterDataResponse(masterDataResponses)
                 .responseInfo(responseInfo)
