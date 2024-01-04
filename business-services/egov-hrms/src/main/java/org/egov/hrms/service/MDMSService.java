@@ -34,7 +34,11 @@ public class MDMSService {
 	@Value("${egov.mdms.search.endpoint}")
 	private String mdmsEndpoint;
 	
+	@Value("${egov.mdmslegacy.host}")
+	private String mdmsLegacyHost;
 	
+	@Value("${egov.mdmslegacy.search.endpoint}")
+	private String mdmsLegacyEndpoint;
 	/**
 	 * Builds cache for MDMS data, this gets refreshed for every call.
 	 * 
@@ -180,7 +184,7 @@ public class MDMSService {
 			moduleDetail.setMasterDetails(masterDetails);
 			moduleDetails.add(moduleDetail);
 		}
-		uri.append(mdmsHost).append(mdmsEndpoint);
+		uri.append(mdmsLegacyHost).append(mdmsLegacyEndpoint);
 		MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(tenantId).moduleDetails(moduleDetails).build();
 		return MdmsCriteriaReq.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
 
