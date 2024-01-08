@@ -18,4 +18,4 @@ Path   = boundary/geom/_search
 
 ### **Postman collection**
 
-[gis-service.postman_collection.json](..%2F..%2F..%2F..%2Fpostman%20collection%2Fgis-service.postman_collection.json)
+https://drive.google.com/drive/folders/1RchxgK-qqHanWpdcGri6lnvAQEY_Y6Z8
