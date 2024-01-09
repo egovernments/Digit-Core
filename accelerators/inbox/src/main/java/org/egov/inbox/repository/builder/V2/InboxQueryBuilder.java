@@ -218,7 +218,7 @@ public class InboxQueryBuilder implements QueryBuilderInterface {
 						log.info("Error occurred while preparing filter for must clause. Filter for key " + key
 								+ " will not be added.");
 					} else {
-						mustClauseList.add(mustClauseChild);
+						mustClauseList.addAll(mustClauseChild);
 					}
 				} else {
 
