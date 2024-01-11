@@ -4,7 +4,8 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: arc-runner-set-uat
+    # runs-on: arc-runner-set-uat
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -17,12 +18,12 @@ jobs:
         java-version: '8'
         distribution: 'adopt'
 
-    - name: Build with Maven
-      run: echo "Hello githubactions!"
+    - name: Terraform version
+      run: terraform version
 
-    - name: Run custom scripts
-      run: |
-        /scripts/get_application_version.sh core-services/egov-mdms-service
-        /scripts/get_folder_commit.sh core-services/egov-mdms-service
 
-    # Add any additional steps you need here
+    # - name: Run custom scripts
+    #   run: |
+    #     /scripts/get_application_version.sh core-services/egov-mdms-service
+    #     /scripts/get_folder_commit.sh core-services/egov-mdms-service
+
