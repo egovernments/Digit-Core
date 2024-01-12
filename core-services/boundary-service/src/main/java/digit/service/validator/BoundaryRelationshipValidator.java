@@ -1,14 +1,20 @@
 package digit.service.validator;
 
+import digit.config.ApplicationProperties;
 import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.BoundaryRepository;
+import digit.repository.impl.BoundaryRepoSyncImpl;
+import digit.util.GeoSpatialValidationUtil;
 import digit.util.HierarchyUtil;
 import digit.web.models.*;
 import org.egov.tracer.model.CustomException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -18,15 +24,24 @@ public class BoundaryRelationshipValidator {
 
     private BoundaryRelationshipRepository boundaryRelationshipRepository;
 
-    private BoundaryRepository boundaryRepository;
+    private BoundaryRepoSyncImpl boundaryRepository;
+
+    private  JdbcTemplate jdbcTemplate;
 
     private HierarchyUtil hierarchyUtil;
 
-    public BoundaryRelationshipValidator(BoundaryRelationshipRepository boundaryRelationshipRepository, BoundaryRepository boundaryRepository,
-                                         HierarchyUtil hierarchyUtil) {
+    private GeoSpatialValidationUtil geoSpatialValidationUtil;
+
+    private ApplicationProperties applicationProperties;
+
+    public BoundaryRelationshipValidator(BoundaryRelationshipRepository boundaryRelationshipRepository, BoundaryRepoSyncImpl boundaryRepository, JdbcTemplate jdbcTemplate,
+                                         HierarchyUtil hierarchyUtil, GeoSpatialValidationUtil geoSpatialValidationUtil, ApplicationProperties applicationProperties) {
         this.boundaryRelationshipRepository = boundaryRelationshipRepository;
         this.boundaryRepository = boundaryRepository;
+        this.jdbcTemplate = jdbcTemplate;
         this.hierarchyUtil = hierarchyUtil;
+        this.geoSpatialValidationUtil = geoSpatialValidationUtil;
+        this.applicationProperties = applicationProperties;
     }
 
     /**
@@ -47,8 +62,40 @@ public class BoundaryRelationshipValidator {
         // Check if the relationship being created has proper hierarchy
         validateRelationshipForProperHierarchy(body, parentAttributes.getSecond());
 
+        // check if the code lies within polygon
+        validateChildWithinParent(body);
+
         // Return ancestralMaterializedPath of parent
         return parentAttributes.getFirst();
+    }
+
+    public void validateChildWithinParent(BoundaryRelationshipRequest body) {
+
+        List<String> codes = Arrays.asList(body.getBoundaryRelationship().getCode(), body.getBoundaryRelationship().getParent());
+        List<Boundary> boundaryList = boundaryRepository.search(BoundarySearchCriteria.builder()
+                .tenantId(body.getBoundaryRelationship().getTenantId())
+                .codes(codes)
+                .build());
+
+        if(boundaryList.size() == 2) {
+            if(applicationProperties.getIsValidateChildWithinParentEnabled())
+                geoSpatialValidationUtil.validatePolygonWithin(boundaryList.get(0).getGeometry(), boundaryList.get(1).getGeometry());
+        }
+        else {
+            throw new CustomException("INVALID_CHILD_PARENT_RELATIONSHIP", "Either child or parent boundary does not exist");
+        }
+    }
+
+    public void validateBoundaryRelationshipSearchRequest(BoundaryRelationshipSearchCriteria criteria) {
+        // use ObjectUtil instead of Objects
+        if(!Objects.isNull(criteria.getLatitude()) && !Objects.isNull(criteria.getLongitude())) {
+            if(Objects.isNull(criteria.getBoundaryType())) {
+                throw new CustomException("INVALID_SEARCH_CRITERIA", "Boundary type is mandatory when latitude and longitude are provided.");
+            }
+        }
+        else if( (Objects.isNull(criteria.getLatitude()) || Objects.isNull(criteria.getLongitude())) && (!Objects.equals(criteria.getLatitude(),criteria.getLongitude()))) {
+            throw new CustomException("INVALID_SEARCH_CRITERIA", "Both latitude and longitude should be provided.");
+        }
     }
 
     /**

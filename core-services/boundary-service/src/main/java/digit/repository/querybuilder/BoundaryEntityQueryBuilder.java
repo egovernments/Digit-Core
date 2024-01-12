@@ -55,6 +55,11 @@ public class BoundaryEntityQueryBuilder {
             Set<String> codes = new HashSet<>(boundarySearchCriteria.getCodes());
             QueryUtil.addToPreparedStatement(preparedStmtList , codes);
         }
+        if(!Objects.isNull(boundarySearchCriteria.getLatitude()) && !Objects.isNull(boundarySearchCriteria.getLongitude())) {
+                QueryUtil.addClauseIfRequired(builder , preparedStmtList);
+//                String.format("ST_Within(ST_Transform('SRID=4326;POINT(%f %f)'::geometry, 4326),geom)",  Double.parseDouble(boundarySearchCriteria.getLongitude()), Double.parseDouble(boundarySearchCriteria.getLatitude()));
+                builder.append(String.format("ST_Within(ST_Transform('SRID=4326;POINT(%f %f)'::geometry, 4326),geom)",  Double.parseDouble(boundarySearchCriteria.getLongitude()), Double.parseDouble(boundarySearchCriteria.getLatitude())));
+        }
         return builder.toString();
     }
 

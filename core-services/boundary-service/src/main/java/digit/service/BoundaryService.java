@@ -1,6 +1,7 @@
 package digit.service;
 
 import digit.config.ApplicationProperties;
+import digit.repository.impl.BoundaryRepoSyncImpl;
 import digit.repository.impl.BoundaryRepositoryImpl;
 import digit.service.enrichment.BoundaryEntityEnricher;
 import digit.service.validator.BoundaryEntityValidator;
@@ -25,10 +26,11 @@ public class BoundaryService {
 
     private  ApplicationProperties configuration;
 
-    private  BoundaryRepositoryImpl repository;
+//    private  BoundaryRepositoryImpl repository;
+    private BoundaryRepoSyncImpl repository;
 
     public BoundaryService(BoundaryEntityValidator boundaryEntityValidator , ResponseUtil responseUtil,
-                           ApplicationProperties configuration , BoundaryRepositoryImpl repository) {
+                           ApplicationProperties configuration , BoundaryRepoSyncImpl repository) {
 
         this.boundaryEntityValidator = boundaryEntityValidator;
         this.responseUtil = responseUtil;
@@ -53,9 +55,9 @@ public class BoundaryService {
         BoundaryResponse boundaryResponse = responseUtil.createBoundaryResponse(boundaryRequest);
 
         // delegating the request to repository to further persist in db
-        repository.create(boundaryRequest);
+         repository.create(boundaryRequest);
 
-        return boundaryResponse;
+         return boundaryResponse;
     }
 
     /**
@@ -64,6 +66,9 @@ public class BoundaryService {
      * @return
      */
     public BoundaryResponse searchBoundary(BoundarySearchCriteria boundarySearchCriteria , RequestInfo requestInfo) {
+
+        // Check for valid search criteria request
+         boundaryEntityValidator.validateBoundarySearchCriteriaRequest(boundarySearchCriteria);
 
         // Search for boundary entity
         List<Boundary> boundaryList = repository.search(boundarySearchCriteria);

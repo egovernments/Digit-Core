@@ -41,7 +41,7 @@ public class BoundaryRelationshipController {
      */
     @RequestMapping(value = "/_search", method = RequestMethod.POST)
     public ResponseEntity<BoundarySearchResponse> search(@Valid @ModelAttribute BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria, @RequestBody RequestInfo requestInfo) {
-        BoundarySearchResponse boundarySearchResponse = boundaryRelationshipService.getBoundaryRelationships(boundaryRelationshipSearchCriteria, requestInfo);
+        BoundarySearchResponse boundarySearchResponse = boundaryRelationshipService.getBoundaryRelationshipsWrapper(boundaryRelationshipSearchCriteria, requestInfo);
         return new ResponseEntity<>(boundarySearchResponse, HttpStatus.OK);
     }
 

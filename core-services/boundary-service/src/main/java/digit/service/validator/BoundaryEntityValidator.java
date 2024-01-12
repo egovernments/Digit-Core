@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.constants.BoundaryConstants;
 import digit.errors.ErrorCodes;
+import digit.repository.impl.BoundaryRepoSyncImpl;
 import digit.repository.impl.BoundaryRepositoryImpl;
 import digit.util.GeoUtil;
 import digit.web.models.*;
@@ -21,9 +22,11 @@ public class BoundaryEntityValidator {
 
     private final ObjectMapper objectMapper;
 
-    private final BoundaryRepositoryImpl boundaryRepository;
+//    private final BoundaryRepositoryImpl boundaryRepository;
 
-    public BoundaryEntityValidator(ObjectMapper objectMapper, BoundaryRepositoryImpl boundaryRepository) {
+    private final BoundaryRepoSyncImpl boundaryRepository;
+
+    public BoundaryEntityValidator(ObjectMapper objectMapper, BoundaryRepoSyncImpl boundaryRepository) {
         this.objectMapper = objectMapper;
         this.boundaryRepository = boundaryRepository;
     }
@@ -45,6 +48,21 @@ public class BoundaryEntityValidator {
 
         // validate for unique boundaries in the request
         checkForDuplicatesInRequest(boundaryRequest);
+    }
+
+    public void validateBoundarySearchCriteriaRequest(BoundarySearchCriteria boundarySearchCriteria) {
+
+        // check lat,long exist and if yes then pairs with boundary type and no boundaryType
+        if(!Objects.isNull(boundarySearchCriteria.getLatitude()) && !Objects.isNull(boundarySearchCriteria.getLongitude())) {
+            if(!CollectionUtils.isEmpty(boundarySearchCriteria.getCodes())) {
+                throw new CustomException(ErrorCodes.INVALID_SEARCH_CODE, ErrorCodes.INVALID_SEARCH_MSG);
+            }
+        }
+        else {
+            if(CollectionUtils.isEmpty(boundarySearchCriteria.getCodes())) {
+                throw new CustomException(ErrorCodes.NOT_FOUND_CODES_CODE, ErrorCodes.NOT_FOUND_CODES_MSG);
+            }
+        }
     }
 
     /**

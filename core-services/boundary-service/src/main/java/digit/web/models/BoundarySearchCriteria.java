@@ -1,5 +1,6 @@
 package digit.web.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,8 +19,6 @@ import java.util.List;
 @Builder
 public class BoundarySearchCriteria {
 
-    @NotNull
-    @Size(min = 1)
     @JsonProperty("codes")
     private List<String> codes;
 
@@ -29,6 +28,14 @@ public class BoundarySearchCriteria {
 
     @JsonProperty("offset")
     private Integer offset;
+
+    @JsonIgnore
+    @Builder.Default
+    private String latitude = null;
+
+    @JsonIgnore
+    @Builder.Default
+    private String longitude = null;
 
     @JsonProperty("limit")
     private Integer limit;

@@ -107,4 +107,10 @@ public class ApplicationProperties {
 
     @Value("${boundary.max.default.limit}")
     private Integer maxDefaultLimit;
+
+    @Value("${boundary.relationship.validate.child.within.parent}")
+    private Boolean isValidateChildWithinParentEnabled;
+
+    @Value("${geometry.default.SRID}")
+    private String SpatialReferenceSystemIdentifier;
 }

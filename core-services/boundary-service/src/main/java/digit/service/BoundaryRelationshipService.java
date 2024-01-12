@@ -1,6 +1,7 @@
 package digit.service;
 
 import digit.repository.BoundaryRelationshipRepository;
+import digit.repository.querybuilder.BoundaryEntityQueryBuilder;
 import digit.service.enrichment.BoundaryRelationshipEnricher;
 import digit.service.validator.BoundaryRelationshipValidator;
 import digit.util.HierarchyUtil;
@@ -22,13 +23,16 @@ public class BoundaryRelationshipService {
 
     private BoundaryRelationshipRepository boundaryRelationshipRepository;
 
+    private final BoundaryService boundaryService;
+
     private HierarchyUtil hierarchyUtil;
 
     public BoundaryRelationshipService(BoundaryRelationshipValidator boundaryRelationshipValidator, BoundaryRelationshipEnricher boundaryRelationshipEnricher,
-                                       BoundaryRelationshipRepository boundaryRelationshipRepository, HierarchyUtil hierarchyUtil) {
+                                       BoundaryRelationshipRepository boundaryRelationshipRepository, BoundaryService boundaryService, HierarchyUtil hierarchyUtil) {
         this.boundaryRelationshipValidator = boundaryRelationshipValidator;
         this.boundaryRelationshipEnricher = boundaryRelationshipEnricher;
         this.boundaryRelationshipRepository = boundaryRelationshipRepository;
+        this.boundaryService = boundaryService;
         this.hierarchyUtil = hierarchyUtil;
     }
 
@@ -54,6 +58,37 @@ public class BoundaryRelationshipService {
                 .tenantBoundary(Collections.singletonList(body.getBoundaryRelationship()))
                 .build();
 
+    }
+
+    public BoundarySearchResponse getBoundaryRelationshipsWrapper(BoundaryRelationshipSearchCriteria searchCriteria, RequestInfo requestInfo){
+
+        boundaryRelationshipValidator.validateBoundaryRelationshipSearchRequest(searchCriteria);
+
+        BoundarySearchCriteria boundarySearchCriteria = BoundarySearchCriteria.builder()
+                .tenantId(searchCriteria.getTenantId())
+                .latitude(searchCriteria.getLatitude())
+                .longitude(searchCriteria.getLongitude())
+                .codes(searchCriteria.getCodes())
+                .build();
+
+        // get codes from boundary
+        BoundaryResponse boundarySearchResponse = boundaryService.searchBoundary(boundarySearchCriteria, requestInfo);
+        List<String> boundaryCodes = boundarySearchResponse.getBoundary().stream().map(Boundary::getCode).collect(Collectors.toList());
+
+        if(CollectionUtils.isEmpty(boundaryCodes)) {
+            boundaryCodes = searchCriteria.getCodes();
+        }
+
+        BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria = BoundaryRelationshipSearchCriteria.builder()
+                .tenantId(searchCriteria.getTenantId())
+                .hierarchyType(searchCriteria.getHierarchyType())
+                .boundaryType(searchCriteria.getBoundaryType())
+                .codes(boundaryCodes)
+                .includeChildren(searchCriteria.getIncludeChildren())
+                .includeParents(searchCriteria.getIncludeParents())
+                .build();
+
+        return getBoundaryRelationships(boundaryRelationshipSearchCriteria, requestInfo);
     }
 
     /**

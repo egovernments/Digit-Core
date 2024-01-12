@@ -37,6 +37,12 @@ public class BoundaryRelationshipSearchCriteria {
     @JsonProperty("codes")
     private List<String> codes = null;
 
+    @JsonProperty("latitude")
+    private String latitude = null;
+
+    @JsonProperty("longitude")
+    private String longitude = null;
+
     @JsonProperty("includeChildren")
     @Builder.Default
     private Boolean includeChildren = Boolean.FALSE;
