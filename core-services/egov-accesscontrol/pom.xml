@@ -13,7 +13,7 @@
 
     <parent>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot</artifactId>
+        <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.18</version>
     </parent>
 
@@ -53,7 +53,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>5.2.20.RELEASE</version>
         </dependency>
 
         <dependency>
