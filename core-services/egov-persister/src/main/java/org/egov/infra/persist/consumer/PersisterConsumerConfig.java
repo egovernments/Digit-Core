@@ -19,7 +19,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer2;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import javax.annotation.PostConstruct;
@@ -70,8 +70,8 @@ public class PersisterConsumerConfig {
 
         JsonDeserializer jsonDeserializer = new JsonDeserializer<>(Object.class,false);
 
-        ErrorHandlingDeserializer2<String> errorHandlingDeserializer
-                = new ErrorHandlingDeserializer2<>(jsonDeserializer);
+        ErrorHandlingDeserializer<String> errorHandlingDeserializer
+                = new ErrorHandlingDeserializer<>(jsonDeserializer);
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), errorHandlingDeserializer);
     }

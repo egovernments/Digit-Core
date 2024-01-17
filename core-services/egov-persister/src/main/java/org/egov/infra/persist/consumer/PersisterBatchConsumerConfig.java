@@ -22,7 +22,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.*;
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer2;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import javax.annotation.PostConstruct;
@@ -81,8 +81,8 @@ public class PersisterBatchConsumerConfig {
 
         JsonDeserializer jsonDeserializer = new JsonDeserializer<>(Object.class,false);
 
-        ErrorHandlingDeserializer2<String> errorHandlingDeserializer
-                = new ErrorHandlingDeserializer2<>(jsonDeserializer);
+        ErrorHandlingDeserializer<String> errorHandlingDeserializer
+                = new ErrorHandlingDeserializer<>(jsonDeserializer);
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), errorHandlingDeserializer);
 
