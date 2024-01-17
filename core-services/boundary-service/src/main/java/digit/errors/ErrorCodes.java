@@ -30,5 +30,10 @@ public class ErrorCodes {
     public static final String MULTIPLE_ROOT_NODES_ERR_MSG = "Hierarchy definition must have only one root node.";
     public static final String DUPLICATE_BOUNDARY_CODE = "DUPLICATE_BOUNDARY";
     public static final String DUPLICATE_BOUNDARY_MSG = "Duplicate boundary entities found in the request.";
-
+    public static final String INVALID_SEARCH_CODE = "INVALID_BOUNDARY_SEARCH_CRITERIA";
+    public static final String INVALID_SEARCH_MSG = "Invalid search criteria. Search criteria must contain either codes or coordinates not both.";
+    public static final String NOT_FOUND_CODES_CODE = "NOT_FOUND";
+    public static final String NOT_FOUND_CODES_MSG = "Boundary entity codes not found.";
+    public static final String INVALID_POLYGON_RELATIONSHIP_CODE = "INVALID_POLYGON_RELATIONSHIP";
+    public static final String INVALID_POLYGON_RELATIONSHIP_MSG = "child polygon is not within the parent polygon";
 }

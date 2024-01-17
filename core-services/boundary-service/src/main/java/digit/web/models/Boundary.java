@@ -43,4 +43,5 @@ public class Boundary {
 
     @JsonProperty("additionalDetails")
     private JsonNode additionalDetails = null;
+
 }

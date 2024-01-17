@@ -63,30 +63,4 @@ public class BoundaryController {
         BoundaryResponse boundaryResponse = boundaryService.updateBoundary(body);
         return new ResponseEntity<>(boundaryResponse,HttpStatus.ACCEPTED);
     }
-
-    @RequestMapping(value = "/_getStateFromCoordinates", method = RequestMethod.POST)
-    public ResponseEntity<Object> getState(@Valid @RequestBody CoordinateRequest body) {
-
-        List<String> stateResponse = reverseGeocodingService.getPolyNamesForPoint(body);
-        BoundarySearchCriteria boundarySearchCriteria = BoundarySearchCriteria.builder()
-                .codes(stateResponse)
-                .tenantId(body.getTenantId())
-                .build();
-
-        BoundaryResponse boundaryResponse = boundaryService.searchBoundary(boundarySearchCriteria, body.getRequestInfo());
-
-        BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria = BoundaryRelationshipSearchCriteria.builder()
-                .tenantId(body.getTenantId())
-                .hierarchyType(body.getHierarchyType())
-                .boundaryType(body.getBoundaryType())
-                .codes(stateResponse)
-                .includeChildren(Boolean.TRUE)
-                .includeParents(Boolean.FALSE)
-                .build();
-
-        BoundarySearchResponse boundaryRelationshipResponse = boundaryRelationshipService.getBoundaryRelationships(boundaryRelationshipSearchCriteria, body.getRequestInfo());
-
-        return new ResponseEntity<>(boundaryRelationshipResponse, HttpStatus.OK);
-    }
-
 }

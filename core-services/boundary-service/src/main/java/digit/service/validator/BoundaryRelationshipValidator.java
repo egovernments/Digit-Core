@@ -87,13 +87,20 @@ public class BoundaryRelationshipValidator {
     }
 
     public void validateBoundaryRelationshipSearchRequest(BoundaryRelationshipSearchCriteria criteria) {
+
         // use ObjectUtil instead of Objects
-        if(!Objects.isNull(criteria.getLatitude()) && !Objects.isNull(criteria.getLongitude())) {
-            if(Objects.isNull(criteria.getBoundaryType())) {
+        if(!ObjectUtils.isEmpty(criteria.getLatitude()) && !ObjectUtils.isEmpty(criteria.getLongitude())) {
+            if(ObjectUtils.isEmpty(criteria.getBoundaryType())) {
                 throw new CustomException("INVALID_SEARCH_CRITERIA", "Boundary type is mandatory when latitude and longitude are provided.");
             }
         }
-        else if( (Objects.isNull(criteria.getLatitude()) || Objects.isNull(criteria.getLongitude())) && (!Objects.equals(criteria.getLatitude(),criteria.getLongitude()))) {
+        if((ObjectUtils.isEmpty(criteria.getLatitude()) && !ObjectUtils.isEmpty(criteria.getLongitude())) || (ObjectUtils.isEmpty(criteria.getLatitude()) && !ObjectUtils.isEmpty(criteria.getLongitude()))) {
+            throw new CustomException("INVALID_SEARCH_CRITERIA", "Both latitude and longitude should be provided.");
+        }
+    }
+
+    public void checkForCoordinatesInPair(BoundaryRelationshipSearchCriteria criteria) {
+        if((ObjectUtils.isEmpty(criteria.getLatitude()) && !ObjectUtils.isEmpty(criteria.getLongitude())) || (ObjectUtils.isEmpty(criteria.getLatitude()) && !ObjectUtils.isEmpty(criteria.getLongitude()))) {
             throw new CustomException("INVALID_SEARCH_CRITERIA", "Both latitude and longitude should be provided.");
         }
     }
