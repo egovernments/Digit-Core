@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.5</version>
+        <version>2.7.18</version>
     </parent>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.2.jre7</version>
+            <version>42.2.24</version>
         </dependency>
     <!-- Bean Validation API support -->
         <dependency>
