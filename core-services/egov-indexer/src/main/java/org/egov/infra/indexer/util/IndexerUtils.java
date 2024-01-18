@@ -119,12 +119,15 @@ public class IndexerUtils {
 					Object response = null;
 					try {
 						StringBuilder url = new StringBuilder();
-						url.append(esHostUrl).append("/_search");
+						url.append(esHostUrl).append("/_cluster/health");
 						final HttpHeaders headers = new HttpHeaders();
 						headers.add("Authorization", getESEncodedCredentials());
+						log.info(getESEncodedCredentials());
 						final HttpEntity entity = new HttpEntity( headers);
 						response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
+						log.info(response.toString());
 					} catch (Exception e) {
+						log.error(e.getMessage());
 						log.error("ES is DOWN..");
 					}
 					if (response != null) {
