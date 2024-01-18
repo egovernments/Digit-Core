@@ -25,7 +25,9 @@ import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -82,6 +84,12 @@ public class IndexerUtils {
 	@Value("${id.timezone}")
 	private String timezone;
 
+	@Value("${egov.indexer.es.username}")
+	private String esUsername;
+
+	@Value("${egov.indexer.es.password}")
+	private String esPassword;
+
 	@Autowired
 	private IndexerProducer producer;
 
@@ -110,7 +118,9 @@ public class IndexerUtils {
 					try {
 						StringBuilder url = new StringBuilder();
 						url.append(esHostUrl).append("/_search");
-						response = restTemplate.getForObject(url.toString(), Map.class);
+						final HttpHeaders headers = new HttpHeaders();
+						headers.setBasicAuth(getESEncodedCredentials());
+						response = restTemplate.getForObject(url.toString(), Map.class, headers);
 					} catch (Exception e) {
 						log.error("ES is DOWN..");
 					}
@@ -753,5 +763,12 @@ public class IndexerUtils {
 		}catch (UnexpectedCharacterException e){
 			return defaultSemVer;
 		}
+	}
+
+	public String getESEncodedCredentials() {
+		String credentials = esUsername + ":" + esPassword;
+		byte[] credentialsBytes = credentials.getBytes();
+		byte[] base64CredentialsBytes = Base64Utils.encode(credentialsBytes);
+		return new String(base64CredentialsBytes);
 	}
 }
