@@ -61,7 +61,7 @@ public class IndexerService {
 	@Value("${egov.infra.indexer.host}")
 	private String esHostUrl;
 
-	@Value("${egov.infra.indexer.legacyVersion}")
+	@Value("${egov.infra.indexer.legacy.version}")
 	private Boolean isLegacyVersionES;
 
 	/**

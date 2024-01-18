@@ -92,7 +92,7 @@ public class LegacyIndexService {
     @Value("${egov.core.index.thread.poll.ms}")
     private Long indexThreadPollInterval;
 
-    @Value("${egov.infra.indexer.legacyVersion}")
+    @Value("${egov.infra.indexer.legacy.version}")
     private Boolean isLegacyVersionES;
 
 
