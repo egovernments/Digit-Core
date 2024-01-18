@@ -9,7 +9,11 @@ WORKDIR /usr/src/app
 COPY ../ .
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
+
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY .env .env
 
 # Run main.py when the container launches
 CMD ["python", "./main.py"]

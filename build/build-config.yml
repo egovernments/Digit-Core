@@ -427,7 +427,7 @@ config:
     build:
       - work-dir: "accelerators/pgr-ai-chatbot"
         image-name: "pgr-ai-chatbot"
-        dockerfile: "accelerators/pgr-ai-chatbot/ops/Dockerfile"
+        dockerfile: "accelerators/pgr-ai-chatbot/Dockerfile"
     
 
 # frontend
