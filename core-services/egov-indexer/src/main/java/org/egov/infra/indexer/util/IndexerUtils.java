@@ -25,7 +25,9 @@ import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
@@ -119,8 +121,9 @@ public class IndexerUtils {
 						StringBuilder url = new StringBuilder();
 						url.append(esHostUrl).append("/_search");
 						final HttpHeaders headers = new HttpHeaders();
-						headers.setBasicAuth(getESEncodedCredentials());
-						response = restTemplate.getForObject(url.toString(), Map.class, headers);
+						headers.add("Authorization", getESEncodedCredentials());
+						final HttpEntity entity = new HttpEntity( headers);
+						response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
 					} catch (Exception e) {
 						log.error("ES is DOWN..");
 					}
@@ -769,6 +772,6 @@ public class IndexerUtils {
 		String credentials = esUsername + ":" + esPassword;
 		byte[] credentialsBytes = credentials.getBytes();
 		byte[] base64CredentialsBytes = Base64Utils.encode(credentialsBytes);
-		return new String(base64CredentialsBytes);
+		return "Basic " + new String(base64CredentialsBytes);
 	}
 }

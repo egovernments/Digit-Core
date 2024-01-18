@@ -7,6 +7,7 @@ import org.egov.infra.indexer.web.contract.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -42,7 +43,7 @@ public class BulkIndexer {
 			log.debug("Record being indexed: " + indexJson);
 			final HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-			headers.setBasicAuth(indexerUtils.getESEncodedCredentials());
+			headers.add("Authorization", indexerUtils.getESEncodedCredentials());
 			final HttpEntity<String> entity = new HttpEntity<>(indexJson, headers);
 			Object response = restTemplate.postForObject(url.toString(), entity, Map.class);
 			if (url.contains("_bulk")) {
@@ -94,15 +95,18 @@ public class BulkIndexer {
 	public Object getESResponse(String url, Object body, String httpMethod) {
 		Object response = null;
 		if (null != body) {
+			final HttpHeaders headers = new HttpHeaders();
+			headers.add("Authorization", indexerUtils.getESEncodedCredentials());
+			final HttpEntity<Object> entity = new HttpEntity<>(body, headers);
 			if (httpMethod.equals("POST")) {
 				try {
-					response = restTemplate.postForObject(url, body, Map.class);
+					response = restTemplate.postForObject(url, entity, Map.class);
 				} catch (Exception e) {
 					log.error("POST: Exception while fetching from es: " + e);
 				}
 			} else if (httpMethod.equals("PUT")) {
 				try {
-					restTemplate.put(url, body);
+					restTemplate.put(url, entity);
 					response = "OK";
 				} catch (Exception e) {
 					log.error("PUT: Exception while updating settings on es: " + e);
@@ -110,7 +114,10 @@ public class BulkIndexer {
 			}
 		} else {
 			try {
-				response = restTemplate.getForObject(url, Map.class);
+				final HttpHeaders headers = new HttpHeaders();
+				headers.add("Authorization", indexerUtils.getESEncodedCredentials());
+				final HttpEntity entity = new HttpEntity(headers);
+				response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
 			} catch (Exception e) {
 				log.error("GET: Exception while fetching from es: " + e);
 			}
