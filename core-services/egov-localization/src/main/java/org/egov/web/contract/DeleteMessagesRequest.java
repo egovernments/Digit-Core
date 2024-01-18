@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.domain.model.MessageIdentity;
 import org.egov.domain.model.Tenant;
-import org.hibernate.validator.constraints.SafeHtml;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -24,7 +23,6 @@ public class DeleteMessagesRequest {
 	private RequestInfo requestInfo;
 
 	@NotNull
-    @SafeHtml
     @Size(max = 256)
 	private String tenantId;
 
