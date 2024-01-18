@@ -42,6 +42,7 @@ public class BulkIndexer {
 			log.debug("Record being indexed: " + indexJson);
 			final HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+			headers.setBasicAuth(indexerUtils.getESEncodedCredentials());
 			final HttpEntity<String> entity = new HttpEntity<>(indexJson, headers);
 			Object response = restTemplate.postForObject(url.toString(), entity, Map.class);
 			if (url.contains("_bulk")) {
