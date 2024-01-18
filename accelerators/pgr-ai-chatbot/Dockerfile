@@ -6,14 +6,12 @@ FROM python:3.10-slim
 WORKDIR /usr/src/app
 
 # Copy the entire project into the container
-COPY ../ .
+COPY . /usr/src/app
 
 # Install any needed packages specified in requirements.txt
-COPY requirements.txt .
+COPY requirements.txt /usr/src/app/
 
 RUN pip3 install --no-cache-dir -r requirements.txt
-
-COPY .env .env
 
 # Run main.py when the container launches
 CMD ["python", "./main.py"]
