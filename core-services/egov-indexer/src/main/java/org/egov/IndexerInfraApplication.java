@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -14,11 +13,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
@@ -38,22 +38,13 @@ public class IndexerInfraApplication {
 	}    
 
 	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
-		return restTemplateBuilder
-				.requestFactory(this::clientHttpRequestFactory)
-				.build();
-	}
-
-	private ClientHttpRequestFactory clientHttpRequestFactory() {
-		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-		// Set other properties if needed (e.g., timeouts)
-
-		// Bypass SSL verification
-		requestFactory.setConnectTimeout(5000);
-		requestFactory.setReadTimeout(5000);
-		requestFactory.setBufferRequestBody(false);
-
-		return requestFactory;
+	public RestTemplate restTemplate() {
+		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
+		});
+		return new RestTemplate();
 	}
 
 	@Bean
