@@ -103,22 +103,22 @@
           </excludes>
         </configuration>
       </plugin>
-<!--      <plugin>-->
-<!--        <artifactId>maven-pmd-plugin</artifactId>-->
-<!--        <version>3.7</version>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <phase>verify</phase>-->
-<!--            <goals>-->
-<!--              <goal>check</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--        <configuration>-->
-<!--          <linkXRef>false</linkXRef>-->
-<!--          <skipEmptyReport>false</skipEmptyReport>-->
-<!--        </configuration>-->
-<!--      </plugin>-->
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>3.7</version>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <linkXRef>false</linkXRef>
+          <skipEmptyReport>false</skipEmptyReport>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
