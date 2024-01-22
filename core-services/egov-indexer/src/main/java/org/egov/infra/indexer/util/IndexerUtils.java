@@ -119,7 +119,7 @@ public class IndexerUtils {
 					Object response = null;
 					try {
 						StringBuilder url = new StringBuilder();
-						url.append(esHostUrl).append("/_search");
+						url.append(esHostUrl).append("/_cluster/health");
 						final HttpHeaders headers = new HttpHeaders();
 						headers.add("Authorization", getESEncodedCredentials());
 						final HttpEntity entity = new HttpEntity( headers);
