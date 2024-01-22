@@ -46,6 +46,7 @@ public class BulkIndexer {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			log.debug("Record being indexed: " + indexJson);
+
 			final HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 			if (!isLegacyVersionES) {
