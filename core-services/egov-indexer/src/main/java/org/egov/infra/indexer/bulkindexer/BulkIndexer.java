@@ -5,6 +5,7 @@ import java.util.Map;
 import org.egov.infra.indexer.util.IndexerUtils;
 import org.egov.infra.indexer.web.contract.Index;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -28,6 +29,10 @@ public class BulkIndexer {
 	@Autowired
 	private IndexerUtils indexerUtils;
 
+	@Value("${egov.infra.indexer.legacy.version}")
+	private Boolean isLegacyVersionES;
+
+
 	/**
 	 * Methods that makes a REST API call to /_bulk API of the ES. This method
 	 * triggers the listener orchestration method in case the ES cluster is down.
@@ -44,7 +49,9 @@ public class BulkIndexer {
 
 			final HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-			headers.add("Authorization", indexerUtils.getESEncodedCredentials());
+			if (!isLegacyVersionES) {
+				headers.add("Authorization", indexerUtils.getESEncodedCredentials());
+			}
 			final HttpEntity<String> entity = new HttpEntity<>(indexJson, headers);
 			Object response = restTemplate.postForObject(url.toString(), entity, Map.class);
 			if (url.contains("_bulk")) {
@@ -115,10 +122,14 @@ public class BulkIndexer {
 			}
 		} else {
 			try {
-				final HttpHeaders headers = new HttpHeaders();
-				headers.add("Authorization", indexerUtils.getESEncodedCredentials());
-				final HttpEntity entity = new HttpEntity(headers);
-				response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+				if (isLegacyVersionES) {
+					response = restTemplate.getForObject(url, Map.class);
+				} else {
+					final HttpHeaders headers = new HttpHeaders();
+					headers.add("Authorization", indexerUtils.getESEncodedCredentials());
+					final HttpEntity entity = new HttpEntity(headers);
+					response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+				}
 			} catch (Exception e) {
 				log.error("GET: Exception while fetching from es: " + e);
 			}

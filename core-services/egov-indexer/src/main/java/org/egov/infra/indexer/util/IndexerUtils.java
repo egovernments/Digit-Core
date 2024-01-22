@@ -92,6 +92,9 @@ public class IndexerUtils {
 	@Value("${egov.indexer.es.password}")
 	private String esPassword;
 
+	@Value("${egov.infra.indexer.legacy.version}")
+	private Boolean isLegacyVersionES;
+
 	@Autowired
 	private IndexerProducer producer;
 
@@ -120,10 +123,14 @@ public class IndexerUtils {
 					try {
 						StringBuilder url = new StringBuilder();
 						url.append(esHostUrl).append("/_cluster/health");
-						final HttpHeaders headers = new HttpHeaders();
-						headers.add("Authorization", getESEncodedCredentials());
-						final HttpEntity entity = new HttpEntity( headers);
-						response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
+						if (isLegacyVersionES) {
+							response = restTemplate.getForObject(url.toString(), Map.class);
+						} else {
+							final HttpHeaders headers = new HttpHeaders();
+							headers.add("Authorization", getESEncodedCredentials());
+							final HttpEntity entity = new HttpEntity(headers);
+							response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
+						}
 					} catch (Exception e) {
 						log.error("ES is DOWN..");
 					}
