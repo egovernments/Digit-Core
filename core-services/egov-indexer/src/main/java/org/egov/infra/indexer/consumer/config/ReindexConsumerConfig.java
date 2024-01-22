@@ -41,6 +41,7 @@ public class ReindexConsumerConfig implements ApplicationRunner {
 
 	public static KafkaMessageListenerContainer<String, String> kafkContainer;
 	
+	
 	@Value("${spring.kafka.bootstrap.servers}")
     private String brokerAddress;
 	
@@ -57,10 +58,10 @@ public class ReindexConsumerConfig implements ApplicationRunner {
 	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
     
     @Autowired
-    private ReindexMessageListener indexerMessageListener;
-    
-	@Autowired
 	private IndexerApplicationRunnerImpl runner;
+    
+    @Autowired
+    ReindexMessageListener indexerMessageListener;
     
     
     public String[] topics = {};
