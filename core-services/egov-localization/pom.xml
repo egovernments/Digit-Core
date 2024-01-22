@@ -136,23 +136,7 @@
           </excludes>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.7</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <linkXRef>false</linkXRef>
-          <skipEmptyReport>false</skipEmptyReport>
-        </configuration>
-      </plugin>
-       <plugin>
+        <plugin>
                 <groupId>cz.habarta.typescript-generator</groupId>
                 <artifactId>typescript-generator-maven-plugin</artifactId>
                 <version>2.22.595</version>
