@@ -54,13 +54,14 @@ public class IndexerInfraApplication {
 			ex.printStackTrace();
 		}
 	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(IndexerInfraApplication.class, args);
 	}    
 
 	@Bean
 	public RestTemplate restTemplate() {
-		trustSelfSignedSSL();
+		trustSelfSignedSSL(); // This skips the ssl certificate verification for restTemplate calls made to es8
 		return new RestTemplate();
 	}
 

@@ -40,12 +40,11 @@ public class BulkIndexer {
 	public void indexJsonOntoES(String url, String indexJson, Index index) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			log.info("Record being indexed: " + indexJson);
+			log.debug("Record being indexed: " + indexJson);
 
 			final HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 			headers.add("Authorization", indexerUtils.getESEncodedCredentials());
-			log.info("url: " + url + headers.toString());
 			final HttpEntity<String> entity = new HttpEntity<>(indexJson, headers);
 			Object response = restTemplate.postForObject(url.toString(), entity, Map.class);
 			if (url.contains("_bulk")) {
@@ -55,7 +54,6 @@ public class BulkIndexer {
 				}
 			}
 		} catch (final ResourceAccessException e) {
-			log.info(e.getMessage());
 			log.error("ES is DOWN, Pausing kafka listener.......");
 			indexerUtils.orchestrateListenerOnESHealth();
 		} catch (Exception e) {
