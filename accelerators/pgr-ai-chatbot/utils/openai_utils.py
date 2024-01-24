@@ -144,12 +144,8 @@ def create_assistant(client, assistant_id):
         assistant = client.beta.assistants.create(
         name="Complaint Assistant",
         instructions="You ara a helpful complaint assistant who will collect information about a complaint and raise the complaint. You are talking to common citizens who are not tech savvy, so ask questions one by one. You will also have to search for complaints raised by the user.",
-        model="gpt-4-1106-preview",
+        model="gpt-4",
         tools=[
-                #{
-                #    "type": "function",
-                #    "function": authenticate_user
-                #},
                 {
                     "type": "function",
                     "function": raise_complaint
@@ -182,18 +178,17 @@ def upload_message(client, thread_id, input_message, assistant_id):
     return run
 
 def get_run_status(run, client, thread):
-    i = 0
-
-    while run.status not in ["completed", "failed", "requires_action"]:
-        if i>0:
-            time.sleep(10)
-
+    delay = 5
+    run_status = run.status
+    while run_status not in ["completed", "failed", "requires_action"]:
+        time.sleep(delay)
         run = client.beta.threads.runs.retrieve(
             thread_id=thread.id,
             run_id=run.id,
         )
-        i += 1
-    return run, run.status
+        run_status = run.status
+        delay = 8 if run_status == "requires_action" else 5
+    return run, run_status
 
 def get_assistant_message(client, thread_id):
     messages = client.beta.threads.messages.list(
