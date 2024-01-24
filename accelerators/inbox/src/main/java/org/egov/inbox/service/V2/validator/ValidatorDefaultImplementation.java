@@ -1,6 +1,9 @@
 package org.egov.inbox.service.V2.validator;
 
 
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.egov.inbox.util.MDMSUtil;
 import org.egov.inbox.web.model.InboxRequest;
 import org.egov.inbox.web.model.V2.InboxQueryConfiguration;
@@ -36,6 +39,17 @@ public class ValidatorDefaultImplementation implements SearchCriteriaValidatorIn
         );
 
         HashMap<String,Object> moduleSearchCriteria = inboxRequest.getInbox().getModuleSearchCriteria();
+
+        // Check if all mandatory fields exist in search criteria
+        Set<String> mandatoryTrueFields = isMandatoryMap.entrySet().stream()
+            .filter(entry -> Boolean.TRUE.equals(entry.getValue()))
+            .map(Entry::getKey)
+            .collect(Collectors.toSet());
+        if (!mandatoryTrueFields.isEmpty() && !moduleSearchCriteria.keySet()
+            .containsAll(mandatoryTrueFields)) {
+            throw new CustomException("INVALID_SEARCH_CRITERIA",
+                "Mandatory fields are missing in the moduleSearchCriteria");
+        }
 
         Map<String, String> errorMap  = new HashMap<>();
         for(Map.Entry<String, Object> entry: moduleSearchCriteria.entrySet()){

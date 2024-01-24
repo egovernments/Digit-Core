@@ -421,7 +421,14 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
-
+  
+  # PGR AI chatbot
+  - name: "builds/Digit-Core/accelerators/pgr-ai-chatbot"
+    build:
+      - work-dir: "accelerators/pgr-ai-chatbot"
+        image-name: "pgr-ai-chatbot"
+        dockerfile: "accelerators/pgr-ai-chatbot/ops/Dockerfile"
+    
 
 # frontend
   - name: builds/Digit-Core/accelerators/workbench-ui

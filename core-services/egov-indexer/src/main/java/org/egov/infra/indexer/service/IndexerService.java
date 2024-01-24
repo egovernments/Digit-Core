@@ -187,6 +187,7 @@ public class IndexerService {
 			urlForNonBulk.append(esHostUrl).append(index.getName()).append("/").append(index.getType()).append("/")
 					.append("_index");
 		}
+
 		bulkIndexer.indexJsonOntoES(urlForNonBulk.toString(), finalJson, index);
 	}
 
