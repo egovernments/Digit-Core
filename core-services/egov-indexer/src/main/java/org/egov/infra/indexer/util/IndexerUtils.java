@@ -36,8 +36,12 @@ import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -100,6 +104,15 @@ public class IndexerUtils {
 	@Value("${id.timezone}")
 	private String timezone;
 
+	@Value("${egov.indexer.es.username}")
+	private String esUsername;
+
+	@Value("${egov.indexer.es.password}")
+	private String esPassword;
+
+	@Value("${egov.infra.indexer.legacy.version}")
+	private Boolean isLegacyVersionES;
+
 	@Autowired
 	private IndexerProducer producer;
 
@@ -127,8 +140,15 @@ public class IndexerUtils {
 					Object response = null;
 					try {
 						StringBuilder url = new StringBuilder();
-						url.append(esHostUrl).append("/_search");
-						response = restTemplate.getForObject(url.toString(), Map.class);
+						url.append(esHostUrl).append("/_cluster/health");
+						if (isLegacyVersionES) {
+							response = restTemplate.getForObject(url.toString(), Map.class);
+						} else {
+							final HttpHeaders headers = new HttpHeaders();
+							headers.add("Authorization", getESEncodedCredentials());
+							final HttpEntity entity = new HttpEntity(headers);
+							response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
+						}
 					} catch (Exception e) {
 						log.error("ES is DOWN..");
 					}
@@ -771,5 +791,12 @@ public class IndexerUtils {
 		}catch (UnexpectedCharacterException e){
 			return defaultSemVer;
 		}
+	}
+
+	public String getESEncodedCredentials() {
+		String credentials = esUsername + ":" + esPassword;
+		byte[] credentialsBytes = credentials.getBytes();
+		byte[] base64CredentialsBytes = Base64Utils.encode(credentialsBytes);
+		return "Basic " + new String(base64CredentialsBytes);
 	}
 }
