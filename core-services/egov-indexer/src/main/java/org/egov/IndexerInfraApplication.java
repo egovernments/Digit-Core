@@ -61,7 +61,7 @@ public class IndexerInfraApplication {
 
 	@Bean
 	public RestTemplate restTemplate() {
-		trustSelfSignedSSL(); // This skips the ssl certificate verification for restTemplate calls made to es8
+		//trustSelfSignedSSL(); // This skips the ssl certificate verification for restTemplate calls made to es8
 		return new RestTemplate();
 	}
 
