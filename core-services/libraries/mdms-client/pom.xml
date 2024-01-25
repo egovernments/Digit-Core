@@ -5,23 +5,18 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.22.RELEASE</version>
+    <version>2.7.18</version>
     <relativePath></relativePath>
   </parent>
   <groupId>org.egov</groupId>
   <artifactId>mdms-client</artifactId>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.4-SPRINGUPDATE</version>
   <distributionManagement>
   <repository>
 			<id>repo.digit.org</id>
 			<name>eGov DIGIT Releases Repository</name>
 			<url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
 	</repository>
-    <repository>
-      <id>repo.egovernments.org</id>
-      <name>eGov ERP Releases Repository</name>
-      <url>https://nexus-repo.egovernments.org/nexus/content/repositories/releases/</url>
-    </repository>
     <snapshotRepository>
       <id>repo.egovernments.org</id>
       <name>eGov ERP Snapshots Repository</name>
