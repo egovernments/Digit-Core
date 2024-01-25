@@ -8,7 +8,7 @@ import static org.egov.tracer.constants.TracerConstants.REQUEST_INFO_FIELD_NAME_
 import static org.egov.tracer.constants.TracerConstants.REQUEST_INFO_IN_CAMEL_CASE;
 import static org.egov.tracer.constants.TracerConstants.TENANTID_MDC;
 import static org.egov.tracer.constants.TracerConstants.TENANT_ID_HEADER;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasLength;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -40,8 +40,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TracerFilter implements Filter {
 
-    private static final List<String> JSON_MEDIA_TYPES =
-            Arrays.asList(MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE);
+    /*
+    * Removing deprecated APPLICATION_JSON_UTF8_VALUE
+    * as of 5.2 in favor of APPLICATION_JSON_VALUE since major browsers like Chrome now comply with the specification and interpret correctly
+    * UTF-8 special characters without requiring a charset=UTF-8 parameter.
+    * */
+
+    private static final List<String> JSON_MEDIA_TYPES = Arrays.asList(MediaType.APPLICATION_JSON_VALUE);
     private static final String POST = "POST";
     private static final String REQUEST_BODY_LOG_MESSAGE = "Request body - {}";
     private static final String FAILED_TO_LOG_REQUEST_MESSAGE = "Failed to log request body";
@@ -161,10 +166,10 @@ public class TracerFilter implements Filter {
             final String requestBody = IOUtils.toString(requestWrapper.getInputStream(), UTF_8);
             String requestParams = requestWrapper.getQueryString();
 
-            if (!isEmpty(requestParams))
+            if (hasLength(requestParams))
                 log.info(REQUEST_PARAMS_LOG_MESSAGE, requestParams);
 
-            if (!isEmpty(requestBody))
+            if (hasLength(requestBody))
                 log.info(REQUEST_BODY_LOG_MESSAGE, requestBody);
 
         } catch (IOException e) {
