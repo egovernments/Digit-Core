@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ import static org.egov.tracer.constants.TracerConstants.CORRELATION_ID_OPENTRACI
 @Configuration
 @ConditionalOnWebApplication
 @AutoConfigureAfter({TracerAutoConfiguration.class})
-@ConditionalOnClass({WebMvcConfigurerAdapter.class})
+@ConditionalOnClass({WebMvcConfigurer.class})
 @ConditionalOnProperty(
         name = {"tracer.opentracing.enabled"},
         havingValue = "true",
