@@ -1,0 +1,20 @@
+ServiceMaps:
+  serviceName: sample
+  version: 1.0.0
+  mappings:
+    - topic: sample-topic
+      configKey: INDEX
+      indexes:
+        - name: sample-topic
+          type: _doc
+          id: $.id
+          isBulk: false
+          jsonPath: $.data
+          timeStampField: $.time
+          customJsonMapping:
+            indexMapping: {"Data":{"id":"","value":""}}
+            fieldMapping:
+              - inJsonPath: $.id
+                outJsonPath: $.Data.id
+              - inJsonPath: $.value
+                outJsonPath: $.Data.value
