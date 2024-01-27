@@ -55,6 +55,17 @@ import {
 } from "./utils/commons";
 
 
+const { initializeProducer } = require("./kafka/producer");
+
+// Initialize Kafka producer
+initializeProducer().then(() => {
+  logger.info('Kafka producer connected');
+}).catch((error) => {
+  logger.error(error.stack || error);
+  process.exit(1);
+});
+
+
 let v8 = require("v8");
 let totalHeapSizeInGB = (((v8.getHeapStatistics().total_available_size) / 1024 / 1024 / 1024).toFixed(2));
 console.log(`*******************************************`);
