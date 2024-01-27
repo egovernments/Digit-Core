@@ -9,8 +9,7 @@ import { initEngagementComponents } from "@egovernments/digit-ui-module-engageme
 import { initHRMSComponents } from "@egovernments/digit-ui-module-hrms";
 import { initUtilitiesComponents } from "@egovernments/digit-ui-module-utilities";
 import { initSampleComponents } from "@egovernments/digit-ui-module-sample";
-import {initWorkbenchComponents} from "@egovernments/digit-ui-module-workbench";
-
+import { initProjectComponents } from "@egovernments/digit-ui-module-project";
 import { initMuktaCustomisations } from "@egovernments/digit-ui-customisation-mukta";
 
 import "@egovernments/digit-ui-custom-css/example/index.css";
@@ -28,6 +27,7 @@ const enabledModules = [
   // "FSM"
   "Mukta",
   "Sample",
+  "Project"
   // "Workbench"
 
 ];
@@ -72,7 +72,7 @@ const initDigitUI = () => {
   initEngagementComponents();
   initUtilitiesComponents();
   initSampleComponents();
-  initWorkbenchComponents();
+  initProjectComponents();
 
   const moduleReducers = (initData) => initData;
 

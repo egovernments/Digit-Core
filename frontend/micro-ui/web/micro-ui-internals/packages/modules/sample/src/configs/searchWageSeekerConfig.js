@@ -38,17 +38,17 @@ const searchWageSeekerConfig = () => {
           },
           fields: [
             {
-              "label": "COMMON_WARD",
-              "type": "locationdropdown",
-              "isMandatory": false,
-              "disable": false,
-              "populators": {
-                  "name": "wardCode",
-                  "type": "ward",
-                "optionsKey": "i18nKey",
-                  "defaultText": "COMMON_SELECT_WARD",
-                  "selectedText": "COMMON_SELECTED",
-                  "allowMultiSelect": false
+              label: "COMMON_WARD",
+              type: "locationdropdown",
+              isMandatory: false,
+              disable: false,
+              populators: {
+                  name: "wardCode",
+                  type: "ward",
+                optionsKey: "i18nKey",
+                  defaultText: "COMMON_SELECT_WARD",
+                  selectedText: "COMMON_SELECTED",
+                  allowMultiSelect: false
               }
           },
             {
