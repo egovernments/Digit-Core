@@ -20,7 +20,7 @@
         <java.version>1.8</java.version>
         <joda-time-version>2.9.6</joda-time-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lombok.version>1.16.12</lombok.version>
+        <lombok.version>1.18.22</lombok.version>
     </properties>
     <dependencies>
         <dependency>
@@ -102,13 +102,12 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4.1212</version>
-            <scope>runtime</scope>
+            <version>42.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+<!--            <optional>true</optional>-->
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -123,7 +122,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>4.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.egov</groupId>
