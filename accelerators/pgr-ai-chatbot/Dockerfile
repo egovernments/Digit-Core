@@ -11,7 +11,7 @@ COPY . /usr/src/app
 # Install any needed packages specified in requirements.txt
 COPY requirements.txt /usr/src/app/
 
-RUN pip3 install --upgrade pip3
+RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Run main.py when the container launches
