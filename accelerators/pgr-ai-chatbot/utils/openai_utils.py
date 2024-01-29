@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
 from utils.redis_utils import set_redis
+import random
+from pydub import AudioSegment
 import time
 import os
 
@@ -203,3 +205,36 @@ def transcribe_audio(audio_file, client):
         file=audio_file
     )
     return transcript.text
+
+def generate_audio(text, client):
+    response = client.audio.speech.create(
+                model="tts-1",
+                voice="alloy",
+                input=text
+            )
+    return response
+
+def get_duration_pydub(file_path):
+   audio_file = AudioSegment.from_file(file_path)
+   duration = audio_file.duration_seconds
+   return duration
+
+def get_random_wait_messages(not_always=False):
+    messages = [
+        "Please wait...",
+        "I am thinking...",
+        "I am processing your request...",
+        "Hold on...",
+        "I am on it...",
+        "I am working on it...",
+    ]
+    if not_always:
+        rand = random.randint(0, 2)
+        print(rand)
+        if rand == 1:
+            random_message = random.choice(messages)
+        else:
+            random_message = ""
+    else:
+        random_message = random.choice(messages)
+    return random_message

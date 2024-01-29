@@ -10,7 +10,8 @@ from utils.openai_utils import (
     get_run_status,
     get_assistant_message,
     create_assistant,
-    transcribe_audio
+    transcribe_audio,
+    generate_audio
 )
 from utils.redis_utils import (
     get_redis_value,
@@ -168,4 +169,5 @@ def audio_chat(chat_id, audio_file):
     input_message = transcribe_audio(audio_file, client)
     print(f"The input message is : {input_message}")
     assistant_message, history =  chat(chat_id, input_message)
-    return assistant_message, history
+    response_audio = generate_audio(assistant_message, client)
+    return response_audio, history

@@ -3,3 +3,4 @@ redis
 requests
 python-dotenv
 python-telegram-bot
+pydub
