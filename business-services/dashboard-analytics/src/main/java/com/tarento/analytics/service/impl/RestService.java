@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,6 +45,8 @@ public class RestService {
     @Autowired
     private RetryTemplate retryTemplate;
 
+    @Autowired
+    private  RestTemplate restTemplate;
 
     /**
      * search on Elastic search for a search query
@@ -53,27 +56,42 @@ public class RestService {
      * @throws IOException
      */
 
+
     public JsonNode search(String index, String searchQuery) {
-        //System.out.println("INSIDE REST");
-        String url =( indexServiceHost) + index + indexServiceHostSearch;
-        HttpHeaders headers = getHttpHeaders();
+
+        String url = indexServiceHost + index + indexServiceHostSearch;
+        HttpHeaders headers = getHttpHeadersWithAuthorization();  // Add authorization headers
         headers.setContentType(MediaType.APPLICATION_JSON);
-        //LOGGER.info("Index Name : " + index);
-        //LOGGER.info("Searching ES for Query: " + searchQuery);
         HttpEntity<String> requestEntity = new HttpEntity<>(searchQuery, headers);
-        String reqBody = requestEntity.getBody();
         JsonNode responseNode = null;
 
         try {
-            ResponseEntity<Object> response = retryTemplate.postForEntity(url, requestEntity);
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Object.class);
             responseNode = new ObjectMapper().convertValue(response.getBody(), JsonNode.class);
-            //LOGGER.info("RestTemplate response :- "+responseNode);
+            // LOGGER.info("RestTemplate response :- " + responseNode);
 
         } catch (HttpClientErrorException e) {
             e.printStackTrace();
-            LOGGER.error("client error while searching ES : " + e.getMessage());
+            LOGGER.error("client error while searching ES: " + e.getMessage());
         }
         return responseNode;
+    }
+
+    private HttpHeaders getHttpHeadersWithAuthorization() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        /* Add Authorization header if not using legacy ES version */
+        headers.add("Authorization", getESEncodedCredentials());
+
+        return headers;
+    }
+
+    public String getESEncodedCredentials() {
+        String credentials = userName + ":" + password;
+        byte[] credentialsBytes = credentials.getBytes();
+        byte[] base64CredentialsBytes = Base64Utils.encode(credentialsBytes);
+        return "Basic " + new String(base64CredentialsBytes);
     }
 
     /**
