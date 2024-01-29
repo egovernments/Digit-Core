@@ -1,7 +1,5 @@
 package org.egov.infra.indexer.controller;
 
-import javax.validation.Valid;
-
 import org.egov.infra.indexer.producer.IndexerProducer;
 import org.egov.infra.indexer.service.LegacyIndexService;
 import org.egov.infra.indexer.service.ReindexService;
@@ -21,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/index-operations")

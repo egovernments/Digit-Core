@@ -1,17 +1,20 @@
 package org.egov.infra.indexer.custom.bpa.landInfo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import org.egov.infra.indexer.custom.bpa.AuditDetails;
-import org.egov.infra.indexer.custom.bpa.Document;
-import org.springframework.validation.annotation.Validated;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import org.egov.infra.indexer.custom.bpa.AuditDetails;
+import org.egov.infra.indexer.custom.bpa.Document;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * LandInfo
