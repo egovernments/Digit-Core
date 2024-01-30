@@ -72,7 +72,7 @@ public class InboxServiceV2 {
         List<Inbox> items = getInboxItems(inboxRequest, inboxQueryConfiguration.getIndex());
         enrichProcessInstanceInInboxItems(items);
         Integer totalCount = CollectionUtils.isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus()) ? 0 : getTotalApplicationCount(inboxRequest, inboxQueryConfiguration.getIndex());
-        List<HashMap<String, Object>> statusCountMap = CollectionUtils.isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus()) ? new ArrayList<>() : getStatusCountMap(inboxRequest, inboxQueryConfiguration.getIndex());
+        List<HashMap<String, Object>> statusCountMap = CollectionUtils.isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus()) ? new ArrayList<>() : getStatusCountMap(inboxRequest, inboxQueryConfiguration.getIndex(), inboxQueryConfiguration);
         Integer nearingSlaCount = CollectionUtils.isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus()) ? 0 : getApplicationsNearingSlaCount(inboxRequest, inboxQueryConfiguration.getIndex());
         InboxResponse inboxResponse = InboxResponse.builder().items(items).totalCount(totalCount).statusMap(statusCountMap).nearingSlaCount(nearingSlaCount).build();
 
@@ -123,6 +123,7 @@ public class InboxServiceV2 {
             return new ArrayList<>();
         }
         Map<String, Object> finalQueryBody = queryBuilder.getESQuery(inboxRequest, Boolean.TRUE);
+        //log.info("Final query: " + finalQueryBody);
         try {
             String q = mapper.writeValueAsString(finalQueryBody);
             log.info("Query: "+q);
@@ -165,6 +166,7 @@ public class InboxServiceV2 {
     public Integer getTotalApplicationCount(InboxRequest inboxRequest, String indexName){
 
         Map<String, Object> finalQueryBody = queryBuilder.getESQuery(inboxRequest, Boolean.FALSE);
+        //log.info("Final query: " + finalQueryBody);
         StringBuilder uri = getURI(indexName, COUNT_PATH);
         Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
         Integer totalCount = 0;
@@ -176,8 +178,9 @@ public class InboxServiceV2 {
         return totalCount;
     }
 
-    public List<HashMap<String, Object>> getStatusCountMap(InboxRequest inboxRequest, String indexName){
-        Map<String, Object> finalQueryBody = queryBuilder.getStatusCountQuery(inboxRequest);
+    public List<HashMap<String, Object>> getStatusCountMap(InboxRequest inboxRequest, String indexName, InboxQueryConfiguration inboxQueryConfiguration){
+        Map<String, Object> finalQueryBody = queryBuilder.getStatusCountQuery(inboxRequest, inboxQueryConfiguration);
+        log.info("Final query: " + finalQueryBody);
         StringBuilder uri = getURI(indexName, SEARCH_PATH);
         Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
         Set<String> actionableStatuses = new HashSet<>(inboxRequest.getInbox().getProcessSearchCriteria().getStatus());
@@ -331,6 +334,7 @@ public class InboxServiceV2 {
             Long businessServiceSla = businessServiceSlaMap.get(businessService);
             inboxRequest.getInbox().getProcessSearchCriteria().setStatus(businessServiceVsUuidsBasedOnSearchCriteria.get(businessService));
             Map<String, Object> finalQueryBody = queryBuilder.getNearingSlaCountQuery(inboxRequest, businessServiceSla);
+            //log.info("Final query: " + finalQueryBody);
             StringBuilder uri = getURI(indexName, COUNT_PATH);
             Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
             Integer currentCount = 0;
@@ -369,6 +373,7 @@ public class InboxServiceV2 {
 
     private List<Data> getDataFromSimpleSearch(SearchRequest searchRequest, String index) {
         Map<String, Object> finalQueryBody = queryBuilder.getESQueryForSimpleSearch(searchRequest, Boolean.TRUE);
+        //log.info("Final query: " + finalQueryBody);
         try {
             String q = mapper.writeValueAsString(finalQueryBody);
             log.info("Query: "+q);
