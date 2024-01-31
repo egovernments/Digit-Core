@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.ResourceAccessException;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;

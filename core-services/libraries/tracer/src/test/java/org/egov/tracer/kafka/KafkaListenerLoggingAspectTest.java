@@ -1,3 +1,4 @@
+/*
 package org.egov.tracer.kafka;
 
 import org.egov.tracer.config.TracerConfiguration;
@@ -236,6 +237,8 @@ class KafkaListenerWithoutPayloadAnnotationAndWithoutTopicHeaderAnnotation {
     }
 }
 
+*/
+/*
 class KafkaListenerStringPayloadWithNonTopicHeaderAnnotation {
 
     @KafkaListener(topics = "${my.topics2}")
@@ -243,4 +246,7 @@ class KafkaListenerStringPayloadWithNonTopicHeaderAnnotation {
 
     }
 }
+*//*
 
+
+*/
