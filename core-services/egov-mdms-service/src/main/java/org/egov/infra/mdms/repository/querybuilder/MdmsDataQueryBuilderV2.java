@@ -53,10 +53,10 @@ public class MdmsDataQueryBuilderV2 {
             builder.append(" data.id IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getIds().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getIds());
         }
-        if (!Objects.isNull(mdmsCriteriaV2.getUniqueIdentifier())) {
+        if (!Objects.isNull(mdmsCriteriaV2.getUniqueIdentifiers())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.uniqueidentifier = ? ");
-            preparedStmtList.add(mdmsCriteriaV2.getUniqueIdentifier());
+            builder.append(" data.uniqueidentifier IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getUniqueIdentifiers().size())).append(" )");
+            QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getUniqueIdentifiers());
         }
         if (!Objects.isNull(mdmsCriteriaV2.getSchemaCodeFilterMap())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);

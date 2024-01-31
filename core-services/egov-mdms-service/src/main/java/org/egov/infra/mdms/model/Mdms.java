@@ -41,7 +41,7 @@ public class Mdms {
     private String schemaCode = null;
 
     @JsonProperty("uniqueIdentifier")
-    @Size(min = 2, max = 128)
+    @Size(min = 1, max = 128)
     private String uniqueIdentifier = null;
 
     @JsonProperty("data")
