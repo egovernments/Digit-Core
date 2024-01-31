@@ -157,7 +157,12 @@ public class MdmsDataValidator {
 
                     for(String subTenant : subTenantListForFallback) {
                         List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
-                                MdmsCriteriaV2.builder().tenantId(subTenant).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).schemaCode(schemaCode).build());
+                                MdmsCriteriaV2.builder()
+                                        .tenantId(subTenant)
+                                        .uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification)
+                                        .isActive(Boolean.TRUE)
+                                        .schemaCode(schemaCode)
+                                        .build());
 
                         if (moduleMasterData.size() == uniqueIdentifiersForRefVerification.size()) {
                             isRefDataFound = Boolean.TRUE;
