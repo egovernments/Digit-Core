@@ -17,7 +17,7 @@ public class DeadLetterQueueConfiguration {
 
 
     @Bean
-    @ConditionalOnProperty(name = "feature.enabled", havingValue = "true")
+    @ConditionalOnProperty(name = "tracer.errorsPublish", havingValue = "true")
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(KafkaOperations<Object, Object> kafkaTemplate) {
         BiFunction<ConsumerRecord<?, ?>, Exception, TopicPartition> destinationResolver = (cr, e) ->
                 new TopicPartition(cr.topic() + ".dlt", cr.partition());
@@ -26,7 +26,7 @@ public class DeadLetterQueueConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "feature.enabled", havingValue = "true")
+    @ConditionalOnProperty(name = "tracer.errorsPublish", havingValue = "true")
     public DefaultErrorHandler errorHandler(DeadLetterPublishingRecoverer recoverer) {
         return new DefaultErrorHandler(recoverer);
     }
