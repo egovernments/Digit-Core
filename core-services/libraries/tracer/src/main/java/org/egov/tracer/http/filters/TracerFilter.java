@@ -11,6 +11,7 @@ import static org.egov.tracer.constants.TracerConstants.TENANT_ID_HEADER;
 import static org.springframework.util.StringUtils.hasLength;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -18,16 +19,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.egov.tracer.config.ObjectMapperFactory;
 import org.egov.tracer.config.TracerProperties;
 import org.slf4j.MDC;
@@ -163,7 +158,10 @@ public class TracerFilter implements Filter {
 
     private void logRequestBodyAndParams(HttpServletRequest requestWrapper) {
         try {
-            final String requestBody = IOUtils.toString(requestWrapper.getInputStream(), UTF_8);
+           // final String requestBody = IOUtils.toString(requestWrapper.getInputStream(), UTF_8);
+            final ServletInputStream inputStream = requestWrapper.getInputStream();
+            String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
             String requestParams = requestWrapper.getQueryString();
 
             if (hasLength(requestParams))
