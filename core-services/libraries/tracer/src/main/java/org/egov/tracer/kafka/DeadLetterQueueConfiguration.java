@@ -1,4 +1,4 @@
-package org.egov.tracer;
+package org.egov.tracer.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
