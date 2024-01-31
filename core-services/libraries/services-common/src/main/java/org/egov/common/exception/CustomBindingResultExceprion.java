@@ -1,4 +1,4 @@
-package org.egov.tracer.model;
+package org.egov.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

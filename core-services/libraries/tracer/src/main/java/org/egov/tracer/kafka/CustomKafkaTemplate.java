@@ -1,7 +1,7 @@
 package org.egov.tracer.kafka;
 
 import lombok.extern.slf4j.Slf4j;
-import org.egov.tracer.model.CustomException;
+import org.egov.common.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
