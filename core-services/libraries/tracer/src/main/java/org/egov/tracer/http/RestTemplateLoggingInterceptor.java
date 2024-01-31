@@ -6,10 +6,11 @@ import static org.egov.tracer.constants.TracerConstants.TENANTID_MDC;
 import static org.egov.tracer.constants.TracerConstants.TENANT_ID_HEADER;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.egov.tracer.config.TracerProperties;
 import org.slf4j.MDC;
 import org.springframework.http.HttpMessage;
@@ -117,7 +118,9 @@ public class RestTemplateLoggingInterceptor implements ClientHttpRequestIntercep
     private String getBodyString(ClientHttpResponse response) {
         try {
             if (response != null && response.getBody() != null) {
-                return IOUtils.toString(response.getBody(), UTF_8);
+                //return IOUtils.toString(response.getBody(), UTF_8);
+                InputStream bodyStream = response.getBody();
+                return new String(bodyStream.readAllBytes(), StandardCharsets.UTF_8);
             } else {
                 return EMPTY_BODY;
             }

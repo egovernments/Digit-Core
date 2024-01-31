@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.egov.tracer.config.TracerProperties;
 import org.egov.tracer.http.filters.MultiReadRequestWrapper;
 import org.egov.tracer.kafka.ErrorQueueProducer;
@@ -36,6 +35,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,7 +70,9 @@ public class ExceptionAdvise {
         try {
             if (request instanceof MultiReadRequestWrapper) {
                 ServletInputStream stream = request.getInputStream();
-                body = IOUtils.toString(stream, "UTF-8");
+                //body = IOUtils.toString(stream, "UTF-8");
+                body = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+
             } else
                 body = "Unable to retrieve request body";
 
