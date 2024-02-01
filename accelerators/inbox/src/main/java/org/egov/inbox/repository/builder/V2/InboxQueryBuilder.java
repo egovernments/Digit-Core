@@ -238,37 +238,10 @@ public class InboxQueryBuilder implements QueryBuilderInterface {
 	}
 
     @Override
-    public Map<String, Object> getStatusCountQuery(InboxRequest inboxRequest, InboxQueryConfiguration inboxQueryConfiguration) {
-        Map<String, Object> baseEsQuery = getBaseESQueryBody(inboxRequest, Boolean.FALSE);
-        addTenantIdFilterToBaseEsQuery(inboxRequest, baseEsQuery, inboxRequest.getInbox().getProcessSearchCriteria(), inboxQueryConfiguration);
+    public Map<String, Object> getStatusCountQuery(InboxRequest inboxRequest) {
+        Map<String, Object> baseEsQuery = getESQuery(inboxRequest, Boolean.FALSE);
         appendStatusCountAggsNode(baseEsQuery);
         return baseEsQuery;
-    }
-
-    private void addTenantIdFilterToBaseEsQuery(InboxRequest inboxRequest, Map<String, Object> baseEsQuery, ProcessInstanceSearchCriteria processSearchCriteria, InboxQueryConfiguration configuration) {
-        Map<String, Object> innerBoolClause = (HashMap<String, Object>) ((HashMap<String, Object>) baseEsQuery.get(QUERY_KEY)).get(BOOL_KEY);
-        List<Object> mustClauseList = (ArrayList<Object>) innerBoolClause.get(MUST_KEY);
-
-        Map<String, String> nameToPathMap = new HashMap<>();
-        Map<String, SearchParam.Operator> nameToOperator = new HashMap<>();
-
-        configuration.getAllowedSearchCriteria().forEach(searchParam -> {
-            nameToPathMap.put(searchParam.getName(), searchParam.getPath());
-            nameToOperator.put(searchParam.getName(), searchParam.getOperator());
-        });
-
-        if(!ObjectUtils.isEmpty(processSearchCriteria.getTenantId())){
-            String key = "tenantId";
-            Map<String, Object> mustClauseChild = null;
-            Map<String, Object> params = new HashMap<>();
-            params.put(key, processSearchCriteria.getTenantId());
-            mustClauseChild = (Map<String, Object>) prepareMustClauseChild(params, key, nameToPathMap, nameToOperator);
-            if(CollectionUtils.isEmpty(mustClauseChild)){
-                log.info("Error occurred while preparing filter for must clause. Filter for key " + key + " will not be added.");
-            }else {
-                mustClauseList.add(mustClauseChild);
-            }
-        }
     }
 
     @Override

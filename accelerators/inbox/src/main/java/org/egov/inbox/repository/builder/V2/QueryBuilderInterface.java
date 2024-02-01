@@ -25,7 +25,8 @@ public interface QueryBuilderInterface{
      * @param inboxRequest
      * @return
      */
-    public Map<String, Object> getStatusCountQuery(InboxRequest inboxRequest, InboxQueryConfiguration inboxQueryConfiguration);
+
+    public Map<String, Object> getStatusCountQuery(InboxRequest inboxRequest);
 
     /**
      * This method will take the incoming request and create
