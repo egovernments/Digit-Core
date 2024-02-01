@@ -1,11 +1,11 @@
 package org.egov.domain.model;
 
+import jakarta.validation.constraints.Null;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import javax.validation.constraints.Null;
 
 @Builder
 @Getter
