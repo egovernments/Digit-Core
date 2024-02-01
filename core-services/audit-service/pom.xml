@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.2.2</version>
 	</parent>
 	<groupId>org.egov</groupId>
 	<artifactId>audit-service</artifactId>
@@ -13,7 +13,7 @@
 	<name>audit-service</name>
 	<description>Service to handle audit logs</description>
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>17.0.10</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>org.egov.services</groupId>
 			<artifactId>tracer</artifactId>
-			<version>2.1.1-SNAPSHOT</version>
+			<version>2.2.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
