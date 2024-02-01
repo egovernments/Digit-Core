@@ -2,12 +2,12 @@ package org.egov.access.domain.model.authorize;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Size;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
