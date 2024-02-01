@@ -6,10 +6,11 @@ import static org.egov.tracer.constants.TracerConstants.TENANTID_MDC;
 import static org.egov.tracer.constants.TracerConstants.TENANT_ID_HEADER;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.egov.tracer.config.TracerProperties;
 import org.slf4j.MDC;
 import org.springframework.http.HttpMessage;
@@ -33,8 +34,15 @@ public class RestTemplateLoggingInterceptor implements ClientHttpRequestIntercep
     private static final String UTF_8 = "UTF-8";
     private static final String RESPONSE_BODY_ERROR_MESSAGE = "Error reading response body";
     private static final String EMPTY_BODY = "<NOT-AVAILABLE>";
+
+    /*
+     * Removing deprecated APPLICATION_JSON_UTF8_VALUE
+     * as of 5.2 in favor of APPLICATION_JSON_VALUE since major browsers like Chrome now comply with the specification and interpret correctly
+     * UTF-8 special characters without requiring a charset=UTF-8 parameter.
+     * */
+
     private static final List<String> JSON_MEDIA_TYPES =
-            Arrays.asList(MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE);
+            Arrays.asList(MediaType.APPLICATION_JSON_VALUE);
 
     private TracerProperties tracerProperties;
 
@@ -110,7 +118,9 @@ public class RestTemplateLoggingInterceptor implements ClientHttpRequestIntercep
     private String getBodyString(ClientHttpResponse response) {
         try {
             if (response != null && response.getBody() != null) {
-                return IOUtils.toString(response.getBody(), UTF_8);
+                //return IOUtils.toString(response.getBody(), UTF_8);
+                InputStream bodyStream = response.getBody();
+                return new String(bodyStream.readAllBytes(), StandardCharsets.UTF_8);
             } else {
                 return EMPTY_BODY;
             }

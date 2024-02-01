@@ -1,12 +1,11 @@
 package org.egov.tracer.http.filters;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
 
 @Slf4j
@@ -47,7 +46,9 @@ public class MultiReadRequestWrapper extends HttpServletRequestWrapper {
 
     private void cacheInputStream() throws IOException {
         cachedBytes = new ByteArrayOutputStream();
-        IOUtils.copy(super.getInputStream(), cachedBytes);
+        //IOUtils.copy(super.getInputStream(), cachedBytes);
+        super.getInputStream().transferTo(cachedBytes);
+
     }
 
     public class CachedServletInputStream extends ServletInputStream {
