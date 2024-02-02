@@ -58,7 +58,7 @@ public class WorKflowRepository {
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
         log.debug("query for status search: "+query+" params: "+preparedStmtList);
 
-        return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
+        return jdbcTemplate.query(query, rowMapper, preparedStmtList.toArray());
     }
 
 
@@ -82,7 +82,7 @@ public class WorKflowRepository {
         String query = queryBuilder.getProcessInstanceSearchQueryById(ids, preparedStmtList);
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
         log.debug("query for status search: "+query+" params: "+preparedStmtList);
-        return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
+        return jdbcTemplate.query(query, rowMapper, preparedStmtList.toArray());
     }
 
     public Integer getProcessInstancesForUserInboxCount(ProcessInstanceSearchCriteria criteria) {
@@ -90,7 +90,7 @@ public class WorKflowRepository {
         criteria.setIsAssignedToMeCount(true);
         String query = queryBuilder.getInboxIdCount(criteria, (ArrayList<Object>) preparedStmtList);
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
-        Integer count =  jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
+        Integer count =  jdbcTemplate.queryForObject(query, Integer.class, preparedStmtList.toArray());
         return count;
     }
 
@@ -111,7 +111,7 @@ public class WorKflowRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = queryBuilder.getProcessInstanceCount(criteria, preparedStmtList,Boolean.FALSE);
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
-        return jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
+        return jdbcTemplate.queryForObject(query, Integer.class, preparedStmtList.toArray());
     }
 
     /**
@@ -141,7 +141,7 @@ public class WorKflowRepository {
         criteria.setIsAssignedToMeCount(false);
         String query = queryBuilder.getInboxIdQuery(criteria,preparedStmtList,true);
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
-        return jdbcTemplate.query(query, preparedStmtList.toArray(), new SingleColumnRowMapper<>(String.class));
+        return jdbcTemplate.query(query, new SingleColumnRowMapper<>(String.class), preparedStmtList.toArray());
     }
 
     private List<String> getProcessInstanceIds(ProcessInstanceSearchCriteria criteria) {
@@ -150,7 +150,7 @@ public class WorKflowRepository {
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
         log.info(query);
         log.info(preparedStmtList.toString());
-        return jdbcTemplate.query(query, preparedStmtList.toArray(), new SingleColumnRowMapper<>(String.class));
+        return jdbcTemplate.query(query, new SingleColumnRowMapper<>(String.class), preparedStmtList.toArray());
     }
 
 
@@ -174,7 +174,7 @@ public class WorKflowRepository {
 
         String query = queryBuilder.getAutoEscalatedApplicationsBusinessIdsQuery(criteria, preparedStmtList);
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
-        List<String> escalatedApplicationsBusinessIds = jdbcTemplate.query(query, preparedStmtList.toArray(), new SingleColumnRowMapper<>(String.class));
+        List<String> escalatedApplicationsBusinessIds = jdbcTemplate.query(query, new SingleColumnRowMapper<>(String.class), preparedStmtList.toArray());
         preparedStmtList.clear();
         log.info(escalatedApplicationsBusinessIds.toString());
         // 3rd step is to do a simple search on these business ids(DONE IN WORKFLOW SERVICE)
@@ -186,7 +186,7 @@ public class WorKflowRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = queryBuilder.getEscalatedApplicationsCount(requestInfo,criteria, (ArrayList<Object>) preparedStmtList);
         query = util.replaceSchemaPlaceholder(query, criteria.getTenantId());
-        Integer count =  jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
+        Integer count =  jdbcTemplate.queryForObject(query, Integer.class, preparedStmtList.toArray());
         return count;
     }
 }

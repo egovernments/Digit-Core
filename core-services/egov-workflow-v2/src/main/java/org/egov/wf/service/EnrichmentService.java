@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import static org.egov.wf.util.WorkflowConstants.AUTO_ESC_EMPLOYEE_ROLE_CODE;
@@ -447,7 +447,7 @@ public class EnrichmentService {
         Set<String> masterData = new HashSet<>();
         StringBuilder uri = new StringBuilder();
         uri.append(mdmsHost).append(mdmsUrl);
-        if(StringUtils.isEmpty(tenantId))
+        if(ObjectUtils.isEmpty(tenantId))
             return masterData;
         MdmsCriteriaReq mdmsCriteriaReq = getMdmsRequestForStatesToIgnore(requestInfo, tenantId.split("\\.")[0]);
 
