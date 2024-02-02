@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import lombok.extern.slf4j.Slf4j;
 import org.egov.url.shortening.utils.HashIdConverter;

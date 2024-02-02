@@ -30,7 +30,8 @@ public class UrlDBRepository implements URLRepository{
 	@Override
 	public Long incrementID() {
 		String query = "SELECT nextval('eg_url_shorter_id')";
-        Long id = jdbcTemplate.queryForObject(query, new Object[] {}, Long.class);
+        //Long id = jdbcTemplate.queryForObject(query, new Object[] {}, Long.class);
+        Long id = jdbcTemplate.queryForObject(query, Long.class);
         log.info("Incrementing ID: {}", id-1);
         return id - 1;
     }
@@ -62,7 +63,9 @@ public class UrlDBRepository implements URLRepository{
     	String query =  "SELECT url FROM EG_URL_SHORTENER WHERE id=?";
     	
     	String strprepStmtArgs = "url:"+id;
-    	String url = jdbcTemplate.queryForObject(query, new Object[] {strprepStmtArgs}, String.class);
+    	//String url = jdbcTemplate.queryForObject(query, new Object[] {strprepStmtArgs}, String.class);
+        String url = jdbcTemplate.queryForObject(query, String.class, strprepStmtArgs);
+
         log.info("Retrieved {} at {}", url ,id);
         if (url == null) {
             throw new Exception("URL at key" + id + " does not exist");
