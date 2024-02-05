@@ -5,11 +5,16 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
+import org.egov.common.exception.*;
+import org.egov.common.exception.CustomBindingResultExceprion;
+import org.egov.common.exception.CustomException;
+import org.egov.common.exception.Error;
+import org.egov.common.exception.ErrorQueueContract;
+import org.egov.common.exception.ErrorRes;
+import org.egov.common.exception.ServiceCallException;
 import org.egov.tracer.config.TracerProperties;
 import org.egov.tracer.http.filters.MultiReadRequestWrapper;
 import org.egov.tracer.kafka.ErrorQueueProducer;
-import org.egov.tracer.model.Error;
 import org.egov.tracer.model.*;
 import org.slf4j.MDC;
 import org.springframework.beans.BeanUtils;
@@ -33,11 +38,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.ResourceAccessException;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,7 +78,8 @@ public class ExceptionAdvise {
         try {
             if (request instanceof MultiReadRequestWrapper) {
                 ServletInputStream stream = request.getInputStream();
-                body = IOUtils.toString(stream, "UTF-8");
+                //body = IOUtils.toString(stream, "UTF-8");
+                body = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             } else
                 body = "Unable to retrieve request body";
 
@@ -250,7 +257,8 @@ public class ExceptionAdvise {
         try {
             if (request instanceof MultiReadRequestWrapper) {
                 ServletInputStream stream = request.getInputStream();
-                body = IOUtils.toString(stream, UTF_8_CODE);
+               // body = IOUtils.toString(stream, UTF_8_CODE);
+                body = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             } else
                 body = UNABLE_TO_RETRIEVE_REQUEST_BODY_MSG;
 
@@ -314,6 +322,37 @@ public class ExceptionAdvise {
 
     }
 
+    void sendErrorMessage(String body, Exception ex, String source, boolean isJsonContentType) {
+        DocumentContext documentContext;
+
+        if (tracerProperties.isErrorsPublish()) {
+            Object requestBody = body;
+            if (isJsonContentType) {
+                try {
+                    documentContext = JsonPath.parse(body);
+                    requestBody = documentContext.json();
+                } catch (Exception exception) {
+                    requestBody = body;
+                }
+            }
+
+            StackTraceElement elements[] = ex.getStackTrace();
+
+            ErrorQueueContract errorQueueContract = ErrorQueueContract.builder()
+                    .id(UUID.randomUUID().toString())
+                    .correlationId(MDC.get(CORRELATION_ID_MDC))
+                    .body(requestBody)
+                    .source(source)
+                    .ts(new Date().getTime())
+                    .exception(Arrays.asList(elements))
+                    .message(ex.getMessage())
+                    .build();
+
+            errorQueueProducer.sendMessage(errorQueueContract);
+        }
+
+    }
+
     void sendErrorMessage(String body, Exception ex, String source, ErrorRes errorRes, boolean isJsonContentType) {
         DocumentContext documentContext;
 
@@ -341,7 +380,7 @@ public class ExceptionAdvise {
                     .message(ex.getMessage())
                     .build();
 
-            errorQueueProducer.sendMessage(errorQueueContract);
+          //  errorQueueProducer.sendMessage(errorQueueContract);
         }
 
     }

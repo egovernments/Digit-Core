@@ -1,3 +1,4 @@
+/*
 package org.egov.tracer.config;
 
 import io.opentracing.Span;
@@ -10,10 +11,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ import static org.egov.tracer.constants.TracerConstants.CORRELATION_ID_OPENTRACI
 @Configuration
 @ConditionalOnWebApplication
 @AutoConfigureAfter({TracerAutoConfiguration.class})
-@ConditionalOnClass({WebMvcConfigurerAdapter.class})
+@ConditionalOnClass({WebMvcConfigurer.class})
 @ConditionalOnProperty(
         name = {"tracer.opentracing.enabled"},
         havingValue = "true",
@@ -31,24 +32,28 @@ import static org.egov.tracer.constants.TracerConstants.CORRELATION_ID_OPENTRACI
 )
 public class OpenTracingConfiguration {
 
-    /**
+    */
+/**
      * Jaeger Tracer instance configured via environment variables
      *
      * @return Tracer implementation
-     */
+     *//*
+
     @Bean
     public io.opentracing.Tracer jaegerTracer() {
         return io.jaegertracing.Configuration.fromEnv()
                 .getTracer();
     }
 
-    /**
+    */
+/**
      * Use span decorator to add a correlation id span tag
      * <p>
      * Filter order configured to run after Tracer Filter
      *
      * @return span decorators
-     */
+     *//*
+
     @Bean
     public List<ServletFilterSpanDecorator> spanDecorator() {
         List<ServletFilterSpanDecorator> decorators = new ArrayList<>();
@@ -79,3 +84,4 @@ public class OpenTracingConfiguration {
     }
 
 }
+*/
