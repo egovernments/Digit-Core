@@ -40,8 +40,9 @@
 
 package org.egov.filestore.persistence.entity;
 
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
+
 import java.io.Serializable;
 
 @MappedSuperclass
