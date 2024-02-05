@@ -1,4 +1,4 @@
-package org.egov.common.exception;
+package org.egov.tracer.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

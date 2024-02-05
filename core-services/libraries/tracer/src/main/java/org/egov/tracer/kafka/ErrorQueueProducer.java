@@ -3,12 +3,16 @@ package org.egov.tracer.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.SerializationException;
-import org.egov.common.exception.ErrorQueueContract;
 import org.egov.tracer.config.ObjectMapperFactory;
 import org.egov.tracer.config.TracerProperties;
+import org.egov.tracer.model.ErrorDetail;
+import org.egov.tracer.model.ErrorDetailDTO;
+import org.egov.tracer.model.ErrorQueueContract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -25,6 +29,7 @@ public class ErrorQueueProducer {
 
     public void sendMessage(ErrorQueueContract errorQueueContract) {
         try {
+            log.info("Sending message to topic - " + tracerProperties.getErrorsTopic());
             kafkaTemplate.send(tracerProperties.getErrorsTopic(), errorQueueContract);
         } catch (SerializationException serializationException) {
             log.info("SerializationException exception occurred while sending exception to error queue");
@@ -33,6 +38,22 @@ public class ErrorQueueProducer {
                         (errorQueueContract));
             } catch (JsonProcessingException e) {
                 log.info("exception occurred while converting ErrorQueueContract to json string");
+            }
+        } catch (Exception ex) {
+            log.error("exception occurred while sending exception to error queue");
+        }
+    }
+
+    public void sendErrorDetails(List<ErrorDetailDTO> errorDetailList) {
+        try {
+            log.info("Sending message to topic - " + "error-details-indexer-topic");
+            kafkaTemplate.send(tracerProperties.getErrorDetailsTopic(), errorDetailList);
+        } catch (SerializationException serializationException) {
+            log.info("SerializationException exception occurred while sending exception to error queue");
+            try {
+                kafkaTemplate.send(tracerProperties.getErrorDetailsTopic(), objectMapperFactory.getObjectMapper().writeValueAsString(errorDetailList));
+            } catch (JsonProcessingException e) {
+                log.info("exception occurred while converting error details to json string");
             }
         } catch (Exception ex) {
             log.error("exception occurred while sending exception to error queue");

@@ -19,7 +19,7 @@ import java.util.Collections;
 @ComponentScan(basePackages = {"org.egov.tracer"})
 @PropertySource("classpath:tracer.properties")
 @EnableConfigurationProperties({TracerProperties.class})
-//@Import(OpenTracingConfiguration.class)
+@Import(OpenTracingConfiguration.class)
 public class TracerConfiguration {
 
     @Bean

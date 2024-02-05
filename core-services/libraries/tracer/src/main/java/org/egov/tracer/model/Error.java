@@ -1,4 +1,4 @@
-package org.egov.common.exception;
+package org.egov.tracer.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -16,6 +16,12 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class Error {
+    @JsonProperty("id")
+    private String id = null;
+
+    @JsonProperty("parentId")
+    private String parentId = null;
+
     @JsonProperty("code")
     private String code = null;
 
@@ -27,5 +33,12 @@ public class Error {
 
     @JsonProperty("params")
     private List<String> params = null;
+
+    public Error(String id, String code, String message, String description){
+        this.id = id;
+        this.code = code;
+        this.message = message;
+        this.description = description;
+    }
 
 }

@@ -18,7 +18,7 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static org.egov.tracer.constants.TracerConstants.*;
-import static org.springframework.util.StringUtils.hasLength;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Slf4j
 public class KafkaTemplateLoggingInterceptors<K, V> implements ConsumerInterceptor<K, V>, ProducerInterceptor<K, V> {
@@ -46,7 +46,7 @@ public class KafkaTemplateLoggingInterceptors<K, V> implements ConsumerIntercept
             final String keyAsString = ObjectUtils.nullSafeToString(consumerRecord.key());
             String correlationId = getCorrelationIdFromBody(consumerRecord.value());
 
-            if (hasLength(correlationId))
+            if (!isEmpty(correlationId))
                 MDC.put(CORRELATION_ID_MDC, correlationId);
 
             if (log.isDebugEnabled()) {
