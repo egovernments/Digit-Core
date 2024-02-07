@@ -5,17 +5,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
-import org.egov.common.exception.*;
-import org.egov.common.exception.CustomBindingResultExceprion;
-import org.egov.common.exception.CustomException;
-import org.egov.common.exception.Error;
-import org.egov.common.exception.ErrorQueueContract;
-import org.egov.common.exception.ErrorRes;
-import org.egov.common.exception.ServiceCallException;
 import org.egov.tracer.config.TracerProperties;
 import org.egov.tracer.http.filters.MultiReadRequestWrapper;
 import org.egov.tracer.kafka.ErrorQueueProducer;
 import org.egov.tracer.model.*;
+import org.egov.tracer.model.Error;
 import org.slf4j.MDC;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -380,7 +374,7 @@ public class ExceptionAdvise {
                     .message(ex.getMessage())
                     .build();
 
-          //  errorQueueProducer.sendMessage(errorQueueContract);
+            errorQueueProducer.sendMessage(errorQueueContract);
         }
 
     }
