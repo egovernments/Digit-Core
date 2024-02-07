@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.egov.infra.persist.web.contract.Mapping;
 import org.egov.infra.persist.web.contract.Service;
 import org.egov.infra.persist.web.contract.TopicMap;
@@ -19,7 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -136,7 +135,9 @@ public class EgovPersistApplication {
                     failed = true;
                 }
                 finally {
-                    IOUtils.closeQuietly(inputStream);
+                    if (inputStream != null) {
+                        inputStream.close();
+                    }
                 }
             }
 
