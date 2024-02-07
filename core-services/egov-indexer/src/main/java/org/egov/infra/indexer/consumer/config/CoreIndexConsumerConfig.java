@@ -12,6 +12,7 @@ import org.egov.IndexerApplicationRunnerImpl;
 import org.egov.infra.indexer.consumer.CoreIndexMessageListener;
 import org.egov.infra.indexer.web.contract.Mapping;
 import org.egov.infra.indexer.web.contract.Mapping.ConfigKeyEnum;
+import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -77,8 +78,11 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
 	@Value("${egov.indexer.bpa.update.workflow.topic.name}")
 	private String bpaUpdateWorkflowTopic;
 	
-    @Autowired
-    private StoppingErrorHandler stoppingErrorHandler;
+//    @Autowired
+//    private StoppingErrorHandler stoppingErrorHandler;
+
+	@Autowired
+	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
     
     @Autowired
     private CoreIndexMessageListener indexerMessageListener;
@@ -140,7 +144,7 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setErrorHandler(stoppingErrorHandler);
+		factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         

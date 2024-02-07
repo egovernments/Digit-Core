@@ -11,6 +11,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
 import org.egov.infra.indexer.consumer.LegacyIndexMessageListener;
 import org.egov.infra.indexer.web.contract.Mapping.ConfigKeyEnum;
+import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -55,10 +56,13 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
 	@Value("${egov.indexer.pgr.legacyindex.topic.name}")
 	private String pgrLegacyTopic;
         
-    @Autowired
-    private StoppingErrorHandler stoppingErrorHandler;
-    
-    @Autowired
+//    @Autowired
+//    private StoppingErrorHandler stoppingErrorHandler;
+
+	@Autowired
+	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+
+	@Autowired
     private LegacyIndexMessageListener indexerMessageListener;
     
 	@Autowired
@@ -118,7 +122,7 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setErrorHandler(stoppingErrorHandler);
+        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         
