@@ -46,8 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import org.egov.boundary.domain.model.BoundarySearchRequest;
 import org.egov.boundary.domain.service.BoundaryService;

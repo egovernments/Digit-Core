@@ -51,7 +51,7 @@ public class ResponseInfoFactory {
 	public ResponseInfo createResponseInfoFromRequestInfo(final RequestInfo requestInfo, final Boolean success) {
 		final String apiId = requestInfo != null ? "org.egov.boundary" : "";
 		final String ver = requestInfo != null ? requestInfo.getVer() : "";
-		final String ts = requestInfo != null && requestInfo.getTs()!=null ? requestInfo.getTs().toString() : "";
+		final Long ts = requestInfo != null && requestInfo.getTs()!=null ? requestInfo.getTs() : null;
 		final String resMsgId = "uief87324"; // FIXME : Hard-coded
 		final String msgId = requestInfo != null ? requestInfo.getMsgId() : "";
 		final String responseStatus = success ? "successful" : "failed";
@@ -61,7 +61,7 @@ public class ResponseInfoFactory {
     public static ResponseInfo createResponseFromRequest(final RequestInfo requestInfo, final Boolean success) {
         final String apiId = requestInfo != null ? "org.egov.boundary" : "";
         final String ver = requestInfo != null ? requestInfo.getVer() : "";
-        final String ts = requestInfo != null && requestInfo.getTs() != null ? requestInfo.getTs().toString() : "";
+        final Long ts = requestInfo != null && requestInfo.getTs() != null ? requestInfo.getTs() : null;
         final String resMsgId = "uief87324"; // FIXME : Hard-coded
         final String msgId = requestInfo != null ? requestInfo.getMsgId() : "";
         final String responseStatus = success ? "successful" : "failed";
