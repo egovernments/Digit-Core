@@ -41,10 +41,10 @@ package org.egov.pg.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,21 +61,21 @@ public class BankContract {
     private List<Long> ids = new ArrayList<Long>();
 
     @NotNull
-    @Length(max = 50, min = 1)
+    @Size(max = 50, min = 1)
     private String code;
 
     @NotNull
-    @Length(max = 100, min = 2)
+    @Size(max = 100, min = 2)
     private String name;
 
-    @Length(max = 250)
+    @Size(max = 250)
     private String description;
 
     @NotNull
     private Boolean active;
     // is this required?
 
-    @Length(max = 50)
+    @Size(max = 50)
     private String type;
 
     public BankContract(final String id) {
