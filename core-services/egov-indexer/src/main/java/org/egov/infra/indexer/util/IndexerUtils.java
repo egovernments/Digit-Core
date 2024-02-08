@@ -277,6 +277,22 @@ public class IndexerUtils {
 		return serviceCallUri.toString();
 	}
 
+	public void fillJsonPath(Map<String, Object> searchParamObject, String kafkaJson) {
+		try {
+			for (Map.Entry<String, Object> entry : searchParamObject.entrySet()) {
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				if (value instanceof String && ((String) value).contains("$.")) {
+					String filledValue = JsonPath.read(kafkaJson, (String) value).toString();
+					searchParamObject.put(key, filledValue);
+				} else if (value instanceof Map) {
+					fillJsonPath((Map<String, Object>) value, kafkaJson);
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error while filling JSONPath in searchParam: " + e.getMessage());
+		}
+	}
 
 	@Cacheable(value = "masterData", sync = true)
 	public Object fetchMdmsData(String uri, String tenantId, String moduleName, String masterName, String filter) {

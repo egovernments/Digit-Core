@@ -203,16 +203,38 @@ public class DataTransformationService {
             for (UriMapping uriMapping : customJsonMappings.getExternalUriMapping()) {
                 Object response = null;
                 String uri = null;
-                try {
-                    uri = indexerUtils.buildUri(uriMapping, kafkaJson);
-                    String jsonContent = serviceRequestRepository.fetchResult(uri, uriMapping.getRequest(), stateLevelTenantId);
-                    response = mapper.readValue(jsonContent, Map.class);
-                    if (null == response)
+                if(uriMapping.getIsSearchParam()==null){
+                    log.error("isSearchParam field is mandatory");
+                    throw new RuntimeException("isSearchParma field is mandatory");
+                }
+                if("false".equals(uriMapping.getIsSearchParam())) {
+                    try {
+                        uri = indexerUtils.buildUri(uriMapping, kafkaJson);
+                        String jsonContent = serviceRequestRepository.fetchResult(uri, uriMapping.getRequest(), stateLevelTenantId);
+                        response = mapper.readValue(jsonContent, Map.class);
+                        if (null == response)
+                            continue;
+                    } catch (Exception e) {
+                        log.error("Exception while making external call: ", e);
+                        log.error("URI: " + uri);
                         continue;
-                } catch (Exception e) {
-                    log.error("Exception while making external call: ", e);
-                    log.error("URI: " + uri);
-                    continue;
+                    }
+                }
+                else {
+                    try {
+                        uri = uriMapping.getPath();
+                        Map<String,Object> x = uriMapping.getSearchParam();
+                        indexerUtils.fillJsonPath(x,kafkaJson);
+                        uriMapping.setSearchParam(x);
+                        String jsonContent = serviceRequestRepository.fetchResultForSearchParam(uri, uriMapping.getRequest(), uriMapping.getSearchParam(),stateLevelTenantId);
+                        response = mapper.readValue(jsonContent, Map.class);
+                        if (null == response)
+                            continue;
+                    } catch (Exception e) {
+                        log.error("Exception while making external call: ", e);
+                        log.error("URI: " + uri);
+                        continue;
+                    }
                 }
                 log.debug("Response: " + response + " from the URI: " + uriMapping.getPath());
                 for (FieldMapping fieldMapping : uriMapping.getUriResponseMapping()) {

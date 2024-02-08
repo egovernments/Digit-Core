@@ -1,6 +1,7 @@
 package org.egov.infra.indexer.web.contract;
 
 import java.util.List;
+import java.util.Map;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,9 +26,15 @@ public class UriMapping {
 	  
 	  @JsonProperty("apiRequest")
 	  private Object request;
+
+	  @JsonProperty("isSearchParam")
+	  private String isSearchParam;
 	  
 	  @JsonProperty("queryParam")
 	  private String queryParam;
+
+	  @JsonProperty("searchParam")
+	  private Map<String,Object> searchParam;
 	  
 	  @JsonProperty("pathParam")
 	  private String pathParam;
