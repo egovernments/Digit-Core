@@ -55,9 +55,6 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
 	
 	@Value("${egov.indexer.pgr.legacyindex.topic.name}")
 	private String pgrLegacyTopic;
-        
-//    @Autowired
-//    private StoppingErrorHandler stoppingErrorHandler;
 
 	@Autowired
 	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
@@ -159,16 +156,27 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
     	
     }
     
-    public boolean pauseContainer(){
+    public static boolean pauseContainer(){
     	try {
         	kafkContainer.stop();
 		} catch (Exception e) {
-			log.error("Container couldn't be started: ",e);
+			log.error("Container couldn't be paused: ", e);
 			return false;
 		}	   
-    	log.info("Custom KakfaListenerContainer STOPPED...");    	
+    	log.info("Custom KakfaListenerContainer PAUSED...");
 
     	return true;
     }
 
+	public static boolean resumeContainer(){
+		try {
+			kafkContainer.start();
+		} catch (Exception e) {
+			log.error("Container couldn't be started: ", e);
+			return false;
+		}
+		log.info("Custom KakfaListenerContainer STARTED...");
+
+		return true;
+	}
 }

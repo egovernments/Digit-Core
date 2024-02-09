@@ -97,7 +97,7 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     public void run(final ApplicationArguments arg0) throws Exception {
     	try {
 				log.info("Starting kafka listener container......");			
-				startContainer();
+				initializeContainer();
 			}catch(Exception e){
 				log.error("Exception while Starting kafka listener container: ",e);
 			}
@@ -166,7 +166,7 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
          return new KafkaMessageListenerContainer<>(consumerFactory(), properties); 
     }
         
-    public boolean startContainer(){
+    public boolean initializeContainer(){
     	KafkaMessageListenerContainer<String, String> container = null;
     	try {
 			    container = container();
@@ -181,16 +181,28 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     	
     }
     
-    public boolean pauseContainer(){
+    public static boolean pauseContainer(){
     	try {
         	kafkContainer.stop();
 		} catch (Exception e) {
-			log.error("Container couldn't be started: ",e);
+			log.error("Container couldn't be stopped: ", e);
 			return false;
 		}	   
     	log.info("Custom KakfaListenerContainer STOPPED...");    	
 
     	return true;
     }
+
+	public static boolean resumeContainer(){
+		try {
+			kafkContainer.start();
+		} catch (Exception e) {
+			log.error("Container couldn't be started: ", e);
+			return false;
+		}
+		log.info("Custom KakfaListenerContainer STARTED...");
+
+		return true;
+	}
 
 }

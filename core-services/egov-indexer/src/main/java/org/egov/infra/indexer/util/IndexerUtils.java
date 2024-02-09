@@ -12,6 +12,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.infra.indexer.consumer.config.CoreIndexConsumerConfig;
+import org.egov.infra.indexer.consumer.config.LegacyIndexConsumerConfig;
 import org.egov.infra.indexer.consumer.config.ReindexConsumerConfig;
 import org.egov.infra.indexer.models.AuditDetails;
 import org.egov.infra.indexer.producer.IndexerProducer;
@@ -100,6 +102,8 @@ public class IndexerUtils {
 	 */
 	public void orchestrateListenerOnESHealth() {
 		ReindexConsumerConfig.pauseContainer();
+		CoreIndexConsumerConfig.pauseContainer();
+		LegacyIndexConsumerConfig.pauseContainer();
 		log.info("Polling ES....");
 		final Runnable esPoller = new Runnable() {
 			boolean threadRun = true;
@@ -117,6 +121,8 @@ public class IndexerUtils {
 					if (response != null) {
 						log.info("ES is UP!");
 						ReindexConsumerConfig.resumeContainer();
+						CoreIndexConsumerConfig.resumeContainer();
+						LegacyIndexConsumerConfig.resumeContainer();
 						threadRun = false;
 					}
 				}
