@@ -46,8 +46,8 @@ public class IndexerUtils {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Autowired
-	private ReindexConsumerConfig kafkaConsumerConfig;
+//	@Autowired
+//	private ReindexConsumerConfig kafkaConsumerConfig;
 
 	private Version defaultSemVer;
 
@@ -99,7 +99,7 @@ public class IndexerUtils {
 	 *
 	 */
 	public void orchestrateListenerOnESHealth() {
-		kafkaConsumerConfig.pauseContainer();
+//		kafkaConsumerConfig.pauseContainer();
 		log.info("Polling ES....");
 		final Runnable esPoller = new Runnable() {
 			boolean threadRun = true;
@@ -116,7 +116,7 @@ public class IndexerUtils {
 					}
 					if (response != null) {
 						log.info("ES is UP!");
-						kafkaConsumerConfig.startContainer();
+//						kafkaConsumerConfig.startContainer();
 						threadRun = false;
 					}
 				}
