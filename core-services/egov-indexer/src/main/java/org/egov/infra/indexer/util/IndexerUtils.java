@@ -99,7 +99,7 @@ public class IndexerUtils {
 	 *
 	 */
 	public void orchestrateListenerOnESHealth() {
-//		kafkaConsumerConfig.pauseContainer();
+		ReindexConsumerConfig.pauseContainer();
 		log.info("Polling ES....");
 		final Runnable esPoller = new Runnable() {
 			boolean threadRun = true;
@@ -116,7 +116,7 @@ public class IndexerUtils {
 					}
 					if (response != null) {
 						log.info("ES is UP!");
-//						kafkaConsumerConfig.startContainer();
+						ReindexConsumerConfig.resumeContainer();
 						threadRun = false;
 					}
 				}
