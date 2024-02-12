@@ -1,5 +1,6 @@
 package org.egov.auditservice.validator;
 
+import jakarta.annotation.PostConstruct;
 import org.egov.auditservice.web.models.AuditLog;
 import org.egov.auditservice.web.models.AuditLogSearchCriteria;
 import org.egov.auditservice.web.models.enums.OperationType;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

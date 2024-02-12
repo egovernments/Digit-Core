@@ -5,12 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.egov</groupId>
   <artifactId>enc-client</artifactId>
-  <version>2.0.4-SNAPSHOT</version>
+  <version>2.9.0-SNAPSHOT</version>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.6.RELEASE</version>
+    <version>3.2.2</version>
   </parent>
 
   <distributionManagement>
@@ -29,26 +29,26 @@
   <properties>
     <log4j2.version>2.17.1</log4j2.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
-  	<dependency>
-			<groupId>org.egov.services</groupId>
-			<artifactId>services-common</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
-		</dependency>
 		<dependency>
 			<groupId>org.egov.services</groupId>
 			<artifactId>tracer</artifactId>
-			<version>2.1.1-SNAPSHOT</version>
+			<version>2.9.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.egov</groupId>
 			<artifactId>mdms-client</artifactId>
-			<version>0.0.4-SNAPSHOT</version>
+			<version>2.9.0-SNAPSHOT</version>
 		</dependency>
+    <dependency>
+      <groupId>net.minidev</groupId>
+      <artifactId>json-smart</artifactId>
+      <version>2.5.0</version>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -78,11 +78,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.egov.services</groupId>
-      <artifactId>services-common</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -122,22 +117,15 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.12.1</version>
         <configuration>
-          <source>8</source>
-          <target>8</target>
+          <source>17</source>
+          <target>17</target>
+          <release>17</release>
+          <verbose>true</verbose>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

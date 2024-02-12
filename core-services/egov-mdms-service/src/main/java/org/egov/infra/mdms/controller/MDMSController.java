@@ -3,8 +3,9 @@ package org.egov.infra.mdms.controller;
 import java.util.ArrayList;
 import java.util.Map;
 
-import javax.validation.Valid;
 
+import jakarta.validation.Valid;
+import net.minidev.json.JSONArray;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.infra.mdms.service.MDMSService;
 import org.egov.mdms.model.*;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
 
 @RestController
 @Slf4j

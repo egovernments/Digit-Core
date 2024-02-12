@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
 import org.egov.infra.indexer.consumer.BPACustomIndexMessageListener;
 import org.egov.infra.indexer.consumer.PTCustomIndexMessageListener;
+import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -51,6 +52,9 @@ public class BPACustomIndexConsumerConfig  implements ApplicationRunner {
 
     @Autowired
     private StoppingErrorHandler stoppingErrorHandler;
+
+    @Autowired
+    private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
 
     @Autowired
     private BPACustomIndexMessageListener indexerMessageListener;
@@ -104,7 +108,7 @@ public class BPACustomIndexConsumerConfig  implements ApplicationRunner {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setErrorHandler(stoppingErrorHandler);
+        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
 

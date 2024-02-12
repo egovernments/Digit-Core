@@ -43,8 +43,8 @@ package org.egov.boundary.web.controller;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import org.egov.boundary.domain.model.BoundarySearchRequest;
 import org.egov.boundary.domain.service.BoundaryService;

@@ -8,9 +8,12 @@ import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.infra.indexer.consumer.config.CoreIndexConsumerConfig;
+import org.egov.infra.indexer.consumer.config.LegacyIndexConsumerConfig;
 import org.egov.infra.indexer.consumer.config.ReindexConsumerConfig;
 import org.egov.infra.indexer.models.AuditDetails;
 import org.egov.infra.indexer.producer.IndexerProducer;
@@ -30,7 +33,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -46,8 +48,8 @@ public class IndexerUtils {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Autowired
-	private ReindexConsumerConfig kafkaConsumerConfig;
+//	@Autowired
+//	private ReindexConsumerConfig kafkaConsumerConfig;
 
 	private Version defaultSemVer;
 
@@ -99,7 +101,9 @@ public class IndexerUtils {
 	 *
 	 */
 	public void orchestrateListenerOnESHealth() {
-		kafkaConsumerConfig.pauseContainer();
+		ReindexConsumerConfig.pauseContainer();
+		CoreIndexConsumerConfig.pauseContainer();
+		LegacyIndexConsumerConfig.pauseContainer();
 		log.info("Polling ES....");
 		final Runnable esPoller = new Runnable() {
 			boolean threadRun = true;
@@ -116,7 +120,9 @@ public class IndexerUtils {
 					}
 					if (response != null) {
 						log.info("ES is UP!");
-						kafkaConsumerConfig.startContainer();
+						ReindexConsumerConfig.resumeContainer();
+						CoreIndexConsumerConfig.resumeContainer();
+						LegacyIndexConsumerConfig.resumeContainer();
 						threadRun = false;
 					}
 				}

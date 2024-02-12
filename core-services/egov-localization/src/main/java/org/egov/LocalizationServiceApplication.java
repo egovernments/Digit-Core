@@ -2,6 +2,7 @@ package org.egov;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -11,9 +12,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
 @SpringBootApplication
@@ -29,8 +29,8 @@ public class LocalizationServiceApplication {
 	}
 
 	@Bean
-	public WebMvcConfigurerAdapter webMvcConfigurerAdapter() {
-		return new WebMvcConfigurerAdapter() {
+	public WebMvcConfigurer webMvcConfigurer() {
+		return new WebMvcConfigurer() {
 
 			@Override
 			public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {

@@ -1,5 +1,6 @@
 package org.egov.web.controller;
 
+import jakarta.validation.Valid;
 import org.egov.domain.model.Token;
 import org.egov.domain.service.TokenService;
 import org.egov.web.contract.OtpRequest;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 
 @RestController
 public class OtpController {

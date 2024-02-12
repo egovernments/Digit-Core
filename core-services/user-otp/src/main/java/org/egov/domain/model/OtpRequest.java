@@ -1,11 +1,10 @@
 package org.egov.domain.model;
 
 import lombok.*;
-import org.apache.commons.lang3.StringUtils;
 import org.egov.domain.exception.InvalidOtpRequestException;
 import org.egov.web.contract.RequestInfo;
 
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Getter
 @AllArgsConstructor
@@ -34,7 +33,8 @@ public class OtpRequest {
 	public boolean isMobileNumberNumeric() {
 		// TODO Auto-generated method stub
 		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString())))
-		return !StringUtils.isNumeric(mobileNumber);
+		//return !StringUtils.isNumeric(mobileNumber);
+		return !(mobileNumber != null && mobileNumber.matches("\\d+"));
 		return false;
 	}
 

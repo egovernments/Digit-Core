@@ -13,9 +13,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import java.util.TimeZone;
 
 @SpringBootApplication
@@ -43,8 +44,8 @@ public class BoundaryApplication extends SpringBootServletInitializer {
 
 
 	@Bean
-	public WebMvcConfigurerAdapter webMvcConfigurerAdapter() {
-		return new WebMvcConfigurerAdapter() {
+	public WebMvcConfigurer webMvcConfigurer() {
+		return new WebMvcConfigurer() {
 
 			@Override
 			public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {

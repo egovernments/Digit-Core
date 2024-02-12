@@ -39,11 +39,11 @@
  */
 package org.egov.pg.models;
 
+import jakarta.validation.constraints.Max;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Max;
 
 @AllArgsConstructor
 @NoArgsConstructor

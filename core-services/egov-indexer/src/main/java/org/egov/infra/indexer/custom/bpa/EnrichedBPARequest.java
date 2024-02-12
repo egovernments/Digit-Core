@@ -1,18 +1,17 @@
 package org.egov.infra.indexer.custom.bpa;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import lombok.*;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.util.Objects;
 
 /**
  * Contract class to receive request. Array of Property items  are used in case of create . Where as single Property item is used for update
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-06-23T05:52:32.717Z[GMT]")
 @Getter
 @Setter
 @AllArgsConstructor

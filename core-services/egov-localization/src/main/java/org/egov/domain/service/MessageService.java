@@ -11,7 +11,6 @@ import org.egov.domain.model.MessageSearchCriteria;
 import org.egov.domain.model.Tenant;
 import org.egov.persistence.repository.MessageCacheRepository;
 import org.egov.persistence.repository.MessageRepository;
-import org.egov.tracer.model.CustomException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 

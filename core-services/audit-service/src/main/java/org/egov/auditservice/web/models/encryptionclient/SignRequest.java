@@ -1,9 +1,9 @@
 package org.egov.auditservice.web.models.encryptionclient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter

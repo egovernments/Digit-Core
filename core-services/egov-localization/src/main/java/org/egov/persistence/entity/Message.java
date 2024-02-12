@@ -1,10 +1,10 @@
 package org.egov.persistence.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.egov.domain.model.MessageIdentity;
 import org.egov.domain.model.Tenant;
 
-import javax.persistence.*;
 import java.util.Date;
 
 @Entity

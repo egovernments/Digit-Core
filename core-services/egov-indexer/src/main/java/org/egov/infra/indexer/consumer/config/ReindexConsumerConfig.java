@@ -11,6 +11,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
 import org.egov.infra.indexer.consumer.ReindexMessageListener;
 import org.egov.infra.indexer.web.contract.Mapping.ConfigKeyEnum;
+import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -48,9 +49,9 @@ public class ReindexConsumerConfig implements ApplicationRunner {
 	
 	@Value("${egov.core.reindex.topic.name}")
 	private String reindexTopic;
-        
-    @Autowired
-    private StoppingErrorHandler stoppingErrorHandler;
+
+	@Autowired
+	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
     
     @Autowired
     private ReindexMessageListener indexerMessageListener;
@@ -66,7 +67,7 @@ public class ReindexConsumerConfig implements ApplicationRunner {
     public void run(final ApplicationArguments arg0) throws Exception {
     	try {
 				log.info("Starting kafka listener container......");			
-				startContainer();
+				initializeContainer();
 			}catch(Exception e){
 				log.error("Exception while Starting kafka listener container: ",e);
 			}
@@ -108,7 +109,7 @@ public class ReindexConsumerConfig implements ApplicationRunner {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setErrorHandler(stoppingErrorHandler);
+        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         
@@ -130,7 +131,7 @@ public class ReindexConsumerConfig implements ApplicationRunner {
          return new KafkaMessageListenerContainer<>(consumerFactory(), properties); 
     }
         
-    public boolean startContainer(){
+    public boolean initializeContainer(){
     	KafkaMessageListenerContainer<String, String> container = null;
     	try {
 			    container = container();
@@ -145,16 +146,28 @@ public class ReindexConsumerConfig implements ApplicationRunner {
     	
     }
     
-    public boolean pauseContainer(){
+    public static boolean pauseContainer(){
     	try {
         	kafkContainer.stop();
 		} catch (Exception e) {
-			log.error("Container couldn't be started: ",e);
+			log.error("Container couldn't be stopped: ",e);
 			return false;
 		}	   
     	log.info("Custom KakfaListenerContainer STOPPED...");    	
 
     	return true;
     }
+
+	public static boolean resumeContainer(){
+		try {
+			kafkContainer.start();
+		} catch (Exception e) {
+			log.error("Container couldn't be started: ",e);
+			return false;
+		}
+		log.info("Custom KakfaListenerContainer STARTED AGAIN...");
+
+		return true;
+	}
 
 }

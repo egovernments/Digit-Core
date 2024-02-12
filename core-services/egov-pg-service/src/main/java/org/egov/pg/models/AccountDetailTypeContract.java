@@ -43,10 +43,9 @@ package org.egov.pg.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,20 +65,20 @@ public class AccountDetailTypeContract extends AuditableContract implements java
     private List<Long> ids = new ArrayList<Long>();
 
     @NotNull
-    @Length(max = 50, min = 1)
+    @Size(max = 50, min = 1)
     private String name;
 
     @NotNull
-    @Length(max = 50, min = 1)
+    @Size(max = 50, min = 1)
     private String description;
 
-    @Length(max = 25)
+    @Size(max = 25)
     private String tableName;
 
     @NotNull
     private Boolean active;
 
-    @Length(max = 250, min = 1)
+    @Size(max = 250, min = 1)
     private String fullyQualifiedName;
 
     public AccountDetailTypeContract(final String id) {

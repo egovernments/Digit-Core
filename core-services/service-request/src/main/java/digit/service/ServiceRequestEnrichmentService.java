@@ -1,7 +1,7 @@
 package digit.service;
 
-import digit.models.coremodels.AuditDetails;
 import digit.web.models.*;
+import org.egov.common.contract.models.AuditDetails;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.stereotype.Component;
 

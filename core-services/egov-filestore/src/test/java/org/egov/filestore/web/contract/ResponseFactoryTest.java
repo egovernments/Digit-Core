@@ -2,8 +2,8 @@ package org.egov.filestore.web.contract;
 
 import org.egov.filestore.domain.model.FileInfo;
 import org.egov.filestore.domain.model.FileLocation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class ResponseFactoryTest {
 	private final String FILENAME = "fileName";
 	private final String FILE_SOURCE = "diskFileStorage";
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		responseFactory = new ResponseFactory("/fileStore");
 	}

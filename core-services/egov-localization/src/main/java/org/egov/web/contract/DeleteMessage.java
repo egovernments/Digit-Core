@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.constraints.SafeHtml;
 
 @Builder
 @Getter
@@ -13,12 +12,11 @@ import org.hibernate.validator.constraints.SafeHtml;
 @NoArgsConstructor
 public class DeleteMessage {
 	@NotEmpty
-    @SafeHtml
-	private String code;
+    private String code;
+
 	@NotEmpty
-    @SafeHtml
-	private String module;
+    private String module;
+
 	@NotEmpty
-    @SafeHtml
 	private String locale;
 }

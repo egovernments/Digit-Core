@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;

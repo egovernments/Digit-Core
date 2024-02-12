@@ -8,9 +8,10 @@ import static org.egov.tracer.constants.TracerConstants.REQUEST_INFO_FIELD_NAME_
 import static org.egov.tracer.constants.TracerConstants.REQUEST_INFO_IN_CAMEL_CASE;
 import static org.egov.tracer.constants.TracerConstants.TENANTID_MDC;
 import static org.egov.tracer.constants.TracerConstants.TENANT_ID_HEADER;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -18,16 +19,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.egov.tracer.config.ObjectMapperFactory;
 import org.egov.tracer.config.TracerProperties;
 import org.slf4j.MDC;
@@ -41,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TracerFilter implements Filter {
 
     private static final List<String> JSON_MEDIA_TYPES =
-            Arrays.asList(MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE);
+            Arrays.asList(MediaType.APPLICATION_JSON_VALUE);
     private static final String POST = "POST";
     private static final String REQUEST_BODY_LOG_MESSAGE = "Request body - {}";
     private static final String FAILED_TO_LOG_REQUEST_MESSAGE = "Failed to log request body";
@@ -158,7 +153,9 @@ public class TracerFilter implements Filter {
 
     private void logRequestBodyAndParams(HttpServletRequest requestWrapper) {
         try {
-            final String requestBody = IOUtils.toString(requestWrapper.getInputStream(), UTF_8);
+            //final String requestBody = IOUtils.toString(requestWrapper.getInputStream(), UTF_8);
+            final ServletInputStream inputStream = requestWrapper.getInputStream();
+            String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             String requestParams = requestWrapper.getQueryString();
 
             if (!isEmpty(requestParams))

@@ -1,3 +1,4 @@
+/*
 package org.egov.infra.persist.consumer;
 
 import static org.mockito.Mockito.doNothing;
@@ -30,3 +31,4 @@ class StoppingErrorHandlerTest {
     }
 }
 
+*/

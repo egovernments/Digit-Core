@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.infra.indexer.consumer.PGRCustomIndexMessageListener;
+import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -63,9 +64,12 @@ public class PGRCustomIndexConsumerConfig implements ApplicationRunner {
 	@Value("${pgr.batch.create.topic.name}")
 	private String pgrServicesBatchCreateTopic;
 
+//	@Autowired
+//    private StoppingErrorHandler stoppingErrorHandler;
+
 	@Autowired
-    private StoppingErrorHandler stoppingErrorHandler;
-    
+	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+
     @Autowired
     private PGRCustomIndexMessageListener indexerMessageListener;
     
@@ -118,7 +122,7 @@ public class PGRCustomIndexConsumerConfig implements ApplicationRunner {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setErrorHandler(stoppingErrorHandler);
+        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         

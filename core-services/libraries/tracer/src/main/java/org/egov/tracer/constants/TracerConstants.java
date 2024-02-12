@@ -11,6 +11,10 @@ public class TracerConstants {
     public static final String TIME_ZONE_PROPERTY = "app.timezone";
     public static final String REQUEST_INFO_FIELD_NAME_IN_JAVA_CLASS_CASE = "RequestInfo";
     public static final String REQUEST_INFO_IN_CAMEL_CASE = "requestInfo";
+    public static final String UNHANDLED_EXCEPTION_ERROR_CODE = "UNHANDLED_EXCEPTION_ERROR";
+    public static final String UNABLE_TO_RETRIEVE_REQUEST_BODY_MSG = "Unable to retrieve request body";
+    public static final String UTF_8_CODE = "UTF-8";
+    public static final String EXCEPTION_CAUGHT_IN_TRACER_MSG = "Exception caught in tracer ";
 
     private TracerConstants() {
     }

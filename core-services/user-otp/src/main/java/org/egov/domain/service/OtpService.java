@@ -11,7 +11,6 @@ import org.egov.persistence.repository.OtpEmailRepository;
 import org.egov.persistence.repository.OtpRepository;
 import org.egov.persistence.repository.OtpSMSRepository;
 import org.egov.persistence.repository.UserRepository;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

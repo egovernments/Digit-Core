@@ -1,6 +1,7 @@
 package org.egov.web.contract;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.egov.domain.model.TokenRequest;
 import org.egov.domain.model.TokenSearchCriteria;
 
-import javax.validation.Valid;
 
 @Getter
 @AllArgsConstructor

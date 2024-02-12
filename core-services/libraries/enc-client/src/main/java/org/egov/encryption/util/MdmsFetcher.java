@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.MDC;
-
 import java.util.Arrays;
 
 @Slf4j

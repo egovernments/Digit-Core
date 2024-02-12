@@ -1,5 +1,6 @@
 package org.egov.filestore;
 
+import jakarta.annotation.PostConstruct;
 import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @Import({ TracerConfiguration.class })
