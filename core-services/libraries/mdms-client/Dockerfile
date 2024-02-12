@@ -3,6 +3,10 @@ ARG WORK_DIR
 ARG nexusUsername
 ARG nexusPassword
 WORKDIR /app
+
+# Install Maven
+RUN apk add --no-cache maven
+
 # copy the project files
 COPY ${WORK_DIR}/pom.xml ./pom.xml
 COPY ${WORK_DIR}/settings.xml ./settings.xml
