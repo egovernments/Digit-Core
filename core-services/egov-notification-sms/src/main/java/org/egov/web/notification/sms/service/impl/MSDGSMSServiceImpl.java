@@ -29,10 +29,6 @@ public class MSDGSMSServiceImpl extends BaseSMSService {
     @Autowired
     private SMSProperties smsProperties;
 
-    @Autowired
-    private SMSBodyBuilder bodyBuilder;
-
-
     /**
      * MD5 encryption algorithm
      *
@@ -83,7 +79,7 @@ public class MSDGSMSServiceImpl extends BaseSMSService {
         }
         sms.setMessage(finalmessage);
         String url = smsProperties.getUrl();
-        final MultiValueMap<String, String> requestBody = bodyBuilder.getSmsRequestBody(sms);
+        final MultiValueMap<String, String> requestBody = getSmsRequestBody(sms);
         postProcessor(requestBody);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requestBody, getHttpHeaders());
         executeAPI(URI.create(url), HttpMethod.POST, request, String.class);
