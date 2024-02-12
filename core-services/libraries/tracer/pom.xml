@@ -13,6 +13,13 @@
   <version>2.9.0-SNAPSHOT</version>
   <name>tracer</name>
   <description>Assist in tracing http and message queue flows</description>
+  <distributionManagement>
+  	<snapshotRepository>
+      <id>repo.digit.org</id>
+      <name>eGov ERP Snapshots Repository</name>
+      <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
   <properties>
     <log4j2.version>2.17.1</log4j2.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
