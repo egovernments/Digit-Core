@@ -373,6 +373,11 @@ config:
       - work-dir: "core-services/libraries/enc-client"
         image-name: "enc-client"
 
+  - name: "builds/Digit-Core/core-services/libraries/mdms-client"
+    build:
+      - work-dir: "core-services/libraries/mdms-client"
+        image-name: "mdms-client"
+
   - name: "builds/Digit-Core/core-services/libraries/tracer"
     build:
       - work-dir: "core-services/libraries/tracer"
