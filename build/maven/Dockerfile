@@ -1,8 +1,10 @@
-
 #FROM egovio/alpine-maven-builder-jdk-8:1-master-NA-6036091e AS build
 FROM egovio/amazoncorretto:17-alpine3.19 AS build
 ARG WORK_DIR
 WORKDIR /app
+
+# Install Maven
+RUN apk add --no-cache maven
 
 # copy the project files
 COPY ${WORK_DIR}/pom.xml ./pom.xml
