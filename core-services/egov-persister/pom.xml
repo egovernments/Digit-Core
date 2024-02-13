@@ -126,55 +126,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-            </exclude>
-            <exclude>
-              <groupId>org.springframework.boot</groupId>
-              <artifactId>spring-boot-devtools</artifactId>
-            </exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.12.1</version>
-        <configuration>
-          <source>17</source>
-          <target>17</target>
-          <release>17</release>
-          <verbose>true</verbose>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>cz.habarta.typescript-generator</groupId>
-        <artifactId>typescript-generator-maven-plugin</artifactId>
-        <version>2.22.595</version>
-        <executions>
-          <execution>
-            <id>generate</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <phase>process-classes</phase>
-          </execution>
-        </executions>
-        <configuration>
-          <jsonLibrary>jackson2</jsonLibrary>
-          <classes>
-            <class>org.egov.infra.persist.web.contract.Mapping</class>
-          </classes>
-          <customTypeNaming>
-            <typeNaming>org.egov.infra.persist.web.contract.TypeEnum$TypeEnum:Type</typeNaming>
-          </customTypeNaming>
-          <namespace>Digit</namespace>
-          <debug>true</debug>
-          <outputKind>module</outputKind>
-        </configuration>
       </plugin>
     </plugins>
   </build>
