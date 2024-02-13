@@ -10,7 +10,11 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
+import java.util.Base64;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.infra.indexer.consumer.config.CoreIndexConsumerConfig;
 import org.egov.infra.indexer.consumer.config.LegacyIndexConsumerConfig;
@@ -84,6 +88,12 @@ public class IndexerUtils {
 	@Value("${id.timezone}")
 	private String timezone;
 
+	@Value("${egov.indexer.es.username}")
+	private String esUsername;
+
+	@Value("${egov.indexer.es.password}")
+	private String esPassword;
+
 	@Autowired
 	private IndexerProducer producer;
 
@@ -114,7 +124,10 @@ public class IndexerUtils {
 					try {
 						StringBuilder url = new StringBuilder();
 						url.append(esHostUrl).append("/_search");
-						response = restTemplate.getForObject(url.toString(), Map.class);
+						final HttpHeaders headers = new HttpHeaders();
+						headers.add("Authorization", getESEncodedCredentials());
+						final HttpEntity entity = new HttpEntity( headers);
+						response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
 					} catch (Exception e) {
 						log.error("ES is DOWN..");
 					}
@@ -759,5 +772,15 @@ public class IndexerUtils {
 		}catch (UnexpectedCharacterException e){
 			return defaultSemVer;
 		}
+	}
+
+	/**
+	 * For authenticating elastic search api
+	 */
+	public String getESEncodedCredentials() {
+		String credentials = esUsername + ":" + esPassword;
+		byte[] credentialsBytes = credentials.getBytes();
+		byte[] base64CredentialsBytes = Base64.getEncoder().encode(credentialsBytes);
+		return "Basic " + new String(base64CredentialsBytes);
 	}
 }

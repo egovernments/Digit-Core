@@ -61,6 +61,9 @@ public class IndexerService {
 	@Value("${egov.infra.indexer.host}")
 	private String esHostUrl;
 
+	@Value("${egov.infra.indexer.legacyVersion}")
+	private Boolean isLegacyVersionES;
+
 	/**
 	 * Method that processes data according to the config and posts them to es.
 	 *
@@ -123,7 +126,12 @@ public class IndexerService {
 		Long startTime = null;
 		log.debug("index: " + index.getCustomJsonMapping());
 		StringBuilder url = new StringBuilder();
-		url.append(esHostUrl).append(index.getName()).append("/").append(index.getType()).append("/").append("_bulk");
+		if(this.isLegacyVersionES) {
+			url.append(esHostUrl).append(index.getName()).append("/").append(index.getType()).append("/").append("_bulk");
+		} else {
+			url.append(esHostUrl).append(index.getName()).append("/").append("_bulk");
+		}
+
 		startTime = new Date().getTime();
 		String jsonToBeIndexed;
 		if (null != index.getCustomJsonMapping()) {
@@ -171,8 +179,13 @@ public class IndexerService {
 	 */
 	public void indexWithESId(Index index, String finalJson) throws Exception {
 		StringBuilder urlForNonBulk = new StringBuilder();
-		urlForNonBulk.append(esHostUrl).append(index.getName()).append("/").append(index.getType()).append("/")
-				.append("_index");
+		if(this.isLegacyVersionES) {
+			urlForNonBulk.append(esHostUrl).append(index.getName()).append("/")
+					.append("_index");
+		} else {
+			urlForNonBulk.append(esHostUrl).append(index.getName()).append("/").append(index.getType()).append("/")
+					.append("_index");
+		}
 		bulkIndexer.indexJsonOntoES(urlForNonBulk.toString(), finalJson, index);
 	}
 
