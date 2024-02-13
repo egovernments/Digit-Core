@@ -1,6 +1,5 @@
 package org.egov.url.shortening.repository;
 
-import org.egov.url.shortening.config.ApplicationProperties;
 import org.egov.url.shortening.model.ShortenRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
