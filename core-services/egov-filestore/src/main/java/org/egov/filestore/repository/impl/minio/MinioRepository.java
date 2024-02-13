@@ -17,6 +17,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import io.minio.errors.*;
 import org.apache.commons.io.FilenameUtils;
 import org.egov.filestore.config.FileStoreConfig;
 import org.egov.filestore.domain.model.FileLocation;
@@ -33,14 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectOptions;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidExpiresRangeException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.MinioException;
-import io.minio.errors.XmlParserException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -186,11 +179,11 @@ public class MinioRepository implements CloudFilesManager {
 					fileStoreConfig.getPreSignedUrlTimeOut(), new HashMap<String, String>());
 		} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException | InsufficientDataException
 				| InternalException | InvalidBucketNameException | InvalidExpiresRangeException
-				| InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException e) {
+				| InvalidResponseException | NoSuchAlgorithmException | XmlParserException | ServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return signedUrl;
+        return signedUrl;
 	}
 
 	public Resource read(FileLocation fileLocation) {
@@ -204,9 +197,10 @@ public class MinioRepository implements CloudFilesManager {
 
 			try {
 				minioClient.getObject(minioConfig.getBucketName(), fileName, f.getName());
-			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException | InsufficientDataException
-					| InternalException | InvalidBucketNameException | InvalidResponseException
-					| NoSuchAlgorithmException | XmlParserException | IOException e) {
+			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException |
+                     InsufficientDataException | InternalException | InvalidBucketNameException |
+                     InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException |
+                     ServerException e) {
 				log.error("Error while downloading the file ", e);
 				Map<String, String> map = new HashMap<>();
 				map.put("ERROR_MINIO_DOWNLOAD",
