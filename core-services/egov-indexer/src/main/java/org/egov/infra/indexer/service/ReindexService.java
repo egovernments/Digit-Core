@@ -75,8 +75,7 @@ public class ReindexService {
 	@Value("${egov.core.index.thread.poll.ms}")
 	private Long indexThreadPollInterval;
 
-	@Value("${egov.infra.indexer.legacyVersion}")
-	private Boolean isLegacyVersionES;
+
 
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
 	private final ScheduledExecutorService schedulerofChildThreads = Executors.newScheduledThreadPool(1);
@@ -97,11 +96,9 @@ public class ReindexService {
 		Integer total = JsonPath.read(response, "$.hits.total");
 		StringBuilder url = new StringBuilder();
 		Index index = mappingsMap.get(reindexRequest.getReindexTopic()).getIndexes().get(0);
-		if(this.isLegacyVersionES) {
-			url.append(esHostUrl).append(index.getName()).append("/").append(index.getType()).append("/_search");
-		} else {
+
 			url.append(esHostUrl).append(index.getName()).append("/_search");
-		}
+
 		reindexResponse = ReindexResponse.builder().totalRecordsToBeIndexed(total)
 				.estimatedTime(indexerUtils.fetchEstimatedTime(total))
 				.message("Please hit the 'url' for the newly indexed data after the mentioned 'estimated time'.")
