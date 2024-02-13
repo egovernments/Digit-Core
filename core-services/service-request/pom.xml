@@ -6,7 +6,7 @@
     <name>service-request</name>
     <version>2.9.0-SNAPSHOT</version>
     <properties>
-    <java.version>17.0.10</java.version>
+    <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 </properties>
