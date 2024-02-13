@@ -1,9 +1,11 @@
 package org.egov.url.shortening.repository;
 
+import org.egov.url.shortening.config.ApplicationProperties;
 import org.egov.url.shortening.model.ShortenRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Repository;
 
@@ -23,8 +25,15 @@ public class URLRedisRepository implements URLRepository {
     @Autowired
     private ObjectMapper objectMapper;
 
+
+    @Value("${spring.redis.host}")
+    private String redisHost;
+
+    @Value("${spring.redis.port}")
+    private int redisPort;
+
     public URLRedisRepository() {
-        this.jedis = new Jedis();
+        this.jedis = new Jedis(redisHost, redisPort);
         this.idKey = "id";
         this.urlKey = "url:";
     }
