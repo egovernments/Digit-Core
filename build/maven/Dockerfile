@@ -1,6 +1,5 @@
 #FROM egovio/alpine-maven-builder-jdk-8:1-master-NA-6036091e AS build
-#FROM egovio/amazoncorretto:17-alpine3.19 AS build
-FROM eclipse-temurin:17.0.10_7-jre-alpine AS build
+FROM egovio/amazoncorretto:17-alpine3.19 AS build
 ARG WORK_DIR
 WORKDIR /app
 
