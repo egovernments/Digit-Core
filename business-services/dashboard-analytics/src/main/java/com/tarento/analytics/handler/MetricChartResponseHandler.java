@@ -1,16 +1,5 @@
 package com.tarento.analytics.handler;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.egov.tracer.model.CustomException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,13 +12,21 @@ import com.tarento.analytics.dto.Data;
 import com.tarento.analytics.dto.Plot;
 import com.tarento.analytics.helper.ComputeHelper;
 import com.tarento.analytics.helper.ComputeHelperFactory;
-import com.tarento.analytics.utils.ResponseRecorder;
+import org.egov.tracer.model.CustomException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * This handles ES response for single index, multiple index to represent single data value
  * Creates plots by merging/computing(by summation or by percentage) index values for same key
  * ACTION:  for the chart config defines the type either summation or computing percentage
  * AGGS_PATH : this defines the path/key to be used to search the tree
+ * compare the lists from two indices to give count of data within listA that are absent from listB and provide summation of value of filtered data
  *
  */
 @Component
@@ -84,18 +81,39 @@ public class MetricChartResponseHandler implements IResponseHandler{
         List<Double> percentageList = new ArrayList<>();
         ArrayNode aggrsPaths = (ArrayNode) chartNode.get(AGGS_PATH);
 
+		boolean extractBuckets = (chartNode.get(COMPARE_TWO_INDICES) !=null) ? chartNode.get(COMPARE_TWO_INDICES).asBoolean() : false;
+		List<List<String>> bucketList = new ArrayList<>();
+		boolean compareValue = (chartNode.get(COMPARE_VALUE_TWO_INDICES) !=null) ? chartNode.get(COMPARE_VALUE_TWO_INDICES).asBoolean() : false;
+		List<Map<String,Double>> valueMap = new ArrayList<>();
         /*
         * Sums all value of all aggrsPaths i.e all aggregations
         * */
        boolean isRoundOff = (chartNode.get(IS_ROUND_OFF)!=null && chartNode.get(IS_ROUND_OFF).asBoolean()) ? true : false;
-       Plot latestDateplot = new Plot("todaysDate", Double.valueOf(0), "number");;
+       Plot latestDateplot = new Plot("todaysDate", Double.valueOf(0), "number");
 		Plot lastUpdatedTime = new Plot("lastUpdatedTime", Double.valueOf(0), "number");
+		Plot latestCount = new Plot("count",Double.valueOf(0),"number");
 		Boolean isTodaysCollection = (chartNode.get("TodaysCollection") == null ? Boolean.FALSE : chartNode.get("TodaysCollection").asBoolean());
+		Boolean isLatestCount = (chartNode.get("metricCount") == null ? Boolean.FALSE : chartNode.get("metricCount").asBoolean());
 		for( JsonNode headerPath : aggrsPaths) {
 			List<JsonNode> values = aggregationNode.findValues(headerPath.asText());
 			int valueIndex = 0;
 			Double headerPathValue = new Double(0);
 			for (JsonNode value : values) {
+				if(extractBuckets){
+					bucketList.add(value.findValuesAsText("key"));
+				}
+				if(compareValue){
+					Map<String, Double> map = new HashMap<>();
+					value.get("buckets").forEach(node -> {
+						try {
+							map.put(node.get(KEY).asText(),node.findValue(VALUE).asDouble());
+						}catch (Exception e){
+							logger.error(String.valueOf(e));
+						}
+
+					});
+					valueMap.add(map);
+				}
 				if (isRoundOff) {
 					ObjectMapper mapper = new ObjectMapper();
 					JsonNode node = value.get("value");
@@ -172,6 +190,12 @@ public class MetricChartResponseHandler implements IResponseHandler{
 					}
 
 				}
+				if (isLatestCount == Boolean.TRUE){
+					JsonNode countNode = aggregationNode.findValue("Count");
+					if(countNode != null && countNode.has(IResponseHandler.VALUE)){
+						latestCount.setValue(countNode.findValue(IResponseHandler.VALUE).asDouble());
+					}
+				}
 				valueIndex++;
 			}
 			// Why is aggrsPaths.size()==2 required? Is there validation if action =
@@ -185,7 +209,15 @@ public class MetricChartResponseHandler implements IResponseHandler{
 		}
 
         String symbol = chartNode.get(IResponseHandler.VALUE_TYPE).asText();
-       
+       	if (extractBuckets && bucketList.size() ==2){
+			Double count = compareTwoIndices(bucketList);
+			totalValues.clear();
+			totalValues.add(count);
+		}
+		if (compareValue ){
+			totalValues.clear();
+			totalValues.add(compareValueOfTwoIndices(valueMap));
+		}
         try{
             Data data = new Data(chartName, action.equals(PERCENTAGE) && aggrsPaths.size()==2? percentageValue(percentageList, isRoundOff) : (totalValues==null || totalValues.isEmpty())? 0.0 :totalValues.stream().reduce(0.0, Double::sum), symbol);
 			//Logic to perform DIVISION action
@@ -199,7 +231,7 @@ public class MetricChartResponseHandler implements IResponseHandler{
 				else
 					throw new CustomException("INVALID_NUMBER_OF_OPERANDS", "Division operation can be performed only with 2 operands.");
 			}
-			data.setPlots( Arrays.asList(latestDateplot,lastUpdatedTime));
+			data.setPlots( Arrays.asList(latestDateplot,lastUpdatedTime,latestCount));
             request.getResponseRecorder().put(visualizationCode, request.getModuleLevel(), data);
             dataList.add(data);
             if(chartNode.get(POST_AGGREGATION_THEORY) != null) { 

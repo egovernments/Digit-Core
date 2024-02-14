@@ -83,7 +83,7 @@ public class Constants {
 		final static String INSIGHT = "insight";
 		final static String DAYS = "days";
 		final static String TRANSLATE_CODE = "translateTenantCode";
-
+		final static String OVERRIDE_REQUEST_INTERVAL = "overrideRequestInterval";
 	}
 	
 	public interface Filters {
@@ -104,6 +104,8 @@ public class Constants {
 		final static String NAME = "name";
 		final static String ID = "id";
 		final static String TITLE = "title";
+		final static String CUSTOM_FILTER_COMPONENT = "filter";
+		final static String CUSTOM_FILTER_CONFIGURATION = "filterConfig";
 
 	}
 	public interface MDMSKeys {

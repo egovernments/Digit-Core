@@ -53,7 +53,7 @@ public class AdditiveComputedField implements IComputedField<Data> {
 
         } catch (Exception e) {
             // throw new RuntimeException("Computed field configuration not correctly provided");
-            logger.error("percentage could not be computed " +e.getMessage());
+            logger.error("Addition could not be computed " +e.getMessage());
             data.getPlots().add(new Plot(newField, 0.0, dataType));
         }
 

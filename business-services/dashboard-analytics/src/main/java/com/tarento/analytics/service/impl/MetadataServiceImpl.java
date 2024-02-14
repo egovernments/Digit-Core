@@ -103,6 +103,12 @@ public class MetadataServiceImpl implements MetadataService {
 										visArray.add(visual);
 									});
 								}
+								// Check if filter component exists in config then add into response config
+								if (dbNode.has(Constants.DashBoardConfig.CUSTOM_FILTER_COMPONENT))
+									copyDashboard.set(Constants.DashBoardConfig.CUSTOM_FILTER_COMPONENT, dbNode.get(Constants.DashBoardConfig.CUSTOM_FILTER_COMPONENT));
+								// Check if FILTER CONFIGURATION exists in config then add into response config
+								if (dbNode.has(Constants.DashBoardConfig.CUSTOM_FILTER_CONFIGURATION))
+									copyDashboard.set(Constants.DashBoardConfig.CUSTOM_FILTER_CONFIGURATION, dbNode.get(Constants.DashBoardConfig.CUSTOM_FILTER_CONFIGURATION));
 							}
 							copyDashboard.set(Constants.DashBoardConfig.NAME, name);
 							copyDashboard.set(Constants.DashBoardConfig.ID, id);
