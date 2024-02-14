@@ -1,0 +1,17 @@
+curl 'https://staging.digit.org/pgr-services/v2/request/_create?tenantId=pg.citya' \
+  -H 'authority: staging.digit.org' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'content-type: application/json;charset=UTF-8' \
+  -H 'cookie: intercom-id-xp1951jv=088fb443-01d8-424c-ae00-e0e063c12467; intercom-device-id-xp1951jv=a07021de-7d91-4db7-be32-c34114d4a481; _ga_6130JJKLD4=GS1.1.1694144254.10.0.1694144254.60.0.0; _ga_0JZG96DZSM=GS1.1.1694494852.3.1.1694494988.60.0.0; _ga_V2CPZCVTXQ=GS1.1.1697020890.2.0.1697020890.0.0.0; _ga_XBQP06FR8V=GS1.1.1701058490.29.1.1701058541.9.0.0; _ga=GA1.1.1659220014.1654494485; _ga_P1TZCPKF6S=GS1.1.1701058682.20.1.1701059233.60.0.0; _ga_2E44ZSYXS7=GS1.1.1701074984.3.1.1701075131.0.0.0; _ga_H9YC8FEN6F=GS1.1.1701148491.110.0.1701148491.60.0.0; __cuid=e66915233c3b4a8ba44f97202a9c0893; amp_fef1e8=a5fc1a47-3f39-4553-b5d4-f2f9be17d201R...1hga5k0se.1hga5k0sf.4fb.4e.4jp' \
+  -H 'origin: https://staging.digit.org' \
+  -H 'referer: https://staging.digit.org/digit-ui/citizen/pgr/create-complaint/additional-details' \
+  -H 'sec-ch-ua: "Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36' \
+  --data-raw '{"service":{"tenantId":"pg.citya","serviceCode":"StreetLightNotWorking","description":"","additionalDetail":{},"source":"web","address":{"city":"City A","district":"City A","region":"City A","state":"Demo","locality":{"code":"JLC477","name":"Gali No,. 2 To Gali No. 6"},"geoLocation":{}}},"workflow":{"action":"APPLY"},"RequestInfo":{"apiId":"Rainmaker","authToken":"03dfd7d3-ce74-4c54-b951-916357eb9c2b","userInfo":{"id":6587,"uuid":"aee61faf-a9ab-4601-88d9-7475c06adfb7","userName":"9741122310","name":"Suba","mobileNumber":"9741122310","emailId":"elzan_m@yahoo.co.in","locale":null,"type":"CITIZEN","roles":[{"name":"Citizen","code":"CITIZEN","tenantId":"pg"}],"active":true,"tenantId":"pg","permanentCity":"pg.citya"},"msgId":"1701860947882|en_IN","plainAccessRequest":{}}}' \
+  --compressed

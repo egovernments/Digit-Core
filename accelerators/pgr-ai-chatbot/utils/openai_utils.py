@@ -10,8 +10,14 @@ load_dotenv(
     dotenv_path="ops/.env",
 )
 
+with open("prompts/main.txt", "r") as file:
+    main_prompt = file.read()
+
+print(main_prompt)
+
 openai_api_key = os.getenv("OPENAI_API_KEY")
 assistant_id = os.getenv("ASSISTANT_ID")
+model_name = os.getenv("MODEL_NAME")
 
 #OPENAI FUNCTION CALLS
 
@@ -145,7 +151,7 @@ def create_assistant(client, assistant_id):
     except Exception as e:
         assistant = client.beta.assistants.create(
         name="Complaint Assistant",
-        instructions="You ara a helpful complaint assistant who will collect information about a complaint and raise the complaint. You are talking to common citizens who are not tech savvy, so ask questions one by one. You will also have to search for complaints raised by the user.",
+        instructions=main_prompt,
         model="gpt-4",
         tools=[
                 {
@@ -176,13 +182,17 @@ def upload_message(client, thread_id, input_message, assistant_id):
         thread_id=thread_id,
         assistant_id=assistant_id,
     )
-    
     return run
 
 def get_run_status(run, client, thread):
     delay = 5
-    run_status = run.status
+    try: 
+        run_status = run.status
+    except Exception as e:
+        print(e)
+    
     while run_status not in ["completed", "failed", "requires_action"]:
+        print("Current run status:", run_status)  # check statement
         time.sleep(delay)
         run = client.beta.threads.runs.retrieve(
             thread_id=thread.id,
@@ -190,6 +200,8 @@ def get_run_status(run, client, thread):
         )
         run_status = run.status
         delay = 8 if run_status == "requires_action" else 5
+
+    print("Final run status:", run_status)  # check statement
     return run, run_status
 
 def get_assistant_message(client, thread_id):

@@ -1,0 +1,14 @@
+#
+# This YAML file contains the configuration settings for the Mr-Nags chatbot.
+# It defines the supported languages and their corresponding codes.
+#
+# Example usage:
+#   - 'hi': Hindi
+#   - 'en': English
+#   - 'pa': Punjabi
+#
+languages:
+  hi: Hindi
+  en: English
+  pa: Punjabi
+

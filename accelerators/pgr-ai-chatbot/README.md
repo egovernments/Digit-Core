@@ -12,6 +12,7 @@ Mr Nags is a complaint filing chatbot using egov digit platform.
     REDIS_HOST=redis (localhost if running locally without docker)
     USERNAME=<digit-username>
     PASSWORD=<digit-password>
+    MODEL_NAME=<model-name eg: gpt-3.5-turbo>
     ```
 2. For normal running
 

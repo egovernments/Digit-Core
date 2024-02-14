@@ -15,6 +15,6 @@ def get_redis_value(key):
 
 def set_redis(key, value, expire=900):
     redis_client.set(key, value, ex=expire)
-
+    
 def delete_redis(key):
     redis_client.delete(key)
