@@ -417,7 +417,7 @@ config:
   - name: "builds/Digit-Core/accelerators/pgr-services"
     build:
       - work-dir: "accelerators/pgr-services"
-        image-name: "pg-services"
+        image-name: "pgr-services"
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "accelerators/pgr-services/src/main/resources/db"
         image-name: "pgr-services-db"
