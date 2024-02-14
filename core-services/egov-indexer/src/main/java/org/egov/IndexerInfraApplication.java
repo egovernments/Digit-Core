@@ -15,9 +15,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+
+import javax.net.ssl.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +37,6 @@ public class IndexerInfraApplication {
 		try {
 			SSLContext ctx = SSLContext.getInstance("TLS");
 			X509TrustManager tm = new X509TrustManager() {
-
 				public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
 				}
 
@@ -51,6 +49,13 @@ public class IndexerInfraApplication {
 			};
 			ctx.init(null, new TrustManager[]{tm}, null);
 			SSLContext.setDefault(ctx);
+
+			// Disable hostname verification
+			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+				public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
+					return true;
+				}
+			});
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
