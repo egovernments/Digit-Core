@@ -5,7 +5,7 @@ import org.egov.pgr.web.models.Status;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Validated
 @AllArgsConstructor

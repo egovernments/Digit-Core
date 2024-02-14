@@ -19,7 +19,7 @@ import java.util.*;
 
 import javax.validation.Valid;
 
-@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2020-07-15T11:35:33.568+05:30")
+//@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2020-07-15T11:35:33.568+05:30")
 
 @Controller
 @RequestMapping("/v2")

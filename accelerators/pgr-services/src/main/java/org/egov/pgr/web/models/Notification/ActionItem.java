@@ -3,7 +3,7 @@ package org.egov.pgr.web.models.Notification;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Validated
 @AllArgsConstructor

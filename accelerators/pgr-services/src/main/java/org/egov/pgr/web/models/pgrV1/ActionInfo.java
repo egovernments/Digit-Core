@@ -18,9 +18,8 @@ import java.util.Objects;
  * Capture the details of action on service request.
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-23T08:00:37.661Z")
-@AllArgsConstructor
-@NoArgsConstructor
+//@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-23T08:00:37.661Z")@AllArgsConstructor
+//@NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ActionInfo   {
