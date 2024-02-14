@@ -15,7 +15,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
@@ -29,6 +33,28 @@ public class IndexerInfraApplication {
 
 	@Value("${cache.expiry.mdms.masters.minutes}")
 	private int mdmsMasterExpiry;
+
+	public static void trustSelfSignedSSL() {
+		try {
+			SSLContext ctx = SSLContext.getInstance("TLS");
+			X509TrustManager tm = new X509TrustManager() {
+
+				public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+				}
+
+				public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+				}
+
+				public X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+			};
+			ctx.init(null, new TrustManager[]{tm}, null);
+			SSLContext.setDefault(ctx);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 	
 	public static void main(String[] args) {
 		SpringApplication.run(IndexerInfraApplication.class, args);
@@ -36,6 +62,7 @@ public class IndexerInfraApplication {
 
 	@Bean
 	public RestTemplate restTemplate() {
+	    trustSelfSignedSSL();	
 	    return new RestTemplate();
 	}
 
