@@ -419,6 +419,14 @@ config:
         image-name: "inbox"
         dockerfile: "build/maven/Dockerfile"
 
+  - name: "builds/Digit-Core/accelerators/pgr-services"
+    build:
+      - work-dir: "accelerators/pgr-services"
+        image-name: "pgr-services"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "accelerators/pgr-services/src/main/resources/db"
+        image-name: "pgr-services-db"
+
   - name: "builds/Digit-Core/core-services/service-request"
     build:
       - work-dir: "core-services/service-request"
