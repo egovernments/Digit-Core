@@ -1,9 +1,10 @@
 package org.egov.infra.indexer.consumer;
 
+import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.egov.infra.indexer.service.IndexerService;
 import org.egov.infra.indexer.service.ReindexService;
-import org.egov.infra.indexer.util.IndexerUtils;
 import org.egov.infra.indexer.web.contract.ReindexRequest;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +16,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
-import static org.egov.infra.indexer.util.IndexerConstants.TENANTID_MDC_STRING;
-
 @Service
 @Slf4j
 public class ReindexMessageListener implements MessageListener<String, String> {
 
-	@Autowired
-	private IndexerUtils indexerUtils;
+//	@Autowired
+//	private IndexerUtils indexerUtils;
 	
 	@Autowired
 	private ReindexService reindexService;
@@ -51,7 +50,8 @@ public class ReindexMessageListener implements MessageListener<String, String> {
 		// Adding in MDC so that tracer can add it in header
 		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 
-		ObjectMapper mapper = indexerUtils.getObjectMapper();
+		//ObjectMapper mapper = indexerUtils.getObjectMapper();
+		ObjectMapper mapper  = new ObjectMapper();
 		if(data.topic().equals(reindexTopic)) {
 			try {
 				ReindexRequest reindexRequest = mapper.readValue(data.value(), ReindexRequest.class);
