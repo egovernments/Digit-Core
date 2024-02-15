@@ -157,7 +157,7 @@ public class SpringBootCodegen extends AbstractJavaCodegen
             this.setJava8(Boolean.valueOf(additionalProperties.get(JAVA_8).toString()));
         }
         if (this.java8) {
-            additionalProperties.put("javaVersion", "1.8");
+            additionalProperties.put("javaVersion", "17");
             additionalProperties.put("jdk8", "true");
             if (!additionalProperties.containsKey(DATE_LIBRARY)) {
                 setDateLibrary("java8");
@@ -351,7 +351,7 @@ public class SpringBootCodegen extends AbstractJavaCodegen
 
 
         if (this.java8) {
-            additionalProperties.put("javaVersion", "1.8");
+            additionalProperties.put("javaVersion", "17");
             additionalProperties.put("jdk8", "true");
             if (this.async) {
                 additionalProperties.put(RESPONSE_WRAPPER, "CompletableFuture");
