@@ -778,6 +778,8 @@ public class IndexerUtils {
 	 * For authenticating elastic search api
 	 */
 	public String getESEncodedCredentials() {
+		log.info(esUsername);
+		log.info(esPassword);
 		String credentials = esUsername + ":" + esPassword;
 		byte[] credentialsBytes = credentials.getBytes();
 		byte[] base64CredentialsBytes = Base64.getEncoder().encode(credentialsBytes);
