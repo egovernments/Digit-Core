@@ -1,9 +1,8 @@
 package com.example.gateway;
-import com.example.gateway.Utils.UserUtils;
-import com.example.gateway.filters.pre.CorrelationIdFilter;
+import com.example.gateway.filters.pre.AuthFilter;
+import com.example.gateway.filters.pre.RequestStartTimeFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.common.utils.MultiStateInstanceUtil;
-import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -19,7 +18,6 @@ import java.util.List;
 
 @SpringBootApplication
 @RestController
-@Import({TracerConfiguration.class, MultiStateInstanceUtil.class})
 public class GatewayApplication {
 
 	public static void main(String[] args) {
@@ -59,19 +57,28 @@ public class GatewayApplication {
 	@Value("${egov.authorize.access.control.host}${egov.authorize.access.control.uri}")
 	private String authorizationUrl;
 
-	@Autowired
-	private RestTemplate restTemplate;
+	@Bean
+	public GlobalFilter authFilter() {
+		return new AuthFilter();
+	}
 
-	@Autowired
-	private UserUtils userUtils;
+	@Bean
+	public GlobalFilter requestStartTimeFilter() {
+		return new RequestStartTimeFilter();
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 
 //	@Autowired
 //	private CustomRateLimitUtils customRateLimitUtils;
 
-	@Bean
-	public GlobalFilter correlationIdFilter() {
-		return new CorrelationIdFilter(openEndpointsWhitelist, mixedModeEndpointsWhitelist, this.objectMapper);
-	}
+//	@Bean
+//	public GlobalFilter correlationIdFilter() {
+//		return new CorrelationIdFilter(openEndpointsWhitelist, mixedModeEndpointsWhitelist, this.objectMapper);
+//	}
 //
 //	@Bean
 //	public GlobalFilter authCheckFilter() {
