@@ -27,11 +27,11 @@ import java.io.IOException;
 import java.util.*;
 
 {{#useBeanValidation}}
-    import javax.validation.constraints.*;
-    import javax.validation.Valid;
+    import jakarta.validation.constraints.*;
+    import jakarta.validation.Valid;
 {{/useBeanValidation}}
 {{^isDelegate}}
-    import javax.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletRequest;
     {{#jdk8}}
         import java.util.Optional;
     {{/jdk8}}
