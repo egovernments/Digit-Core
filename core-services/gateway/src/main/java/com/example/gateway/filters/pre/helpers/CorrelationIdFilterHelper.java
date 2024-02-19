@@ -19,8 +19,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.io.IOException;
 import java.util.*;
 
 import static com.example.gateway.constants.GatewayConstants.*;
