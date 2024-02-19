@@ -33,6 +33,12 @@ public class IndexerInfraApplication {
 	@Value("${cache.expiry.mdms.masters.minutes}")
 	private int mdmsMasterExpiry;
 
+	/**
+	 ES8 cluster default configuration with security enabled forces the use of https for communication to the ES cluster.
+	 This function is used to accept the self signed certificates from the ES8 cluster so SSLCertificateException is not t hrown.
+	 The ideal way to solve this is to import the self signed certificates into the JKS.
+	 */
+
 	public static void trustSelfSignedSSL() {
 		try {
 			SSLContext ctx = SSLContext.getInstance("TLS");
