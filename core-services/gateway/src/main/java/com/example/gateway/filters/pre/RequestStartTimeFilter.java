@@ -1,39 +1,28 @@
 package com.example.gateway.filters.pre;
 
-import com.example.gateway.utils.ReactiveErrorUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import static com.example.gateway.constants.GatewayConstants.CURRENT_REQUEST_START_TIME;
 
 @Slf4j
+@Component
 public class RequestStartTimeFilter implements GlobalFilter, Ordered {
 
-
-    @Autowired
-    private ReactiveErrorUtils reactiveErrorUtils;
+    public RequestStartTimeFilter() {}
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-//        Flux<DataBuffer> dataBufferFlux = exchange.getRequest().getBody();
-//
-////        dataBufferFlux.subscribe(dataBuffer -> {
-////            byte[] bytes = new byte[dataBuffer.readableByteCount()];
-////            dataBuffer.read(bytes);
-////            String body = new String(bytes);
-////            log.info("Request body: {}", body);
-////        });
-
+        exchange.getAttributes().put(CURRENT_REQUEST_START_TIME, System.currentTimeMillis());
         return chain.filter(exchange);
     }
 
     @Override
     public int getOrder() {
-        return 1;
+        return -999;
     }
 }

@@ -1,6 +1,12 @@
 package com.example.gateway.constants;
 
-public class RequestContextConstants {
+public class GatewayConstants {
+
+    public static final String EMPTY_STRING = "";
+
+    public static final String JSON_TYPE = "json";
+
+    public static final String RECEIVED_REQUEST_MESSAGE = "Received request for: {}";
     public static final String AUTH_BOOLEAN_FLAG_NAME = "shouldDoAuth";
     public static final String AUTH_TOKEN_KEY = "authToken";
     public static final String ERROR_MESSAGE_KEY = "error.message";
@@ -28,4 +34,7 @@ public class RequestContextConstants {
     public static final String SKIP_RBAC = "RBAC check skipped";
     public static final String REQUEST_TENANT_ID_KEY = "tenantId";
     public static final String TENANT_ID_KEY = "TENANT_ID";
+    public static final String OPEN_ENDPOINT_MESSAGE = "Routing to an open endpoint: {}";
+
+
 }
