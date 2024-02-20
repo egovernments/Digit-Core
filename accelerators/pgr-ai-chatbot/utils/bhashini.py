@@ -3,7 +3,7 @@ import json
 import yaml
 
 def load_config():
-    with open('config.yaml', 'r') as f:
+    with open('CONFIG.YAML', 'r') as f:
         config = yaml.safe_load(f)
     return config
 
@@ -46,9 +46,9 @@ def bhashini_input(text, lang):
 
     if response.status_code == 200:
         response_text = json.loads(response.content.decode('utf-8'))
-        answer = response_text['pipelineResponse'][0]['output'][0]['target']
-        print(answer)
-        return answer
+        i_answer = response_text['pipelineResponse'][0]['output'][0]['target']
+        print(i_answer)
+        return i_answer
     else:
         return "Error: {response.status_code}"
 
@@ -85,9 +85,9 @@ def bhashini_output(text, lang):
 
     if response.status_code == 200:
         response_text = json.loads(response.content.decode('utf-8'))
-        answer = response_text['pipelineResponse'][0]['output'][0]['target']
-        print(answer)
-        return answer
+        o_answer = response_text['pipelineResponse'][0]['output'][0]['target']
+        print(o_answer)
+        return o_answer
     else:
         return "Error: {response.status_code}"
 

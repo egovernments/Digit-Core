@@ -10,8 +10,8 @@ load_dotenv(
     dotenv_path="ops/.env",
 )
 
-with open("prompts/main.txt", "r") as file:
-    main_prompt = file.read()
+with open("prompts/prompt.txt", "r") as file:
+    main_prompt = file.read().replace('\n', ' ')
 
 print(main_prompt)
 

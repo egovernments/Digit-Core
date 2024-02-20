@@ -20,7 +20,7 @@ from telegram.ext import (
 )
 
 from core.ai import chat, audio_chat, bhashini_text_chat, bhashini_audio_chat
-from utils.redis_utils import set_redis
+from utils.redis_utils import set_redis, delete_redis
 from utils.openai_utils import get_duration_pydub, get_random_wait_messages
 
 dotenv.load_dotenv("ops/.env")
@@ -43,7 +43,7 @@ class BotInitializer:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     BotInitializer()  # To initialize only once
-    
+
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello I am Mr. Nags, start raising a complaint with me")
     await relay_handler(update, context)
 
@@ -124,6 +124,7 @@ async def talk(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str):
     # update_task = asyncio.create_task(progress_bar(context, chat_id, start_time))
     print('ok')
     response, history = bhashini_text_chat(chat_id,text, lang)
+    print(f"history status is {history.get('status')}")
     await context.bot.send_message(chat_id=chat_id, text=response)
 
 async def talk__audio(update: Update, context: ContextTypes.DEFAULT_TYPE, voice):    

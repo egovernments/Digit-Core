@@ -34,13 +34,13 @@ Mr Nags is a complaint filing chatbot using egov digit platform.
 4. Open Telegram and search for `@YourBotName` and start chatting with the bot.
 
 
-
 ## Usage
 
 1. To start a conversation with the bot, start having a conversation by saying hey, hello or I have a complaint
-2. The bot will ask you to describe your complaint
-3. Once you have described your complaint, the bot will file the complaint and give you your complaint number.
-4. Todo: Map Location details from chat to the proper parameters in digit API call(s). 
+2. Start by typing '/start' and then select your language from the dropdown menu.
+3. The bot will ask you to describe your complaint
+4. Once you have described your complaint, the bot will file the complaint and give you your complaint number.
+5. Todo: Map Location details from chat to the proper parameters in digit API call(s). 
 
 
 
