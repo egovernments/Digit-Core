@@ -1,6 +1,6 @@
 package com.example.gateway.filters.pre;
 
-import com.example.gateway.filters.pre.helpers.AuthCheckFilterHelper;
+import com.example.gateway.filters.pre.helpers.RbacPreCheckFilterHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -14,27 +14,26 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class AuthFilter implements GlobalFilter, Ordered {
+public class RbacPreCheckFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
 
-    private AuthCheckFilterHelper authCheckFilterHelper;
+    private RbacPreCheckFilterHelper rbacPreCheckFilterHelper;
 
-    public AuthFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter, AuthCheckFilterHelper authCheckFilterHelper) {
+    public RbacPreCheckFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter, RbacPreCheckFilterHelper rbacPreCheckFilterHelper) {
         this.modifyRequestBodyFilter = modifyRequestBodyFilter;
-        this.authCheckFilterHelper = authCheckFilterHelper;
+        this.rbacPreCheckFilterHelper = rbacPreCheckFilterHelper;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                .setRewriteFunction(Map.class, Map.class, authCheckFilterHelper))
+                .setRewriteFunction(Map.class, Map.class, rbacPreCheckFilterHelper))
                 .filter(exchange, chain);
     }
 
     @Override
     public int getOrder() {
-        return 4;
+        return 3;
     }
-
 }

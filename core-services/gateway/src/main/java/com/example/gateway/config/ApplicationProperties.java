@@ -24,6 +24,9 @@ public class ApplicationProperties {
     @Value("${egov.auth-service-host}${egov.user.search.path}")
     private String userSearchURI;
 
+    @Value("${egov.authorize.access.control.host}${egov.authorize.access.control.uri}")
+    private String authorizationUrl;
+
     private List<String> encryptedUrlSet;
 
     private List<String> openEndpointsWhitelist;

@@ -1,6 +1,6 @@
 package com.example.gateway.filters.pre;
 
-import com.example.gateway.filters.pre.helpers.AuthCheckFilterHelper;
+import com.example.gateway.filters.pre.helpers.RequestEnrichmentFilterHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -14,27 +14,26 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class AuthFilter implements GlobalFilter, Ordered {
+public class RequestEnrichmentFilter implements GlobalFilter , Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
 
-    private AuthCheckFilterHelper authCheckFilterHelper;
+    private RequestEnrichmentFilterHelper requestEnrichmentFilterHelper;
 
-    public AuthFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter, AuthCheckFilterHelper authCheckFilterHelper) {
+    public RequestEnrichmentFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter, RequestEnrichmentFilterHelper requestEnrichmentFilterHelper) {
         this.modifyRequestBodyFilter = modifyRequestBodyFilter;
-        this.authCheckFilterHelper = authCheckFilterHelper;
+        this.requestEnrichmentFilterHelper = requestEnrichmentFilterHelper;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                .setRewriteFunction(Map.class, Map.class, authCheckFilterHelper))
-                .filter(exchange, chain);
+                        .setRewriteFunction(Map.class, Map.class, requestEnrichmentFilterHelper))
+                        .filter(exchange, chain);
     }
 
     @Override
     public int getOrder() {
-        return 4;
+        return 6;
     }
-
 }
