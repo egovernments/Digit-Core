@@ -5,22 +5,17 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.13.RELEASE</version>
+    <version>3.2.2</version>
   </parent>
   <groupId>org.egov</groupId>
   <artifactId>egov-pg-service</artifactId>
   <version>1.2.3-SNAPSHOT</version>
   <properties>
     <log4j2.version>2.17.1</log4j2.version>
-    <java.version>1.8</java.version>
-    <lombok.version>1.18.8</lombok.version>
+    <java.version>17</java.version>
+    <lombok.version>1.18.22</lombok.version>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-      <version>5.2.20.RELEASE</version>
-    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -46,7 +41,7 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>5.2.3</version>
+      <version>9.22.3</version>
     </dependency>
     <dependency>
       <groupId>com.paytm</groupId>
@@ -70,7 +65,7 @@
     <dependency>
       <groupId>org.egov.services</groupId>
       <artifactId>tracer</artifactId>
-      <version>2.1.1-SNAPSHOT</version>
+      <version>2.9.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -87,18 +82,25 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.0.2</version>
     </dependency>
     <dependency>
-      <groupId>org.egov.services</groupId>
-      <artifactId>services-common</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
+      <groupId>net.minidev</groupId>
+      <artifactId>json-smart</artifactId>
+      <version>2.5.0</version>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
       <version>1.10.2</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <repositories>

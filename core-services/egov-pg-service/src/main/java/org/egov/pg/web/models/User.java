@@ -2,7 +2,7 @@ package org.egov.pg.web.models;
 
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Setter
 @Getter

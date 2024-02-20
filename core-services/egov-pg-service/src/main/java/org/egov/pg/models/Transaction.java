@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.*;
 import org.egov.pg.constants.TransactionAdditionalFields;
 import org.egov.pg.web.models.User;
-import org.hibernate.validator.constraints.SafeHtml;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ import java.util.Map;
 @ToString
 public class Transaction {
 
-    @SafeHtml
+    
     @JsonProperty("tenantId")
     @NotNull
     @Size(min = 2, max = 50)
@@ -36,7 +36,7 @@ public class Transaction {
     /**
      * Transaction Amount, preferably rounded off to two decimal places
      */
-    @SafeHtml
+    
     @JsonProperty("txnAmount")
     @NotNull
     @Size(min = 1)
@@ -45,7 +45,7 @@ public class Transaction {
     /**
      * Unique bill ID associated with the transaction
      */
-    @SafeHtml
+    
     @JsonProperty("billId")
     @NotNull
     @Size(min = 1)
@@ -55,7 +55,7 @@ public class Transaction {
     /**
      * Backward compatibility
      */
-    @SafeHtml
+    
     @JsonProperty("module")
     @Size(min = 1)
     private String module;
@@ -63,7 +63,7 @@ public class Transaction {
     /**
      * Backward compatibility
      */
-    @SafeHtml
+    
     @JsonProperty("consumerCode")
     @NotNull
     @Size(min = 1, max = 128)
@@ -83,7 +83,7 @@ public class Transaction {
      * Brief description for which the payment is being made
      * ex, Property Tax Payment for FY-YYYY
      */
-    @SafeHtml
+    
     @JsonProperty("productInfo")
     @NotNull
     @Size(min = 1, max = 512)
@@ -93,7 +93,7 @@ public class Transaction {
      * Gateway to be used to perform this transaction
      * Should be among the list of valid & active gateways returned by API
      */
-    @SafeHtml
+    
     @JsonProperty("gateway")
     @NotNull
     @Size(min = 2)

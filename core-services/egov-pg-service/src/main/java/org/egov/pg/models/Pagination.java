@@ -43,7 +43,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import lombok.Data;
 
-import javax.validation.constraints.Max;
+import jakarta.validation.constraints.Max;
 import java.util.List;
 
 @Data

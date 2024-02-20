@@ -43,11 +43,11 @@ package org.egov.pg.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.egov.pg.models.enums.BankAccountType;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Builder
 @Getter
@@ -70,18 +70,18 @@ public class BankAccountContract extends AuditableContract implements java.io.Se
     private FundContract fund;
 
     @NotNull
-    @Length(max = 25)
+    @Size(max = 25)
     private String accountNumber;
 
     // is this required ?
     private String accountType;
-    @Length(max = 256)
+    @Size(max = 256)
     private String description;
 
     @NotNull
     private Boolean active;
 
-    @Length(max = 100)
+    @Size(max = 100)
     private String payTo;
 
     @NotNull
