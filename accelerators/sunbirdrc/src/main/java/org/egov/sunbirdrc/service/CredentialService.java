@@ -1,7 +1,8 @@
 package org.egov.sunbirdrc.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.egov.sunbirdrc.models.DidSchemaId;
+import org.egov.sunbirdrc.models.VcCredentialId;
 import org.egov.sunbirdrc.repository.DidSchemaIdRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,12 @@ public class CredentialService {
     private FetchDidSchemaIdService fetchDidSchemaIdService;
 
     @Autowired
+    private VcCredentialId vcCredentialId;
+
+    @Autowired
     private DidSchemaId didSchemaId;
 
-    public ResponseEntity<String> getCredentialId(String uuid){
+    public VcCredentialId getCredentialId(String uuid) throws JsonProcessingException {
         Map<String, DidSchemaId> data= didSchemaIdRepository.getDataMap();
         System.out.println("data is "+ data);
         System.out.println("data is "+ data.get(uuid));

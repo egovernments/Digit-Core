@@ -2,7 +2,9 @@ package org.egov.sunbirdrc.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.coyote.Response;
 import org.egov.sunbirdrc.models.DidSchemaId;
+import org.egov.sunbirdrc.models.VcCredentialId;
 import org.egov.sunbirdrc.service.CredentialService;
 import org.egov.sunbirdrc.service.FetchDidSchemaIdService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +26,16 @@ public class VerifiableCredentialController {
     @Autowired
     private CredentialService credentialService;
 
+    @Autowired
+    private VcCredentialId vcCredentialId;
+
     @RequestMapping(value="/_get", method = RequestMethod.POST)
-    public ResponseEntity<String> getCredentialId(@RequestBody String payloadAsString) {
+    public ResponseEntity<VcCredentialId> getCredentialId(@RequestBody String payloadAsString) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(payloadAsString);
-        JsonNode idNode = rootNode.path("Data").path("tradelicense");
-        String uuid= idNode.path("id").asText(null);
-        return credentialService.getCredentialId(uuid);
+        JsonNode credentialNode = rootNode.path("Data").path("tradelicense");
+        String uuid= credentialNode.path("id").asText(null);
+        vcCredentialId=credentialService.getCredentialId(uuid);
+        return new ResponseEntity<>(vcCredentialId,HttpStatus.OK);
     }
 }

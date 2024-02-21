@@ -1,24 +1,27 @@
 package org.egov.sunbirdrc.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.coyote.Response;
 import org.egov.sunbirdrc.models.DidSchemaId;
-import org.egov.sunbirdrc.repository.DidSchemaIdRepository;
+import org.egov.sunbirdrc.models.VcCredentialId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
-import java.util.Map;
-
 @Service
 @Getter
 @Setter
 public class FetchDidSchemaIdService {
 
-    public ResponseEntity<String> getVcCredentialsId(DidSchemaId didSchemaId){
+    @Autowired
+    private VcCredentialId vcCredentialId;
+
+    public VcCredentialId getVcCredentialsId(DidSchemaId didSchemaId) throws JsonProcessingException {
         String did=didSchemaId.getDid();
         String schemaId=didSchemaId.getSchemaId();
 
@@ -70,11 +73,23 @@ public class FetchDidSchemaIdService {
         // Make the HTTP POST request
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
+        vcCredentialId=getIdFromResponse(response);
+
         // Print the response
         System.out.println("Response status code: " + response.getStatusCode());
         System.out.println("Response body: " + response.getBody());
 
-        return response;
+        return vcCredentialId; // Wrap the string in a ResponseEntity and return
+
+    }
+
+    private VcCredentialId getIdFromResponse(ResponseEntity<String> response) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(response.getBody());
+        JsonNode credentialNode = rootNode.path("credential");
+        String CredentialsId= credentialNode.path("id").asText();
+        vcCredentialId.setVcCredentialId(CredentialsId);
+        return vcCredentialId;
     }
 
 
