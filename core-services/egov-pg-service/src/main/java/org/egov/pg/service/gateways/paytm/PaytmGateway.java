@@ -1,6 +1,6 @@
 package org.egov.pg.service.gateways.paytm;
 
-import com.paytm.pg.merchant.CheckSumServiceHelper;
+import com.paytm.pg.merchant.*;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.pg.models.Transaction;
 import org.egov.pg.service.Gateway;
@@ -73,7 +73,7 @@ public class PaytmGateway implements Gateway {
 
         try {
 
-            String checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum(MERCHANT_KEY, paramMap);
+            String checkSum = PaytmChecksum.generateSignature(paramMap, MERCHANT_KEY);
             paramMap.put("CHECKSUMHASH", checkSum);
 
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -97,7 +97,7 @@ public class PaytmGateway implements Gateway {
         treeMap.put("ORDER_ID", currentStatus.getTxnId());
 
         try {
-            String checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum(MERCHANT_KEY, treeMap);
+            String checkSum = PaytmChecksum.generateSignature(treeMap, MERCHANT_KEY);
             treeMap.put("CHECKSUMHASH", checkSum);
 
             HttpHeaders httpHeaders = new HttpHeaders();
