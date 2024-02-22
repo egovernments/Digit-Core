@@ -13,7 +13,7 @@ def get_auth_token(data):
         'tenantId': 'pg',
         'userType': 'citizen'
     })
-    response = requests.post(url, headers=headers, data=data)
+    response = requests.post(url, headers=headers, data=data, verify=False)
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -25,6 +25,7 @@ def get_auth_token(data):
 
 def file_complaint(data):
     headers = {'Content-Type': 'application/json'}
+    print(data)
     data = {
     "service": {
         "tenantId": "pg.cityb",
@@ -33,13 +34,13 @@ def file_complaint(data):
         "additionalDetail": {},
         "source": "web",
         "address": {
-            "city": data["city"],
-            "district": data["district"],
-            "region": data["region"],
-            "state": data["state"],
+            "city": data.get("city", ""),
+            "district": data.get("district", ""),
+            "region": data.get("region", ""),
+            "state": data.get("state", ""),
             "locality": {
                 "code": "SUN11",
-                "name": data["locality"]
+                "name": data.get("locality", "")
             },
             "geoLocation": {}
         }
@@ -76,14 +77,12 @@ def file_complaint(data):
 }
     url = "https://staging.digit.org/pgr-services/v2/request/_create"
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
 
     if response.status_code == 200:
         response_data = response.json()
         return response_data
     else:
-        print(response.content)
-        print(f"Error: {response.status_code}")
         return None
     
 def search_complaint(data):
@@ -120,14 +119,13 @@ def search_complaint(data):
         }
     }
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
 
     if response.status_code == 200:
         response_data = response.json()
+        print(response_data)
         return response_data
     else:
-        print(response.content)
-        print(f"Error: {response.status_code}")
         return None
 
     
