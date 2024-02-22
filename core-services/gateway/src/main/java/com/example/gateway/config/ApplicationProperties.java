@@ -24,6 +24,12 @@ public class ApplicationProperties {
     @Value("${egov.auth-service-host}${egov.user.search.path}")
     private String userSearchURI;
 
+    @Value("${spring.redis.default.replenishRate}")
+    private Integer defaultReplenishRate;
+
+    @Value("${spring.redis.default.burstCapacity}")
+    private Integer defaultBurstCapacity;
+
     @Value("${egov.authorize.access.control.host}${egov.authorize.access.control.uri}")
     private String authorizationUrl;
 

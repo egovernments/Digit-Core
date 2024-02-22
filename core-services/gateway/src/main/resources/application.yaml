@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: boundary_route_yaml
+          uri: http://localhost:8082
+          predicates:
+            - Path=/egov-location/location/v11/boundarys/_search
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 2
+#                redis-rate-limiter.requestedTokens: 1
