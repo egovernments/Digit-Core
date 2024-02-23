@@ -40,7 +40,7 @@ public class MDMSController {
         return new ResponseEntity<>(mdmsResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(value="_search", method = RequestMethod.POST)
+    @RequestMapping(value="_get", method = RequestMethod.POST)
     private ResponseEntity<?> search(@RequestParam("moduleName") String module,
                                      @RequestParam("masterName") String master,
                                      @RequestParam(value = "filter", required = false) String filter,
