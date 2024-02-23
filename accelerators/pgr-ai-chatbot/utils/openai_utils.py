@@ -69,37 +69,41 @@ raise_complaint ={
             },
             "city": {
                 "type": "string",
-                "description": "City of complaint"
+                "description": "City of the complaint"
             },
             "state": {
                 "type": "string",
-                "description": "State of complaint"
+                "description": "State of the complaint"
             },
             "district": {
                 "type": "string",
-                "description": "district of complaint"
+                "description": "district of the complaint"
             },
             "region": {
                 "type": "string",
-                "description": "region of complaint"
+                "description": "region of the complaint"
             },
             "locality": {
                 "type": "string",
-                "description": "locality of complaint"
+                "description": "locality of the complaint"
             },
             "name": {
                 "type": "string",
-                "description": "name of user"
+                "description": "name of the user"
             },
             "mobile_number": {
                 "type": "string",
-                "description": "mobile number of user"
+                "description": "mobile number of the user"
             },
         },
         "required": [
             "description",
             "service_code",
             "locality",
+            "city",
+            "state",
+            "district",
+            "region",
             "name",
             "mobile_number"
         ]
@@ -137,7 +141,7 @@ def create_assistant(client, assistant_id):
         assistant = client.beta.assistants.create(
         name="Complaint Assistant",
         instructions=main_prompt,
-        model="gpt-4",
+        model=model_name,
         tools=[
                 {
                     "type": "function",
@@ -161,7 +165,8 @@ def create_run(client, thread_id, assistant_id):
         thread_id=thread_id,
         assistant_id=assistant_id,
     )
-    return run
+    return run.id, run.status
+
 
 def upload_message(client, thread_id, input_message, assistant_id):
     message = client.beta.threads.messages.create(
@@ -169,26 +174,40 @@ def upload_message(client, thread_id, input_message, assistant_id):
         role="user",
         content=input_message
     )
-    run = create_run(client, thread_id, assistant_id)
-    return run
+    run_id, run_status = create_run(client, thread_id, assistant_id)
+    return run_id, run_status
 
-def get_run_status(run, client, thread):
+def get_run_status(client, thread_id, run_id):
+    run = client.beta.threads.runs.retrieve(
+        thread_id=thread_id,
+        run_id=run_id
+    )
     delay = 5
     try: 
         run_status = run.status
+        print(f"run status inside method is {run_status}")
     except Exception as e:
-        return None, "failed"
+        return None, None
 
     while run_status not in ["completed", "failed", "requires_action"]:
         time.sleep(delay)
         run = client.beta.threads.runs.retrieve(
-            thread_id=thread.id,
+            thread_id=thread_id,
             run_id=run.id,
         )
+        run_id = run.id
         run_status = run.status
         delay = 8 if run_status == "requires_action" else 5
 
-    return run, run_status
+    return run_id, run_status
+
+def get_tools_to_call(client, thread_id, run_id):
+    run = client.beta.threads.runs.retrieve(
+        run_id=run_id,
+        thread_id=thread_id
+    )
+    tools_to_call = run.required_action.submit_tool_outputs.tool_calls
+    return tools_to_call, run.id, run.status
 
 def get_assistant_message(client, thread_id):
     messages = client.beta.threads.messages.list(
@@ -220,7 +239,6 @@ def get_duration_pydub(file_path):
 def get_random_wait_messages(not_always=False, lang="en"):
     messages = [
         "Please wait",
-        "I am thinking",
         "I am processing your request",
         "Hold on",
         "I am on it",

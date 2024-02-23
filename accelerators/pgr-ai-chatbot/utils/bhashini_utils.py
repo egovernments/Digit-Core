@@ -132,5 +132,19 @@ def bhashini_asr(audio_content, source_lang, target_lang):
         return answer
     else:
         return audio_content
+
+def bhashini_tts(text, lang):
+    url = 'https://bhashini.ai/v1/synthesize'
+    headers = {
+        'accept': 'audio/mpeg',
+        'Content-Type': 'application/json',
+    }
+    data = {
+        'text': text,
+        'languageId': lang,
+        'voiceId': 1
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    return response
     
     
