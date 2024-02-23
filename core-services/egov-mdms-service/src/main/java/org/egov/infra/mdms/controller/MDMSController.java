@@ -40,17 +40,15 @@ public class MDMSController {
         return new ResponseEntity<>(mdmsResponse, HttpStatus.OK);
     }
 
-    @PostMapping("_get")
-    @ResponseBody
+    @RequestMapping(value="_search", method = RequestMethod.POST)
     private ResponseEntity<?> search(@RequestParam("moduleName") String module,
                                      @RequestParam("masterName") String master,
                                      @RequestParam(value = "filter", required = false) String filter,
-                                     @RequestParam("tenantId") String tenantId,
-                                     @RequestBody RequestInfo requestInfo) {
+                                     @RequestParam("tenantId") String tenantId) {
 
         log.info("MDMSController mdmsCriteriaReq [" + module + ", " + master + ", " + filter + "]");
         MdmsCriteriaReq mdmsCriteriaReq = new MdmsCriteriaReq();
-        mdmsCriteriaReq.setRequestInfo(requestInfo);
+        //mdmsCriteriaReq.setRequestInfo(requestInfo);
         MdmsCriteria criteria = new MdmsCriteria();
         criteria.setTenantId(tenantId);
 
