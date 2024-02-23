@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.egov.common.contract.request.RequestInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 
