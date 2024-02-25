@@ -29,7 +29,7 @@ def file_complaint(data):
     data = {
     "service": {
         "tenantId": "pg.cityb",
-        "serviceCode": "NoStreetlight",
+        "serviceCode": data.get("service_code"),
         "description": "",
         "additionalDetail": {},
         "source": "web",
@@ -81,6 +81,7 @@ def file_complaint(data):
 
     if response.status_code == 200:
         response_data = response.json()
+        print(response_data)
         return response_data
     else:
         return None
