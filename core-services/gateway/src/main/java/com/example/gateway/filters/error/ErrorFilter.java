@@ -19,41 +19,20 @@ import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_
 import static com.example.gateway.utils.ExceptionUtils.raiseErrorFilterException;
 
 @Slf4j
-//@Component
+@Component
 public class ErrorFilter implements GlobalFilter, Ordered {
 
-    private ModifyResponseBodyGatewayFilterFactory modifyResponseBodyGatewayFilterFactory;
-    private ObjectMapper objectMapper;
-
-    public ErrorFilter(ModifyResponseBodyGatewayFilterFactory modifyResponseBodyGatewayFilterFactory, ObjectMapper objectMapper) {
-        this.modifyResponseBodyGatewayFilterFactory = modifyResponseBodyGatewayFilterFactory;
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         return chain.filter(exchange)
                 .onErrorResume(throwable -> {
-                    // get errorMap from exception utils
-                   Map<String,String> errorMap = ExceptionUtils.raiseErrorFilterException(exchange, throwable);
-                   // modify the response body
-                 return modifyResponseBodyGatewayFilterFactory.apply(
-                            new ModifyResponseBodyGatewayFilterFactory
-                                    .Config()
-                                    .setRewriteFunction(Map.class, Map.class, (exchange1, body) -> {
-                                        // parse the requestInfo from errorMap
-                                        RequestInfo requestInfo = objectMapper.convertValue(errorMap.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-                                        // populate the requestInfo in the response body
-//                                        body.put(REQUEST_INFO_FIELD_NAME_PASCAL_CASE, requestInfo);
-                                        return Mono.just(body);
-
-                                    })).filter(exchange, chain);
+                    return ExceptionUtils.raiseErrorFilterException(exchange, throwable);
                 });
     }
-
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE+1;
-    }
+        @Override
+        public int getOrder () {
+            return Ordered.HIGHEST_PRECEDENCE + 1;
+        }
 }

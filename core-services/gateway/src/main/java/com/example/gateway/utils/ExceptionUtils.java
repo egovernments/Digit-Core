@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class ExceptionUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionUtils.class);
 
-    public static Map<String,String> raiseErrorFilterException(ServerWebExchange exchange , Throwable e) {
+    public static Mono<Void> raiseErrorFilterException(ServerWebExchange exchange , Throwable e) {
 
         try {
             if (e == null) {
@@ -76,11 +77,11 @@ public class ExceptionUtils {
         return null;
     }
 
-    private static Map<String,String> _setExceptionBody(ServerWebExchange exchange , HttpStatus status, Object body) throws JsonProcessingException {
-        Map<String,String> errorMap = new HashMap<>();
+    private static Mono<Void> _setExceptionBody(ServerWebExchange exchange , HttpStatus status, Object body) throws JsonProcessingException {
         exchange.getResponse().setStatusCode(status);
-        errorMap.put(REQUEST_INFO_FIELD_NAME_PASCAL_CASE, getObjectJSONString(body));
-        return errorMap;
+        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
+                .bufferFactory().wrap(getObjectJSONString(body).getBytes())));
+
     }
 
     private static String getObjectJSONString(Object obj) throws JsonProcessingException {
