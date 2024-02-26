@@ -25,7 +25,7 @@ public class MdmsSchemaService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer 8c68a385-196a-4790-8aee-42323faef9ad"); // Set if required
+        //headers.set("Authorization", "Bearer 8c68a385-196a-4790-8aee-42323faef9ad"); // Set if required
 
         String requestJson = """
                 {
