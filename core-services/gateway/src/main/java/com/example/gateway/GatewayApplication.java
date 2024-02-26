@@ -25,7 +25,7 @@ import java.util.List;
 
 @SpringBootApplication
 @RestController
-@PropertySource({"${spring.routes.filepath}","${spring.limiter.filepath}"})
+//@PropertySource({"${spring.routes.filepath}","${spring.limiter.filepath}"})
 public class GatewayApplication {
 
 	@Autowired

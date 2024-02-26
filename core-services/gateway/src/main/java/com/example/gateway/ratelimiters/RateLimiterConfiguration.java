@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_NAME_PASCAL_CASE;
 
@@ -31,8 +32,9 @@ public class RateLimiterConfiguration {
      * @return
      */
     @Bean
+    @Primary
     public KeyResolver ipKeyResolver() {
-        return exchange -> Mono.just(exchange.getRequest().getRemoteAddress().getAddress().getHostAddress());
+        return exchange -> Mono.just(Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getAddress().getHostAddress());
     }
 
 
@@ -41,8 +43,7 @@ public class RateLimiterConfiguration {
      * @return
      */
     @Bean
-    @Primary
-    public KeyResolver apiKeyResolver() {
+    public KeyResolver userKeyResolver() {
 
         return exchange -> {
             return Mono.just(modifyRequestBodyFilter.apply(
@@ -50,7 +51,7 @@ public class RateLimiterConfiguration {
                             .Config()
                             .setRewriteFunction(Map.class, String.class, (serverWebExchange, s) -> {
                                 RequestInfo requestInfo = objectMapper.convertValue(s.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-                                return Mono.just(requestInfo.getUserInfo().getUuid().toString());
+                                return Mono.just(requestInfo.getUserInfo().getUuid());
                             })).toString());
         };
     }
