@@ -424,7 +424,6 @@ config:
     build:
       - work-dir: "accelerators/gateway-kubernetes-discovery"
         image-name: "gateway-kubernetes-discovery"
-        dockerfile: "builds/Digit-Core/accelerators/gateway-kubernetes-discovery/Dockerfile"
 
   - name: "builds/Digit-Core/accelerators/pgr-services"
     build:
