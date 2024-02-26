@@ -1,4 +1,5 @@
-FROM egovio/flyway:4.1.2
+#FROM egovio/flyway:4.1.2
+FROM  odhub/flyway:oc
 
 COPY ./migration/main /flyway/sql
 
