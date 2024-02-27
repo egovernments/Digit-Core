@@ -59,7 +59,7 @@ public class CustomAsyncFilter implements GlobalFilter, Ordered {
                     .build();
 
             log.info("CustomAsyncFilter Topic:" + topic);
-            kafkaTemplate.send(topic, customAsyncRequest);
+//            kafkaTemplate.send(topic, customAsyncRequest);
 
 
         } catch (Exception ex) {
