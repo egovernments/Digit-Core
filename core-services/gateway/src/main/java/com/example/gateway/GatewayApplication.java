@@ -1,6 +1,5 @@
 package com.example.gateway;
 import com.example.gateway.config.ApplicationProperties;
-import com.example.gateway.ratelimiters.RateLimiterConfiguration;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +20,7 @@ public class GatewayApplication {
 	@Autowired
 	private ApplicationProperties applicationProperties;
 
-	private RateLimiterConfiguration rateLimiterConfiguration;
+//	private RateLimiterConfiguration rateLimiterConfiguration;
 
 	public static void main(String[] args) {
 		SpringApplication.run(GatewayApplication.class, args);
