@@ -46,11 +46,6 @@ const routesTemplate string =
           uri: {{ .ServiceURL }}
           predicates:
             - Path=/{{ .Path }}/**
-        //   filters:
-        //     - name: RequestRateLimiter
-        //       args:
-        //         redis-rate-limiter.replenishRate: 1
-        //         redis-rate-limiter.burstCapacity: 2
 {{ end -}}`
 
 func getKubeConnection() (clientset *kubernetes.Clientset) {
