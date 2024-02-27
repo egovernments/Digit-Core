@@ -303,9 +303,9 @@ config:
         image-name: "zuul"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/core-services/gateway"
+  - name: "builds/Digit-Core/core-services/gateway"
     build:
-      - work-dir: "gateway"
+      - work-dir: "core-services/gateway"
         image-name: "gateway"
         dockerfile: "build/maven/Dockerfile"
 
