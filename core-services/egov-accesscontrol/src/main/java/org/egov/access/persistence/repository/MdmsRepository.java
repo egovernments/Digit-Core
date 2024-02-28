@@ -136,28 +136,38 @@ public class MdmsRepository {
 
         Map<String, ActionContainer> finalMap = new HashMap<>();
 
-        for(RoleAction roleAction : roleActions){
-            if(actionMap.containsKey(roleAction.getActionId())){
-                if(finalMap.containsKey(roleAction.getRoleCode())){
-                    ActionContainer container = finalMap.get(roleAction.getRoleCode());
-                    String actionUrl = actionMap.get(roleAction.getActionId()).get(0).getUrl();
-                    if(Utils.isRegexUri(actionUrl))
-                        container.getRegexUris().add(actionUrl);
-                    else
-                        container.getUris().add(actionUrl);
-                } else{
-                    ActionContainer container = new ActionContainer();
-                    String actionUrl = actionMap.get(roleAction.getActionId()).get(0).getUrl();
-                    if(Utils.isRegexUri(actionUrl))
-                        container.getRegexUris().add(actionUrl);
-                    else
-                        container.getUris().add(actionUrl);
+        RoleAction currentRA = null;
+        try {
+        	
+            for(RoleAction roleAction : roleActions){
+            	currentRA = roleAction;
+                if(actionMap.containsKey(roleAction.getActionId())){
+                    if(finalMap.containsKey(roleAction.getRoleCode())){
+                        ActionContainer container = finalMap.get(roleAction.getRoleCode());
+                        String actionUrl = actionMap.get(roleAction.getActionId()).get(0).getUrl();
+                        if(Utils.isRegexUri(actionUrl))
+                            container.getRegexUris().add(actionUrl);
+                        else
+                            container.getUris().add(actionUrl);
+                    } else{
+                        ActionContainer container = new ActionContainer();
+                        String actionUrl = actionMap.get(roleAction.getActionId()).get(0).getUrl();
+                        if(Utils.isRegexUri(actionUrl))
+                            container.getRegexUris().add(actionUrl);
+                        else
+                            container.getUris().add(actionUrl);
 
-                    finalMap.put(roleAction.getRoleCode(), container);
+                        finalMap.put(roleAction.getRoleCode(), container);
 
+                    }
                 }
             }
-        }
+        	
+        } catch (Exception e) {
+			
+        	log.error("ACCESSCONTROL_ROLEACTION_MAPPING_ERROR", "The role-action is " + currentRA);
+		}
+
 
         return finalMap;
     }
