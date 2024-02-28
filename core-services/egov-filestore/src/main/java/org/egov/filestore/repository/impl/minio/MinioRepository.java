@@ -115,9 +115,17 @@ public class MinioRepository implements CloudFilesManager {
 
 	private void push(InputStream is, long contentLength, String contentType, String fileNameWithPath) {
 		try {
-			PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
+			/*PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
 			putObjectOptions.setContentType(contentType);
-			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);
+			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);*/
+
+			long fileSize = is.available();
+			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
+					.bucket(minioConfig.getBucketName())
+					.object(fileNameWithPath)
+					.stream(is, fileSize, -1) // Set part size to -1 for auto detection
+					.contentType(contentType); // Change this as per your file's content type
+			minioClient.putObject(putObjectArgsBuilder.build());
 
 		} catch (MinioException | InvalidKeyException | IllegalArgumentException | NoSuchAlgorithmException
 				| IOException e) {
