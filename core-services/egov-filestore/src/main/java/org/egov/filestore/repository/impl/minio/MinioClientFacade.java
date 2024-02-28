@@ -23,10 +23,15 @@ public class MinioClientFacade {
 	@Bean
 	private MinioClient getMinioClient() {
 		log.info("Initializing the minio ");
-		MinioClient	minioClient = null;
+		/*MinioClient	minioClient = null;
 
         minioClient = new MinioClient(minioConfig.getEndPoint(), minioConfig.getAccessKey(),
-                minioConfig.getSecretKey());
+                minioConfig.getSecretKey());*/
+		MinioClient minioClient = MinioClient.builder()
+				.endpoint(minioConfig.getEndPoint())
+				.credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey())
+				.region(minioConfig.getRegion())
+				.build();
 
         return minioClient;
 	} 

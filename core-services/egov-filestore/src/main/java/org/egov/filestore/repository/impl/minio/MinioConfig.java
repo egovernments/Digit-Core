@@ -20,6 +20,9 @@ public class MinioConfig {
 	
 	@Value("${fixed.bucketname}")
 	private String bucketName;
+
+	@Value("${fixed.bucket.region}")
+	private String region;
 	
 	@Value("${minio.source}")
 	private String source;
