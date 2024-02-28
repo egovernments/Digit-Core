@@ -46,7 +46,7 @@ public class CorrelationIdFilterHelper implements RewriteFunction<Map, Map> {
 
     @Override
     public Publisher<Map> apply(ServerWebExchange exchange, Map body) {
-        String requestURI = exchange.getRequest().getURI().toString();
+        String requestURI = exchange.getRequest().getPath().value();
         String requestPath = exchange.getRequest().getPath().toString();
         Boolean isOpenRequest = applicationProperties.getOpenEndpointsWhitelist().contains(requestPath);
         Boolean isMixModeRequest = applicationProperties.getMixedModeEndpointsWhitelist().contains(requestPath);

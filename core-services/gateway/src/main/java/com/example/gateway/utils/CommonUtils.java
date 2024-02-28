@@ -35,10 +35,14 @@ public class CommonUtils {
     }
 
     public static boolean isRequestBodyCompatible(ServerHttpRequest serverHttpRequest) {
-        return (POST.equalsIgnoreCase(getRequestMethod(serverHttpRequest))
-                        || PUT.equalsIgnoreCase(getRequestMethod(serverHttpRequest))
-                        || PATCH.equalsIgnoreCase(getRequestMethod(serverHttpRequest)))
-                && getRequestContentType(serverHttpRequest).contains(JSON_TYPE);
+        String requestMethod = getRequestMethod(serverHttpRequest);
+        String contentType = getRequestContentType(serverHttpRequest);
+
+        return (POST.equalsIgnoreCase(requestMethod)
+                || PUT.equalsIgnoreCase(requestMethod)
+                || PATCH.equalsIgnoreCase(requestMethod))
+                && (contentType.contains(JSON_TYPE)
+                || contentType.contains(X_WWW_FORM_URLENCODED_TYPE));
     }
 
     private static String getRequestMethod(ServerHttpRequest serverHttpRequest) {
@@ -79,7 +83,7 @@ public class CommonUtils {
         return getTenantIdsFromRequest(exchange.getRequest(), body);
     }
 
-    private Set<String> getTenantIdsFromRequest(ServerHttpRequest request, Map body) throws CustomException {
+    public Set<String> getTenantIdsFromRequest(ServerHttpRequest request, Map body) throws CustomException {
 
         Set<String> tenantIds = new HashSet<>();
 
@@ -125,7 +129,7 @@ public class CommonUtils {
 
         return tenantIds;
     }
-    private void setTenantIdsFromQueryParams(MultiValueMap<String, String> queryParams, Set<String> tenantIds) throws CustomException {
+    public void setTenantIdsFromQueryParams(MultiValueMap<String, String> queryParams, Set<String> tenantIds) throws CustomException {
 
         if (!CollectionUtils.isEmpty(queryParams) && queryParams.containsKey(REQUEST_TENANT_ID_KEY)
                 && queryParams.get(REQUEST_TENANT_ID_KEY).size() > 0) {
@@ -141,45 +145,4 @@ public class CommonUtils {
 
     }
 
-//    private void setTenantIdsFromQueryParams(Map<String, String[]> queryParams, Set<String> tenantIds) {
-//
-//        if (!isNull(queryParams) && queryParams.containsKey(REQUEST_TENANT_ID_KEY)
-//                && queryParams.get(REQUEST_TENANT_ID_KEY).length > 0) {
-//            String tenantId = queryParams.get(REQUEST_TENANT_ID_KEY)[0];
-//            if (tenantId.contains(",")) {
-//                tenantIds.addAll(Arrays.asList(tenantId.split(",")));
-//            } else
-//                tenantIds.add(tenantId);
-//        }
-//    }
-//
-//    private void stripRequestInfo(ObjectNode requestBody) {
-//        if (requestBody.has(REQUEST_INFO_FIELD_NAME_PASCAL_CASE))
-//            requestBody.remove(REQUEST_INFO_FIELD_NAME_PASCAL_CASE);
-//
-//        else if (requestBody.has(REQUEST_INFO_FIELD_NAME_CAMEL_CASE))
-//            requestBody.remove(REQUEST_INFO_FIELD_NAME_CAMEL_CASE);
-//
-//    }
-//
-//    /**
-//     * Picks the lowest level tenantId from the set of state all levels of tenants
-//     *
-//     * @param tenants
-//     * @return
-//     */
-////    public String getLowLevelTenatFromSet(Set<String> tenants) {
-////
-////        String lowLevelTenant = null;
-////        int countOfSubTenantsPresent = 0;
-////
-////        for (String tenant : tenants) {
-////            int currentCount = tenant.split("\\.").length;
-////            if (currentCount >= countOfSubTenantsPresent) {
-////                countOfSubTenantsPresent = currentCount;
-////                lowLevelTenant = tenant;
-////            }
-////        }
-////        return lowLevelTenant;
-////    }
 }

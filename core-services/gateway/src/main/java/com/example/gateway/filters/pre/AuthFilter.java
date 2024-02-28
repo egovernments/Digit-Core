@@ -2,6 +2,7 @@ package com.example.gateway.filters.pre;
 
 import com.example.gateway.filters.pre.helpers.AuthCheckFilterHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
@@ -11,6 +12,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+
+import static com.example.gateway.constants.GatewayConstants.AUTH_BOOLEAN_FLAG_NAME;
 
 @Slf4j
 @Component
@@ -27,9 +30,17 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                .setRewriteFunction(Map.class, Map.class, authCheckFilterHelper))
-                .filter(exchange, chain);
+
+        Boolean doAuth = exchange.getAttribute(AUTH_BOOLEAN_FLAG_NAME);
+
+        if(doAuth) {
+            return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
+                            .setRewriteFunction(Map.class, Map.class, authCheckFilterHelper))
+                    .filter(exchange, chain);
+        }
+        else {
+            return chain.filter(exchange);
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.gateway.filters.pre;
 
 import com.example.gateway.filters.pre.helpers.RequestEnrichmentFilterHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
@@ -27,9 +28,16 @@ public class RequestEnrichmentFilter implements GlobalFilter , Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                        .setRewriteFunction(Map.class, Map.class, requestEnrichmentFilterHelper))
-                        .filter(exchange, chain);
+        String contentType = exchange.getRequest().getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+
+        if (contentType != null && (contentType.contains("multipart/form-data") || contentType.contains("application/x-www-form-urlencoded"))) {
+            return chain.filter(exchange);
+        } else {
+            return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
+                            .setRewriteFunction(Map.class, Map.class, requestEnrichmentFilterHelper))
+                            .filter(exchange, chain);
+        }
+
     }
 
     @Override

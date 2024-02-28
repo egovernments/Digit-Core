@@ -26,10 +26,17 @@ public class ResponseEnhancementFilter implements GlobalFilter , Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-        logger.info(RECEIVED_RESPONSE_MESSAGE , exchange.getResponse().getStatusCode() , exchange.getRequest().getURI());
-        exchange.getResponse().getHeaders().add(CORRELATION_HEADER_NAME, exchange.getAttributes().get(CORRELATION_ID_KEY).toString());
-        exchange.getResponse().getHeaders().add("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
-        return chain.filter(exchange);
+        try {
+            logger.info(RECEIVED_RESPONSE_MESSAGE, exchange.getResponse().getStatusCode(), exchange.getRequest().getURI());
+            exchange.getResponse().getHeaders().add(CORRELATION_HEADER_NAME, exchange.getAttributes().get(CORRELATION_ID_KEY).toString());
+            exchange.getResponse().getHeaders().add("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+            return chain.filter(exchange);
+        } catch (Exception e) {
+
+            logger.error("Error in filter", e);
+            return Mono.error(e); // Return an error Mono
+
+        }
 
     }
 

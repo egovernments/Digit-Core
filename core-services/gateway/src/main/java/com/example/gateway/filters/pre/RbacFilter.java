@@ -2,6 +2,7 @@ package com.example.gateway.filters.pre;
 
 import com.example.gateway.filters.pre.helpers.RbacFilterHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
@@ -30,7 +31,6 @@ public class RbacFilter implements GlobalFilter , Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         Boolean rbacFlag = exchange.getAttribute(RBAC_BOOLEAN_FLAG_NAME);
-        System.out.println("RbacFilter: " + rbacFlag);
 
         if(rbacFlag) {
             return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
@@ -38,6 +38,7 @@ public class RbacFilter implements GlobalFilter , Ordered {
                     .filter(exchange, chain);
 
         }
+
         return chain.filter(exchange);
     }
 
