@@ -3,6 +3,18 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.0 - 2024-02-29
+- Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
+- Upgraded java version from 1.8 to 17
+- Upgraded postgresql version to 42.7.1
+- Upgraded org.flywaydb:flyway-core version from 5.2.3 to 9.22.3
+- Upgraded org.quartz-scheduler:quartz version from 2.3.0 to 2.3.2
+- Upgraded org.quartz-scheduler:quartz-jobs from 2.3.0 to 2.3.2
+- Upgraded com.paytm:paytm-checksum from 2.0.0 to 1.2.1
+- Upgraded lombok version from 1.18.8 to 1.18.22
+- Upgraded javax.validation:validation-api version to 3.0.2
+- Upgraded org.egov.services:tracer version from 2.1.1-SNAPSHOT to 2.9.0-SNAPSHOT
+
 ## 1.2.3 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 

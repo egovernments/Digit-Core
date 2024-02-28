@@ -3,6 +3,16 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.0 - 2024-02-29
+- Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
+- Upgraded java version from 1.8 to 17
+- Upgraded postgresql version to 42.7.1
+- Upgraded elasticsearch to 8.11.3
+- Upgraded org.egov.services:tracer version from 2.1.2-SNAPSHOT to 2.9.0-SNAPSHOT
+- Upgraded org.egov:mdms-client version from 0.0.4-SNAPSHOT to 2.9.0-SNAPSHOT
+- Upgraded lombok version from 1.18.8 to 1.18.22
+- Upgraded org.flywaydb:flyway-core version from 6.4.3 to 9.22.3
+
 ## 1.1.8 - 2023-08-11
 - Central Instance Library Integration
 

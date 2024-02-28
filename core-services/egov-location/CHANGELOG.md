@@ -3,6 +3,13 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.0 - 2024-02-29
+- Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
+- Upgraded java version from 1.8 to 17
+- Upgraded postgresql version from 9.4.1212 to 42.7.1
+- Upgraded org.flywaydb:flyway-core version from 6.4.4 to 9.22.3
+- Upgraded lombok version from 1.18.8 to 1.18.22
+
 ## 1.1.5 - 2023-03-16
 - Fixed bug where search on root level boundary type yields empty search response.
 
