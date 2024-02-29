@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
+import org.egov.tracer.model.CustomException;
 import org.reactivestreams.Publisher;
 import org.springframework.cloud.gateway.filter.factory.rewrite.RewriteFunction;
 import org.springframework.stereotype.Component;
@@ -35,9 +36,9 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
             return Mono.just(body);
         } catch (Exception ex) {
             log.error("An error occured while transforming the request body in class RequestBodyRewrite. {}", ex);
-            // Throw custom exception here
-            throw new RuntimeException(
-                    "An error occured while transforming the request body in class RequestBodyRewrite.");
+
+            // Throw a custom exception
+            throw new CustomException("AUTHENTICATION_ERROR", ex.getMessage());
         }
     }
 
