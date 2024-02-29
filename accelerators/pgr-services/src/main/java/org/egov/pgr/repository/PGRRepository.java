@@ -14,6 +14,7 @@ import org.egov.common.exception.InvalidTenantIdException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,11 +125,12 @@ public class PGRRepository {
             throw new CustomException("PGR_SEARCH_ERROR",
                     "TenantId length is not sufficient to replace query schema in a multi state instance");
         }
-		int averageResolutionTime = jdbcTemplate.queryForObject(query, preparedStmtListAverageResolutionTime.toArray(),Integer.class);
+		Integer averageResolutionTime = jdbcTemplate.queryForObject(query, preparedStmtListAverageResolutionTime.toArray(),Integer.class);
+        if(averageResolutionTime == null) averageResolutionTime = 0;
 
-		Map<String, Integer> dynamicData = new HashMap<String,Integer>();
+        Map<String, Integer> dynamicData = new HashMap<String,Integer>();
 		dynamicData.put(PGRConstants.COMPLAINTS_RESOLVED, complaintsResolved);
-		dynamicData.put(PGRConstants.AVERAGE_RESOLUTION_TIME, averageResolutionTime);
+        dynamicData.put(PGRConstants.AVERAGE_RESOLUTION_TIME, averageResolutionTime);
 
 		return dynamicData;
 	}
