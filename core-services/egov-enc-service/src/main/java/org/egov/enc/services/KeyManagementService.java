@@ -1,52 +1,34 @@
 package org.egov.enc.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.enc.config.AppProperties;
 import org.egov.enc.keymanagement.KeyGenerator;
 import org.egov.enc.keymanagement.KeyIdGenerator;
 import org.egov.enc.keymanagement.KeyStore;
+import org.egov.enc.masterdata.MasterDataProvider;
 import org.egov.enc.models.AsymmetricKey;
 import org.egov.enc.models.SymmetricKey;
 import org.egov.enc.repository.KeyRepository;
 import org.egov.enc.web.models.RotateKeyRequest;
 import org.egov.enc.web.models.RotateKeyResponse;
 import org.egov.tracer.model.CustomException;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.egov.enc.utils.Constants.TENANTID_MDC_STRING;
 
 @Slf4j
 @Service
 public class KeyManagementService implements ApplicationRunner {
-
-    @Value("${egov.mdms.host}")
-    private String mdmsHost;
-
-    @Value("${egov.mdms.search.endpoint}")
-    private String mdmsEndpoint;
-
-    @Value(("${egov.state.level.tenant.id}"))
-    private String stateLevelTenantId;
 
     @Autowired
     private KeyRepository keyRepository;
@@ -56,12 +38,16 @@ public class KeyManagementService implements ApplicationRunner {
     private KeyStore keyStore;
     @Autowired
     private KeyIdGenerator keyIdGenerator;
+    @Autowired
+    private AppProperties appProperties;
+    @Autowired
+    private MasterDataProvider masterDataProvider;
 
 
     //Initialize active tenant id list and Check for any new tenants
     private void init() throws Exception {
         // Adding in MDC so that tracer can add it in header
-        MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
+        MDC.put(TENANTID_MDC_STRING, appProperties.getStateLevelTenantId());
         generateKeyForNewTenants();
     }
 
@@ -163,30 +149,7 @@ public class KeyManagementService implements ApplicationRunner {
 
 
     private ArrayList<String> getTenantIds() throws JSONException {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(TENANTID_MDC_STRING,stateLevelTenantId);
-
-        String requestJson = "{\"RequestInfo\":{},\"MdmsCriteria\":{\"tenantId\":\"" + stateLevelTenantId + "\"," +
-                "\"moduleDetails\":[{\"moduleName\":\"tenant\",\"masterDetails\":[{\"name\":\"tenants\"," +
-                "\"filter\":\"$.*.code\"}]}]}}";
-
-        String url = mdmsHost + mdmsEndpoint;
-
-        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-
-        JSONObject jsonObject = new JSONObject(response.getBody());
-        JSONArray jsonArray = jsonObject.getJSONObject("MdmsRes").getJSONObject("tenant").getJSONArray("tenants");
-
-        ArrayList<String> tenantIds = new ArrayList<>();
-        for(int i = 0; i < jsonArray.length(); i++) {
-            tenantIds.add(jsonArray.getString(i));
-        }
-
-        return tenantIds;
+        return masterDataProvider.getTenantIds();
     }
 
     @Override
