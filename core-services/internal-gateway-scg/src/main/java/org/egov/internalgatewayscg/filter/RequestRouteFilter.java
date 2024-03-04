@@ -1,15 +1,19 @@
 package org.egov.internalgatewayscg.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.internalgatewayscg.utils.CustomException;
 import org.egov.internalgatewayscg.utils.RoutingConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.cloud.gateway.filter.*;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.MalformedURLException;
@@ -17,10 +21,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Component
-public class RequestRouteFilter implements GlobalFilter, Ordered {
+public class RequestRouteFilter extends RouteToRequestUrlFilter {
 
     @Autowired
     private RoutingConfig routingConfig;
@@ -30,6 +35,11 @@ public class RequestRouteFilter implements GlobalFilter, Ordered {
 
         String requestURI = exchange.getRequest().getURI().getPath();
         String requestTenantId = exchange.getRequest().getHeaders().getFirst("tenantId");
+
+        if(Objects.isNull(requestTenantId)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "TenantId is mandatory");
+        }
+
         log.info(" Route filter routing for URI ....... " + requestURI + " and tenantId : " + requestTenantId);
         URL url = null;
 
@@ -41,23 +51,32 @@ public class RequestRouteFilter implements GlobalFilter, Ordered {
                 Map<String, String> tenantRoutingMap = tenantRoutingConfig.getValue();
                 String routingHost = findTenant(tenantRoutingMap, requestTenantId);
                 if (routingHost != null) {
+                    URI uri = exchange.getRequest().getURI();
+                    boolean encoded = ServerWebExchangeUtils.containsEncodedParts(uri);
                     try {
-                        URI uri = new URI(routingHost);
-                        exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, uri);
+                        URI routeuri = new URI(routingHost);
+                        URI mergedUrl = UriComponentsBuilder.fromUri(uri)
+                                .scheme(routeuri.getScheme())
+                                .host(routeuri.getHost())
+                                .port(routeuri.getPort())
+                                .build(encoded)
+                                .toUri();
+                        exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, mergedUrl);
+                        break;
                     } catch (URISyntaxException e) {
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
-                    break;
+
                 }
                 break;
             }
         }
-        return null;
+        return chain.filter(exchange);
     }
 
     @Override
     public int getOrder() {
-        return 0;
+        return Ordered.LOWEST_PRECEDENCE - 1;
     }
 
     private String findTenant(Map<String, String> tenantRoutingMap, String reqTenantId) {

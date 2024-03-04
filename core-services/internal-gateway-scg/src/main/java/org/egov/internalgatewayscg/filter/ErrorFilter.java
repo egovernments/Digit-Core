@@ -1,5 +1,7 @@
 package org.egov.internalgatewayscg.filter;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.internalgatewayscg.utils.ErrorUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 
@@ -14,16 +16,15 @@ import reactor.core.publisher.Mono;
 @Component
 public class ErrorFilter implements GlobalFilter, Ordered {
 
+    @Autowired
+    private ErrorUtils errorUtils;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-            if (exchange.getResponse().getStatusCode().is5xxServerError()) {
-                exchange.getResponse().setStatusCode(HttpStatus.OK);
-                exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                exchange.getResponse().getHeaders().set("X-Error-Code", "INTERNAL_SERVER_ERROR");
-                exchange.getResponse().getHeaders().set("X-Error-Message", "Something went wrong. Please contact administrator");
-            }
-        }));
+        return chain.filter(exchange)
+                .onErrorResume(throwable -> {
+                    return errorUtils.raiseErrorFilterException(exchange, throwable);
+                }).then();
     }
 
     @Override
