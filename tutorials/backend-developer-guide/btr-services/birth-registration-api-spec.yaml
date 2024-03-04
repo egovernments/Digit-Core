@@ -226,6 +226,28 @@ components:
         auditDetails:
           $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/AuditDetails'
       description: A Object holds the basic data for a Birth Registration Application
+    Workflow:
+      type: object
+      description: Fields related to workflow service
+      properties:
+        action:
+          type: string
+          description: Action on the application in certain
+          minLength: 1
+          maxLength: 64
+        status:
+          type: string
+          description: status of the application
+        comments:
+          type: string
+          description: Unique Identifier scrutinized number
+          minLength: 1
+          maxLength: 64
+        documents:
+          description: Attach the workflow verification documents.
+          type: array
+          items:
+            $ref: https://raw.githubusercontent.com/egovernments/municipal-services/common-contract/docs/common-contract-v2-0-0.yml#/components/schemas/Document
     BirthRegistrationRequest:
       type: object
       properties:
