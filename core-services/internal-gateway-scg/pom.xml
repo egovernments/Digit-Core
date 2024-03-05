@@ -41,6 +41,20 @@
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-reactor-netty</artifactId>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -62,5 +76,26 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	<repositories>
+		<!--		<repository>-->
+		<!--			<id>repo.egovernments.org</id>-->
+		<!--			<name>eGov ERP Releases Repository</name>-->
+		<!--			<url>https://nexus-repo.egovernments.org/nexus/content/repositories/releases/</url>-->
+		<!--		</repository>-->
+		<!--		<repository>-->
+		<!--			<id>repo.egovernments.org.snapshots</id>-->
+		<!--			<name>eGov ERP Releases Repository</name>-->
+		<!--			<url>https://nexus-repo.egovernments.org/nexus/content/repositories/snapshots/</url>-->
+		<!--		</repository>-->
+		<!--		<repository>-->
+		<!--			<id>repo.egovernments.org.public</id>-->
+		<!--			<name>eGov Public Repository Group</name>-->
+		<!--			<url>https://nexus-repo.egovernments.org/nexus/content/groups/public/</url>-->
+		<!--		</repository>-->
+		<repository>
+			<id>repo.digit.org</id>
+			<name>eGov DIGIT Releases Repository</name>
+			<url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
 </project>
