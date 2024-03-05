@@ -136,7 +136,7 @@ public class StorageService {
 				artifact.setThumbnailImages(mapOfImagesAndPaths);
 			}
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("EG_FILESTORE_INPUT_ERROR", e);
 			throw new CustomException("EG_FILESTORE_INPUT_ERROR", "Failed to read input stream from multipart file");
