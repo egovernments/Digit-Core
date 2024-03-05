@@ -314,6 +314,12 @@ config:
       - work-dir: "core-services/internal-gateway"
         image-name: "internal-gateway"
         dockerfile: "build/maven/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/internal-gateway-scg"
+    build:
+      - work-dir: "core-services/internal-gateway-scg"
+        image-name: "internal-gateway-scg"
+        dockerfile: "build/maven/Dockerfile"
         
   - name: "builds/Digit-Core/core-services/egov-user-event"
     build:
