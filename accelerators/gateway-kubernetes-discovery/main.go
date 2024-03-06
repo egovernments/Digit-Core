@@ -34,10 +34,12 @@ type Route struct {
 	Path       string // Annotation value of zuul/route-path pointing to the context to be filtered
 	ServiceURL string // Service URL to be redirected to
   	RateLimiter bool
+  	KeyResolver string
   	ReplenishRate string
   	BurstCapacity string
 }
 
+const gatewayKeyResolver = "gateway-keyResolver"
 const gatewayReplenishRate = "gateway-replenishRate"
 const gatewayBurstCapacity = "gateway-burstCapacity"
 const sAnnotation string = "zuul/route-path"
@@ -47,6 +49,7 @@ spring.cloud.gateway.routes[{{ $index }}].id={{ $route.Path }}
 spring.cloud.gateway.routes[{{ $index }}].uri={{ $route.ServiceURL }}
 spring.cloud.gateway.routes[{{ $index }}].predicates[0]=Path=/{{ $route.Path }}/**
 {{ if $route.RateLimiter }}spring.cloud.gateway.routes[{{ $index }}].filters[0].name=RequestRateLimiter
+{{ if ne $route.KeyResolver "" }}spring.cloud.gateway.routes[{{ $index }}].filters[0].args.redis-rate-limiter.keyResolver="#{{ "{" }}{{ $route.KeyResolver }}{{ "}" }}"{{ end }}
 {{ if ne $route.ReplenishRate "" }}spring.cloud.gateway.routes[{{ $index }}].filters[0].args.redis-rate-limiter.replenishRate={{ $route.ReplenishRate }}{{ end }}
 {{ if ne $route.BurstCapacity "" }}spring.cloud.gateway.routes[{{ $index }}].filters[0].args.redis-rate-limiter.burstCapacity={{ $route.BurstCapacity }}{{ end }}
 {{ end }}{{ end }}`
@@ -86,8 +89,13 @@ func getRoutes(s *v1.ServiceList) (r *[]Route) {
 				url := fmt.Sprintf("http://%s.%s:%d/", s.Name, s.Namespace, s.Spec.Ports[0].Port)
 				// Initialize variables for rate limiter annotations
                 		rateLimiter := false
+				keyResolver := ""
                 		replenishRate := ""
                 		burstCapacity := ""
+				if val, ok := s.Annotations[gatewayKeyResolver]; ok {
+                    			rateLimiter = true
+                    			keyResolver = val
+                		}
                 		if val, ok := s.Annotations[gatewayReplenishRate]; ok {
                     			rateLimiter = true
                     			replenishRate = val
@@ -97,7 +105,7 @@ func getRoutes(s *v1.ServiceList) (r *[]Route) {
                     			burstCapacity = val
                 		}
 
-				routes = append(routes, Route{path, url, rateLimiter, replenishRate, burstCapacity})
+				routes = append(routes, Route{path, url, rateLimiter, keyResolver, replenishRate, burstCapacity})
 				log.Printf("Configuring service %s routing to service URL %s \n", path, url)
 			}
 		}
