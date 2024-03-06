@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +21,6 @@ public class GatewayApplication {
 
 	@Autowired
 	private ApplicationProperties applicationProperties;
-
-//	private RateLimiterConfiguration rateLimiterConfiguration;
 
 	public static void main(String[] args) {
 		SpringApplication.run(GatewayApplication.class, args);
@@ -65,6 +64,15 @@ public class GatewayApplication {
 	@Bean
 	public MultiStateInstanceUtil centralInstanceUtil() {
 		return new MultiStateInstanceUtil();
+	}
+
+	/**
+	 * This to create a default RedisRateLimiter
+	 * @return
+	 */
+	@Bean
+	public RedisRateLimiter redisRateLimiter() {
+		return new RedisRateLimiter(applicationProperties.getDefaultReplenishRate(), applicationProperties.getDefaultBurstCapacity());
 	}
 
 }
