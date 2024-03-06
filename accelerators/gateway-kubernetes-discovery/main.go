@@ -33,20 +33,23 @@ import (
 type Route struct {
 	Path       string // Annotation value of zuul/route-path pointing to the context to be filtered
 	ServiceURL string // Service URL to be redirected to
+  	RateLimiter bool
+  	ReplenishRate string
+  	BurstCapacity string
 }
 
+const gatewayReplenishRate = "gateway-replenishRate"
+const gatewayBurstCapacity = "gateway-burstCapacity"
 const sAnnotation string = "zuul/route-path"
 const routesTemplate string =
-`spring:
-  cloud:
-    gateway:
-      routes:
-{{- range . }}
-        - id: {{ .Path }}
-          uri: {{ .ServiceURL }}
-          predicates:
-            - Path=/{{ .Path }}/**
-{{ end -}}`
+`{{- range $index, $route := . }}
+spring.cloud.gateway.routes[{{ $index }}].id={{ $route.Path }}
+spring.cloud.gateway.routes[{{ $index }}].uri={{ $route.ServiceURL }}
+spring.cloud.gateway.routes[{{ $index }}].predicates[0]=Path=/{{ $route.Path }}/**
+{{ if $route.RateLimiter }}spring.cloud.gateway.routes[{{ $index }}].filters[0].name=RequestRateLimiter
+{{ if ne $route.ReplenishRate "" }}spring.cloud.gateway.routes[{{ $index }}].filters[0].args.redis-rate-limiter.replenishRate={{ $route.ReplenishRate }}{{ end }}
+{{ if ne $route.BurstCapacity "" }}spring.cloud.gateway.routes[{{ $index }}].filters[0].args.redis-rate-limiter.burstCapacity={{ $route.BurstCapacity }}{{ end }}
+{{ end }}{{ end }}`
 
 func getKubeConnection() (clientset *kubernetes.Clientset) {
 
@@ -81,7 +84,20 @@ func getRoutes(s *v1.ServiceList) (r *[]Route) {
 			if val, ok := s.Annotations[sAnnotation]; ok {
 				path := fmt.Sprintf("%s", val)
 				url := fmt.Sprintf("http://%s.%s:%d/", s.Name, s.Namespace, s.Spec.Ports[0].Port)
-				routes = append(routes, Route{path, url})
+				// Initialize variables for rate limiter annotations
+                		rateLimiter := false
+                		replenishRate := ""
+                		burstCapacity := ""
+                		if val, ok := s.Annotations[gatewayReplenishRate]; ok {
+                    			rateLimiter = true
+                    			replenishRate = val
+                		}
+                		if val, ok := s.Annotations[gatewayBurstCapacity]; ok {
+                    			rateLimiter = true
+                    			burstCapacity = val
+                		}
+
+				routes = append(routes, Route{path, url, rateLimiter, replenishRate, burstCapacity})
 				log.Printf("Configuring service %s routing to service URL %s \n", path, url)
 			}
 		}
