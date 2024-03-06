@@ -29,13 +29,17 @@ public class MdmsSchemaService {
     @Value("${sunbird.mdms.auth.token}")
     private String mdmsToken;
 
+    private ObjectMapper objectMapper;
     private StringRedisTemplate stringRedisTemplate;
-    public MdmsSchemaService(StringRedisTemplate stringRedisTemplate) {
+
+
+    public MdmsSchemaService(ObjectMapper objectMapper,StringRedisTemplate stringRedisTemplate) {
+        this.objectMapper = objectMapper;
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
 
-    //method to load the relevant credential schema into the memory from mdms on start of the service
+    //load the rc config in the mdms to the cache
     @PostConstruct
     public void loadSchemaFromMdms() {
         RestTemplate restTemplate = new RestTemplate();
@@ -94,8 +98,7 @@ public class MdmsSchemaService {
                         "plainAccessRequest": {}
                     },
                     "SchemaDefCriteria": {
-                        "tenantId": "default",
-                        "code": ["VerifiableCredentials.tradelicense"]
+                        "tenantId": "default"
                     }
                 }
                 """;
@@ -104,66 +107,30 @@ public class MdmsSchemaService {
 
         String response = restTemplate.postForObject(getSchemaUrl, entity, String.class);
         System.out.println("Response from MDMS schema: " + response);
-        stringRedisTemplate.opsForValue().set("tradelicense-mdms", response);
+        stringRedisTemplate.opsForValue().set("vc-mdms", response);
     }
 
 
-
-    public CredentialPayloadRequest getJsonPathMdmsSchema(String key) {
-        // Retrieve the JSON string from Redis
-        String mdmsJsonResponse= stringRedisTemplate.opsForValue().get(key);
-        return getJsonPathFromResponse(mdmsJsonResponse);
-    }
-
-
-    //jsonPath from the response to extract relevant fields for payload creation
-    private CredentialPayloadRequest getJsonPathFromResponse(String mdmsJsonResponse) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public JsonNode getModuleDetailsFromMdmsData(String entityModuleName) {
         try {
-            JsonNode rootNode = objectMapper.readTree(mdmsJsonResponse);
-            JsonNode schemaDefinitions = rootNode.path("SchemaDefinitions");
-            if (schemaDefinitions.isArray() && !schemaDefinitions.isEmpty()) {
-                JsonNode properties = schemaDefinitions.get(0).path("definition").path("properties");
-
-                // Dynamically extract jsonpath for each property
-                properties.fields().forEachRemaining(field -> {
-                    String fieldName = field.getKey();
-                    JsonNode fieldValue = field.getValue().path("jsonpath");
-                    String jsonPath = fieldValue.asText();
-
-                    // Dynamically set the jsonpath to the corresponding field in CredentialPayloadResponse
-                    switch (fieldName) {
-                        case "id":
-                            credentialPayloadRequest.setId(jsonPath);
-                            break;
-                        case "licenseNumber":
-                            credentialPayloadRequest.setLicenseNumber(jsonPath);
-                            break;
-                        case "licenseType":
-                            credentialPayloadRequest.setLicenseType(jsonPath);
-                            break;
-                        case "tradeName":
-                            credentialPayloadRequest.setTradeName(jsonPath);
-                            break;
-                        case "applicationNumber":
-                            credentialPayloadRequest.setApplicationNumber(jsonPath);
-                            break;
-                        // Add more cases as needed for additional fields
+            String response = stringRedisTemplate.opsForValue().get("vc-mdms");
+            System.out.println("response from cache"+response);
+            if (response != null) {
+                JsonNode rootNode = objectMapper.readTree(response);
+                // Access the SchemaDefinitions array within the response
+                JsonNode schemaDefinitions = rootNode.path("SchemaDefinitions");
+                if (schemaDefinitions.isArray()) {
+                    for (JsonNode definitionNode : schemaDefinitions) {
+                        JsonNode keyNode = definitionNode.get("code");
+                        if (keyNode != null && entityModuleName.equals(keyNode.asText())) {
+                            return definitionNode;
+                        }
                     }
-                });
-
-                // Display extracted jsonpaths
-                System.out.println("ID JsonPath: " + credentialPayloadRequest.getId());
-                System.out.println("Trade Name JsonPath: " + credentialPayloadRequest.getTradeName());
-                System.out.println("License Type JsonPath: " + credentialPayloadRequest.getLicenseType());
-                System.out.println("License Number JsonPath: " + credentialPayloadRequest.getLicenseNumber());
-                System.out.println("Application Number JsonPath: " + credentialPayloadRequest.getApplicationNumber());
-
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Error occurred while parsing MDMS data: " + e.getMessage());
         }
-        return credentialPayloadRequest;
+        return null;
     }
 }

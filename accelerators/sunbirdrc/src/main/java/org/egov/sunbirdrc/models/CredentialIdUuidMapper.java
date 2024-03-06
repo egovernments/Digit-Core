@@ -1,10 +1,12 @@
 package org.egov.sunbirdrc.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
+import org.egov.sunbirdrc.models.AuditDetails;
 
 @Getter
 @Setter
@@ -13,9 +15,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class CredentialIdUuidMapper {
 
+    @JsonProperty("uuid")
     private String uuid;
+
+    @JsonProperty("credentialId")
     private String credentialId;
-    private String created_at;
-    private String updated_at;
+
+    @JsonProperty("did")
+    private String issuerDid;
+
+    private AuditDetails auditDetails;
 
 }

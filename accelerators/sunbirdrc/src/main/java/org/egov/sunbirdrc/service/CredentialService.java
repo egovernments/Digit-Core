@@ -3,20 +3,24 @@ package org.egov.sunbirdrc.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.sunbirdrc.kafka.Producer;
 import org.egov.sunbirdrc.models.CredentialIdUuidMapper;
 import org.egov.sunbirdrc.models.CredentialPayloadRequest;
 import org.egov.sunbirdrc.models.DidSchemaId;
-import org.egov.sunbirdrc.repository.DidSchemaIdRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import java.util.List;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 @Slf4j
+@Getter
+@Setter
 public class CredentialService {
 
 
@@ -25,8 +29,6 @@ public class CredentialService {
 
     @Value("${sunbird.save.vc.topic}")
     private String saveVcidTopic;
-    @Autowired
-    private DidSchemaIdRepository didSchemaIdRepository;
 
     @Autowired
     private MdmsSchemaService mdmsSchemaService;
@@ -44,22 +46,75 @@ public class CredentialService {
     private CredentialPayloadRequest credentialPayloadRequest;
 
     private String kafkaMessage;
-    public void processMessageFromKafka(String kafkaMessage) throws JsonProcessingException {
-        this.kafkaMessage=kafkaMessage;
-        System.out.println("message receieved is"+ kafkaMessage);
+
+    public void processTradeLicensePayload(String KafkaConsumerPayload) throws JsonProcessingException {
+        this.kafkaMessage = KafkaConsumerPayload;
+        System.out.println("message receieved is" + kafkaMessage);
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(this.kafkaMessage);
-        String uuid = jsonNode.path("Data").path("tradelicense").path("id").asText();
-        System.out.println("Extracted ID from the json payload is: " + uuid);
+        JsonNode requestPayload = objectMapper.readTree(this.kafkaMessage);
+        String entityModuleName = requestPayload.path("module").asText();
+        System.out.println("entity module name is " + entityModuleName);
 
-        DidSchemaId didSchemaIdMap= didSchemaIdRepository.getRowData(uuid);
-        String vcCredentialId= getVcCredentialsId(uuid,didSchemaIdMap.getDid(), didSchemaIdMap.getSchemaId());
+        JsonNode mdmsModuleObject = mdmsSchemaService.getModuleDetailsFromMdmsData(entityModuleName);
 
-        System.out.println("credential id is "+vcCredentialId);
+        String entityDid= getDidFromModuleObject(mdmsModuleObject);
+        String entitySchemaId=getSchemaIdFromModuleObject(mdmsModuleObject);
+        List<String> fieldPathArray= getAllFieldPathFromMdms(mdmsModuleObject);
 
+
+        System.out.println("the required mdms object is "+mdmsModuleObject);
+        System.out.println("the entity id is "+entityDid);
+        System.out.println("the schema id is "+entitySchemaId);
+        System.out.println("the list of field json path is "+fieldPathArray);
+
+
+        //String vcCredentialId = getVcCredentialsId(uuid, didSchemaIdMap.getDid(), didSchemaIdMap.getSchemaId());
+
+        //System.out.println("credential id is " + vcCredentialId);
     }
 
-    public String getVcCredentialsId(String uuid, String did, String schemaId) throws JsonProcessingException {
+
+    public String getDidFromModuleObject(JsonNode mdmsModuleObject){
+        if (mdmsModuleObject != null && mdmsModuleObject.has("definition")) {
+            JsonNode definitionNode = mdmsModuleObject.get("definition");
+            if (definitionNode != null && definitionNode.has("did")) {
+                return definitionNode.get("did").asText();
+            }
+        }
+        return null;
+    }
+
+    public String getSchemaIdFromModuleObject(JsonNode mdmsModuleObject){
+        if (mdmsModuleObject != null && mdmsModuleObject.has("definition")) {
+            JsonNode definitionNode = mdmsModuleObject.get("definition");
+            if (definitionNode != null && definitionNode.has("schemaId")) {
+                return definitionNode.get("schemaId").asText();
+            }
+        }
+        return null;
+    }
+
+    public List<String> getAllFieldPathFromMdms(JsonNode mdmsModuleObject){
+        if (mdmsModuleObject != null && mdmsModuleObject.has("definition")) {
+
+            JsonNode definitionNode = mdmsModuleObject.get("definition");
+            System.out.println("node value"+definitionNode);
+            if (definitionNode != null && definitionNode.has("path")) {
+
+                JsonNode fieldJsonPathList = definitionNode.get("path");
+                System.out.println("path array value"+fieldJsonPathList);
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.convertValue(fieldJsonPathList, List.class);
+            }
+        }
+        return null;
+    }
+}
+
+
+
+  /*  public String getVcCredentialsId(String uuid, String did, String schemaId) throws JsonProcessingException {
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
         HttpHeaders headers = new HttpHeaders();
@@ -127,7 +182,6 @@ public class CredentialService {
         JsonNode rootNode = objectMapper.readTree(response.getBody());
         JsonNode credentialNode = rootNode.path("credential");
         return credentialNode.path("id").asText();
-
     }
 
-}
+} */
