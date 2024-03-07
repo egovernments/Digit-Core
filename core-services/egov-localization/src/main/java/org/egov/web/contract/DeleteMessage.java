@@ -4,14 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeleteMessage {
-	@NotEmpty
+
+    @NotEmpty
     private String code;
 
 	@NotEmpty

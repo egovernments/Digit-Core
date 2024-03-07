@@ -2,6 +2,7 @@ package org.egov.web.contract;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +11,6 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.domain.model.AuthenticatedUser;
 import org.egov.domain.model.NotAuthenticatedException;
 import org.egov.domain.model.Tenant;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +22,7 @@ public class CreateMessagesRequest {
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo;
 
-	@NotEmpty
+    @NotEmpty
     @Size(max = 256)
 	private String tenantId;
 

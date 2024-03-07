@@ -11,7 +11,7 @@ import org.egov.domain.model.AuthenticatedUser;
 import org.egov.domain.model.MessageIdentity;
 import org.egov.domain.model.NotAuthenticatedException;
 import org.egov.domain.model.Tenant;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 import java.util.stream.Collectors;

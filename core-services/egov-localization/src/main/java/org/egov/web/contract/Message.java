@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.egov.domain.model.MessageIdentity;
 import org.egov.domain.model.Tenant;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 @Builder
 @Getter
