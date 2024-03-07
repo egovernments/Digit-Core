@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Object with the value to be signed
