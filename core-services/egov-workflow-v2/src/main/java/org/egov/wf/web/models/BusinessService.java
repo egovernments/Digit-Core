@@ -14,15 +14,15 @@ import lombok.*;
 import org.egov.wf.web.models.AuditDetails;
 import org.egov.wf.web.models.State;
 import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 
 /**
  * A Object holds the
  */
 @ApiModel(description = "A Object holds the")
 @Validated
-//@jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2018-12-04T11:26:25.532+05:30")
+//@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2018-12-04T11:26:25.532+05:30")
 
 @Getter
 @Setter

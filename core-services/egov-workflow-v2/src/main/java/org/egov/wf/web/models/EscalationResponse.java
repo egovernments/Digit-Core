@@ -4,7 +4,7 @@ package org.egov.wf.web.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.egov.common.contract.response.ResponseInfo;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import java.util.List;
 
 public class EscalationResponse {

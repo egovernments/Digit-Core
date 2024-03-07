@@ -6,8 +6,8 @@ import lombok.ToString;
 
 import org.egov.common.contract.request.RequestInfo;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
