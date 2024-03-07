@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
