@@ -77,9 +77,9 @@ public class ReindexConsumerConfig implements ApplicationRunner {
 			topicsList.addAll(topicsMap.get(ConfigKeyEnum.REINDEX.toString()));
 		}
     	topicsList.add(reindexTopic);
-    	String[] topicsArray = new String[topicsMap.get(ConfigKeyEnum.REINDEX.toString()).size()];
+    	String[] topicsArray = new String[topicsList.size()];
     	int i = 0;
-    	for(String topic : topicsMap.get(ConfigKeyEnum.REINDEX.toString())){
+    	for(String topic : topicsList){
     		topicsArray[i] = topic; i++;
     	}
     	this.topics = topicsArray;  

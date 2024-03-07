@@ -1,7 +1,6 @@
 package org.egov.infra.indexer.web.contract;
 
 import java.util.List;
-import java.util.Map;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
