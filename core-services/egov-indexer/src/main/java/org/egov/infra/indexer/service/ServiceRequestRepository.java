@@ -73,44 +73,4 @@ public class ServiceRequestRepository {
 		return response;
 	}
 
-	public String fetchResultForSearchParam(String uri, Object request, Map<String,Object> searchParam, String tenantId)  {
-		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		String response = null;
-		log.info("URI: "+uri.toString());
-
-		HttpHeaders headers = new HttpHeaders();
-//		headers.set(TENANTID_MDC_STRING, tenantId);
-
-		Map<String, Object> body = new HashMap<>();
-		body.putAll((Map<? extends String, ?>) request);
-		body.putAll(searchParam);
-
-		// Create an HttpEntity with headers (if any)
-		HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
-		ParameterizedTypeReference<String> responseType = new ParameterizedTypeReference<String>() {};
-
-		// Make the HTTP request using the exchange method
-		ResponseEntity<String>  responseEntity = null;
-
-		try {
-			log.info("Request: "+mapper.writeValueAsString(request));
-			responseEntity = restTemplate.exchange(
-					uri.toString(),
-					HttpMethod.POST,
-					requestEntity,
-					responseType
-			);
-
-		}catch(HttpClientErrorException e) {
-			log.error("External Service threw an Exception: ",e);
-			throw new ServiceCallException(e.getResponseBodyAsString());
-		}catch(Exception e) {
-			log.error("Exception while fetching from searcher: ",e);
-		}
-
-		// Extract the JSON content from the ResponseEntity
-		response = responseEntity.getBody();
-
-		return response;
-	}
 }

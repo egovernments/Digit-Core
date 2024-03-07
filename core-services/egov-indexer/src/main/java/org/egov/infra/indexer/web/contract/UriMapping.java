@@ -27,17 +27,11 @@ public class UriMapping {
 	  @JsonProperty("apiRequest")
 	  private Object request;
 
-	  @JsonProperty("isSearchParam")
-	  private String isSearchParam;
-
 	  @JsonProperty("queryParam")
 	  private String queryParam;
 	  
 	  @JsonProperty("pathParam")
 	  private String pathParam;
-
-	  @JsonProperty("searchParam")
-	  private Map<String,Object> searchParam;
 	  
 	  @JsonProperty("moduleName")
 	  private String moduleName;
