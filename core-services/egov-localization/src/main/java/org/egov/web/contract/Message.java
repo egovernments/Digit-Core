@@ -14,6 +14,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Message {
+
 	@NotEmpty
     private String code;
 	@NotEmpty
