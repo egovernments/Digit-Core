@@ -70,7 +70,7 @@ public class GatewayApplication {
 	 * This to create a default RedisRateLimiter
 	 * @return
 	 */
-	@Bean
+	//@Bean
 	public RedisRateLimiter redisRateLimiter() {
 		return new RedisRateLimiter(applicationProperties.getDefaultReplenishRate(), applicationProperties.getDefaultBurstCapacity());
 	}
