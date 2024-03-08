@@ -98,6 +98,7 @@ class BusinessServiceControllerTest {
         requestInfoWrapper.setRequestInfo(new RequestInfo());
         String content = (new ObjectMapper()).writeValueAsString(requestInfoWrapper);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/egov-wf/businessservice/_search")
+                .param("tenantId", "default")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content);
         ResultActions actualPerformResult = MockMvcBuilders.standaloneSetup(this.businessServiceController)
