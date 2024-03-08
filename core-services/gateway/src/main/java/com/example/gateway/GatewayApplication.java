@@ -71,8 +71,8 @@ public class GatewayApplication {
 	 * @return
 	 */
 	//@Bean
-	public RedisRateLimiter redisRateLimiter() {
-		return new RedisRateLimiter(applicationProperties.getDefaultReplenishRate(), applicationProperties.getDefaultBurstCapacity());
-	}
+//	public RedisRateLimiter redisRateLimiter() {
+//		return new RedisRateLimiter(applicationProperties.getDefaultReplenishRate(), applicationProperties.getDefaultBurstCapacity());
+//	}
 
 }
