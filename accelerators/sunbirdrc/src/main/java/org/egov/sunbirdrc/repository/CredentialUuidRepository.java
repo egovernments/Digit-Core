@@ -3,8 +3,6 @@ package org.egov.sunbirdrc.repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.sunbirdrc.models.CredentialIdUuidMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +18,15 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 
 @Repository
-@Getter
-@Setter
 @Slf4j
 public class CredentialUuidRepository {
 
 
     private StringRedisTemplate stringRedisTemplate;
 
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
     @Autowired
     private CredentialIdUuidMapper credentialIdUuidMapper;
 
@@ -38,7 +34,7 @@ public class CredentialUuidRepository {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
-    private static final String sql = "SELECT uuid, vcid FROM vcid_uuid_mapper";
+    private final String sql = "SELECT uuid, vcid FROM uuid_vcid_mapper";
 
 
     //load uuid, did,schemaid data into memory from database on load of service.

@@ -6,12 +6,9 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class RevokeCredentialService {
-    private final RestTemplate restTemplate;
     private final String url="http://localhost:3000/credentials/";
-    public RevokeCredentialService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
     public String revokeCredential(String credentialId){
+        RestTemplate restTemplate= new RestTemplate();
         String requestUrl=url+credentialId;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
