@@ -3,7 +3,7 @@ package org.egov.sunbirdrc.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import org.egov.sunbirdrc.models.CredentialPayloadRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,10 +18,9 @@ import java.io.IOException;
 
 @Service
 @Component
+@Slf4j
 public class MdmsSchemaService {
 
-    @Autowired
-    private CredentialPayloadRequest credentialPayloadRequest;
 
     @Value("${sunbird.mdms.schema.url}")
     private String getSchemaUrl;
@@ -110,6 +109,9 @@ public class MdmsSchemaService {
         stringRedisTemplate.opsForValue().set("vc-mdms", response);
     }
 
+    public Long invalidateCache(String relationName,String key){
+        return stringRedisTemplate.opsForHash().delete(relationName, key);
+    }
 
     public JsonNode getModuleDetailsFromMdmsData(String entityModuleName) {
         try {

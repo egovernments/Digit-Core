@@ -11,6 +11,5 @@ public class SunbirdrcApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SunbirdrcApplication.class, args);
 	}
-
 }
 

@@ -19,7 +19,7 @@ public class VcSchemaController {
     @PostMapping("/_create")
     public ResponseEntity<String> addVcSchema(@RequestBody String mdmsSchema) throws JsonProcessingException {
         System.out.println("Received request body: " + mdmsSchema);
-        String mdmsSchemaResponse=addVcSchemaService.addVcSchemaToMdms(mdmsSchema);
+        String mdmsSchemaResponse=addVcSchemaService.addVcSchema(mdmsSchema);
         return new ResponseEntity<>(mdmsSchemaResponse, HttpStatus.OK);
     }
 }
