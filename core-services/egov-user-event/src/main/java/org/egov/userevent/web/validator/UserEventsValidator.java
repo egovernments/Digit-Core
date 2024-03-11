@@ -35,8 +35,8 @@ public class UserEventsValidator {
 	@Autowired
 	private MDMSService mdmsService;
 
-	@Autowired
-	private UserEventsService service;
+//	@Autowired
+//	private UserEventsService service;
 
 	/**
 	 * Validator to validate the create event request
@@ -66,11 +66,13 @@ public class UserEventsValidator {
 	 * 
 	 * @param request
 	 */
-	public void validateUpdateEvent(EventRequest request) {
-		Map<String, String> errorMap = new HashMap<>();
-		validateForUpdate(request, errorMap);
-		validateCreateEvent(request, false);
-	}
+//	public void validateUpdateEvent(EventRequest request) {
+//		Map<String, String> errorMap = new HashMap<>();
+//		validateForUpdate(request, errorMap);
+//		validateCreateEvent(request, false);
+//	}
+
+
 
 	/**
 	 * Validator to validate the request for event search and count
@@ -92,49 +94,49 @@ public class UserEventsValidator {
 	 * @param request
 	 * @param errorMap
 	 */
-	private void validateForUpdate(EventRequest request, Map<String, String> errorMap) {
-		EventSearchCriteria criteria = new EventSearchCriteria();
-		List<String> ids = request.getEvents().stream().map(Event::getId).collect(Collectors.toList());
-		criteria.setIds(ids);
-		List<Event> responseFromDB = service.searchEvents(request.getRequestInfo(), criteria, true).getEvents();
-		if (responseFromDB.size() != request.getEvents().size()) {
-			log.info("responseFromDB: "+responseFromDB.stream().map(Event::getId).collect(Collectors.toList()));
-			log.info("request.getEvents(): "+request.getEvents().stream().map(Event::getId).collect(Collectors.toList()));
-			
-			errorMap.put(ErrorConstants.MEN_UPDATE_MISSING_EVENTS_CODE, ErrorConstants.MEN_UPDATE_MISSING_EVENTS_MSG);
-		}
-		Map<String, Event> dBEventsMap = responseFromDB.stream().collect(Collectors.toMap(Event::getId, Function.identity()));
-		for (Event event : request.getEvents()) {
-			if (null == event.getStatus()) {
-				errorMap.put(ErrorConstants.MEN_UPDATE_STATUS_NOTNULL_CODE, ErrorConstants.MEN_UPDATE_STATUS_NOTNULL_MSG);
-			}			
-			if(null != event.getEventDetails()) {
-				if(null != dBEventsMap.get(event.getId()).getEventDetails()) {
-					if(!event.getEventDetails().getFromDate().equals(dBEventsMap.get(event.getId()).getEventDetails().getFromDate())) {
-						if(event.getEventDetails().getFromDate() < new Date().getTime()) {
-							errorMap.put(ErrorConstants.INVALID_FROM_DATE_CODE, ErrorConstants.INVALID_FROM_DATE_MSG);
-						}
-					}
-					if(!event.getEventDetails().getToDate().equals(dBEventsMap.get(event.getId()).getEventDetails().getToDate())) {
-						if(event.getEventDetails().getToDate() < new Date().getTime()) {
-							errorMap.put(ErrorConstants.INVALID_TO_DATE_CODE, ErrorConstants.INVALID_TO_DATE_MSG);
-						}	
-					}
-				}else {
-					if(event.getEventDetails().getFromDate() < new Date().getTime() 
-							|| event.getEventDetails().getToDate() < new Date().getTime()) {
-						errorMap.put(ErrorConstants.INVALID_FROM_TO_DATE_CODE, ErrorConstants.INVALID_FROM_TO_DATE_MSG);
-					}
-				}
-			}
-		}
-		validateActions(request.getEvents(), responseFromDB, errorMap);
-
-		if (!CollectionUtils.isEmpty(errorMap.keySet())) {
-			throw new CustomException(errorMap);
-		}
-
-	}
+//	private void validateForUpdate(EventRequest request, Map<String, String> errorMap) {
+//		EventSearchCriteria criteria = new EventSearchCriteria();
+//		List<String> ids = request.getEvents().stream().map(Event::getId).collect(Collectors.toList());
+//		criteria.setIds(ids);
+//		List<Event> responseFromDB = service.searchEvents(request.getRequestInfo(), criteria, true).getEvents();
+//		if (responseFromDB.size() != request.getEvents().size()) {
+//			log.info("responseFromDB: "+responseFromDB.stream().map(Event::getId).collect(Collectors.toList()));
+//			log.info("request.getEvents(): "+request.getEvents().stream().map(Event::getId).collect(Collectors.toList()));
+//
+//			errorMap.put(ErrorConstants.MEN_UPDATE_MISSING_EVENTS_CODE, ErrorConstants.MEN_UPDATE_MISSING_EVENTS_MSG);
+//		}
+//		Map<String, Event> dBEventsMap = responseFromDB.stream().collect(Collectors.toMap(Event::getId, Function.identity()));
+//		for (Event event : request.getEvents()) {
+//			if (null == event.getStatus()) {
+//				errorMap.put(ErrorConstants.MEN_UPDATE_STATUS_NOTNULL_CODE, ErrorConstants.MEN_UPDATE_STATUS_NOTNULL_MSG);
+//			}
+//			if(null != event.getEventDetails()) {
+//				if(null != dBEventsMap.get(event.getId()).getEventDetails()) {
+//					if(!event.getEventDetails().getFromDate().equals(dBEventsMap.get(event.getId()).getEventDetails().getFromDate())) {
+//						if(event.getEventDetails().getFromDate() < new Date().getTime()) {
+//							errorMap.put(ErrorConstants.INVALID_FROM_DATE_CODE, ErrorConstants.INVALID_FROM_DATE_MSG);
+//						}
+//					}
+//					if(!event.getEventDetails().getToDate().equals(dBEventsMap.get(event.getId()).getEventDetails().getToDate())) {
+//						if(event.getEventDetails().getToDate() < new Date().getTime()) {
+//							errorMap.put(ErrorConstants.INVALID_TO_DATE_CODE, ErrorConstants.INVALID_TO_DATE_MSG);
+//						}
+//					}
+//				}else {
+//					if(event.getEventDetails().getFromDate() < new Date().getTime()
+//							|| event.getEventDetails().getToDate() < new Date().getTime()) {
+//						errorMap.put(ErrorConstants.INVALID_FROM_TO_DATE_CODE, ErrorConstants.INVALID_FROM_TO_DATE_MSG);
+//					}
+//				}
+//			}
+//		}
+//		validateActions(request.getEvents(), responseFromDB, errorMap);
+//
+//		if (!CollectionUtils.isEmpty(errorMap.keySet())) {
+//			throw new CustomException(errorMap);
+//		}
+//
+//	}
 
 	/**
 	 * Validates the actions performed on an event. As follows:
@@ -145,7 +147,7 @@ public class UserEventsValidator {
 	 * @param dbEvents
 	 * @param errorMap
 	 */
-	private void validateActions(List<Event> reqEvents, List<Event> dbEvents, Map<String, String> errorMap) {
+	public void validateActions(List<Event> reqEvents, List<Event> dbEvents, Map<String, String> errorMap) {
 		Map<String, Status> mapOfIdAndCurrentState = dbEvents.stream()
 				.collect(Collectors.toMap(Event::getId, Event::getStatus));
 		reqEvents.forEach(event -> {

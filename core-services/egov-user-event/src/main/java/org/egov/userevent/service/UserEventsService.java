@@ -40,20 +40,15 @@
 
 package org.egov.userevent.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.response.ResponseInfo;
+import org.egov.tracer.model.CustomException;
 import org.egov.userevent.config.PropertiesManager;
 import org.egov.userevent.model.AuditDetails;
 import org.egov.userevent.model.LATWrapper;
@@ -62,6 +57,7 @@ import org.egov.userevent.model.RecepientEvent;
 import org.egov.userevent.model.enums.Status;
 import org.egov.userevent.producer.UserEventsProducer;
 import org.egov.userevent.repository.UserEventRepository;
+import org.egov.userevent.utils.ErrorConstants;
 import org.egov.userevent.utils.ResponseInfoFactory;
 import org.egov.userevent.utils.UserEventsConstants;
 import org.egov.userevent.utils.UserEventsUtils;
@@ -134,7 +130,7 @@ public class UserEventsService {
 	 * @return
 	 */
 	public EventResponse updateEvents(EventRequest request) {
-		validator.validateUpdateEvent(request);
+		validateUpdateEvent(request);
 		log.info("enriching and updating the event......");
 		enrichUpdateEvent(request);
 		List<Event> counterEvents = new ArrayList<>();
@@ -163,6 +159,67 @@ public class UserEventsService {
 		return EventResponse.builder()
 				.responseInfo(responseInfo.createResponseInfoFromRequestInfo(request.getRequestInfo(), true))
 				.events(request.getEvents()).build();
+	}
+
+	/**
+	 * Validator to validate the update event request
+	 *
+	 * @param request
+	 */
+	public void validateUpdateEvent(EventRequest request) {
+		Map<String, String> errorMap = new HashMap<>();
+		validateForUpdate(request, errorMap);
+		validator.validateCreateEvent(request, false);
+	}
+
+	/**
+	 * Helper method that checks if the events to be updated are existing in the system.
+	 *
+	 * @param request
+	 * @param errorMap
+	 */
+	private void validateForUpdate(EventRequest request, Map<String, String> errorMap) {
+		EventSearchCriteria criteria = new EventSearchCriteria();
+		List<String> ids = request.getEvents().stream().map(Event::getId).collect(Collectors.toList());
+		criteria.setIds(ids);
+		List<Event> responseFromDB = searchEvents(request.getRequestInfo(), criteria, true).getEvents();
+		if (responseFromDB.size() != request.getEvents().size()) {
+			log.info("responseFromDB: "+responseFromDB.stream().map(Event::getId).collect(Collectors.toList()));
+			log.info("request.getEvents(): "+request.getEvents().stream().map(Event::getId).collect(Collectors.toList()));
+
+			errorMap.put(ErrorConstants.MEN_UPDATE_MISSING_EVENTS_CODE, ErrorConstants.MEN_UPDATE_MISSING_EVENTS_MSG);
+		}
+		Map<String, Event> dBEventsMap = responseFromDB.stream().collect(Collectors.toMap(Event::getId, Function.identity()));
+		for (Event event : request.getEvents()) {
+			if (null == event.getStatus()) {
+				errorMap.put(ErrorConstants.MEN_UPDATE_STATUS_NOTNULL_CODE, ErrorConstants.MEN_UPDATE_STATUS_NOTNULL_MSG);
+			}
+			if(null != event.getEventDetails()) {
+				if(null != dBEventsMap.get(event.getId()).getEventDetails()) {
+					if(!event.getEventDetails().getFromDate().equals(dBEventsMap.get(event.getId()).getEventDetails().getFromDate())) {
+						if(event.getEventDetails().getFromDate() < new Date().getTime()) {
+							errorMap.put(ErrorConstants.INVALID_FROM_DATE_CODE, ErrorConstants.INVALID_FROM_DATE_MSG);
+						}
+					}
+					if(!event.getEventDetails().getToDate().equals(dBEventsMap.get(event.getId()).getEventDetails().getToDate())) {
+						if(event.getEventDetails().getToDate() < new Date().getTime()) {
+							errorMap.put(ErrorConstants.INVALID_TO_DATE_CODE, ErrorConstants.INVALID_TO_DATE_MSG);
+						}
+					}
+				}else {
+					if(event.getEventDetails().getFromDate() < new Date().getTime()
+							|| event.getEventDetails().getToDate() < new Date().getTime()) {
+						errorMap.put(ErrorConstants.INVALID_FROM_TO_DATE_CODE, ErrorConstants.INVALID_FROM_TO_DATE_MSG);
+					}
+				}
+			}
+		}
+		validator.validateActions(request.getEvents(), responseFromDB, errorMap);
+
+		if (!CollectionUtils.isEmpty(errorMap.keySet())) {
+			throw new CustomException(errorMap);
+		}
+
 	}
 
 	/**
