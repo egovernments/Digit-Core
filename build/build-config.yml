@@ -238,6 +238,14 @@ config:
       - work-dir: "core-services/egov-user/src/main/resources/db"
         image-name: "egov-user-db"
 
+  - name: "builds/Digit-Core/core-services/egov-user-event"
+    build:
+      - work-dir: "core-services/egov-user-event"
+        image-name: "egov-user-event"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/egov-user-event/src/main/resources/db"
+        image-name: "egov-user-event-db"
+
   - name: "builds/Digit-Core/core-services/egov-workflow-v2"
     build:
       - work-dir: "core-services/egov-workflow-v2"
