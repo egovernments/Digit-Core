@@ -1,0 +1,69 @@
+{
+  "/egov-mdms-service/.*": {
+    "in.statea": "http://egov-mdms-service.statea:8080",
+    "in.stateb": "http://egov-mdms-service.stateb:8080",
+    "in": "http://egov-mdms-service:8080"
+  },
+  "/pt-calculator-v2/.*": {
+    "in.statea": "http://pt-calculator-v2.statea:8080",
+    "in.stateb": "http://pt-calculator-v2.stateb:8080",
+    "in": "http://pt-calculator-v2.digit:8080"
+  },
+  "/property-services/.*": {
+    "in.stateb": "http://property-services.digit:8080",
+    "in.statea": "http://property-services.digit:8080"
+  },
+  "/billing-service/.*": {
+    "in.stateb": "http://billing-service.digit:8080",
+    "in.statea": "http://billing-service.digit:8080"
+  },
+  "/tl-calculator/.*": {
+    "in.statea": "http://tl-calculator.statea:8080",
+    "in.stateb": "http://tl-calculator.stateb:8080"
+  },
+  "/ws-calculator/.*": {
+    "in.statea": "http://ws-calculator.statea:8080",
+    "in.stateb": "http://ws-calculator.stateb:8080"
+  },
+  "/sw-calculator/.*": {
+    "in.statea": "http://sw-calculator.statea:8080",
+    "in.stateb": "http://sw-calculator.stateb:8080"
+  },
+  "/egov-searcher/.*": {
+    "in.statea": "http://egov-searcher.statea:8080",
+    "in.stateb": "http://egov-searcher.stateb:8080"
+  },
+  "/firenoc-calculator/.*": {
+    "in.statea": "http://firenoc-calculator.statea:8080",
+    "in.stateb": "http://firenoc-calculator.stateb:8080"
+  },
+  "/pg-service/.*": {
+    "in.statea": "http://egov-pg-service.statea:8080",
+    "in.stateb": "http://egov-pg-service.stateb:8080"
+  },
+  "/dashboard-analytics/.*": {
+    "in.statea": "http://dashboard-analytics.statea:8080",
+    "in.stateb": "http://dashboard-analytics.stateb:8080"
+  },
+  "/report/.*": {
+    "in.statea": "http://report.digit:8080",
+    "in.stateb": "http://report.digit:8080"
+  },
+  "/pdf-service/.*": {
+    "in.statea": "http://pdf-service.statea:8080",
+    "in.stateb": "http://pdf-service.stateb:8080"
+  },
+  "/filestore/.*": {
+    "in.statea": "http://egov-filestore.statea:8080",
+    "in.stateb": "http://egov-filestore.stateb:8080",
+    "in": "http://egov-filestore:8080"
+  },
+  "/echallan-calculator/.*": {
+    "in.statea": "http://echallan-calculator.statea:8080",
+    "in.stateb": "http://echallan-calculator.stateb:8080"
+  },
+  "/edcr/.*": {
+    "in.statea": "http://egov-edcr.statea:8080",
+    "in.stateb": "http://egov-edcr.stateb:8080"
+  }
+}
