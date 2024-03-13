@@ -360,7 +360,7 @@ config:
     build:
       - work-dir: "core-services/egov-user"
         image-name: "egov-user-chatbot"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-java8/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/mailbot"
     build:
