@@ -234,7 +234,7 @@ config:
     build:
       - work-dir: "core-services/egov-user"
         image-name: "egov-user"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-java8/Dockerfile"
       - work-dir: "core-services/egov-user/src/main/resources/db"
         image-name: "egov-user-db"
 
