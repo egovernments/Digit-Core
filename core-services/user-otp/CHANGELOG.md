@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.0 - 2024-02-29
+- Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
+- Upgraded java version from 1.8 to 17
+- Upgraded org.egov.services:tracer version from 2.0.0-SNAPSHOT to 2.9.0-SNAPSHOT
+
 ## 1.2.1 - 2023-08-11
 - Central Instance Library Integration
 

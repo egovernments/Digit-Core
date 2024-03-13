@@ -3,6 +3,13 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.0 - 2024-02-29
+- Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
+- Upgraded java version from 1.8 to 17
+- Upgraded lombok version from 1.18.8 to 1.18.22
+- Upgraded org.egov.services:tracer version from 2.1.0-SNAPSHOT to 2.9.0-SNAPSHOT
+- Upgraded org.egov:mdms-client version from 0.0.2-SNAPSHOT to 2.9.0-SNAPSHOT
+
 ## 1.3.3 - 2023-08-11
 - Central Instance Library Integration
 

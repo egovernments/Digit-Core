@@ -1,5 +1,15 @@
 
+# Changelog
 All notable changes to this module will be documented in this file.
+
+## 2.9.0 - 2024-02-29
+- Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
+- Upgraded java version from 1.8 to 17
+- Upgraded postgresql version to 42.7.1
+- Upgraded redis version to 3.2
+- Upgraded org.egov.services:tracer version from 2.1.0-SNAPSHOT to 2.9.0-SNAPSHOT
+- Upgraded org.flywaydb:flyway-core version from 4.1.0 to 9.22.3
+- Upgraded lombok version from 1.18.8 to 1.18.22
 
 ## 1.1.3 - 2022-01-13
 - Updated to log4j2 version 2.17.1
