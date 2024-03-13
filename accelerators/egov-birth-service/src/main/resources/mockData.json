@@ -1,0 +1,89 @@
+{
+  "ResponseInfo": {
+    "apiId": "asset-services",
+    "ver": null,
+    "ts": null,
+    "resMsgId": "uief87324",
+    "msgId": "search with from and to values",
+    "status": "successful"
+  },
+  "BirthRegistrationApplications": [
+    {
+      "id": "ca8f250d-3ac3-4702-bece-4568b92aea15",
+      "tenantId": "pb.amritsar",
+      "applicationNumber": null,
+      "babyFirstName": "Rahul",
+      "babyLastName": "Singh",
+      "father": {
+        "id": null,
+        "userName": "testerrrr_xyz",
+        "name": "Abhay2",
+        "type": null,
+        "mobileNumber": "9230011254",
+        "emailId": null,
+        "roles": [
+          {
+            "id": null,
+            "name": null,
+            "code": "CITIZEN",
+            "tenantId": null
+          }
+        ],
+        "tenantId": "pg",
+        "uuid": "06683dee-646d-416e-8279-6979c5d59a38"
+      },
+      "mother": {
+        "id": null,
+        "userName": "tester_xyz",
+        "name": "Amita",
+        "type": null,
+        "mobileNumber": "9230051254",
+        "emailId": null,
+        "roles": [
+          {
+            "id": null,
+            "name": null,
+            "code": "CITIZEN",
+            "tenantId": null
+          }
+        ],
+        "tenantId": "pg",
+        "uuid": "dd01c644-fb6d-4b9e-b016-19d000ff0dd2"
+      },
+      "doctorName": "Dr. Ram",
+      "hospitalName": "Fortis",
+      "placeOfBirth": "Palampur",
+      "timeOfBirth": 12072001,
+      "address": {
+        "id": "a6108828-a8c7-4ddd-a42f-cba060ca78cc",
+        "tenantId": "pb.amritsar",
+        "applicationNumber": "ca8f250d-3ac3-4702-bece-4568b92aea15",
+        "applicantAddress": {
+          "pinCode": null,
+          "city": "Amritsar",
+          "address": "KP Layout",
+          "type": null,
+          "id": null,
+          "tenantId": null,
+          "userId": null,
+          "addressType": null,
+          "lastModifiedDate": null,
+          "lastModifiedBy": null
+        }
+      },
+      "workflow": {
+        "action": "APPLY",
+        "comments": "Applying for birth registration",
+        "documents": null,
+        "assignes": [],
+        "rating": null
+      },
+      "auditDetails": {
+        "createdBy": "11b0e02b-0145-4de2-bc42-c97b96264807",
+        "lastModifiedBy": "11b0e02b-0145-4de2-bc42-c97b96264807",
+        "createdTime": 1710226628550,
+        "lastModifiedTime": 1710226628550
+      }
+    }
+  ]
+}
