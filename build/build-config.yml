@@ -494,3 +494,10 @@ config:
         dockerfile: frontend/micro-ui/web/docker/Dockerfile
         image-name: digit-ui
 
+#lts-demo-birth-service
+  - name: "builds/Digit-Core/accelerators/egov-birth-service"
+    build:
+      - work-dir: "accelerators/egov-birth-service"
+        dockerfile: "build/maven/Dockerfile"
+        image-name: "egov-birth-service"      
+
