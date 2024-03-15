@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -114,6 +115,18 @@ public class ExceptionUtils {
         }
 
         return null;
+    }
+
+    public static void RaiseException(Throwable ex) {
+        throw new RuntimeException(ex);
+    }
+
+    public static void raiseCustomException(HttpStatus status, String message) {
+        throw new RuntimeException(new CustomException(status.toString(), message));
+    }
+
+    public static void raiseCustomException(HttpStatusCode status, String message) {
+        throw new RuntimeException(new CustomException(status.toString(), message));
     }
 
 }

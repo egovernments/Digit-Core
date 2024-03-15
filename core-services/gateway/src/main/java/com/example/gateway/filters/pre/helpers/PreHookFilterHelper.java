@@ -1,7 +1,7 @@
 package com.example.gateway.filters.pre.helpers;
 
 import com.example.gateway.model.PreHookFilterRequest;
-import com.example.gateway.utils.URLProvider;
+import com.example.gateway.utils.UrlProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +42,8 @@ public class PreHookFilterHelper implements RewriteFunction<Map, Map> {
         String response;
 
         try {
-            log.debug("Executing pre-hook filter. Sending request to - " + URLProvider.getUrlPreHooksMap().get(uri));
-            response = restTemplate.postForObject(URLProvider.getUrlPreHooksMap().get(uri), preHookFilterRequest, String.class);
+            log.debug("Executing pre-hook filter. Sending request to - " + UrlProvider.getUrlPreHooksMap().get(uri));
+            response = restTemplate.postForObject(UrlProvider.getUrlPreHooksMap().get(uri), preHookFilterRequest, String.class);
             return Mono.just(objectMapper.convertValue(response, Map.class));
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
