@@ -37,6 +37,12 @@ public class BoundaryRelationshipQueryBuilder {
             preparedStmtList.add(boundaryRelationshipSearchCriteria.getHierarchyType());
         }
 
+        if(!ObjectUtils.isEmpty(boundaryRelationshipSearchCriteria.getParent())) {
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+            builder.append(" parent = ? ");
+            preparedStmtList.add(boundaryRelationshipSearchCriteria.getParent());
+        }
+
         if(!boundaryRelationshipSearchCriteria.getIsSearchForRootNode()) {
             if (!ObjectUtils.isEmpty(boundaryRelationshipSearchCriteria.getBoundaryType())) {
                 QueryUtil.addClauseIfRequired(builder, preparedStmtList);
