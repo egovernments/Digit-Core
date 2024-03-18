@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
-import org.egov.sunbirdrc.models.AuditDetails;
 
 @Getter
 @Setter
@@ -18,12 +17,9 @@ public class CredentialIdUuidMapper {
     @JsonProperty("uuid")
     private String uuid;
 
-    @JsonProperty("credentialId")
-    private String credentialId;
+    @JsonProperty("vcid")
+    private String vcid;
 
-    @JsonProperty("did")
-    private String issuerDid;
-
-    private AuditDetails auditDetails;
+    private String createdBy;
 
 }

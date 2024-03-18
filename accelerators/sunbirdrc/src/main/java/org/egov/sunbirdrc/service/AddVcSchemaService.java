@@ -1,8 +1,11 @@
 package org.egov.sunbirdrc.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.unix.Errors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -10,34 +13,36 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class AddVcSchemaService {
 
     private final String SCHEMA_ENDPOINT = "http://localhost:3333/credential-schema";
     private final String mdmsRequestUrl = "http://localhost:9002/mdms-v2/schema/v1/_create";
     private JsonNode mdmsDataRequestPayload;
+    private JsonNode credentialSchemaPayload;
+
+    @Autowired
+    private MdmsSchemaService mdmsSchemaService;
+
 
     public String addVcSchema(String mdmsSchema) throws JsonProcessingException {
         // Convert the received JSON string to JSON object
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode credentialSchemaPayload;
         try {
             credentialSchemaPayload = objectMapper.readValue(mdmsSchema, JsonNode.class);
-        } catch (Exception e) {
-            throw new Error("failed to convert to object",e);
+        } catch (IOException e) {
+            throw new RuntimeException("mdmsData field required in the request payload" + e.getMessage());
         }
-
-        // Remove the "mdmsData" from the payload and store it as JsonNode
-        if (credentialSchemaPayload instanceof Map) {
-            Map<String, Object> payloadMap = (Map<String, Object>) credentialSchemaPayload;
-            if (payloadMap.containsKey("mdmsData")) {
-                mdmsDataRequestPayload = objectMapper.convertValue(payloadMap.get("mdmsData"), JsonNode.class);
-                payloadMap.remove("mdmsData");
+         if (credentialSchemaPayload != null) {
+                JsonNode payloadNode =credentialSchemaPayload;
+                mdmsDataRequestPayload = payloadNode.get("mdmsData");
+                ((ObjectNode) payloadNode).remove("mdmsData");
             }
-        }
 
         // Create a new HttpHeaders object
         HttpHeaders headers = new HttpHeaders();
@@ -47,32 +52,31 @@ public class AddVcSchemaService {
         HttpEntity<Object> requestEntity = new HttpEntity<>(credentialSchemaPayload, headers);
         // Make a POST request to the schema endpoint
         ResponseEntity<String> responseEntity = new RestTemplate().exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
-
-        String schemaId=getSchemaIdFromResponse(responseEntity.getBody());
+        String addSchemaResponse=responseEntity.getBody();
+        String schemaId=getSchemaIdFromResponse(addSchemaResponse);
         // Print the response received from the request
         System.out.println("Response from schema endpoint and schema id : " + responseEntity.getBody());
         System.out.println("schema id : " + schemaId);
 
         System.out.println(addVcSchemaToMdms(credentialSchemaPayload,schemaId));
-
         return responseEntity.getBody();
     }
 
 
-    public String getSchemaIdFromResponse(String addSchemaResponse){
-        ObjectMapper objectMapper= new ObjectMapper();
+    public String getSchemaIdFromResponse(String addSchemaResponse) {
+        ObjectMapper objectMapper = new ObjectMapper();
         String schemaId;
         try {
             JsonNode responseBody = objectMapper.readTree(addSchemaResponse);
-            schemaId= responseBody.path("schema").path("id").asText();
-        } catch (Exception e) {
-            throw new Error("Error parsing credential response body", e);
+            schemaId = responseBody.path("schema").path("id").asText();
+        } catch (IOException e) {
+            // Handle parsing errors by providing a more informative error message
+            throw new RuntimeException("no Id in the response   " + e.getMessage());
         }
         return schemaId;
     }
 
     public String addVcSchemaToMdms(JsonNode mdmsDataRequestPayload,String schemaId) throws JsonProcessingException {
-        try {
             // Initialize ObjectMapper
             ObjectMapper objectMapper = new ObjectMapper();
             RestTemplate restTemplate = new RestTemplate();
@@ -84,11 +88,14 @@ public class AddVcSchemaService {
             String did = mdmsDataRequestPayload.path("schema").path("author").asText();
             String mdmsCodeName=mdmsDataRequestPayload.path("mdmsData").path("code").asText();
 
+
+        if (uuid ==null|| path == null || did == null || mdmsCodeName==null) {
+            throw new IllegalArgumentException("uuid, path, did and mdmsCodeName cannot be null");
+        }
+
             System.out.println("uuid path did and mdmsCodeName is "+uuid);
             System.out.println("uuid path did and mdmsCodeName is "+path);
-
             System.out.println("uuid path did and mdmsCodeName is "+did);
-
             System.out.println("uuid path did and mdmsCodeName is "+mdmsCodeName);
 
 
@@ -100,6 +107,7 @@ public class AddVcSchemaService {
 
             // Add uuid, did, and path to the definition node
             ObjectNode definitionNode = (ObjectNode) mdmsSchemaPayloadObject.path("SchemaDefinition").path("definition");
+            definitionNode.put("schemaId",schemaId);
             definitionNode.put("uuid", uuid);
             definitionNode.put("did", did);
             definitionNode.set("path", path);
@@ -120,9 +128,11 @@ public class AddVcSchemaService {
             System.out.println("mdms v2 Response status code: " + responseEntity.getStatusCode());
             System.out.println("mdms v2 Response body: " + responseEntity.getBody());
 
-        } catch (Exception e) {
-            throw new Error("error storing data in the mdms",e);
-        }
-        return "successfully stored in mdms";
+            mdmsSchemaService.invalidateMdmsCache("vc-mdms");
+            mdmsSchemaService.loadSchemaFromMdms();
+            String mdmsResponse= responseEntity.getBody();
+
+
+            return mdmsResponse;
     }
 }

@@ -109,8 +109,9 @@ public class MdmsSchemaService {
         stringRedisTemplate.opsForValue().set("vc-mdms", response);
     }
 
-    public Long invalidateCache(String relationName,String key){
-        return stringRedisTemplate.opsForHash().delete(relationName, key);
+
+    public Boolean invalidateMdmsCache(String key){
+        return stringRedisTemplate.delete(key);
     }
 
     public JsonNode getModuleDetailsFromMdmsData(String entityModuleName) {
@@ -122,8 +123,11 @@ public class MdmsSchemaService {
                 // Access the SchemaDefinitions array within the response
                 JsonNode schemaDefinitions = rootNode.path("SchemaDefinitions");
                 if (schemaDefinitions.isArray()) {
+                    System.out.println("inside if 1");
                     for (JsonNode definitionNode : schemaDefinitions) {
                         JsonNode keyNode = definitionNode.get("code");
+                        System.out.println("inside if 2"+keyNode);
+
                         if (keyNode != null && entityModuleName.equals(keyNode.asText())) {
                             return definitionNode;
                         }

@@ -37,7 +37,7 @@ public class CredentialUuidRepository {
     private final String sql = "SELECT uuid, vcid FROM uuid_vcid_mapper";
 
 
-    //load uuid, did,schemaid data into memory from database on load of service.
+    //load uuid, did,schemaid data into memory from database.
     @PostConstruct
     public void loadData() {
         try {
@@ -46,7 +46,7 @@ public class CredentialUuidRepository {
                 String uuid = (String) row.get("uuid");
                 String vcid = (String) row.get("vcid");
                 credentialIdUuidMapper.setUuid(uuid);
-                credentialIdUuidMapper.setCredentialId(vcid);
+                credentialIdUuidMapper.setVcid(vcid);
                 String json = convertObjectToJson(credentialIdUuidMapper); // Convert to JSON
                 if (json != null) { // Check if JSON conversion was successful
                     stringRedisTemplate.opsForHash().put("uuid_vcid_mapper", uuid, json);
@@ -54,9 +54,8 @@ public class CredentialUuidRepository {
                     log.error("Failed to convert rowData to JSON for UUID: {}", uuid);
                 }
             }
-            log.info("Loaded data from Redis cache");
-            String sampleValue = (String) stringRedisTemplate.opsForHash().get("uuid_vcid_mapper","0ca132eb-d1e4-4232-a195-a535fd1795ed");
-            log.info("Sample data loaded for UUID '0ca132eb-d1e4-4232-a195-a535fd1795ed': {}", sampleValue);
+            log.info("Loading data from Redis cache");
+            System.out.println("loaded data from redis cache");
         } catch (DataAccessException e) {
             log.error("Database access error during data loading", e);
         } catch (Exception e) {
@@ -64,7 +63,7 @@ public class CredentialUuidRepository {
         }
     }
 
-    public CredentialIdUuidMapper getRowData(String uuid) {
+    public CredentialIdUuidMapper getUuidVcidMapperRow(String uuid) {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = (String) stringRedisTemplate.opsForHash().get("uuid_vcid_mapper", uuid);
         if (json != null && !json.isEmpty()) {
@@ -76,6 +75,10 @@ public class CredentialUuidRepository {
             }
         }
         return null;
+    }
+
+    public Long invalidateCache(String relationName,String key){
+        return stringRedisTemplate.opsForHash().delete(relationName, key);
     }
 
     // Utility method to convert object to JSON string
