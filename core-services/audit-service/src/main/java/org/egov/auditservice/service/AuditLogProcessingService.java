@@ -1,6 +1,5 @@
 package org.egov.auditservice.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.auditservice.producer.Producer;
 import org.egov.auditservice.repository.AuditServiceRepository;
 import org.egov.auditservice.repository.ServiceRequestRepository;
@@ -16,11 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AuditLogProcessingService {
@@ -56,8 +51,7 @@ public class AuditLogProcessingService {
     @Autowired
     private ServiceRequestRepository serviceRequestRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+
 
     public List<AuditLog> process(AuditLogRequest request) {
 
@@ -85,17 +79,11 @@ public class AuditLogProcessingService {
 
         EncryptionRequest encRequests = EncryptionRequest.builder().encryptionRequests(encRequestList).build();
         String encUri = getEncUri();
-        Object response = serviceRequestRepository.fetchResult(encUri, encRequests);
-        EncryptionResponse encResponse = objectMapper.convertValue(response, EncryptionResponse.class);
-        List<Map<String, Object>> encResponseList = encResponse.getEncResponseList();
-
-//        EncryptionResponse encResponse = encryptionDecryptionUtil.encryptObject(encRequests,"EncryptionResponse", request.getAuditLogs().get(0).getTenantId(), EncryptionResponse.class );
-//        List<Map<String, Object>> encResponseList = encResponse.getEncResponseList();
-
+        LinkedList<Map<String, Object>> response = serviceRequestRepository.fetchEncResult(encUri, encRequests);
 
         // Iterate over both lists simultaneously
-        for (int i = 0; i < encResponseList.size(); i++) {
-            Map<String, Object> keyValueMap = encResponseList.get(i);
+        for (int i = 0; i < response.size(); i++) {
+            Map<String, Object> keyValueMap = response.get(i);
             request.getAuditLogs().get(i).setKeyValueMap(keyValueMap);
         }
 
@@ -116,20 +104,18 @@ public class AuditLogProcessingService {
             return new ArrayList<>();
 
         //Decrypting keyValueMap
-        List<Map<String, Object>> decRequestList = new ArrayList<>();
+        LinkedList<Map<String, Object>> decRequestList = new LinkedList<>();
         auditLogs.forEach(auditLog -> {
             decRequestList.add(auditLog.getKeyValueMap());
         });
         EncryptionResponse decRequest = EncryptionResponse.builder().encResponseList(decRequestList).build();
 
         String decUri = getDecUri();
-        Object response = serviceRequestRepository.fetchResult(decUri, decRequest);
-        EncryptionResponse decResponse = objectMapper.convertValue(response, EncryptionResponse.class);
-        List<Map<String, Object>> decResponseList = decResponse.getEncResponseList();
+        LinkedList<Map<String, Object>> response = serviceRequestRepository.fetchEncResult(decUri, decRequest);
 
         // Iterate over both lists simultaneously
-        for (int i = 0; i < decResponseList.size(); i++) {
-            Map<String, Object> keyValueMap = decResponseList.get(i);
+        for (int i = 0; i < response.size(); i++) {
+            Map<String, Object> keyValueMap = response.get(i);
             auditLogs.get(i).setKeyValueMap(keyValueMap);
         }
 
@@ -150,27 +136,6 @@ public class AuditLogProcessingService {
         StringBuilder signUri = new StringBuilder(encHost);
         signUri.append(encDecryptEndpoint);
         return signUri.toString();
-    }
-
-    public Map<String, Object> objectToMap(Object obj) {
-        Map<String, Object> map = new HashMap<>();
-        // Get all fields of the object using reflection
-        Field[] fields = obj.getClass().getDeclaredFields();
-        // Iterate over the fields
-        for (Field field : fields) {
-            try {
-                // Make the field accessible (in case it's private)
-                field.setAccessible(true);
-                // Get the value of the field from the object
-                Object value = field.get(obj);
-                // Put the field name and value into the map
-                map.put(field.getName(), value);
-            } catch (IllegalAccessException e) {
-                // Handle IllegalAccessException
-                e.printStackTrace();
-            }
-        }
-        return map;
     }
 
 }

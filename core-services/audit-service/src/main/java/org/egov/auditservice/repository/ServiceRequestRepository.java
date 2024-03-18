@@ -2,16 +2,14 @@ package org.egov.auditservice.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import jakarta.validation.OverridesAttribute;
 import lombok.extern.slf4j.Slf4j;
-import org.egov.auditservice.web.models.encryptionclient.EncryptionResponse;
 import org.egov.tracer.model.ServiceCallException;
-import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.LinkedList;
 import java.util.Map;
 
 @Repository
@@ -35,6 +33,21 @@ public class ServiceRequestRepository {
         Object response = null;
         try {
             response = restTemplate.postForObject(uri, request, Map.class);
+        }catch(HttpClientErrorException e) {
+            log.error("External Service threw an Exception: ",e);
+            throw new ServiceCallException(e.getResponseBodyAsString());
+        }catch(Exception e) {
+            log.error("Exception while fetching from searcher: ",e);
+        }
+
+        return response;
+    }
+
+    public LinkedList<Map<String, Object>> fetchEncResult(String uri, Object request) {
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        LinkedList<Map<String,Object>> response = null;
+        try {
+            response = restTemplate.postForObject(uri, request, LinkedList.class);
         }catch(HttpClientErrorException e) {
             log.error("External Service threw an Exception: ",e);
             throw new ServiceCallException(e.getResponseBodyAsString());

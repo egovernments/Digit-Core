@@ -1,9 +1,8 @@
 package org.egov.auditservice.web.models.encryptionclient;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 
 @Getter
@@ -13,5 +12,5 @@ import java.util.Map;
 @Builder
 public class EncryptionResponse {
 
-    private List<Map<String, Object>> encResponseList = null;
+    private LinkedList<Map<String, Object>> encResponseList = null;
 }
