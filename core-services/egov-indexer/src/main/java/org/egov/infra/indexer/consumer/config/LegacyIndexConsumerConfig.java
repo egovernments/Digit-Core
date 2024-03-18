@@ -1,10 +1,7 @@
 package org.egov.infra.indexer.consumer.config;
 
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -29,7 +26,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.util.CollectionUtils;
 
 
 @Configuration
@@ -81,7 +78,10 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
     public String setTopics(){
     	String[] excludeArray = {ptLegacyTopic, pgrLegacyTopic};
     	int noOfExculdedTopics = 0;
-    	List<String> topicsList = runner.getTopicMaps().get(ConfigKeyEnum.LEGACYINDEX.toString());
+		List<String> topicsList = new ArrayList<>();
+		if(!CollectionUtils.isEmpty(runner.getTopicMaps().get(ConfigKeyEnum.LEGACYINDEX.toString()))) {
+			topicsList.addAll(runner.getTopicMaps().get(ConfigKeyEnum.LEGACYINDEX.toString()));
+		}
     	topicsList.add(legacyIndexTopic);
     	for(String excludeTopic: excludeArray) {
     		if(topicsList.contains(excludeTopic)) noOfExculdedTopics++;
