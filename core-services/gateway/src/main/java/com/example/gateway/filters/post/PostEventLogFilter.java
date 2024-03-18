@@ -8,6 +8,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyResponseBodyGatewayFilterFactory;
 import org.springframework.core.Ordered;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -25,6 +26,12 @@ public class PostEventLogFilter implements GlobalFilter , Ordered {
     @Value("${eventlog.topic}")
     String eventLogSuccessTopic;
 
+    @Value("${egov.custom.async.filter.topic}")
+    private String topic;
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
     @Value("#{'${eventlog.urls.whitelist}'.split(',')}")
     private List<String> urlsWhiteList;
 
@@ -34,23 +41,29 @@ public class PostEventLogFilter implements GlobalFilter , Ordered {
     @Autowired
     private ModifyResponseBodyGatewayFilterFactory modifyResponseBodyGatewayFilter;
 
+    @Autowired
+    private CustomAsyncFilter customAsyncFilter;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         String requestURL = exchange.getRequest().getURI().toString();
         Boolean toLog = urlsWhiteList.stream().anyMatch(url -> requestURL.startsWith(url)) || urlsWhiteList.isEmpty();
-
-       return modifyResponseBodyGatewayFilter.apply(new ModifyResponseBodyGatewayFilterFactory
-                .Config()
-                .setRewriteFunction(Map.class,Map.class,
-                (exchange1, body) -> {
-
-                    if(eventLogEnabled && toLog)
-                        eventLoggerUtil.logCurrentRequest(exchange1,body,eventLogSuccessTopic);
-
-                    return Mono.just(body);
-                }
-                )).filter(exchange, chain);
+        return customAsyncFilter.apply(new ModifyResponseBodyGatewayFilterFactory.Config()).filter(exchange, chain);
+//        kafkaTemplate.send(topic, exchange.getRequest().getURI().toString());
+//       return modifyResponseBodyGatewayFilter.apply(new ModifyResponseBodyGatewayFilterFactory
+//                .Config()
+//                .setRewriteFunction(Map.class,Map.class,
+//                (exchange1, body) -> {
+//
+//                    kafkaTemplate.send(topic, body);
+//
+//                    if(eventLogEnabled && toLog)
+//                        eventLoggerUtil.logCurrentRequest(exchange1,body,eventLogSuccessTopic);
+//
+//                    return Mono.just(body);
+//                }
+//                )).filter(exchange, chain);
 
     }
 
