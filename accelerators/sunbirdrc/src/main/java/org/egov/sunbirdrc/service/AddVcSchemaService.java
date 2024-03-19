@@ -81,22 +81,11 @@ public class AddVcSchemaService {
             // Initialize ObjectMapper
             ObjectMapper objectMapper = new ObjectMapper();
             RestTemplate restTemplate = new RestTemplate();
-
-            System.out.println("mdms payload redceieved is "+mdmsDataRequestPayload);
             // Create the payload
             String uuid = mdmsDataRequestPayload.path("mdmsData").path("uuid").asText();
             JsonNode path = mdmsDataRequestPayload.path("mdmsData").path("path");
             String did = mdmsDataRequestPayload.path("schema").path("author").asText();
             String mdmsCodeName=mdmsDataRequestPayload.path("mdmsData").path("code").asText();
-
-
-
-
-            System.out.println("uuid path did and mdmsCodeName is "+uuid);
-            System.out.println("uuid path did and mdmsCodeName is "+path);
-            System.out.println("uuid path did and mdmsCodeName is "+did);
-            System.out.println("uuid path did and mdmsCodeName is "+mdmsCodeName);
-
 
             String mdmsSchemaPayload = "{\"RequestInfo\":{\"apiId\":\"Rainmaker\",\"authToken\":\"8c68a385-196a-4790-8aee-42323faef9ad\",\"userInfo\":{\"id\":595,\"uuid\":\"1fda5623-448a-4a59-ad17-657986742d67\",\"userName\":\"UNIFIED_DEV_USERR\",\"name\":\"Unified dev user\",\"mobileNumber\":\"8788788851\",\"emailId\":\"\",\"locale\":null,\"type\":\"EMPLOYEE\",\"roles\":[{\"name\":\"Localisation admin\",\"code\":\"LOC_ADMIN\",\"tenantId\":\"pg\"},{\"name\":\"Employee\",\"code\":\"EMPLOYEE\",\"tenantId\":\"pg\"},{\"name\":\"MDMS Admin\",\"code\":\"MDMS_ADMIN\",\"tenantId\":\"pg\"},{\"name\":\"SUPER USER\",\"code\":\"SUPERUSER\",\"tenantId\":\"pg\"}],\"active\":true,\"tenantId\":\"pg\",\"permanentCity\":null},\"msgId\":\"1695889012604|en_IN\",\"plainAccessRequest\":{}},\"SchemaDefinition\":{\"tenantId\":\"default\",\"code\":\"VerifiableCredentials.test2\",\"description\":\"Trade type for trade license applications\",\"definition\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"type\":\"object\",\"required\":[\"path\"],\"x-unique\":[\"path\"]},\"isActive\":true}}";
             JsonNode mdmsSchemaPayloadObject = objectMapper.readTree(mdmsSchemaPayload);
@@ -111,9 +100,6 @@ public class AddVcSchemaService {
             definitionNode.put("did", did);
             definitionNode.set("path", path);
 
-            System.out.println("mdms payload objects is "+ mdmsSchemaPayloadObject);
-            // Define the URL
-
             // Set up headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -122,10 +108,6 @@ public class AddVcSchemaService {
 
             // Make the POST request
             ResponseEntity<String> responseEntity = restTemplate.exchange(mdmsRequestUrl, HttpMethod.POST, requestEntity, String.class);
-
-            // Print the response
-            System.out.println("mdms v2 Response status code: " + responseEntity.getStatusCode());
-            System.out.println("mdms v2 Response body: " + responseEntity.getBody());
 
             mdmsSchemaService.invalidateMdmsCache("vc-mdms");
             mdmsSchemaService.loadSchemaFromMdms();

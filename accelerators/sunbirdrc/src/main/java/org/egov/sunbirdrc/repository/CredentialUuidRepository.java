@@ -55,7 +55,6 @@ public class CredentialUuidRepository {
                 }
             }
             log.info("Loading data from Redis cache");
-            System.out.println("loaded data from redis cache");
         } catch (DataAccessException e) {
             log.error("Database access error during data loading", e);
         } catch (Exception e) {

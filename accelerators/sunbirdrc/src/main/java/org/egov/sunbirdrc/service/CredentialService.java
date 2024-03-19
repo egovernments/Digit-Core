@@ -53,15 +53,12 @@ public class CredentialService {
     public void processPayloadAndPersistCredential(String entityRequestPayload,String topic) {
         try{
 
-            System.out.println("message receieved is" + entityRequestPayload);
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode requestPayload = objectMapper.readTree(entityRequestPayload);
             String entityModuleName = requestPayload.path("module").asText();
-            System.out.println("entity module name is " + entityModuleName);
 
             JsonNode mdmsModuleObject = mdmsSchemaService.getModuleDetailsFromMdmsData(entityModuleName);
 
-            System.out.println("mdms module object is "+ mdmsModuleObject);
             //get did, schemaId, uuid and jsonpath details from the mdms object
             String entityDid= getDidFromModuleObject(mdmsModuleObject);
             String entitySchemaId=getSchemaIdFromModuleObject(mdmsModuleObject);
@@ -69,11 +66,6 @@ public class CredentialService {
             JsonNode listofJsonPaths= getAllFieldPathFromMdms(mdmsModuleObject);
 
             JsonNode payloadFromJsonPath= extractPayloadFromJsonPath(listofJsonPaths,requestPayload,entityDid);
-            System.out.println("payload from json path is"+payloadFromJsonPath);
-            System.out.println("the required mdms object is "+mdmsModuleObject);
-            System.out.println("the entity id is "+entityDid);
-            System.out.println("the schema id is "+entitySchemaId);
-            System.out.println("the list of field json path is "+listofJsonPaths);
             //check condition for create-vc and recreate-vc
             if (topic.equals("recreate-vc")){
                 CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(uuid);
@@ -92,7 +84,6 @@ public class CredentialService {
             }
             else{
                 String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath);
-                System.out.println("credentialIdUuidData to be pushed"+credentialIdUuidData);
                 if (credentialIdUuidData!=null){
                     producer.push(saveVcidTopic, credentialIdUuidData);
                 }
@@ -130,10 +121,8 @@ public class CredentialService {
     public JsonNode getAllFieldPathFromMdms(JsonNode mdmsModuleObject){
         if (mdmsModuleObject != null && mdmsModuleObject.has("definition")) {
             JsonNode definitionNode = mdmsModuleObject.get("definition");
-            System.out.println("node value"+definitionNode);
             if (definitionNode != null && definitionNode.has("path")) {
                 JsonNode fieldJsonPathList = definitionNode.get("path");
-                System.out.println("path array value"+fieldJsonPathList);
                 return fieldJsonPathList;
             }
         }
@@ -149,9 +138,6 @@ public class CredentialService {
             try {
                 Object fieldValue = JsonPath.read(requestPayload.toString(), fieldPath);
                 String lastKey = fieldPath.substring(fieldPath.lastIndexOf('.') + 1);
-                System.out.println("field value and last key"+ fieldValue);
-                System.out.println("field value and last key"+ lastKey);
-
                 if (fieldValue != null) {
                     credentialPayloadData.put(lastKey, fieldValue.toString());
                 } else {
@@ -183,8 +169,6 @@ public class CredentialService {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             String credentialRequestPayload = objectMapper.writeValueAsString(credentialPayload);
-
-            System.out.println("the rquest payload for the credential subject is"+credentialRequestPayload);
             // Define the request body
             String requestBody = "{\n" +
                     "    \"credential\": {\n" +
@@ -207,16 +191,10 @@ public class CredentialService {
 
             // Create the request entity
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            System.out.println("check request entity"+ requestEntity);
             // Make the HTTP POST request
             ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl, HttpMethod.POST, requestEntity, String.class);
             credentialIdUuidMapper.setVcid(getIdFromResponse(response));
 
-            // Print the response
-            System.out.println("Response status code: " + response.getStatusCode());
-            System.out.println("Response body: " + response.getBody());
-            System.out.println(credentialIdUuidMapper.getVcid());
             credentialIdUuidMapper.setUuid(uuid);
             credentialIdUuidMapper.setCreatedBy(did);
             return objectMapper.writeValueAsString(credentialIdUuidMapper);

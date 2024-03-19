@@ -105,7 +105,6 @@ public class MdmsSchemaService {
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 
         String response = restTemplate.postForObject(getSchemaUrl, entity, String.class);
-        System.out.println("Response from MDMS schema: " + response);
         stringRedisTemplate.opsForValue().set("vc-mdms", response);
     }
 
@@ -117,17 +116,13 @@ public class MdmsSchemaService {
     public JsonNode getModuleDetailsFromMdmsData(String entityModuleName) {
         try {
             String response = stringRedisTemplate.opsForValue().get("vc-mdms");
-            System.out.println("response from cache"+response);
             if (response != null) {
                 JsonNode rootNode = objectMapper.readTree(response);
                 // Access the SchemaDefinitions array within the response
                 JsonNode schemaDefinitions = rootNode.path("SchemaDefinitions");
                 if (schemaDefinitions.isArray()) {
-                    System.out.println("inside if 1");
                     for (JsonNode definitionNode : schemaDefinitions) {
                         JsonNode keyNode = definitionNode.get("code");
-                        System.out.println("inside if 2"+keyNode);
-
                         if (keyNode != null && entityModuleName.equals(keyNode.asText())) {
                             return definitionNode;
                         }
