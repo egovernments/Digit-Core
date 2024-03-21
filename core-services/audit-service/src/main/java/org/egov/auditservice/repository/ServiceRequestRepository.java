@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.LinkedList;
 import java.util.Map;
 
 @Repository
@@ -32,6 +33,21 @@ public class ServiceRequestRepository {
         Object response = null;
         try {
             response = restTemplate.postForObject(uri, request, Map.class);
+        }catch(HttpClientErrorException e) {
+            log.error("External Service threw an Exception: ",e);
+            throw new ServiceCallException(e.getResponseBodyAsString());
+        }catch(Exception e) {
+            log.error("Exception while fetching from searcher: ",e);
+        }
+
+        return response;
+    }
+
+    public LinkedList<Object> fetchEncResult(String uri, Object request) {
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        LinkedList<Object> response = new LinkedList<>();
+        try {
+            response = restTemplate.postForObject(uri, request, LinkedList.class);
         }catch(HttpClientErrorException e) {
             log.error("External Service threw an Exception: ",e);
             throw new ServiceCallException(e.getResponseBodyAsString());
