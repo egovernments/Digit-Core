@@ -1,8 +1,10 @@
 package org.egov.infra.indexer.consumer.config;
 
 
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
@@ -26,7 +28,6 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 
 
 @Configuration
@@ -72,14 +73,11 @@ public class ReindexConsumerConfig implements ApplicationRunner {
     
     public String setTopics(){
     	Map<String, List<String>> topicsMap = runner.getTopicMaps();
-		List<String> topicsList = new ArrayList<>();
-		if(!CollectionUtils.isEmpty(topicsMap.get(ConfigKeyEnum.REINDEX.toString()))){
-			topicsList.addAll(topicsMap.get(ConfigKeyEnum.REINDEX.toString()));
-		}
+		List<String> topicsList = topicsMap.get(ConfigKeyEnum.REINDEX.toString());
     	topicsList.add(reindexTopic);
-    	String[] topicsArray = new String[topicsList.size()];
+		String[] topicsArray = new String[topicsMap.get(ConfigKeyEnum.REINDEX.toString()).size()];
     	int i = 0;
-    	for(String topic : topicsList){
+    	for(String topic : topicsMap.get(ConfigKeyEnum.REINDEX.toString())){
     		topicsArray[i] = topic; i++;
     	}
     	this.topics = topicsArray;  
