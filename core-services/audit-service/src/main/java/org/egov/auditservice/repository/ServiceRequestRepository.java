@@ -43,9 +43,9 @@ public class ServiceRequestRepository {
         return response;
     }
 
-    public LinkedList<Map<String, Object>> fetchEncResult(String uri, Object request) {
+    public LinkedList<Object> fetchEncResult(String uri, Object request) {
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        LinkedList<Map<String,Object>> response = null;
+        LinkedList<Object> response = new LinkedList<>();
         try {
             response = restTemplate.postForObject(uri, request, LinkedList.class);
         }catch(HttpClientErrorException e) {

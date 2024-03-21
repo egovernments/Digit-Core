@@ -67,25 +67,26 @@ public class AuditLogProcessingService {
         // Enrich audit logs
         enrichmentService.enrichAuditLogs(request);
 
-        // Sign incoming data before persisting
-        List<AuditLog> signedAuditLogs = chooseSignerAndVerifier.selectImplementationAndSign(request);
-
         // Encrypting keyValueMap before persisting
         List<EncReqObject> encRequestList = new ArrayList<>();
         request.getAuditLogs().forEach(auditLog -> {
-            EncReqObject encRequest = EncReqObject.builder().tenantId(auditLog.getTenantId()).type("Imp").value(auditLog.getKeyValueMap()).build();
-            encRequestList.add(encRequest);
+            EncReqObject encReqObject = EncReqObject.builder().tenantId(auditLog.getTenantId()).type("Imp").value(auditLog.getKeyValueMap()).build();
+            encRequestList.add(encReqObject);
         });
 
         EncryptionRequest encRequests = EncryptionRequest.builder().encryptionRequests(encRequestList).build();
         String encUri = getEncUri();
-        LinkedList<Map<String, Object>> response = serviceRequestRepository.fetchEncResult(encUri, encRequests);
+        LinkedList<Object> response = serviceRequestRepository.fetchEncResult(encUri, encRequests);
 
         // Iterate over both lists simultaneously
         for (int i = 0; i < response.size(); i++) {
-            Map<String, Object> keyValueMap = response.get(i);
+            Map<String, Object> keyValueMap = (Map) response.get(i);
             request.getAuditLogs().get(i).setKeyValueMap(keyValueMap);
         }
+
+        // Sign incoming data before persisting
+        List<AuditLog> signedAuditLogs = chooseSignerAndVerifier.selectImplementationAndSign(request);
+
 
         // Persister will handle persisting audit records
         producer.push(auditTopic, request);
@@ -104,18 +105,18 @@ public class AuditLogProcessingService {
             return new ArrayList<>();
 
         //Decrypting keyValueMap
-        LinkedList<Map<String, Object>> decRequestList = new LinkedList<>();
+        List<Object> decRequestList = new ArrayList<>();
         auditLogs.forEach(auditLog -> {
             decRequestList.add(auditLog.getKeyValueMap());
         });
-        EncryptionResponse decRequest = EncryptionResponse.builder().encResponseList(decRequestList).build();
+
 
         String decUri = getDecUri();
-        LinkedList<Map<String, Object>> response = serviceRequestRepository.fetchEncResult(decUri, decRequest);
+        LinkedList<Object> response = serviceRequestRepository.fetchEncResult(decUri, decRequestList);
 
         // Iterate over both lists simultaneously
         for (int i = 0; i < response.size(); i++) {
-            Map<String, Object> keyValueMap = response.get(i);
+            Map<String, Object> keyValueMap = (Map) response.get(i);
             auditLogs.get(i).setKeyValueMap(keyValueMap);
         }
 
