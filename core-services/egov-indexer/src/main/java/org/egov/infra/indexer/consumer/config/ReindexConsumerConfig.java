@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
@@ -29,7 +28,6 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 
 @Configuration
@@ -75,9 +73,9 @@ public class ReindexConsumerConfig implements ApplicationRunner {
     
     public String setTopics(){
     	Map<String, List<String>> topicsMap = runner.getTopicMaps();
-    	List<String> topicsList = topicsMap.get(ConfigKeyEnum.REINDEX.toString());
+		List<String> topicsList = topicsMap.get(ConfigKeyEnum.REINDEX.toString());
     	topicsList.add(reindexTopic);
-    	String[] topicsArray = new String[topicsMap.get(ConfigKeyEnum.REINDEX.toString()).size()];
+		String[] topicsArray = new String[topicsMap.get(ConfigKeyEnum.REINDEX.toString()).size()];
     	int i = 0;
     	for(String topic : topicsMap.get(ConfigKeyEnum.REINDEX.toString())){
     		topicsArray[i] = topic; i++;

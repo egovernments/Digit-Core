@@ -31,7 +31,6 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import lombok.extern.slf4j.Slf4j;
 
 
-
 @Configuration
 @EnableKafka
 @PropertySource("classpath:application.properties")
@@ -81,7 +80,7 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
     public String setTopics(){
     	String[] excludeArray = {ptLegacyTopic, pgrLegacyTopic};
     	int noOfExculdedTopics = 0;
-    	List<String> topicsList = runner.getTopicMaps().get(ConfigKeyEnum.LEGACYINDEX.toString());
+		List<String> topicsList = runner.getTopicMaps().get(ConfigKeyEnum.LEGACYINDEX.toString());
     	topicsList.add(legacyIndexTopic);
     	for(String excludeTopic: excludeArray) {
     		if(topicsList.contains(excludeTopic)) noOfExculdedTopics++;

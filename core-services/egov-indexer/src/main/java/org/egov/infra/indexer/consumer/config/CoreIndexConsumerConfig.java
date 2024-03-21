@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
@@ -30,7 +29,6 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 
 @Configuration
@@ -106,7 +104,7 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     public String setTopics(){
     	String[] excludeArray = {pgrCreateTopic, pgrUpdateTopic, ptCreateTopic, ptUpdateTopic, pgrServicesCreateTopic, pgrServicesBatchCreateTopic,bpaCreateTopic,bpaUpdateTopic,bpaUpdateWorkflowTopic};
     	int noOfExculdedTopics = 0;
-    	List<String> topicsList = runner.getTopicMaps().get(ConfigKeyEnum.INDEX.toString());
+		List<String> topicsList = runner.getTopicMaps().get(ConfigKeyEnum.INDEX.toString());
     	for(String excludeTopic: excludeArray) {
     		if(topicsList.contains(excludeTopic)) noOfExculdedTopics++;
     	}
