@@ -28,7 +28,7 @@ public class ResponseEnhancementFilter implements GlobalFilter , Ordered {
 
         try {
             logger.info(RECEIVED_RESPONSE_MESSAGE, exchange.getResponse().getStatusCode(), exchange.getRequest().getURI());
-            exchange.getResponse().getHeaders().add(CORRELATION_HEADER_NAME, exchange.getAttributes().get(CORRELATION_ID_KEY).toString());
+            exchange.getResponse().getHeaders().add(CORRELATION_HEADER_NAME, exchange.getAttributes().getOrDefault(CORRELATION_ID_KEY,"").toString());
             exchange.getResponse().getHeaders().add("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
             return chain.filter(exchange);
         } catch (Exception e) {

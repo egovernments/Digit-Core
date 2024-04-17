@@ -1,5 +1,6 @@
 package com.example.gateway.filters.pre;
 
+import com.example.gateway.config.ApplicationProperties;
 import com.example.gateway.filters.pre.helpers.RbacPreCheckFilterHelper;
 import com.example.gateway.filters.pre.helpers.RbacPreCheckFormDataFilterHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +14,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
-import static com.example.gateway.constants.GatewayConstants.FORM_DATA;
-import static com.example.gateway.constants.GatewayConstants.X_WWW_FORM_URLENCODED_TYPE;
+import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
 @Component
@@ -24,32 +25,29 @@ public class RbacPreCheckFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
 
-    private RbacPreCheckFilterHelper rbacPreCheckFilterHelper;
+    private final List<String> anonymousEndpointsWhitelist;
 
-    private RbacPreCheckFormDataFilterHelper rbacPreCheckFormDataFilterHelper;
+    private final ApplicationProperties applicationProperties;
 
-    public RbacPreCheckFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter, RbacPreCheckFilterHelper rbacPreCheckFilterHelper, RbacPreCheckFormDataFilterHelper rbacPreCheckFormDataFilterHelper) {
+    public RbacPreCheckFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter, List<String> anonymousEndpointsWhitelist, ApplicationProperties applicationProperties) {
         this.modifyRequestBodyFilter = modifyRequestBodyFilter;
-        this.rbacPreCheckFilterHelper = rbacPreCheckFilterHelper;
-        this.rbacPreCheckFormDataFilterHelper = rbacPreCheckFormDataFilterHelper;
+        this.anonymousEndpointsWhitelist = anonymousEndpointsWhitelist;
+        this.applicationProperties = applicationProperties;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-        String contentType = exchange.getRequest().getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+        String endPointPath = exchange.getRequest().getPath().value();
 
-        if (contentType != null && (contentType.contains(FORM_DATA) || contentType.contains(X_WWW_FORM_URLENCODED_TYPE))) {
-            return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                            .setRewriteFunction(MultiValueMap.class, MultiValueMap.class,rbacPreCheckFormDataFilterHelper ))
-                            .filter(exchange, chain);
+        if(applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath) || anonymousEndpointsWhitelist.contains(endPointPath)){
+            exchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, false);
+            log.info(SKIP_RBAC, endPointPath);
         }
         else {
-
-            return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                            .setRewriteFunction(Map.class, Map.class, rbacPreCheckFilterHelper))
-                    .filter(exchange, chain);
+            exchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, true);
         }
+        return  chain.filter(exchange);
 
     }
 
