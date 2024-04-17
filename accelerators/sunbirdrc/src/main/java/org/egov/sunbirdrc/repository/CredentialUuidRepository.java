@@ -24,7 +24,6 @@ public class CredentialUuidRepository {
 
     private StringRedisTemplate stringRedisTemplate;
 
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired

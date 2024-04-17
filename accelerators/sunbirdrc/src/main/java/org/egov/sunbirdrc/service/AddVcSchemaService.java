@@ -29,11 +29,15 @@ public class AddVcSchemaService {
 
     @Autowired
     private MdmsSchemaService mdmsSchemaService;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
 
     public String addVcSchema(String mdmsSchema) throws JsonProcessingException {
         // Convert the received JSON string to JSON object
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             credentialSchemaPayload = objectMapper.readValue(mdmsSchema, JsonNode.class);
             vcSchemaPayload = credentialSchemaPayload.deepCopy();
@@ -46,26 +50,21 @@ public class AddVcSchemaService {
         // Create a new HttpHeaders object
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        System.out.println("vc schema payload"+ vcSchemaPayload);
-        System.out.println("cred payload"+ credentialSchemaPayload);
-
         // Create a new HttpEntity with the modified payload and headers
         HttpEntity<Object> requestEntity = new HttpEntity<>(vcSchemaPayload, headers);
         // Make a POST request to the schema endpoint
-        ResponseEntity<String> responseEntity = new RestTemplate().exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
         String addSchemaResponse=responseEntity.getBody();
         String schemaId=getSchemaIdFromResponse(addSchemaResponse);
         // Print the response received from the request
-        System.out.println("Response from schema endpoint and schema id : " + responseEntity.getBody());
-        System.out.println("schema id : " + schemaId);
 
-        System.out.println(addVcSchemaToMdms(credentialSchemaPayload,schemaId));
+        String mdmsResponse=addVcSchemaToMdms(credentialSchemaPayload,schemaId);
+        log.info("mdms response on adding the schema"+ mdmsResponse);
         return responseEntity.getBody();
     }
 
 
     public String getSchemaIdFromResponse(String addSchemaResponse) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String schemaId;
         try {
             JsonNode responseBody = objectMapper.readTree(addSchemaResponse);
@@ -78,9 +77,6 @@ public class AddVcSchemaService {
     }
 
     public String addVcSchemaToMdms(JsonNode mdmsDataRequestPayload,String schemaId) throws JsonProcessingException {
-            // Initialize ObjectMapper
-            ObjectMapper objectMapper = new ObjectMapper();
-            RestTemplate restTemplate = new RestTemplate();
             // Create the payload
             String uuid = mdmsDataRequestPayload.path("mdmsData").path("uuid").asText();
             JsonNode path = mdmsDataRequestPayload.path("mdmsData").path("path");
@@ -112,7 +108,6 @@ public class AddVcSchemaService {
             mdmsSchemaService.invalidateMdmsCache("vc-mdms");
             mdmsSchemaService.loadSchemaFromMdms();
             String mdmsResponse= responseEntity.getBody();
-
 
             return mdmsResponse;
     }

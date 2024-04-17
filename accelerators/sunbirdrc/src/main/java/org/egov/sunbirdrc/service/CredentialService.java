@@ -48,6 +48,12 @@ public class CredentialService {
     @Autowired
     private RevokeCredentialService revokeCredentialService;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
 
 
     public void processPayloadAndPersistCredential(String entityRequestPayload,String topic) {
@@ -162,7 +168,6 @@ public class CredentialService {
        if (did == null || schemaId == null || uuid == null) {
            throw new IllegalArgumentException("Did, schemaId and uuid cannot be null");
        }
-        RestTemplate restTemplate = new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
         HttpHeaders headers = new HttpHeaders();
         try{
@@ -208,14 +213,11 @@ public class CredentialService {
 
     public String getCredential(String entityId){
         CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
-
-        System.out.println(credentialUuidObject.getVcid());
         return credentialUuidObject.getVcid();
     }
 
 
     private String getIdFromResponse(ResponseEntity<String> response) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(response.getBody());
         JsonNode credentialNode = rootNode.path("credential");
         return credentialNode.path("id").asText();

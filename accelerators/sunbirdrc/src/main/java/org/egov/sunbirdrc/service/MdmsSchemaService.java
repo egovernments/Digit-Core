@@ -28,12 +28,15 @@ public class MdmsSchemaService {
     @Value("${sunbird.mdms.auth.token}")
     private String mdmsToken;
 
+    @Autowired
     private ObjectMapper objectMapper;
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    private RestTemplate restTemplate;
 
-    public MdmsSchemaService(ObjectMapper objectMapper,StringRedisTemplate stringRedisTemplate) {
-        this.objectMapper = objectMapper;
+
+    public MdmsSchemaService(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
@@ -41,7 +44,6 @@ public class MdmsSchemaService {
     //load the rc config in the mdms to the cache
     @PostConstruct
     public void loadSchemaFromMdms() {
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", mdmsToken); // Set if required
