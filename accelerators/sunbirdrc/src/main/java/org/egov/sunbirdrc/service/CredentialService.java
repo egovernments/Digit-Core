@@ -206,6 +206,13 @@ public class CredentialService {
 
     }
 
+    public String getCredential(String entityId){
+        CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
+
+        System.out.println(credentialUuidObject.getVcid());
+        return credentialUuidObject.getVcid();
+    }
+
 
     private String getIdFromResponse(ResponseEntity<String> response) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
