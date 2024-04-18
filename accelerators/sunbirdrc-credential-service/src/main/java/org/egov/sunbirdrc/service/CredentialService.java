@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.sunbirdrc.kafka.Producer;
 import org.egov.sunbirdrc.models.CredentialIdUuidMapper;
+import org.egov.sunbirdrc.models.CredentialRequest;
 import org.egov.sunbirdrc.repository.CredentialUuidRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -53,6 +56,9 @@ public class CredentialService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private CredentialRequest credentialRequest;
 
 
 
@@ -164,52 +170,45 @@ public class CredentialService {
 
 
 
-   public String generateCredentials(String uuid, String did, String schemaId,JsonNode credentialPayload) {
-       if (did == null || schemaId == null || uuid == null) {
-           throw new IllegalArgumentException("Did, schemaId and uuid cannot be null");
-       }
-        ObjectMapper objectMapper = new ObjectMapper();
+    public String generateCredentials(String uuid, String did, String schemaId, JsonNode credentialPayload) {
+        if (did == null || schemaId == null || uuid == null) {
+            throw new IllegalArgumentException("Did, schemaId, and uuid cannot be null");
+        }
+
         HttpHeaders headers = new HttpHeaders();
-        try{
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            String credentialRequestPayload = objectMapper.writeValueAsString(credentialPayload);
-            // Define the request body
-            String requestBody = "{\n" +
-                    "    \"credential\": {\n" +
-                    "        \"@context\": [\n" +
-                    "            \"https://www.w3.org/2018/credentials/v1\",\n" +
-                    "            \"https://schema.org\"\n" +
-                    "        ],\n" +
-                    "        \"id\": \"" + did + "\",\n" +
-                    "        \"type\": [\n" +
-                    "            \"VerifiableCredential\",\n" +
-                    "            \"UniversityDegreeCredential\"\n" +
-                    "        ],\n" +
-                    "        \"issuer\": \"" + did + "\",\n" +
-                    "        \"expirationDate\": \"2023-02-08T11:56:27.259Z\",\n" +
-                    "        \"credentialSubject\": " + credentialRequestPayload + "\n" +
-                    "    },\n" +
-                    "    \"credentialSchemaId\": \"" + schemaId + "\",\n" +
-                    "    \"credentialSchemaVersion\": \"1.0.0\"\n" +
-                    "}";
+        try {
+            credentialRequest.setContext(List.of(
+                    "https://www.w3.org/2018/credentials/v1",
+                    "https://schema.org"
+            ));
+            credentialRequest.setId(did);
+            credentialRequest.setType(List.of(
+                    "VerifiableCredential",
+                    "UniversityDegreeCredential"
+            ));
+            credentialRequest.setIssuer(did);
+            credentialRequest.setExpirationDate("2023-02-08T11:56:27.259Z");
+            credentialRequest.setCredentialSubject(credentialPayload);
+            credentialRequest.setCredentialSchemaId(schemaId);
+            credentialRequest.setCredentialSchemaVersion("1.0.0");
 
-            // Create the request entity
+            String requestBody = objectMapper.writeValueAsString(credentialRequest);
+
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-            // Make the HTTP POST request
             ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl, HttpMethod.POST, requestEntity, String.class);
             credentialIdUuidMapper.setVcid(getIdFromResponse(response));
 
             credentialIdUuidMapper.setUuid(uuid);
             credentialIdUuidMapper.setCreatedBy(did);
             return objectMapper.writeValueAsString(credentialIdUuidMapper);
+        } catch (JsonProcessingException e) {
+            log.error("Exception occurred while processing JSON: " + e.getMessage());
+            return null;
         }
-        catch (JsonProcessingException e) {
-           log.error("Exception occurred while processing JSON: " + e.getMessage());
-           return null;
-       }
-
     }
+
 
     public String getCredential(String entityId){
         CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
