@@ -1,13 +1,7 @@
 package com.example.gateway.utils;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.egov.tracer.model.CustomException;
@@ -49,18 +43,25 @@ public class CommonUtils {
         return serverHttpRequest.getMethod().toString();
     }
 
-    public static String getRequestContentType(ServerHttpRequest serverHttpRequest) {
-        List<String> contentTypeHeaders = serverHttpRequest.getHeaders()
-                .get(HttpHeaders.CONTENT_TYPE)
-                .stream()
-                .collect(Collectors.toList());
 
-        if (CollectionUtils.isEmpty(contentTypeHeaders)) {
-            return EMPTY_STRING;
+    public static String getRequestContentType(ServerHttpRequest serverHttpRequest) {
+        List<String> contentTypeHeaders = serverHttpRequest.getHeaders().get(HttpHeaders.CONTENT_TYPE);
+
+        // Wrap the list in an Optional
+        Optional<List<String>> contentTypeOptional = Optional.ofNullable(contentTypeHeaders);
+
+        // If the Optional is empty, return an empty string
+        if (contentTypeOptional.isEmpty()) {
+            return "";
         }
 
-        return contentTypeHeaders.get(0).toLowerCase();
+        // Get the first content type header, convert it to lowercase, and return it
+        return contentTypeOptional.get().stream()
+                .findFirst()
+                .map(String::toLowerCase)
+                .orElse("");
     }
+
 
     public String getLowLevelTenantIdFromSet(Set<String> tenants) {
 
