@@ -22,6 +22,4 @@ public class CredentialRequest {
     private String issuer;
     private String expirationDate;
     private Object credentialSubject;
-    private String credentialSchemaId;
-    private String credentialSchemaVersion;
 }

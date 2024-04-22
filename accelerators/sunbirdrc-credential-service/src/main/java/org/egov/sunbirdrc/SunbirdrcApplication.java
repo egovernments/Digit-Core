@@ -1,7 +1,6 @@
 package org.egov.sunbirdrc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.util.Arrays;
 
 @Service
 @Slf4j
@@ -179,24 +179,27 @@ public class CredentialService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         try {
-            credentialRequest.setContext(List.of(
-                    "https://www.w3.org/2018/credentials/v1",
-                    "https://schema.org"
-            ));
+            // Create a new instance of CredentialRequestBody
+            credentialRequest.setContext(Arrays.asList("https://www.w3.org/2018/credentials/v1", "https://schema.org"));
             credentialRequest.setId(did);
-            credentialRequest.setType(List.of(
-                    "VerifiableCredential",
-                    "UniversityDegreeCredential"
-            ));
+            credentialRequest.setType(Arrays.asList("VerifiableCredential", "UniversityDegreeCredential"));
             credentialRequest.setIssuer(did);
             credentialRequest.setExpirationDate("2023-02-08T11:56:27.259Z");
             credentialRequest.setCredentialSubject(credentialPayload);
-            credentialRequest.setCredentialSchemaId(schemaId);
-            credentialRequest.setCredentialSchemaVersion("1.0.0");
 
-            String requestBody = objectMapper.writeValueAsString(credentialRequest);
+            // Convert the credential part to JSON
+            String credentialRequestPayload = objectMapper.writeValueAsString(credentialRequest);
 
+            // Define the request body
+            String requestBody = "{\n" +
+                    "    \"credential\": " + credentialRequestPayload + ",\n" +
+                    "    \"credentialSchemaId\": \"" + schemaId + "\",\n" +
+                    "    \"credentialSchemaVersion\": \"1.0.0\"\n" +
+                    "}";
+
+            // Create the request entity
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+            // Make the HTTP POST request
             ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl, HttpMethod.POST, requestEntity, String.class);
             credentialIdUuidMapper.setVcid(getIdFromResponse(response));
 
@@ -208,7 +211,6 @@ public class CredentialService {
             return null;
         }
     }
-
 
     public String getCredential(String entityId){
         CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
