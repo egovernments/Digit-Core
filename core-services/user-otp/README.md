@@ -48,3 +48,7 @@ This method send the OTP to user via sms or email based on the below parameter
 - Following are the Producer topic.
     - `egov.core.notification.sms.otp` :- This topic is used to send OTP to user mobile number.
     - `org.egov.core.notification.email` :- This topic is used to send OTP to user email id.
+
+link to my "qr-code-scanner-generator-app" using flutter-https://github.com/rupss14/QR-CODE-SCANNER-GENERATOR-APP.
+please check this out, there some problem in commiting the changes.
+Thank You!
