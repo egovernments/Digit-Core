@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.unix.Errors;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.sunbirdrc.models.MdmsData;
+import org.egov.sunbirdrc.models.MdmsSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -36,10 +38,14 @@ public class AddVcSchemaService {
     private ObjectMapper objectMapper;
 
 
-    public String addVcSchema(String mdmsSchema) throws JsonProcessingException {
+    public String addVcSchema(MdmsSchema mdmsSchema) throws JsonProcessingException {
         // Convert the received JSON string to JSON object
         try {
-            credentialSchemaPayload = objectMapper.readValue(mdmsSchema, JsonNode.class);
+            String mdmsJsonPayload = objectMapper.writeValueAsString(mdmsSchema);
+            System.out.println("mdms payload is" + mdmsJsonPayload);
+            credentialSchemaPayload = objectMapper.readValue(mdmsJsonPayload, JsonNode.class);
+            System.out.println("cred schema payload is" + credentialSchemaPayload);
+
             vcSchemaPayload = credentialSchemaPayload.deepCopy();
             vcSchemaPayload.remove("mdmsData");
         }
@@ -56,8 +62,6 @@ public class AddVcSchemaService {
         ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
         String addSchemaResponse=responseEntity.getBody();
         String schemaId=getSchemaIdFromResponse(addSchemaResponse);
-        // Print the response received from the request
-
         String mdmsResponse=addVcSchemaToMdms(credentialSchemaPayload,schemaId);
         log.info("mdms response on adding the schema"+ mdmsResponse);
         return responseEntity.getBody();
