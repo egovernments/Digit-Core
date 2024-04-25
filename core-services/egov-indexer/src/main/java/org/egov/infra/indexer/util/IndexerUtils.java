@@ -258,6 +258,39 @@ public class IndexerUtils {
 		return serviceCallUri.toString();
 	}
 
+	public void fillJsonPath(Object request, String kafkaJson) {
+		try {
+			if (request instanceof Map) {
+				Map<String, Object> searchParamObject = (Map<String, Object>) request;
+				for (Map.Entry<String, Object> entry : searchParamObject.entrySet()) {
+					String key = entry.getKey();
+					Object value = entry.getValue();
+					if (value instanceof String && ((String) value).contains("$.")) {
+						String filledValue = JsonPath.read(kafkaJson, (String) value).toString();
+						searchParamObject.put(key, filledValue);
+					} else if (value instanceof Map) {
+						fillJsonPath(value, kafkaJson); // Recursive call for nested map
+					} else if (value instanceof List) {
+						List<Object> valueList = (List<Object>) value;
+						for (int i = 0; i < valueList.size(); i++) {
+							Object arrayItem = valueList.get(i);
+							if (arrayItem instanceof String && ((String) arrayItem).contains("$.")) {
+								String filledArrayItem = JsonPath.read(kafkaJson, (String) arrayItem).toString();
+								valueList.set(i, filledArrayItem);
+							} else if (arrayItem instanceof Map) {
+								fillJsonPath(arrayItem, kafkaJson); // Recursive call for nested map within array
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error while filling JSONPath in searchParam: " + e.getMessage());
+		}
+	}
+
+
+
 
 	@Cacheable(value = "masterData", sync = true)
 	public Object fetchMdmsData(String uri, String tenantId, String moduleName, String masterName, String filter) {
