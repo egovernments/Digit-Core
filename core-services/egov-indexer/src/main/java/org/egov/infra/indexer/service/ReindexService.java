@@ -94,7 +94,7 @@ public class ReindexService {
 		Integer total = JsonPath.read(response, "$.hits.total");
 		StringBuilder url = new StringBuilder();
 		Index index = mappingsMap.get(reindexRequest.getReindexTopic()).getIndexes().get(0);
-		url.append(esHostUrl).append(index.getName()).append("/").append(index.getType()).append("/_search");
+		url.append(esHostUrl).append(index.getName()).append("/_search");
 		reindexResponse = ReindexResponse.builder().totalRecordsToBeIndexed(total)
 				.estimatedTime(indexerUtils.fetchEstimatedTime(total))
 				.message("Please hit the 'url' for the newly indexed data after the mentioned 'estimated time'.")
