@@ -2,9 +2,10 @@ package org.egov.inbox.util;
 
 import org.egov.inbox.config.InboxConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Base64;
-
+@Component
 public class ESAuthUtil {
     private final InboxConfiguration config;
 
