@@ -21,6 +21,7 @@ public class ElasticSearchRepository {
 
     private ElasticSearchQueryBuilder queryBuilder;
 
+    @Autowired
     private RestTemplate restTemplate;
 
     private ObjectMapper mapper;

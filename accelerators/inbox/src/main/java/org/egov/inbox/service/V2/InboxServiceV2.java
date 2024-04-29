@@ -131,7 +131,7 @@ public class InboxServiceV2 {
             e.printStackTrace();
         }
         StringBuilder uri = getURI(indexName, SEARCH_PATH);
-        Object result = serviceRequestRepository.fetchResult(uri, finalQueryBody);
+        Object result = serviceRequestRepository.fetchESResult(uri, finalQueryBody);
         List<Inbox> inboxItemsList = parseInboxItemsFromSearchResponse(result, businessServices);
         log.info(result.toString());
         return inboxItemsList;
@@ -166,7 +166,7 @@ public class InboxServiceV2 {
 
         Map<String, Object> finalQueryBody = queryBuilder.getESQuery(inboxRequest, Boolean.FALSE);
         StringBuilder uri = getURI(indexName, COUNT_PATH);
-        Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
+        Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchESResult(uri, finalQueryBody);
         Integer totalCount = 0;
         if(response.containsKey(COUNT_CONSTANT)){
             totalCount = (Integer) response.get(COUNT_CONSTANT);
@@ -179,7 +179,7 @@ public class InboxServiceV2 {
     public List<HashMap<String, Object>> getStatusCountMap(InboxRequest inboxRequest, String indexName){
         Map<String, Object> finalQueryBody = queryBuilder.getStatusCountQuery(inboxRequest);
         StringBuilder uri = getURI(indexName, SEARCH_PATH);
-        Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
+        Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchESResult(uri, finalQueryBody);
         Set<String> actionableStatuses = new HashSet<>(inboxRequest.getInbox().getProcessSearchCriteria().getStatus());
         HashMap<String, Object> statusCountMap = parseStatusCountMapFromAggregationResponse(response, actionableStatuses);
         List<HashMap<String, Object>> transformedStatusMap = transformStatusMap(inboxRequest, statusCountMap);
@@ -332,7 +332,7 @@ public class InboxServiceV2 {
             inboxRequest.getInbox().getProcessSearchCriteria().setStatus(businessServiceVsUuidsBasedOnSearchCriteria.get(businessService));
             Map<String, Object> finalQueryBody = queryBuilder.getNearingSlaCountQuery(inboxRequest, businessServiceSla);
             StringBuilder uri = getURI(indexName, COUNT_PATH);
-            Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
+            Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchESResult(uri, finalQueryBody);
             Integer currentCount = 0;
             if(response.containsKey(COUNT_CONSTANT)){
                 currentCount = (Integer) response.get(COUNT_CONSTANT);
@@ -377,7 +377,7 @@ public class InboxServiceV2 {
             e.printStackTrace();
         }
         StringBuilder uri = getURI(index, SEARCH_PATH);
-        Object result = serviceRequestRepository.fetchResult(uri, finalQueryBody);
+        Object result = serviceRequestRepository.fetchESResult(uri, finalQueryBody);
         List<Data> dataList = parseSearchResponseForSimpleSearch(result);
         return dataList;
     }
