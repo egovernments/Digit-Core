@@ -506,4 +506,6 @@ config:
       - work-dir: "accelerators/sunbirdrc-credential-service"
         image-name: "sunbirdrc-credential-service"
         dockerfile: "build/maven/Dockerfile"
+      - work-dir: "accelerators/sunbirdrc-credential-service/src/main/resources/db"
+        image-name: "sunbirdrc-credential-service-db"
 
