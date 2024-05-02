@@ -69,5 +69,5 @@ public class InboxConstants {
 
     public static final String TENANTID_KEY = "tenantId";
 
-
+    public static final String STATE = "state";
 }
