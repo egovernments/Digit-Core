@@ -1,8 +1,10 @@
 package org.egov.sunbirdrc.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.egov.sunbirdrc.models.MdmsData;
 import org.egov.sunbirdrc.models.MdmsSchema;
+import org.egov.sunbirdrc.models.Schema;
 import org.egov.sunbirdrc.service.AddVcSchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,9 @@ public class VcSchemaController {
     private AddVcSchemaService addVcSchemaService;
 
     @PostMapping("/_create")
-    public ResponseEntity<String> addVcSchema(@RequestBody MdmsSchema mdmsSchema) throws JsonProcessingException {
+    public ResponseEntity<ObjectNode> addVcSchema(@RequestBody MdmsSchema mdmsSchema) throws JsonProcessingException {
         System.out.println("mdms data is"+ mdmsSchema);
-        String mdmsSchemaResponse = addVcSchemaService.addVcSchema(mdmsSchema);
-        return new ResponseEntity<>(mdmsSchemaResponse, HttpStatus.OK);
+        ObjectNode mdmsSchemaResponse = addVcSchemaService.addVcSchema(mdmsSchema);
+        return new ResponseEntity<ObjectNode>(mdmsSchemaResponse, HttpStatus.OK);
     }
 }

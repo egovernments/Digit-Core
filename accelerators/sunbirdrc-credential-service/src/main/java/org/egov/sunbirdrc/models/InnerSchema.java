@@ -1,5 +1,6 @@
 package org.egov.sunbirdrc.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InnerSchema {
     @JsonProperty("$id")
     private String id;
