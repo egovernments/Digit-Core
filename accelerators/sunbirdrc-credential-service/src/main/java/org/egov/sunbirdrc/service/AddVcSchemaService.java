@@ -23,8 +23,14 @@ public class AddVcSchemaService {
     @Value("${sunbird.mdms.create.url}")
     private String mdmsRequestUrl;
 
-    @Value("${sunbird.credential.schema.url")
-    private String SCHEMA_ENDPOINT;
+    @Value("${sunbird.credential.schema.host}")
+    private String credentialHost;
+
+    @Value("${sunbird.credential.schema.path}")
+    private String credentialPath;
+
+    @Autowired
+    private ServiceRequestRepository serviceRequestRepository;
 
     private JsonNode mdmsDataRequestPayload;
     private JsonNode credentialSchemaPayload;
@@ -39,7 +45,7 @@ public class AddVcSchemaService {
     private ObjectMapper objectMapper;
 
 
-    public ObjectNode addVcSchema(MdmsSchema mdmsSchema) throws JsonProcessingException {
+    public Object addVcSchema(MdmsSchema mdmsSchema) throws JsonProcessingException {
         // Convert the received JSON string to JSON object
         try {
             String mdmsJsonPayload = objectMapper.writeValueAsString(mdmsSchema);
@@ -58,26 +64,26 @@ public class AddVcSchemaService {
         // Create a new HttpEntity with the modified payload and headers
         HttpEntity<Object> requestEntity = new HttpEntity<>(vcSchemaPayload, headers);
         // Make a POST request to the schema endpoint
-        ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
-        String addSchemaResponse=responseEntity.getBody();
-        String schemaId=getSchemaIdFromResponse(addSchemaResponse);
+        log.info("request entity"+ requestEntity);
+        StringBuilder uri = new StringBuilder();
+        uri.append(credentialHost).append(credentialPath);
+        log.info("Constructed URI: {}", uri.toString());
+        Object response = serviceRequestRepository.fetchResult(uri, requestEntity).toString();
+        //ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
+        //String addSchemaResponse=response.getBody();
+        String schemaId=getSchemaIdFromResponse(response);
         String mdmsResponse=addVcSchemaToMdms(credentialSchemaPayload,schemaId);
         log.info("mdms response on adding the schema"+ mdmsResponse);
-        ObjectNode objectNode = objectMapper.readValue(addSchemaResponse, ObjectNode.class);
+        //ObjectNode objectNode = objectMapper.valueToTree(response);
 
-        return objectNode;
+        return response;
     }
 
 
-    public String getSchemaIdFromResponse(String addSchemaResponse) {
+    public String getSchemaIdFromResponse(Object addSchemaResponse) {
         String schemaId;
-        try {
-            JsonNode responseBody = objectMapper.readTree(addSchemaResponse);
-            schemaId = responseBody.path("schema").path("id").asText();
-        } catch (IOException e) {
-            // Handle parsing errors by providing a more informative error message
-            throw new RuntimeException("no Id in the response   " + e.getMessage());
-        }
+        JsonNode responseBody = objectMapper.valueToTree(addSchemaResponse);
+        schemaId = responseBody.path("schema").path("id").asText();
         return schemaId;
     }
 
@@ -88,7 +94,7 @@ public class AddVcSchemaService {
         String did = mdmsDataRequestPayload.path("schema").path("author").asText();
         String mdmsCodeName=mdmsDataRequestPayload.path("mdmsData").path("code").asText();
 
-        String mdmsSchemaPayload = "{\"RequestInfo\":{\"apiId\":\"Rainmaker\",\"authToken\":\"8c68a385-196a-4790-8aee-42323faef9ad\",\"userInfo\":{\"id\":595,\"uuid\":\"1fda5623-448a-4a59-ad17-657986742d67\",\"userName\":\"UNIFIED_DEV_USERR\",\"name\":\"Unified dev user\",\"mobileNumber\":\"8788788851\",\"emailId\":\"\",\"locale\":null,\"type\":\"EMPLOYEE\",\"roles\":[{\"name\":\"Localisation admin\",\"code\":\"LOC_ADMIN\",\"tenantId\":\"pg\"},{\"name\":\"Employee\",\"code\":\"EMPLOYEE\",\"tenantId\":\"pg\"},{\"name\":\"MDMS Admin\",\"code\":\"MDMS_ADMIN\",\"tenantId\":\"pg\"},{\"name\":\"SUPER USER\",\"code\":\"SUPERUSER\",\"tenantId\":\"pg\"}],\"active\":true,\"tenantId\":\"pg\",\"permanentCity\":null},\"msgId\":\"1695889012604|en_IN\",\"plainAccessRequest\":{}},\"SchemaDefinition\":{\"tenantId\":\"default\",\"code\":\"VerifiableCredentials.test2\",\"description\":\"Trade type for trade license applications\",\"definition\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"type\":\"object\",\"required\":[\"path\"],\"x-unique\":[\"path\"]},\"isActive\":true}}";
+        String mdmsSchemaPayload = "{\"RequestInfo\":{\"apiId\":\"Rainmaker\",\"authToken\":\"256596c3-6bed-4b2f-8dcb-18bb0c1f2fad\",\"userInfo\":{\"id\":595,\"uuid\":\"1fda5623-448a-4a59-ad17-657986742d67\",\"userName\":\"UNIFIED_DEV_USERR\",\"name\":\"Unified dev user\",\"mobileNumber\":\"8788788851\",\"emailId\":\"\",\"locale\":null,\"type\":\"EMPLOYEE\",\"roles\":[{\"name\":\"Localisation admin\",\"code\":\"LOC_ADMIN\",\"tenantId\":\"pg\"},{\"name\":\"Employee\",\"code\":\"EMPLOYEE\",\"tenantId\":\"pg\"},{\"name\":\"MDMS Admin\",\"code\":\"MDMS_ADMIN\",\"tenantId\":\"pg\"},{\"name\":\"SUPER USER\",\"code\":\"SUPERUSER\",\"tenantId\":\"pg\"}],\"active\":true,\"tenantId\":\"pg\",\"permanentCity\":null},\"msgId\":\"1695889012604|en_IN\",\"plainAccessRequest\":{}},\"SchemaDefinition\":{\"tenantId\":\"default\",\"code\":\"VerifiableCredentials.test2\",\"description\":\"Trade type for trade license applications\",\"definition\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"type\":\"object\",\"required\":[\"path\"],\"x-unique\":[\"path\"]},\"isActive\":true}}";
         JsonNode mdmsSchemaPayloadObject = objectMapper.readTree(mdmsSchemaPayload);
 
         ObjectNode schemaDefinitionNode = (ObjectNode) mdmsSchemaPayloadObject.path("SchemaDefinition");
