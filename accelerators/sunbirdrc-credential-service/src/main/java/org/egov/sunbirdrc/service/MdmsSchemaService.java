@@ -108,9 +108,9 @@ public class MdmsSchemaService {
 
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 
-        StringBuilder mdmsRequestUrl= new StringBuilder();
-        mdmsRequestUrl.append(mdmsHost).append(mdmsCreateUrl);
-        String response = restTemplate.postForObject(getSchemaUrl, entity, String.class);
+        StringBuilder getSchemaUrl= new StringBuilder();
+        getSchemaUrl.append(mdmsHost).append(mdmsCreateUrl);
+        String response = restTemplate.postForObject(getSchemaUrl.toString(), entity, String.class);
         stringRedisTemplate.opsForValue().set("vc-mdms", response);
     }
 
