@@ -37,6 +37,12 @@ public class AddVcSchemaService {
     @Value("${sunbird.credential.schema.path}")
     private String credentialPath;
 
+    @Value("${egov.mdms.host}")
+    private String mdmsHost;
+
+    @Value("${egov.mdms.create}")
+    private String mdmsCreateUrl;
+
     @Autowired
     private ServiceRequestRepository serviceRequestRepository;
 
@@ -145,8 +151,10 @@ public class AddVcSchemaService {
         // Set up the request entity
         HttpEntity<DigitMDMSRequestBody> requestEntity = new HttpEntity<>(mdmsRequestBody, headers);
 
+        StringBuilder mdmsRequestUrl= new StringBuilder();
+        mdmsRequestUrl.append(mdmsHost).append(mdmsCreateUrl);
         // Make the POST request
-        ResponseEntity<String> responseEntity = restTemplate.exchange(mdmsRequestUrl, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(mdmsRequestUrl.toString(), HttpMethod.POST, requestEntity, String.class);
 
         mdmsSchemaService.invalidateMdmsCache("vc-mdms");
         mdmsSchemaService.loadSchemaFromMdms();
