@@ -27,8 +27,8 @@ public class MdmsSchemaService {
     @Value("${egov.mdms.host}")
     private String mdmsHost;
 
-    @Value("${egov.mdms.create}")
-    private String mdmsCreateUrl;
+    @Value("${egov.mdms.search}")
+    private String mdmsSearchUrl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -109,7 +109,7 @@ public class MdmsSchemaService {
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 
         StringBuilder getSchemaUrl= new StringBuilder();
-        getSchemaUrl.append(mdmsHost).append(mdmsCreateUrl);
+        getSchemaUrl.append(mdmsHost).append(mdmsSearchUrl);
         String response = restTemplate.postForObject(getSchemaUrl.toString(), entity, String.class);
         stringRedisTemplate.opsForValue().set("vc-mdms", response);
     }
