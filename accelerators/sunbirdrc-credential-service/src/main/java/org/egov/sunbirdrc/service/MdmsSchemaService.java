@@ -21,12 +21,14 @@ import java.io.IOException;
 @Slf4j
 public class MdmsSchemaService {
 
-
-    @Value("${sunbird.mdms.schema.url}")
-    private String getSchemaUrl;
-
     @Value("${sunbird.mdms.auth.token}")
     private String mdmsToken;
+
+    @Value("${egov.mdms.host}")
+    private String mdmsHost;
+
+    @Value("${egov.mdms.create}")
+    private String mdmsCreateUrl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -106,6 +108,8 @@ public class MdmsSchemaService {
 
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 
+        StringBuilder mdmsRequestUrl= new StringBuilder();
+        mdmsRequestUrl.append(mdmsHost).append(mdmsCreateUrl);
         String response = restTemplate.postForObject(getSchemaUrl, entity, String.class);
         stringRedisTemplate.opsForValue().set("vc-mdms", response);
     }

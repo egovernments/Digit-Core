@@ -28,9 +28,6 @@ import java.util.List;
 @Slf4j
 public class AddVcSchemaService {
 
-    @Value("${egov.mdms.create}")
-    private String mdmsRequestUrl;
-
     @Value("${sunbird.credential.schema.host}")
     private String credentialHost;
 
