@@ -84,7 +84,8 @@ public class AddVcSchemaService {
         // Make a POST request to the schema endpoint
         log.info("request entity"+ requestEntity);
         StringBuilder uri = new StringBuilder();
-        uri.append(credentialHost).append(credentialPath);
+        //uri.append(credentialHost).append(credentialPath);
+        uri.append("https://unified-dev.digit.org/credential-schema-service/credential-schema");
         log.info("Constructed URI: {}", uri.toString());
         Object response = serviceRequestRepository.fetchResult(uri, requestEntity);
         //ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
