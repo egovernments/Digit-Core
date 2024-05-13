@@ -232,7 +232,7 @@ public class CredentialService {
 
     private String getIdFromResponse(Object credentialResponse) throws JsonProcessingException {
         String credentialId=null;
-        ;        try{
+        try{
             credentialId = JsonPath.read(credentialResponse, "$.credential.id");
             log.info("credential is generated, id is"+credentialId);
 

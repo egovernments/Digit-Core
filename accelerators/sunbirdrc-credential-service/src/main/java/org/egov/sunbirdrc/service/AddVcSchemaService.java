@@ -101,7 +101,7 @@ public class AddVcSchemaService {
     public String getSchemaIdFromResponse(Object addSchemaResponse) throws JsonProcessingException{
         System.out.println(objectMapper.writeValueAsString(addSchemaResponse).toString());
         String schemaId=null;
-;        try{
+        try{
             schemaId = JsonPath.read(addSchemaResponse, "$.schema.id");
             System.out.println(schemaId);
 
