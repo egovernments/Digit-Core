@@ -13,6 +13,7 @@ import org.egov.sunbirdrc.kafka.Producer;
 import org.egov.sunbirdrc.models.CredentialIdUuidMapper;
 import org.egov.sunbirdrc.models.CredentialRequest;
 import org.egov.sunbirdrc.repository.CredentialUuidRepository;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -230,10 +231,15 @@ public class CredentialService {
 
 
     private String getIdFromResponse(Object credentialResponse) throws JsonProcessingException {
-        String jsonResponse = objectMapper.writeValueAsString(credentialResponse);
-        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-        // Extract the "id" field from the "credential" object
-        JsonNode credentialNode = jsonNode.path("credential");
-        return credentialNode.path("id").asText();
+        String credentialId=null;
+        ;        try{
+            credentialId = JsonPath.read(credentialResponse, "$.credential.id");
+            log.info("credential is generated, id is"+credentialId);
+
+        }
+        catch(Exception e){
+            throw new CustomException("ID_NOT_FOUND", "credential id not found in the response");
+        }
+        return credentialId;
     }
 }
