@@ -49,6 +49,7 @@ public class CredentialUuidRepository {
                 String json = convertObjectToJson(credentialIdUuidMapper); // Convert to JSON
                 if (json != null) { // Check if JSON conversion was successful
                     stringRedisTemplate.opsForHash().put("uuid_vcid_mapper", uuid, json);
+
                 } else {
                     log.error("Failed to convert rowData to JSON for UUID: {}", uuid);
                 }
@@ -64,6 +65,7 @@ public class CredentialUuidRepository {
     public CredentialIdUuidMapper getUuidVcidMapperRow(String uuid) {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = (String) stringRedisTemplate.opsForHash().get("uuid_vcid_mapper", uuid);
+        log.info("entityId and credentialId mapper is "+ json);
         if (json != null && !json.isEmpty()) {
             try {
                 return objectMapper.readValue(json, CredentialIdUuidMapper.class);

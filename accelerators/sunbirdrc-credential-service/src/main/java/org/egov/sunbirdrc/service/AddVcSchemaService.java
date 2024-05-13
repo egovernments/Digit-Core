@@ -87,18 +87,17 @@ public class AddVcSchemaService {
         Object response = serviceRequestRepository.fetchResult(uri, requestEntity).toString();
         //ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
         //String addSchemaResponse=response.getBody();
-        String schemaId=getSchemaIdFromResponse(response);
+        String schemaId=getSchemaIdFromResponse(response.toString());
         String mdmsResponse=addVcSchemaToMdms(credentialSchemaPayload,schemaId);
         log.info("mdms response on adding the schema"+ mdmsResponse);
         return response;
     }
 
 
-    public String getSchemaIdFromResponse(Object addSchemaResponse) {
-        String schemaId;
-        JsonNode responseBody = objectMapper.valueToTree(addSchemaResponse);
-        schemaId = responseBody.path("schema").path("id").asText();
-        return schemaId;
+    public String getSchemaIdFromResponse(Object addSchemaResponse) throws JsonProcessingException {
+        JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsString(addSchemaResponse));
+        JsonNode schemaIdNode = jsonNode.path("schema").path("id");
+        return schemaIdNode.isMissingNode() ? "" : schemaIdNode.asText();
     }
 
     public String addVcSchemaToMdms(JsonNode mdmsDataRequestPayload,String schemaId) throws JsonProcessingException {
@@ -117,9 +116,6 @@ public class AddVcSchemaService {
         JsonNode path = mdmsDataRequestPayload.path("mdmsData").path("path");
         String did = mdmsDataRequestPayload.path("schema").path("author").asText();
         String mdmsCodeName=mdmsDataRequestPayload.path("mdmsData").path("code").asText();
-
-        System.out.println("-------------------------------------------");
-        System.out.println(mdmsDataRequestPayload.path("RequestInfo"));
 
         RequestInfo requestInfo = objectMapper.convertValue(mdmsDataRequestPayload.path("RequestInfo"),RequestInfo.class);
 

@@ -29,11 +29,17 @@ import java.util.Arrays;
 public class CredentialService {
 
 
-    @Value("${sunbird.credential.url}")
-    private String fetchCredentialUrl;
-
     @Value("${sunbird.save.vc.topic}")
     private String saveVcidTopic;
+
+    @Value("${sunbird.credential.host}")
+    private String credentialHost;
+
+    @Value("${sunbird.credential.path}")
+    private String credentialPath;
+
+    @Autowired
+    private ServiceRequestRepository serviceRequestRepository;
 
     @Autowired
     private MdmsSchemaService mdmsSchemaService;
@@ -200,8 +206,12 @@ public class CredentialService {
             // Create the request entity
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
             // Make the HTTP POST request
-            ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl, HttpMethod.POST, requestEntity, String.class);
-            credentialIdUuidMapper.setVcid(getIdFromResponse(response));
+            StringBuilder fetchCredentialUrl = new StringBuilder();
+            fetchCredentialUrl.append(credentialHost).append(credentialPath);
+            Object credentialResponse = serviceRequestRepository.fetchResult(fetchCredentialUrl, requestEntity).toString();
+
+            //ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl.toString(), HttpMethod.POST, requestEntity, String.class);
+            credentialIdUuidMapper.setVcid(getIdFromResponse(credentialResponse));
 
             credentialIdUuidMapper.setUuid(uuid);
             credentialIdUuidMapper.setCreatedBy(did);
@@ -218,9 +228,11 @@ public class CredentialService {
     }
 
 
-    private String getIdFromResponse(ResponseEntity<String> response) throws JsonProcessingException {
-        JsonNode rootNode = objectMapper.readTree(response.getBody());
-        JsonNode credentialNode = rootNode.path("credential");
+    private String getIdFromResponse(Object credentialResponse) throws JsonProcessingException {
+        String jsonResponse = objectMapper.writeValueAsString(credentialResponse);
+        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        // Extract the "id" field from the "credential" object
+        JsonNode credentialNode = jsonNode.path("credential");
         return credentialNode.path("id").asText();
     }
 }
