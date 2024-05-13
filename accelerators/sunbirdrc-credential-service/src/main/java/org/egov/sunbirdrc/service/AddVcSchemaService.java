@@ -10,6 +10,7 @@ import org.egov.sunbirdrc.models.DigitMDMSRequestBody;
 import org.egov.sunbirdrc.models.MdmsData;
 import org.egov.sunbirdrc.models.MdmsSchema;
 import org.egov.sunbirdrc.models.SchemaDefinition;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.JsonPath;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -84,20 +86,29 @@ public class AddVcSchemaService {
         StringBuilder uri = new StringBuilder();
         uri.append(credentialHost).append(credentialPath);
         log.info("Constructed URI: {}", uri.toString());
-        Object response = serviceRequestRepository.fetchResult(uri, requestEntity).toString();
+        Object response = serviceRequestRepository.fetchResult(uri, requestEntity);
         //ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
         //String addSchemaResponse=response.getBody();
-        String schemaId=getSchemaIdFromResponse(response.toString());
+        String schemaId=getSchemaIdFromResponse(response);
         String mdmsResponse=addVcSchemaToMdms(credentialSchemaPayload,schemaId);
         log.info("mdms response on adding the schema"+ mdmsResponse);
         return response;
     }
 
 
-    public String getSchemaIdFromResponse(Object addSchemaResponse) throws JsonProcessingException {
-        JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsString(addSchemaResponse));
-        JsonNode schemaIdNode = jsonNode.path("schema").path("id");
-        return schemaIdNode.isMissingNode() ? "" : schemaIdNode.asText();
+
+    public String getSchemaIdFromResponse(Object addSchemaResponse) throws JsonProcessingException{
+        System.out.println(objectMapper.writeValueAsString(addSchemaResponse).toString());
+        String schemaId=null;
+;        try{
+            schemaId = JsonPath.read(addSchemaResponse, "$.schema.id");
+            System.out.println(schemaId);
+
+        }
+        catch(Exception e){
+            throw new CustomException("ID_NOT_FOUND", "id not found in the schema");
+        }
+        return schemaId;
     }
 
     public String addVcSchemaToMdms(JsonNode mdmsDataRequestPayload,String schemaId) throws JsonProcessingException {
