@@ -9,17 +9,27 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class RevokeCredentialService {
 
-    @Value("${sunbird.revoke.url}")
-    private String revokeCredentialUrl;
+    @Value("${sunbird.credential.host}")
+    private String revokeCredentialHost;
+
+    @Value("${sunbird.revoke.path}")
+    private String revokeCredentialPath;
+
+    @Autowired
+    private ServiceRequestRepository serviceRequestRepository;
 
     @Autowired
     private RestTemplate restTemplate;
     public String revokeCredential(String credentialId){
-        String requestUrl=revokeCredentialUrl+credentialId;
+        //String requestUrl=revokeCredentialUrl+credentialId;
+        StringBuilder requestUrl= new StringBuilder();
+        requestUrl.append(revokeCredentialHost).append("/credentials/");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        String revokeRequestUrl= requestUrl.toString()+credentialId;
+        System.out.println("revoke url is"+ revokeRequestUrl);
         ResponseEntity<String> responseEntity=restTemplate.exchange(
-                requestUrl,
+                revokeRequestUrl,
                 HttpMethod.DELETE,
                 null,
                 String.class);
