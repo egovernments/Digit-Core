@@ -27,7 +27,6 @@ public class RevokeCredentialService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String revokeRequestUrl= requestUrl.toString()+credentialId;
-        System.out.println("revoke url is"+ revokeRequestUrl);
         ResponseEntity<String> responseEntity=restTemplate.exchange(
                 revokeRequestUrl,
                 HttpMethod.DELETE,
