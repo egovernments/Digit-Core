@@ -208,7 +208,7 @@ public class CredentialService {
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
             // Make the HTTP POST request
             StringBuilder fetchCredentialUrl = new StringBuilder();
-            fetchCredentialUrl.append(credentialHost).append(credentialPath);
+            fetchCredentialUrl.append(credentialHost).append("/credentials/issue");
             //fetchCredentialUrl.append("https://unified-dev.digit.org/credentials-service/credentials/issue");
             Object credentialResponse = serviceRequestRepository.fetchResult(fetchCredentialUrl, requestEntity);
 
