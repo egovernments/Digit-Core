@@ -205,8 +205,9 @@ public class DataTransformationService {
                 String uri = null;
                     try {
                         uri = indexerUtils.buildUri(uriMapping, kafkaJson);
-                        indexerUtils.fillJsonPath(uriMapping.getRequest(),kafkaJson);
-                        String jsonContent = serviceRequestRepository.fetchResult(uri, uriMapping.getRequest(), stateLevelTenantId);
+                        Object request = uriMapping.getRequest();
+                        indexerUtils.fillJsonPath(request,kafkaJson);
+                        String jsonContent = serviceRequestRepository.fetchResult(uri, request, stateLevelTenantId);
                         response = mapper.readValue(jsonContent, Map.class);
                         if (null == response)
                             continue;
