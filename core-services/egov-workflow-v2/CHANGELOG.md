@@ -3,6 +3,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.1 - 2024-05-28
+- Added missing underscore character in the table name in EscalationQueryBuilder.java & EscalationQueryBuilderTest.java
+
 ## 2.9.0 - 2024-02-29
 - Upgraded spring boot version from 2.7.5 to 3.2.2
 - Upgraded java version from 1.8 to 17
