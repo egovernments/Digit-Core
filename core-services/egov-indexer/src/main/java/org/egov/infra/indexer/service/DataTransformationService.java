@@ -1,5 +1,6 @@
 package org.egov.infra.indexer.service;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.infra.indexer.util.IndexerConstants;
 import org.egov.infra.indexer.util.IndexerUtils;
@@ -205,8 +207,9 @@ public class DataTransformationService {
                 String uri = null;
                     try {
                         uri = indexerUtils.buildUri(uriMapping, kafkaJson);
-                        indexerUtils.fillJsonPath(uriMapping.getRequest(),kafkaJson);
-                        String jsonContent = serviceRequestRepository.fetchResult(uri, uriMapping.getRequest(), stateLevelTenantId);
+                        Object deepReq = SerializationUtils.clone((Serializable) uriMapping.getRequest());
+                        indexerUtils.fillJsonPath(deepReq,kafkaJson);
+                        String jsonContent = serviceRequestRepository.fetchResult(uri, deepReq, stateLevelTenantId);
                         response = mapper.readValue(jsonContent, Map.class);
                         if (null == response)
                             continue;

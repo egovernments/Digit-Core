@@ -266,8 +266,13 @@ public class IndexerUtils {
 					String key = entry.getKey();
 					Object value = entry.getValue();
 					if (value instanceof String && ((String) value).contains("$.")) {
-						String filledValue = JsonPath.read(kafkaJson, (String) value).toString();
-						searchParamObject.put(key, filledValue);
+						Object filledValue = JsonPath.read(kafkaJson, (String) value);
+						if(filledValue instanceof String){
+							searchParamObject.put(key,filledValue.toString());
+						}
+						else{
+							searchParamObject.put(key, filledValue);
+						}
 					} else if (value instanceof Map) {
 						fillJsonPath(value, kafkaJson); // Recursive call for nested map
 					} else if (value instanceof List) {
@@ -275,8 +280,13 @@ public class IndexerUtils {
 						for (int i = 0; i < valueList.size(); i++) {
 							Object arrayItem = valueList.get(i);
 							if (arrayItem instanceof String && ((String) arrayItem).contains("$.")) {
-								String filledArrayItem = JsonPath.read(kafkaJson, (String) arrayItem).toString();
-								valueList.set(i, filledArrayItem);
+								Object filledArrayItem = JsonPath.read(kafkaJson, (String) arrayItem);
+								if(filledArrayItem instanceof String){
+									valueList.set(i,filledArrayItem.toString());
+								}
+								else{
+									valueList.set(i, filledArrayItem);
+								}
 							} else if (arrayItem instanceof Map) {
 								fillJsonPath(arrayItem, kafkaJson); // Recursive call for nested map within array
 							}
