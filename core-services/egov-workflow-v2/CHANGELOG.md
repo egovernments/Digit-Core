@@ -3,7 +3,7 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
-## 2.9.1 - 2024-05-28
+## 2.9.1-HOTFIX - 2024-05-28
 - Added missing underscore character in the table name in EscalationQueryBuilder.java & EscalationQueryBuilderTest.java
 
 ## 2.9.0 - 2024-02-29
