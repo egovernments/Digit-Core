@@ -1,23 +1,19 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.AdditionalInfo;
-import digit.web.models.AuditDetails;
-import digit.web.models.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
-import lombok.Builder;
 
 /**
  * Describes the details of the program
@@ -29,80 +25,90 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Program   {
-        @JsonProperty("id")
+public class Program {
+	@JsonProperty("id")
 
-          @Valid
-                private UUID id = null;
+	@Valid
+	private String id = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("tenantId")
+	@NotNull
 
-        @Size(min=2,max=64)         private String tenantId = null;
+	@Size(min = 2, max = 64)
+	private String tenantId = null;
 
-        @JsonProperty("programCode")
+	@JsonProperty("programCode")
+	@NotNull
 
-        @Size(min=2,max=64)         private String programCode = null;
+	@Size(min = 2, max = 64)
+	private String programCode = null;
 
-        @JsonProperty("name")
-          @NotNull
+	@JsonProperty("programId")
 
-        @Size(min=2,max=64)         private String name = null;
+	@Size(min = 2, max = 64)
+	private String programId = null;
 
-        @JsonProperty("description")
-          @NotNull
+	@JsonProperty("name")
+	@NotNull
 
-        @Size(min=2,max=256)         private String description = null;
+	@Size(min = 2, max = 64)
+	private String name = null;
 
-        @JsonProperty("startDate")
-          @NotNull
+	@JsonProperty("description")
+	@NotNull
 
-          @Valid
-                private BigDecimal startDate = null;
+	@Size(min = 2, max = 256)
+	private String description = null;
 
-        @JsonProperty("endDate")
+	@JsonProperty("startDate")
+	@NotNull
 
-          @Valid
-                private BigDecimal endDate = null;
+	@Valid
+	private BigDecimal startDate = null;
 
-        @JsonProperty("objective")
+	@JsonProperty("endDate")
 
-                private List<String> objective = null;
+	@Valid
+	private BigDecimal endDate = null;
 
-        @JsonProperty("criteria")
+	@JsonProperty("objective")
 
-                private List<String> criteria = null;
+	private List<String> objective = null;
 
-        @JsonProperty("status")
+	@JsonProperty("criteria")
 
-          @Valid
-                private Status status = null;
+	private List<String> criteria = null;
 
-        @JsonProperty("additionalDetails")
+	@JsonProperty("status")
 
-          @Valid
-                private AdditionalInfo additionalDetails = null;
+	@Valid
+	private Status status = null;
 
-        @JsonProperty("auditDetails")
+	@JsonProperty("additionalDetails")
 
-          @Valid
-                private AuditDetails auditDetails = null;
+	@Valid
+	private AdditionalInfo additionalDetails = null;
+
+	@JsonProperty("auditDetails")
+
+	@Valid
+	private AuditDetails auditDetails = null;
 
 
-        public Program addObjectiveItem(String objectiveItem) {
-            if (this.objective == null) {
-            this.objective = new ArrayList<>();
-            }
-        this.objective.add(objectiveItem);
-        return this;
-        }
+	public Program addObjectiveItem(String objectiveItem) {
+		if (this.objective == null) {
+			this.objective = new ArrayList<>();
+		}
+		this.objective.add(objectiveItem);
+		return this;
+	}
 
-        public Program addCriteriaItem(String criteriaItem) {
-            if (this.criteria == null) {
-            this.criteria = new ArrayList<>();
-            }
-        this.criteria.add(criteriaItem);
-        return this;
-        }
+	public Program addCriteriaItem(String criteriaItem) {
+		if (this.criteria == null) {
+			this.criteria = new ArrayList<>();
+		}
+		this.criteria.add(criteriaItem);
+		return this;
+	}
 
 }

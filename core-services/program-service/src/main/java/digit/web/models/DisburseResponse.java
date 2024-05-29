@@ -26,10 +26,10 @@ public class DisburseResponse {
 	@Valid
 	private ResponseInfo responseInfo = null;
 
-	@JsonProperty("Disbursement")
+	@JsonProperty("Disburse")
 
 	@Valid
-	private Disburse disbursement = null;
+	private Disburse disburse = null;
 
 
 }

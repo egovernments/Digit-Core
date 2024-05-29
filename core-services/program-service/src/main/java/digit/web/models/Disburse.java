@@ -1,22 +1,17 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.AdditionalInfo;
-import digit.web.models.AuditDetails;
-import digit.web.models.Individual;
-import digit.web.models.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
-import java.util.UUID;
-import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 
 /**
  * Exchange message content which will be shared with all request
@@ -28,76 +23,81 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Disburse   {
-        @JsonProperty("id")
+public class Disburse {
+	@JsonProperty("id")
 
-          @Valid
-                private UUID id = null;
+	@Valid
+	private String id = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("tenantId")
+	@NotNull
 
-        @Size(min=2,max=64)         private String tenantId = null;
+	@Size(min = 2, max = 64)
+	private String tenantId = null;
 
-        @JsonProperty("programCode")
-          @NotNull
+	@JsonProperty("programCode")
+	@NotNull
 
-        @Size(min=2,max=64)         private String programCode = null;
+	@Size(min = 2, max = 64)
+	private String programCode = null;
 
-        @JsonProperty("projectCode")
-          @NotNull
+	@JsonProperty("projectCode")
+	@NotNull
 
-        @Size(min=2,max=64)         private String projectCode = null;
+	@Size(min = 2, max = 64)
+	private String projectCode = null;
 
-        @JsonProperty("targetId")
-          @NotNull
+	@JsonProperty("disburseId")
 
-                private String targetId = null;
+	@Size(min = 2, max = 64)
+	private String disburseId = null;
 
-        @JsonProperty("transactionId")
+	@JsonProperty("targetId")
+	@NotNull
 
-        @Size(min=2,max=64)         private String transactionId = null;
+	private String targetId = null;
 
-        @JsonProperty("sanctionId")
+	@JsonProperty("transactionId")
 
-                private String sanctionId = null;
+	@Size(min = 2, max = 64)
+	private String transactionId = null;
 
-        @JsonProperty("accountCode")
-          @NotNull
+	@JsonProperty("sanctionId")
+	@NotNull
 
-                private String accountCode = null;
+	private String sanctionId = null;
 
-        @JsonProperty("netAmount")
-          @NotNull
+	@JsonProperty("amountCode")
+	@NotNull
 
-          @Valid
-                private BigDecimal netAmount = null;
+	private String amountCode = null;
 
-        @JsonProperty("grossAmount")
-          @NotNull
+	@JsonProperty("netAmount")
+	@NotNull
 
-          @Valid
-                private BigDecimal grossAmount = null;
+	@Valid
+	private BigDecimal netAmount = null;
 
-        @JsonProperty("individual")
+	@JsonProperty("grossAmount")
+	@NotNull
 
-          @Valid
-                private Individual individual = null;
+	@Valid
+	private BigDecimal grossAmount = null;
 
-        @JsonProperty("status")
+	@JsonProperty("status")
 
-          @Valid
-                private Status status = null;
+	@Valid
+	private Status status = null;
 
-        @JsonProperty("additionalDetails")
+	@JsonProperty("additionalDetails")
 
-          @Valid
-                private AdditionalInfo additionalDetails = null;
+	@Valid
+	private AdditionalInfo additionalDetails = null;
 
-        @JsonProperty("auditDetails")
+	@JsonProperty("auditDetails")
 
-          @Valid
-                private AuditDetails auditDetails = null;
+	@Valid
+	private AuditDetails auditDetails = null;
 
 
 }

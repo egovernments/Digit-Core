@@ -1,18 +1,16 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
-import lombok.Builder;
 
 /**
  * Program search criteria
@@ -24,31 +22,35 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProgramSearch   {
-        @JsonProperty("ids")
+public class ProgramSearch {
+	@JsonProperty("ids")
 
-                private List<String> ids = null;
+	private List<String> ids = null;
 
-        @JsonProperty("name")
+	@JsonProperty("statusCode")
 
-                private String name = null;
+	private String statusCode;
 
-        @JsonProperty("programCode")
+	@JsonProperty("programCode")
 
-                private String programCode = null;
+	private String programCode = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("programId")
 
-                private String tenantId = null;
+	private String programId = null;
+
+	@JsonProperty("tenantId")
+	@NotNull
+
+	private String tenantId = null;
 
 
-        public ProgramSearch addIdsItem(String idsItem) {
-            if (this.ids == null) {
-            this.ids = new ArrayList<>();
-            }
-        this.ids.add(idsItem);
-        return this;
-        }
+	public ProgramSearch addIdsItem(String idsItem) {
+		if (this.ids == null) {
+			this.ids = new ArrayList<>();
+		}
+		this.ids.add(idsItem);
+		return this;
+	}
 
 }

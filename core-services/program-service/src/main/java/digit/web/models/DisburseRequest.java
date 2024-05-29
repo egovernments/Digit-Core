@@ -28,11 +28,11 @@ public class DisburseRequest {
 	@Valid
 	private RequestInfo requestInfo = null;
 
-	@JsonProperty("Disbursement")
+	@JsonProperty("Disburse")
 	@NotNull
 
 	@Valid
-	private Disburse disbursement = null;
+	private Disburse disburse = null;
 
 
 }

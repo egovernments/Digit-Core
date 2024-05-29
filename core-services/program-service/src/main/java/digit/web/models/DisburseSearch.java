@@ -1,18 +1,16 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
-import lombok.Builder;
 
 /**
  * Disburse search criteria
@@ -24,31 +22,38 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DisburseSearch   {
-        @JsonProperty("ids")
+public class DisburseSearch {
+	@JsonProperty("ids")
 
-                private List<String> ids = null;
+	private List<String> ids = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("tenantId")
+	@NotNull
 
-                private String tenantId = null;
+	private String tenantId = null;
 
-        @JsonProperty("programCode")
+	@JsonProperty("programCode")
 
-                private String programCode = null;
+	private String programCode = null;
 
-        @JsonProperty("targetId")
+	@JsonProperty("projectCode")
 
-                private String targetId = null;
+	private String projectCode = null;
 
+	@JsonProperty("disburseId")
 
-        public DisburseSearch addIdsItem(String idsItem) {
-            if (this.ids == null) {
-            this.ids = new ArrayList<>();
-            }
-        this.ids.add(idsItem);
-        return this;
-        }
+	private String disburseId = null;
+
+	@JsonProperty("targetId")
+
+	private String targetId = null;
+
+	public DisburseSearch addIdsItem(String idsItem) {
+		if (this.ids == null) {
+			this.ids = new ArrayList<>();
+		}
+		this.ids.add(idsItem);
+		return this;
+	}
 
 }

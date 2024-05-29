@@ -1,18 +1,17 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
-import lombok.Builder;
 
 /**
  * Project search criteria
@@ -24,39 +23,39 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProjectSearch   {
-        @JsonProperty("ids")
+public class ProjectSearch {
+	@JsonProperty("ids")
 
-                private List<String> ids = null;
+	private List<String> ids = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("tenantId")
+	@NotNull
 
-                private String tenantId = null;
+	private String tenantId = null;
+	@NotNull
 
-        @JsonProperty("programCode")
+	@JsonProperty("programCode")
 
-        @Size(min=2,max=64)         private String programCode = null;
+	private String programCode = null;
 
-        @JsonProperty("agencyCode")
+	@JsonProperty("agencyId")
 
-        @Size(min=2,max=64)         private String agencyCode = null;
+	private String agencyId = null;
 
-        @JsonProperty("projectCode")
+	@JsonProperty("projectCode")
 
-        @Size(min=2,max=64)         private String projectCode = null;
+	private String projectCode = null;
 
-        @JsonProperty("name")
+	@JsonProperty("projectId")
 
-        @Size(min=2,max=64)         private String name = null;
+	private String projectId = null;
 
-
-        public ProjectSearch addIdsItem(String idsItem) {
-            if (this.ids == null) {
-            this.ids = new ArrayList<>();
-            }
-        this.ids.add(idsItem);
-        return this;
-        }
+	public ProjectSearch addIdsItem(String idsItem) {
+		if (this.ids == null) {
+			this.ids = new ArrayList<>();
+		}
+		this.ids.add(idsItem);
+		return this;
+	}
 
 }

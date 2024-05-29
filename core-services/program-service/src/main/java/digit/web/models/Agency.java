@@ -1,18 +1,15 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.AuditDetails;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
-import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Describes an agency
@@ -24,40 +21,41 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Agency   {
-        @JsonProperty("id")
+public class Agency {
+	@JsonProperty("id")
 
-          @Valid
-                private UUID id = null;
+	@Valid
+	private String id = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("tenantId")
+	@NotNull
 
-                private String tenantId = null;
+	private String tenantId = null;
 
-        @JsonProperty("agencyCode")
+	@JsonProperty("agencyId")
 
-        @Size(min=2,max=64)         private String agencyCode = null;
+	@Size(min = 2, max = 64)
+	private String agencyId = null;
 
-        @JsonProperty("agencyType")
-          @NotNull
+	@JsonProperty("agencyType")
+	@NotNull
 
-                private String agencyType = null;
+	private String agencyType = null;
 
-        @JsonProperty("programCode")
-          @NotNull
+	@JsonProperty("programCode")
+	@NotNull
 
-        @Size(min=2,max=64)         private String programCode = null;
+	@Size(min = 2, max = 64)
+	private String programCode = null;
 
-        @JsonProperty("orgNumber")
-          @NotNull
+	@JsonProperty("orgNumber")
+	@NotNull
 
-        @Size(min=1,max=64)         private String orgNumber = null;
+	@Size(min = 1, max = 64)
+	private String orgNumber = null;
 
-        @JsonProperty("auditDetails")
+	@JsonProperty("auditDetails")
 
-          @Valid
-                private AuditDetails auditDetails = null;
-
-
+	@Valid
+	private AuditDetails auditDetails = null;
 }

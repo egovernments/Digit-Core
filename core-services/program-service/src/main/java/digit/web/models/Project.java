@@ -1,23 +1,18 @@
 package digit.web.models;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.AdditionalInfo;
-import digit.web.models.AuditDetails;
-import digit.web.models.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
-import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 
 /**
- * 1. Describes payment schema that enable transfer from payer to payee accounts.  2. This entity supports immediate and scheduling one time payment request into future.  3. Recurring payments is not part of the scope of this entity. 
+ * 1. Describes payment schema that enable transfer from payer to payee accounts.  2. This entity supports immediate and scheduling one time payment request into future.  3. Recurring payments is not part of the scope of this entity.
  */
 @Schema(description = "1. Describes payment schema that enable transfer from payer to payee accounts.  2. This entity supports immediate and scheduling one time payment request into future.  3. Recurring payments is not part of the scope of this entity. ")
 @Validated
@@ -26,54 +21,65 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Project   {
-        @JsonProperty("id")
+public class Project {
+	@JsonProperty("id")
 
-          @Valid
-                private UUID id = null;
+	@Valid
+	private String id = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("tenantId")
+	@NotNull
 
-        @Size(min=2,max=64)         private String tenantId = null;
+	@Size(min = 2, max = 64)
+	private String tenantId = null;
 
-        @JsonProperty("programCode")
-          @NotNull
+	@JsonProperty("programCode")
+	@NotNull
 
-        @Size(min=2,max=64)         private String programCode = null;
+	@Size(min = 2, max = 64)
+	private String programCode = null;
 
-        @JsonProperty("agencyCode")
-          @NotNull
+	@JsonProperty("agencyId")
+	@NotNull
 
-        @Size(min=2,max=64)         private String agencyCode = null;
+	@Size(min = 2, max = 64)
+	private String agencyId = null;
 
-        @JsonProperty("projectCode")
+	@JsonProperty("projectCode")
 
-        @Size(min=2,max=64)         private String projectCode = null;
+	@Size(min = 2, max = 64)
+	private String projectCode = null;
 
-        @JsonProperty("name")
-          @NotNull
+	@JsonProperty("projectId")
 
-        @Size(min=2,max=64)         private String name = null;
+	@Size(min = 2, max = 64)
+	private String projectId = null;
 
-        @JsonProperty("description")
+	@JsonProperty("name")
+	@NotNull
 
-        @Size(min=2,max=256)         private String description = null;
+	@Size(min = 2, max = 64)
+	private String name = null;
 
-        @JsonProperty("status")
+	@JsonProperty("description")
 
-          @Valid
-                private Status status = null;
+	@Size(min = 2, max = 256)
+	private String description = null;
 
-        @JsonProperty("additionalDetails")
+	@JsonProperty("status")
 
-          @Valid
-                private AdditionalInfo additionalDetails = null;
+	@Valid
+	private Status status = null;
 
-        @JsonProperty("auditDetails")
+	@JsonProperty("additionalDetails")
 
-          @Valid
-                private AuditDetails auditDetails = null;
+	@Valid
+	private AdditionalInfo additionalDetails = null;
+
+	@JsonProperty("auditDetails")
+
+	@Valid
+	private AuditDetails auditDetails = null;
 
 
 }

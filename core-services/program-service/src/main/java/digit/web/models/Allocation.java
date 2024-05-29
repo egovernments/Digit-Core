@@ -1,25 +1,22 @@
 package digit.web.models;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import digit.web.models.AdditionalInfo;
-import digit.web.models.AuditDetails;
-import digit.web.models.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
-import java.util.UUID;
-import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 
 /**
- * 1. Describes payment schema that enable transfer from payer to payee accounts. 2. This entity supports immediate and scheduling one time payment request into future.  3. Recurring payments is not part of the scope of this entity. 
+ * 1. Describes payment schema that enable transfer from payer to payee accounts. 2. This entity supports immediate and scheduling one time payment request into future.  3. Recurring payments is not part of the scope of this entity.
  */
 @Schema(description = "1. Describes payment schema that enable transfer from payer to payee accounts. 2. This entity supports immediate and scheduling one time payment request into future.  3. Recurring payments is not part of the scope of this entity. ")
 @Validated
@@ -28,93 +25,98 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Allocation   {
-        @JsonProperty("id")
+public class Allocation {
+	@JsonProperty("id")
 
-          @Valid
-                private UUID id = null;
+	@Valid
+	private String id = null;
 
-        @JsonProperty("tenantId")
-          @NotNull
+	@JsonProperty("tenantId")
+	@NotNull
 
-        @Size(min=2,max=64)         private String tenantId = null;
+	@Size(min = 2, max = 64)
+	private String tenantId = null;
 
-        @JsonProperty("programCode")
-          @NotNull
+	@JsonProperty("programCode")
+	@NotNull
 
-        @Size(min=2,max=64)         private String programCode = null;
+	@Size(min = 2, max = 64)
+	private String programCode = null;
 
-        @JsonProperty("projectCode")
-          @NotNull
+	@JsonProperty("projectCode")
+	@NotNull
 
-        @Size(min=2,max=64)         private String projectCode = null;
+	@Size(min = 2, max = 64)
+	private String projectCode = null;
 
-        @JsonProperty("sanctionId")
-          @NotNull
+	@JsonProperty("sanctionId")
+	@NotNull
 
-          @Valid
-                private UUID sanctionId = null;
+	@Valid
+	private String sanctionId = null;
 
-        @JsonProperty("netAmount")
-          @NotNull
+	@JsonProperty("allocationId")
 
-          @Valid
-                private BigDecimal netAmount = null;
+	private String allocationId = null;
 
-        @JsonProperty("grossAmount")
-          @NotNull
+	@JsonProperty("netAmount")
+	@NotNull
 
-          @Valid
-                private BigDecimal grossAmount = null;
+	@Valid
+	private BigDecimal netAmount = null;
 
-            /**
-            * Gets or Sets allocationType
-            */
-            public enum AllocationTypeEnum {
-                        ALLOCATION("ALLOCATION"),
-                        
-                        DEDUCTION("DEDUCTION");
-            
-            private String value;
-            
-            AllocationTypeEnum(String value) {
-            this.value = value;
-            }
-            
-            @Override
-            @JsonValue
-            public String toString() {
-            return String.valueOf(value);
-            }
-            
-            @JsonCreator
-            public static AllocationTypeEnum fromValue(String text) {
-            for (AllocationTypeEnum b : AllocationTypeEnum.values()) {
-            if (String.valueOf(b.value).equals(text)) {
-            return b;
-            }
-            }
-            return null;
-            }
-            }        @JsonProperty("allocationType")
-          @NotNull
+	@JsonProperty("grossAmount")
+	@NotNull
 
-                private AllocationTypeEnum allocationType = AllocationTypeEnum.ALLOCATION;
+	@Valid
+	private BigDecimal grossAmount = null;
+	@JsonProperty("allocationType")
+	@NotNull
 
-        @JsonProperty("status")
+	private AllocationTypeEnum allocationType = AllocationTypeEnum.ALLOCATION;
+	@JsonProperty("status")
 
-          @Valid
-                private Status status = null;
+	@Valid
+	private Status status = null;
+	@JsonProperty("additionalDetails")
 
-        @JsonProperty("additionalDetails")
+	@Valid
+	private AdditionalInfo additionalDetails = null;
+	@JsonProperty("auditDetails")
 
-          @Valid
-                private AdditionalInfo additionalDetails = null;
+	@Valid
+	private AuditDetails auditDetails = null;
 
-        @JsonProperty("auditDetails")
+	/**
+	 * Gets or Sets allocationType
+	 */
+	public enum AllocationTypeEnum {
+		ALLOCATION("ALLOCATION"),
 
-          @Valid
-                private AuditDetails auditDetails = null;
+		DEDUCTION("DEDUCTION");
+
+		private String value;
+
+		AllocationTypeEnum(String value) {
+			this.value = value;
+		}
+
+		@JsonCreator
+		public static AllocationTypeEnum fromValue(String text) {
+			for (AllocationTypeEnum b : AllocationTypeEnum.values()) {
+				if (String.valueOf(b.value).equals(text)) {
+					return b;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		@JsonValue
+		public String toString() {
+			return String.valueOf(value);
+		}
+	}
 
 
 }

@@ -29,16 +29,16 @@ public class DisburseSearchResponse {
 	@Valid
 	private ResponseInfo responseInfo = null;
 
-	@JsonProperty("Disbursements")
+	@JsonProperty("Disburses")
 	@Valid
-	private List<Disburse> disbursements = null;
+	private List<Disburse> disburses = null;
 
 
-	public DisburseSearchResponse addDisbursementsItem(Disburse disbursementsItem) {
-		if (this.disbursements == null) {
-			this.disbursements = new ArrayList<>();
+	public DisburseSearchResponse addDisbursesItem(Disburse disbursesItem) {
+		if (this.disburses == null) {
+			this.disburses = new ArrayList<>();
 		}
-		this.disbursements.add(disbursementsItem);
+		this.disburses.add(disbursesItem);
 		return this;
 	}
 
