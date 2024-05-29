@@ -509,3 +509,11 @@ config:
       - work-dir: "accelerators/sunbirdrc-credential-service/src/main/resources/db"
         image-name: "sunbirdrc-credential-service-db"
 
+# program-service
+  - name: "builds/Digit-Core/core-services/program-service"
+    build:
+      - work-dir: "core-services/program-service"
+        image-name: "program-service"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/program-service/src/main/resources/db"
+        image-name: "program-service-db"
