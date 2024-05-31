@@ -4,7 +4,7 @@
     <artifactId>boundary-service</artifactId>
     <packaging>jar</packaging>
     <name>boundary-service</name>
-    <version>2.9.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <properties>
     <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
