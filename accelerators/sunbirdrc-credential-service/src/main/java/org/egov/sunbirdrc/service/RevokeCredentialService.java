@@ -21,7 +21,6 @@ public class RevokeCredentialService {
     @Autowired
     private RestTemplate restTemplate;
     public String revokeCredential(String credentialId){
-        //String requestUrl=revokeCredentialUrl+credentialId;
         StringBuilder requestUrl= new StringBuilder();
         requestUrl.append(revokeCredentialHost).append("/credentials/");
         HttpHeaders headers = new HttpHeaders();

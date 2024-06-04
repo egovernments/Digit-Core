@@ -3,11 +3,9 @@ package org.egov.sunbirdrc.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.netty.channel.unix.Errors;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.sunbirdrc.models.DigitMDMSRequestBody;
-import org.egov.sunbirdrc.models.MdmsData;
 import org.egov.sunbirdrc.models.MdmsSchema;
 import org.egov.sunbirdrc.models.SchemaDefinition;
 import org.egov.tracer.model.CustomException;
@@ -21,8 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.JsonPath;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -103,8 +99,6 @@ public class AddVcSchemaService {
         String schemaId=null;
         try{
             schemaId = JsonPath.read(addSchemaResponse, "$.schema.id");
-            System.out.println(schemaId);
-
         }
         catch(Exception e){
             throw new CustomException("ID_NOT_FOUND", "id not found in the schema");
@@ -128,6 +122,7 @@ public class AddVcSchemaService {
         JsonNode path = mdmsDataRequestPayload.path("mdmsData").path("path");
         String did = mdmsDataRequestPayload.path("schema").path("author").asText();
         String mdmsCodeName=mdmsDataRequestPayload.path("mdmsData").path("code").asText();
+        JsonNode mdmsRcContext=mdmsDataRequestPayload.path("mdmsData").path("context");
 
         RequestInfo requestInfo = objectMapper.convertValue(mdmsDataRequestPayload.path("RequestInfo"),RequestInfo.class);
 
@@ -144,6 +139,7 @@ public class AddVcSchemaService {
         definitionNode.put("schemaId",schemaId);
         definitionNode.put("uuid", uuid);
         definitionNode.put("did", did);
+        definitionNode.put("context",mdmsRcContext);
         definitionNode.put("required",requiredArray);
         definitionNode.put("x-unique", uniqueArray);
         definitionNode.set("path", path);

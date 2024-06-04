@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.sunbirdrc.models.MdmsSearch;
+import org.egov.sunbirdrc.models.Schema;
+import org.egov.sunbirdrc.models.SchemaDefinitionSearch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -36,6 +40,7 @@ public class MdmsSchemaService {
 
     @Autowired
     private RestTemplate restTemplate;
+
 
 
     public MdmsSchemaService(StringRedisTemplate stringRedisTemplate) {
@@ -106,12 +111,24 @@ public class MdmsSchemaService {
                 }
                 """;
 
-        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
+        RequestInfo requestInfo= new RequestInfo();
+        SchemaDefinitionSearch  schemaDefinitionSearch= SchemaDefinitionSearch.builder().
+            tenantId("default")
+            .build();
 
+        MdmsSearch mdmsSearchObject= MdmsSearch.builder().
+                requestInfo(requestInfo)
+                .schemaDefinitionSearch(schemaDefinitionSearch)
+                .build();
+
+
+        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
         StringBuilder getSchemaUrl= new StringBuilder();
         getSchemaUrl.append(mdmsHost).append(mdmsSearchUrl);
+        //getSchemaUrl.append("http://localhost:9002/mdms-v2/schema/v1/_search");
         String response = restTemplate.postForObject(getSchemaUrl.toString(), entity, String.class);
         stringRedisTemplate.opsForValue().set("vc-mdms", response);
+
     }
 
 

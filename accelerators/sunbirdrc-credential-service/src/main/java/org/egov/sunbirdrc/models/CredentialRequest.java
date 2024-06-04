@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public class CredentialRequest {
     @JsonProperty("@context")
-    private List<String> context;
+    private List<Object> context;
     private String id;
     private List<String> type;
     private String issuer;

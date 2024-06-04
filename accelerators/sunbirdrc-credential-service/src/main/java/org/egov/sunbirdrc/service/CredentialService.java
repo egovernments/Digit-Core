@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.sunbirdrc.kafka.Producer;
+import org.egov.sunbirdrc.models.CredentialIdResponse;
 import org.egov.sunbirdrc.models.CredentialIdUuidMapper;
 import org.egov.sunbirdrc.models.CredentialRequest;
 import org.egov.sunbirdrc.repository.CredentialUuidRepository;
@@ -18,10 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+
 
 @Service
 @Slf4j
@@ -83,6 +85,7 @@ public class CredentialService {
             String entitySchemaId=getSchemaIdFromModuleObject(mdmsModuleObject);
             String uuid=getUuidFromModuleObject(mdmsModuleObject);
             JsonNode listofJsonPaths= getAllFieldPathFromMdms(mdmsModuleObject);
+            JsonNode credentialContext=getContextFromMdms(mdmsModuleObject);
 
             JsonNode payloadFromJsonPath= extractPayloadFromJsonPath(listofJsonPaths,requestPayload,entityDid);
             //check condition for create-vc and recreate-vc
@@ -92,7 +95,7 @@ public class CredentialService {
                 JsonNode jsonNode = objectMapper.readTree(revokeApiResponse);
                 String status = jsonNode.get("status").asText();
                 if(status.equals("REVOKED")){
-                    String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath);
+                    String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext);
                     if(credentialIdUuidData!=null){
                         producer.push("update-vcid", credentialIdUuidData);
                     }
@@ -102,7 +105,7 @@ public class CredentialService {
                 }
             }
             else{
-                String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath);
+                String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext);
                 if (credentialIdUuidData!=null){
                     producer.push(saveVcidTopic, credentialIdUuidData);
                 }
@@ -123,15 +126,31 @@ public class CredentialService {
         return getIdDetails(mdmsModuleObject, "schemaId");
     }
 
+    public JsonNode getContextFromMdms(JsonNode mdmsModuleObject){
+        return getContextObject(mdmsModuleObject, "context");
+    }
+
     public String getUuidFromModuleObject(JsonNode mdmsModuleObject) {
         return getIdDetails(mdmsModuleObject, "uuid");
     }
+
+
 
     public String getIdDetails(JsonNode mdmsModuleObject, String fieldName) {
         if (mdmsModuleObject != null && mdmsModuleObject.has("definition")) {
             JsonNode definitionNode = mdmsModuleObject.get("definition");
             if (definitionNode != null && definitionNode.has(fieldName)) {
                 return definitionNode.get(fieldName).asText();
+            }
+        }
+        return null;
+    }
+
+    public JsonNode getContextObject(JsonNode mdmsModuleObject, String fieldName){
+        if (mdmsModuleObject != null && mdmsModuleObject.has("definition")) {
+            JsonNode definitionNode = mdmsModuleObject.get("definition");
+            if (definitionNode != null && definitionNode.has(fieldName)) {
+                return definitionNode.get(fieldName);
             }
         }
         return null;
@@ -147,6 +166,7 @@ public class CredentialService {
         }
         return null;
     }
+
 
     public JsonNode extractPayloadFromJsonPath(JsonNode listofJsonPaths, JsonNode requestPayload,String did){
         ObjectMapper objectMapper = new ObjectMapper();
@@ -175,9 +195,7 @@ public class CredentialService {
     }
 
 
-
-
-    public String generateCredentials(String uuid, String did, String schemaId, JsonNode credentialPayload) {
+    public String generateCredentials(String uuid, String did, String schemaId, JsonNode credentialPayload,JsonNode credentialContext) {
         if (did == null || schemaId == null || uuid == null) {
             throw new IllegalArgumentException("Did, schemaId, and uuid cannot be null");
         }
@@ -187,9 +205,9 @@ public class CredentialService {
 
         try {
             // Create a new instance of CredentialRequestBody
-            credentialRequest.setContext(Arrays.asList("https://www.w3.org/2018/credentials/v1", "https://schema.org"));
+            credentialRequest.setContext(Arrays.asList("https://www.w3.org/2018/credentials/v1", credentialContext));
             credentialRequest.setId(did);
-            credentialRequest.setType(Arrays.asList("VerifiableCredential", "UniversityDegreeCredential"));
+            credentialRequest.setType(Arrays.asList("VerifiableCredential"));
             credentialRequest.setIssuer(did);
             credentialRequest.setExpirationDate("2023-02-08T11:56:27.259Z");
             credentialRequest.setCredentialSubject(credentialPayload);
@@ -215,7 +233,7 @@ public class CredentialService {
             //ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl.toString(), HttpMethod.POST, requestEntity, String.class);
             credentialIdUuidMapper.setVcid(getIdFromResponse(credentialResponse));
 
-            credentialIdUuidMapper.setUuid(uuid);
+            credentialIdUuidMapper.setEntityid(uuid);
             credentialIdUuidMapper.setCreatedBy(did);
             return objectMapper.writeValueAsString(credentialIdUuidMapper);
         } catch (JsonProcessingException e) {
@@ -224,9 +242,16 @@ public class CredentialService {
         }
     }
 
-    public String getCredential(String entityId){
+    public CredentialIdResponse getCredential(String mdmsCode) throws JsonProcessingException {
+        JsonNode schemaObject=mdmsSchemaService.getModuleDetailsFromMdmsData(mdmsCode);
+        String schemaObjectResponse=objectMapper.writeValueAsString(schemaObject);
+        String schemaId = JsonPath.read(schemaObjectResponse, "$.definition.schemaId");
+        String entityId = JsonPath.read(schemaObjectResponse, "$.definition.uuid");
         CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
-        return credentialUuidObject.getVcid();
+        CredentialIdResponse credentialIdResponse= new CredentialIdResponse();
+        credentialIdResponse.setCredentialId(credentialUuidObject.getEntityid());
+        credentialIdResponse.setSchemaId(schemaId);
+        return credentialIdResponse;
     }
 
 

@@ -1,6 +1,5 @@
 package org.egov.sunbirdrc.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,14 +11,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @AllArgsConstructor
 @Component
-public class CredentialIdUuidMapper {
-
-
-    private String entityid;
-
-    @JsonProperty("vcid")
-    private String vcid;
-
-    private String createdBy;
-
+public class CredentialIdResponse {
+    private String credentialId;
+    private String schemaId;
 }

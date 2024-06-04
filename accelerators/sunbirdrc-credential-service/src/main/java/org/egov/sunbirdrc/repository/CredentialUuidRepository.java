@@ -33,7 +33,7 @@ public class CredentialUuidRepository {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
-    private final String sql = "SELECT uuid, vcid FROM uuid_vcid_mapper";
+    private final String sql = "SELECT entityid, vcid FROM entity_id_vcid_mapper";
 
 
     //load uuid, did,schemaid data into memory from database.
@@ -42,13 +42,13 @@ public class CredentialUuidRepository {
         try {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
             for (Map<String, Object> row : rows) {
-                String uuid = (String) row.get("uuid");
+                String uuid = (String) row.get("entityid");
                 String vcid = (String) row.get("vcid");
-                credentialIdUuidMapper.setUuid(uuid);
+                credentialIdUuidMapper.setEntityid(uuid);
                 credentialIdUuidMapper.setVcid(vcid);
                 String json = convertObjectToJson(credentialIdUuidMapper); // Convert to JSON
                 if (json != null) { // Check if JSON conversion was successful
-                    stringRedisTemplate.opsForHash().put("uuid_vcid_mapper", uuid, json);
+                    stringRedisTemplate.opsForHash().put("entityid_vcid_mapper", uuid, json);
 
                 } else {
                     log.error("Failed to convert rowData to JSON for UUID: {}", uuid);
@@ -64,7 +64,8 @@ public class CredentialUuidRepository {
 
     public CredentialIdUuidMapper getUuidVcidMapperRow(String uuid) {
         ObjectMapper objectMapper = new ObjectMapper();
-        String json = (String) stringRedisTemplate.opsForHash().get("uuid_vcid_mapper", uuid);
+        loadData();
+        String json = (String) stringRedisTemplate.opsForHash().get("entityid_vcid_mapper", uuid);
         log.info("entityId and credentialId mapper is "+ json);
         if (json != null && !json.isEmpty()) {
             try {
