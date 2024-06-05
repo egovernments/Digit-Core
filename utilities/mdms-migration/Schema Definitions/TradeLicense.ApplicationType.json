@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"code":{"type":"string"},"active":{"type":"boolean","default":true}},"additionalProperties":false,"required":["code","active"],"x-unique":["code"]}

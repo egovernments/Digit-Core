@@ -1,0 +1,56 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "13d901bb-8365-43c1-a8b0-f148a40d3a4c",
+            "tenantId": "pg",
+            "code": "PropertyTax.PTWorkflow",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "businessService",
+                    "initialAction",
+                    "inWorkflowStatusAllowed",
+                    "enable"
+                ],
+                "x-unique": [
+                    "businessService",
+                    "initialAction"
+                ],
+                "properties": {
+                    "enable": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "initialAction": {
+                        "type": "string"
+                    },
+                    "businessService": {
+                        "type": "string"
+                    },
+                    "inWorkflowStatusAllowed": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259916679,
+                "lastModifiedTime": 1701259916679
+            }
+        }
+    ]
+}

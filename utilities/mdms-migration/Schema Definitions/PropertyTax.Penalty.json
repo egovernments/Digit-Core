@@ -1,0 +1,63 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "0261b344-4cd8-4a62-b28d-dbd3c116eaf3",
+            "tenantId": "pg",
+            "code": "PropertyTax.Penalty",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "rate",
+                    "fromFY",
+                    "startingDay"
+                ],
+                "x-unique": [
+                    "fromFY",
+                    "startingDay"
+                ],
+                "properties": {
+                    "rate": {
+                        "type": "integer"
+                    },
+                    "fromFY": {
+                        "type": "string",
+                        "pattern": "^\\d\\d\\d\\d-\\d\\d$"
+                    },
+                    "minAmount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "flatAmount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "startingDay": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259918068,
+                "lastModifiedTime": 1701259918068
+            }
+        }
+    ]
+}

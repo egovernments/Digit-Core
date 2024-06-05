@@ -1,0 +1,53 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "cb104b96-1b3c-4dc0-8489-7125e3adc82c",
+            "tenantId": "pg",
+            "code": "tenant.assessmentconfig",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "tenant",
+                    "enabled",
+                    "financialyear",
+                    "isRented"
+                ],
+                "x-unique": [
+                    "tenant"
+                ],
+                "properties": {
+                    "tenant": {
+                        "type": "string"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "isRented": {
+                        "type": "boolean"
+                    },
+                    "financialyear": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "11b0e02b-0145-4de2-bc42-c97b96264807",
+                "lastModifiedBy": "11b0e02b-0145-4de2-bc42-c97b96264807",
+                "createdTime": 1701255395766,
+                "lastModifiedTime": 1701255395766
+            }
+        }
+    ]
+}

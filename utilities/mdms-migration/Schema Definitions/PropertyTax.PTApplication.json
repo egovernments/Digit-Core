@@ -1,0 +1,53 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "11b940e7-ef0b-4d7f-8b8f-5f59d035d096",
+            "tenantId": "pg",
+            "code": "PropertyTax.PTApplication",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "creationReason",
+                    "businessService",
+                    "action",
+                    "editAction"
+                ],
+                "x-unique": [
+                    "businessService"
+                ],
+                "properties": {
+                    "action": {
+                        "type": "string"
+                    },
+                    "editAction": {
+                        "type": "string"
+                    },
+                    "creationReason": {
+                        "type": "string"
+                    },
+                    "businessService": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259917673,
+                "lastModifiedTime": 1701259917673
+            }
+        }
+    ]
+}
