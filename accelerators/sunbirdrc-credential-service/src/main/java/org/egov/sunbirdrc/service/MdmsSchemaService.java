@@ -137,6 +137,7 @@ public class MdmsSchemaService {
     }
 
     public JsonNode getModuleDetailsFromMdmsData(String entityModuleName) {
+        loadSchemaFromMdms();
         try {
             String response = stringRedisTemplate.opsForValue().get("vc-mdms");
             if (response != null) {
