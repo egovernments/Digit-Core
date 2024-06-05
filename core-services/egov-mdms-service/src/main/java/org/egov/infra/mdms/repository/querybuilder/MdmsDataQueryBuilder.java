@@ -22,7 +22,7 @@ public class MdmsDataQueryBuilder {
      */
     public String getMdmsDataSearchQuery(MdmsCriteria mdmsCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(mdmsCriteria, preparedStmtList);
-        query = QueryUtil.addOrderByClause(query, MDMS_DATA_QUERY_ORDER_BY_CLAUSE);
+
         return query;
     }
 
@@ -37,8 +37,8 @@ public class MdmsDataQueryBuilder {
         Map<String, String> schemaCodeFilterMap = mdmsCriteria.getSchemaCodeFilterMap();
         if (!Objects.isNull(mdmsCriteria.getTenantId())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.tenantid LIKE ? ");
-            preparedStmtList.add(mdmsCriteria.getTenantId() + "%");
+            builder.append(" data.tenantid = ? ");
+            preparedStmtList.add(mdmsCriteria.getTenantId());
         }
         if (!Objects.isNull(mdmsCriteria.getIds())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);

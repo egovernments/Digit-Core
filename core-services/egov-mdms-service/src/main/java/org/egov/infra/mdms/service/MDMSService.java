@@ -79,23 +79,44 @@ public class MDMSService {
 		 * Set incoming tenantId as state level tenantId for fallback in case master data for
 		 * concrete tenantId does not exist.
 		 */
-		String tenantId = new StringBuilder(mdmsCriteriaReq.getMdmsCriteria().getTenantId()).toString();
-		mdmsCriteriaReq.getMdmsCriteria().setTenantId(multiStateInstanceUtil.getStateLevelTenant(tenantId));
+		/*String tenantId = new StringBuilder(mdmsCriteriaReq.getMdmsCriteria().getTenantId()).toString();
+		mdmsCriteriaReq.getMdmsCriteria().setTenantId(multiStateInstanceUtil.getStateLevelTenant(tenantId));*/
+
+		String tenantId = mdmsCriteriaReq.getMdmsCriteria().getTenantId();
+
+		List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
 
 		Map<String, String> schemaCodes = getSchemaCodes(mdmsCriteriaReq.getMdmsCriteria());
 		mdmsCriteriaReq.getMdmsCriteria().setSchemaCodeFilterMap(schemaCodes);
 
 		// Make a call to the repository layer to fetch data as per given criteria
-		tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
+		//tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
 
 		// Apply filters to incoming data
-		tenantMasterMap = applyFilterToData(tenantMasterMap, mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
+		//tenantMasterMap = applyFilterToData(tenantMasterMap, mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
+		for(String subTenant : subTenantListForFallback) {
+			mdmsCriteriaReq.getMdmsCriteria().setTenantId(subTenant);
+
+			Map<String, Map<String, JSONArray>> subTenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
+
+			// Apply filters to incoming data
+			subTenantMasterMap = applyFilterToData(subTenantMasterMap, mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
+
+			addSubTenantMasterMapToTenantMasterMap(tenantMasterMap, subTenantMasterMap);
+
+		}
+
 
 		// Perform fallback
 		Map<String, JSONArray> masterDataMap = FallbackUtil.backTrackTenantMasterDataMap(tenantMasterMap, tenantId);
 
 		// Return response in MDMS v1 search response format for backward compatibility
 		return getModuleMasterMap(masterDataMap);
+	}
+
+	private void addSubTenantMasterMapToTenantMasterMap(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, Map<String, JSONArray>> subTenantMasterMap) {
+		subTenantMasterMap.keySet().forEach(subTenant ->
+				tenantMasterMap.put(subTenant, subTenantMasterMap.get(subTenant)));
 	}
 
 	private Map<String, Map<String, JSONArray>> applyFilterToData(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, String> schemaCodeFilterMap) {
