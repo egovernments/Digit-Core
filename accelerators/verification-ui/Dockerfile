@@ -19,9 +19,6 @@ RUN ls /app/src
 # Build the React app
 RUN npm run build
 
-# Use an official Nginx image as the final production image
-FROM nginx:latest
-
 # Add the ARGs as environment variables
 ARG SOURCE
 ARG COMMIT_HASH
@@ -34,13 +31,13 @@ LABEL commit_hash=${COMMIT_HASH}
 LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
-# Copy the built React app from the build container to the Nginx container
-COPY --from=build /app/build /usr/share/nginx/html
+FROM nginx:mainline-alpine
 
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+ENV WORK_DIR=/var/web/qr-scanner-ui
 
-# Expose port 80
-EXPOSE 80
+RUN mkdir -p ${WORK_DIR}
 
-# The main command to start Nginx when the container runs
-CMD ["nginx", "-g", "daemon off;"]
+
+COPY --from=build /app/dist ${WORK_DIR}/
+COPY --from=build /app/docker/nginx.conf /etc/nginx/conf.d/default.conf
+
