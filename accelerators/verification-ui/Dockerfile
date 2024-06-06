@@ -19,6 +19,8 @@ RUN ls /app/src
 # Build the React app
 RUN npm run build
 
+FROM nginx:mainline-alpine
+
 # Add the ARGs as environment variables
 ARG SOURCE
 ARG COMMIT_HASH
@@ -31,13 +33,13 @@ LABEL commit_hash=${COMMIT_HASH}
 LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
-FROM nginx:mainline-alpine
 
 ENV WORK_DIR=/var/web/qr-scanner-ui
 
 RUN mkdir -p ${WORK_DIR}
 
 
-COPY --from=build /app/dist ${WORK_DIR}/
-COPY --from=build /app/docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/build ${WORK_DIR}/
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+
 
