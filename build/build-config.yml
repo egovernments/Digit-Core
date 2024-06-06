@@ -513,5 +513,5 @@ config:
     build:
       - work-dir: "accelerators/verification-ui"
         image-name: "qr-scanner-ui"
-        dockerfile: "verification-ui/Dockerfile"
+        dockerfile: "accelerators/verification-ui/Dockerfile"
 
