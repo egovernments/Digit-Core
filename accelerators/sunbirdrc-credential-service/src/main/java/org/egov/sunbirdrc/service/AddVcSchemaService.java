@@ -61,9 +61,7 @@ public class AddVcSchemaService {
         // Convert the received JSON string to JSON object
         try {
             String mdmsJsonPayload = objectMapper.writeValueAsString(mdmsSchema);
-
             log.info("mdms payload is" + mdmsJsonPayload);
-
             credentialSchemaPayload = objectMapper.readValue(mdmsJsonPayload, JsonNode.class);
             vcSchemaPayload = credentialSchemaPayload.deepCopy();
             vcSchemaPayload.remove("mdmsData");
@@ -122,6 +120,7 @@ public class AddVcSchemaService {
         JsonNode path = mdmsDataRequestPayload.path("mdmsData").path("path");
         String did = mdmsDataRequestPayload.path("schema").path("author").asText();
         String mdmsCodeName=mdmsDataRequestPayload.path("mdmsData").path("code").asText();
+        String credentialExpiryDate= mdmsDataRequestPayload.path("mdmsData").path("expiryDate").asText();
         JsonNode mdmsRcContext=mdmsDataRequestPayload.path("mdmsData").path("context");
 
         RequestInfo requestInfo = objectMapper.convertValue(mdmsDataRequestPayload.path("RequestInfo"),RequestInfo.class);
@@ -140,6 +139,7 @@ public class AddVcSchemaService {
         definitionNode.put("uuid", uuid);
         definitionNode.put("did", did);
         definitionNode.put("context",mdmsRcContext);
+        definitionNode.put("expiryDate",credentialExpiryDate);
         definitionNode.put("required",requiredArray);
         definitionNode.put("x-unique", uniqueArray);
         definitionNode.set("path", path);

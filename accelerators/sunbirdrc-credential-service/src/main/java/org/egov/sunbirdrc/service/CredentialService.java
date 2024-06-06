@@ -84,6 +84,7 @@ public class CredentialService {
             String entityDid= getDidFromModuleObject(mdmsModuleObject);
             String entitySchemaId=getSchemaIdFromModuleObject(mdmsModuleObject);
             String uuid=getUuidFromModuleObject(mdmsModuleObject);
+            String expiryDate= getExpiryDateFromModuleObject(mdmsModuleObject);
             JsonNode listofJsonPaths= getAllFieldPathFromMdms(mdmsModuleObject);
             JsonNode credentialContext=getContextFromMdms(mdmsModuleObject);
 
@@ -95,7 +96,7 @@ public class CredentialService {
                 JsonNode jsonNode = objectMapper.readTree(revokeApiResponse);
                 String status = jsonNode.get("status").asText();
                 if(status.equals("REVOKED")){
-                    String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext);
+                    String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext,expiryDate);
                     if(credentialIdUuidData!=null){
                         producer.push("update-vcid", credentialIdUuidData);
                     }
@@ -105,7 +106,7 @@ public class CredentialService {
                 }
             }
             else{
-                String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext);
+                String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext,expiryDate);
                 if (credentialIdUuidData!=null){
                     producer.push(saveVcidTopic, credentialIdUuidData);
                 }
@@ -119,11 +120,15 @@ public class CredentialService {
     }
 
     public String getDidFromModuleObject(JsonNode mdmsModuleObject) {
-        return getIdDetails(mdmsModuleObject, "did");
+        return getFieldDetails(mdmsModuleObject, "did");
+    }
+
+    public String getExpiryDateFromModuleObject(JsonNode mdmsModuleObject) {
+        return getFieldDetails(mdmsModuleObject,"expiryDate");
     }
 
     public String getSchemaIdFromModuleObject(JsonNode mdmsModuleObject) {
-        return getIdDetails(mdmsModuleObject, "schemaId");
+        return getFieldDetails(mdmsModuleObject, "schemaId");
     }
 
     public JsonNode getContextFromMdms(JsonNode mdmsModuleObject){
@@ -131,12 +136,12 @@ public class CredentialService {
     }
 
     public String getUuidFromModuleObject(JsonNode mdmsModuleObject) {
-        return getIdDetails(mdmsModuleObject, "uuid");
+        return getFieldDetails(mdmsModuleObject, "uuid");
     }
 
 
 
-    public String getIdDetails(JsonNode mdmsModuleObject, String fieldName) {
+    public String getFieldDetails(JsonNode mdmsModuleObject, String fieldName) {
         if (mdmsModuleObject != null && mdmsModuleObject.has("definition")) {
             JsonNode definitionNode = mdmsModuleObject.get("definition");
             if (definitionNode != null && definitionNode.has(fieldName)) {
@@ -195,7 +200,7 @@ public class CredentialService {
     }
 
 
-    public String generateCredentials(String uuid, String did, String schemaId, JsonNode credentialPayload,JsonNode credentialContext) {
+    public String generateCredentials(String uuid, String did, String schemaId, JsonNode credentialPayload,JsonNode credentialContext,String expiryDate) {
         if (did == null || schemaId == null || uuid == null) {
             throw new IllegalArgumentException("Did, schemaId, and uuid cannot be null");
         }
@@ -209,7 +214,7 @@ public class CredentialService {
             credentialRequest.setId(did);
             credentialRequest.setType(Arrays.asList("VerifiableCredential"));
             credentialRequest.setIssuer(did);
-            credentialRequest.setExpirationDate("2023-02-08T11:56:27.259Z");
+            credentialRequest.setExpirationDate(expiryDate);
             credentialRequest.setCredentialSubject(credentialPayload);
 
             // Convert the credential part to JSON
@@ -249,7 +254,7 @@ public class CredentialService {
         String entityId = JsonPath.read(schemaObjectResponse, "$.definition.uuid");
         CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
         CredentialIdResponse credentialIdResponse= new CredentialIdResponse();
-        credentialIdResponse.setCredentialId(credentialUuidObject.getEntityid());
+        credentialIdResponse.setCredentialId(credentialUuidObject.getVcid());
         credentialIdResponse.setSchemaId(schemaId);
         return credentialIdResponse;
     }

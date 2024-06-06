@@ -15,4 +15,5 @@ public class MdmsData {
     private List<String> path;
     private String code;
     private JsonNode context;
+    private String expiryDate;
 }
