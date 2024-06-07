@@ -5,7 +5,7 @@ FROM node:18 as build
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package.json ./
+COPY package*.json ./
 
 # Install Node.js dependencies
 RUN npm install
@@ -19,7 +19,9 @@ RUN ls /app/src
 # Build the React app
 RUN npm run build
 
+# Use an official Nginx image as the final production image
 FROM nginx:mainline-alpine
+
 
 # Add the ARGs as environment variables
 ARG SOURCE
@@ -33,13 +35,11 @@ LABEL commit_hash=${COMMIT_HASH}
 LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
-
-ENV WORK_DIR=/var/web/qr-scanner-ui
+ENV WORK_DIR=/var/web/workbench-mfe
 
 RUN mkdir -p ${WORK_DIR}
 
+# Copy the built React app from the build container to the Nginx container
+COPY --from=build /app/build /usr/share/nginx/html
 
-COPY --from=build /app/build ${WORK_DIR}/
-COPY /app/nginx.conf /etc/nginx/conf.d/default.conf
-
-
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
