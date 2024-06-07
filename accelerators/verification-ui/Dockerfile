@@ -23,26 +23,13 @@ RUN npm run build
 FROM nginx:mainline-alpine
 
 
-# Add the ARGs as environment variables
-ARG SOURCE
-ARG COMMIT_HASH
-ARG COMMIT_ID
-ARG BUILD_TIME
-
-# Copy labels from build stage
-LABEL source=${SOURCE}
-LABEL commit_hash=${COMMIT_HASH}
-LABEL commit_id=${COMMIT_ID}
-LABEL build_time=${BUILD_TIME}
-
 ENV WORK_DIR=/var/web/qr-scanner-ui
 
 RUN mkdir -p ${WORK_DIR}
 
 # Copy the built React app from the build container to the Nginx container
-COPY --from=build /app/build /usr/share/nginx/html
-
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/build ${WORK_DIR}/
+COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
