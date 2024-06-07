@@ -1,0 +1,33 @@
+ServiceMaps:
+  serviceName: Birth Registration Service
+  version: 1.0.0
+  mappings:
+    - topic: save-bt-application
+      configKey: INDEX
+      indexes:
+        - name: btindex-v1
+          type: _doc
+          id: $.id
+          isBulk: true
+          timeStampField: $.auditDetails.createdTime
+          jsonPath: $.BirthRegistrationApplications
+          customJsonMapping:
+            indexMapping: {"Data":{"birthapplication":{},"history":{}}}
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data.birthapplication
+
+    - topic: update-bt-application
+      configKey: INDEX
+      indexes:
+        - name: btindex-v1
+          type: general
+          id: $.id
+          isBulk: true
+          timeStampField: $.auditDetails.createdTime
+          jsonPath: $.BirthRegistrationApplications
+          customJsonMapping:
+            indexMapping: {"Data":{"birthapplication":{},"history":{}}}
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data.birthapplication
