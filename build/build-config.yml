@@ -501,6 +501,12 @@ config:
         dockerfile: "build/maven/Dockerfile"
         image-name: "egov-birth-service"
 
+  - name: "builds/Digit-Core/accelerators/sample-services/backend/java/egov-birth-service"
+    build:
+      - work-dir: "accelerators/sample-services/backend/java/egov-birth-service"
+        dockerfile: "build/maven/Dockerfile"
+        image-name: "egov-birth-service"
+
   - name: "builds/Digit-Core/accelerators/sunbirdrc-credential-service"
     build:
       - work-dir: "accelerators/sunbirdrc-credential-service"
