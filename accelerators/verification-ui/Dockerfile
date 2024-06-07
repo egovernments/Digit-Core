@@ -31,7 +31,4 @@ RUN mkdir -p ${WORK_DIR}
 COPY --from=build /app/build ${WORK_DIR}/
 COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
 
-# The main command to start Nginx when the container runs
-CMD ["nginx", "-g", "daemon off;"]
