@@ -35,7 +35,7 @@ LABEL commit_hash=${COMMIT_HASH}
 LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
-ENV WORK_DIR=/var/web/workbench-mfe
+ENV WORK_DIR=/var/web/qr-scanner-ui
 
 RUN mkdir -p ${WORK_DIR}
 
