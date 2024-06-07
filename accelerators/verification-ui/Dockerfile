@@ -29,6 +29,6 @@ RUN mkdir -p ${WORK_DIR}
 
 # Copy the built React app from the build container to the Nginx container
 COPY --from=build /app/build ${WORK_DIR}/
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 
 
