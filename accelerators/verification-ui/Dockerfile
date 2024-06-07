@@ -5,7 +5,7 @@ FROM node:18 as build
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY package.json ./
 
 # Install Node.js dependencies
 RUN npm install
@@ -40,6 +40,6 @@ RUN mkdir -p ${WORK_DIR}
 
 
 COPY --from=build /app/build ${WORK_DIR}/
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY /app/nginx.conf /etc/nginx/conf.d/default.conf
 
 
