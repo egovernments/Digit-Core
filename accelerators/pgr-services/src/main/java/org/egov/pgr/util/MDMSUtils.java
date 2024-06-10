@@ -26,6 +26,7 @@ public class MDMSUtils {
 
     private ServiceRequestRepository serviceRequestRepository;
 
+    @Autowired
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
     @Autowired
