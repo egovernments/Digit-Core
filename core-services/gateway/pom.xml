@@ -88,6 +88,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-reactor-netty</artifactId>
 		</dependency>
+		<dependency>
+  			<groupId>co.elastic.apm</groupId>
+  			<artifactId>elastic-apm-agent</artifactId>
+  			<version>1.21.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
