@@ -169,7 +169,7 @@ public class BoundaryMigrate {
 
         boundaryHierarchyEnricher.enrichBoundaryHierarchyDefinition(boundaryTypeHierarchyRequest);
 
-        restTemplate.postForObject(boundaryHierarchyUrl, boundaryTypeHierarchyRequest, BoundaryTypeHierarchyRequest.class);
+        restTemplate.postForObject(boundaryHierarchyUrl, boundaryTypeHierarchyRequest, BoundaryTypeHierarchy.class);
 
     }
 
