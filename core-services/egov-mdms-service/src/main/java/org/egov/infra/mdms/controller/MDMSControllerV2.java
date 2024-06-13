@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -30,8 +30,8 @@ public class MDMSControllerV2 {
      * @param schemaCode
      * @return
      */
-    @RequestMapping(value="_create/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
+    @RequestMapping(value="_create", method = RequestMethod.POST)
+    public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest) {
         List<Mdms> masterDataList = mdmsServiceV2.create(mdmsRequest);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
     }

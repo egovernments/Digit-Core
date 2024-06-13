@@ -2,6 +2,8 @@ package org.egov.infra.mdms.service;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jayway.jsonpath.JsonPath;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
+import org.springframework.util.ObjectUtils;
 
 import static org.egov.infra.mdms.utils.MDMSConstants.*;
 
@@ -85,11 +88,38 @@ public class MDMSService {
 		// Make a call to the repository layer to fetch data as per given criteria
 		tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
 
+		// Apply filters to incoming data
+		tenantMasterMap = applyFilterToData(tenantMasterMap, mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
+
 		// Perform fallback
 		Map<String, JSONArray> masterDataMap = FallbackUtil.backTrackTenantMasterDataMap(tenantMasterMap, tenantId);
 
 		// Return response in MDMS v1 search response format for backward compatibility
 		return getModuleMasterMap(masterDataMap);
+	}
+
+	private Map<String, Map<String, JSONArray>> applyFilterToData(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, String> schemaCodeFilterMap) {
+		Map<String, Map<String, JSONArray>> tenantMasterMapPostFiltering = new HashMap<>();
+
+		tenantMasterMap.keySet().forEach(tenantId -> {
+			Map<String, JSONArray> schemaCodeVsFilteredMasters = new HashMap<>();
+			tenantMasterMap.get(tenantId).keySet().forEach(schemaCode -> {
+				JSONArray masters = tenantMasterMap.get(tenantId).get(schemaCode);
+				if(!ObjectUtils.isEmpty(schemaCodeFilterMap.get(schemaCode))) {
+					schemaCodeVsFilteredMasters.put(schemaCode, filterMasters(masters, schemaCodeFilterMap.get(schemaCode)));
+				} else {
+					schemaCodeVsFilteredMasters.put(schemaCode, masters);
+				}
+			});
+			tenantMasterMapPostFiltering.put(tenantId, schemaCodeVsFilteredMasters);
+		});
+
+		return tenantMasterMapPostFiltering;
+	}
+
+	private JSONArray filterMasters(JSONArray masters, String filterExp) {
+		JSONArray filteredMasters = JsonPath.read(masters, filterExp);
+		return filteredMasters;
 	}
 
 	private Map<String, Map<String, JSONArray>> getModuleMasterMap(Map<String, JSONArray> masterMap) {

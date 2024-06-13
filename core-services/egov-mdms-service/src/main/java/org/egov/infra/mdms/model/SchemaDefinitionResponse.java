@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Schema(description = "Response from server")
 @Validated
-@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
+@jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

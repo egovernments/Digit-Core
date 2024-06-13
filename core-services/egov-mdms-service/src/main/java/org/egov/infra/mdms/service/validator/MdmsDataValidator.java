@@ -10,6 +10,7 @@ import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
 import org.egov.infra.mdms.utils.CompositeUniqueIdentifierGenerationUtil;
 import org.egov.infra.mdms.utils.ErrorUtil;
+import org.egov.infra.mdms.utils.FallbackUtil;
 import org.egov.tracer.model.CustomException;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
@@ -103,8 +104,9 @@ public class MdmsDataValidator {
         // Fetch master data
         List<Mdms> masterData = fetchMasterData(MdmsCriteriaV2.builder()
                 .tenantId(mdmsRequest.getMdms().getTenantId())
-                .uniqueIdentifier(uniqueIdentifier)
+                .uniqueIdentifiers(Collections.singleton(uniqueIdentifier))
                 .schemaCode(mdmsRequest.getMdms().getSchemaCode())
+                .isActive(Boolean.TRUE)
                 .build());
 
         // Throw error if the provided master data already exists
@@ -138,31 +140,60 @@ public class MdmsDataValidator {
             org.json.JSONArray referenceSchema = (org.json.JSONArray) schemaObject.get(X_REFERENCE_SCHEMA_KEY);
 
             if (referenceSchema != null && referenceSchema.length() > 0) {
-                Set<String> uniqueIdentifiersForRefVerification = new HashSet<>();
                 JsonNode mdmsData = mdms.getData();
 
                 IntStream.range(0, referenceSchema.length()).forEach(i -> {
+                    Set<String> uniqueIdentifiersForRefVerification = new HashSet<>();
+
                     JSONObject jsonObject = referenceSchema.getJSONObject(i);
                     String refFieldPath = jsonObject.getString(FIELD_PATH_KEY);
+                    String schemaCode = jsonObject.getString(SCHEMA_CODE_KEY);
                     Object refResult = JsonPath.read(mdmsData.toString(), CompositeUniqueIdentifierGenerationUtil.getJsonPathExpressionFromDotSeparatedPath(refFieldPath));
 
-                    if (refResult instanceof String) {
-                        uniqueIdentifiersForRefVerification.add((String) refResult);
-                    } else if (refResult instanceof List) {
-                        uniqueIdentifiersForRefVerification.addAll((Collection<? extends String>) refResult);
-                    } else {
-                        throw new CustomException("REFERENCE_VALIDATION_ERR", "Reference must only be of the type string or a list of strings");
+                    addTypeCastedUniqueIdentifiersToVerificationSet(refResult, uniqueIdentifiersForRefVerification);
+                    List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(mdms.getTenantId());
+
+                    Boolean isRefDataFound = Boolean.FALSE;
+
+                    for(String subTenant : subTenantListForFallback) {
+                        List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
+                                MdmsCriteriaV2.builder()
+                                        .tenantId(subTenant)
+                                        .uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification)
+                                        .isActive(Boolean.TRUE)
+                                        .schemaCode(schemaCode)
+                                        .build());
+
+                        if (moduleMasterData.size() == uniqueIdentifiersForRefVerification.size()) {
+                            isRefDataFound = Boolean.TRUE;
+                            break;
+                        }
+                    }
+
+                    if(!isRefDataFound) {
+                        throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
                     }
 
                 });
-
-                List<Mdms> moduleMasterData = mdmsDataRepository.searchV2(
-                        MdmsCriteriaV2.builder().tenantId(mdms.getTenantId()).uniqueIdentifiersForRefVerification(uniqueIdentifiersForRefVerification).build());
-
-                if (moduleMasterData.size() != uniqueIdentifiersForRefVerification.size()) {
-                    throw new CustomException("REFERENCE_VALIDATION_ERR", "Provided reference value does not exist in database");
-                }
             }
+        }
+    }
+
+    /**
+     * This method takes the reference object provided in the data create request, type casts it into String
+     * and adds it to the uniqueIdentifiers set for performing search.
+     * @param refResult
+     * @param uniqueIdentifiersForRefVerification
+     */
+    private void addTypeCastedUniqueIdentifiersToVerificationSet(Object refResult, Set<String> uniqueIdentifiersForRefVerification) {
+        if (refResult instanceof String) {
+            uniqueIdentifiersForRefVerification.add((String) refResult);
+        } else if(refResult instanceof Number){
+            uniqueIdentifiersForRefVerification.add(String.valueOf(refResult));
+        } else if (refResult instanceof List) {
+            uniqueIdentifiersForRefVerification.addAll((Collection<? extends String>) refResult);
+        } else {
+            throw new CustomException("REFERENCE_VALIDATION_ERR", "Reference must only be of the type string, number or a list of strings/numbers");
         }
     }
 

@@ -8,9 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.Set;
  * MdmsCriteria
  */
 @Validated
-@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
+@jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,9 +35,9 @@ public class MdmsCriteriaV2 {
     @JsonProperty("ids")
     private Set<String> ids = null;
 
-    @JsonProperty("uniqueIdentifier")
+    @JsonProperty("uniqueIdentifiers")
     @Size(min = 1, max = 64)
-    private String uniqueIdentifier = null;
+    private Set<String> uniqueIdentifiers = null;
 
     @JsonProperty("schemaCode")
     private String schemaCode = null;
