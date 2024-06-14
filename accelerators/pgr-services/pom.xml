@@ -123,6 +123,12 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- Apache Commons IO dependency -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
     </dependencies>
     <repositories>
      		<repository>
