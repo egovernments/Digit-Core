@@ -123,9 +123,10 @@ public class InboxServiceV2 {
             return new ArrayList<>();
         }
         Map<String, Object> finalQueryBody = queryBuilder.getESQuery(inboxRequest, Boolean.TRUE);
+        log.info("Items final query: " + finalQueryBody);
         try {
             String q = mapper.writeValueAsString(finalQueryBody);
-            log.info("Query: "+q);
+            //log.info("Items Query: "+q);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -165,6 +166,7 @@ public class InboxServiceV2 {
     public Integer getTotalApplicationCount(InboxRequest inboxRequest, String indexName){
 
         Map<String, Object> finalQueryBody = queryBuilder.getESQuery(inboxRequest, Boolean.FALSE);
+        log.info("TotalApplicationCount final query: " + finalQueryBody);
         StringBuilder uri = getURI(indexName, COUNT_PATH);
         Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
         Integer totalCount = 0;
@@ -178,6 +180,7 @@ public class InboxServiceV2 {
 
     public List<HashMap<String, Object>> getStatusCountMap(InboxRequest inboxRequest, String indexName){
         Map<String, Object> finalQueryBody = queryBuilder.getStatusCountQuery(inboxRequest);
+        log.info("StatusCountMap final query: " + finalQueryBody);
         StringBuilder uri = getURI(indexName, SEARCH_PATH);
         Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
         Set<String> actionableStatuses = new HashSet<>(inboxRequest.getInbox().getProcessSearchCriteria().getStatus());
@@ -331,6 +334,7 @@ public class InboxServiceV2 {
             Long businessServiceSla = businessServiceSlaMap.get(businessService);
             inboxRequest.getInbox().getProcessSearchCriteria().setStatus(businessServiceVsUuidsBasedOnSearchCriteria.get(businessService));
             Map<String, Object> finalQueryBody = queryBuilder.getNearingSlaCountQuery(inboxRequest, businessServiceSla);
+            log.info("ApplicationNearingSlaCount final query: " + finalQueryBody);
             StringBuilder uri = getURI(indexName, COUNT_PATH);
             Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
             Integer currentCount = 0;
@@ -369,6 +373,7 @@ public class InboxServiceV2 {
 
     private List<Data> getDataFromSimpleSearch(SearchRequest searchRequest, String index) {
         Map<String, Object> finalQueryBody = queryBuilder.getESQueryForSimpleSearch(searchRequest, Boolean.TRUE);
+        //log.info("Final query: " + finalQueryBody);
         try {
             String q = mapper.writeValueAsString(finalQueryBody);
             log.info("Query: "+q);
