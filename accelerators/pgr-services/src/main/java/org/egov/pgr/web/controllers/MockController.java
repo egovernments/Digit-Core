@@ -8,8 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.egov.pgr.util.HRMSUtil;
-import org.egov.pgr.web.models.RequestInfoWrapper;
-import org.egov.pgr.web.models.RequestSearchCriteria;
+import org.egov.pgr.web.models.*;
 import org.egov.tracer.model.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,5 +123,68 @@ public class MockController {
 		List<String> department = hrmsUtil.getDepartment(uuids, requestInfoWrapper.getRequestInfo(), tenantId);
 
 		return  new ResponseEntity<>(department, HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/inbox/cases", method = RequestMethod.POST)
+	public ResponseEntity<String> yourCases(@Valid @RequestBody CaseRequest caseRequest) {
+		InputStream mockDataFile = null;
+		try {
+			Resource resource = resourceLoader.getResource("classpath:mockDataCases.json");
+			mockDataFile = resource.getInputStream();
+			log.info("mock file: " + mockDataFile.toString());
+			String res = IOUtils.toString(mockDataFile, StandardCharsets.UTF_8.name());
+			return new ResponseEntity<>(res, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new CustomException("FILEPATH_ERROR", "Failed to read file for mock data");
+		}finally {
+			try {
+				mockDataFile.close();
+			} catch (IOException e) {
+				log.error("Error while closing mock data file");
+			}
+		}
+
+	}
+
+	@RequestMapping(value = "/inbox/hearings", method = RequestMethod.POST)
+	public ResponseEntity<String> yourHearnings(@Valid @RequestBody HearingRequest hearingRequest) {
+		InputStream mockDataFile = null;
+		try {
+			Resource resource = resourceLoader.getResource("classpath:mockDataHearings.json");
+			mockDataFile = resource.getInputStream();
+			log.info("mock file: " + mockDataFile.toString());
+			String res = IOUtils.toString(mockDataFile, StandardCharsets.UTF_8.name());
+			return new ResponseEntity<>(res, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new CustomException("FILEPATH_ERROR", "Failed to read file for mock data");
+		}finally {
+			try {
+				mockDataFile.close();
+			} catch (IOException e) {
+				log.error("Error while closing mock data file");
+			}
+		}
+
+	}
+
+	@RequestMapping(value = "/inbox/tasks", method = RequestMethod.POST)
+	public ResponseEntity<String> yourTask(@Valid @RequestBody TaskRequest taskRequest) {
+		InputStream mockDataFile = null;
+		try {
+			Resource resource = resourceLoader.getResource("classpath:mockDataTasks.json");
+			mockDataFile = resource.getInputStream();
+			log.info("mock file: " + mockDataFile.toString());
+			String res = IOUtils.toString(mockDataFile, StandardCharsets.UTF_8.name());
+			return new ResponseEntity<>(res, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new CustomException("FILEPATH_ERROR", "Failed to read file for mock data");
+		}finally {
+			try {
+				mockDataFile.close();
+			} catch (IOException e) {
+				log.error("Error while closing mock data file");
+			}
+		}
+
 	}
 }

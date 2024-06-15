@@ -1,0 +1,34 @@
+{
+  "responseInfo": {
+    "apiId": "pucar-services",
+    "ver": null,
+    "ts": null,
+    "resMsgId": "uief87324",
+    "msgId": "search with from and to values",
+    "status": "Access Token generated successfully"
+  },
+  "hearings": [
+    {
+      "cnrNumber": "CNR123456",
+      "caseTitle": "John Doe vs Jane Doe",
+      "litigantNames": ["John Doe", "Jane Doe"],
+      "hearingId": "HEARING123",
+      "hearingType": "EVIDENCE",
+      "startDate": 1715752468000,
+      "endDate": 1715752468000,
+      "status": "Scheduled",
+      "isActive": true
+    },
+    {
+      "cnrNumber": "CNR654321",
+      "caseTitle": "Alice Smith vs Bob Smith",
+      "litigantNames": ["Alice Smith", "Bob Smith"],
+      "hearingId": "HEARING456",
+      "hearingType": "ADMISSION",
+      "startDate": 1715752468000,
+      "endDate": 1715752468000,
+      "status": "Concluded",
+      "isActive": false
+    }
+  ]
+}

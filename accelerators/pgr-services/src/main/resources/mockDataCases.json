@@ -1,0 +1,34 @@
+{
+  "responseInfo": {
+    "apiId": "pucar-services",
+    "ver": null,
+    "ts": null,
+    "resMsgId": "uief87324",
+    "msgId": "search with from and to values",
+    "status": "Access Token generated successfully"
+  },
+  "cases": [
+    {
+      "tenantId": "pg.citya",
+      "litigantNames": ["John Doe", "Jane Doe"],
+      "statutes": ["Statute1", "Statute2"],
+      "caseStage": "Trial",
+      "cnrNumber": "CNR123456",
+      "caseTitle": "John Doe vs Jane Doe",
+      "hasPendingTask": true,
+      "numTasksDue": "2",
+      "nextHearingDate": 1715752468000
+    },
+    {
+      "tenantId": "pg.cityb",
+      "litigantNames": ["Alice Smith", "Bob Smith"],
+      "statutes": ["Statute3"],
+      "caseStage": "Appeal",
+      "cnrNumber": "CNR654321",
+      "caseTitle": "Alice Smith vs Bob Smith",
+      "hasPendingTask": false,
+      "numTasksDue": "0",
+      "nextHearingDate": 1715752468000
+    }
+  ]
+}

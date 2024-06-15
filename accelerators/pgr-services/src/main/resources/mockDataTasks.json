@@ -1,0 +1,32 @@
+{
+  "responseInfo": {
+    "apiId": "pucar-services",
+    "ver": null,
+    "ts": null,
+    "resMsgId": "uief87324",
+    "msgId": "search with from and to values",
+    "status": "Access Token generated successfully"
+  },
+  "tasks": [
+    {
+      "tenantId": "pg.citya",
+      "caseStage": "Trial",
+      "cnrNumber": "CNR123456",
+      "caseTitle": "John Doe vs Jane Doe",
+      "taskType": "Document Review",
+      "taskId": "TASK123",
+      "status": "Pending",
+      "endDate": 1715752468000
+    },
+    {
+      "tenantId": "pg.cityb",
+      "caseStage": "Appeal",
+      "cnrNumber": "CNR654321",
+      "caseTitle": "Alice Smith vs Bob Smith",
+      "taskType": "Witness Preparation",
+      "taskId": "TASK456",
+      "status": "In Progress",
+      "endDate": 1715752468000
+    }
+  ]
+}
