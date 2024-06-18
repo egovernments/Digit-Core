@@ -525,3 +525,10 @@ config:
         image-name: "qr-scanner-ui"
         dockerfile: "accelerators/verification-ui/Dockerfile"
 
+#Accelerators
+  - name: "builds/Digit-Core/accelerators/im-services-analytics"
+    build:
+      - work-dir: "accelerators/im-services-analytics"
+        image-name: "im-services-analytics"
+        dockerfile: "build/maven/Dockerfile"
+
