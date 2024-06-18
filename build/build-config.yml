@@ -444,6 +444,12 @@ config:
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
 
+#Accelerators
+  - name: "builds/Digit-Core/accelerators/im-services-analytics"
+    build:
+      - work-dir: "accelerators/im-services-analytics"
+        image-name: "im-services-analytics"
+        dockerfile: "build/maven/Dockerfile"
 
 # frontend
   - name: builds/Digit-Core/accelerators/workbench-ui
