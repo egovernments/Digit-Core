@@ -37,7 +37,7 @@ public class EventConsumerConfig implements ApplicationRunner {
 
 	public String[] topics = {};
 
-	@Value("${spring.kafka.config.bootstrap_server_config}")
+	@Value("${kafka.config.bootstrap_server_config}")
 	private String brokerAddress;
 
 	@Value("${spring.kafka.consumer.group-id}")
