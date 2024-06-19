@@ -1,10 +1,9 @@
 package org.selco.e4h.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import org.selco.e4h.util.UpdateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
+import org.selco.e4h.util.UpdateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -51,7 +50,7 @@ public class UpdateService {
 
 					// Prepare the JSON payload for the update request
 					String jsonPayload = String.format(
-							"{\"doc\": {\"isLive\": \"%s\", \"createdTime\": %d}, \"doc_as_upsert\": false}",
+							"{ \"script\": { \"source\": \"if (ctx._source.isLive == 'FALSE') { ctx._source.isLive = params.newIsLive; ctx._source.createdTime = params.newCreatedTime; }\", \"lang\": \"painless\", \"params\": { \"newIsLive\": \"%s\", \"newCreatedTime\": %d } }, \"doc_as_upsert\": false }",
 							isLive, createdTime
 					);
 
@@ -69,8 +68,6 @@ public class UpdateService {
 						// Log based on the response
 						if (response.contains("\"result\":\"updated\"")) {
 							log.info("Document with ID {} successfully updated.", id);
-						} else if (response.contains("\"result\":\"noop\"")) {
-							log.info("No changes needed for document with ID {}.", id);
 						} else if (response.contains("\"type\":\"document_missing_exception\"")) {
 							log.warn("Document with ID {} not found.", id);
 						} else if (response.contains("\"type\":\"version_conflict_engine_exception\"")) {
