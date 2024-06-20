@@ -500,7 +500,17 @@ config:
       - work-dir: "accelerators/egov-birth-service"
         dockerfile: "build/maven/Dockerfile"
         image-name: "egov-birth-service"
+      - work-dir: "accelerators/egov-birth-service/src/main/resources/db"
+        image-name: "egov-birth-service-db"
 
+  - name: "builds/Digit-Core/accelerators/sample-services/backend/java/egov-birth-service"
+    build:
+      - work-dir: "accelerators/sample-services/backend/java/egov-birth-service"
+        dockerfile: "build/maven/Dockerfile"
+        image-name: "egov-birth-service"
+      - work-dir: "accelerators/sample-services/backend/java/egov-birth-service/src/main/resources/db"
+        image-name: "egov-birth-service-db"
+        
   - name: "builds/Digit-Core/accelerators/sunbirdrc-credential-service"
     build:
       - work-dir: "accelerators/sunbirdrc-credential-service"
@@ -514,4 +524,11 @@ config:
       - work-dir: "accelerators/verification-ui"
         image-name: "verification-ui"
         dockerfile: "accelerators/verification-ui/Dockerfile"
+
+#Accelerators
+  - name: "builds/Digit-Core/accelerators/im-services-analytics"
+    build:
+      - work-dir: "accelerators/im-services-analytics"
+        image-name: "im-services-analytics"
+        dockerfile: "build/maven/Dockerfile"
 
