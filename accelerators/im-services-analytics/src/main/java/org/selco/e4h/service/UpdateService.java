@@ -45,13 +45,13 @@ public class UpdateService {
 				if (null != kafkaJsonArray.get(i)) {
 					String stringifiedObject = indexerUtils.buildString(kafkaJsonArray.get(i));
 					String id = JsonPath.read(stringifiedObject, "$.tenantId");
-					String isLive = JsonPath.read(stringifiedObject, "$.isActive") ? "TRUE" : "FALSE";
-					Long createdTime = JsonPath.read(stringifiedObject, "$.auditDetails.createdDate");
+					String isLive = JsonPath.read(stringifiedObject, "$.isActive") ? "true" : "false";
+					Long accountCreationTime = JsonPath.read(stringifiedObject, "$.auditDetails.createdDate");
 
 					// Prepare the JSON payload for the update request
 					String jsonPayload = String.format(
-							"{ \"script\": { \"source\": \"if (ctx._source.isLive == 'FALSE') { ctx._source.isLive = params.newIsLive; ctx._source.createdTime = params.newCreatedTime; }\", \"lang\": \"painless\", \"params\": { \"newIsLive\": \"%s\", \"newCreatedTime\": %d } }, \"doc_as_upsert\": false }",
-							isLive, createdTime
+							"{ \"script\": { \"source\": \"if (ctx._source.Data.isLive.toString().equalsIgnoreCase('false')) { ctx._source.Data.isLive = params.newIsLive; ctx._source.Data.accountCreationTime = params.accountCreationTime; }\", \"lang\": \"painless\", \"params\": { \"newIsLive\": \"%s\", \"accountCreationTime\": %d } }, \"doc_as_upsert\": false }",
+							isLive, accountCreationTime
 					);
 
 					// Construct the update URL
@@ -74,7 +74,9 @@ public class UpdateService {
 							log.error("Version conflict for document with ID {}.", id);
 						} else if (response.contains("\"type\":\"shard_failed\"")) {
 							log.error("Shard failure while updating document with ID {}.", id);
-						} else {
+						} else if (response.contains("\"type\":\"illegal_argument_exception\"")) {
+							log.error("Illegal argument exception while updating document with ID {}: {}", id, response);
+						}else {
 							log.error("Unexpected response: {}", response);
 						}
 					} catch (final ResourceAccessException e) {
