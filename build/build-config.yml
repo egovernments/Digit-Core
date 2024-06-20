@@ -523,7 +523,7 @@ config:
     build:
       - work-dir: "accelerators/qr-scanner-ui"
         image-name: "qr-scanner-ui"
-        dockerfile: "accelerators/verification-ui/Dockerfile"
+        dockerfile: "accelerators/qr-scanner-ui/Dockerfile"
 
 #Accelerators
   - name: "builds/Digit-Core/accelerators/im-services-analytics"
