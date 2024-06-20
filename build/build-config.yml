@@ -519,11 +519,11 @@ config:
       - work-dir: "accelerators/sunbirdrc-credential-service/src/main/resources/db"
         image-name: "sunbirdrc-credential-service-db"
 
-  - name: "builds/Digit-Core/accelerators/verification-ui"
+  - name: "builds/Digit-Core/accelerators/qr-scanner-ui"
     build:
-      - work-dir: "accelerators/verification-ui"
+      - work-dir: "accelerators/qr-scanner-ui"
         image-name: "qr-scanner-ui"
-        dockerfile: "accelerators/verification-ui/Dockerfile"
+        dockerfile: "accelerators/qr-scanner-ui/Dockerfile"
 
 #Accelerators
   - name: "builds/Digit-Core/accelerators/im-services-analytics"
