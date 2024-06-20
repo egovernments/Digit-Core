@@ -512,6 +512,6 @@ config:
   - name: "builds/Digit-Core/accelerators/verification-ui"
     build:
       - work-dir: "accelerators/verification-ui"
-        image-name: "qr-scanner-ui"
+        image-name: "verification-ui"
         dockerfile: "accelerators/verification-ui/Dockerfile"
 
