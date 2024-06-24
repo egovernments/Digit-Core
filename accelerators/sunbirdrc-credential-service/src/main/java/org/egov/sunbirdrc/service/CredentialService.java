@@ -234,10 +234,8 @@ public class CredentialService {
             fetchCredentialUrl.append(credentialHost).append("/credentials/issue");
             //fetchCredentialUrl.append("https://unified-dev.digit.org/credentials-service/credentials/issue");
             Object credentialResponse = serviceRequestRepository.fetchResult(fetchCredentialUrl, requestEntity);
-
             //ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl.toString(), HttpMethod.POST, requestEntity, String.class);
             credentialIdUuidMapper.setVcid(getIdFromResponse(credentialResponse));
-
             credentialIdUuidMapper.setEntityid(uuid);
             credentialIdUuidMapper.setCreatedBy(did);
             return objectMapper.writeValueAsString(credentialIdUuidMapper);

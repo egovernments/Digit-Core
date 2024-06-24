@@ -11,6 +11,9 @@ import org.egov.common.contract.request.RequestInfo;
 @AllArgsConstructor
 @Builder
 public class MdmsSearch {
-    private SchemaDefinitionSearch schemaDefinitionSearch;
+    @JsonProperty("RequestInfo")
     private RequestInfo requestInfo;
+
+    @JsonProperty("SchemaDefCriteria")
+    private SchemaDefCriteria schemaDefCriteria;
 }

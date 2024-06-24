@@ -1,13 +1,13 @@
 package org.egov.sunbirdrc.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.sunbirdrc.models.MdmsSearch;
-import org.egov.sunbirdrc.models.Schema;
-import org.egov.sunbirdrc.models.SchemaDefinitionSearch;
+import org.egov.sunbirdrc.models.SchemaDefCriteria;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,15 +19,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-
 @Service
 @Component
 @Slf4j
 public class MdmsSchemaService {
 
-    @Value("${sunbird.mdms.auth.token}")
-    private String mdmsToken;
 
     @Value("${egov.mdms.host}")
     private String mdmsHost;
@@ -43,7 +39,6 @@ public class MdmsSchemaService {
     private RestTemplate restTemplate;
 
 
-
     public MdmsSchemaService(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
     }
@@ -54,81 +49,37 @@ public class MdmsSchemaService {
     public void loadSchemaFromMdms() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-       // headers.set("Authorization", mdmsToken); // Set if required
-
-        String requestJson = """
-                {
-                    "RequestInfo": {
-                        "apiId": "asset-services",
-                        "ver": null,
-                        "ts": null,
-                        "action": null,
-                        "did": null,
-                        "key": null,
-                        "msgId": "search with from and to values",
-                        "authToken": "8c68a385-196a-4790-8aee-42323faef9ad",
-                        "correlationId": null,
-                        "userInfo": {
-                            "id": 595,
-                            "uuid": "1fda5623-448a-4a59-ad17-657986742d67",
-                            "userName": "UNIFIED_DEV_USERR",
-                            "name": "Unified dev user",
-                            "mobileNumber": "8788788851",
-                            "emailId": "",
-                            "locale": null,
-                            "type": "EMPLOYEE",
-                            "roles": [
-                                {
-                                    "name": "Localisation admin",
-                                    "code": "LOC_ADMIN",
-                                    "tenantId": "pg"
-                                },
-                                {
-                                    "name": "Employee",
-                                    "code": "EMPLOYEE",
-                                    "tenantId": "pg"
-                                },
-                                {
-                                    "name": "MDMS Admin",
-                                    "code": "MDMS_ADMIN",
-                                    "tenantId": "pg"
-                                },
-                                {
-                                    "name": "SUPER USER",
-                                    "code": "SUPERUSER",
-                                    "tenantId": "pg"
-                                }
-                            ],
-                            "active": true,
-                            "tenantId": "pg",
-                            "permanentCity": null
-                        },
-                        "msgId": "1695889012604|en_IN",
-                        "plainAccessRequest": {}
-                    },
-                    "SchemaDefCriteria": {
-                        "tenantId": "default"
-                    }
-                }
-                """;
-
         RequestInfo requestInfo= new RequestInfo();
-        SchemaDefinitionSearch  schemaDefinitionSearch= SchemaDefinitionSearch.builder().
-            tenantId("default")
-            .build();
-
-        MdmsSearch mdmsSearchObject= MdmsSearch.builder().
-                requestInfo(requestInfo)
-                .schemaDefinitionSearch(schemaDefinitionSearch)
+        SchemaDefCriteria schemaDefinitionSearch= SchemaDefCriteria.builder().
+                tenantId("default")
                 .build();
 
+        MdmsSearch mdmsSearchObject= MdmsSearch.builder()
+                .requestInfo(requestInfo)
+                .schemaDefCriteria(schemaDefinitionSearch)
+                .build();
 
-        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
+        String mdmsSearchObjectString=null;
+        try {
+            mdmsSearchObjectString = objectMapper.writeValueAsString(mdmsSearchObject);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        HttpEntity<String> entity = new HttpEntity<>(mdmsSearchObjectString, headers);
         StringBuilder getSchemaUrl= new StringBuilder();
         getSchemaUrl.append(mdmsHost).append(mdmsSearchUrl);
         //getSchemaUrl.append("http://localhost:9002/mdms-v2/schema/v1/_search");
-        String response = restTemplate.postForObject(getSchemaUrl.toString(), entity, String.class);
-        stringRedisTemplate.opsForValue().set("vc-mdms", response);
+        String mdmsSearchResponse=null;
+        try{
+            mdmsSearchResponse = restTemplate.postForObject(getSchemaUrl.toString(), entity, String.class);
+
+        }
+        catch(Exception e){
+            throw new CustomException("MDMS_SEARCH_FAILURE", "mdms search object not found");
+        }
+
+        stringRedisTemplate.opsForValue().set("vc-mdms", mdmsSearchResponse);
 
     }
 
@@ -143,7 +94,6 @@ public class MdmsSchemaService {
             String response = stringRedisTemplate.opsForValue().get("vc-mdms");
             if (response != null) {
                 JsonNode rootNode = objectMapper.readTree(response);
-                // Access the SchemaDefinitions array within the response
                 JsonNode schemaDefinitions = rootNode.path("SchemaDefinitions");
                 if (schemaDefinitions.isArray()) {
                     for (JsonNode definitionNode : schemaDefinitions) {
