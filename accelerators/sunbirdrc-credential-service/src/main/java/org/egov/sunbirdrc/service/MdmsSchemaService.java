@@ -73,13 +73,14 @@ public class MdmsSchemaService {
         String mdmsSearchResponse=null;
         try{
             mdmsSearchResponse = restTemplate.postForObject(getSchemaUrl.toString(), entity, String.class);
+            stringRedisTemplate.opsForValue().set("vc-mdms", mdmsSearchResponse);
 
         }
         catch(Exception e){
             throw new CustomException("MDMS_SEARCH_FAILURE", "mdms search object not found");
         }
 
-        stringRedisTemplate.opsForValue().set("vc-mdms", mdmsSearchResponse);
+
 
     }
 
