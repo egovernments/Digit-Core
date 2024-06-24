@@ -1,6 +1,5 @@
 package org.egov.sunbirdrc.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -52,7 +51,7 @@ public class MdmsSchemaService {
 
     //load the rc config in the mdms to the cache
     @PostConstruct
-    public void loadSchemaFromMdms() throws JsonProcessingException {
+    public void loadSchemaFromMdms() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         // headers.set("Authorization", mdmsToken); // Set if required
@@ -123,9 +122,8 @@ public class MdmsSchemaService {
                 .schemaDefCriteria(schemaDefinitionSearch)
                 .build();
 
-        String mdmsSearchResponse = objectMapper.writeValueAsString(mdmsSearchObject);
 
-        HttpEntity<String> entity = new HttpEntity<>(mdmsSearchResponse, headers);
+        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
         StringBuilder getSchemaUrl= new StringBuilder();
         getSchemaUrl.append(mdmsHost).append(mdmsSearchUrl);
         //getSchemaUrl.append("http://localhost:9002/mdms-v2/schema/v1/_search");
@@ -139,7 +137,7 @@ public class MdmsSchemaService {
         return stringRedisTemplate.delete(key);
     }
 
-    public JsonNode getModuleDetailsFromMdmsData(String entityModuleName) throws JsonProcessingException {
+    public JsonNode getModuleDetailsFromMdmsData(String entityModuleName) {
         loadSchemaFromMdms();
         try {
             String response = stringRedisTemplate.opsForValue().get("vc-mdms");
