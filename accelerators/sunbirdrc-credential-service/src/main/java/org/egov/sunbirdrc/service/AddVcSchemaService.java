@@ -70,20 +70,15 @@ public class AddVcSchemaService {
             throw new RuntimeException("mdmsData field required in the request payload" + e.getMessage());
         }
 
-        // Create a new HttpHeaders object
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        // Create a new HttpEntity with the modified payload and headers
         HttpEntity<Object> requestEntity = new HttpEntity<>(vcSchemaPayload, headers);
-        // Make a POST request to the schema endpoint
         log.info("request entity"+ requestEntity);
         StringBuilder uri = new StringBuilder();
         uri.append(credentialHost).append("/credential-schema");
         //uri.append("https://unified-dev.digit.org/credential-schema-service/credential-schema");
         log.info("Constructed URI: {}", uri.toString());
         Object response = serviceRequestRepository.fetchResult(uri, requestEntity);
-        //ResponseEntity<String> responseEntity = restTemplate.exchange(SCHEMA_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
-        //String addSchemaResponse=response.getBody();
         String schemaId=getSchemaIdFromResponse(response);
         String mdmsResponse=addVcSchemaToMdms(credentialSchemaPayload,schemaId);
         log.info("mdms response on adding the schema"+ mdmsResponse);
@@ -108,21 +103,16 @@ public class AddVcSchemaService {
 
         List<String> requiredList = Arrays.asList("path");
         List<String> uniqueList = Arrays.asList("path");
-
-        // Create ArrayNode for requiredList
         ArrayNode requiredArray = objectMapper.valueToTree(requiredList);
-
-        // Create ArrayNode for uniqueList
         ArrayNode uniqueArray = objectMapper.valueToTree(uniqueList);
 
-        // Create the payload
+        // Create the request payload
         String uuid = mdmsDataRequestPayload.path("mdmsData").path("uuid").asText();
         JsonNode path = mdmsDataRequestPayload.path("mdmsData").path("path");
         String did = mdmsDataRequestPayload.path("schema").path("author").asText();
         String mdmsCodeName=mdmsDataRequestPayload.path("mdmsData").path("code").asText();
         String credentialExpiryDate= mdmsDataRequestPayload.path("mdmsData").path("expiryDate").asText();
         JsonNode mdmsRcContext=mdmsDataRequestPayload.path("mdmsData").path("context");
-
         RequestInfo requestInfo = objectMapper.convertValue(mdmsDataRequestPayload.path("RequestInfo"),RequestInfo.class);
 
         SchemaDefinition schemaDefinition = SchemaDefinition.builder().
@@ -149,21 +139,15 @@ public class AddVcSchemaService {
                 .SchemaDefinition(schemaDefinition)
                 .build();
 
-        // Set up headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        // Set up the request entity
         HttpEntity<DigitMDMSRequestBody> requestEntity = new HttpEntity<>(mdmsRequestBody, headers);
-
         StringBuilder mdmsRequestUrl= new StringBuilder();
         mdmsRequestUrl.append(mdmsHost).append(mdmsCreateUrl);
-        // Make the POST request
         ResponseEntity<String> responseEntity = restTemplate.exchange(mdmsRequestUrl.toString(), HttpMethod.POST, requestEntity, String.class);
-
         mdmsSchemaService.invalidateMdmsCache("vc-mdms");
         mdmsSchemaService.loadSchemaFromMdms();
         String mdmsResponse= responseEntity.getBody();
-
         return mdmsResponse;
     }
 }

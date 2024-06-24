@@ -250,12 +250,20 @@ public class CredentialService {
     public CredentialIdResponse getCredential(String mdmsCode) throws JsonProcessingException {
         JsonNode schemaObject=mdmsSchemaService.getModuleDetailsFromMdmsData(mdmsCode);
         String schemaObjectResponse=objectMapper.writeValueAsString(schemaObject);
-        String schemaId = JsonPath.read(schemaObjectResponse, "$.definition.schemaId");
-        String entityId = JsonPath.read(schemaObjectResponse, "$.definition.uuid");
+        String schemaId=null;
+        String entityId=null;
+        try{
+            schemaId = JsonPath.read(schemaObjectResponse, "$.definition.schemaId");
+            entityId = JsonPath.read(schemaObjectResponse, "$.definition.uuid");
+        }
+        catch(Exception e){
+            throw new CustomException("ID_NOT_FOUND", "credential id not found in the schema");
+        }
         CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
         CredentialIdResponse credentialIdResponse= new CredentialIdResponse();
         credentialIdResponse.setCredentialId(credentialUuidObject.getVcid());
         credentialIdResponse.setSchemaId(schemaId);
+        credentialIdResponse.setResponseInfo(null);
         return credentialIdResponse;
     }
 

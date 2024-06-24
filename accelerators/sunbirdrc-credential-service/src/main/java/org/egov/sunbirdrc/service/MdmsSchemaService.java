@@ -8,6 +8,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.sunbirdrc.models.MdmsSearch;
 import org.egov.sunbirdrc.models.Schema;
 import org.egov.sunbirdrc.models.SchemaDefinitionSearch;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -53,7 +54,7 @@ public class MdmsSchemaService {
     public void loadSchemaFromMdms() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", mdmsToken); // Set if required
+       // headers.set("Authorization", mdmsToken); // Set if required
 
         String requestJson = """
                 {
@@ -153,8 +154,8 @@ public class MdmsSchemaService {
                     }
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Error occurred while parsing MDMS data: " + e.getMessage());
+        } catch(Exception e){
+            throw new CustomException("MDMS_PARSING_ERROR", "error parsing the mdms data");
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package org.egov.sunbirdrc.service;
 
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -23,14 +24,22 @@ public class RevokeCredentialService {
     public String revokeCredential(String credentialId){
         StringBuilder requestUrl= new StringBuilder();
         requestUrl.append(revokeCredentialHost).append("/credentials/");
+        //requestUrl.append("https://unified-dev.digit.org/credentials-service/credentials/");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String revokeRequestUrl= requestUrl.toString()+credentialId;
-        ResponseEntity<String> responseEntity=restTemplate.exchange(
-                revokeRequestUrl,
-                HttpMethod.DELETE,
-                null,
-                String.class);
+        ResponseEntity<String> responseEntity=null;
+        try{
+            responseEntity=restTemplate.exchange(
+                    revokeRequestUrl,
+                    HttpMethod.DELETE,
+                    null,
+                    String.class);
+        }
+        catch(Exception e){
+            throw new CustomException("REVOKE_API_FAILED", "revoke credentials failed");
+        }
+
         return responseEntity.getBody();
     }
     }

@@ -28,9 +28,9 @@ public class CredentialController {
     @PostMapping("/_get")
     public ResponseEntity<CredentialIdResponse> getCredential(@RequestBody String entityPayload) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(entityPayload);
-        String entityId = jsonNode.get("code").asText();
-        CredentialIdResponse credentialId=credentialService.getCredential(entityId);
-        log.info("Entity id :" + entityId);
+        String mdmsModule = jsonNode.get("code").asText();
+        CredentialIdResponse credentialId=credentialService.getCredential(mdmsModule);
+        log.info("Entity id :" + mdmsModule);
         return new ResponseEntity<CredentialIdResponse>(credentialId, HttpStatus.OK);
     }
 }
