@@ -60,6 +60,8 @@ public class MDMSServiceV2 {
         // Emit MDMS create event to be listened by persister
         mdmsDataRepository.create(mdmsRequest);
 
+
+
         return Arrays.asList(mdmsRequest.getMdms());
     }
 
