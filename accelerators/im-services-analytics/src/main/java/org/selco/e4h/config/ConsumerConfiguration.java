@@ -7,10 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Data
 @Import({TracerConfiguration.class})
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class ConsumerConfiguration {
 
 	//Kafka Config
