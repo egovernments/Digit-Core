@@ -3,16 +3,14 @@ package org.selco.e4h.config;
 import lombok.*;
 import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.stereotype.Component;
 
 @Configuration
 @Data
 @Import({TracerConfiguration.class})
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
 public class ConsumerConfiguration {
 
 	//Kafka Config
