@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.tracer.KafkaConsumerErrorHandler;
+import org.selco.e4h.config.ConsumerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
@@ -37,14 +37,8 @@ public class EventConsumerConfig implements ApplicationRunner {
 
 	public String[] topics = {};
 
-	@Value("${kafka.config.bootstrap_server_config}")
-	private String brokerAddress;
-
-	@Value("${spring.kafka.consumer.group-id}")
-	private String consumerGroup;
-
-	@Value("${kafka.topics.consumer}")
-	private String consumerTopics;
+	@Autowired
+	private ConsumerConfiguration config;
 
 	@Autowired
 	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
@@ -87,15 +81,15 @@ public class EventConsumerConfig implements ApplicationRunner {
 	}
 
 	public String setTopics() {
-		this.topics = consumerTopics.split(",");
+		this.topics = config.getConsumerTopics().split(",");
 		log.info("Core: Topics intialized..");
 		return Arrays.toString(topics);
 	}
 
 	public ConsumerFactory<String, String> consumerFactory() {
 		Map<String, Object> props = new HashMap<>();
-		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.brokerAddress);
-		props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
+		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.config.getBrokerAddress());
+		props.put(ConsumerConfig.GROUP_ID_CONFIG, config.getConsumerGroup());
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
 		props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");

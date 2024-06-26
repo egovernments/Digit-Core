@@ -2,11 +2,13 @@ package org.selco.e4h.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import org.selco.e4h.kafka.consumer.EventConsumerConfig;
+import com.jayway.jsonpath.PathNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.selco.e4h.config.ConsumerConfiguration;
+import org.selco.e4h.kafka.consumer.EventConsumerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -28,18 +30,8 @@ public class UpdateUtils {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Value("${egov.infra.indexer.host}")
-	private String esHostUrl;
-
-	@Value("${elasticsearch.poll.interval.seconds}")
-	private String pollInterval;
-
-
-	@Value("${egov.indexer.es.username}")
-	private String esUsername;
-
-	@Value("${egov.indexer.es.password}")
-	private String esPassword;
+	@Autowired
+	private ConsumerConfiguration config;
 
 	@Autowired
 	private ObjectMapper mapper;
@@ -60,13 +52,13 @@ public class UpdateUtils {
 					Object response = null;
 					try {
 						StringBuilder url = new StringBuilder();
-						url.append(esHostUrl).append("/_search");
+						url.append(config.getEsHostUrl()).append("/_search");
 						final HttpHeaders headers = new HttpHeaders();
 						headers.add("Authorization", getESEncodedCredentials());
 						final HttpEntity entity = new HttpEntity(headers);
 						response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
 					} catch (Exception e) {
-						log.error("ES is DOWN..");
+						log.error("ES is DOWN..", e);
 					}
 					if (response != null) {
 						log.info("ES is UP!");
@@ -76,83 +68,19 @@ public class UpdateUtils {
 				}
 			}
 		};
-		scheduler.scheduleAtFixedRate(esPoller, 0, Long.valueOf(pollInterval), TimeUnit.SECONDS);
+		scheduler.scheduleAtFixedRate(esPoller, 0, Long.valueOf(config.getPollInterval()), TimeUnit.SECONDS);
 	}
 
-	/**
-	 * Helper method in data transformation
-	 *
-	 * @param object
-	 * @return
-	 */
-	public String buildString(Object object) {
-		// JsonPath cannot be applied on the type JSONObject. String has to be built of
-		// it and then used.
-		String[] array = object.toString().split(":");
-		StringBuilder jsonArray = new StringBuilder();
-		for (int i = 0; i < array.length; i++) {
-			jsonArray.append(array[i]);
-			if (i != array.length - 1)
-				jsonArray.append(":");
-		}
-		return jsonArray.toString();
-	}
-
-	/**
-	 * Helper method in data transformation
-	 *
-	 * @param jsonString
-	 * @return
-	 */
-	public String pullArrayOutOfString(String jsonString) {
-		String[] array = jsonString.split(":");
-		StringBuilder jsonArray = new StringBuilder();
-		for (int i = 1; i < array.length; i++) {
-			jsonArray.append(array[i]);
-			if (i != array.length - 1)
-				jsonArray.append(":");
-		}
-		jsonArray.deleteCharAt(jsonArray.length() - 1);
-
-		return jsonArray.toString();
-	}
-
-	/**
-	 * Helper method for data transformation.
-	 *
-	 * @param kafkaJson
-	 * @param index
-	 * @param isBulk
-	 * @return
-	 * @throws Exception
-	 */
-	public JSONArray constructArrayForUpdate(String kafkaJson, String jsonPath, boolean isBulk) throws Exception {
+	public JSONArray constructArrayForUpdate(String kafkaJson, String jsonPath) throws Exception {
 		JSONArray kafkaJsonArray = null;
 		try {
-			if (isBulk) {
-				// Validating if the request is a valid json array.
-				if (null != jsonPath) {
-					if (JsonPath.read(kafkaJson, jsonPath) instanceof net.minidev.json.JSONArray) {
-						String inputArray = mapper.writeValueAsString(JsonPath.read(kafkaJson, jsonPath));
-						kafkaJsonArray = new JSONArray(inputArray);
-					}
-				} else if (pullArrayOutOfString(kafkaJson).startsWith("[")
-						&& pullArrayOutOfString(kafkaJson).endsWith("]")) {
-					kafkaJsonArray = new JSONArray(pullArrayOutOfString(kafkaJson));
-				} else {
-					log.info("Invalid request for a json array!");
-					return null;
-				}
-			} else {
-				String jsonArray = null;
-				if (null != jsonPath) {
-					kafkaJson = mapper.writeValueAsString(JsonPath.read(kafkaJson, jsonPath));
-					jsonArray = "[" + kafkaJson + "]";
-				} else {
-					jsonArray = "[" + kafkaJson + "]";
-				}
-				kafkaJsonArray = new JSONArray(jsonArray);
-			}
+			kafkaJsonArray = new JSONArray(JsonPath.read(kafkaJson, jsonPath).toString());
+		} catch (PathNotFoundException e) {
+			log.error("JSON path not found: {}", jsonPath, e);
+			return null;
+		} catch (JSONException e) {
+			log.error("Error parsing JSON: {}", kafkaJson, e);
+			throw e;
 		} catch (Exception e) {
 			log.error("Exception while constructing json array for bulk index: ", e);
 			log.error("Object: " + kafkaJson);
@@ -162,7 +90,7 @@ public class UpdateUtils {
 	}
 
 	public String getESEncodedCredentials() {
-		String credentials = esUsername + ":" + esPassword;
+		String credentials = config.getEsUsername() + ":" + config.getEsPassword();
 		byte[] credentialsBytes = credentials.getBytes();
 		byte[] base64CredentialsBytes = Base64.getEncoder().encode(credentialsBytes);
 		return "Basic " + new String(base64CredentialsBytes);

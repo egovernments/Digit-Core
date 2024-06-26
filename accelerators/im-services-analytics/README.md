@@ -1,6 +1,6 @@
-# Swagger generated server
+# Swagger-Generated Spring Boot Server for IM Services Analytics
 
-Spring Boot Server 
+Spring Boot Server
 
 
 ## Overview  
@@ -10,9 +10,9 @@ This is an example of building a swagger-enabled server in Java using the Spring
 
 The underlying library integrating swagger to SpringBoot is [springfox](https://github.com/springfox/springfox)  
 
-Start your server as an simple java application  
+Start your server as a simple java application  
 
 You can view the api documentation in swagger-ui by pointing to  
-http://localhost:8080/  
+[http://localhost:8080/](http://localhost:8080/)
 
-Change default port value in application.properties
+Change the default port value in application.properties
