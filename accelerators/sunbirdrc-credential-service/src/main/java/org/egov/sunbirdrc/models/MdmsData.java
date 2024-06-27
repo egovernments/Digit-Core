@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MdmsData {
     private String uuid;
-    private List<String> path;
+    private List<Object> path;
     private String code;
     private JsonNode context;
     private String expiryDate;

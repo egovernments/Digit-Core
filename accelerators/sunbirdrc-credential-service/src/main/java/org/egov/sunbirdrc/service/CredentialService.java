@@ -178,10 +178,10 @@ public class CredentialService {
         ObjectNode credentialPayloadData = objectMapper.createObjectNode();
 
         listofJsonPaths.forEach(pathNode -> {
-            String fieldPath = pathNode.asText();
             try {
+                String lastKey = pathNode.fieldNames().next();
+                String fieldPath = pathNode.get(lastKey).asText();
                 Object fieldValue = JsonPath.read(requestPayload.toString(), fieldPath);
-                String lastKey = fieldPath.substring(fieldPath.lastIndexOf('.') + 1);
                 if (fieldValue != null) {
                     credentialPayloadData.put(lastKey, fieldValue.toString());
                 } else {
@@ -190,8 +190,6 @@ public class CredentialService {
             } catch (PathNotFoundException e) {
                 // Path not found in requestPayload
                 log.error("json path not found in the payload",e);
-                String lastKey = fieldPath.substring(fieldPath.lastIndexOf('.') + 1);
-                credentialPayloadData.putNull(lastKey);
             }
         });
         //adding id field which is mandatory and can be random id for sunbird api
