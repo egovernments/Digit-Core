@@ -47,8 +47,8 @@ public class QrImageService {
                 .build();
 
         StringBuilder uri = new StringBuilder();
-        //uri.append(qrCodeHost).append("/template");
-        uri.append("https://unified-dev.digit.org/credential-schema-service/template");
+        uri.append(qrCodeHost).append("/template");
+        //uri.append("https://unified-dev.digit.org/credential-schema-service/template");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<QrTemplateClient> requestEntity = new HttpEntity<>(qrTemplateClient, headers);

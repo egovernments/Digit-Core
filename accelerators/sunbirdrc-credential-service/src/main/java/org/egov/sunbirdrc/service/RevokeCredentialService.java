@@ -23,8 +23,8 @@ public class RevokeCredentialService {
     private RestTemplate restTemplate;
     public String revokeCredential(String credentialId){
         StringBuilder requestUrl= new StringBuilder();
-        //requestUrl.append(revokeCredentialHost).append("/credentials/");
-        requestUrl.append("https://unified-dev.digit.org/credentials-service/credentials/");
+        requestUrl.append(revokeCredentialHost).append("/credentials/");
+        //requestUrl.append("https://unified-dev.digit.org/credentials-service/credentials/");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String revokeRequestUrl= requestUrl.toString()+credentialId;
