@@ -68,8 +68,8 @@ public class MdmsSchemaService {
 
         HttpEntity<String> entity = new HttpEntity<>(mdmsSearchObjectString, headers);
         StringBuilder getSchemaUrl= new StringBuilder();
-        getSchemaUrl.append(mdmsHost).append(mdmsSearchUrl);
-        //getSchemaUrl.append("http://localhost:9002/mdms-v2/schema/v1/_search");
+        //getSchemaUrl.append(mdmsHost).append(mdmsSearchUrl);
+        getSchemaUrl.append("http://localhost:9002/mdms-v2/schema/v1/_search");
         String mdmsSearchResponse=null;
         try{
             mdmsSearchResponse = restTemplate.postForObject(getSchemaUrl.toString(), entity, String.class);

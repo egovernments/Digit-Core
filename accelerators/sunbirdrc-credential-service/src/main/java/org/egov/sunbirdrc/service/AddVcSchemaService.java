@@ -75,8 +75,8 @@ public class AddVcSchemaService {
         HttpEntity<Object> requestEntity = new HttpEntity<>(vcSchemaPayload, headers);
         log.info("request entity"+ requestEntity);
         StringBuilder uri = new StringBuilder();
-        uri.append(credentialHost).append("/credential-schema");
-        //uri.append("https://unified-dev.digit.org/credential-schema-service/credential-schema");
+        //uri.append(credentialHost).append("/credential-schema");
+        uri.append("https://unified-dev.digit.org/credential-schema-service/credential-schema");
         log.info("Constructed URI: {}", uri.toString());
         Object response = serviceRequestRepository.fetchResult(uri, requestEntity);
         String schemaId=getSchemaIdFromResponse(response);
@@ -101,7 +101,7 @@ public class AddVcSchemaService {
 
     public String addVcSchemaToMdms(JsonNode mdmsDataRequestPayload,String schemaId) throws JsonProcessingException {
 
-        List<String> requiredList = Arrays.asList("path");
+        List<Object> requiredList = Arrays.asList("path");
         List<String> uniqueList = Arrays.asList("path");
         ArrayNode requiredArray = objectMapper.valueToTree(requiredList);
         ArrayNode uniqueArray = objectMapper.valueToTree(uniqueList);
