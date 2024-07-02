@@ -7,12 +7,14 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.tracer.model.CustomException;
 import org.reactivestreams.Publisher;
+import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.factory.rewrite.RewriteFunction;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import java.util.Map;
 import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_NAME_PASCAL_CASE;
+import static com.example.gateway.constants.GatewayConstants.USER_INFO_KEY;
 
 @Slf4j
 @Component
@@ -32,6 +34,8 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
         try {
             RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
             requestInfo.setUserInfo(userUtils.getUser(requestInfo.getAuthToken()));
+            String userJson = objectMapper.writeValueAsString(requestInfo.getUserInfo());
+            MDC.put(USER_INFO_KEY, userJson);
             body.put(REQUEST_INFO_FIELD_NAME_PASCAL_CASE, requestInfo);
             return Mono.just(body);
         } catch (Exception ex) {

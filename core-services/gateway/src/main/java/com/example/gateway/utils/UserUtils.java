@@ -43,7 +43,6 @@ public class UserUtils {
             user = restTemplate.postForObject(authURL, null, User.class);
         } catch (Exception e) {
             throw new CustomException("Exception occurred while fetching user: ", e.getMessage());
-//          throw new CustomException("Exception occurred while fetching user: ", "Error while authenticating the auth token");
         }
 
         return user;
