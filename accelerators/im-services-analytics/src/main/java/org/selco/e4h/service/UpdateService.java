@@ -14,7 +14,10 @@ import org.springframework.web.client.*;
 import static org.selco.e4h.config.ServiceConstants.*;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 @Slf4j
@@ -46,8 +49,12 @@ public class UpdateService {
 					Optional<Boolean> isActive = Optional.ofNullable(JsonPath.read(stringifiedObject, IS_ACTIVE_PATH));
 					Optional<Long> accountCreationTime = Optional.ofNullable(JsonPath.read(stringifiedObject, CREATED_DATE_PATH));
 
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+					String timestamp = sdf.format(new Date(accountCreationTime.get()));
+
 					if (id.isPresent() && isActive.isPresent() && accountCreationTime.isPresent()) {
-						String jsonPayload = buildJsonPayload(isActive.get(), accountCreationTime.get());
+						String jsonPayload = buildJsonPayload(isActive.get(), accountCreationTime.get(), timestamp);
 						String updateUrl = config.getEsHostUrl() + config.getUpdateIndexPath() + id.get();
 
 						try {
@@ -75,15 +82,16 @@ public class UpdateService {
 		}
 	}
 
-	private String buildJsonPayload(boolean isActive, long accountCreationTime) {
+	private String buildJsonPayload(boolean isActive, long accountCreationTime, String timestamp) {
 		String isLive = isActive ? "true" : "false";
 		return new JSONObject()
 				.put("script", new JSONObject()
-						.put("source", "if (ctx._source.Data.isLive.toString().equalsIgnoreCase('false')) { ctx._source.Data.isLive = params.newIsLive; ctx._source.Data.accountCreationTime = params.accountCreationTime; }")
+						.put("source", "if (ctx._source.Data.isLive.toString().equalsIgnoreCase('false')) { ctx._source.Data.isLive = params.newIsLive; ctx._source.Data.accountCreationTime = params.accountCreationTime; ctx._source.Data['@timestamp'] = params.timestamp; }")
 						.put("lang", "painless")
 						.put("params", new JSONObject()
 								.put("newIsLive", isLive)
-								.put("accountCreationTime", accountCreationTime)))
+								.put("accountCreationTime", accountCreationTime)
+								.put("timestamp", timestamp)))
 				.put("doc_as_upsert", false)
 				.toString();
 	}
