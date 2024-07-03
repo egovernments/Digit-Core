@@ -35,6 +35,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     private MdmsDataRowMapper mdmsDataRowMapper;
 
     public static final String TenantsSchema = "tenant.tenants";
+    public static final String rateSchema = "ws-services-calculation.WCBillingSlab";
 
     @Autowired
     public MdmsDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
@@ -61,6 +62,10 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
             log.info("data to reindex:"+mdmsRequest.getMdms());
             producer.push(applicationConfig.getCreateTenantIndex(),mdmsRequest.getMdms());
         }
+        if(mdmsRequest.getMdms().getSchemaCode().equalsIgnoreCase(rateSchema)){
+            log.info("data to reindex:"+mdmsRequest.getMdms());
+            producer.push(applicationConfig.getCreateRateIndex(),mdmsRequest.getMdms());
+        }
     }
 
     /**
@@ -72,6 +77,10 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         if(mdmsRequest.getMdms().getSchemaCode().equalsIgnoreCase(TenantsSchema)){
             log.info("data to reindex from update:"+mdmsRequest.getMdms());
             producer.push(applicationConfig.getUpdateTenantIndex(),mdmsRequest.getMdms());
+        }
+        if(mdmsRequest.getMdms().getSchemaCode().equalsIgnoreCase(rateSchema)) {
+            log.info("data to reindex:" + mdmsRequest.getMdms());
+            producer.push(applicationConfig.getUpdateRateIndex(), mdmsRequest.getMdms());
         }
     }
 

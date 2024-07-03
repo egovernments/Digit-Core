@@ -27,6 +27,12 @@ public class ApplicationConfig {
     @Value("${egov.update.tenant.index}")
     private String updateTenantIndex;
 
+    @Value("${egov.create.rate.index}")
+    private String createRateIndex;
+
+    @Value("${egov.update.rate.index}")
+    private String updateRateIndex;
+
     @Value("${egov.mdms.data.update.topic}")
     private String updateMdmsDataTopicName;
 
