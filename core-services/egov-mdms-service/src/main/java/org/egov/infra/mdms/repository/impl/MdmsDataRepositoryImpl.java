@@ -3,6 +3,7 @@ package org.egov.infra.mdms.repository.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.egov.infra.mdms.config.ApplicationConfig;
+import org.egov.infra.mdms.constants.SchemaDefinitionConstant;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsCriteria;
 import org.egov.infra.mdms.model.MdmsCriteriaV2;
@@ -33,6 +34,9 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     private MdmsDataRowMapperV2 mdmsDataRowMapperV2;
     private MdmsDataRowMapper mdmsDataRowMapper;
 
+    public static final String TenantsSchema = "tenant.tenants";
+    public static final String rateSchema = "ws-services-calculation.WCBillingSlab";
+
     @Autowired
     public MdmsDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
                                   ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
@@ -54,6 +58,14 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     @Override
     public void create(MdmsRequest mdmsRequest) {
         producer.push(applicationConfig.getSaveMdmsDataTopicName(), mdmsRequest);
+        if(mdmsRequest.getMdms().getSchemaCode().equalsIgnoreCase(TenantsSchema)){
+            log.info("data to reindex:"+mdmsRequest.getMdms());
+            producer.push(applicationConfig.getCreateTenantIndex(),mdmsRequest.getMdms());
+        }
+        if(mdmsRequest.getMdms().getSchemaCode().equalsIgnoreCase(rateSchema)){
+            log.info("data to reindex:"+mdmsRequest.getMdms());
+            producer.push(applicationConfig.getCreateRateIndex(),mdmsRequest.getMdms());
+        }
     }
 
     /**
@@ -62,6 +74,14 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     @Override
     public void update(MdmsRequest mdmsRequest) {
         producer.push(applicationConfig.getUpdateMdmsDataTopicName(), mdmsRequest);
+        if(mdmsRequest.getMdms().getSchemaCode().equalsIgnoreCase(TenantsSchema)){
+            log.info("data to reindex from update:"+mdmsRequest.getMdms());
+            producer.push(applicationConfig.getUpdateTenantIndex(),mdmsRequest.getMdms());
+        }
+        if(mdmsRequest.getMdms().getSchemaCode().equalsIgnoreCase(rateSchema)) {
+            log.info("data to reindex:" + mdmsRequest.getMdms());
+            producer.push(applicationConfig.getUpdateRateIndex(), mdmsRequest.getMdms());
+        }
     }
 
     /**

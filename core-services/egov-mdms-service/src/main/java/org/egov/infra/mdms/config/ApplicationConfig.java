@@ -21,6 +21,18 @@ public class ApplicationConfig {
     @Value("${egov.mdms.data.save.topic}")
     private String saveMdmsDataTopicName;
 
+    @Value("${egov.create.tenant.index}")
+    private String createTenantIndex;
+
+    @Value("${egov.update.tenant.index}")
+    private String updateTenantIndex;
+
+    @Value("${egov.create.rate.index}")
+    private String createRateIndex;
+
+    @Value("${egov.update.rate.index}")
+    private String updateRateIndex;
+
     @Value("${egov.mdms.data.update.topic}")
     private String updateMdmsDataTopicName;
 
@@ -29,5 +41,7 @@ public class ApplicationConfig {
 
     @Value("${mdms.default.limit}")
     private Integer defaultLimit;
+
+
 
 }
