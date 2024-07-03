@@ -1,0 +1,82 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "1d07f8a9-c340-4390-b5cf-3b82d916f469",
+            "tenantId": "pg",
+            "code": "PropertyTax.OwnerType",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "name",
+                    "code",
+                    "active",
+                    "fromFY"
+                ],
+                "x-unique": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "fromFY": {
+                        "type": "string",
+                        "pattern": "^\\d\\d\\d\\d-\\d\\d$"
+                    },
+                    "exemption": {
+                        "type": "object",
+                        "required": [
+                            "rate"
+                        ],
+                        "properties": {
+                            "rate": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            },
+                            "maxAmount": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            },
+                            "flatAmount": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701331769401,
+                "lastModifiedTime": 1701331769401
+            }
+        }
+    ]
+}

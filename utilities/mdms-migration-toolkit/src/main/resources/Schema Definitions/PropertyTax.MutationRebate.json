@@ -1,0 +1,69 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "032789b6-3dc9-4b2e-8fa5-185ad31e3d9a",
+            "tenantId": "pg",
+            "code": "PropertyTax.MutationRebate",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "rate",
+                    "fromFY",
+                    "endingDay",
+                    "mutationPaymentPeriodInMonth"
+                ],
+                "x-unique": [
+                    "fromFY",
+                    "endingDay"
+                ],
+                "properties": {
+                    "rate": {
+                        "type": "integer"
+                    },
+                    "fromFY": {
+                        "type": "string",
+                        "pattern": "^\\d\\d\\d\\d-\\d\\d$"
+                    },
+                    "endingDay": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "maxAmount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "flatAmount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "mutationPaymentPeriodInMonth": {
+                        "type": "string",
+                        "default": "06"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259917630,
+                "lastModifiedTime": 1701259917630
+            }
+        }
+    ]
+}

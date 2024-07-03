@@ -1,0 +1,111 @@
+openapi: 3.0.1
+info:
+  title: MDMS Migration Toolkit APIs
+  description: APIs to migrate MDMS data from Git to RDBMS.
+  contact:
+    name: eGov
+    email: info@egovernments.org
+  version: 1.0.1
+paths:
+  /schema/v1/_migrate:
+    post:
+      summary: Migrate schema definitions from existing masters
+      description: |
+        Generate and migrate schema definitions from existing masters
+      operationId: migrateSchemaDefinition
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchemaMigrationRequest'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid input.
+          content:
+            '*/*':
+              schema:
+                $ref: "https://raw.githubusercontent.com/egovernments/DIGIT-Specs/master/Common%20Services/common-contract.yaml#/components/schemas/ErrorRes"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /data/v1/_migrate:
+    post:
+      summary: Migrate master data
+      operationId: migrateMasterData
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MasterDataMigrationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+        '400':
+          description: Invalid input.
+          content:
+            '*/*':
+              schema:
+                $ref: "https://raw.githubusercontent.com/egovernments/DIGIT-Specs/master/Common%20Services/common-contract.yaml#/components/schemas/ErrorRes"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found    
+components:
+  schemas:
+    SchemaMigrationCriteria:
+      required:
+      - tenantId
+      type: object
+      properties:
+        moduleName:
+          maxLength: 100
+          minLength: 2
+          type: string
+          description: Module name of the master whose schema has to be migrated
+        tenantId:
+          type: string
+          description: Unique Identifier of the tenant, Like AP, AP.Kurnool etc.
+          example: pb.amritsar
+    MasterDataMigrationCriteria:
+      required:
+      - tenantId
+      type: object
+      properties:
+        moduleName:
+          maxLength: 100
+          minLength: 2
+          type: string
+          description: Module name of the master which has to be migrated
+        tenantId:
+          type: string
+          description: Unique Identifier of the tenant, Like AP, AP.Kurnool etc.
+          example: pb.amritsar
+    MasterDataMigrationRequest:
+      required:
+      - actions
+      - requestInfo
+      type: object
+      properties:
+        masterDataMigrationCriteria:
+          $ref: '#/components/schemas/MasterDataMigrationCriteria'
+        requestInfo:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/master/Common%20Services/common-contract.yaml#/components/schemas/RequestInfo'
+    SchemaMigrationRequest:
+      title: SchemaMigrationRequest
+      type: object
+      properties:
+        schemaMigrationCriteria:
+          $ref: '#/components/schemas/SchemaMigrationCriteria'
+        requestInfo:
+          $ref: "https://raw.githubusercontent.com/egovernments/DIGIT-Specs/master/Common%20Services/common-contract.yaml#/components/schemas/RequestInfo"      

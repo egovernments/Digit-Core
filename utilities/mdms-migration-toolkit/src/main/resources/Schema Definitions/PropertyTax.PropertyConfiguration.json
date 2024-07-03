@@ -1,0 +1,60 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "81c87311-c7e0-419f-bcc2-192699d30979",
+            "tenantId": "pg",
+            "code": "PropertyTax.PropertyConfiguration",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "Mutation",
+                    "id"
+                ],
+                "x-unique": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "Mutation": {
+                        "type": "object",
+                        "required": [
+                            "RegistrationDetails",
+                            "MutationDetails"
+                        ],
+                        "properties": {
+                            "MutationDetails": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "RegistrationDetails": {
+                                "type": "boolean",
+                                "default": true
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701345004111,
+                "lastModifiedTime": 1701345004111
+            }
+        }
+    ]
+}
