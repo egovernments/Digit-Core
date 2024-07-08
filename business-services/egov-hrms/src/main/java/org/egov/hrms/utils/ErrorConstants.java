@@ -49,6 +49,9 @@ public class ErrorConstants {
 	
 	public static final String HRMS_INVALID_DESG_CODE = "ERR_HRMS_INVALID_DESG";
 	public static final String HRMS_INVALID_DESG_MSG = "Invalid designation of employee.";
+
+	public static final String HRMS_INVALID_COURT_CODE = "ERR_HRMS_INVALID_COURT";
+	public static final String HRMS_INVALID_COURT_MSG = "Invalid Court room entered.";
 	
 	public static final String HRMS_INVALID_ASSIGNMENT_PERIOD_CODE = "ERR_HRMS_INVALID_ASSIGNMENT_PERIOD";
 	public static final String HRMS_INVALID_ASSIGNMENT_PERIOD_MSG = "Invalid period of assignment (From date - To date).";

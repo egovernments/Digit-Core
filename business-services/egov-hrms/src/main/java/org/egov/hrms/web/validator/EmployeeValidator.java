@@ -240,7 +240,7 @@ public class EmployeeValidator {
 		validateEmployee(employee, errorMap, mdmsData);
 		validateAssignments(employee, errorMap, mdmsData);
 		validateServiceHistory(employee, errorMap, mdmsData);
-		validateJurisdicton(employee, errorMap, mdmsData, boundaryMap);
+//		validateJurisdicton(employee, errorMap, mdmsData, boundaryMap);
 		validateEducationalDetails(employee, errorMap, mdmsData);
 		validateDepartmentalTest(employee, errorMap, mdmsData);
 	}
@@ -373,6 +373,8 @@ public class EmployeeValidator {
 				errorMap.put(ErrorConstants.HRMS_INVALID_DEPT_CODE, ErrorConstants.HRMS_INVALID_DEPT_MSG);
 			if(!mdmsData.get(HRMSConstants.HRMS_MDMS_DESG_CODE).contains(assignment.getDesignation()))
 				errorMap.put(ErrorConstants.HRMS_INVALID_DESG_CODE, ErrorConstants.HRMS_INVALID_DESG_MSG);
+			if(!mdmsData.get(HRMSConstants.HRMS_MDMS_COURT_CODE).contains(assignment.getCourtroom()))
+				errorMap.put(ErrorConstants.HRMS_INVALID_COURT_CODE, ErrorConstants.HRMS_INVALID_COURT_MSG);
             if( assignment.getIsCurrentAssignment() && null != assignment.getToDate())
                 errorMap.put(ErrorConstants.HRMS_INVALID_ASSIGNMENT_CURRENT_TO_DATE_CODE,ErrorConstants.HRMS_INVALID_ASSIGNMENT_CURRENT_TO_DATE_MSG);
             if(!assignment.getIsCurrentAssignment() && null == assignment.getToDate())

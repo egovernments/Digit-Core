@@ -12,6 +12,7 @@ public class HRMSConstants {
 	
 	public static final String HRMS_MDMS_DEPT_CODE = "Department";
 	public static final String HRMS_MDMS_DESG_CODE = "Designation";
+	public static final String HRMS_MDMS_COURT_CODE = "Court_Rooms";
 	public static final String HRMS_MDMS_EMP_STATUS_CODE = "EmployeeStatus";
 	public static final String HRMS_MDMS_EMP_TYPE_CODE = "EmployeeType";
 	public static final String HRMS_MDMS_SERVICE_STATUS_CODE = "ServiceStatus";

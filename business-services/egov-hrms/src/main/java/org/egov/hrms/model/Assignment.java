@@ -70,6 +70,10 @@ public class Assignment {
 	@NotNull
 	private String department;
 
+	@SafeHtml
+	@NotNull
+	private String courtroom;
+
 	@NotNull
 	private Long fromDate;
 

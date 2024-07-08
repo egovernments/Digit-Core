@@ -30,6 +30,8 @@ public class EmployeeSearchCriteria {
 	public List<String> departments;
 	
 	public List<String> designations;
+
+	public List<String> courtrooms;
 	
 	public Long asOnDate;
 

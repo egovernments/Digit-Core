@@ -9,7 +9,7 @@ public class EmployeeQueries {
 			+ "employee.dateOfAppointment as employee_doa, employee.employeestatus as employee_status, employeetype as employee_type, employee.active as employee_active, employee.reactivateemployee as employee_reactive, "
 			+ "employee.tenantid as employee_tenantid, employee.createdby as employee_createdby, employee.createddate as employee_createddate, "
 			+ "employee.lastmodifiedby as employee_lastmodifiedby, employee.lastmodifieddate as employee_lastmodifieddate, assignment.uuid as assignment_uuid, "
-			+ "assignment.position as assignment_position, assignment.department as assignment_department, assignment.designation as assignment_designation, "
+			+ "assignment.position as assignment_position, assignment.department as assignment_department, assignment.designation as assignment_designation, assignment.courtroom as assignment_courtroom,"
 			+ "assignment.fromdate as assignment_fromdate, assignment.todate as assignment_todate, assignment.govtordernumber as assignment_govtordernumber, "
 			+ "assignment.reportingto as assignment_reportingto, assignment.ishod as assignment_ishod, assignment.iscurrentassignment as assignment_iscurrentassignment, "
 			+ "assignment.tenantid as assignment_tenantid, "
