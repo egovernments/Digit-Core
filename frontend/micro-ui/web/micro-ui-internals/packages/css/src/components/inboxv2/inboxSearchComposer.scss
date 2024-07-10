@@ -1,0 +1,134 @@
+@import url("../../digitv2/index.scss");
+
+.inbox-search-wrapper {
+    /*
+    TODO NABEEL/ANIL Removed these since it creates issues in search screen
+    @extend .light-background;
+
+    */
+    height: 100%;
+    .inbox-search-component-wrapper {
+ /*
+    TODO NABEEL/ANIL Removed these since it creates issues in search screen
+    @extend .light-background;
+
+    */        height: 100%;
+        width: 100%;
+        .sections-parent {
+ /*
+    TODO NABEEL/ANIL Removed these since it creates issues in search screen
+    @extend .light-background;
+
+    */            height: 100%;
+            display: grid;
+            grid-template-columns: 20% 1fr;
+            gap : 1rem;
+            &.inbox {
+                @extend .light-text-color-primary;
+                .links{
+                    @extend .light-primary;
+                    @extend .light-paper-primary;
+                    .text{
+                        @extend .light-text-color-primary;
+                    }
+                    .inbox-links-icon{
+                        color:#f47738;
+                        fill:#f47738;
+                        path{
+                            fill:#f47738;
+                        }
+                    }
+                }
+            }
+            &.search {
+                display: flex;
+                flex-direction: column;
+                .section {
+                    &.links {
+                        display: none;
+                    }
+                    &.filter {
+                        display: none;
+                    }
+                }
+                .search-wrapper {
+                    @extend .light-paper-primary;
+                    .search-field-wrapper.search.custom-both-clear-search{
+                        .search-button-wrapper.search {
+                            grid-column: initial;
+                        }
+                    .search-button-wrapper{
+                        .link-label{
+                            @extend .light-primary;
+                            white-space:initial;
+                        }
+                        .submit-bar {
+                            @extend .light-primary-button;
+                            width: 60%;
+                        }
+                    }
+                }
+            }
+            }
+            &.download {
+                grid-template-columns: 100%
+            }
+            .section {
+                @extend .light-paper-primary;
+                @extend .light-text-color-primary;
+                min-height: 10rem;
+                /* background-color: white; */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                box-shadow: 0 1px 2px 0 rgb(0 0 0 / 16%);
+                &.search-results {
+                    min-height: 0;
+                }
+                &.links {
+                    height: 100%;
+                    color : #f47738;
+                    .inbox-search-links-component {
+                        height: 100% !important;
+                        width: 100%;
+                    }
+                }
+                &.filter {
+                    @extend .light-paper-primary;
+                    @extend .light-text-color-primary;
+                    height: fit-content;
+                }
+            }
+        }
+    }
+}
+
+@screen sm {
+    .employee-main-application-details-for-modal  {
+        padding: 0 !important;
+    }
+    .inbox-search-wrapper {
+        .inbox-search-component-wrapper {
+            .sections-parent {
+                display: flex;
+                flex-direction : column;
+                .section {
+                    &.search-results {
+                    }
+                    &.links {
+                    }
+                    &.filter {
+                       
+                    }
+                    &.as-modal {
+                        position : fixed;
+                        top : 0;
+                        height : 100vh;
+                        width : 100vw;
+                    }
+                }
+            }
+        }
+    }
+}
