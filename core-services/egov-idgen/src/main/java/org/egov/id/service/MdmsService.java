@@ -34,8 +34,9 @@ public class MdmsService {
     private static final String tenantModule = "tenant";
 
     //'IdFormat' is the JSON file in the Folder 'common-masters'.
-    private static final String formatMaster = "IdFormat";
+    public static final String formatMaster = "IdFormat";
     private static final String formatModule = "common-masters";
+    private static final String paddingMaster = "padding";
 
 
     public MdmsResponse getMasterData(RequestInfo requestInfo, String tenantId,
@@ -88,7 +89,7 @@ public class MdmsService {
      * @throws Exception
      */
 
-    public String getIdFormat(RequestInfo requestInfo, IdRequest idRequest) {
+    public  Map<String, String> getIdFormat(RequestInfo requestInfo, IdRequest idRequest) {
         Map<String, String> getIdFormat = doMdmsServiceCall(requestInfo, idRequest);
         String idFormat = null;
         try {
@@ -100,7 +101,7 @@ public class MdmsService {
             log.error("Error while fetching id format", e);
             throw new CustomException("PARSING ERROR", "Failed to get formatid from MDMS");
         }
-        return idFormat;
+        return getIdFormat;
     }
 
     /**
@@ -117,6 +118,7 @@ public class MdmsService {
 
         String idFormatFromMdms = null;
         String cityCodeFromMdms = null;
+        String padding = null;
 
 
         Map<String, List<MasterDetail>> masterDetails = new HashMap<String, List<MasterDetail>>();
@@ -159,6 +161,12 @@ public class MdmsService {
                 DocumentContext documentContext = JsonPath
                         .parse(mdmsResponse.getMdmsRes().get(formatModule).get(formatMaster).get(0));
                 idFormatFromMdms = documentContext.read("$.format");
+                try {
+                    padding = documentContext.read("$.padding");
+                } catch (Exception e) {
+                    padding = null;
+                }
+
             }
 
         } catch (Exception e) {
@@ -169,6 +177,7 @@ public class MdmsService {
         Map<String, String> mdmsCallMap = new HashMap();
         mdmsCallMap.put(formatMaster, idFormatFromMdms);
         mdmsCallMap.put(tenantMaster, cityCodeFromMdms);
+        mdmsCallMap.put(paddingMaster, padding);
 
         return mdmsCallMap;
     }

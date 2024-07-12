@@ -26,6 +26,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import static org.egov.id.service.MdmsService.formatMaster;
+
 
 /**
  * Description : IdGenerationService have methods related to the IdGeneration
@@ -110,10 +112,13 @@ public class IdGenerationService {
 
         List<String> generatedId = new LinkedList<>();
         boolean autoCreateNewSeqFlag = false;
+        String padding = null;
         if (!StringUtils.isEmpty(idRequest.getIdName()))
         {
             // If IDName is specified then check if it is defined in MDMS
-            String idFormat = getIdFormatFinal(idRequest, requestInfo);
+            Map<String, String> idFormatPadding = getIdFormatFinal(idRequest, requestInfo);
+            String idFormat = idFormatPadding.get(formatMaster);
+            padding = idFormatPadding.get("padding");
 
             // If the idname is defined then the format should be used
             // else fallback to the format in the request itself
@@ -129,7 +134,7 @@ public class IdGenerationService {
             throw new CustomException("ID_NOT_FOUND",
                     "No Format is available in the MDMS for the given name and tenant");
 
-        return getFormattedId(idRequest, requestInfo,autoCreateNewSeqFlag);
+        return getFormattedId(idRequest, requestInfo,autoCreateNewSeqFlag, padding);
     }
 
 
@@ -141,14 +146,18 @@ public class IdGenerationService {
      * @return generatedId
      * @throws Exception
      */
-    private String getIdFormatFinal(IdRequest idRequest, RequestInfo requestInfo) throws Exception {
+    private Map<String, String>  getIdFormatFinal(IdRequest idRequest, RequestInfo requestInfo) throws Exception {
 
         String idFormat = null;
+        Map<String, String> idFormatMap = null;
         try{
+
             if (idFormatFromMDMS == true) {
-                idFormat = mdmsService.getIdFormat(requestInfo, idRequest); //from MDMS
+                idFormatMap = mdmsService.getIdFormat(requestInfo, idRequest); //from MDMS
+                idFormat = idFormatMap.get(formatMaster);
             } else {
                 idFormat = getIdFormatfromDB(idRequest, requestInfo); //from DB
+                idFormatMap.put(formatMaster, idFormat);
             }
         }catch(Exception ex){
             if(StringUtils.isEmpty(idFormat)){
@@ -157,7 +166,7 @@ public class IdGenerationService {
             }
             log.error("Format returned NULL from both MDMS and DB",ex);
         }
-        return idFormat;
+        return idFormatMap;
     }
 
     /**
@@ -205,7 +214,7 @@ public class IdGenerationService {
      * @throws Exception
      */
 
-    private List getFormattedId(IdRequest idRequest, RequestInfo requestInfo, boolean autoCreateNewSeqFlag) throws Exception {
+    private List getFormattedId(IdRequest idRequest, RequestInfo requestInfo, boolean autoCreateNewSeqFlag, String padding) throws Exception {
         List<String> idFormatList = new LinkedList();
         String idFormat = idRequest.getFormat();
 
@@ -243,7 +252,7 @@ public class IdGenerationService {
 
                 if (attributeName.substring(0, 3).equalsIgnoreCase("seq")) {
                     if (!sequences.containsKey(attributeName)) {
-                        sequences.put(attributeName, generateSequenceNumber(attributeName, requestInfo, idRequest,autoCreateNewSeqFlag));
+                        sequences.put(attributeName, generateSequenceNumber(attributeName, requestInfo, idRequest,autoCreateNewSeqFlag, padding));
                     }
 					idFormat = idFormat.replace("[" + attributeName + "]", sequences.get(attributeName).get(i));
                 } else if (attributeName.substring(0, 2).equalsIgnoreCase("fy")) {
@@ -418,7 +427,7 @@ public class IdGenerationService {
      * @param requestInfo
      * @return seqNumber
      */
-    private List<String> generateSequenceNumber(String sequenceName, RequestInfo requestInfo, IdRequest idRequest,boolean autoCreateNewSeqFlag) throws Exception {
+    private List<String> generateSequenceNumber(String sequenceName, RequestInfo requestInfo, IdRequest idRequest,boolean autoCreateNewSeqFlag, String padding) throws Exception {
         Integer count = getCount(idRequest);
         List<String> sequenceList = new LinkedList<>();
         List<String> sequenceLists = new LinkedList<>();
@@ -446,8 +455,19 @@ public class IdGenerationService {
             log.error("Error retrieving seq number from DB",ex);
             throw new CustomException("SEQ_NUMBER_ERROR","Error retrieving seq number from existing seq in DB");
         }
+        Integer intPadding = 06;
+        if (padding != null) {
+            try {
+                intPadding = Integer.parseInt(padding);
+                if(intPadding < 0) {
+                    intPadding = 06;
+                }
+            } catch (NumberFormatException e) {
+                intPadding = 06;
+            }
+        }
         for (String seqId : sequenceList) {
-            String seqNumber = String.format("%06d", Integer.parseInt(seqId)).toString();
+            String seqNumber = String.format("%0" + intPadding + "d", Integer.parseInt(seqId)).toString();
             sequenceLists.add(seqNumber.toString());
         }
         return sequenceLists;
