@@ -113,7 +113,7 @@ public class CredentialService {
             else{
                 String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext,expiryDate);
                 if (credentialIdUuidData!=null){
-                    producer.push(saveVcidTopic, credentialIdUuidData);
+                    producer.push("save-vcid", credentialIdUuidData);
                 }
             }
             //update cache after db update
