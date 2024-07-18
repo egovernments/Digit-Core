@@ -30,7 +30,7 @@ public class MdmsData {
     @Valid
     private JsonNode context;
 
-    @JsonProperty("expirtyDate")
+    @JsonProperty("expiryDate")
     @Valid
     private String expiryDate;
 }
