@@ -23,7 +23,7 @@ public class RevokeCredentialService {
     private RestTemplate restTemplate;
     public String revokeCredential(String credentialId){
         StringBuilder requestUrl= new StringBuilder();
-        requestUrl.append(revokeCredentialHost).append("/credentials/");
+        requestUrl.append(revokeCredentialHost).append(revokeCredentialPath);
         //requestUrl.append("https://unified-dev.digit.org/credentials-service/credentials/");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -37,7 +37,7 @@ public class RevokeCredentialService {
                     String.class);
         }
         catch(Exception e){
-            throw new CustomException("REVOKE_API_FAILED", "revoke credentials failed");
+            throw new CustomException("REVOKE_API_FAILED", "failed to revoke the credentials");
         }
 
         return responseEntity.getBody();

@@ -13,6 +13,7 @@ import org.egov.sunbirdrc.kafka.Producer;
 import org.egov.sunbirdrc.models.CredentialIdResponse;
 import org.egov.sunbirdrc.models.CredentialIdUuidMapper;
 import org.egov.sunbirdrc.models.CredentialRequest;
+import org.egov.sunbirdrc.models.QrCodeRequest;
 import org.egov.sunbirdrc.repository.CredentialUuidRepository;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class CredentialService {
 
     @Value("${sunbird.save.vc.topic}")
     private String saveVcidTopic;
+
+    @Value("${sunbird.update.vc.topic}")
+    private String updateVcidTopic;
 
     @Value("${sunbird.credential.host}")
     private String credentialHost;
@@ -83,7 +87,8 @@ public class CredentialService {
             //get did, schemaId, uuid and jsonpath details from the mdms object
             String entityDid= getDidFromModuleObject(mdmsModuleObject);
             String entitySchemaId=getSchemaIdFromModuleObject(mdmsModuleObject);
-            String uuid=getUuidFromModuleObject(mdmsModuleObject);
+            String uuidJsonPath=getUuidFromModuleObject(mdmsModuleObject); // use the jsonpath uuid obtained here to extract the actual id from requestPayload, convert requestpaylod to string first.
+            String uuid=JsonPath.read(entityRequestPayload, uuidJsonPath);
             String expiryDate= getExpiryDateFromModuleObject(mdmsModuleObject);
             JsonNode listofJsonPaths= getAllFieldPathFromMdms(mdmsModuleObject);
             JsonNode credentialContext=getContextFromMdms(mdmsModuleObject);
@@ -98,7 +103,7 @@ public class CredentialService {
                 if(status.equals("REVOKED")){
                     String credentialIdUuidData=generateCredentials(uuid, entityDid, entitySchemaId,payloadFromJsonPath,credentialContext,expiryDate);
                     if(credentialIdUuidData!=null){
-                        producer.push("update-vcid", credentialIdUuidData);
+                        producer.push(updateVcidTopic, credentialIdUuidData);
                     }
                 }
                 else{
@@ -185,14 +190,14 @@ public class CredentialService {
                 if (fieldValue != null) {
                     credentialPayloadData.put(lastKey, fieldValue.toString());
                 } else {
-                    credentialPayloadData.putNull(lastKey); // Or handle missing values differently
+                    credentialPayloadData.putNull(lastKey);
                 }
             } catch (PathNotFoundException e) {
                 // Path not found in requestPayload
                 log.error("json path not found in the payload",e);
             }
         });
-        //adding id field which is mandatory and can be random id for sunbird api
+        //adding id field which is mandatory and can be random id according to sunbird api
         credentialPayloadData.put("id", did);
         return credentialPayloadData;
     }
@@ -229,10 +234,9 @@ public class CredentialService {
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
             // Make the HTTP POST request
             StringBuilder fetchCredentialUrl = new StringBuilder();
-            fetchCredentialUrl.append(credentialHost).append("/credentials/issue");
+            fetchCredentialUrl.append(credentialHost).append(credentialPath);
             //fetchCredentialUrl.append("https://unified-dev.digit.org/credentials-service/credentials/issue");
             Object credentialResponse = serviceRequestRepository.fetchResult(fetchCredentialUrl, requestEntity);
-            //ResponseEntity<String> response = restTemplate.exchange(fetchCredentialUrl.toString(), HttpMethod.POST, requestEntity, String.class);
             credentialIdUuidMapper.setVcid(getIdFromResponse(credentialResponse));
             credentialIdUuidMapper.setEntityid(uuid);
             credentialIdUuidMapper.setCreatedBy(did);
@@ -243,19 +247,17 @@ public class CredentialService {
         }
     }
 
-    public CredentialIdResponse getCredential(String mdmsCode) throws JsonProcessingException {
-        JsonNode schemaObject=mdmsSchemaService.getModuleDetailsFromMdmsData(mdmsCode);
-        String schemaObjectResponse=objectMapper.writeValueAsString(schemaObject);
+    public CredentialIdResponse getCredential(QrCodeRequest qrCodeRequest)  {
+        JsonNode schemaObject=mdmsSchemaService.getModuleDetailsFromMdmsData(qrCodeRequest.getCode());
+
         String schemaId=null;
-        String entityId=null;
-        try{
+        try{String schemaObjectResponse=objectMapper.writeValueAsString(schemaObject);
             schemaId = JsonPath.read(schemaObjectResponse, "$.definition.schemaId");
-            entityId = JsonPath.read(schemaObjectResponse, "$.definition.uuid");
         }
         catch(Exception e){
             throw new CustomException("ID_NOT_FOUND", "credential id not found in the schema");
         }
-        CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(entityId);
+        CredentialIdUuidMapper credentialUuidObject=credentialUuidRepository.getUuidVcidMapperRow(qrCodeRequest.getUuid());
         CredentialIdResponse credentialIdResponse= new CredentialIdResponse();
         credentialIdResponse.setCredentialId(credentialUuidObject.getVcid());
         credentialIdResponse.setSchemaId(schemaId);

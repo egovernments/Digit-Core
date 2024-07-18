@@ -1,5 +1,6 @@
 package org.egov.sunbirdrc.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Data
@@ -9,5 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class SchemaDefCriteria {
+    @JsonProperty("tenantId")
     private String tenantId;
 }

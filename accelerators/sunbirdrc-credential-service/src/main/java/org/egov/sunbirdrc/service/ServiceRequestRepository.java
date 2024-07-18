@@ -38,7 +38,6 @@ public class ServiceRequestRepository {
         }catch(Exception e) {
             log.error("Exception while fetching from searcher: ",e);
         }
-
         return response;
     }
 }

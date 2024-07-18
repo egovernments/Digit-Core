@@ -23,8 +23,15 @@ public class QrImageService {
     @Value("${sunbird.credential.host}")
     private String credentialHost;
 
+    @Value("${sunbird.credential.path}")
+    private String credentialPath;
+
     @Value("${sunbird.template.path}")
-    private String qrCodePath;
+    private String qrTemplatePath;
+
+    @Value("${sunbird.qr.path}")
+    private String qrImagePath;
+
 
     @Autowired
     private ServiceRequestRepository serviceRequestRepository;
@@ -37,8 +44,7 @@ public class QrImageService {
     @Autowired
     private CredentialService credentialService;
     public String getQrImage(QrCodeRequest qrCodeRequest) throws JsonProcessingException {
-        String mdmsCode= qrCodeRequest.getCode();
-        CredentialIdResponse credentialIdObject=credentialService.getCredential(mdmsCode);
+        CredentialIdResponse credentialIdObject=credentialService.getCredential(qrCodeRequest);
         QrTemplateClient qrTemplateClient= QrTemplateClient.builder()
                 .schemaId(credentialIdObject.getSchemaId())
                 .schemaVersion("1.0.0")
@@ -47,14 +53,13 @@ public class QrImageService {
                 .build();
 
         StringBuilder uri = new StringBuilder();
-        uri.append(qrCodeHost).append("/template");
+        uri.append(qrCodeHost).append(qrTemplatePath);
         //uri.append("https://unified-dev.digit.org/credential-schema-service/template");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<QrTemplateClient> requestEntity = new HttpEntity<>(qrTemplateClient, headers);
         log.info("Constructed URI: {}", uri.toString());
         Object qrTemplateResponse = serviceRequestRepository.fetchResult(uri, requestEntity);
-
         String templateId=null;
         try{
             templateId = JsonPath.read(qrTemplateResponse, "$.template.templateId");
@@ -63,9 +68,6 @@ public class QrImageService {
             throw new CustomException("ID_NOT_FOUND", "id not found in the schema");
         }
         log.info("template id received from the request"+ templateId);
-        System.out.println("template id received from the request"+ templateId);
-
-
         String qrImageResponse= getQrImageFromTemplate(credentialIdObject, templateId);
         return qrImageResponse;
     }
@@ -73,19 +75,22 @@ public class QrImageService {
     public String getQrImageFromTemplate(CredentialIdResponse credentialIdObject, String templateId){
         //using template id make get request for qr code by appending the template id as header
         StringBuilder qrRequestUri = new StringBuilder();
-        //getQrRequestUrl.append(credentialHost).append("/credentials");
-        qrRequestUri.append("https://unified-dev.digit.org/credentials-service/credentials/");
-
+        qrRequestUri.append(credentialHost).append(qrImagePath);
+        //qrRequestUri.append("https://unified-dev.digit.org/credentials-service/credentials/");
         String getQrRequestUri= qrRequestUri.toString()+ credentialIdObject.getCredentialId();
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("templateid", templateId);
         headers.set("Accept", "text/html");
-
         HttpEntity<String> entity = new HttpEntity<>(headers);
+        log.info("Entity Details:"+entity);
+        ResponseEntity<String> response=null;
+        try{
+            response = restTemplate.exchange(getQrRequestUri, HttpMethod.GET, entity, String.class);
 
-        ResponseEntity<String> response = restTemplate.exchange(getQrRequestUri, HttpMethod.GET, entity, String.class);
-
+        }
+        catch (Exception e){
+            throw new CustomException("QRIMAGE_RESPONSE_ERR","failed to fetch qr ");
+        }
         return response.getBody();
     }
 }

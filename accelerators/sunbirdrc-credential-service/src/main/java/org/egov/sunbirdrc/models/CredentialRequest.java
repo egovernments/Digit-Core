@@ -17,9 +17,19 @@ import java.util.List;
 public class CredentialRequest {
     @JsonProperty("@context")
     private List<Object> context;
+
+    @JsonProperty("id")
     private String id;
+
+    @JsonProperty("type")
     private List<String> type;
+
+    @JsonProperty("issuer")
     private String issuer;
+
+    @JsonProperty("expirationDate")
     private String expirationDate;
+
+    @JsonProperty("credentialSubject")
     private Object credentialSubject;
 }

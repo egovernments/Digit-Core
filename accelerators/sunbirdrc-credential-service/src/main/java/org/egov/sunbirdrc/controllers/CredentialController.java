@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.sunbirdrc.models.CredentialIdResponse;
+import org.egov.sunbirdrc.models.QrCodeRequest;
 import org.egov.sunbirdrc.service.CredentialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,11 +27,9 @@ public class CredentialController {
     @Autowired
     private ObjectMapper objectMapper;
     @PostMapping("/_get")
-    public ResponseEntity<CredentialIdResponse> getCredential(@RequestBody String entityPayload) throws JsonProcessingException {
-        JsonNode jsonNode = objectMapper.readTree(entityPayload);
-        String mdmsModule = jsonNode.get("code").asText();
-        CredentialIdResponse credentialId=credentialService.getCredential(mdmsModule);
-        log.info("Entity id :" + mdmsModule);
+    public ResponseEntity<CredentialIdResponse> getCredential(@RequestBody QrCodeRequest qrCodeRequest) throws JsonProcessingException {
+
+        CredentialIdResponse credentialId=credentialService.getCredential(qrCodeRequest);
         return new ResponseEntity<CredentialIdResponse>(credentialId, HttpStatus.OK);
     }
 }

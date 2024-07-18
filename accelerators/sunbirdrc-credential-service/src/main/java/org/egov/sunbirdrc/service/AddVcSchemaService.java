@@ -75,7 +75,7 @@ public class AddVcSchemaService {
         HttpEntity<Object> requestEntity = new HttpEntity<>(vcSchemaPayload, headers);
         log.info("request entity"+ requestEntity);
         StringBuilder uri = new StringBuilder();
-        uri.append(credentialHost).append("/credential-schema");
+        uri.append(credentialHost).append(credentialPath);
         //uri.append("https://unified-dev.digit.org/credential-schema-service/credential-schema");
         log.info("Constructed URI: {}", uri.toString());
         Object response = serviceRequestRepository.fetchResult(uri, requestEntity);
@@ -88,7 +88,6 @@ public class AddVcSchemaService {
 
 
     public String getSchemaIdFromResponse(Object addSchemaResponse) throws JsonProcessingException{
-        System.out.println(objectMapper.writeValueAsString(addSchemaResponse).toString());
         String schemaId=null;
         try{
             schemaId = JsonPath.read(addSchemaResponse, "$.schema.id");
@@ -114,9 +113,9 @@ public class AddVcSchemaService {
         String credentialExpiryDate= mdmsDataRequestPayload.path("mdmsData").path("expiryDate").asText();
         JsonNode mdmsRcContext=mdmsDataRequestPayload.path("mdmsData").path("context");
         RequestInfo requestInfo = objectMapper.convertValue(mdmsDataRequestPayload.path("RequestInfo"),RequestInfo.class);
-
+        String tenantId= requestInfo.getUserInfo().getTenantId();
         SchemaDefinition schemaDefinition = SchemaDefinition.builder().
-                tenantId("default")
+                tenantId(tenantId)
                 .code(mdmsCodeName)
                 .description("Trade type for trade license applications")
                 .isActive(Boolean.TRUE)

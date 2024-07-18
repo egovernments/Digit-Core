@@ -19,9 +19,20 @@ public class InnerSchema {
     private String id;
     @JsonProperty("$schema")
     private String schema;
+
+    @JsonProperty("description")
     private String description;
+
+    @JsonProperty("type")
     private String type;
+
+    @JsonProperty("properties")
     private Map<String, Object> properties;
+
+    @JsonProperty("required")
     private List<String> required;
+
+    @JsonProperty("additionalProperties")
     private boolean additionalProperties;
+
 }

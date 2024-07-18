@@ -1,6 +1,7 @@
 package org.egov.sunbirdrc.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import lombok.*;
 import org.egov.common.contract.request.RequestInfo;
 
@@ -17,4 +18,7 @@ public class QrCodeRequest {
 
     @JsonProperty("code")
     private String code;
+
+    @JsonProperty("uuid")
+    private String uuid;
 }

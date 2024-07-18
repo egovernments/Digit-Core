@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CredentialIdUuidMapper {
 
-
     private String entityid;
 
     @JsonProperty("vcid")

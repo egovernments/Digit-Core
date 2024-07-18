@@ -31,6 +31,10 @@ public class MdmsSchemaService {
     @Value("${egov.mdms.search}")
     private String mdmsSearchUrl;
 
+    @Value("${egov.mdms.search.tenant}")
+    private String mdmsSearchTenantId;
+
+
     @Autowired
     private ObjectMapper objectMapper;
     private StringRedisTemplate stringRedisTemplate;
@@ -43,7 +47,6 @@ public class MdmsSchemaService {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
-
     //load the rc config in the mdms to the cache
     @PostConstruct
     public void loadSchemaFromMdms() {
@@ -51,7 +54,7 @@ public class MdmsSchemaService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         RequestInfo requestInfo= new RequestInfo();
         SchemaDefCriteria schemaDefinitionSearch= SchemaDefCriteria.builder().
-                tenantId("default")
+                tenantId(mdmsSearchTenantId)
                 .build();
 
         MdmsSearch mdmsSearchObject= MdmsSearch.builder()
@@ -76,7 +79,7 @@ public class MdmsSchemaService {
 
         }
         catch(Exception e){
-            throw new CustomException("MDMS_SEARCH_FAILURE", "mdms search object not found");
+            throw new CustomException("MDMS_SEARCH_FAILURE", "failed to fetch details from mdms");
         }
 
         stringRedisTemplate.opsForValue().set("vc-mdms", mdmsSearchResponse);
