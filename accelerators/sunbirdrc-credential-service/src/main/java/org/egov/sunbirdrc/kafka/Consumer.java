@@ -17,7 +17,7 @@ public class Consumer {
     private CredentialService credentialService;
 
 
-    @KafkaListener(topics = {"${egov.create.vc.topic}","${egov.recreate.vc.topic}"})
+    @KafkaListener(topics = {"create-vc","recreate-vc"})
     public void createVc(String message, ConsumerRecord<String, String> record) {
             credentialService.processPayloadAndPersistCredential(message,record.topic());
     }
