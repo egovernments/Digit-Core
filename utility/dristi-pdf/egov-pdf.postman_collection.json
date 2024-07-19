@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "2bce3733-e59c-41fe-b96f-22dc61782378",
+		"name": "works-pdf",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "project pdf Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"RequestInfo\": {\n        \"apiId\": \"Rainmaker\",\n        \"ver\": \".01\",\n        \"action\": \"\",\n        \"did\": \"1\",\n        \"key\": \"\",\n        \"msgId\": \"20170310130900|en_IN\",\n        \"requesterId\": \"\",\n         \"authToken\": \"{{citizenAuth}}\",\n           \"userInfo\": {\n        \"id\": 284,\n        \"uuid\": \"00147ccd-935c-46fd-9bdc-e0b19ffebc73\",\n        \"userName\": \"MUS\",\n        \"name\": \"jagan\",\n        \"mobileNumber\": \"6786666666\",\n        \"emailId\": null,\n        \"locale\": null,\n        \"type\": \"EMPLOYEE\",\n        \"roles\": [\n            {\n                \"name\": \"HRMS Admin\",\n                \"code\": \"HRMS_ADMIN\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"Employee\",\n                \"code\": \"EMPLOYEE\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"MUSTER ROLL APPROVER\",\n                \"code\": \"MUSTER_ROLL_APPROVER\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"Employee Common\",\n                \"code\": \"EMPLOYEE_COMMON\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"MUSTER ROLL VERIFIER\",\n                \"code\": \"MUSTER_ROLL_VERIFIER\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"SUPER USER\",\n                \"code\": \"SUPERUSER\",\n                \"tenantId\": \"pg.citya\"\n            }\n        ],\n        \"active\": true,\n        \"tenantId\": \"pg.citya\",\n        \"permanentCity\": null\n    }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{envURL}}/egov-pdf/download/project/project-details?projectId=PR/2022-23/03/001690&tenantId=pg.citya",
+					"host": [
+						"{{envURL}}"
+					],
+					"path": [
+						"egov-pdf",
+						"download",
+						"project",
+						"project-details"
+					],
+					"query": [
+						{
+							"key": "projectId",
+							"value": "PR/2022-23/03/001690"
+						},
+						{
+							"key": "tenantId",
+							"value": "pg.citya"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "project pdf",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"RequestInfo\": {\n        \"apiId\": \"Rainmaker\",\n        \"ver\": \".01\",\n        \"action\": \"\",\n        \"did\": \"1\",\n        \"key\": \"\",\n        \"msgId\": \"20170310130900|en_IN\",\n        \"requesterId\": \"\",\n         \"authToken\": \"{{citizenAuth}}\",\n           \"userInfo\": {\n        \"id\": 284,\n        \"uuid\": \"00147ccd-935c-46fd-9bdc-e0b19ffebc73\",\n        \"userName\": \"MUS\",\n        \"name\": \"jagan\",\n        \"mobileNumber\": \"6786666666\",\n        \"emailId\": null,\n        \"locale\": null,\n        \"type\": \"EMPLOYEE\",\n        \"roles\": [\n            {\n                \"name\": \"HRMS Admin\",\n                \"code\": \"HRMS_ADMIN\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"Employee\",\n                \"code\": \"EMPLOYEE\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"MUSTER ROLL APPROVER\",\n                \"code\": \"MUSTER_ROLL_APPROVER\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"Employee Common\",\n                \"code\": \"EMPLOYEE_COMMON\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"MUSTER ROLL VERIFIER\",\n                \"code\": \"MUSTER_ROLL_VERIFIER\",\n                \"tenantId\": \"pg.citya\"\n            },\n            {\n                \"name\": \"SUPER USER\",\n                \"code\": \"SUPERUSER\",\n                \"tenantId\": \"pg.citya\"\n            }\n        ],\n        \"active\": true,\n        \"tenantId\": \"pg.citya\",\n        \"permanentCity\": null\n    }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{envURL}}/egov-pdf/download/project/project-details?projectId=PR/2022-23/03/001690&tenantId=pg.citya",
+							"host": [
+								"{{envURL}}"
+							],
+							"path": [
+								"egov-pdf",
+								"download",
+								"project",
+								"project-details"
+							],
+							"query": [
+								{
+									"key": "projectId",
+									"value": "PR/2022-23/03/001690"
+								},
+								{
+									"key": "tenantId",
+									"value": "pg.citya"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		}
+	]
+}

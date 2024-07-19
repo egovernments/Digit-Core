@@ -1,0 +1,151 @@
+openapi: 3.0.1
+info:
+  title: works-pdf service
+  description: APIs available in Egov-pdf service to get different pdfs
+  contact:
+    name: Jagankumar
+  version: 1.0.0
+servers:
+- url: /egov-pdf/download
+paths:
+  /project/project-details:
+    post:
+      tags:
+      - egov-pdf endpoints
+      summary: get project from projectId and generate the project pdf
+      parameters:
+      - name: projectId
+        in: query
+        description: The projectId of project
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: query
+        description: The tenantId for project
+        required: true
+        schema:
+          type: string
+      responses:
+        201:
+          description: pdf binary in response
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        400:
+          description: if incorrect request
+          content: {}
+        404:
+          description: records not found
+          content: {}
+        500:
+          description: error occurred on server
+          content: {}
+  /estimate/estimates:
+    post:
+      tags:
+      - egov-pdf endpoints
+      summary: get estimate from estimateNumber and generate the estimate pdf
+      parameters:
+      - name: estimateNumber
+        in: query
+        description: The estimateNumber of estimate
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: query
+        description: The tenantId for estimate 
+        required: true
+        schema:
+          type: string
+      responses:
+        201:
+          description: pdf binary in response
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        400:
+          description: if incorrect request
+          content: {}
+        404:
+          description: records not found
+          content: {}
+        500:
+          description: error occurred on server
+          content: {}
+  /workOrder/work-order:
+    post:
+      tags:
+      - egov-pdf endpoints
+      summary: get contract from contractId and generate the workorder pdf
+      parameters:
+      - name: contractId
+        in: query
+        description: The contractId of contract
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: query
+        description: The tenantId for contract
+        required: true
+        schema:
+          type: string
+      responses:
+        201:
+          description: pdf binary in response
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        400:
+          description: if incorrect request
+          content: {}
+        404:
+          description: records not found
+          content: {}
+        500:
+          description: error occurred on server
+          content: {}
+  /musterRoll/muster-roll:
+    post:
+      tags:
+      - egov-pdf endpoints
+      summary: get muster roll from musterRollNumber and generate the muster roll pdf
+      parameters:
+      - name: musterRollNumber
+        in: query
+        description: The musterRollNumber of muster roll 
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: query
+        description: The tenantId for muster roll 
+        required: true
+        schema:
+          type: string
+      responses:
+        201:
+          description: pdf binary in response
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        400:
+          description: if incorrect request
+          content: {}
+        404:
+          description: records not found
+          content: {}
+        500:
+          description: error occurred on server
+          content: {}
+components: {}
