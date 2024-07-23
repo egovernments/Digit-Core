@@ -131,7 +131,7 @@ public class EmployeeQueryBuilder {
 		}
 		if(!CollectionUtils.isEmpty(criteria.getCourtrooms())){
 			builder.append(" and assignment.courtroom IN (").append(createQuery(criteria.getCourtrooms())+")");
-			addToPreparedStatement(preparedStmtList,criteria.getPositions());
+			addToPreparedStatement(preparedStmtList,criteria.getCourtrooms());
 		}
 		if(null != criteria.getAsOnDate()) {
 			builder.append( " and case when assignment.todate is null then assignment.fromdate <= ? else assignment.fromdate <= ? and assignment.todate > ? end");
