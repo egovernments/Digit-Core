@@ -113,7 +113,7 @@ public class AddVcSchemaService {
         String credentialExpiryDate= mdmsDataRequestPayload.path("mdmsData").path("expiryDate").asText();
         JsonNode mdmsRcContext=mdmsDataRequestPayload.path("mdmsData").path("context");
         RequestInfo requestInfo = objectMapper.convertValue(mdmsDataRequestPayload.path("RequestInfo"),RequestInfo.class);
-        String tenantId= requestInfo.getUserInfo().getTenantId();
+        String tenantId= mdmsDataRequestPayload.path("tenantId").asText();
         SchemaDefinition schemaDefinition = SchemaDefinition.builder().
                 tenantId(tenantId)
                 .code(mdmsCodeName)

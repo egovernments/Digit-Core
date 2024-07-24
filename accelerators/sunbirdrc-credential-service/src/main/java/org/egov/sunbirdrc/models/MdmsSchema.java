@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MdmsSchema {
 
     @JsonProperty("RequestInfo")
@@ -33,5 +34,8 @@ public class MdmsSchema {
     @JsonProperty("status")
     @Valid
     private String status;
+
+    @JsonProperty("tenantId")
+    private String tenantId;
 }
 

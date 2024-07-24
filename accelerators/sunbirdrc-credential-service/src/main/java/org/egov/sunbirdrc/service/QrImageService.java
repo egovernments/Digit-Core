@@ -75,8 +75,8 @@ public class QrImageService {
     public String getQrImageFromTemplate(CredentialIdResponse credentialIdObject, String templateId){
         //using template id make get request for qr code by appending the template id as header
         StringBuilder qrRequestUri = new StringBuilder();
-        qrRequestUri.append(credentialHost).append(qrImagePath);
-        //qrRequestUri.append("https://unified-dev.digit.org/credentials-service/credentials/");
+        //qrRequestUri.append(credentialHost).append(qrImagePath);
+        qrRequestUri.append("https://unified-dev.digit.org/credentials-service/credentials/");
         String getQrRequestUri= qrRequestUri.toString()+ credentialIdObject.getCredentialId();
         HttpHeaders headers = new HttpHeaders();
         headers.set("templateid", templateId);

@@ -22,5 +22,4 @@ public class Consumer {
             credentialService.processPayloadAndPersistCredential(message,record.topic());
     }
 
-
 }
