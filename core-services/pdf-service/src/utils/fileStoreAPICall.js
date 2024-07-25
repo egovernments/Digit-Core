@@ -15,6 +15,7 @@ let externalHost = envVariables.EGOV_EXTERNAL_HOST;
  */
 export const fileStoreAPICall = async function(filename, tenantId, fileData, header) {
   var url = `${egovFileHost}/filestore/v1/files?tenantId=${tenantId}&module=pdfgen&tag=00040-2017-QR`;
+  logger.info("url of the filestore is"+ url);
   var form = new FormData();
   form.append("file", fileData, {
     filename: filename,
@@ -28,6 +29,8 @@ export const fileStoreAPICall = async function(filename, tenantId, fileData, hea
       ...form.getHeaders()
     }
   });
+  logger.info("response from the filestore is"+ response.data);
+
   return get(response.data, "files[0].fileStoreId");
 };
 
