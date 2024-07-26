@@ -173,53 +173,101 @@ async function search_case(cnrNumber1, tenantId1, requestinfo) {
     method: "post",
     url: url.resolve(config.host.case, config.paths.case_search),
     data: {
-      RequestInfo: requestinfo.RequestInfo,
-      tenantId: tenantId1,
-      criteria: [
+      "RequestInfo": requestinfo.RequestInfo,
+      "tenantId": tenantId1,
+      "criteria": [
 		{
-      cnrNumber: cnrNumber1,
+      "cnrNumber": cnrNumber1,
 		}
 	]
     },
   });
 }
 
+async function search_order(tenantId1, cnrNumber1, orderId1, requestinfo) {
+  return await axios({
+    method: "post",
+    url: url.resolve(config.host.order, config.paths.order_search),
+    data: {
+      "RequestInfo": requestinfo.RequestInfo,
+      "tenantId": tenantId1,
+      "criteria": {
+	      "tenantId": tenantId1,
+        "cnrNumber": cnrNumber1,
+        "id": orderId1
+	    }
+    },
+  });
+}
 
-async function search_mdms_order(moduleName, masterName, tenantID,requestinfo) {
+async function search_hearing(tenantId, cnrNumber, requestinfo) {
+  return await axios({
+    method: "post",
+    url: url.resolve(config.host.hearing, config.paths.hearing_search),
+    data: {
+      "RequestInfo": requestinfo.RequestInfo,
+      "criteria": {
+	      "tenantId": tenantId
+        // "cnrNumber": cnrNumber
+	    },
+      "pagination": {
+        "limit": 10,
+        "offset": 0,
+        "sortBy": "createdTime",
+        "order": "desc"
+      }
+    },
+  });
+}
+
+
+async function search_mdms_order(uniqueIdentifier, schemaCode, tenantID,requestInfo) {
   return await axios({
     method: "post",
     url: url.resolve(config.host.mdms, config.paths.mdms_search),
     data: {
-      RequestInfo: requestinfo.RequestInfo,
+      RequestInfo: requestInfo.RequestInfo,
       MdmsCriteria: {
         tenantId: tenantID,
-        moduleDetails: [
-            {
-                moduleName: moduleName,
-                masterDetails: [
-                    {
-                        name: masterName
-                    }
-                ]
-            }
-        ]
+        schemaCode: schemaCode,
+        uniqueIdentifiers: [uniqueIdentifier]
     }
     },
   });
 }
 
-async function search_hrms(code, tenantId, requestinfo) {
+async function search_hrms(tenantId, employeeTypes, courtRooms, requestinfo) {
   var params = {
     tenantId: tenantId,
+    employeetypes: employeeTypes,
+    courtrooms: courtRooms,
     limit:10,
     offset:0,
-    codes:code
   };
   return await axios({
     method: "post",
     url: url.resolve(config.host.hrms, config.paths.hrms_search),
     data: {
       RequestInfo: requestinfo.RequestInfo
+    },
+    params,
+  });
+}
+
+async function search_individual(tenantId, individualId, requestinfo) {
+  var params = {
+    tenantId: tenantId,
+    limit:10,
+    offset:0,
+  };
+  return await axios({
+    method: "post",
+    url: url.resolve(config.host.individual, config.paths.individual_search),
+    data: {
+      RequestInfo: requestinfo.RequestInfo,
+      Individual: {
+        individualId: individualId
+      }
     },
     params,
   });
@@ -574,5 +622,8 @@ module.exports = {
   exec_query_eg_payments_excel,
   search_measurementBookDetails,
   search_case,
-  search_mdms_order
+  search_order,
+  search_mdms_order,
+  search_individual,
+  search_hearing
 };
