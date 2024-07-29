@@ -28,6 +28,13 @@ module.exports = {
 
   pdf: {
     issue_of_summon:"summons-issue",
+    reschedule_request_judge:"reschedule-request-judge",
+    new_hearing_date_after_reschedule: "new-hearing-date-after-rescheduling",
+    schedule_hearing_date: "schedule-hearing-date",
+    accept_rescheduling_request: "accept-reschedule-request",
+    reject_rescheduling_request:"reject-reschedule-request",
+    accept_adr_application : "accept-adr-application",
+    reject_adr_application: "reject-adr-application"
   },
 
   app: {
