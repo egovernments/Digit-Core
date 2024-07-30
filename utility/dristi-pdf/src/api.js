@@ -273,6 +273,19 @@ async function search_individual(tenantId, individualId, requestinfo) {
   });
 }
 
+async function search_sunbirdrc_credential_service(tenantId, code, uuid, requestinfo) {
+  return await axios({
+    method: "post",
+    url: url.resolve(config.host.sunbirdrc_credential_service, config.paths.sunbirdrc_credential_service_search),
+    data: {
+      RequestInfo: requestinfo.RequestInfo,
+      tenantId: tenantId,
+      code: code,
+      uuid: uuid
+    },
+  });
+}
+
 
 async function search_workflow(applicationNumber, tenantId, requestinfo) {
   var params = {
@@ -625,5 +638,6 @@ module.exports = {
   search_order,
   search_mdms_order,
   search_individual,
-  search_hearing
+  search_hearing,
+  search_sunbirdrc_credential_service
 };

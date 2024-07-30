@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const cheerio = require('cheerio');
 const url = require("url");
 const config = require("../config");
 
-const { search_estimateDetails, search_case, search_order, search_hearing, search_mdms_order, search_hrms, search_individual, create_pdf } = require("../api");
+const { search_estimateDetails, search_case, search_order, search_hearing, search_mdms_order, search_hrms, search_individual, search_sunbirdrc_credential_service, create_pdf } = require("../api");
 
 const { asyncMiddleware } = require("../utils/asyncMiddleware");
 const { pdf } = require("../config");
@@ -30,6 +31,8 @@ router.post(
         const cnrNumber = req.query.cnrNumber;
         const id = req.query.id;
         const orderId = req.query.orderId;
+        const taskId = req.query.taskId;
+        const code = req.query.code;
         const tenantId = req.query.tenantId;
         const requestInfo = req.body;
 
@@ -44,6 +47,12 @@ router.post(
         }
         if (!tenantId) {
             return renderError(res, "tenantId is mandatory to generate the receipt", 400);
+        }
+        if (!taskId) {
+            return renderError(res, "taskId is mandatory to generate the receipt", 400);
+        }
+        if (!code) {
+            return renderError(res, "code is mandatory to generate the receipt", 400);
         }
         if (requestInfo == undefined) {
             return renderError(res, "requestInfo cannot be null", 400);
@@ -116,6 +125,18 @@ router.post(
             }
             var individual = resIndividual.data.Individual[0];
 
+            var resCredential;
+            try {
+                resCredential = await search_sunbirdrc_credential_service(tenantId, code, taskId, requestInfo);
+            } catch (ex) {
+                return renderError(res, "Failed to query details of the sunbirdrc credential service", 500, ex);
+            }
+            // Load the response HTML into cheerio
+             const $ = cheerio.load(resCredential.data);
+    
+            // Extract the base64 URL from the img tag
+            const base64Url = $('img').attr('src');
+
 
 
             let year;
@@ -146,7 +167,8 @@ router.post(
                         "additionalComments": "Please ensure all relevant documents are submitted prior to the hearing date.",
                         "judgeSignature": "Judge's Signature",
                         "judgeName": employee.user.name,
-                        "courtSeal": "Court Seal"
+                        "courtSeal": "Court Seal",
+                        "qrCodeUrl": base64Url
                     }
                 ]
             };
@@ -161,7 +183,7 @@ router.post(
                     requestInfo
                 );
             } catch (ex) {
-                return renderError(res, "Failed to generate PDF for detailed estimate", 500, ex);
+                return renderError(res, "Failed to generate PDF", 500, ex);
             }
             const filename = `${pdfKey}_${new Date().getTime()}`;
             res.writeHead(200, {
@@ -171,7 +193,7 @@ router.post(
             pdfResponse.data.pipe(res);
 
         } catch (ex) {
-            return renderError(res, "Failed to query details of issue of summons", 500, ex);
+            return renderError(res, "Failed to query details for issue of summons", 500, ex);
         }
     })
 );
