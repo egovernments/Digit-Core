@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres_tenant1:
+    image: postgres:latest
+    container_name: postgres_tenant1
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_tenant1_data:/var/lib/postgresql/data
+
+  postgres_tenant2:
+    image: postgres:latest
+    container_name: postgres_tenant2
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_tenant2_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_tenant1_data:
+  postgres_tenant2_data:
