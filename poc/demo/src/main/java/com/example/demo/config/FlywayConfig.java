@@ -1,37 +1,46 @@
 package com.example.demo.config;
 
 import org.flywaydb.core.Flyway;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.flyway.FlywayDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class FlywayConfig {
 
+    @Autowired
+    private Environment env;
+
+    @Autowired
+    private DataSource routingDataSource;
+
     @Value("${spring.flyway.locations}")
     private String flywayLocations;
 
-    @FlywayDataSource
-    @Bean(initMethod = "migrate")
-    public Flyway flywayTenant1(@Qualifier("tenant1DataSource") DataSource tenant1DataSource) {
-        return Flyway.configure()
-                .dataSource(tenant1DataSource)
-                .baselineOnMigrate(true)
-                .locations(flywayLocations)
-                .load();
-    }
+    @Bean
+    public Map<String, Flyway> flywayMap() {
+        Map<String, Flyway> flywayMap = new HashMap<>();
+        Map<Object, DataSource> targetDataSources = ((AbstractRoutingDataSource) routingDataSource).getResolvedDataSources();
+        for (Object key : targetDataSources.keySet()) {
+            DataSource dataSource = (DataSource) targetDataSources.get(key);
+            boolean baselineOnMigrate = Boolean.parseBoolean(env.getProperty("tenant." + key + ".baseline-on-migrate", "true"));
 
-    @FlywayDataSource
-    @Bean(initMethod = "migrate")
-    public Flyway flywayTenant2(@Qualifier("tenant2DataSource") DataSource tenant2DataSource) {
-        return Flyway.configure()
-                .dataSource(tenant2DataSource)
-                .baselineOnMigrate(true)
-                .locations(flywayLocations)
-                .load();
+            Flyway flyway = Flyway.configure()
+                    .dataSource(dataSource)
+                    .baselineOnMigrate(baselineOnMigrate)
+                    .locations(flywayLocations)
+                    .load();
+            flyway.migrate();
+
+            flywayMap.put((String) key, flyway);
+        }
+        return flywayMap;
     }
 }
