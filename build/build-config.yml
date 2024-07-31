@@ -536,7 +536,7 @@ config:
   - name: "builds/Digit-Core/utility/dristi-pdf"
     build:
       - work-dir: "utility/dristi-pdf"
-        image-name: "works-pdf"
+        image-name: "dristi-pdf"
       - work-dir: "utility/dristi-pdf/migration"
-        image-name: "works-pdf-db"
+        image-name: "dristi-pdf-db"
 
