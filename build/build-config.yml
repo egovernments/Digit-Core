@@ -532,3 +532,11 @@ config:
         image-name: "im-services-analytics"
         dockerfile: "build/maven/Dockerfile"
 
+# utilities
+  - name: "builds/Digit-Core/utility/dristi-pdf"
+    build:
+      - work-dir: "utility/dristi-pdf"
+        image-name: "works-pdf"
+      - work-dir: "utility/dristi-pdf/migration"
+        image-name: "works-pdf-db"
+
