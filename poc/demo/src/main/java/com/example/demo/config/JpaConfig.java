@@ -41,10 +41,10 @@ public class JpaConfig {
         return em;
     }
 
-    @Bean
-    public PlatformTransactionManager transactionManager() {
+    //@Bean
+    /*public PlatformTransactionManager transactionManager() {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
         return transactionManager;
-    }
+    }*/
 }
