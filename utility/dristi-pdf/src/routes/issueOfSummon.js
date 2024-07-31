@@ -18,18 +18,10 @@ function renderError(res, errorMessage, errorCode, errorObject) {
     res.status(errorCode).send({ errorMessage });
 }
 
-function formatDate(date) {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-}
-
 router.post(
     "/issue-summon",
     asyncMiddleware(async function (req, res, next) {
         const cnrNumber = req.query.cnrNumber;
-        const id = req.query.id;
         const orderId = req.query.orderId;
         const taskId = req.query.taskId;
         const code = req.query.code;
@@ -38,9 +30,6 @@ router.post(
 
         if (!cnrNumber) {
             return renderError(res, "cnrNumber is mandatory to generate the receipt", 400);
-        }
-        if (!id) {
-            return renderError(res, "id is mandatory to generate the receipt", 400);
         }
         if (!orderId) {
             return renderError(res, "orderId is mandatory to generate the receipt", 400);
@@ -154,7 +143,6 @@ router.post(
             const data = {
                 "Data": [
                     {
-                        "id": id,
                         "courtName": mdmsCourtRoom.name,
                         "place": mdmsCourtEstablishment.boundaryName,
                         "state": mdmsCourtEstablishment.rootBoundaryName,
