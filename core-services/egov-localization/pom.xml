@@ -20,6 +20,11 @@
     <lombok.version>1.18.22</lombok.version>
   </properties>
   <dependencies>
+  <dependency>
+    <groupId>co.elastic.apm</groupId>
+    <artifactId>apm-agent-attach</artifactId>
+    <version>1.20.0</version>
+  </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
