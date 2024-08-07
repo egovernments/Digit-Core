@@ -1,5 +1,6 @@
 package org.egov;
 
+import co.elastic.apm.attach.ElasticApmAttacher;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -53,6 +54,7 @@ public class LocalizationServiceApplication {
 	}
 
 	public static void main(String[] args) {
+        ElasticApmAttacher.attach();
 		SpringApplication.run(LocalizationServiceApplication.class, args);
 	}
 }
