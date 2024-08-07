@@ -15,46 +15,57 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 @SpringBootApplication
-@Import({ TracerConfiguration.class })
+@Import({TracerConfiguration.class})
 public class LocalizationServiceApplication {
 
-	@Value("${app.timezone}")
-	private String timeZone;
+    @Value("${app.timezone}")
+    private String timeZone;
 
-	@PostConstruct
-	public void initialize() {
-		TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(LocalizationServiceApplication.class, args);
+    }
 
-	@Bean
-	public WebMvcConfigurer webMvcConfigurer() {
-		return new WebMvcConfigurer() {
+    @PostConstruct
+    public void initElasticApm() {
+        Map<String, String> apmConfig = new HashMap<>();
+        apmConfig.put("service_name", "egov-localization");
+        apmConfig.put("server_urls", "http://apm-server.es-cluster:8200");
+        apmConfig.put("secret_token", "");
+        apmConfig.put("application_packages", "org.egov");
+        ElasticApmAttacher.attach(apmConfig);
+    }
 
-			@Override
-			public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-				configurer.defaultContentType(MediaType.APPLICATION_JSON_UTF8);
-			}
-		};
-	}
+    @PostConstruct
+    public void initialize() {
+        TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
+    }
 
-	@Bean
-	public ObjectMapper objectMapper() {
-		return new ObjectMapper();
-	}
+    @Bean
+    public WebMvcConfigurer webMvcConfigurer() {
+        return new WebMvcConfigurer() {
 
-	@Bean
-	public MappingJackson2HttpMessageConverter jacksonConverter(ObjectMapper objectMapper) {
-		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		converter.setObjectMapper(objectMapper);
-		return converter;
-	}
+            @Override
+            public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+                configurer.defaultContentType(MediaType.APPLICATION_JSON_UTF8);
+            }
+        };
+    }
 
-	public static void main(String[] args) {
-        ElasticApmAttacher.attach();
-		SpringApplication.run(LocalizationServiceApplication.class, args);
-	}
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public MappingJackson2HttpMessageConverter jacksonConverter(ObjectMapper objectMapper) {
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        converter.setObjectMapper(objectMapper);
+        return converter;
+    }
 }
