@@ -26,6 +26,18 @@ public class LocalizationServiceApplication {
     @Value("${app.timezone}")
     private String timeZone;
 
+    @Value("${elastic.apm.service-name}")
+    private String serviceName;
+
+    @Value("${elastic.apm.server-url}")
+    private String serviceUrl;
+
+    @Value("${elastic.apm.application-packages}")
+    private String applicationPackages;
+
+    @Value("${elastic.apm.environment}")
+    private String environment;
+
     public static void main(String[] args) {
         SpringApplication.run(LocalizationServiceApplication.class, args);
     }
@@ -33,10 +45,11 @@ public class LocalizationServiceApplication {
     @PostConstruct
     public void initElasticApm() {
         Map<String, String> apmConfig = new HashMap<>();
-        apmConfig.put("service_name", "egov-localization");
-        apmConfig.put("server_urls", "http://apm-server.es-cluster:8200");
+        apmConfig.put("service_name", serviceName);
+        apmConfig.put("server_urls", serviceUrl);
         apmConfig.put("secret_token", "");
-        apmConfig.put("application_packages", "org.egov");
+        apmConfig.put("application_packages", applicationPackages);
+        apmConfig.put("environment", environment);
         ElasticApmAttacher.attach(apmConfig);
     }
 
