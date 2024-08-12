@@ -1,10 +1,11 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.AuditDetails;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -23,38 +24,35 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Tenant   {
-        @JsonProperty("id")
+public class Tenant {
 
-        @Size(min=2,max=128)         private String id = null;
+    @JsonProperty("id")
+    @Size(min = 2, max = 128)
+    private String id = null;
 
-        @JsonProperty("code")
-          @NotNull
+    @JsonProperty("code")
+//    @NotNull
+    @Size(min = 1, max = 20)
+    private String code = null;
 
-        @Size(min=1,max=20)         private String code = null;
+    @JsonProperty("name")
+    @NotNull
+    @Size(min = 1, max = 100)
+    private String name = null;
 
-        @JsonProperty("name")
-          @NotNull
+    @JsonProperty("email")
+    @NotNull
+    @Email(message = "Email should be valid")
+    private String email = null;
 
-        @Size(min=1,max=100)         private String name = null;
+    @JsonProperty("additionalAttributes")
+    private Object additionalAttributes = null;
 
-        @JsonProperty("email")
-          @NotNull
+    @JsonProperty("isActive")
+    private Boolean isActive = null;
 
-                private String email = null;
-
-        @JsonProperty("additionalAttributes")
-
-                private Object additionalAttributes = null;
-
-        @JsonProperty("isActive")
-
-                private Boolean isActive = null;
-
-        @JsonProperty("auditDetails")
-
-          @Valid
-                private AuditDetails auditDetails = null;
-
+    @JsonProperty("auditDetails")
+    @Valid
+    private AuditDetails auditDetails = null;
 
 }

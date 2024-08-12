@@ -1,6 +1,7 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,22 +23,18 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuditDetails   {
-        @JsonProperty("createdBy")
+public class AuditDetails {
 
-                private String createdBy = null;
+    @JsonProperty("createdBy")
+    private String createdBy = null;
 
-        @JsonProperty("lastModifiedBy")
+    @JsonProperty("lastModifiedBy")
+    private String lastModifiedBy = null;
 
-                private String lastModifiedBy = null;
+    @JsonProperty("createdTime")
+    private Long createdTime = null;
 
-        @JsonProperty("createdTime")
-
-                private Long createdTime = null;
-
-        @JsonProperty("lastModifiedTime")
-
-                private Long lastModifiedTime = null;
-
+    @JsonProperty("lastModifiedTime")
+    private Long lastModifiedTime = null;
 
 }

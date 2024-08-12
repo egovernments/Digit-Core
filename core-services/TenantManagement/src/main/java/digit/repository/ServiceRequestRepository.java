@@ -35,11 +35,11 @@ public class ServiceRequestRepository {
         Object response = null;
         try {
             response = restTemplate.postForObject(uri.toString(), request, Map.class);
-        }catch(HttpClientErrorException e) {
-            log.error(EXTERNAL_SERVICE_EXCEPTION,e);
+        } catch (HttpClientErrorException e) {
+            log.error(EXTERNAL_SERVICE_EXCEPTION, e);
             throw new ServiceCallException(e.getResponseBodyAsString());
-        }catch(Exception e) {
-            log.error(SEARCHER_SERVICE_EXCEPTION,e);
+        } catch (Exception e) {
+            log.error(SEARCHER_SERVICE_EXCEPTION, e);
         }
 
         return response;
