@@ -68,21 +68,21 @@
 			<artifactId>flyway-core</artifactId>
 			<version>9.22.3</version>
 		</dependency>
-        <dependency>
-            <groupId>co.elastic.apm</groupId>
-            <artifactId>apm-agent-api</artifactId>
-            <version>1.31.0</version>
-        </dependency>
-        <dependency>
-            <groupId>co.elastic.apm</groupId>
-            <artifactId>apm-agent-attach</artifactId>
-            <version>1.31.0</version>
-        </dependency>
-        <dependency>
-            <groupId>co.elastic.apm</groupId>
-            <artifactId>elastic-apm-agent</artifactId>
-            <version>1.31.0</version>
-        </dependency>
+	        <dependency>
+	            <groupId>co.elastic.apm</groupId>
+	            <artifactId>apm-agent-api</artifactId>
+	            <version>1.31.0</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>co.elastic.apm</groupId>
+	            <artifactId>apm-agent-attach</artifactId>
+	            <version>1.31.0</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>co.elastic.apm</groupId>
+	            <artifactId>elastic-apm-agent</artifactId>
+	            <version>1.31.0</version>
+	        </dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
