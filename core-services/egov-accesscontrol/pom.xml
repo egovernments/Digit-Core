@@ -28,11 +28,11 @@
 
     <dependencies>
     <!--Elastic APM -->
-        <!-- <dependency>
+        <dependency>
             <groupId>co.elastic.apm</groupId>
             <artifactId>apm-agent-attach</artifactId>
             <version>1.20.0</version>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>co.elastic.apm</groupId>
             <artifactId>apm-agent-api</artifactId>
