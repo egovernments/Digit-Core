@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import co.elastic.apm.attach.ElasticApmAttacher;
 import jakarta.annotation.PostConstruct;
 import org.cache2k.extra.spring.SpringCache2kCacheManager;
 import org.egov.common.utils.MultiStateInstanceUtil;
@@ -68,6 +69,7 @@ public class EgovAccesscontrolApplication {
         apmConfig.put("server_urls", serviceUrl);
         apmConfig.put("application_packages", applicationPackages);
         apmConfig.put("environment", environment);
+        ElasticApmAttacher.attach(apmConfig);
     }
 
 	@Bean
