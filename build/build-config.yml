@@ -175,7 +175,7 @@ config:
       - work-dir: "core-services/TenantManagement"
         image-name: "tenant-management"
         dockerfile: "build/maven/Dockerfile"
-      - work-dir: "core-services/TenantManagement/src/main/resources"
+      - work-dir: "core-services/TenantManagement/src/main/resources/db"
         image-name: "tenant-management-db"
 
   - name: "builds/Digit-Core/core-services/egov-mdms-service"
