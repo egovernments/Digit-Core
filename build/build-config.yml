@@ -464,10 +464,10 @@ config:
   - name: "builds/Digit-Core/core-services/TenantManagement"
     build:
       - work-dir: "core-services/TenantManagement"
-        image-name: "TenantManagement"
+        image-name: "tenant-management"
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/TenantManagement/src/main/resources/db"
-        image-name: "TenantManagement-db"
+        image-name: "tenant-management-db"
   
   # PGR AI chatbot
   - name: "builds/Digit-Core/accelerators/pgr-ai-chatbot"
