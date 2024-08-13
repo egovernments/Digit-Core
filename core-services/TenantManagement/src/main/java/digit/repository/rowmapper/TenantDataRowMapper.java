@@ -3,12 +3,14 @@ package digit.repository.rowmapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.web.models.Tenant;
+import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.models.AuditDetails;
 import org.egov.tracer.model.CustomException;
 import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -20,6 +22,8 @@ import static digit.errors.ErrorCodes.INVALID_JSON;
 import static digit.errors.ErrorCodes.INVALID_JSON_MSG;
 import static java.util.Objects.isNull;
 
+@Slf4j
+@Component
 public class TenantDataRowMapper implements ResultSetExtractor<List<Tenant>> {
 
     @Autowired

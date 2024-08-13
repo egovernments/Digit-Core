@@ -1,65 +1,114 @@
 package digit.service;
 
 import digit.repository.TenantDataRepository;
+import digit.service.enrichment.TenantDataEnricher;
+import digit.service.validator.TenantDataValidator;
 import digit.web.models.Tenant;
 import digit.web.models.TenantDataSearchCriteria;
 import digit.web.models.TenantRequest;
 import digit.web.models.TenantResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.ResponseInfoUtil;
-import org.egov.tracer.model.CustomException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
 public class TenantService {
 
     private TenantDataRepository tenantDataRepository;
+    private TenantDataEnricher tenantDataEnricher;
+    private TenantDataValidator tenantDataValidator;
 
-    public TenantService(TenantDataRepository tenantDataRepository) {
+
+    public TenantService(TenantDataRepository tenantDataRepository, TenantDataEnricher tenantDataEnricher, TenantDataValidator tenantDataValidator) {
         this.tenantDataRepository = tenantDataRepository;
+        this.tenantDataEnricher = tenantDataEnricher;
+        this.tenantDataValidator = tenantDataValidator;
     }
 
-    public TenantResponse create(TenantRequest tenantRequest){
+    /**
+     * Creates a tenant
+     *
+     * @param tenantRequest
+     * @return
+     */
+    public TenantResponse create(TenantRequest tenantRequest) {
 
+        // validate request
+        tenantDataValidator.validateCreateRequest(tenantRequest);
 
-        List<Tenant> tenantList = tenantDataRepository.search(TenantDataSearchCriteria
-                .builder()
-                .code(tenantRequest
-                        .getTenant()
-                        .getCode())
-                .name(tenantRequest
-                        .getTenant()
-                        .getName())
-                .build());
+        // enrich request
+        tenantDataEnricher.enrichCreateReq(tenantRequest);
 
-        // check for duplicate tenant
-        if(!CollectionUtils.isEmpty(tenantList)){
-            throw new CustomException("DUPLICATE_RECORD","Duplicate record");
-        }
-
-        // enrich code
-        tenantRequest.getTenant().setCode(tenantRequest.getTenant().getName());
-        // enrich id
-        tenantRequest.getTenant().setId(String.valueOf(UUID.randomUUID()));
-
+        // persist
         tenantDataRepository.create(tenantRequest);
 
         // convert to TenantResponse
-        ResponseInfo responseInfo =  ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantRequest.getRequestInfo(),Boolean.TRUE);
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantRequest.getRequestInfo(), Boolean.TRUE);
         TenantResponse tenantResponse = TenantResponse
                 .builder()
                 .responseInfo(responseInfo)
-                .tenants((List<Tenant>) tenantRequest.getTenant())
+                .tenants(Collections.singletonList(tenantRequest.getTenant()))
                 .build();
 
         return tenantResponse;
     }
 
+    /**
+     * Searches for a tenant
+     * based on search criteria
+     *
+     * @param searchCriteria
+     * @param requestInfo
+     * @return
+     */
+    public TenantResponse search(TenantDataSearchCriteria searchCriteria, RequestInfo requestInfo) {
+
+        List<Tenant> tenantList = tenantDataRepository.search(searchCriteria);
+
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
+
+        return TenantResponse
+                .builder()
+                .responseInfo(responseInfo)
+                .tenants(tenantList)
+                .build();
+    }
+
+    /**
+     * Update tenant
+     * isActive and additionalAttributes are updatable
+     *
+     * @param tenantRequest
+     * @return
+     */
+    public TenantResponse update(TenantRequest tenantRequest){
+
+        // validate
+        tenantDataValidator.validateUpdateRequest(tenantRequest);
+
+        // enrich
+        tenantDataEnricher.enrichUpdateReq(tenantRequest);
+
+        // persist
+        tenantDataRepository.update(tenantRequest);
+
+        // convert to TenantResponse
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantRequest.getRequestInfo(), Boolean.TRUE);
+        TenantResponse tenantResponse = TenantResponse
+                .builder()
+                .responseInfo(responseInfo)
+                .tenants(Collections.singletonList(tenantRequest.getTenant()))
+                .build();
+
+        return tenantResponse;
+    }
 }
+
+
+

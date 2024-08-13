@@ -32,11 +32,12 @@ public class TenantDataRepositoryImpl implements TenantDataRepository {
 
     @Override
     public void create(TenantRequest tenantRequest) {
-        producer.push("tenant_data",tenantRequest);
+        producer.push("create-tenant",tenantRequest);
     }
 
     @Override
     public void update(TenantRequest tenantRequest) {
+        producer.push("update-tenant",tenantRequest);
 
     }
 

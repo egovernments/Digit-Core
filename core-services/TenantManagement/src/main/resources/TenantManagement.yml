@@ -1,0 +1,56 @@
+serviceMaps:
+  serviceName: tenant-Service
+  mappings:
+    - version: 1.0
+      description: Persists the tenant entity data
+      fromTopic: create-tenant
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_tenant_data (id, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenant
+          jsonMaps:
+            - jsonPath: $.tenant.id
+
+            - jsonPath: $.tenant.code
+
+            - jsonPath: $.tenant.name
+
+            - jsonPath: $.tenant.email
+
+            - jsonPath: $.tenant.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenant.isActive
+
+            - jsonPath: $.tenant.auditDetails.createdBy
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenant.auditDetails.createdTime
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Persists the tenant entity data
+      fromTopic: update-tenant
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_tenant_data SET additionalAttributes = ? , isactive = ? , createdBy = ? , lastModifiedBy = ? , createdTime = ? , lastModifiedTime = ? WHERE name = ?;
+          basePath: $.tenant
+          jsonMaps:
+            - jsonPath: $.tenant.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenant.isActive
+
+            - jsonPath: $.tenant.auditDetails.createdBy
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenant.auditDetails.createdTime
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedTime
+
+            - jsonPath: $.tenant.name

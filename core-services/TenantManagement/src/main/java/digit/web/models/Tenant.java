@@ -49,7 +49,7 @@ public class Tenant {
     private Object additionalAttributes = null;
 
     @JsonProperty("isActive")
-    private Boolean isActive = null;
+    private Boolean isActive = Boolean.FALSE;
 
     @JsonProperty("auditDetails")
     @Valid
