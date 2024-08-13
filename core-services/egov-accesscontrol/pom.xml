@@ -28,11 +28,21 @@
 
     <dependencies>
     <!--Elastic APM -->
-<dependency>
-    <groupId>co.elastic.apm</groupId>
-    <artifactId>apm-agent-attach</artifactId>
-    <version>1.20.0</version>
-</dependency>
+        <!-- <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-attach</artifactId>
+            <version>1.20.0</version>
+        </dependency> -->
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-api</artifactId>
+            <version>1.31.0</version>
+        </dependency>
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>elastic-apm-agent</artifactId>
+            <version>1.31.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>

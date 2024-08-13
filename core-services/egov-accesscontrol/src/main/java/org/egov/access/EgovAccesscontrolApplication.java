@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-
 import jakarta.annotation.PostConstruct;
 import org.cache2k.extra.spring.SpringCache2kCacheManager;
 import org.egov.common.utils.MultiStateInstanceUtil;
@@ -22,6 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -39,6 +40,18 @@ public class EgovAccesscontrolApplication {
     @Value("${cache.expiry.role.action.minutes}")
     private int roleActionExpiry;
 
+    @Value("${elastic.apm.service-name}")
+    private String serviceName;
+
+    @Value("${elastic.apm.server-url}")
+    private String serviceUrl;
+
+    @Value("${elastic.apm.application-packages}")
+    private String applicationPackages;
+
+    @Value("${elastic.apm.environment}")
+    private String environment;
+
 	@PostConstruct
 	public void initialize() {
 		TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
@@ -47,6 +60,15 @@ public class EgovAccesscontrolApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EgovAccesscontrolApplication.class, args);
 	}
+
+    @PostConstruct
+    public void initElasticApm() {
+        Map<String, String> apmConfig = new HashMap<>();
+        apmConfig.put("service_name", serviceName);
+        apmConfig.put("server_urls", serviceUrl);
+        apmConfig.put("application_packages", applicationPackages);
+        apmConfig.put("environment", environment);
+    }
 
 	@Bean
 	public MappingJackson2HttpMessageConverter jacksonConverter() {
