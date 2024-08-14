@@ -54,6 +54,7 @@ public class TenantDataRowMapper implements ResultSetExtractor<List<Tenant>> {
             Tenant tenant = Tenant.builder()
                     .isActive(resultSet.getBoolean("isactive"))
                     .id(resultSet.getString("id"))
+                    .name(resultSet.getString("name"))
                     .code(resultSet.getString("code"))
                     .additionalAttributes(data)
                     .email(resultSet.getString("email"))

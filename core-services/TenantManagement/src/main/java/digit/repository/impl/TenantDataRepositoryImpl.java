@@ -1,5 +1,6 @@
 package digit.repository.impl;
 
+import digit.config.ApplicationConfig;
 import digit.kafka.Producer;
 import digit.repository.TenantDataRepository;
 import digit.repository.querybuilder.TenantDataQueryBuilder;
@@ -22,22 +23,24 @@ public class TenantDataRepositoryImpl implements TenantDataRepository {
     private JdbcTemplate jdbcTemplate;
     private TenantDataQueryBuilder tenantDataQueryBuilder;
     private TenantDataRowMapper tenantDataRowMapper;
+    private ApplicationConfig config;
 
-    public TenantDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate, TenantDataQueryBuilder tenantDataQueryBuilder, TenantDataRowMapper tenantDataRowMapper) {
+    public TenantDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate, TenantDataQueryBuilder tenantDataQueryBuilder, TenantDataRowMapper tenantDataRowMapper, ApplicationConfig config) {
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.tenantDataQueryBuilder = tenantDataQueryBuilder;
         this.tenantDataRowMapper = tenantDataRowMapper;
+        this.config = config;
     }
 
     @Override
     public void create(TenantRequest tenantRequest) {
-        producer.push("create-tenant",tenantRequest);
+        producer.push(config.getCreateTopic(), tenantRequest);
     }
 
     @Override
     public void update(TenantRequest tenantRequest) {
-        producer.push("update-tenant",tenantRequest);
+        producer.push(config.getUpdateTopic(), tenantRequest);
 
     }
 
