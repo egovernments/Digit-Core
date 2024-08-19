@@ -32,8 +32,8 @@ public class EncryptionDecryptionUtil {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value(("${state.level.tenant.id}"))
-    private String stateLevelTenantId;
+   /* @Value(("${state.level.tenant.id}"))
+    private String stateLevelTenantId;*/
 
     @Value(("${decryption.abac.enabled}"))
     private boolean abacEnabled;
@@ -42,12 +42,12 @@ public class EncryptionDecryptionUtil {
         this.encryptionService = encryptionService;
     }
 
-    public <T> T encryptObject(Object objectToEncrypt, String key, Class<T> classType) {
+    public <T> T encryptObject(Object objectToEncrypt, String key, Class<T> classType, String tenant) {
         try {
             if (objectToEncrypt == null) {
                 return null;
             }
-            T encryptedObject = encryptionService.encryptJson(objectToEncrypt, key, stateLevelTenantId, classType);
+            T encryptedObject = encryptionService.encryptJson(objectToEncrypt, key, tenant, classType);
             if (encryptedObject == null) {
                 throw new CustomException("ENCRYPTION_NULL_ERROR", "Null object found on performing encryption");
             }
