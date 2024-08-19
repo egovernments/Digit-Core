@@ -4,11 +4,9 @@ import digit.config.ApplicationConfig;
 import digit.util.QueryUtil;
 import digit.web.models.TenantDataSearchCriteria;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Component

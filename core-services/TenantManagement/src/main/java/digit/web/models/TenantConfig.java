@@ -1,12 +1,15 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import digit.web.models.AuditDetails;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.UUID;
+
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -25,71 +28,67 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TenantConfig   {
-        @JsonProperty("id")
+public class TenantConfig {
 
-          @Valid
-                private UUID id = null;
+    @JsonProperty("id")
+    @Valid
+    private UUID id = null;
 
-        @JsonProperty("headerUrl")
+    @JsonProperty("headerUrl")
+    @Size(min = 1, max = 20)
+    private String headerUrl = null;
 
-        @Size(min=1,max=20)         private String headerUrl = null;
+    @JsonProperty("footerUrl")
+    @Size(min = 1, max = 100)
+    private String footerUrl = null;
 
-        @JsonProperty("footerUrl")
+    /**
+     * The tenant admin can configure a default login type for all users within the tenant.
+     */
+    public enum DefaultLoginTypeEnum {
+        PASSWORD("Password"),
 
-        @Size(min=1,max=100)         private String footerUrl = null;
+        OTP("OTP"),
 
-            /**
-            * The tenant admin can configure a default login type for all users within the tenant.
-            */
-            public enum DefaultLoginTypeEnum {
-                        PASSWORD("Password"),
-                        
-                        OTP("OTP"),
-                        
-                        _2FA("2FA");
-            
-            private String value;
-            
-            DefaultLoginTypeEnum(String value) {
+        _2FA("2FA");
+
+        private String value;
+
+        DefaultLoginTypeEnum(String value) {
             this.value = value;
-            }
-            
-            @Override
-            @JsonValue
-            public String toString() {
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
             return String.valueOf(value);
-            }
-            
-            @JsonCreator
-            public static DefaultLoginTypeEnum fromValue(String text) {
+        }
+
+        @JsonCreator
+        public static DefaultLoginTypeEnum fromValue(String text) {
             for (DefaultLoginTypeEnum b : DefaultLoginTypeEnum.values()) {
-            if (String.valueOf(b.value).equals(text)) {
-            return b;
-            }
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
             }
             return null;
-            }
-            }        @JsonProperty("defaultLoginType")
+        }
+    }
 
-                private DefaultLoginTypeEnum defaultLoginType = null;
+    @JsonProperty("defaultLoginType")
+    private DefaultLoginTypeEnum defaultLoginType = null;
 
-        @JsonProperty("enableUserBasedLogin")
+    @JsonProperty("enableUserBasedLogin")
+    private Boolean enableUserBasedLogin = null;
 
-                private Boolean enableUserBasedLogin = null;
+    @JsonProperty("additionalAttributes")
+    private Object additionalAttributes = null;
 
-        @JsonProperty("additionalAttributes")
+    @JsonProperty("isActive")
+    private Boolean isActive = null;
 
-                private Object additionalAttributes = null;
-
-        @JsonProperty("isActive")
-
-                private Boolean isActive = null;
-
-        @JsonProperty("auditDetails")
-
-          @Valid
-                private AuditDetails auditDetails = null;
-
+    @JsonProperty("auditDetails")
+    @Valid
+    private AuditDetails auditDetails = null;
 
 }

@@ -30,7 +30,7 @@ import lombok.Builder;
 @NoArgsConstructor
 @Builder
 public class TenantResponse {
-    @JsonProperty("responseInfo")
+    @JsonProperty("ResponseInfo")
 
     @Valid
     private ResponseInfo responseInfo = null;

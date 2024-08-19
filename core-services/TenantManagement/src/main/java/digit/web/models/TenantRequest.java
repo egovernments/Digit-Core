@@ -26,8 +26,7 @@ import lombok.Builder;
 @Builder
 public class TenantRequest {
 
-    @JsonProperty("requestInfo")
-    @NotNull
+    @JsonProperty("RequestInfo")
     @Valid
     private RequestInfo requestInfo = null;
 
