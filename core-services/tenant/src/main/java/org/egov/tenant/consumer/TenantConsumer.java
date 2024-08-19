@@ -1,6 +1,7 @@
 package org.egov.tenant.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.egov.tenant.utility.UserUtility;
 import org.egov.tenant.web.contract.Tenant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -16,15 +17,14 @@ public class TenantConsumer {
     @Autowired
     private ObjectMapper mapper;
 
+    @Autowired
+    private UserUtility userUtility;
+
 
     @KafkaListener(topics = { "${tenant.create.topic}"})
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         Tenant tenant = mapper.convertValue(record, Tenant.class);
-
-
-
-
-
+        userUtility.createUser(tenant);
     }
 
 }

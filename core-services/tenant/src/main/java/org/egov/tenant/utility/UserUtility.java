@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.tenant.config.ApplicationConfiguration;
 import org.egov.tenant.domain.model.Role;
-import org.egov.tenant.domain.model.Tenant;
 import org.egov.tenant.domain.model.User;
 import org.egov.tenant.domain.model.UserDetailResponse;
 import org.egov.tenant.persistence.repository.ServiceRequestRepository;
+import org.egov.tenant.web.contract.Tenant;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,7 +39,7 @@ public class UserUtility {
      * Creates admin user for the tenant
      * @return
      */
-    private User createUser(Tenant tenant) {
+    public User createUser(Tenant tenant) {
 
         StringBuilder uri = new StringBuilder(config.getUserHost())
             .append(config.getUserContextPath())
@@ -61,7 +61,7 @@ public class UserUtility {
 
     }
 
-    public UserDetailResponse userCall(Object userRequest, StringBuilder uri) {
+    private UserDetailResponse userCall(Object userRequest, StringBuilder uri) {
         String dobFormat = null;
 
         if(uri.toString().contains(config.getUserSearchEndpoint())  || uri.toString().contains(config.getUserUpdateEndpoint()))
@@ -80,7 +80,7 @@ public class UserUtility {
         }
     }
 
-    public void parseResponse(LinkedHashMap responeMap, String dobFormat){
+    private void parseResponse(LinkedHashMap responeMap, String dobFormat){
         List<LinkedHashMap> users = (List<LinkedHashMap>)responeMap.get("user");
         String format1 = "dd-MM-yyyy HH:mm:ss";
         if(users!=null){
