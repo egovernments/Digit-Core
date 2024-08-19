@@ -23,4 +23,5 @@ public class ApplicationConfig {
 
     @Value("${mdms.default.limit}")
     private Integer defaultLimit;
+
 }
