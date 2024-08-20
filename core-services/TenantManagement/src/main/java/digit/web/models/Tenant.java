@@ -35,6 +35,11 @@ public class Tenant {
     @Size(min = 1, max = 20)
     private String code = null;
 
+    @JsonProperty("tenantId")
+    @Size(min = 1, max = 20)
+    private String tenantId = null;
+
+    // alphanumeric / alphabet
     @JsonProperty("name")
     @NotNull
     @Size(min = 1, max = 100)

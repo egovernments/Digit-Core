@@ -1,14 +1,13 @@
 package digit.web.models.User;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.contract.request.User;
 
 @AllArgsConstructor
 @Getter
+@Builder
+@Setter
 @NoArgsConstructor
 public class CreateUserRequest {
 

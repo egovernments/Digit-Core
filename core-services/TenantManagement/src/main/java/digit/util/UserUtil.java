@@ -6,6 +6,8 @@ import digit.config.Configuration;
 import digit.repository.ServiceRequestRepository;
 import digit.web.models.Tenant;
 
+import digit.web.models.TenantRequest;
+import digit.web.models.User.CreateUserRequest;
 import digit.web.models.User.Role;
 import digit.web.models.User.User;
 import digit.web.models.User.UserDetailResponse;
@@ -43,14 +45,17 @@ public class UserUtil {
      * Creates admin user for the tenant
      * @return
      */
-    public User createUser(Tenant tenant) {
+    public User createUser(TenantRequest tenantRequest) {
 
         StringBuilder uri = new StringBuilder(config.getUserHost())
                 .append(config.getUserContextPath())
                 .append(config.getUserCreateEndpoint());
 
+        Tenant tenant = tenantRequest.getTenant();
+
         Role role = Role.builder().tenantId(tenant.getCode()).code(DEFAULT_ROOT_USER_ROLE).build();
-        User user = User.builder().tenantId(tenant.getCode())
+        User user = User.builder()
+                .tenantId(tenant.getCode())
                 .userName(tenant.getEmail())
                 .emailId(tenant.getEmail())
                 .active(true)
@@ -59,13 +64,17 @@ public class UserUtil {
                 .roles(Collections.singletonList(role))
                 .build();
 
-        UserDetailResponse userDetailResponse = userCall(user, uri);
+        CreateUserRequest createUserRequest = new CreateUserRequest();
+        createUserRequest.setUser(user);
+        createUserRequest.setRequestInfo(tenantRequest.getRequestInfo());
+
+        UserDetailResponse userDetailResponse = userCall(createUserRequest, uri);
 
         return userDetailResponse.getUser().get(0);
 
     }
 
-    private UserDetailResponse userCall(Object userRequest, StringBuilder uri) {
+    public UserDetailResponse userCall(Object userRequest, StringBuilder uri) {
         String dobFormat = null;
 
         if(uri.toString().contains(config.getUserSearchEndpoint())  || uri.toString().contains(config.getUserUpdateEndpoint()))

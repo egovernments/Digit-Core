@@ -24,4 +24,6 @@ public class ApplicationConfig {
     @Value("${mdms.default.limit}")
     private Integer defaultLimit;
 
+    @Value("${egov.user.host}${egov.user.search.path}")
+    private String UserSearchURI;
 }

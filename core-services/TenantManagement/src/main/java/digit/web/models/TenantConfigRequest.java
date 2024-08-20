@@ -1,22 +1,20 @@
 package digit.web.models;
 
-import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import digit.web.models.AuditDetails;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.egov.common.contract.request.RequestInfo;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.UUID;
-
-import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
-import lombok.Builder;
 
 /**
  * Details of Tenant Configuration
@@ -28,14 +26,13 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TenantConfig {
+public class TenantConfigRequest {
 
-    @JsonProperty("id")
-    @Valid
-    private UUID id = null;
+    @JsonProperty("RequestInfo")
+    private RequestInfo RequestInfo;
 
-    @JsonProperty("defaultLoginType")
-    private String defaultLoginType = null;
+//    @JsonProperty("defaultLoginType")
+//    private TenantConfig.DefaultLoginTypeEnum defaultLoginType = null;
 
     @JsonProperty("enableUserBasedLogin")
     private Boolean enableUserBasedLogin = null;
@@ -43,8 +40,9 @@ public class TenantConfig {
     @JsonProperty("additionalAttributes")
     private Object additionalAttributes = null;
 
-    @JsonProperty("documents")
-    private Document documents = null;
+    @JsonProperty("id")
+    @Valid
+    private UUID id = null;
 
     @JsonProperty("isActive")
     private Boolean isActive = null;

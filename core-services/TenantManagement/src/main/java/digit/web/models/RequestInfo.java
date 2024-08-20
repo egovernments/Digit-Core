@@ -1,6 +1,7 @@
 package digit.web.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import digit.web.models.User.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
@@ -65,7 +66,7 @@ public class RequestInfo   {
         @JsonProperty("userInfo")
 
           @Valid
-                private User1 userInfo = null;
+                private User userInfo = null;
 
         @JsonProperty("correlationId")
 

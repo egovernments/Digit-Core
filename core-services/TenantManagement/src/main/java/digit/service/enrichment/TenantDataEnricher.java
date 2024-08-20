@@ -1,15 +1,21 @@
 package digit.service.enrichment;
 
+import digit.util.AuditDetailsEnrichmentUtil;
 import digit.web.models.Tenant;
 import digit.web.models.TenantRequest;
-import org.egov.common.utils.AuditDetailsEnrichmentUtil;
 import org.egov.common.utils.UUIDEnrichmentUtil;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TenantDataEnricher {
 
-    public void enrichCreateReq(TenantRequest tenantRequest){
+    private AuditDetailsEnrichmentUtil auditDetailsEnrichmentUtil;
+
+    public TenantDataEnricher(AuditDetailsEnrichmentUtil auditDetailsEnrichmentUtil) {
+        this.auditDetailsEnrichmentUtil = auditDetailsEnrichmentUtil;
+    }
+
+    public void enrichCreateReq(TenantRequest tenantRequest) {
 
         Tenant tenant = tenantRequest.getTenant();
 
@@ -20,11 +26,11 @@ public class TenantDataEnricher {
         UUIDEnrichmentUtil.enrichRandomUuid(tenant, "id");
 
         // enrich audit details
-        tenant.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(tenant.getAuditDetails(), tenantRequest.getRequestInfo(), Boolean.TRUE));
+        tenant.setAuditDetails(auditDetailsEnrichmentUtil.prepareAuditDetails(tenant.getAuditDetails(), tenantRequest.getRequestInfo(), Boolean.TRUE));
 
     }
 
-    public void enrichUpdateReq(TenantRequest tenantRequest){
+    public void enrichUpdateReq(TenantRequest tenantRequest) {
 
         Tenant tenant = tenantRequest.getTenant();
 
