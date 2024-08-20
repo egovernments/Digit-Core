@@ -89,4 +89,11 @@ public class Configuration {
     //SMSNotification
     @Value("${egov.sms.notification.topic}")
     private String smsNotificationTopic;
+
+    // User OTP Configuration
+    @Value("${egov.user.otp.host}")
+    private String userOtpHost;
+
+    @Value("${egov.user.otp.send.endpoint}")
+    private String userOtpSendEndpoint;
 }

@@ -2,6 +2,7 @@ package digit.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import digit.util.OtpUtil;
 import digit.util.UserUtil;
 import digit.web.models.Tenant;
 import digit.web.models.TenantRequest;
@@ -23,13 +24,19 @@ public class TenantConsumer {
     @Autowired
     private UserUtil userUtil;
 
+    @Autowired
+    private OtpUtil otpUtil;
+
     @KafkaListener(topics = {"${kafka.topics.create.tenant}"})
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
 
         // create user only for root tenant
-        if (Objects.isNull(tenantRequest.getTenant().getTenantId()))
+        if (Objects.isNull(tenantRequest.getTenant().getTenantId())){
             userUtil.createUser(tenantRequest);
+            otpUtil.sendOtp(tenantRequest);
+        }
+
 
         // TODO: Trigger email/sms OTP here
     }
