@@ -23,7 +23,7 @@ public class OtpRequest {
 
     public void validate() {
         if(isTenantIdAbsent()
-				|| isUserNameOrMobileNumberValid()
+				|| !isUserNameOrMobileNumberValid()
 		        || isInvalidType()) {
             throw new InvalidOtpRequestException(this);
         }
@@ -33,12 +33,12 @@ public class OtpRequest {
 		if(!isMobileNumberAbsent()){
 			if(isMobileNumberNumeric()
 					|| isMobileNumberValidLength()){
-				throw new InvalidOtpRequestException(this);
+				return false;
 			}
 		}
 		else {
 			if(isUserNameAbsent()){
-				throw new InvalidOtpRequestException(this);
+				return false;
 			}
 		}
 		return true;
