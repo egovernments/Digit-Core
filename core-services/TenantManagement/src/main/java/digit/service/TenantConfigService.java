@@ -10,6 +10,7 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -48,7 +49,7 @@ public class TenantConfigService {
         // convert to TenantResponse
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantConfigRequest.getRequestInfo(), Boolean.TRUE);
         TenantConfigResponse tenantConfigResponse = new TenantConfigResponse().builder()
-                .tenantConfig(tenantConfigRequest.getTenantConfig())
+                .tenantConfigs(Collections.singletonList(tenantConfigRequest.getTenantConfig()))
                 .responseInfo(responseInfo)
                 .build();
 
@@ -72,7 +73,7 @@ public class TenantConfigService {
         return TenantConfigResponse
                 .builder()
                 .responseInfo(responseInfo)
-                .tenantConfig(tenantList.get(0))
+                .tenantConfigs(tenantList)
                 .build();
     }
 

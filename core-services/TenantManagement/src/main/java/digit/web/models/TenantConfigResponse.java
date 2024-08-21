@@ -26,6 +26,6 @@ public class TenantConfigResponse {
     @JsonProperty("ResponseInfo")
     private ResponseInfo responseInfo;
 
-    @JsonProperty("tenantConfig")
-    private TenantConfig tenantConfig;
+    @JsonProperty("tenantConfigs")
+    private List<TenantConfig> tenantConfigs;
 }
