@@ -6,7 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.UUID;
 
 @Schema(description = "Details of Tenant Document")
 @Validated
@@ -17,8 +20,14 @@ import org.springframework.validation.annotation.Validated;
 @Builder
 public class Document {
 
+    @JsonProperty("id")
+    private String id = null;
+
     @JsonProperty("tenantId")
     private String tenantId = null;
+
+    @JsonProperty("tenantConfigId")
+    private String tenantConfigId = null;
 
     @JsonProperty("type")
     private String type = null;
@@ -29,5 +38,10 @@ public class Document {
     @JsonProperty("url")
     private String url = null;
 
+    @JsonProperty("isActive")
+    private Boolean isActive = null;
+
+    @JsonProperty("auditDetails")
+    private AuditDetails auditDetails = null;
 
 }

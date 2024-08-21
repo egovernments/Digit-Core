@@ -1,6 +1,7 @@
 package digit.web.controllers;
 
 
+import digit.service.TenantConfigService;
 import digit.service.TenantService;
 import digit.web.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,37 +38,32 @@ public class TenantApiController {
 
     private TenantService tenantService;
 
+    private TenantConfigService tenantConfigService;
+
     @Autowired
-    public TenantApiController(ObjectMapper objectMapper, HttpServletRequest request, TenantService tenantService) {
+    public TenantApiController(ObjectMapper objectMapper, HttpServletRequest request, TenantService tenantService, TenantConfigService tenantConfigService) {
         this.objectMapper = objectMapper;
         this.request = request;
         this.tenantService = tenantService;
+        this.tenantConfigService = tenantConfigService;
     }
 
     @RequestMapping(value = "/tenant/config/_create", method = RequestMethod.POST)
-    public ResponseEntity<Void> tenantConfigCreatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Tenant body) {
+    public ResponseEntity<TenantConfigResponse> tenantConfigCreatePost(@Valid @RequestBody TenantConfigRequest tenantConfigRequest) {
 
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        TenantConfigResponse tenantConfigResponse = tenantConfigService.create(tenantConfigRequest);
+
+        return new ResponseEntity<>(tenantConfigResponse, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/tenant/config/_search", method = RequestMethod.POST)
-    public ResponseEntity<List<Tenant>> tenantConfigSearchPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Tenant body, @Parameter(in = ParameterIn.QUERY, description = "Tenant code to search for.", schema = @Schema()) @Valid @RequestParam(value = "tenantId", required = false) String tenantId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<Tenant>>(objectMapper.readValue("[ {  \"code\" : \"code\",  \"auditDetails\" : {    \"lastModifiedTime\" : 3,    \"createdBy\" : \"createdBy\",    \"lastModifiedBy\" : \"lastModifiedBy\",    \"createdTime\" : 9  },  \"name\" : \"name\",  \"id\" : \"id\",  \"isActive\" : true,  \"email\" : \"\",  \"additionalAttributes\" : { }}, {  \"code\" : \"code\",  \"auditDetails\" : {    \"lastModifiedTime\" : 3,    \"createdBy\" : \"createdBy\",    \"lastModifiedBy\" : \"lastModifiedBy\",    \"createdTime\" : 9  },  \"name\" : \"name\",  \"id\" : \"id\",  \"isActive\" : true,  \"email\" : \"\",  \"additionalAttributes\" : { }} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                return new ResponseEntity<List<Tenant>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<List<Tenant>>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<TenantConfigResponse> tenantConfigSearchPost(@Valid @RequestBody RequestInfo requestInfo, @ModelAttribute TenantConfigSearchCriteria searchCriteria) {
+        TenantConfigResponse tenantConfigResponse =  tenantConfigService.search(searchCriteria,requestInfo);
+        return new ResponseEntity<>(tenantConfigResponse,HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/tenant/config/_update", method = RequestMethod.POST)
     public ResponseEntity<Void> tenantConfigUpdatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Tenant body) {
-        String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 

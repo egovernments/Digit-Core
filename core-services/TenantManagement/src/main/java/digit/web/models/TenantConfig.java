@@ -1,18 +1,15 @@
 package digit.web.models;
 
-import java.util.Objects;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import digit.web.models.AuditDetails;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -31,23 +28,34 @@ import lombok.Builder;
 public class TenantConfig {
 
     @JsonProperty("id")
-    @Valid
-    private UUID id = null;
+    private String id = null;
 
     @JsonProperty("defaultLoginType")
-    private String defaultLoginType = null;
+    private String defaultLoginType = "Password";
+
+    @JsonProperty("otpLength")
+    private String otpLength = null;
+
+    @JsonProperty("code")
+    private String code = null;
+
+    @JsonProperty("name")
+    private String name = null;
 
     @JsonProperty("enableUserBasedLogin")
-    private Boolean enableUserBasedLogin = null;
+    private Boolean enableUserBasedLogin = Boolean.TRUE;
 
     @JsonProperty("additionalAttributes")
     private Object additionalAttributes = null;
 
     @JsonProperty("documents")
-    private Document documents = null;
+    private List<Document> documents = null;
 
     @JsonProperty("isActive")
-    private Boolean isActive = null;
+    private Boolean isActive = Boolean.TRUE;
+
+    @JsonProperty("languages")
+    private List<String> languages = null;
 
     @JsonProperty("auditDetails")
     @Valid

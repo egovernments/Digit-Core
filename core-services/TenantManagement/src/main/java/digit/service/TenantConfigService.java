@@ -1,62 +1,58 @@
 package digit.service;
 
-import digit.repository.TenantDataRepository;
-import digit.service.enrichment.TenantDataEnricher;
-import digit.service.validator.TenantDataValidator;
-import digit.web.models.Tenant;
-import digit.web.models.TenantDataSearchCriteria;
-import digit.web.models.TenantRequest;
-import digit.web.models.TenantResponse;
+import digit.repository.TenantConfigRepository;
+import digit.service.enrichment.TenantConfigEnricher;
+import digit.service.validator.TenantConfigValidator;
+import digit.web.models.*;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
 @Service
 public class TenantConfigService {
 
-    private TenantDataRepository tenantDataRepository;
-    private TenantDataEnricher tenantDataEnricher;
-    private TenantDataValidator tenantDataValidator;
+    private TenantConfigRepository tenantConfigRepository;
+
+    private TenantConfigEnricher tenantConfigEnricher;
+
+    private TenantConfigValidator tenantConfigValidator;
 
 
-    public TenantConfigService(TenantDataRepository tenantDataRepository, TenantDataEnricher tenantDataEnricher, TenantDataValidator tenantDataValidator) {
-        this.tenantDataRepository = tenantDataRepository;
-        this.tenantDataEnricher = tenantDataEnricher;
-        this.tenantDataValidator = tenantDataValidator;
+    public TenantConfigService(TenantConfigRepository tenantConfigRepository, TenantConfigEnricher tenantConfigEnricher, TenantConfigValidator tenantConfigValidator) {
+        this.tenantConfigRepository = tenantConfigRepository;
+        this.tenantConfigEnricher = tenantConfigEnricher;
+        this.tenantConfigValidator = tenantConfigValidator;
     }
 
     /**
-     * Creates a tenant
      *
-     * @param tenantRequest
+     * @param tenantConfigRequest
      * @return
      */
-    public TenantResponse create(TenantRequest tenantRequest) {
+    public TenantConfigResponse create(TenantConfigRequest tenantConfigRequest) {
 
         // validate request
-        tenantDataValidator.validateCreateRequest(tenantRequest);
+        tenantConfigValidator.validateCreateReq(tenantConfigRequest);
 
         // enrich request
-        tenantDataEnricher.enrichCreateReq(tenantRequest);
+        tenantConfigEnricher.enrichCreateReq(tenantConfigRequest);
 
         // persist
-        tenantDataRepository.create(tenantRequest);
+        tenantConfigRepository.create(tenantConfigRequest);
 
         // convert to TenantResponse
-        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantRequest.getRequestInfo(), Boolean.TRUE);
-        TenantResponse tenantResponse = TenantResponse
-                .builder()
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantConfigRequest.getRequestInfo(), Boolean.TRUE);
+        TenantConfigResponse tenantConfigResponse = new TenantConfigResponse().builder()
+                .tenantConfig(tenantConfigRequest.getTenantConfig())
                 .responseInfo(responseInfo)
-                .tenants(Collections.singletonList(tenantRequest.getTenant()))
                 .build();
 
-        return tenantResponse;
+        return tenantConfigResponse;
     }
 
     /**
@@ -67,16 +63,16 @@ public class TenantConfigService {
      * @param requestInfo
      * @return
      */
-    public TenantResponse search(TenantDataSearchCriteria searchCriteria, RequestInfo requestInfo) {
+    public TenantConfigResponse search(TenantConfigSearchCriteria searchCriteria, RequestInfo requestInfo) {
 
-        List<Tenant> tenantList = tenantDataRepository.search(searchCriteria);
+        List<TenantConfig> tenantList = tenantConfigRepository.search(searchCriteria);
 
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
 
-        return TenantResponse
+        return TenantConfigResponse
                 .builder()
                 .responseInfo(responseInfo)
-                .tenants(tenantList)
+                .tenantConfig(tenantList.get(0))
                 .build();
     }
 
@@ -87,25 +83,25 @@ public class TenantConfigService {
      * @param tenantRequest
      * @return
      */
-    public TenantResponse update(TenantRequest tenantRequest){
-
-        // validate
-        tenantDataValidator.validateUpdateRequest(tenantRequest);
-
-        // enrich
-        tenantDataEnricher.enrichUpdateReq(tenantRequest);
-
-        // persist
-        tenantDataRepository.update(tenantRequest);
-
-        // convert to TenantResponse
-        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantRequest.getRequestInfo(), Boolean.TRUE);
-        TenantResponse tenantResponse = TenantResponse
-                .builder()
-                .responseInfo(responseInfo)
-                .tenants(Collections.singletonList(tenantRequest.getTenant()))
-                .build();
-
-        return tenantResponse;
-    }
+//    public TenantResponse update(TenantConfigRequest tenantConfigRequest){
+//
+//        // validate
+//        tenantConfigValidator.validateUpdateRequest(tenantRequest);
+//
+//        // enrich
+//        tenantConfigEnricher.enrichUpdateReq(tenantRequest);
+//
+//        // persist
+//        tenantConfigRepository.update(tenantRequest);
+//
+//        // convert to TenantResponse
+//        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantRequest.getRequestInfo(), Boolean.TRUE);
+//        TenantResponse tenantResponse = TenantResponse
+//                .builder()
+//                .responseInfo(responseInfo)
+//                .tenants(Collections.singletonList(tenantRequest.getTenant()))
+//                .build();
+//
+//        return tenantResponse;
+//    }
 }

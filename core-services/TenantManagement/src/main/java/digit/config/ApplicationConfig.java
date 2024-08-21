@@ -15,6 +15,9 @@ public class ApplicationConfig {
     @Value("${kafka.topics.create.tenant}")
     private String createTopic;
 
+    @Value("${kafka.topics.create.tenant.config}")
+    private String createConfigTopic;
+
     @Value("${kafka.topics.update.tenant}")
     private String updateTopic;
 
