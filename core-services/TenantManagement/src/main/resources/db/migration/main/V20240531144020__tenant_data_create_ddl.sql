@@ -1,4 +1,4 @@
-CREATE TABLE eg_tenant_data (
+CREATE TABLE tenant (
     id VARCHAR(128) ,
     code VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,

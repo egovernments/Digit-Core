@@ -15,7 +15,7 @@ public class TenantDataQueryBuilder {
     private static final String SEARCH_TENANT_DATA_QUERY = "SELECT data.id, data.code, data.name, data.email, " +
             "data.additionalAttributes, data.isActive, data.createdBy, data.lastModifiedBy, " +
             "data.createdTime, data.lastModifiedTime " +
-            "FROM eg_tenant_data data";
+            "FROM tenant data";
 
     private static final String TENANT_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc ";
 

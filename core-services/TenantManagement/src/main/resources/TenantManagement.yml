@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: create-tenant
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_tenant_data (id, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO tenant (id, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.id
@@ -36,7 +36,7 @@ serviceMaps:
       fromTopic: update-tenant
       isTransaction: true
       queryMaps:
-        - query: UPDATE eg_tenant_data SET additionalAttributes = ? , isactive = ? , createdBy = ? , lastModifiedBy = ? , createdTime = ? , lastModifiedTime = ? WHERE name = ?;
+        - query: UPDATE tenant SET additionalAttributes = ? , isactive = ? , createdBy = ? , lastModifiedBy = ? , createdTime = ? , lastModifiedTime = ? WHERE name = ?;
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.additionalAttributes
@@ -54,3 +54,58 @@ serviceMaps:
             - jsonPath: $.tenant.auditDetails.lastModifiedTime
 
             - jsonPath: $.tenant.name
+
+    - version: 1.0
+      description: Persists the tenant config data
+      fromTopic: create-tenant-config
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO tenant_config (id, code, defaultLoginType, enableUserBasedLogin, additionalAttributes, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenantConfig
+          jsonMaps:
+            - jsonPath: $.tenantConfig.id
+
+            - jsonPath: $.tenantConfig.code
+
+            - jsonPath: $.tenantConfig.defaultLoginType
+
+            - jsonPath: $.tenantConfig.enableUserBasedLogin
+
+            - jsonPath: $.tenantConfig.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenantConfig.isActive
+
+            - jsonPath: $.tenantConfig.auditDetails.createdBy
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.auditDetails.createdTime
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO tenant_documents (id, tenantConfigId, tenantId, type, fileStoreId, url, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenantConfig.documents.*
+          jsonMaps:
+            - jsonPath: $.tenantConfig.documents.*.id
+
+            - jsonPath: $.tenantConfig.documents.*.tenantConfigId
+
+            - jsonPath: $.tenantConfig.documents.*.tenantId
+
+            - jsonPath: $.tenantConfig.documents.*.type
+
+            - jsonPath: $.tenantConfig.documents.*.fileStoreId
+
+            - jsonPath: $.tenantConfig.documents.*.url
+
+            - jsonPath: $.tenantConfig.documents.*.isActive
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.createdBy
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.createdTime
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedTime

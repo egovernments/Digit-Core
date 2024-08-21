@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: create-tenant
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_tenant_data (id, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO tenant (id, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.id
@@ -36,7 +36,7 @@ serviceMaps:
       fromTopic: update-tenant
       isTransaction: true
       queryMaps:
-        - query: UPDATE eg_tenant_data SET additionalAttributes = ? , isactive = ? , createdBy = ? , lastModifiedBy = ? , createdTime = ? , lastModifiedTime = ? WHERE name = ?;
+        - query: UPDATE tenant SET additionalAttributes = ? , isactive = ? , createdBy = ? , lastModifiedBy = ? , createdTime = ? , lastModifiedTime = ? WHERE name = ?;
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.additionalAttributes

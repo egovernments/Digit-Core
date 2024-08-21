@@ -1,2 +1,2 @@
-ALTER TABLE eg_tenant_data
+ALTER TABLE tenant
 ADD COLUMN tenantId VARCHAR(64);
