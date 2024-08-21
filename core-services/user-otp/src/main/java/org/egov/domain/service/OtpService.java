@@ -53,6 +53,11 @@ public class OtpService {
             throw new UserNotExistingInSystemException();
 
         final String otpNumber = otpRepository.fetchOtp(otpRequest);
+
+        // TEMPORARILY ADDED FOR TESTING
+        // REMOVE IT !!!!!!!!!!!!!!!!!!!!!!
+        System.out.println("OTP: "+otpNumber);
+
         otpSMSSender.send(otpRequest, otpNumber);
         if(!otpRequest.isRegistrationRequestType()) // Because new user doesn't have any email configured
             try{
