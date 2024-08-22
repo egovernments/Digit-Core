@@ -461,6 +461,12 @@ config:
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
 
+  - name: "builds/Digit-Core/core-services/default-data-handler"
+    build:
+      - work-dir: "core-services/default-data-handler"
+        image-name: "default-data-handler"
+        dockerfile: "build/maven/Dockerfile"
+
   - name: "builds/Digit-Core/core-services/TenantManagement"
     build:
       - work-dir: "core-services/TenantManagement"
@@ -539,4 +545,3 @@ config:
       - work-dir: "accelerators/im-services-analytics"
         image-name: "im-services-analytics"
         dockerfile: "build/maven/Dockerfile"
-
