@@ -1,6 +1,7 @@
 package digit.service.enrichment;
 
 import digit.util.AuditDetailsEnrichmentUtil;
+import digit.util.TenantUtil;
 import digit.web.models.Tenant;
 import digit.web.models.TenantRequest;
 import org.egov.common.utils.UUIDEnrichmentUtil;
@@ -11,16 +12,21 @@ public class TenantDataEnricher {
 
     private AuditDetailsEnrichmentUtil auditDetailsEnrichmentUtil;
 
-    public TenantDataEnricher(AuditDetailsEnrichmentUtil auditDetailsEnrichmentUtil) {
+    private TenantUtil tenantUtil;
+
+    public TenantDataEnricher(AuditDetailsEnrichmentUtil auditDetailsEnrichmentUtil, TenantUtil tenantUtil) {
         this.auditDetailsEnrichmentUtil = auditDetailsEnrichmentUtil;
+        this.tenantUtil = tenantUtil;
     }
 
     public void enrichCreateReq(TenantRequest tenantRequest) {
 
         Tenant tenant = tenantRequest.getTenant();
 
-        // enrich code
-        tenantRequest.getTenant().setCode(tenantRequest.getTenant().getName());
+        // Set the code
+        String code = tenantUtil.convertNameToCode(tenantRequest.getTenant().getName());
+        tenantRequest.getTenant().setCode(code);
+        tenantRequest.getTenant().setParentId(code);
 
         // enrich id
         UUIDEnrichmentUtil.enrichRandomUuid(tenant, "id");

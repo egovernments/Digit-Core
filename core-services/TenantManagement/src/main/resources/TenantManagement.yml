@@ -36,14 +36,20 @@ serviceMaps:
       fromTopic: update-tenant
       isTransaction: true
       queryMaps:
-        - query: UPDATE tenant SET additionalAttributes = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE name = ?;
+        - query: UPDATE tenant SET additionalAttributes = ? , isactive = ? , createdBy = ? , lastModifiedBy = ? , createdTime = ? , lastModifiedTime = ? WHERE name = ?;
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.additionalAttributes
               type: JSON
               dbType: JSONB
 
+            - jsonPath: $.tenant.isActive
+
+            - jsonPath: $.tenant.auditDetails.createdBy
+
             - jsonPath: $.tenant.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenant.auditDetails.createdTime
 
             - jsonPath: $.tenant.auditDetails.lastModifiedTime
 

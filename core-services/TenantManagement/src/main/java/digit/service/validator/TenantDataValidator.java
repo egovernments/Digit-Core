@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -32,6 +33,15 @@ public class TenantDataValidator {
 
 
     public void validateCreateRequest(TenantRequest tenantRequest) {
+
+        // check for parentId then it's a sub tenant and create it
+        // otherwise root tenant create it
+
+        // check for the parentId to exist , if yes create
+
+        if(!Objects.isNull(tenantRequest.getTenant().getParentId())){
+        }
+
         List<Tenant> tenantList = tenantDataRepository.search(TenantDataSearchCriteria
                 .builder()
                 .code(tenantRequest

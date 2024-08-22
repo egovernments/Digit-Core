@@ -2,6 +2,7 @@ package digit.web.models;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,13 +32,13 @@ public class Tenant {
     private String id = null;
 
     @JsonProperty("code")
-//    @NotNull
-    @Size(min = 1, max = 20)
+    @Size(min = 1, max = 100)
     private String code = null;
 
-    @JsonProperty("tenantId")
-    @Size(min = 1, max = 20)
-    private String tenantId = null;
+    @JsonProperty("parentId")
+    @Size(min = 1, max = 100)
+    @JsonIgnore
+    private String parentId = null;
 
     // alphanumeric / alphabet
     @JsonProperty("name")
@@ -46,7 +47,6 @@ public class Tenant {
     private String name = null;
 
     @JsonProperty("email")
-    @NotNull
     @Email(message = "Email should be valid")
     private String email = null;
 

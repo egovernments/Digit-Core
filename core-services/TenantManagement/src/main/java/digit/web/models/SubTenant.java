@@ -1,11 +1,14 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.AuditDetails;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.UUID;
+
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -24,39 +27,38 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SubTenant   {
-        @JsonProperty("id")
+public class SubTenant {
 
-          @Valid
-                private UUID id = null;
+    @JsonProperty("id")
+    @Size(min = 2, max = 128)
+    private String id = null;
 
-        @JsonProperty("code")
-          @NotNull
+    @JsonProperty("code")
+    @Size(min = 1, max = 100)
+    private String code = null;
 
-        @Size(min=1,max=20)         private String code = null;
+    @JsonProperty("parentId")
+    @Size(min = 1, max = 100)
+    @NotNull
+    private String parentId = null;
 
-        @JsonProperty("name")
-          @NotNull
+    // alphanumeric / alphabet
+    @JsonProperty("name")
+    @NotNull
+    @Size(min = 1, max = 100)
+    private String name = null;
 
-        @Size(min=1,max=100)         private String name = null;
+    @JsonProperty("email")
+    private String email = null;
 
-        @JsonProperty("parentId")
-          @NotNull
+    @JsonProperty("additionalAttributes")
+    private Object additionalAttributes = null;
 
-        @Size(min=1,max=100)         private String parentId = null;
+    @JsonProperty("isActive")
+    private Boolean isActive = Boolean.TRUE;
 
-        @JsonProperty("additionalAttributes")
-
-                private Object additionalAttributes = null;
-
-        @JsonProperty("isActive")
-
-                private Boolean isActive = null;
-
-        @JsonProperty("auditDetails")
-
-          @Valid
-                private AuditDetails auditDetails = null;
-
+    @JsonProperty("auditDetails")
+    @Valid
+    private AuditDetails auditDetails = null;
 
 }

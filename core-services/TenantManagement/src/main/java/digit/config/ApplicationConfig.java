@@ -29,4 +29,7 @@ public class ApplicationConfig {
 
     @Value("${egov.user.host}${egov.user.search.path}")
     private String UserSearchURI;
+
+    @Value("${kafka.topics.notification.mail.name}")
+    private String emailTopic;
 }

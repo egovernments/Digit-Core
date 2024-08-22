@@ -1,10 +1,13 @@
 package digit.web.controllers;
 
 
+import digit.config.ApplicationConfig;
+import digit.kafka.Producer;
 import digit.service.TenantConfigService;
 import digit.service.TenantService;
 import digit.web.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import digit.web.models.email.EmailRequest;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,12 +43,18 @@ public class TenantApiController {
 
     private TenantConfigService tenantConfigService;
 
+    private Producer producer;
+
+    private ApplicationConfig applicationConfig;
+
     @Autowired
-    public TenantApiController(ObjectMapper objectMapper, HttpServletRequest request, TenantService tenantService, TenantConfigService tenantConfigService) {
+    public TenantApiController(ObjectMapper objectMapper, HttpServletRequest request, TenantService tenantService, TenantConfigService tenantConfigService, Producer producer, ApplicationConfig applicationConfig) {
         this.objectMapper = objectMapper;
         this.request = request;
         this.tenantService = tenantService;
         this.tenantConfigService = tenantConfigService;
+        this.producer = producer;
+        this.applicationConfig = applicationConfig;
     }
 
     @RequestMapping(value = "/tenant/config/_create", method = RequestMethod.POST)
@@ -85,5 +94,13 @@ public class TenantApiController {
         TenantResponse tenantResponse = tenantService.update(body);
         return new ResponseEntity<TenantResponse>(tenantResponse, HttpStatus.ACCEPTED);
     }
+
+
+//
+//    @RequestMapping(value = "/sendMail", method = RequestMethod.POST)
+//    public ResponseEntity<EmailRequest> sendEmail(@Valid @RequestBody EmailRequest body) {
+//        producer.push(applicationConfig.getEmailTopic(),body);
+//        return new ResponseEntity<>(body, HttpStatus.ACCEPTED);
+//    }
 
 }

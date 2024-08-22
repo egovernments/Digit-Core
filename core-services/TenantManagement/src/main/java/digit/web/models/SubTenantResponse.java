@@ -1,13 +1,17 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import digit.web.models.RequestInfo;
 import digit.web.models.SubTenant;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -25,23 +29,23 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SubTenantResponse   {
-        @JsonProperty("responseInfo")
+public class SubTenantResponse {
 
-          @Valid
-                private RequestInfo responseInfo = null;
+    @JsonProperty("ResponseInfo")
+    @Valid
+    private ResponseInfo responseInfo = null;
 
-        @JsonProperty("Tenants")
-          @Valid
-                private List<SubTenant> tenants = null;
+    @JsonProperty("Tenants")
+    @Valid
+    private List<SubTenant> tenants = null;
 
 
-        public SubTenantResponse addTenantsItem(SubTenant tenantsItem) {
-            if (this.tenants == null) {
+    public SubTenantResponse addTenantsItem(SubTenant tenantsItem) {
+        if (this.tenants == null) {
             this.tenants = new ArrayList<>();
-            }
+        }
         this.tenants.add(tenantsItem);
         return this;
-        }
+    }
 
 }

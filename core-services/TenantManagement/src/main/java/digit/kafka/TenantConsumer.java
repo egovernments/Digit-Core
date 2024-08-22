@@ -32,7 +32,7 @@ public class TenantConsumer {
         TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
 
         // create user only for root tenant
-        if (Objects.isNull(tenantRequest.getTenant().getTenantId())){
+        if (Objects.isNull(tenantRequest.getTenant().getParentId())){
             userUtil.createUser(tenantRequest);
             otpUtil.sendOtp(tenantRequest);
         }

@@ -1,11 +1,9 @@
 package digit.web.models;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import digit.web.models.RequestInfo;
-import digit.web.models.SubTenant;
-import io.swagger.v3.oas.annotations.media.Schema;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -23,18 +21,16 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SubTenantRequest   {
-        @JsonProperty("requestInfo")
-          @NotNull
+public class SubTenantRequest {
 
-          @Valid
-                private RequestInfo requestInfo = null;
+    @JsonProperty("RequestInfo")
+    @NotNull
+    @Valid
+    private RequestInfo requestInfo = null;
 
-        @JsonProperty("subTenant")
-          @NotNull
-
-          @Valid
-                private SubTenant subTenant = null;
-
+    @JsonProperty("tenant")
+    @NotNull
+    @Valid
+    private SubTenant Tenant = null;
 
 }
