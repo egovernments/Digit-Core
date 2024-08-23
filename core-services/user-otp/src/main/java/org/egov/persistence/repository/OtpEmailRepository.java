@@ -88,7 +88,7 @@ public class OtpEmailRepository {
 			localisedMessages.put(LOCALIZATION_KEY_PWD_RESET_SUBJECT_EMAIL, "Password Reset");
 			localisedMessages.put(LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL, "Your OTP for recovering password is %s.");
 			localisedMessages.put(LOCALIZATION_KEY_LOGIN_SUBJECT_EMAIL, "Login OTP");
-			localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear Citizen, Your Login OTP is %s.");
+			localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear &lt;User&gt;,<br><br>To complete creation of your Sandbox Account, please enter the below OTP:<br><br><b style='font-size: 24px; color: #000;'>%s</b><br><br>If you did not initiate this action, please contact <a href='mailto:support@sandbox.com'>support@sandbox.com</a><br><br>Regards,<br>Sandbox Team");
 		}
 		return localisedMessages.get(localizationKey);
 	}
