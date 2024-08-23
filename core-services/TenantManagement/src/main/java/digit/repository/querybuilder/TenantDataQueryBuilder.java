@@ -34,7 +34,8 @@ public class TenantDataQueryBuilder {
     public String getTenantDataSearchQuery(TenantDataSearchCriteria tenantDataSearchCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(tenantDataSearchCriteria, preparedStmtList);
         query = QueryUtil.addOrderByClause(query, TENANT_DATA_QUERY_ORDER_BY_CLAUSE);
-//        query = getPaginatedQuery(query, tenantDataSearchCriteria, preparedStmtList);
+        // TODO: Making sure root tenant returns in paginated query
+        // query = getPaginatedQuery(query, tenantDataSearchCriteria, preparedStmtList);
         return query;
     }
 
@@ -45,50 +46,34 @@ public class TenantDataQueryBuilder {
      * @return
      */
     private String buildQuery(TenantDataSearchCriteria tenantDataSearchCriteria, List<Object> preparedStmtList) {
+
+        // TODO: n - level hierarchy
+
         StringBuilder builder = new StringBuilder(SEARCH_TENANT_DATA_QUERY);
-//        Map<String, String> schemaCodeFilterMap = tenantDataSearchCriteria.getSchemaCodeFilterMap();
+
+        boolean includeSubTenants = tenantDataSearchCriteria.getIncludeSubTenants();
+
         if (!Objects.isNull(tenantDataSearchCriteria.getCode())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.code = ? ");
+            if (includeSubTenants) {
+                // Search by parentId instead of code
+                builder.append(" data.parentId = ? ");
+            } else {
+                // Default search by code
+                builder.append(" data.code = ? ");
+            }
             preparedStmtList.add(tenantDataSearchCriteria.getCode());
         }
-//        if (!Objects.isNull(tenantDataSearchCriteria.getIds())) {
-//            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-//            builder.append(" data.id IN ( ").append(QueryUtil.createQuery(tenantDataSearchCriteria.getIds().size())).append(" )");
-//            QueryUtil.addToPreparedStatement(preparedStmtList, tenantDataSearchCriteria.getIds());
-//        }
-//        if (!Objects.isNull(tenantDataSearchCriteria.getUniqueIdentifiers())) {
-//            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-//            builder.append(" data.uniqueidentifier IN ( ").append(QueryUtil.createQuery(tenantDataSearchCriteria.getUniqueIdentifiers().size())).append(" )");
-//            QueryUtil.addToPreparedStatement(preparedStmtList, tenantDataSearchCriteria.getUniqueIdentifiers());
-//        }
-//        if (!Objects.isNull(tenantDataSearchCriteria.getSchemaCodeFilterMap())) {
-//            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-//            builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(schemaCodeFilterMap.keySet().size())).append(" )");
-//            QueryUtil.addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
-//        }
+
+        // TODO: Search based on name and flag combination
         if(!Objects.isNull(tenantDataSearchCriteria.getName())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.name = ? ");
             preparedStmtList.add(tenantDataSearchCriteria.getName());
         }
-//        if(!CollectionUtils.isEmpty(tenantDataSearchCriteria.getFilterMap())){
-//            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-//            builder.append(" data.data @> CAST( ? AS jsonb )");
-//            String partialQueryJsonString = QueryUtil.preparePartialJsonStringFromFilterMap(tenantDataSearchCriteria.getFilterMap());
-//            preparedStmtList.add(partialQueryJsonString);
-//        }
-//        if(!CollectionUtils.isEmpty(tenantDataSearchCriteria.getUniqueIdentifiersForRefVerification())){
-//            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-//            builder.append(" data.uniqueidentifier IN ( ").append(QueryUtil.createQuery(tenantDataSearchCriteria.getUniqueIdentifiersForRefVerification().size())).append(" )");
-//            QueryUtil.addToPreparedStatement(preparedStmtList, tenantDataSearchCriteria.getUniqueIdentifiersForRefVerification());
-//        }
-//        if(!Objects.isNull(tenantDataSearchCriteria.getIsActive())) {
-//            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-//            builder.append(" data.isactive = ? ");
-//            preparedStmtList.add(tenantDataSearchCriteria.getIsActive());
-//        }
+
         return builder.toString();
+
     }
 
     private String getPaginatedQuery(String query, TenantDataSearchCriteria tenantDataSearchCriteria, List<Object> preparedStmtList) {

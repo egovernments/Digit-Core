@@ -50,6 +50,7 @@ public class TenantDataValidator {
                 .name(tenantRequest
                         .getTenant()
                         .getName())
+                .includeSubTenants(Boolean.FALSE)
                 .build());
 
         // check for duplicate tenant

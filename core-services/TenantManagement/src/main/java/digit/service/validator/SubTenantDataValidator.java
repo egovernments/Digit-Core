@@ -40,6 +40,7 @@ public class SubTenantDataValidator {
         List<Tenant> tenants = tenantDataRepository.search(TenantDataSearchCriteria
                 .builder()
                 .code(tenantRequest.getTenant().getParentId())
+                .includeSubTenants(Boolean.FALSE)
                 .build());
 
         if(CollectionUtils.isEmpty(tenants)){
