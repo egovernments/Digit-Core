@@ -76,6 +76,7 @@ public class TenantApiController {
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
+    // TODO: A switch to disable this in production
     @RequestMapping(value = "/tenant/_create", method = RequestMethod.POST)
     public ResponseEntity<TenantResponse> tenantCreatePost(@Valid @RequestBody TenantRequest body) {
         TenantResponse tenantResponse = tenantService.create(body);

@@ -1,10 +1,13 @@
 package digit.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import digit.config.ApplicationConfig;
 import digit.config.Configuration;
+import digit.web.models.DefaultMasterDataRequest;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
 import org.egov.mdms.model.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +32,23 @@ public class MdmsUtil {
     private ObjectMapper mapper;
 
     @Autowired
-    private Configuration configs;
+    private ApplicationConfig configs;
 
 
 
+    public void createMdmsData(DefaultMasterDataRequest defaultMasterDataRequest){
+
+        StringBuilder uri = new StringBuilder();
+        uri.append(configs.getMdmsDefaultDataCreateURI());
+        try
+        {
+            ResponseInfo responseInfo = restTemplate.postForObject(uri.toString(),defaultMasterDataRequest,ResponseInfo.class);
+
+        }catch (Exception e){
+            log.error("Error creating default MDMS data for {}",defaultMasterDataRequest.getTargetTenantId());
+        }
+
+    }
 
     public Map<String, Map<String, JSONArray>> fetchMdmsData(RequestInfo requestInfo, String tenantId, String moduleName,
                                                                                 List<String> masterNameList) {
