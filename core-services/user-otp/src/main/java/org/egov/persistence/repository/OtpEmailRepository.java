@@ -41,6 +41,9 @@ public class OtpEmailRepository {
 	@Autowired
 	private MultiStateInstanceUtil centralInstanceUtil;
 
+	@Value("${enable.mail.html}")
+	private boolean isHtmlEnabled;
+
     @Autowired
     public OtpEmailRepository(CustomKafkaTemplate<String, EmailRequest> kafkaTemplate,
 							  @Value("${email.topic}") String emailTopic, LocalizationService localizationService) {
@@ -61,6 +64,7 @@ public class OtpEmailRepository {
 			.body(getBody(otpNumber,otpRequest))
 			.subject(getSubject(otpRequest))
 			.emailTo(Collections.singleton(emailId))
+			.isHTML(isHtmlEnabled)
 			.build();
 		EmailRequest emailRequest = EmailRequest.builder().requestInfo(RequestInfo.builder().build()).email(email).build();
 		String updatedTopic = centralInstanceUtil.getStateSpecificTopicName(otpRequest.getTenantId(), emailTopic);
