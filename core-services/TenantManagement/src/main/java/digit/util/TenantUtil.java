@@ -9,9 +9,9 @@ public class TenantUtil {
     public String convertNameToCode(String name){
 
         // Convert the name to uppercase and replace spaces with underscores
-        String code = name.toUpperCase().replace(" ", "_");
+        // String code = name.toUpperCase().replace(" ", "_");
 
-        return code;
+        return name;
     }
 
     public String generateSubTenantCode(SubTenantRequest tenantRequest) {
