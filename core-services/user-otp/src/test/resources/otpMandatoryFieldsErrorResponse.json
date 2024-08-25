@@ -22,7 +22,7 @@
       },
       {
         "code": "OTP.MOBILE_NUMBER_INVALIDLENGTH",
-        "message": "Mobile number length should be min 10 and max 13 digits",
+        "message": "Mobile number length should be min 9 and max 13 digits",
         "field": "otp.mobileNumber"
       },
       {
