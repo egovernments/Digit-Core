@@ -30,7 +30,7 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
 	private static final String MOBILE_INVALID_FIELD = "otp.mobileNumber";
 
 	private static final String MOBILE_INVALIDLENGTH_CODE = "OTP.MOBILE_NUMBER_INVALIDLENGTH";
-	private static final String MOBILE_INVALIDLENGTH_MESSAGE = "Mobile number length should be min 10 and max 13 digits";
+	private static final String MOBILE_INVALIDLENGTH_MESSAGE = "Mobile number length should be min 9 and max 13 digits";
 	private static final String MOBILE_INVALIDLENGTH_FIELD = "otp.mobileNumber";
 
     @Override
