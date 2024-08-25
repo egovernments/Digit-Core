@@ -41,7 +41,7 @@ public class OtpRequest {
 	public boolean isMobileNumberValidLength() {
 		// TODO Auto-generated method stub
 		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString())))
-		return !(mobileNumber != null && mobileNumber.matches("^[0-9]{10,13}$"));
+		return !(mobileNumber != null && mobileNumber.matches("^[0-9]{9,13}$"));
 		return false;
 	}
     
