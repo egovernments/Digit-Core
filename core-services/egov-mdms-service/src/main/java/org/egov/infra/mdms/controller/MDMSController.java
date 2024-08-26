@@ -27,7 +27,7 @@ public class MDMSController {
     @PostMapping("_search")
     @ResponseBody
     private ResponseEntity<?> search(@RequestBody @Valid MdmsCriteriaReq mdmsCriteriaReq) {
-
+        mdmsCriteriaReq.getMdmsCriteria().setTenantId("pg");
         Map<String, Map<String, JSONArray>> response = mdmsService.searchMaster(mdmsCriteriaReq);
         MdmsResponse mdmsResponse = new MdmsResponse();
         mdmsResponse.setMdmsRes(response);
@@ -43,7 +43,7 @@ public class MDMSController {
                                      @RequestParam(value = "filter", required = false) String filter,
                                      @RequestParam("tenantId") String tenantId,
                                      @RequestBody RequestInfo requestInfo) {
-
+        tenantId = "pg";
         log.info("MDMSController mdmsCriteriaReq [" + module + ", " + master + ", " + filter + "]");
         MdmsCriteriaReq mdmsCriteriaReq = new MdmsCriteriaReq();
         mdmsCriteriaReq.setRequestInfo(requestInfo);
