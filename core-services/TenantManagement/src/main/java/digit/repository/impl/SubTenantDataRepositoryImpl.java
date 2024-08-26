@@ -36,7 +36,7 @@ public class SubTenantDataRepositoryImpl implements SubTenantDataRepository {
 
     @Override
     public void create(SubTenantRequest tenantRequest) {
-        producer.push(config.getCreateTopic(), tenantRequest);
+        producer.push(config.getCreateSubTenantTopic(), tenantRequest);
     }
 
     @Override

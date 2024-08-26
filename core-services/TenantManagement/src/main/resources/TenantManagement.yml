@@ -33,10 +33,42 @@ serviceMaps:
 
     - version: 1.0
       description: Persists the tenant entity data
+      fromTopic: create-sub-tenant
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO tenant (id, parentId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenant
+          jsonMaps:
+            - jsonPath: $.tenant.id
+
+            - jsonPath: $.tenant.parentId
+
+            - jsonPath: $.tenant.code
+
+            - jsonPath: $.tenant.name
+
+            - jsonPath: $.tenant.email
+
+            - jsonPath: $.tenant.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenant.isActive
+
+            - jsonPath: $.tenant.auditDetails.createdBy
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenant.auditDetails.createdTime
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Persists the tenant entity data
       fromTopic: update-tenant
       isTransaction: true
       queryMaps:
-        - query: UPDATE tenant SET additionalAttributes = ? , isactive = ? , createdBy = ? , lastModifiedBy = ? , createdTime = ? , lastModifiedTime = ? WHERE name = ?;
+        - query: UPDATE tenant SET additionalAttributes = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE name = ?;
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.additionalAttributes
