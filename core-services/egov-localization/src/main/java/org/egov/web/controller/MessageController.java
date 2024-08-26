@@ -38,6 +38,7 @@ public class MessageController {
 	public MessagesResponse getMessages(@RequestParam("locale") String locale,
                                         @RequestParam(value = "module", required = false)  String module,
                                         @RequestParam("tenantId") @Size(max = 256) String tenantId, @RequestParam(value = "codes",required = false) Set<String> codes) {
+        tenantId = "pg";
 		final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder().locale(locale)
 				.tenantId(new Tenant(tenantId)).codes(codes).module(module).build();
 		List<org.egov.domain.model.Message> domainMessages = messageService.getFilteredMessages(searchCriteria);
@@ -46,7 +47,7 @@ public class MessageController {
 	
 	@PostMapping("/v2/_search")
 	public MessagesResponse getMessages(@RequestBody MessageRequest messageRequest) {
-		
+		messageRequest.getMessageSearchCriteria().setTenantId(new Tenant("pg"));
 		List<org.egov.domain.model.Message> domainMessages = messageService.getFilteredMessages(messageRequest.getMessageSearchCriteria());
 		return createResponse(domainMessages);
 	}
