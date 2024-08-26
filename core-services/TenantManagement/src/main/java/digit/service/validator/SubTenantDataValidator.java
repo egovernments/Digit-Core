@@ -3,6 +3,7 @@ package digit.service.validator;
 import digit.config.ApplicationConfig;
 import digit.repository.SubTenantDataRepository;
 import digit.repository.TenantDataRepository;
+import digit.util.TenantUtil;
 import digit.util.UserUtil;
 import digit.web.models.*;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +26,14 @@ public class SubTenantDataValidator {
 
     private ApplicationConfig applicationConfig;
 
-    public SubTenantDataValidator(SubTenantDataRepository subTenantDataRepository, TenantDataRepository tenantDataRepository, UserUtil util, ApplicationConfig applicationConfig) {
+    private TenantUtil tenantUtil;
+
+    public SubTenantDataValidator(SubTenantDataRepository subTenantDataRepository, TenantDataRepository tenantDataRepository, UserUtil util, ApplicationConfig applicationConfig, TenantUtil tenantUtil) {
         this.subTenantDataRepository = subTenantDataRepository;
         this.tenantDataRepository = tenantDataRepository;
         this.util = util;
         this.applicationConfig = applicationConfig;
+        this.tenantUtil = tenantUtil;
     }
 
 
@@ -47,11 +51,11 @@ public class SubTenantDataValidator {
             throw new CustomException("PARENT_TENANT_NOT_FOUND","Parent tenant doesn't exist");
         }
 
+        String code = tenantUtil.generateSubTenantCode(tenantRequest);
+
         List<SubTenant> subTenantList = subTenantDataRepository.search(SubTenantDataSearchCriteria
                 .builder()
-                .code(tenantRequest
-                        .getTenant()
-                        .getCode())
+                .code(code)
                 .name(tenantRequest
                         .getTenant()
                         .getName())
