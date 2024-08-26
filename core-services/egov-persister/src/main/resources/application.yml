@@ -12,7 +12,7 @@ serviceMaps:
 
             - jsonPath: $.tenant.id
 
-            - jsonPath: $.tenant.parentId
+            - jsonPath: $.tenant.code
 
             - jsonPath: $.tenant.code
 

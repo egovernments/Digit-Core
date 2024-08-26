@@ -37,6 +37,7 @@ public class Tenant {
 
     @JsonProperty("parentId")
     @Size(min = 1, max = 100)
+    @JsonIgnore
     private String parentId = null;
 
     // alphanumeric / alphabet
