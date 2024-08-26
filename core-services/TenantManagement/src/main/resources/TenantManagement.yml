@@ -6,10 +6,13 @@ serviceMaps:
       fromTopic: create-tenant
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO tenant (id, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO tenant (id, parentId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tenant
           jsonMaps:
+
             - jsonPath: $.tenant.id
+
+            - jsonPath: $.tenant.parentId
 
             - jsonPath: $.tenant.code
 
