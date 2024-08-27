@@ -39,7 +39,6 @@ public class TenantDataEnricher {
     public void enrichUpdateReq(TenantRequest tenantRequest) {
 
         Tenant tenant = tenantRequest.getTenant();
-
         tenant.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(tenant.getAuditDetails(), tenantRequest.getRequestInfo(), Boolean.TRUE));
 
     }

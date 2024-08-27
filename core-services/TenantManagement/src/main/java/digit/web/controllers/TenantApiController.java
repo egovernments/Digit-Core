@@ -72,11 +72,12 @@ public class TenantApiController {
     }
 
     @RequestMapping(value = "/tenant/config/_update", method = RequestMethod.POST)
-    public ResponseEntity<Void> tenantConfigUpdatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Tenant body) {
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<TenantConfigResponse> tenantConfigUpdatePost(@Valid @RequestBody TenantConfigRequest tenantConfigRequest) {
+        TenantConfigResponse tenantConfigResponse = tenantConfigService.update(tenantConfigRequest);
+        return new ResponseEntity<TenantConfigResponse>(tenantConfigResponse,HttpStatus.ACCEPTED);
     }
 
-    // TODO: A switch to disable this in production
+    // TODO: Create a switch to disable this
     @RequestMapping(value = "/tenant/_create", method = RequestMethod.POST)
     public ResponseEntity<TenantResponse> tenantCreatePost(@Valid @RequestBody TenantRequest body) {
         TenantResponse tenantResponse = tenantService.create(body);

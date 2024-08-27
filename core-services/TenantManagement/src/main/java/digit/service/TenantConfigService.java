@@ -31,7 +31,6 @@ public class TenantConfigService {
     }
 
     /**
-     *
      * @param tenantConfigRequest
      * @return
      */
@@ -78,31 +77,27 @@ public class TenantConfigService {
     }
 
     /**
-     * Update tenant
-     * isActive and additionalAttributes are updatable
-     *
-     * @param tenantRequest
+     * @param tenantConfigRequest
      * @return
      */
-//    public TenantResponse update(TenantConfigRequest tenantConfigRequest){
-//
-//        // validate
-//        tenantConfigValidator.validateUpdateRequest(tenantRequest);
-//
-//        // enrich
-//        tenantConfigEnricher.enrichUpdateReq(tenantRequest);
-//
-//        // persist
-//        tenantConfigRepository.update(tenantRequest);
-//
-//        // convert to TenantResponse
-//        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantRequest.getRequestInfo(), Boolean.TRUE);
-//        TenantResponse tenantResponse = TenantResponse
-//                .builder()
-//                .responseInfo(responseInfo)
-//                .tenants(Collections.singletonList(tenantRequest.getTenant()))
-//                .build();
-//
-//        return tenantResponse;
-//    }
+    public TenantConfigResponse update(TenantConfigRequest tenantConfigRequest) {
+
+        // validate
+        // tenantConfigValidator.validateUpdateRequest(tenantRequest);
+
+        // enrich
+        tenantConfigEnricher.enrichUpdateReq(tenantConfigRequest);
+
+        // persist
+        tenantConfigRepository.update(tenantConfigRequest);
+
+        // convert to TenantResponse
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(tenantConfigRequest.getRequestInfo(), Boolean.TRUE);
+        return TenantConfigResponse
+                .builder()
+                .responseInfo(responseInfo)
+                .tenantConfigs(Collections.singletonList(tenantConfigRequest.getTenantConfig()))
+                .build();
+
+    }
 }

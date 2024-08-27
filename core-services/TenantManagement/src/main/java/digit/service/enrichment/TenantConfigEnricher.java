@@ -2,6 +2,7 @@ package digit.service.enrichment;
 
 import digit.util.AuditDetailsEnrichmentUtil;
 import digit.web.models.Tenant;
+import digit.web.models.TenantConfig;
 import digit.web.models.TenantConfigRequest;
 import digit.web.models.TenantRequest;
 import org.egov.common.utils.UUIDEnrichmentUtil;
@@ -54,11 +55,11 @@ public class TenantConfigEnricher {
 
     }
 
-    public void enrichUpdateReq(TenantRequest tenantRequest) {
+    public void enrichUpdateReq(TenantConfigRequest tenantConfigRequest) {
 
-        Tenant tenant = tenantRequest.getTenant();
-
-        tenant.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(tenant.getAuditDetails(), tenantRequest.getRequestInfo(), Boolean.TRUE));
-
+        TenantConfig tenant = tenantConfigRequest.getTenantConfig();
+        tenant.getAuditDetails().setLastModifiedTime(System.currentTimeMillis());
+        tenant.getAuditDetails().setLastModifiedBy(tenantConfigRequest.getRequestInfo().getUserInfo().getUuid());
+//        tenant.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(tenant.getAuditDetails(), tenantConfigRequest.getRequestInfo(), Boolean.FALSE));
     }
 }

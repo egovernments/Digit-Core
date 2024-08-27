@@ -80,11 +80,7 @@ serviceMaps:
 
             - jsonPath: $.tenant.isActive
 
-            - jsonPath: $.tenant.auditDetails.createdBy
-
             - jsonPath: $.tenant.auditDetails.lastModifiedBy
-
-            - jsonPath: $.tenant.auditDetails.createdTime
 
             - jsonPath: $.tenant.auditDetails.lastModifiedTime
 

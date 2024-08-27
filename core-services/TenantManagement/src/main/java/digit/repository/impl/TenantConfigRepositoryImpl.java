@@ -40,7 +40,7 @@ public class TenantConfigRepositoryImpl implements TenantConfigRepository {
 
     @Override
     public void update(TenantConfigRequest tenantRequest) {
-        producer.push(config.getUpdateTopic(), tenantRequest);
+        producer.push(config.getUpdateConfigTopic(), tenantRequest);
 
     }
 
