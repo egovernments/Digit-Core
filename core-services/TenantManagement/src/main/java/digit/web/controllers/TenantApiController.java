@@ -96,12 +96,4 @@ public class TenantApiController {
         return new ResponseEntity<TenantResponse>(tenantResponse, HttpStatus.ACCEPTED);
     }
 
-
-//
-//    @RequestMapping(value = "/sendMail", method = RequestMethod.POST)
-//    public ResponseEntity<EmailRequest> sendEmail(@Valid @RequestBody EmailRequest body) {
-//        producer.push(applicationConfig.getEmailTopic(),body);
-//        return new ResponseEntity<>(body, HttpStatus.ACCEPTED);
-//    }
-
 }

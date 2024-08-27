@@ -9,6 +9,7 @@ import digit.util.UserUtil;
 import digit.web.models.DefaultMasterDataRequest;
 import digit.web.models.Tenant;
 import digit.web.models.TenantRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.egov.mdms.model.MDMSCreateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Objects;
 
+@Slf4j
 @Component
 public class TenantConsumer {
 
@@ -43,6 +45,8 @@ public class TenantConsumer {
 
         // create user only for root tenant
         if (Objects.isNull(tenantRequest.getTenant().getParentId())){
+
+            log.info("Configuring Tenant: {}",tenantRequest.getTenant().getCode());
 
             mdmsUtil.createMdmsData(new DefaultMasterDataRequest()
                     .builder()

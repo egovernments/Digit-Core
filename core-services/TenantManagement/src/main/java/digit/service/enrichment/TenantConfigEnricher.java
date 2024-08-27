@@ -21,7 +21,7 @@ public class TenantConfigEnricher {
     public void enrichCreateReq(TenantConfigRequest tenantConfigRequest) {
 
         // enrich code
-        tenantConfigRequest.getTenantConfig().setName(tenantConfigRequest.getTenantConfig().getCode());
+//        tenantConfigRequest.getTenantConfig().setName(tenantConfigRequest.getTenantConfig().getCode());
 
         // enrich id
         UUIDEnrichmentUtil.enrichRandomUuid(tenantConfigRequest.getTenantConfig(), "id");

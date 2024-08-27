@@ -1,5 +1,7 @@
 package digit.repository.rowmapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.web.models.Document;
@@ -18,10 +20,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static digit.errors.ErrorCodes.INVALID_JSON;
 import static digit.errors.ErrorCodes.INVALID_JSON_MSG;
@@ -36,12 +35,27 @@ public class TenantConfigRowMapper implements RowMapper<TenantConfig> {
 
         // Create the tenantConfig
         TenantConfig tenantConfig = new TenantConfig();
-        tenantConfig.setId(rs.getString("tenantConfigId"));
-        tenantConfig.setCode(rs.getString("code"));
-        tenantConfig.setDefaultLoginType(rs.getString("defaultLoginType"));
-        tenantConfig.setEnableUserBasedLogin(rs.getBoolean("enableUserBasedLogin"));
-        tenantConfig.setAdditionalAttributes(rs.getString("additionalAttributes"));
-        tenantConfig.setIsActive(rs.getBoolean("isActive"));
+
+        try {
+            tenantConfig.setId(rs.getString("tenantConfigId"));
+            tenantConfig.setCode(rs.getString("code"));
+            tenantConfig.setDefaultLoginType(rs.getString("defaultLoginType"));
+            tenantConfig.setEnableUserBasedLogin(rs.getBoolean("enableUserBasedLogin"));
+            tenantConfig.setAdditionalAttributes(rs.getString("additionalAttributes"));
+            tenantConfig.setIsActive(rs.getBoolean("isActive"));
+            tenantConfig.setName(rs.getString("name"));
+            tenantConfig.setOtpLength(rs.getString("otpLength"));
+            String languagesJson = rs.getString("languages");
+            if (languagesJson != null && !languagesJson.isEmpty()) {
+                tenantConfig.setLanguages(new ObjectMapper().readValue(languagesJson, new TypeReference<List<String>>() {
+                }));
+            } else {
+                tenantConfig.setLanguages(Collections.emptyList());
+            }
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
         AuditDetails auditDetails = new AuditDetails().builder()
                 .createdBy(rs.getString("createdBy"))

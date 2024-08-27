@@ -16,6 +16,9 @@ public class TenantConfigQueryBuilder {
             "    tc.id AS tenantConfigId," +
             "    tc.code," +
             "    tc.defaultLoginType," +
+            "    tc.otpLength," +
+            "    tc.name," +
+            "    tc.languages," +
             "    tc.enableUserBasedLogin," +
             "    tc.additionalAttributes," +
             "    tc.isActive AS isActive," +
@@ -48,6 +51,7 @@ public class TenantConfigQueryBuilder {
 
     /**
      * Method to handle request for fetching MDMS data search query
+     *
      * @param TenantConfigSearchCriteria
      * @param preparedStmtList
      * @return
@@ -61,6 +65,7 @@ public class TenantConfigQueryBuilder {
 
     /**
      * Method to build query dynamically based on the criteria passed to the method
+     *
      * @param TenantConfigSearchCriteria
      * @param preparedStmtList
      * @return

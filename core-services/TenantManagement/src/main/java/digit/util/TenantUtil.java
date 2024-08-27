@@ -8,8 +8,8 @@ public class TenantUtil {
 
     public String convertNameToCode(String name){
 
-        // Convert the name to uppercase and replace spaces with underscores
-         String code = name.toUpperCase().replace(" ", "_");
+        // Convert the name to uppercase and remove all the spaces
+         String code = name.toUpperCase().replace(" ", "");
          return code;
     }
 

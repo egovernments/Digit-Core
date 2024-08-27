@@ -27,6 +27,7 @@ public class TenantDataSearchCriteria {
     @JsonProperty("limit")
     private Integer limit;
 
+    @Builder.Default
     @JsonProperty("includeSubTenants")
     private Boolean includeSubTenants = Boolean.FALSE;
 
