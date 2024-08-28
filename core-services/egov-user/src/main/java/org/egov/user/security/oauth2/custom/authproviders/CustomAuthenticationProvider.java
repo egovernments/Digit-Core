@@ -22,6 +22,7 @@ import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
 import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
+import org.egov.user.domain.model.enums.LoginType;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
@@ -141,9 +142,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         }
 
 
+        LoginType loginType = user.getLoginType();
+
         boolean isCitizen = false;
+        boolean isOtpEnabled = false;
         if (user.getType() != null && user.getType().equals(UserType.CITIZEN))
             isCitizen = true;
+
+        if (loginType.equals(LoginType.OTP))
+            isOtpEnabled = true;
 
         boolean isPasswordMatched;
         if (isCitizen) {
@@ -151,10 +158,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 //for automation allow fixing otp validation to a fixed otp
                 isPasswordMatched = true;
             } else {
-                isPasswordMatched = isPasswordMatch(citizenLoginPasswordOtpEnabled, password, user, authentication);
+                isPasswordMatched = isPasswordMatch(isOtpEnabled, password, user, authentication);
             }
         } else {
-            isPasswordMatched = isPasswordMatch(employeeLoginPasswordOtpEnabled, password, user, authentication);
+            isPasswordMatched = isPasswordMatch(isOtpEnabled, password, user, authentication);
         }
 
         if (isPasswordMatched) {

@@ -32,6 +32,7 @@ import org.egov.user.domain.model.LoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.NonLoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserSearchCriteria;
+import org.egov.user.domain.model.enums.LoginType;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.domain.service.utils.NotificationUtil;
@@ -238,6 +239,7 @@ public class UserService {
         }
         user.setPassword(encryptPwd(user.getPassword()));
         user.setDefaultPasswordExpiry(defaultPasswordExpiryInDays);
+        setLoginType(user);
         User persistedNewUser = persistNewUser(user);
         return encryptionDecryptionUtil.decryptObject(persistedNewUser, "UserSelf", User.class, requestInfo);
 
@@ -661,6 +663,33 @@ public class UserService {
         }
         if (!CollectionUtils.isEmpty(errorMap.keySet())) {
             throw new CustomException(errorMap);
+        }
+    }
+
+    /**
+     * Enrich LoginType field while creating user. The login type is set based on the flags in app props.
+     * Only in case of userType "employee" it will be allowed to send LoginType. For Citizens the loginType will be overwritten by the function
+     * @param user User object to be created
+     */
+    private void setLoginType(User user){
+
+        if (user.getType().equals(UserType.CITIZEN)){
+            if(isCitizenLoginOtpBased){
+                user.setLoginType(LoginType.OTP);
+            }
+            else {
+                user.setLoginType(LoginType.PASSWORD);
+            }
+        }
+        else if (user.getType().equals(UserType.EMPLOYEE)){
+            if(user.getLoginType() == null){
+                if(isEmployeeLoginOtpBased){
+                    user.setLoginType(LoginType.OTP);
+                }
+                else {
+                    user.setLoginType(LoginType.PASSWORD);
+                }
+            }
         }
     }
 

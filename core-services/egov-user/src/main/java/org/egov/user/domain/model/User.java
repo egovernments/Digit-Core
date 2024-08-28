@@ -12,10 +12,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.egov.user.config.*;
 import org.egov.user.domain.exception.InvalidUserCreateException;
 import org.egov.user.domain.exception.InvalidUserUpdateException;
-import org.egov.user.domain.model.enums.BloodGroup;
-import org.egov.user.domain.model.enums.Gender;
-import org.egov.user.domain.model.enums.GuardianRelation;
-import org.egov.user.domain.model.enums.UserType;
+import org.egov.user.domain.model.enums.*;
 import org.hibernate.validator.constraints.Email;
 import org.springframework.util.CollectionUtils;
 
@@ -87,6 +84,7 @@ public class User {
     private boolean otpValidationMandatory;
     private boolean mobileValidationMandatory = true;
     private String alternateMobileNumber;
+    private LoginType loginType;
 
     public User addAddressItem(Address addressItem) {
         if (this.addresses == null) {

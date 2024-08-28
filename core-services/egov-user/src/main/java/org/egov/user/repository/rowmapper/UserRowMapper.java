@@ -1,10 +1,7 @@
 package org.egov.user.repository.rowmapper;
 
 import org.egov.user.domain.model.User;
-import org.egov.user.domain.model.enums.BloodGroup;
-import org.egov.user.domain.model.enums.Gender;
-import org.egov.user.domain.model.enums.GuardianRelation;
-import org.egov.user.domain.model.enums.UserType;
+import org.egov.user.domain.model.enums.*;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -33,6 +30,12 @@ public class UserRowMapper implements RowMapper<User> {
         for (BloodGroup bloodGroup : BloodGroup.values()) {
             if (bloodGroup.toString().equals(rs.getString("bloodgroup"))) {
                 user.setBloodGroup(bloodGroup);
+            }
+        }
+
+        for (LoginType loginType : LoginType.values()) {
+            if (loginType.toString().equals(rs.getString("logintype"))) {
+                user.setLoginType(loginType);
             }
         }
 
