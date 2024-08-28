@@ -407,6 +407,7 @@ public class UserRepository {
                             role.setTenantId(user.getTenantId());
                     } else {
                         log.error("Role : {} is invalid", role);
+                        log.error("tenant is invalid", user.getTenantId());
                         throw new CustomException("INVALID_ROLE", "Unable to validate role from MDMS");
                     }
                 }
