@@ -35,7 +35,7 @@ serviceMaps:
             - jsonPath: $.tenant.auditDetails.lastModifiedTime
 
     - version: 1.0
-      description: Persists the tenant entity data
+      description: Persists the create sub tenant entity data
       fromTopic: create-sub-tenant
       isTransaction: true
       queryMaps:
@@ -67,11 +67,11 @@ serviceMaps:
             - jsonPath: $.tenant.auditDetails.lastModifiedTime
 
     - version: 1.0
-      description: Persists the tenant entity data
+      description: Update the tenant entity data
       fromTopic: update-tenant
       isTransaction: true
       queryMaps:
-        - query: UPDATE tenant SET additionalAttributes = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE name = ?;
+        - query: UPDATE tenant SET additionalAttributes = ? , isActive = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE code = ?;
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.additionalAttributes
@@ -84,10 +84,10 @@ serviceMaps:
 
             - jsonPath: $.tenant.auditDetails.lastModifiedTime
 
-            - jsonPath: $.tenant.name
+            - jsonPath: $.tenant.code
 
     - version: 1.0
-      description: Persists the tenant config data
+      description: Persists the create tenant config data
       fromTopic: create-tenant-config
       isTransaction: true
       queryMaps:
@@ -123,7 +123,6 @@ serviceMaps:
             - jsonPath: $.tenantConfig.auditDetails.createdTime
 
             - jsonPath: $.tenantConfig.auditDetails.lastModifiedTime
-
         - query: INSERT INTO tenant_documents (id, tenantConfigId, tenantId, type, fileStoreId, url, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tenantConfig.documents.*
           jsonMaps:
@@ -148,3 +147,19 @@ serviceMaps:
             - jsonPath: $.tenantConfig.documents.*.auditDetails.createdTime
 
             - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Update the tenant config
+      fromTopic: update-tenant-config
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE tenant_config SET isActive  = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE code = ?;
+          basePath: $.tenantConfig
+          jsonMaps:
+            - jsonPath: $.tenantConfig.isActive
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedTime
+
+            - jsonPath: $.tenantConfig.code

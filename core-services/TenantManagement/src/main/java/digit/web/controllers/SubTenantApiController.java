@@ -59,8 +59,8 @@ public class SubTenantApiController {
 
     @RequestMapping(value = "/subTenant/_update", method = RequestMethod.POST)
     public ResponseEntity<SubTenantResponse> subTenantUpdatePost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody SubTenantRequest body) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<SubTenantResponse>(HttpStatus.NOT_IMPLEMENTED);
+        SubTenantResponse subTenantResponse = subTenantService.update(body);
+        return new ResponseEntity<SubTenantResponse>(subTenantResponse,HttpStatus.ACCEPTED);
     }
 
 }
