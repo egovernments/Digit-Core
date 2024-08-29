@@ -15,19 +15,24 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-public class DefaultMasterDataRequest {
+public class DefaultLocalizationDataRequest {
 	@JsonProperty("RequestInfo")
 	@NotNull
 	@Valid
 	private RequestInfo requestInfo = null;
 
-	@JsonProperty("TargetTenantId")
+	@JsonProperty("targetTenantId")
 	@NotNull
 	@Valid
 	private String targetTenantId = null;
 
-	@JsonProperty("SchemaCodes")
+	@JsonProperty("locale")
 	@NotNull
 	@Valid
-	private List<String> schemaCodes = null;
+	private String locale = null;
+
+	@JsonProperty("modules")
+	@NotNull
+	@Valid
+	private List<String> modules = null;
 }
