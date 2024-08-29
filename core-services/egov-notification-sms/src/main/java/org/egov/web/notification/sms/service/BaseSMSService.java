@@ -43,10 +43,12 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
     @PostConstruct
     public void init() {
         List<HttpMessageConverter<?>> converters = restTemplate.getMessageConverters();
-        converters.remove(converters.stream().filter(c -> c.getClass().equals(MappingJackson2HttpMessageConverter.class)).findFirst().get());
+        converters.remove(converters.stream()
+                .filter(c -> c.getClass().equals(MappingJackson2HttpMessageConverter.class)).findFirst().get());
         converters.add(new MappingJackson2HttpMessageConverter() {
             @Override
-            protected void writeInternal(Object object, Type type, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+            protected void writeInternal(Object object, Type type, HttpOutputMessage outputMessage)
+                    throws IOException, HttpMessageNotWritableException {
                 if (object.getClass().equals(LinkedMultiValueMap.class)) {
                     LinkedMultiValueMap<?, ?> map = (LinkedMultiValueMap<?, ?>) object;
                     object = map.toSingleValueMap();
@@ -167,6 +169,28 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
         return map;
     }
 
+    /**
+     * Prepends a prefix to the mobile number based on its length using the provided
+     * map.
+     * If the map is empty, the number remains unchanged.
+     * 
+     * @param sms           The Sms object to modify.
+     * @param smsProperties Contains the prefix map.
+     */
+    public static void modifyMobileNumber(Sms sms, SMSProperties smsProperties) {
+        Map<String, String> modifyNumberMap = smsProperties.getModifyNumberMap();
+        if (modifyNumberMap == null || modifyNumberMap.isEmpty()) {
+            return;
+        }
+
+        String mobileNumber = sms.getMobileNumber();
+        String prefix = modifyNumberMap.get(String.valueOf(mobileNumber.length()));
+
+        if (prefix != null) {
+            sms.setMobileNumber(prefix + mobileNumber);
+        }
+    }
+
     protected HttpEntity<MultiValueMap<String, String>> getRequest(Sms sms) {
         final MultiValueMap<String, String> requestBody = getSmsRequestBody(sms);
         return new HttpEntity<>(requestBody, getHttpHeaders());
@@ -185,7 +209,7 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
             SSLContext ctx = null;
             try {
 
-                ctx =  SSLContext.getInstance("SSL");
+                ctx = SSLContext.getInstance("SSL");
                 ctx.init(null, null, SecureRandom.getInstance("SHA1PRNG"));
 
             } catch (NoSuchAlgorithmException e) {

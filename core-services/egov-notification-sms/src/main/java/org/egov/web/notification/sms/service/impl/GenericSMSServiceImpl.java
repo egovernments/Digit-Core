@@ -27,13 +27,19 @@ public class GenericSMSServiceImpl extends BaseSMSService {
 
     protected void submitToExternalSmsService(Sms sms) {
         try {
+            // Modify the mobile number based on its length.
+            modifyMobileNumber(sms, smsProperties);
 
+            // Retrieve the SMS provider URL from configuration.
             String url = smsProperties.getUrl();
 
+            // Prepare the SMS request body with necessary parameters.
             final MultiValueMap<String, String> requestBody = getSmsRequestBody(sms);
 
+            // Build the final URL with query parameters encoded.
             URI final_url = UriComponentsBuilder.fromHttpUrl(url).queryParams(requestBody).build().encode().toUri();
 
+            // Execute the API call to send the SMS.
             executeAPI(final_url, HttpMethod.GET, null, String.class);
         } catch (RestClientException e) {
             log.error("Error occurred while sending SMS to " + sms.getMobileNumber(), e);

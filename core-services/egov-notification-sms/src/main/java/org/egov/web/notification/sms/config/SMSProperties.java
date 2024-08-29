@@ -59,7 +59,6 @@ public class SMSProperties {
     @Value("${sms.verify.responseContains:}")
     private String verifyResponseContains;
 
-
     @Value("${sms.verify.ssl:true}")
     private boolean verifySSL;
 
@@ -69,8 +68,13 @@ public class SMSProperties {
     @Value("${sms.whitelist.numbers}")
     private List<String> whitelistNumbers;
 
-    @Setter(AccessLevel.PROTECTED) private List<Pattern> whitelistPatterns;
-    @Setter(AccessLevel.PROTECTED) private List<Pattern> blacklistPatterns;
+    @Value("#{${sms.modify.number.map}}")
+    Map<String, String> modifyNumberMap;
+
+    @Setter(AccessLevel.PROTECTED)
+    private List<Pattern> whitelistPatterns;
+    @Setter(AccessLevel.PROTECTED)
+    private List<Pattern> blacklistPatterns;
 
     private List<Pattern> convertToPattern(List<String> data) {
         List<Pattern> patterns = new ArrayList<>(data.size());
@@ -79,9 +83,10 @@ public class SMSProperties {
             patterns.add(
                     Pattern.compile(
                             "^" +
-                            data.get(i)
-                            .replace("X", "[0-9]")
-                            .replace("*","[0-9]+") + "$"));
+                                    data.get(i)
+                                            .replace("X", "[0-9]")
+                                            .replace("*", "[0-9]+")
+                                    + "$"));
         }
         return patterns;
     }
@@ -92,7 +97,7 @@ public class SMSProperties {
         }
 
         if (blacklistPatterns.size() > 0) {
-            for (Pattern p: blacklistPatterns) {
+            for (Pattern p : blacklistPatterns) {
                 if (p.matcher(number).find())
                     return true;
             }
@@ -107,7 +112,7 @@ public class SMSProperties {
         }
 
         if (whitelistPatterns.size() > 0) {
-            for (Pattern p: whitelistPatterns) {
+            for (Pattern p : whitelistPatterns) {
                 if (p.matcher(number).find())
                     return true;
             }
