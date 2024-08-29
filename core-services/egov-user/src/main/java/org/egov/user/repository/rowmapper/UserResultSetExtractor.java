@@ -67,6 +67,12 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
                     }
                 }
 
+                for (LoginType loginType : LoginType.values()) {
+                    if (loginType.toString().equals(rs.getString("logintype"))) {
+                        user.setLoginType(loginType);
+                    }
+                }
+
                 if (rs.getInt("gender") == 1) {
                     user.setGender(Gender.FEMALE);
                 } else if (rs.getInt("gender") == 2) {

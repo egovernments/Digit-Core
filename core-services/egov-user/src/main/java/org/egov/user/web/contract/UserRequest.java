@@ -151,6 +151,10 @@ public class UserRequest {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private Date pwdExpiryDate;
 
+
+    private LoginType loginType;
+
+
     public UserRequest(User user) {
 
         this.id = user.getId();
@@ -184,6 +188,7 @@ public class UserRequest {
         this.relationship = user.getGuardianRelation();
         this.uuid = user.getUuid();
         this.alternatemobilenumber=user.getAlternateMobileNumber();
+        this.loginType = user.getLoginType();
         mapPermanentAddress(user);
         mapCorrespondenceAddress(user);
     }
@@ -253,6 +258,7 @@ public class UserRequest {
                 .correspondenceAddress(toDomainCorrespondenceAddress())
                 .guardian(fatherOrHusbandName)
                 .guardianRelation(relationship).alternateMobileNumber(this.alternatemobilenumber)
+                .loginType(this.loginType)
                 .build();
     }
 
