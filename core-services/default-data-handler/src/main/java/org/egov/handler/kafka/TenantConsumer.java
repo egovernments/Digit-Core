@@ -3,9 +3,11 @@ package org.egov.handler.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.service.DataHandlerService;
 import org.egov.handler.util.OtpUtil;
 import org.egov.handler.util.UserUtil;
+import org.egov.handler.web.models.DefaultDataRequest;
 import org.egov.handler.web.models.TenantRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -28,12 +30,15 @@ public class TenantConsumer {
 
 	private final OtpUtil otpUtil;
 
+	private final ServiceConfiguration serviceConfig;
+
 	@Autowired
-	public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil) {
+	public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil, ServiceConfiguration serviceConfig) {
 		this.mapper = mapper;
 		this.dataHandlerService = dataHandlerService;
 		this.userUtil = userUtil;
 		this.otpUtil = otpUtil;
+		this.serviceConfig = serviceConfig;
 	}
 
 	@KafkaListener(topics = {"${kafka.topics.create.tenant}"})
@@ -44,7 +49,15 @@ public class TenantConsumer {
 		if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
 			log.info("Configuring Tenant: {}", tenantRequest.getTenant().getCode());
 
-			dataHandlerService.createDefaultData(tenantRequest.getRequestInfo(), tenantRequest.getTenant().getCode());
+			DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
+					.requestInfo(tenantRequest.getRequestInfo())
+					.targetTenantId(tenantRequest.getTenant().getCode())
+					.schemaCodes(serviceConfig.getDefaultMdmsSchemaList())
+					.locale(serviceConfig.getDefaultLocalizationLocale())
+					.modules(serviceConfig.getDefaultLocalizationModuleList())
+					.build();
+
+			dataHandlerService.createDefaultData(defaultDataRequest);
 
 			userUtil.createUser(tenantRequest);
 			otpUtil.sendOtp(tenantRequest);
