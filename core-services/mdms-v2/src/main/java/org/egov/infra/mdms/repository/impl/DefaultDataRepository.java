@@ -1,7 +1,9 @@
 package org.egov.infra.mdms.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +27,8 @@ public class DefaultDataRepository {
 				"SELECT uuid_generate_v4(), ?, uniqueidentifier, schemacode, data, isactive, createdby, lastmodifiedby, ?, NULL::bigint " +
 				"FROM eg_mdms_data " +
 				"WHERE tenantid = ? " +
-				"AND schemacode IN (" + createQuery(schemaCodes) + ")";
+				"AND schemacode IN (" + createQuery(schemaCodes) + ")" +
+				"ON CONFLICT (tenantid, schemacode, uniqueidentifier) DO NOTHING;";
 
 		// Get the current time in milliseconds
 		long currentEpochMillis = System.currentTimeMillis();
@@ -36,8 +39,17 @@ public class DefaultDataRepository {
 		preparedStmtList.add(defaultTenantId);
 		addToPreparedStatement(preparedStmtList, schemaCodes);
 
-		// Execute the query
-		jdbcTemplate.update(sql, preparedStmtList.toArray());
+		try {
+			// Execute the query
+			jdbcTemplate.update(sql, preparedStmtList.toArray());
+		} catch (DataIntegrityViolationException e) {
+			// extract information from the exception
+			String message = e.getMessage();
+			log.error("Detailed error: {}", message);
+
+			// Re-throw or handle the conflict as needed
+			throw new CustomException("Conflict during insert operation", e.getMessage());
+		}
 	}
 
 	private String createQuery(List<String> ids) {
@@ -52,8 +64,6 @@ public class DefaultDataRepository {
 	}
 
 	private void addToPreparedStatement(List<Object> preparedStmtList, List<String> ids) {
-		ids.forEach(id -> {
-			preparedStmtList.add(id);
-		});
+		preparedStmtList.addAll(ids);
 	}
 }

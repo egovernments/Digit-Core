@@ -21,13 +21,17 @@ public class DefaultMasterDataRequest {
 	@Valid
 	private RequestInfo requestInfo = null;
 
-	@JsonProperty("TargetTenantId")
+	@JsonProperty("targetTenantId")
 	@NotNull
 	@Valid
 	private String targetTenantId = null;
 
-	@JsonProperty("SchemaCodes")
+	@JsonProperty("schemaCodes")
 	@NotNull
 	@Valid
 	private List<String> schemaCodes = null;
+
+	@JsonProperty("onlySchemas")
+	@Valid
+	private Boolean onlySchemas = Boolean.TRUE;
 }

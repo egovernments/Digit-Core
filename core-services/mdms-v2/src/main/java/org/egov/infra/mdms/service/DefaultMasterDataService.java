@@ -26,8 +26,12 @@ public class DefaultMasterDataService {
 	public void create(DefaultMasterDataRequest defaultMasterDataRequest) {
 		String targetTenantId = defaultMasterDataRequest.getTargetTenantId();
 		List<String> schemaCodes = defaultMasterDataRequest.getSchemaCodes();
+
 		schemaRepository.copySchemaDefinitions(config.getDefaultTenantId(), targetTenantId, schemaCodes);
-		dataRepository.copySchemaData(config.getDefaultTenantId(), targetTenantId, schemaCodes);
+
+		if (Boolean.FALSE.equals(defaultMasterDataRequest.getOnlySchemas())) {
+			dataRepository.copySchemaData(config.getDefaultTenantId(), targetTenantId, schemaCodes);
+		}
 	}
 
 }
