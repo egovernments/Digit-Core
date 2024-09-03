@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.egov</groupId>
     <artifactId>mdms-migration-toolkit</artifactId>
@@ -6,14 +7,15 @@
     <name>mdms-migration-toolkit</name>
     <version>1.0.0</version>
     <properties>
-    <java.version>1.8</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-</properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <lombok.version>1.18.22</lombok.version>
+    </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.6.RELEASE</version>
+        <version>3.3.2</version>
     </parent>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -41,13 +43,13 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
         <dependency>
-           <groupId>org.flywaydb</groupId>
-           <artifactId>flyway-core</artifactId>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
-           <groupId>org.postgresql</groupId>
-           <artifactId>postgresql</artifactId>
-           <version>42.2.2.jre7</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -70,7 +72,7 @@
         <dependency>
             <groupId>org.egov.services</groupId>
             <artifactId>tracer</artifactId>
-            <version>2.1.2-SNAPSHOT</version>
+            <version>2.9.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.egov.services</groupId>
@@ -78,10 +80,10 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-          <groupId>org.egov</groupId>
-          <artifactId>mdms-client</artifactId>
-          <version>0.0.2-SNAPSHOT</version>
-          <scope>compile</scope>
+            <groupId>org.egov</groupId>
+            <artifactId>mdms-client</artifactId>
+            <version>2.9.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -98,15 +100,26 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
-    <!-- Bean Validation API support -->
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-        </dependency>
+        <!-- Bean Validation API support -->
+        <!--        <dependency>-->
+        <!--            <groupId>jakarta.validation</groupId>-->
+        <!--            <artifactId>validation-api</artifactId>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.egov.services</groupId>
             <artifactId>services-common</artifactId>
-            <version>1.1.2-SNAPSHOT</version>
+            <version>2.9.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.16.1</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>
@@ -131,9 +144,9 @@
             <name>eGov DIGIT Releases Repository</name>
             <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
         </repository>
-            <repository>
-                <id>jitpack.io</id>
-                <url>https://jitpack.io</url>
-            </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 </project>

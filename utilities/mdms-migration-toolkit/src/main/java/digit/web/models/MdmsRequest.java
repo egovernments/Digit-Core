@@ -1,7 +1,8 @@
 package digit.web.models;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

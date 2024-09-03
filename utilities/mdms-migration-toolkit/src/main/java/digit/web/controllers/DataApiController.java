@@ -1,7 +1,7 @@
 package digit.web.controllers;
 
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.service.MasterDataMigrationService;
 import digit.web.models.MasterDataMigrationRequest;
 
-@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-06-20T09:54:35.237+05:30[Asia/Calcutta]")
+@jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-06-20T09:54:35.237+05:30[Asia/Calcutta]")
 @Controller
 @RequestMapping(value = "/data")
 public class DataApiController {
