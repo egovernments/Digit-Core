@@ -18,7 +18,8 @@ public interface DefaultDataJpaRepository extends CrudRepository<Message, String
     @Query(value = "INSERT INTO message (id, tenantid, locale, module, code, message, createdby, createddate, lastmodifiedby, lastmodifieddate) " +
         "SELECT uuid_generate_v4(), :targetTenantId, locale, module, code, message, createdby, :currentTimestamp, lastmodifiedby, NULL " +
         "FROM message " +
-        "WHERE tenantid = :defaultTenantId AND locale = :locale AND module IN :modules", nativeQuery = true)
+        "WHERE tenantid = :defaultTenantId AND locale = :locale AND module IN :modules " +
+        "ON CONFLICT (tenantid, locale, module, code) DO NOTHING", nativeQuery = true)
     int copyMessageDefinitions(
         @Param("defaultTenantId") String defaultTenantId,
         @Param("targetTenantId") String targetTenantId,
