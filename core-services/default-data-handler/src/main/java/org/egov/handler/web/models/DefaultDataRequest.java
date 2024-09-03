@@ -28,17 +28,14 @@ public class DefaultDataRequest {
 	private String targetTenantId = null;
 
 	@JsonProperty("SchemaCodes")
-	@NotNull
 	@Valid
 	private List<String> schemaCodes = null;
 
 	@JsonProperty("locale")
-	@NotNull
 	@Valid
 	private String locale = null;
 
 	@JsonProperty("modules")
-	@NotNull
 	@Valid
 	private List<String> modules = null;
 }

@@ -22,20 +22,23 @@ public class DataHandlerService {
 	}
 
 	public void createDefaultData(DefaultDataRequest defaultDataRequest) {
-		DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
-				.requestInfo(defaultDataRequest.getRequestInfo())
-				.targetTenantId(defaultDataRequest.getTargetTenantId())
-				.schemaCodes(defaultDataRequest.getSchemaCodes())
-				.build();
-		mdmsV2Util.createMdmsData(defaultMdmsDataRequest);
+		if (defaultDataRequest.getSchemaCodes() != null) {
+			DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
+					.requestInfo(defaultDataRequest.getRequestInfo())
+					.targetTenantId(defaultDataRequest.getTargetTenantId())
+					.schemaCodes(defaultDataRequest.getSchemaCodes())
+					.build();
+			mdmsV2Util.createMdmsData(defaultMdmsDataRequest);
+		}
 
-		DefaultLocalizationDataRequest defaultLocalizationDataRequest = DefaultLocalizationDataRequest.builder()
-				.requestInfo(defaultDataRequest.getRequestInfo())
-				.targetTenantId(defaultDataRequest.getTargetTenantId())
-				.locale(defaultDataRequest.getLocale())
-				.modules(defaultDataRequest.getModules())
-				.build();
-
-		localizationUtil.createLocalizationData(defaultLocalizationDataRequest);
+		if(defaultDataRequest.getLocale() != null && defaultDataRequest.getModules() != null) {
+			DefaultLocalizationDataRequest defaultLocalizationDataRequest = DefaultLocalizationDataRequest.builder()
+					.requestInfo(defaultDataRequest.getRequestInfo())
+					.targetTenantId(defaultDataRequest.getTargetTenantId())
+					.locale(defaultDataRequest.getLocale())
+					.modules(defaultDataRequest.getModules())
+					.build();
+			localizationUtil.createLocalizationData(defaultLocalizationDataRequest);
+		}
 	}
 }
