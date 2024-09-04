@@ -144,7 +144,7 @@ public class ServiceRequestValidator {
         if(CollectionUtils.isEmpty(assignes))
             return;
 
-        List<String> departments = hrmsUtil.getDepartment(assignes, request.getRequestInfo());
+        List<String> departments = hrmsUtil.getDepartment(assignes, request.getRequestInfo(),request.getService().getTenantId());
 
         String jsonPath = MDMS_DEPARTMENT_SEARCH.replace("{SERVICEDEF}",serviceCode);
 
