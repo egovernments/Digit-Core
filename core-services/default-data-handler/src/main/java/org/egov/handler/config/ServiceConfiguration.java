@@ -21,6 +21,9 @@ public class ServiceConfiguration {
 	@Value("${egov.mdms.host}${egov.mdms.default.data.create.endpoint}")
 	private String mdmsDefaultDataCreateURI;
 
+	@Value("${egov.mdms.host}${egov.mdms.data.search.endpoint}")
+	private String mdmsDataSearchURI;
+
 	@Value("#{'${default.mdms.schema.create.list}'.split(',')}")
 	private List<String> defaultMdmsSchemaList;
 
@@ -67,5 +70,9 @@ public class ServiceConfiguration {
 	// Default Tenant Id
 	@Value("${default.tenant.id}")
 	private String defaultTenantId;
+
+	// Module Master Configuration
+	@Value("${sandbox-ui.module.master.config}")
+	private String moduleMasterConfig;
 
 }
