@@ -5,6 +5,8 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.handler.service.DataHandlerService;
 import org.egov.handler.util.ResponseInfoFactory;
 import org.egov.handler.web.models.DataSetupRequest;
+import org.egov.handler.web.models.DataSetupResponse;
+import org.egov.handler.web.models.DefaultDataRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +30,19 @@ public class DataHandlerController {
 	}
 
 	@RequestMapping(value = "/defaultdata/setup", method = RequestMethod.POST)
-	public ResponseEntity<ResponseInfo> DefaultDataCreatePost(@Valid @RequestBody DataSetupRequest dataSetupRequest) {
-
-		dataHandlerService.setupDefaultData(dataSetupRequest);
-
+	public ResponseEntity<DataSetupResponse> DefaultDataCreatePost(@Valid @RequestBody DataSetupRequest dataSetupRequest) {
+		DefaultDataRequest defaultDataRequest = dataHandlerService.setupDefaultData(dataSetupRequest);
 		ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(dataSetupRequest.getRequestInfo(), true);
-		return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
+
+		DataSetupResponse dataSetupResponse = DataSetupResponse.builder()
+				.responseInfo(responseInfo)
+				.targetTenantId(defaultDataRequest.getTargetTenantId())
+				.schemaCodes(defaultDataRequest.getSchemaCodes())
+				.onlySchemas(defaultDataRequest.getOnlySchemas())
+				.locale(defaultDataRequest.getLocale())
+				.modules(defaultDataRequest.getModules())
+				.build();
+		return new ResponseEntity<>(dataSetupResponse, HttpStatus.ACCEPTED);
 	}
 
 }

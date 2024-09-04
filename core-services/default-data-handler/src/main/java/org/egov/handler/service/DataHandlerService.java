@@ -80,7 +80,7 @@ public class DataHandlerService {
 		}
 	}
 
-	public void setupDefaultData(DataSetupRequest dataSetupRequest) {
+	public DefaultDataRequest setupDefaultData(DataSetupRequest dataSetupRequest) {
 		Set<String> uniqueIdentifiers = new HashSet<>();
 		uniqueIdentifiers.add(dataSetupRequest.getModule());
 
@@ -94,7 +94,7 @@ public class DataHandlerService {
 				.mdmsCriteria(mdmsCriteriaV2)
 				.build();
 
-				MdmsResponseV2 mdmsResponseV2 = mdmsV2Util.searchMdmsData(mdmsCriteriaReqV2);
+		MdmsResponseV2 mdmsResponseV2 = mdmsV2Util.searchMdmsData(mdmsCriteriaReqV2);
 		List<Mdms> mdmsList = mdmsResponseV2.getMdms();
 
 
@@ -105,21 +105,26 @@ public class DataHandlerService {
 			try {
 				MdmsData mdmsData = objectMapper.treeToValue(mdms.getData(), MdmsData.class);
 				processMasterList(mdmsData.getMasterList(), schemaCodes, modules);
-				DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
-						.requestInfo(dataSetupRequest.getRequestInfo())
-						.targetTenantId(dataSetupRequest.getTargetTenantId())
-						.schemaCodes(schemaCodes)
-						.onlySchemas(dataSetupRequest.getOnlySchemas())
-						.build();
-				createDefaultData(defaultDataRequest);
 			} catch(IOException e) {
 				log.error("Failed to parse MDMS data :{}", mdms.getData(), e);
 				throw new CustomException("MDMS_DATA_PARSE_FAILED", "Failed to parse mdms data ");
-			} catch (Exception e) {
-				log.error("Failed to create default data for : {}", dataSetupRequest.getTargetTenantId(), e);
-				throw new CustomException("DEFAULT_DATA_CREATE_FAILED", "Failed to create default data ");
 			}
 		}
+
+		DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
+				.requestInfo(dataSetupRequest.getRequestInfo())
+				.targetTenantId(dataSetupRequest.getTargetTenantId())
+				.schemaCodes(schemaCodes)
+				.onlySchemas(dataSetupRequest.getOnlySchemas())
+				.build();
+
+		try {
+			createDefaultData(defaultDataRequest);
+		} catch (Exception e) {
+			log.error("Failed to create default data for : {}", dataSetupRequest.getTargetTenantId(), e);
+			throw new CustomException("DEFAULT_DATA_CREATE_FAILED", "Failed to create default data ");
+		}
+		return defaultDataRequest;
 	}
 
 	private void processMasterList(List<Master> masterList, List<String> schemaCodes, List<String> modules) {
