@@ -57,4 +57,15 @@ public class ServiceConfiguration {
 	@Value("${egov.user.otp.send.endpoint}")
 	private String userOtpSendEndpoint;
 
+	// Tenant Management Configuration
+	@Value("${egov.tenant.management.host}${egov.tenant.management.context.path}${egov.tenant.management.config.create.path}")
+	private String tenantConfigCreateURI;
+
+	@Value("${egov.tenant.management.host}${egov.tenant.management.context.path}${egov.tenant.management.config.search.path}")
+	private String tenantConfigSearchURI;
+
+	// Default Tenant Id
+	@Value("${default.tenant.id}")
+	private String defaultTenantId;
+
 }

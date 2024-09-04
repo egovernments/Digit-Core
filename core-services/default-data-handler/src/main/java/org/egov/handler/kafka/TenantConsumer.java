@@ -53,11 +53,13 @@ public class TenantConsumer {
 					.requestInfo(tenantRequest.getRequestInfo())
 					.targetTenantId(tenantRequest.getTenant().getCode())
 					.schemaCodes(serviceConfig.getDefaultMdmsSchemaList())
+					.onlySchemas(Boolean.FALSE)
 					.locale(serviceConfig.getDefaultLocalizationLocale())
 					.modules(serviceConfig.getDefaultLocalizationModuleList())
 					.build();
 
 			dataHandlerService.createDefaultData(defaultDataRequest);
+			dataHandlerService.createTenantConfig(tenantRequest);
 
 			userUtil.createUser(tenantRequest);
 			otpUtil.sendOtp(tenantRequest);

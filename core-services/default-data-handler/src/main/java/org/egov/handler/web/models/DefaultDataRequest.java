@@ -22,14 +22,18 @@ public class DefaultDataRequest {
 	@Valid
 	private RequestInfo requestInfo = null;
 
-	@JsonProperty("TargetTenantId")
+	@JsonProperty("targetTenantId")
 	@NotNull
 	@Valid
 	private String targetTenantId = null;
 
-	@JsonProperty("SchemaCodes")
+	@JsonProperty("schemaCodes")
 	@Valid
 	private List<String> schemaCodes = null;
+
+	@JsonProperty("onlySchemas")
+	@Valid
+	private Boolean onlySchemas = Boolean.TRUE;
 
 	@JsonProperty("locale")
 	@Valid
