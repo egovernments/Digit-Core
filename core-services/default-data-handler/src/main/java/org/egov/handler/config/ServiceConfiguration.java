@@ -75,4 +75,8 @@ public class ServiceConfiguration {
 	@Value("${sandbox-ui.module.master.config}")
 	private String moduleMasterConfig;
 
+	// Workflow Configuration
+	@Value("${egov.workflow.host}${egov.workflow.businessservice.create.path}")
+	private String wfBusinessServiceCreateURI;
+
 }

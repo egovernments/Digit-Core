@@ -6,16 +6,17 @@ import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.util.LocalizationUtil;
 import org.egov.handler.util.MdmsV2Util;
 import org.egov.handler.util.TenantManagementUtil;
+import org.egov.handler.util.WorkflowUtil;
 import org.egov.handler.web.models.*;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.InputStream;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -31,13 +32,25 @@ public class DataHandlerService {
 
 	private final ObjectMapper objectMapper;
 
+	private final ResourceLoader resourceLoader;
+
+	private final WorkflowUtil workflowUtil;
+
 	@Autowired
-	public DataHandlerService(MdmsV2Util mdmsV2Util, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper) {
+	public DataHandlerService(MdmsV2Util mdmsV2Util,
+							  LocalizationUtil localizationUtil,
+							  TenantManagementUtil tenantManagementUtil,
+							  ServiceConfiguration serviceConfig,
+							  ObjectMapper objectMapper,
+							  ResourceLoader resourceLoader,
+							  WorkflowUtil workflowUtil) {
 		this.mdmsV2Util = mdmsV2Util;
 		this.localizationUtil = localizationUtil;
 		this.tenantManagementUtil = tenantManagementUtil;
 		this.serviceConfig = serviceConfig;
 		this.objectMapper = objectMapper;
+		this.resourceLoader = resourceLoader;
+		this.workflowUtil = workflowUtil;
 	}
 
 	public void createDefaultData(DefaultDataRequest defaultDataRequest) {
@@ -81,22 +94,15 @@ public class DataHandlerService {
 	}
 
 	public DefaultDataRequest setupDefaultData(DataSetupRequest dataSetupRequest) {
+		if (Objects.equals(dataSetupRequest.getModule(), "PGR")) {
+			createPgrWorkflowConfig(dataSetupRequest.getTargetTenantId());
+		}
+
 		Set<String> uniqueIdentifiers = new HashSet<>();
 		uniqueIdentifiers.add(dataSetupRequest.getModule());
 
-		MdmsCriteriaV2 mdmsCriteriaV2 = MdmsCriteriaV2.builder()
-				.tenantId(serviceConfig.getDefaultTenantId())
-				.schemaCode(serviceConfig.getModuleMasterConfig())
-				.uniqueIdentifiers(uniqueIdentifiers)
-				.build();
-		MdmsCriteriaReqV2 mdmsCriteriaReqV2 = MdmsCriteriaReqV2.builder()
-				.requestInfo(dataSetupRequest.getRequestInfo())
-				.mdmsCriteria(mdmsCriteriaV2)
-				.build();
-
-		MdmsResponseV2 mdmsResponseV2 = mdmsV2Util.searchMdmsData(mdmsCriteriaReqV2);
+		MdmsResponseV2 mdmsResponseV2 = mdmsV2Util.searchMdmsData(dataSetupRequest.getRequestInfo(), serviceConfig.getDefaultTenantId(), serviceConfig.getModuleMasterConfig(), uniqueIdentifiers);
 		List<Mdms> mdmsList = mdmsResponseV2.getMdms();
-
 
 		List<String> schemaCodes = new ArrayList<>();
 		List<String> modules = new ArrayList<>();
@@ -105,7 +111,7 @@ public class DataHandlerService {
 			try {
 				MdmsData mdmsData = objectMapper.treeToValue(mdms.getData(), MdmsData.class);
 				processMasterList(mdmsData.getMasterList(), schemaCodes, modules);
-			} catch(IOException e) {
+			} catch (IOException e) {
 				log.error("Failed to parse MDMS data :{}", mdms.getData(), e);
 				throw new CustomException("MDMS_DATA_PARSE_FAILED", "Failed to parse mdms data ");
 			}
@@ -125,6 +131,18 @@ public class DataHandlerService {
 			throw new CustomException("DEFAULT_DATA_CREATE_FAILED", "Failed to create default data ");
 		}
 		return defaultDataRequest;
+	}
+
+	private void createPgrWorkflowConfig(String targetTenantId) {
+		// Load the JSON file
+		Resource resource = resourceLoader.getResource("classpath:PgrWorkflowConfig.json");
+		try (InputStream inputStream = resource.getInputStream()) {
+			BusinessServiceRequest businessServiceRequest = objectMapper.readValue(inputStream, BusinessServiceRequest.class);
+			businessServiceRequest.getBusinessServices().forEach(service -> service.setTenantId(targetTenantId));
+			workflowUtil.createWfConfig(businessServiceRequest);
+		} catch (IOException e) {
+			throw new CustomException("IO_EXCEPTION", "Error reading or mapping JSON file: " + e.getMessage());
+		}
 	}
 
 	private void processMasterList(List<Master> masterList, List<String> schemaCodes, List<String> modules) {
