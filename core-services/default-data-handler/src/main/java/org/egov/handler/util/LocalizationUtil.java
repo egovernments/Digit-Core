@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.web.models.DefaultLocalizationDataRequest;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -27,11 +28,10 @@ public class LocalizationUtil {
 		StringBuilder uri = new StringBuilder();
 		uri.append(serviceConfig.getLocalizationDefaultDataCreateURI());
 		try {
-			ResponseInfo responseInfo = restTemplate.postForObject(uri.toString(), defaultLocalizationDataRequest, ResponseInfo.class);
-
+			restTemplate.postForObject(uri.toString(), defaultLocalizationDataRequest, ResponseInfo.class);
 		} catch (Exception e) {
-			log.error("Error creating default localization data for {}", defaultLocalizationDataRequest.getTargetTenantId());
+			log.error("Error creating default localization data for {} : {}", defaultLocalizationDataRequest.getTargetTenantId(), e.getMessage());
+			throw new CustomException("LOCALIZATION_DEFAULT_DATA_CREATE_FAILED", "Failed to create localization data for " + defaultLocalizationDataRequest.getTargetTenantId() + " : " + e.getMessage());
 		}
-
 	}
 }

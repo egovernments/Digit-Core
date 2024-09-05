@@ -30,8 +30,8 @@ public class MdmsV2Util {
 		try {
 			restTemplate.postForObject(uri.toString(), defaultMdmsDataRequest, ResponseInfo.class);
 		} catch (Exception e) {
-			log.error("Error creating default MDMS data for {}", defaultMdmsDataRequest.getTargetTenantId());
-			throw new CustomException("MDMS_DATA_CREATE_FAILED", "Failed to create mdms data for " + defaultMdmsDataRequest.getTargetTenantId());
+			log.error("Error creating default MDMS data for {} : {}", defaultMdmsDataRequest.getTargetTenantId(), e.getMessage());
+			throw new CustomException("MDMS_DEFAULT_DATA_CREATE_FAILED", "Failed to create default mdms data for " + defaultMdmsDataRequest.getTargetTenantId() + " : " + e.getMessage());
 		}
 	}
 
@@ -42,8 +42,8 @@ public class MdmsV2Util {
 		try {
 			return restTemplate.postForObject(uri.toString(), schemaDefinitionRequest, SchemaDefinitionResponse.class);
 		} catch (Exception e) {
-			log.error("Error creating MDMS schema for {}", schemaDefinitionRequest.getSchemaDefinition().getTenantId());
-			throw new CustomException("MDMS_SCHEMA_CREATE_FAILED", "Failed to create mdms schema for " + schemaDefinitionRequest.getSchemaDefinition().getTenantId());
+			log.error("Error creating MDMS schema for {} : {}", schemaDefinitionRequest.getSchemaDefinition().getTenantId(), e.getMessage());
+			throw new CustomException("MDMS_SCHEMA_CREATE_FAILED", "Failed to create mdms schema for " + schemaDefinitionRequest.getSchemaDefinition().getTenantId() + " : " + e.getMessage());
 		}
 	}
 
@@ -54,8 +54,8 @@ public class MdmsV2Util {
 		try {
 			return restTemplate.postForObject(uri.toString(), schemaDefSearchRequest, SchemaDefinitionResponse.class);
 		} catch (Exception e) {
-			log.error("Error searching MDMS schema for {}", schemaDefSearchRequest.getSchemaDefCriteria().getTenantId());
-			throw new CustomException("MDMS_SCHEMA_SEARCH_FAILED", "Failed to search mdms schema for " + schemaDefSearchRequest.getSchemaDefCriteria().getTenantId());
+			log.error("Error searching MDMS schema for {} : {}", schemaDefSearchRequest.getSchemaDefCriteria().getTenantId(), e.getMessage());
+			throw new CustomException("MDMS_SCHEMA_SEARCH_FAILED", "Failed to search mdms schema for " + schemaDefSearchRequest.getSchemaDefCriteria().getTenantId() + " : " + e.getMessage());
 		}
 	}
 
@@ -68,8 +68,8 @@ public class MdmsV2Util {
 		try {
 			return restTemplate.postForObject(uri.toString(), mdmsRequest, MdmsResponseV2.class);
 		} catch (Exception e) {
-			log.error("Error creating MDMS data for {}", mdmsRequest.getMdms().getTenantId());
-			throw new CustomException("MDMS_DATA_CREATE_FAILED", "Failed to create mdms schema for " + mdmsRequest.getMdms().getTenantId());
+			log.error("Error creating MDMS data for {} : {}", mdmsRequest.getMdms().getTenantId(), e.getMessage());
+			throw new CustomException("MDMS_DATA_CREATE_FAILED", "Failed to create mdms schema for " + mdmsRequest.getMdms().getTenantId() + " : " + e.getMessage());
 		}
 	}
 
@@ -80,8 +80,8 @@ public class MdmsV2Util {
 		try {
 			return restTemplate.postForObject(uri.toString(), mdmsCriteriaReqV2, MdmsResponseV2.class);
 		} catch (Exception e) {
-			log.error("Error searching MDMS data for {}", mdmsCriteriaReqV2.getMdmsCriteria().getTenantId());
-			throw new CustomException("MDMS_DATA_SEARCH_FAILED", "Failed to search mdms data for " + mdmsCriteriaReqV2.getMdmsCriteria().getTenantId());
+			log.error("Error searching MDMS data for {} : {}", mdmsCriteriaReqV2.getMdmsCriteria().getTenantId(), e.getMessage());
+			throw new CustomException("MDMS_DATA_SEARCH_FAILED", "Failed to search mdms data for " + mdmsCriteriaReqV2.getMdmsCriteria().getTenantId() + " : " + e.getMessage());
 		}
 	}
 }
