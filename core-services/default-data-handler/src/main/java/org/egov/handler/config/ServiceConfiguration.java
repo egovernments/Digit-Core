@@ -21,6 +21,15 @@ public class ServiceConfiguration {
 	@Value("${egov.mdms.host}${egov.mdms.default.data.create.endpoint}")
 	private String mdmsDefaultDataCreateURI;
 
+	@Value("${egov.mdms.host}${egov.mdms.schema.create.endpoint}")
+	private String mdmsSchemaCreateURI;
+
+	@Value("${egov.mdms.host}${egov.mdms.schema.search.endpoint}")
+	private String mdmsSchemaSearchURI;
+
+	@Value("${egov.mdms.host}${egov.mdms.data.create.endpoint}")
+	private String mdmsDataCreateURI;
+
 	@Value("${egov.mdms.host}${egov.mdms.data.search.endpoint}")
 	private String mdmsDataSearchURI;
 

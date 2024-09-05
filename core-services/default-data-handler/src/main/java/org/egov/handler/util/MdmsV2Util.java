@@ -1,19 +1,13 @@
 package org.egov.handler.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.handler.config.ServiceConfiguration;
-import org.egov.handler.web.models.DefaultMdmsDataRequest;
-import org.egov.handler.web.models.MdmsCriteriaReqV2;
-import org.egov.handler.web.models.MdmsCriteriaV2;
-import org.egov.handler.web.models.MdmsResponseV2;
+import org.egov.handler.web.models.*;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -29,7 +23,7 @@ public class MdmsV2Util {
 		this.serviceConfig = serviceConfig;
 	}
 
-	public void createMdmsData(DefaultMdmsDataRequest defaultMdmsDataRequest) {
+	public void createDefaultMdmsData(DefaultMdmsDataRequest defaultMdmsDataRequest) {
 
 		StringBuilder uri = new StringBuilder();
 		uri.append(serviceConfig.getMdmsDefaultDataCreateURI());
@@ -41,19 +35,48 @@ public class MdmsV2Util {
 		}
 	}
 
-	public MdmsResponseV2 searchMdmsData(RequestInfo requestInfo, String defaultTenantId, String schemaCode, Set<String> uniqueIdentifiers) {
+	public SchemaDefinitionResponse createMdmsSchema(SchemaDefinitionRequest schemaDefinitionRequest) {
+		StringBuilder uri = new StringBuilder();
+		uri.append(serviceConfig.getMdmsSchemaCreateURI());
+
+		try {
+			return restTemplate.postForObject(uri.toString(), schemaDefinitionRequest, SchemaDefinitionResponse.class);
+		} catch (Exception e) {
+			log.error("Error creating MDMS schema for {}", schemaDefinitionRequest.getSchemaDefinition().getTenantId());
+			throw new CustomException("MDMS_SCHEMA_CREATE_FAILED", "Failed to create mdms schema for " + schemaDefinitionRequest.getSchemaDefinition().getTenantId());
+		}
+	}
+
+	public SchemaDefinitionResponse searchMdmsSchema(SchemaDefSearchRequest schemaDefSearchRequest) {
+		StringBuilder uri = new StringBuilder();
+		uri.append(serviceConfig.getMdmsSchemaSearchURI());
+
+		try {
+			return restTemplate.postForObject(uri.toString(), schemaDefSearchRequest, SchemaDefinitionResponse.class);
+		} catch (Exception e) {
+			log.error("Error searching MDMS schema for {}", schemaDefSearchRequest.getSchemaDefCriteria().getTenantId());
+			throw new CustomException("MDMS_SCHEMA_SEARCH_FAILED", "Failed to search mdms schema for " + schemaDefSearchRequest.getSchemaDefCriteria().getTenantId());
+		}
+	}
+
+	public MdmsResponseV2 createMdmsData(MdmsRequest mdmsRequest) {
+		StringBuilder uri = new StringBuilder();
+		uri.append(serviceConfig.getMdmsDataCreateURI());
+		uri.append("/");
+		uri.append(mdmsRequest.getMdms().getSchemaCode());
+
+		try {
+			return restTemplate.postForObject(uri.toString(), mdmsRequest, MdmsResponseV2.class);
+		} catch (Exception e) {
+			log.error("Error creating MDMS data for {}", mdmsRequest.getMdms().getTenantId());
+			throw new CustomException("MDMS_DATA_CREATE_FAILED", "Failed to create mdms schema for " + mdmsRequest.getMdms().getTenantId());
+		}
+	}
+
+	public MdmsResponseV2 searchMdmsData(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
 		StringBuilder uri = new StringBuilder();
 		uri.append(serviceConfig.getMdmsDataSearchURI());
 
-		MdmsCriteriaV2 mdmsCriteriaV2 = MdmsCriteriaV2.builder()
-				.tenantId(defaultTenantId)
-				.schemaCode(schemaCode)
-				.uniqueIdentifiers(uniqueIdentifiers)
-				.build();
-		MdmsCriteriaReqV2 mdmsCriteriaReqV2 = MdmsCriteriaReqV2.builder()
-				.requestInfo(requestInfo)
-				.mdmsCriteria(mdmsCriteriaV2)
-				.build();
 		try {
 			return restTemplate.postForObject(uri.toString(), mdmsCriteriaReqV2, MdmsResponseV2.class);
 		} catch (Exception e) {
