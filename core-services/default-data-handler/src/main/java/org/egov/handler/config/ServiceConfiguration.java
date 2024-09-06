@@ -40,6 +40,9 @@ public class ServiceConfiguration {
 	@Value("${egov.localization.host}${egov.localization.default.data.create.endpoint}")
 	private String localizationDefaultDataCreateURI;
 
+	@Value("${egov.localization.host}${egov.localization.upsert.path}")
+	private String upsertLocalizationURI;
+
 	@Value("${default.localization.locale}")
 	private String defaultLocalizationLocale;
 
