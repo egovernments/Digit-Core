@@ -62,7 +62,7 @@ public class DataHandlerService {
 		if (defaultDataRequest.getSchemaCodes() != null) {
 			if (defaultDataRequest.getSchemaCodes().contains(TENANT_BOUNDARY_SCHEMA)) {
 				createTenantBoundarydata(defaultDataRequest.getRequestInfo(), defaultDataRequest.getTargetTenantId());
-				defaultDataRequest.getSchemaCodes().remove(TENANT_BOUNDARY_SCHEMA);
+//				defaultDataRequest.getSchemaCodes().remove(TENANT_BOUNDARY_SCHEMA);
 			}
 			DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
 					.requestInfo(defaultDataRequest.getRequestInfo())
