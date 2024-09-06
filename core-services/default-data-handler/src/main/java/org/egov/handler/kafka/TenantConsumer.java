@@ -3,6 +3,7 @@ package org.egov.handler.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.request.User;
 import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.service.DataHandlerService;
 import org.egov.handler.util.OtpUtil;
@@ -48,6 +49,12 @@ public class TenantConsumer {
 		// create user only for root tenant
 		if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
 			log.info("Configuring Tenant: {}", tenantRequest.getTenant().getCode());
+
+			// Setting userInfo with UUID
+			User userInfo = User.builder()
+					.uuid("40dceade-992d-4a8f-8243-19dda76a4171")
+					.build();
+			tenantRequest.getRequestInfo().setUserInfo(userInfo);
 
 			DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
 					.requestInfo(tenantRequest.getRequestInfo())
