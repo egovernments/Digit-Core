@@ -1,0 +1,361 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "00838f04-e949-47cb-9d83-65482c692f31",
+        "name": "MDMS_V1",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-04-04T06:18:55.000Z",
+        "createdAt": "2024-02-26T06:08:43.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-00838f04-e949-47cb-9d83-65482c692f31"
+      },
+      "item": [
+        {
+          "name": "search_001",
+          "id": "b053235c-d97e-46ad-b48d-db997e38745b",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"CancerCess\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-mdms-service/v1/_search",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-b053235c-d97e-46ad-b48d-db997e38745b"
+        },
+        {
+          "name": "search_002",
+          "id": "f8d1a63a-ce56-45b3-9f2a-fcdb9e147b52",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"CommonFieldsConfig\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-f8d1a63a-ce56-45b3-9f2a-fcdb9e147b52"
+        },
+        {
+          "name": "search_003",
+          "id": "983c43e6-8faf-49c1-969f-75626973b51a",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"ConstructionSubType\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-983c43e6-8faf-49c1-969f-75626973b51a"
+        },
+        {
+          "name": "search_004",
+          "id": "d5e3c7f3-4091-48a7-993d-a1b5eb1b1579",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"Documents\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-d5e3c7f3-4091-48a7-993d-a1b5eb1b1579"
+        },
+        {
+          "name": "search_005",
+          "id": "21aa7bc7-03ec-4272-9e2b-69c82f50c9c0",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"NOC\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"DocumentTypeMapping\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "-4",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-21aa7bc7-03ec-4272-9e2b-69c82f50c9c0"
+        },
+        {
+          "name": "search_006",
+          "id": "c3b89c56-d620-418a-a2db-285b9927125a",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"FSM\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"AdvancePayment\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "-4",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-c3b89c56-d620-418a-a2db-285b9927125a"
+        },
+        {
+          "name": "new_pg 007",
+          "id": "3a414890-6db4-49e2-8135-9a60adb00f45",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"asset-services\",\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": null,\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"search with from and to values\",\r\n        \"authToken\": \"864b3dca-0129-4f99-8395-939e9a9abe2f\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg.citya\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"CancerCess\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-3a414890-6db4-49e2-8135-9a60adb00f45"
+        },
+        {
+          "name": "search_002 Copy",
+          "id": "5a7a7eba-4a6a-4ae9-a159-498dd34f0059",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"CommonFieldsConfig\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-5a7a7eba-4a6a-4ae9-a159-498dd34f0059"
+        },
+        {
+          "name": "search_003 Copy",
+          "id": "bd338ab5-b3c1-4da0-94ba-08cebf57a426",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"ConstructionSubType\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-bd338ab5-b3c1-4da0-94ba-08cebf57a426"
+        },
+        {
+          "name": "search_004 Copy",
+          "id": "2a188674-0bc2-4e94-8d40-b9618ac42bc7",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"MdmsCriteria\": {\r\n        \"tenantId\": \"pg\",\r\n        \"moduleDetails\": [\r\n            {\r\n                \"moduleName\": \"PropertyTax\",\r\n                \"masterDetails\": [\r\n                    {\r\n                        \"name\": \"Documents\"\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-mdms-service/v1/_search",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-mdms-service",
+                "v1",
+                "_search"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-2a188674-0bc2-4e94-8d40-b9618ac42bc7"
+        }
+      ]
+    }
+  }
