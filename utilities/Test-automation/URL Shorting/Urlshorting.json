@@ -1,0 +1,168 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "a00265ba-4472-41de-8833-2a1c5051a2fd",
+        "name": "URL shorting",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-05-23T09:39:23.000Z",
+        "createdAt": "2024-05-23T09:39:23.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-a00265ba-4472-41de-8833-2a1c5051a2fd"
+      },
+      "item": [
+        {
+          "name": "shortener_001",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f834a5e6-58b6-4e22-bee2-19db20c8198c",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "edfcf32c-93f1-4347-989a-6a55a113c60f",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "*/*"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"url\": \"https://docs.google.com/spreadsheets/d/1Q5dNXDnt5WrgOOOS1MMEnoyi7Jo0s2kq9hLnSnGK5S4/edit#gid=1891306809\",\r\n    \"validFrom\": 0,\r\n    \"validTill\": 0\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/eus/shortener",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "eus",
+                "shortener"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-edfcf32c-93f1-4347-989a-6a55a113c60f"
+        },
+        {
+          "name": "shortener_002",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "036e558c-7df0-414c-b5bb-7f994ec89022",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "90fde99c-812c-4b67-8380-2eca71b71031",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "*/*"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"url\": \"https://www.google.com/search\",\r\n    \"validFrom\": 0,\r\n    \"validTill\": 0\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/eus/shortener",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "eus",
+                "shortener"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-90fde99c-812c-4b67-8380-2eca71b71031"
+        },
+        {
+          "name": "shortener_003",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "1ec7fab8-6297-47e4-b45d-cea1979c8555",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "c6aa40d2-521b-4404-873b-4e5184560672",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "*/*"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"url\": \"https://www.google.com/search123\",\r\n    \"validFrom\": 0,\r\n    \"validTill\": 0\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/eus/shortener",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "eus",
+                "shortener"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-c6aa40d2-521b-4404-873b-4e5184560672"
+        }
+      ]
+    }
+  }
