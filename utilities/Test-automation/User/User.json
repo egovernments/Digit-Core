@@ -1,0 +1,2260 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "49160725-4296-4f9d-9876-67f1f603f408",
+        "name": "User",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-08-12T07:34:31.000Z",
+        "createdAt": "2024-07-02T13:25:02.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-49160725-4296-4f9d-9876-67f1f603f408"
+      },
+      "item": [
+        {
+          "name": "CreateUser",
+          "item": [
+            {
+              "name": "Tc_Cr_EMP_001",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "058c2274-4f1a-4c2f-8386-607b35d2dd45",
+                    "exec": [
+                      "var userName;\r",
+                      "var password=\"passwordTest2@\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var id;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "   id=jsonData.user[0].id;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMe\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORd\", password);\r",
+                      "pm.collectionVariables.set(\"TYPe\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTId\", tenantId);\r",
+                      "pm.collectionVariables.set(\"ID\", id);\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "64ba5d66-8b8e-406e-8e95-ab6c60d2e334",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"null\",\r\n        \"ver\": \"null\",\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"8c11c5ca-03bd-11e7-93ae-92361f002671\",\r\n        \"userInfo\": {\r\n            \"type\": \"SYSTEM\",\r\n            \"name\": \"kiran\",\r\n            \"id\": 32\r\n        },\r\n        \"authToken\": \"09248d92-12ee-48be-9fc0-6fbb9bf3ca0d\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserFIRST}}1\",\r\n        \"password\": \"passwordTest2@\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"mustak\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n             {\r\n                \"code\": \"SUPERUSER\",\r\n                \"name\": \"Super User\",\r\n                \"description\": \"System Administrator. Can change all master data and has access to all the system screens.\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"EMPLOYEE\",\r\n                \"name\": \"Employee\",\r\n                \"description\": \"Default role for all employees\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"SYSTEM\",\r\n                \"name\": \"System\",\r\n                \"tenantId\": \"pg\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8081/user/users/_createnovalidate",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8081",
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-64ba5d66-8b8e-406e-8e95-ab6c60d2e334"
+            },
+            {
+              "name": "Tc_Lg_emp_01",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "f33a6fda-2ea6-434c-b805-335503add50e",
+                    "exec": [
+                      "var Token_pg;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      "   Token_pg=jsonData.access_token;\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.globals.set(\"Token1\", Token_pg);\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "44134541-6daa-4b1b-aa5e-93208caee043",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "authority",
+                    "value": "unified-dev.digit.org"
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json, text/plain, */*"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                  },
+                  {
+                    "key": "authorization",
+                    "value": "Basic ZWdvdi11c2VyLWNsaWVudDo="
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/x-www-form-urlencoded"
+                  },
+                  {
+                    "key": "cookie",
+                    "value": "_ga_6130JJKLD4=GS1.1.1689144121.1.1.1689144147.34.0.0; _ga_2E44ZSYXS7=GS1.1.1693551022.10.0.1693551537.0.0.0; _ga=GA1.1.1506416593.1687179320; _ga_P1TZCPKF6S=GS1.1.1695629661.2.0.1695629664.57.0.0; _ga_H9YC8FEN6F=GS1.1.1696831541.125.1.1696831564.37.0.0; io=f_4QRb-VaOOVAUJ0AAAB; locale=en_IN; PGADMIN_LANGUAGE=en; __cuid=44ff2be0a12e4499973904b80d92ef3d; amp_fef1e8=21a46ed7-716d-4b59-aa13-c513dd00a213R...1hflua14j.1hflua14o.kq.46.p0; _ga_XBQP06FR8V=GS1.1.1700469736.4.0.1700469739.57.0.0; _oauth2_proxy=eyJFbWFpbCI6ImFuc2guZ295YWxAZWdvdmVybm1lbnRzLm9yZyIsIlVzZXIiOiJhbnNoLWVnb3YifQ==|1700724084|8Aayfxx0DRsJ4Lgw6jJiVnYjs_k="
+                  },
+                  {
+                    "key": "origin",
+                    "value": "https://unified-dev.digit.org"
+                  },
+                  {
+                    "key": "referer",
+                    "value": "https://unified-dev.digit.org/works-ui/employee/user/login?from=%2Fworks-ui%2Femployee"
+                  },
+                  {
+                    "key": "sec-ch-ua",
+                    "value": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\""
+                  },
+                  {
+                    "key": "sec-ch-ua-mobile",
+                    "value": "?0"
+                  },
+                  {
+                    "key": "sec-ch-ua-platform",
+                    "value": "\"Linux\""
+                  },
+                  {
+                    "key": "sec-fetch-dest",
+                    "value": "empty"
+                  },
+                  {
+                    "key": "sec-fetch-mode",
+                    "value": "cors"
+                  },
+                  {
+                    "key": "sec-fetch-site",
+                    "value": "same-origin"
+                  },
+                  {
+                    "key": "user-agent",
+                    "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "type": "text",
+                      "key": "username",
+                      "value": "{{USERNAMe}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "password",
+                      "value": "{{PASSWORd}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "userType",
+                      "value": "{{TYPe}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "tenantId",
+                      "value": "{{TENANTId}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "scope",
+                      "value": "read"
+                    },
+                    {
+                      "type": "text",
+                      "key": "grant_type",
+                      "value": "password"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/oauth/token?_=1700804704480",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "oauth",
+                    "token"
+                  ],
+                  "query": [
+                    {
+                      "key": "_",
+                      "value": "1700804704480"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-44134541-6daa-4b1b-aa5e-93208caee043"
+            },
+            {
+              "name": "Tc_Cr_System_002",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "f436d532-cc7b-438d-92a3-aaf1b53cffa5",
+                    "exec": [
+                      "var userName;\r",
+                      "var password=\"Must@123\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var id;\r",
+                      "var Uid;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "   id=jsonData.user[0].id;\r",
+                      "    Uid=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMe2\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORd2\", password);\r",
+                      "pm.collectionVariables.set(\"TYPe2\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTId2\", tenantId);\r",
+                      "pm.collectionVariables.set(\"ID\", id);\r",
+                      "pm.collectionVariables.set(\"UUIDSYS2\", Uid);\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "49842b74-3be2-4918-86ac-22426731c42d",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n   \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName2}}\",\r\n        \"password\": \"Must123%\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"mustak\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"SYSTEM\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"SYSTEM\",\r\n                \"name\": \"System\",\r\n                \"tenantId\": \"pg\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-49842b74-3be2-4918-86ac-22426731c42d"
+            },
+            {
+              "name": "Tc_Cr_NEmp_003",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "02ddb8b4-2704-402c-a98e-032ed54fe964",
+                    "exec": [
+                      "\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "3808b9e8-9a98-41b7-aa15-717e7fe9365e",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n   \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName3}}\",\r\n        \"password\": \"2Mujja@123NK1\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"mustak\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pb\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"EMPLOYEE\",\r\n                \"name\": \"Employee\",\r\n                \"description\": \"Default role for all employees\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-3808b9e8-9a98-41b7-aa15-717e7fe9365e"
+            },
+            {
+              "name": "Tc_Cr_NEmp_004",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "fde8fab4-c746-41d5-a0aa-d80a3eb884f2",
+                    "exec": [
+                      "\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "6532812e-0b1c-49af-b136-66868c532587",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName4}}\",\r\n        \"password\": \"Must@123NK\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"mustak\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"0000000000\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"SUPERUSER\",\r\n                \"name\": \"Super User\",\r\n                \"tenantId\": \"pb\",\r\n                \"description\": \"System Administrator. Can change all master data and has access to all the system screens.\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-6532812e-0b1c-49af-b136-66868c532587"
+            },
+            {
+              "name": "Tc_Cr_Emp_005",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "977456ff-97d6-42f3-89c1-e2f345f09ff1",
+                    "exec": [
+                      "\r",
+                      "var Uid;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   Uid=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      "var userName;\r",
+                      "var password=\"passwordTest2@\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var Uid;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "    Uid=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMeemp5\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORdemp5\", password);\r",
+                      "pm.collectionVariables.set(\"TYPeemp5\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTIdemp5\", tenantId);\r",
+                      "pm.collectionVariables.set(\"UUIDemp5\", Uid);\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "8f13c559-761a-49ee-817a-0fdb88cf2b41",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },  \r\n    \"user\": {\r\n        \"userName\": \"{{UserName5}}\",\r\n        \"password\": \"Must@123NK\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"mustak\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg.citya\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"EMPLOYEE\",\r\n                \"name\": \"Employee\",\r\n                \"tenantId\": \"pg.citya\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-8f13c559-761a-49ee-817a-0fdb88cf2b41"
+            },
+            {
+              "name": "Tc_Cr_Citizen_006",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "67a1b311-cd5a-4a4b-8c21-36166d4acff2",
+                    "exec": [
+                      "var userName;\r",
+                      "var password=\"UNuser@123\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var id;\r",
+                      "var UUIDEMP;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "   id=jsonData.user[0].id;\r",
+                      "   UUIDEMP=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMe6\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORd6\", password);\r",
+                      "pm.collectionVariables.set(\"TYPe6\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTId6\", tenantId);\r",
+                      "pm.collectionVariables.set(\"ID6\", id);\r",
+                      "pm.collectionVariables.set(\"UUIDcity6\", UUIDEMP);\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "864636df-0c6c-4911-888f-d3217a480728",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName6}}\",\r\n        \"password\": \"UNuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n             {\r\n                \"code\": \"CSR\",\r\n                \"name\": \"csr\",\r\n                \"tenantId\": \"pg\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-864636df-0c6c-4911-888f-d3217a480728"
+            },
+            {
+              "name": "Tc_Cr_Citizen_007",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "14add8f9-1ee9-409d-81d9-12ba482e04f2",
+                    "exec": [
+                      "var userName;\r",
+                      "var password=\"passwordTest2@\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var id;\r",
+                      "var UUIDCITY;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "   UUIDCITY=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMeUpCity7&\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORdUpCity7\", password);\r",
+                      "pm.collectionVariables.set(\"TYPeUpCity7\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTIdUpCity7\", tenantId);\r",
+                      "pm.collectionVariables.set(\"UUIDCITY7\", UUIDCITY);\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "773807c9-e230-480e-9e9a-cd97ebc60e60",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName7}}\",\r\n        \"password\": \"Unuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg.citya\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-773807c9-e230-480e-9e9a-cd97ebc60e60"
+            },
+            {
+              "name": "Tc_Cr_Citizen_008",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "fbd10deb-0e53-491e-a3ad-699692ca359a",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "3c2f0539-7a05-4978-aaea-09098ea19763",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName8}}\",\r\n        \"password\": \"Unuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg.cityb\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg.cityb\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-3c2f0539-7a05-4978-aaea-09098ea19763"
+            },
+            {
+              "name": "Tc_Cr_Citizen_009",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "bfca2ce5-e585-4c8e-8d4c-b38bc909cead",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "47d870ca-2dfb-42bf-af43-e245014d8388",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\":\"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName9}}\",\r\n        \"password\": \"Unuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg.cityc\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg.cityc\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-47d870ca-2dfb-42bf-af43-e245014d8388"
+            },
+            {
+              "name": "Tc_Cr_Citizen_010",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "fa0bbaf8-a7a9-4712-bb99-5e5e73fd0884",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "e15c12e9-2e83-4d87-bd13-e87a50d7aec5",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserName10}}\",\r\n        \"password\": \"Unuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg.cityc\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg.cityd\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-e15c12e9-2e83-4d87-bd13-e87a50d7aec5"
+            },
+            {
+              "name": "Tc_Cr_Citizen_011",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "d79822b7-32b2-4322-8ce9-39450fee8ba9",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "fc36408b-4782-4b77-a8f6-5c4d3fd1b749",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{userName11}}\",\r\n        \"password\": \"Unuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg.cityc\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg.citye\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-fc36408b-4782-4b77-a8f6-5c4d3fd1b749"
+            },
+            {
+              "name": "Tc_Cr_Citizen_012",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "5316ccb7-0c51-4053-adb9-d2de686ad40c",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "fa40c70a-f2e0-4a8e-829f-f5a59fc2dc71",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{userName12}}\",\r\n        \"password\": \"Unuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg.M\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg.cityfA\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-fa40c70a-f2e0-4a8e-829f-f5a59fc2dc71"
+            },
+            {
+              "name": "Tc_Cr_Emp_013",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "a3dc8c18-ab98-4e95-82b7-652f35b86095",
+                    "exec": [
+                      "var userName;\r",
+                      "var password=\"Unuser@123\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var id;\r",
+                      "var uid;\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "   id=jsonData.user[0].id;\r",
+                      "   uid=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMe13\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORd13\", password);\r",
+                      "pm.collectionVariables.set(\"TYPe13\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTId13\", tenantId);\r",
+                      "pm.collectionVariables.set(\"ID13\", id);\r",
+                      "pm.collectionVariables.set(\"UUID13\", uid);\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "1b239e26-2d41-45de-aa67-e4b193f736e7",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{userName13}}\",\r\n        \"password\": \"Unuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"9353822214\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg.cityfA\"\r\n            },\r\n            {\r\n                \"code\": \"SUPERUSER\",\r\n                \"name\": \"Super User\",\r\n                \"description\": \"System Administrator. Can change all master data and has access to all the system screens.\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"EMPLOYEE\",\r\n                \"name\": \"Employee\",\r\n                \"description\": \"Default role for all employees\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"SYSTEM\",\r\n                \"name\": \"System\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"HRMS_ADMIN\",\r\n                \"name\": \"HRMS Admin\",\r\n                \"description\": \"HRMS Admin\"\r\n            },\r\n            {\r\n                \"code\": \"GRO\",\r\n                \"name\": \"Grievance Routing Officer\",\r\n                \"description\": \"Grievance Routing Officer\"\r\n            },\r\n            {\r\n                \"code\": \"DGRO\",\r\n                \"name\": \"Department Grievance Routing Officer\",\r\n                \"description\": \"GRO for a sepcific dept who assings the grievances to last mile employees\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-1b239e26-2d41-45de-aa67-e4b193f736e7"
+            },
+            {
+              "name": "Tc_Cr_Citizen_014",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "b9d60592-26c7-4c96-b1dc-39a7c993f4cb",
+                    "exec": [
+                      "var userName;\r",
+                      "var password=\"UNuser@123\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var id;\r",
+                      "var UUIDEMP;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "   id=jsonData.user[0].id;\r",
+                      "   UUIDEMP=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMe14\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORd14\", password);\r",
+                      "pm.collectionVariables.set(\"TYPe14\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTId14\", tenantId);\r",
+                      "pm.collectionVariables.set(\"ID14\", id);\r",
+                      "pm.collectionVariables.set(\"UUIDcity14\", UUIDEMP);\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "b3a9dc24-89a1-4bb6-8ad4-e7d2f0a98a2f",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{userName14}}\",\r\n        \"password\": \"UNuser@123\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"guddu\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"7676393544\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"CITIZEN\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"CITIZEN\",\r\n                \"name\": \"Citizen\",\r\n                \"tenantId\": \"pg.citya\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-b3a9dc24-89a1-4bb6-8ad4-e7d2f0a98a2f"
+            },
+            {
+              "name": "Tc_Cr_Emp_015",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "80e98f04-31d9-41e7-8a19-8bdba573c3ef",
+                    "exec": [
+                      "var userName;\r",
+                      "var password=\"Must@123NK\";\r",
+                      "var type;\r",
+                      "var tenantId;\r",
+                      "var id;\r",
+                      "var uid;\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "   userName=jsonData.user[0].userName;\r",
+                      "   type=jsonData.user[0].type;\r",
+                      "   tenantId=jsonData.user[0].tenantId;\r",
+                      "   id=jsonData.user[0].id;\r",
+                      "   uid=jsonData.user[0].uuid;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"USERNAMe15\",userName );\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"PASSWORd15\", password);\r",
+                      "pm.collectionVariables.set(\"TYPe15\", type);\r",
+                      "pm.collectionVariables.set(\"TENANTId15\", tenantId);\r",
+                      "pm.collectionVariables.set(\"ID15\", id);\r",
+                      "pm.collectionVariables.set(\"UUID15\", uid);\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "6e16f3d8-01b6-4209-ad5f-62dd7b91e83b",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"user\": {\r\n     //   \"userName\": \"{{userName15}}\",\r\n        \"userName\": \"UserWithALLROLE\",\r\n        \"password\": \"Must@123NK\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"mustak\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"9353822214\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"SUPERUSER\",\r\n                \"name\": \"Super User\",\r\n                \"tenantId\": \"pg\",\r\n                \"description\": \"System Administrator. Can change all master data and has access to all the system screens.\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "users",
+                    "_createnovalidate"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-6e16f3d8-01b6-4209-ad5f-62dd7b91e83b"
+            }
+          ],
+          "id": "37a62c71-9d18-494e-a4e2-06ff5091557b",
+          "uid": "32355655-37a62c71-9d18-494e-a4e2-06ff5091557b"
+        },
+        {
+          "name": "Login",
+          "item": [
+            {
+              "name": "Tc_Lg_Ncitizen_006",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "21eed3ca-1967-4a6a-99a0-236cd69e8ca7",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "a3a61868-a86e-4351-a22b-5806827f1408",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "authority",
+                    "value": "unified-dev.digit.org"
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json, text/plain, */*"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                  },
+                  {
+                    "key": "authorization",
+                    "value": "Basic ZWdvdi11c2VyLWNsaWVudDo="
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/x-www-form-urlencoded"
+                  },
+                  {
+                    "key": "cookie",
+                    "value": "_ga_6130JJKLD4=GS1.1.1689144121.1.1.1689144147.34.0.0; _ga_2E44ZSYXS7=GS1.1.1693551022.10.0.1693551537.0.0.0; _ga=GA1.1.1506416593.1687179320; _ga_P1TZCPKF6S=GS1.1.1695629661.2.0.1695629664.57.0.0; _ga_H9YC8FEN6F=GS1.1.1696831541.125.1.1696831564.37.0.0; io=f_4QRb-VaOOVAUJ0AAAB; locale=en_IN; PGADMIN_LANGUAGE=en; __cuid=44ff2be0a12e4499973904b80d92ef3d; amp_fef1e8=21a46ed7-716d-4b59-aa13-c513dd00a213R...1hflua14j.1hflua14o.kq.46.p0; _ga_XBQP06FR8V=GS1.1.1700469736.4.0.1700469739.57.0.0; _oauth2_proxy=eyJFbWFpbCI6ImFuc2guZ295YWxAZWdvdmVybm1lbnRzLm9yZyIsIlVzZXIiOiJhbnNoLWVnb3YifQ==|1700724084|8Aayfxx0DRsJ4Lgw6jJiVnYjs_k="
+                  },
+                  {
+                    "key": "origin",
+                    "value": "https://unified-dev.digit.org"
+                  },
+                  {
+                    "key": "referer",
+                    "value": "https://unified-dev.digit.org/works-ui/employee/user/login?from=%2Fworks-ui%2Femployee"
+                  },
+                  {
+                    "key": "sec-ch-ua",
+                    "value": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\""
+                  },
+                  {
+                    "key": "sec-ch-ua-mobile",
+                    "value": "?0"
+                  },
+                  {
+                    "key": "sec-ch-ua-platform",
+                    "value": "\"Linux\""
+                  },
+                  {
+                    "key": "sec-fetch-dest",
+                    "value": "empty"
+                  },
+                  {
+                    "key": "sec-fetch-mode",
+                    "value": "cors"
+                  },
+                  {
+                    "key": "sec-fetch-site",
+                    "value": "same-origin"
+                  },
+                  {
+                    "key": "user-agent",
+                    "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "type": "text",
+                      "key": "username",
+                      "value": "{{USERNAMe6}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "password",
+                      "value": "{{PASSWORd6}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "userType",
+                      "value": "{{TYPe6}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "tenantId",
+                      "value": "{{TENANTId6}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "scope",
+                      "value": "read"
+                    },
+                    {
+                      "type": "text",
+                      "key": "grant_type",
+                      "value": "password"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/oauth/token?_=1700804704480",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "oauth",
+                    "token"
+                  ],
+                  "query": [
+                    {
+                      "key": "_",
+                      "value": "1700804704480"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-a3a61868-a86e-4351-a22b-5806827f1408"
+            },
+            {
+              "name": "Tc_Lg_emp_013",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "9023666c-733d-4d0c-9a3e-f9b4312312b4",
+                    "exec": [
+                      "var Token_pg;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      "   Token_pg=jsonData.access_token;\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.globals.set(\"Token13\", Token_pg);\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "422e913f-bb3d-45d0-8b91-dca8ccb71407",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "authority",
+                    "value": "unified-dev.digit.org"
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json, text/plain, */*"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                  },
+                  {
+                    "key": "authorization",
+                    "value": "Basic ZWdvdi11c2VyLWNsaWVudDo="
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/x-www-form-urlencoded"
+                  },
+                  {
+                    "key": "cookie",
+                    "value": "_ga_6130JJKLD4=GS1.1.1689144121.1.1.1689144147.34.0.0; _ga_2E44ZSYXS7=GS1.1.1693551022.10.0.1693551537.0.0.0; _ga=GA1.1.1506416593.1687179320; _ga_P1TZCPKF6S=GS1.1.1695629661.2.0.1695629664.57.0.0; _ga_H9YC8FEN6F=GS1.1.1696831541.125.1.1696831564.37.0.0; io=f_4QRb-VaOOVAUJ0AAAB; locale=en_IN; PGADMIN_LANGUAGE=en; __cuid=44ff2be0a12e4499973904b80d92ef3d; amp_fef1e8=21a46ed7-716d-4b59-aa13-c513dd00a213R...1hflua14j.1hflua14o.kq.46.p0; _ga_XBQP06FR8V=GS1.1.1700469736.4.0.1700469739.57.0.0; _oauth2_proxy=eyJFbWFpbCI6ImFuc2guZ295YWxAZWdvdmVybm1lbnRzLm9yZyIsIlVzZXIiOiJhbnNoLWVnb3YifQ==|1700724084|8Aayfxx0DRsJ4Lgw6jJiVnYjs_k="
+                  },
+                  {
+                    "key": "origin",
+                    "value": "https://unified-dev.digit.org"
+                  },
+                  {
+                    "key": "referer",
+                    "value": "https://unified-dev.digit.org/works-ui/employee/user/login?from=%2Fworks-ui%2Femployee"
+                  },
+                  {
+                    "key": "sec-ch-ua",
+                    "value": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\""
+                  },
+                  {
+                    "key": "sec-ch-ua-mobile",
+                    "value": "?0"
+                  },
+                  {
+                    "key": "sec-ch-ua-platform",
+                    "value": "\"Linux\""
+                  },
+                  {
+                    "key": "sec-fetch-dest",
+                    "value": "empty"
+                  },
+                  {
+                    "key": "sec-fetch-mode",
+                    "value": "cors"
+                  },
+                  {
+                    "key": "sec-fetch-site",
+                    "value": "same-origin"
+                  },
+                  {
+                    "key": "user-agent",
+                    "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "type": "text",
+                      "key": "username",
+                      "value": "{{USERNAMe13}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "password",
+                      "value": "{{PASSWORd13}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "userType",
+                      "value": "{{TYPe13}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "tenantId",
+                      "value": "{{TENANTId13}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "scope",
+                      "value": "read"
+                    },
+                    {
+                      "type": "text",
+                      "key": "grant_type",
+                      "value": "password"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/oauth/token?_=1700804704480",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "oauth",
+                    "token"
+                  ],
+                  "query": [
+                    {
+                      "key": "_",
+                      "value": "1700804704480"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-422e913f-bb3d-45d0-8b91-dca8ccb71407"
+            },
+            {
+              "name": "Tc_Lg_emp_015",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "11e8dac1-1328-4bce-894a-764061c2c7ef",
+                    "exec": [
+                      "var Token_pg;\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      "   Token_pg=jsonData.access_token;\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.globals.set(\"Token15\", Token_pg);\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "f3e60c4b-681a-4443-96ca-ad19da823e38",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "authority",
+                    "value": "unified-dev.digit.org"
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json, text/plain, */*"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                  },
+                  {
+                    "key": "authorization",
+                    "value": "Basic ZWdvdi11c2VyLWNsaWVudDo="
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/x-www-form-urlencoded"
+                  },
+                  {
+                    "key": "cookie",
+                    "value": "_ga_6130JJKLD4=GS1.1.1689144121.1.1.1689144147.34.0.0; _ga_2E44ZSYXS7=GS1.1.1693551022.10.0.1693551537.0.0.0; _ga=GA1.1.1506416593.1687179320; _ga_P1TZCPKF6S=GS1.1.1695629661.2.0.1695629664.57.0.0; _ga_H9YC8FEN6F=GS1.1.1696831541.125.1.1696831564.37.0.0; io=f_4QRb-VaOOVAUJ0AAAB; locale=en_IN; PGADMIN_LANGUAGE=en; __cuid=44ff2be0a12e4499973904b80d92ef3d; amp_fef1e8=21a46ed7-716d-4b59-aa13-c513dd00a213R...1hflua14j.1hflua14o.kq.46.p0; _ga_XBQP06FR8V=GS1.1.1700469736.4.0.1700469739.57.0.0; _oauth2_proxy=eyJFbWFpbCI6ImFuc2guZ295YWxAZWdvdmVybm1lbnRzLm9yZyIsIlVzZXIiOiJhbnNoLWVnb3YifQ==|1700724084|8Aayfxx0DRsJ4Lgw6jJiVnYjs_k="
+                  },
+                  {
+                    "key": "origin",
+                    "value": "https://unified-dev.digit.org"
+                  },
+                  {
+                    "key": "referer",
+                    "value": "https://unified-dev.digit.org/works-ui/employee/user/login?from=%2Fworks-ui%2Femployee"
+                  },
+                  {
+                    "key": "sec-ch-ua",
+                    "value": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\""
+                  },
+                  {
+                    "key": "sec-ch-ua-mobile",
+                    "value": "?0"
+                  },
+                  {
+                    "key": "sec-ch-ua-platform",
+                    "value": "\"Linux\""
+                  },
+                  {
+                    "key": "sec-fetch-dest",
+                    "value": "empty"
+                  },
+                  {
+                    "key": "sec-fetch-mode",
+                    "value": "cors"
+                  },
+                  {
+                    "key": "sec-fetch-site",
+                    "value": "same-origin"
+                  },
+                  {
+                    "key": "user-agent",
+                    "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "type": "text",
+                      "key": "username",
+                      "value": "{{USERNAMe15}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "password",
+                      "value": "{{PASSWORd15}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "userType",
+                      "value": "{{TYPe15}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "tenantId",
+                      "value": "{{TENANTId15}}"
+                    },
+                    {
+                      "type": "text",
+                      "key": "scope",
+                      "value": "read"
+                    },
+                    {
+                      "type": "text",
+                      "key": "grant_type",
+                      "value": "password"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/oauth/token?_=1700804704480",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "oauth",
+                    "token"
+                  ],
+                  "query": [
+                    {
+                      "key": "_",
+                      "value": "1700804704480"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-f3e60c4b-681a-4443-96ca-ad19da823e38"
+            }
+          ],
+          "id": "ab138af5-160a-4eb8-88bd-06f059034d0d",
+          "uid": "32355655-ab138af5-160a-4eb8-88bd-06f059034d0d"
+        },
+        {
+          "name": "SearchUser",
+          "item": [
+            {
+              "name": "Tc_Sc_System_002",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "8c8eec5c-25ca-4247-a524-8bf8bb77c147",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "2bab5397-c88d-4403-8a83-aa7448c09e43",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token13}}\"\r\n    },\r\n   \"type\": \"EMPLOYEE\",\r\n    \"active\": \"true\",\r\n    \"uuid\": [\r\n        \"{{UUIDSYS2}}\"\r\n    ],\r\n    \"tenantId\": \"pg\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/_search",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "_search"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-2bab5397-c88d-4403-8a83-aa7448c09e43"
+            },
+            {
+              "name": "Tc_Sc_cityzen_006",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "632443d9-8f2f-4578-98e3-d20d5fbc4379",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "a8de6dc8-f979-4e87-848a-682d5a388c98",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token13}}\"\r\n    },\r\n    \"type\": \"CITIZEN\",\r\n    \"active\": \"true\",\r\n    \"uuid\": [\r\n        \"{{UUIDcity6}}\"\r\n    ],\r\n    \"tenantId\": \"pg\"\r\n}\r\n\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/_search",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "_search"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-a8de6dc8-f979-4e87-848a-682d5a388c98"
+            },
+            {
+              "name": "Tc_Sc_emp_005",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "e2275e73-7496-47a8-bf5d-2c36ae344472",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "f6aa0372-4d26-42d7-84a1-d301ca479b8b",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token13}}\"\r\n    },\r\n    \"type\": \"EMPLOYEE\",\r\n    \"active\": \"true\",\r\n      \"uuid\": [\r\n        \"{{UUIDemp5}}\"\r\n    ],\r\n    \"tenantId\": \"pg.citya\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/_search",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "_search"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-f6aa0372-4d26-42d7-84a1-d301ca479b8b"
+            }
+          ],
+          "id": "83252128-c3ca-4870-be8b-e3af121cd1b7",
+          "uid": "32355655-83252128-c3ca-4870-be8b-e3af121cd1b7"
+        },
+        {
+          "name": "UpdateProfile",
+          "item": [
+            {
+              "name": "Tc_update_Emp_13",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "408726b5-9c72-4017-a3f9-c38f06126c46",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "a5007df3-e68a-4ae3-8705-06df63144aa1",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "authority",
+                    "value": "digit-lts.digit.org"
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json, text/plain, */*"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en-US,en;q=0.9"
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/json;charset=UTF-8"
+                  },
+                  {
+                    "key": "cookie",
+                    "value": "_ga=GA1.1.24958639.1705385219; _ga_V8656WJB3Z=GS1.1.1705387149.1.0.1705387163.0.0.0; __cuid=fbea9e1d7aa64a6081daea421f2810c8; amp_fef1e8=a8820a05-e48e-4cad-a2b8-fd9fc70558cfR...1hniiufbl.1hniiufbm.5e.3.5h; _ga_H9YC8FEN6F=GS1.1.1708947094.10.1.1708947115.39.0.0"
+                  },
+                  {
+                    "key": "origin",
+                    "value": "https://digit-lts.digit.org"
+                  },
+                  {
+                    "key": "referer",
+                    "value": "https://digit-lts.digit.org/digit-ui/employee/user/profile"
+                  },
+                  {
+                    "key": "sec-ch-ua",
+                    "value": "\"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Google Chrome\";v=\"122\""
+                  },
+                  {
+                    "key": "sec-ch-ua-mobile",
+                    "value": "?0"
+                  },
+                  {
+                    "key": "sec-ch-ua-platform",
+                    "value": "\"Windows\""
+                  },
+                  {
+                    "key": "sec-fetch-dest",
+                    "value": "empty"
+                  },
+                  {
+                    "key": "sec-fetch-mode",
+                    "value": "cors"
+                  },
+                  {
+                    "key": "sec-fetch-site",
+                    "value": "same-origin"
+                  },
+                  {
+                    "key": "user-agent",
+                    "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"user\": {\r\n        \"id\": {{ID13}},\r\n        \"uuid\": \"{{UUID13}}\",\r\n        \"userName\": \"{{USERNAMe13}}\",\r\n        \"name\": \"gudduu1\",\r\n        \"mobileNumber\": \"9353822214\",\r\n        \"emailId\": \"xyz123@egovernments.org\",\r\n        \"locale\": \"string\",\r\n        \"type\": \"{{TYPe13}}\",\r\n        \"roles\": [\r\n            {\r\n                \"name\": \"Employee\",\r\n                \"code\": \"EMPLOYEE\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"Grievance Routing Officer\",\r\n                \"code\": \"GRO\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"System user\",\r\n                \"code\": \"SYSTEM\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"Super User\",\r\n                \"code\": \"SUPERUSER\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"HRMS ADMIN\",\r\n                \"code\": \"HRMS_ADMIN\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"Department Grievance Routing Officer\",\r\n                \"code\": \"DGRO\",\r\n                \"tenantId\": \"pg\"\r\n            }\r\n        ],\r\n        \"active\": true,\r\n        \"tenantId\": \"{{TENANTId13}}\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"gender\": \"MALE\",\r\n        \"photo\": null\r\n    },\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"Rainmaker\",\r\n        \"authToken\": \"{{Token13}}\",\r\n        \"msgId\": \"1710244148558|en_IN\"\r\n    }\r\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/profile/_update?tenantId=pg&_=1710244148558",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "profile",
+                    "_update"
+                  ],
+                  "query": [
+                    {
+                      "key": "tenantId",
+                      "value": "pg"
+                    },
+                    {
+                      "key": "_",
+                      "value": "1710244148558"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-a5007df3-e68a-4ae3-8705-06df63144aa1"
+            }
+          ],
+          "id": "566c50ab-e022-40c4-acb2-28aab819cf35",
+          "uid": "32355655-566c50ab-e022-40c4-acb2-28aab819cf35"
+        },
+        {
+          "name": "UpdatePassWord",
+          "item": [
+            {
+              "name": "Tc_UP_emp_015",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "7be65bb5-9df4-4d8f-9d62-ed64acc42b99",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "d20b7db3-3e4d-4134-bab3-7f7c3f250e67",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "authority",
+                    "value": "digit-lts.digit.org"
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json, text/plain, */*"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en-US,en;q=0.9"
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/json;charset=UTF-8"
+                  },
+                  {
+                    "key": "cookie",
+                    "value": "_ga=GA1.1.24958639.1705385219; _ga_V8656WJB3Z=GS1.1.1705387149.1.0.1705387163.0.0.0; __cuid=fbea9e1d7aa64a6081daea421f2810c8; amp_fef1e8=a8820a05-e48e-4cad-a2b8-fd9fc70558cfR...1hniiufbl.1hniiufbm.5e.3.5h; _ga_H9YC8FEN6F=GS1.1.1708947094.10.1.1708947115.39.0.0"
+                  },
+                  {
+                    "key": "origin",
+                    "value": "https://digit-lts.digit.org"
+                  },
+                  {
+                    "key": "referer",
+                    "value": "https://digit-lts.digit.org/digit-ui/employee/user/profile"
+                  },
+                  {
+                    "key": "sec-ch-ua",
+                    "value": "\"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Google Chrome\";v=\"122\""
+                  },
+                  {
+                    "key": "sec-ch-ua-mobile",
+                    "value": "?0"
+                  },
+                  {
+                    "key": "sec-ch-ua-platform",
+                    "value": "\"Windows\""
+                  },
+                  {
+                    "key": "sec-fetch-dest",
+                    "value": "empty"
+                  },
+                  {
+                    "key": "sec-fetch-mode",
+                    "value": "cors"
+                  },
+                  {
+                    "key": "sec-fetch-site",
+                    "value": "same-origin"
+                  },
+                  {
+                    "key": "user-agent",
+                    "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"existingPassword\": \"{{PASSWORd15}}\",\r\n    \"newPassword\": \"MnK@123s\",\r\n    \"tenantId\": \"{{TENANTId15}}\",\r\n    \"type\": \"{{TYPe15}}\",\r\n    \"username\": \"{{USERNAMe15}}\",\r\n    \"confirmPassword\": \"MnK@123s\",\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"Rainmaker\",\r\n        \"authToken\": \"{{Token15}}\",\r\n        \"msgId\": \"1710307196723|en_IN\"\r\n    }\r\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/user/password/_update?tenantId=pg&_=1710307196723",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "password",
+                    "_update"
+                  ],
+                  "query": [
+                    {
+                      "key": "tenantId",
+                      "value": "pg"
+                    },
+                    {
+                      "key": "_",
+                      "value": "1710307196723"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-d20b7db3-3e4d-4134-bab3-7f7c3f250e67"
+            }
+          ],
+          "id": "29da5f1e-7152-4121-b842-9991e266e401",
+          "uid": "32355655-29da5f1e-7152-4121-b842-9991e266e401"
+        }
+      ],
+      "variable": [
+        {
+          "key": "variable_key",
+          "value": ""
+        },
+        {
+          "key": "USERNAME",
+          "value": ""
+        },
+        {
+          "key": "PASSWORD",
+          "value": ""
+        },
+        {
+          "key": "TYPE",
+          "value": ""
+        },
+        {
+          "key": "TENANTID",
+          "value": ""
+        },
+        {
+          "key": "USERNAMe",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd",
+          "value": ""
+        },
+        {
+          "key": "TYPe",
+          "value": ""
+        },
+        {
+          "key": "TENANTId",
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "key": "ID",
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "key": "USERNAMe13",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd13",
+          "value": ""
+        },
+        {
+          "key": "TYPe13",
+          "value": ""
+        },
+        {
+          "key": "TENANTId13",
+          "value": ""
+        },
+        {
+          "key": "ID13",
+          "value": ""
+        },
+        {
+          "key": "USERNAMe6",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd6",
+          "value": ""
+        },
+        {
+          "key": "TYPe6",
+          "value": ""
+        },
+        {
+          "key": "TENANTId6",
+          "value": ""
+        },
+        {
+          "key": "ID6",
+          "value": ""
+        },
+        {
+          "key": "USERNAMe2",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd2",
+          "value": ""
+        },
+        {
+          "key": "TYPe2",
+          "value": ""
+        },
+        {
+          "key": "TENANTId2",
+          "value": ""
+        },
+        {
+          "key": "UUID",
+          "value": ""
+        },
+        {
+          "key": "UUIDSYS",
+          "value": ""
+        },
+        {
+          "key": "UUIDEMP6",
+          "value": ""
+        },
+        {
+          "key": "UUIDcity6",
+          "value": ""
+        },
+        {
+          "key": "UUIDemp5",
+          "value": ""
+        },
+        {
+          "key": "USERNAMeUpCity&",
+          "value": ""
+        },
+        {
+          "key": "PASSWORdUpCity",
+          "value": ""
+        },
+        {
+          "key": "TYPeUpCity",
+          "value": ""
+        },
+        {
+          "key": "TENANTIdUpCity",
+          "value": ""
+        },
+        {
+          "key": "USERNAMeUpCity7&",
+          "value": ""
+        },
+        {
+          "key": "PASSWORdUpCity7",
+          "value": ""
+        },
+        {
+          "key": "TYPeUpCity7",
+          "value": ""
+        },
+        {
+          "key": "TENANTIdUpCity7",
+          "value": ""
+        },
+        {
+          "key": "UUIDCITY7",
+          "value": ""
+        },
+        {
+          "key": "USERNAMeemp5",
+          "value": ""
+        },
+        {
+          "key": "PASSWORdemp5",
+          "value": ""
+        },
+        {
+          "key": "TYPeemp5",
+          "value": ""
+        },
+        {
+          "key": "TENANTIdemp5",
+          "value": ""
+        },
+        {
+          "key": "USERNAMe3",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd3",
+          "value": ""
+        },
+        {
+          "key": "TYPe3",
+          "value": ""
+        },
+        {
+          "key": "TENANTId3",
+          "value": ""
+        },
+        {
+          "key": "ID3",
+          "value": ""
+        },
+        {
+          "key": "UUID13",
+          "value": ""
+        },
+        {
+          "key": "USERNAMe14",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd14",
+          "value": ""
+        },
+        {
+          "key": "TYPe14",
+          "value": ""
+        },
+        {
+          "key": "TENANTId14",
+          "value": ""
+        },
+        {
+          "key": "ID14",
+          "value": ""
+        },
+        {
+          "key": "UUIDcity14",
+          "value": ""
+        },
+        {
+          "key": "USERNAMe4",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd4",
+          "value": ""
+        },
+        {
+          "key": "TYPe4",
+          "value": ""
+        },
+        {
+          "key": "TENANTId4",
+          "value": ""
+        },
+        {
+          "key": "ID4 ",
+          "value": ""
+        },
+        {
+          "key": "UUID4",
+          "value": ""
+        },
+        {
+          "key": "USERNAMe15",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd15",
+          "value": ""
+        },
+        {
+          "key": "TYPe15",
+          "value": ""
+        },
+        {
+          "key": "TENANTId15",
+          "value": ""
+        },
+        {
+          "key": "ID15",
+          "value": ""
+        },
+        {
+          "key": "UUID15",
+          "value": ""
+        },
+        {
+          "key": "UUIDSYS2",
+          "value": ""
+        },
+        {
+          "key": "TokenEncry",
+          "value": ""
+        }
+      ]
+    }
+  }
