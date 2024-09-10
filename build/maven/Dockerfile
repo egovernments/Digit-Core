@@ -24,6 +24,8 @@ WORKDIR /opt/egov
 
 COPY --from=build /app/target/*.jar /app/start.sh /opt/egov/
 
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.25.0/opentelemetry-javaagent.jar /opt/egov/opentelemetry-javaagent.jar
+
 RUN chmod +x /opt/egov/start.sh
 
 CMD ["/opt/egov/start.sh"]
