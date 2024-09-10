@@ -13,15 +13,7 @@ fi
 # Set OpenTelemetry and application-specific settings from environment variables, with defaults
 export JAVA_OPTS="${JAVA_OPTS} \
 -javaagent:/opt/egov/opentelemetry-javaagent.jar \
--Dserver.port=${SERVER_PORT:-8094} \
--Dmanagement.endpoints.web.base-path=${MANAGEMENT_ENDPOINTS_WEB_BASE_PATH:-/} \
--Dserver.context-path=${SERVER_CONTEXT_PATH:-/egov-mdms-service} \
--Dserver.servlet.context-path=${SERVER_SERVLET_CONTEXT_PATH:-/egov-mdms-service} \
--Dapp.timezone=${APP_TIMEZONE:-UTC} \
--Degov.mdms.conf.path=${EGOV_MDMS_CONF_PATH:-/D:/egov/mdms/IN_UK_MDMSDATA} \
--Degov.mdms.stopOnAnyConfigError=${EGOV_MDMS_STOP_ON_ANY_CONFIG_ERROR:-true} \
 -Dotel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://my-release-signoz-otel-collector.platform.svc.cluster.local:4317} \
--Dotel.resource.attributes=${OTEL_RESOURCE_ATTRIBUTES:-service.name=egov-mdms-service} \
 -Dotel.traces.exporter=${OTEL_TRACES_EXPORTER:-otlp} \
 -Dotel.metrics.exporter=${OTEL_METRICS_EXPORTER:-otlp} \
 -Dotel.logs.exporter=${OTEL_LOGS_EXPORTER:-otlp}"
