@@ -16,10 +16,10 @@ import java.util.List;
 public class ApplicationProperties {
 
     @Value("${egov.auth-service-host}")
-    private  String authServiceHost;
+    private String authServiceHost;
 
     @Value("${egov.auth-service-uri}")
-    private  String authUri;
+    private String authUri;
 
     @Value("${egov.auth-service-host}${egov.user.search.path}")
     private String userSearchURI;
@@ -38,6 +38,7 @@ public class ApplicationProperties {
     private List<String> openEndpointsWhitelist;
 
     private List<String> mixedModeEndpointsWhitelist;
+
     @Value("${egov.encrypted-endpoints-list}")
     public void setEncryptedUrlListValues(List<String> encryptedListFromProperties) {
         this.encryptedUrlSet = Collections.unmodifiableList(encryptedListFromProperties);
