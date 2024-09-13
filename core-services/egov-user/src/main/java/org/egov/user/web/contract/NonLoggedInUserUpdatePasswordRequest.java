@@ -1,7 +1,7 @@
 package org.egov.user.web.contract;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.model.enums.UserType;
