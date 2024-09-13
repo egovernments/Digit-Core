@@ -1,21 +1,32 @@
 package org.egov.infra.indexer.util;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
-import com.github.zafarkhaja.semver.UnexpectedCharacterException;
-import com.github.zafarkhaja.semver.Version;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.infra.indexer.consumer.config.ReindexConsumerConfig;
 import org.egov.infra.indexer.models.AuditDetails;
 import org.egov.infra.indexer.producer.IndexerProducer;
 import org.egov.infra.indexer.service.ServiceRequestRepository;
-import org.egov.infra.indexer.web.contract.*;
+import org.egov.infra.indexer.web.contract.APIDetails;
+import org.egov.infra.indexer.web.contract.FilterMapping;
+import org.egov.infra.indexer.web.contract.Index;
+import org.egov.infra.indexer.web.contract.ReindexRequest;
+import org.egov.infra.indexer.web.contract.UriMapping;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
@@ -25,19 +36,29 @@ import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
+import com.github.zafarkhaja.semver.Version;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -47,6 +68,7 @@ public class IndexerUtils {
 	private RestTemplate restTemplate;
 
 	@Autowired
+	@Lazy
 	private ReindexConsumerConfig kafkaConsumerConfig;
 
 	private Version defaultSemVer;
@@ -82,6 +104,15 @@ public class IndexerUtils {
 	@Value("${id.timezone}")
 	private String timezone;
 
+	@Value("${egov.indexer.es.username}")
+	private String esUsername;
+
+	@Value("${egov.indexer.es.password}")
+	private String esPassword;
+
+	@Value("${egov.infra.indexer.legacy.version}")
+	private Boolean isLegacyVersionES;
+
 	@Autowired
 	private IndexerProducer producer;
 
@@ -109,8 +140,15 @@ public class IndexerUtils {
 					Object response = null;
 					try {
 						StringBuilder url = new StringBuilder();
-						url.append(esHostUrl).append("/_search");
-						response = restTemplate.getForObject(url.toString(), Map.class);
+						url.append(esHostUrl).append("/_cluster/health");
+						if (isLegacyVersionES) {
+							response = restTemplate.getForObject(url.toString(), Map.class);
+						} else {
+							final HttpHeaders headers = new HttpHeaders();
+							headers.add("Authorization", getESEncodedCredentials());
+							final HttpEntity entity = new HttpEntity(headers);
+							response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
+						}
 					} catch (Exception e) {
 						log.error("ES is DOWN..");
 					}
@@ -753,5 +791,12 @@ public class IndexerUtils {
 		}catch (UnexpectedCharacterException e){
 			return defaultSemVer;
 		}
+	}
+
+	public String getESEncodedCredentials() {
+		String credentials = esUsername + ":" + esPassword;
+		byte[] credentialsBytes = credentials.getBytes();
+		byte[] base64CredentialsBytes = Base64Utils.encode(credentialsBytes);
+		return "Basic " + new String(base64CredentialsBytes);
 	}
 }
