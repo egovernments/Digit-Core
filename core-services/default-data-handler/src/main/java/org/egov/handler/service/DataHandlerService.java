@@ -3,6 +3,9 @@ package org.egov.handler.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import aj.org.objectweb.asm.TypeReference;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.handler.config.ServiceConfiguration;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.egov.handler.config.ServiceConstants.TENANT_BOUNDARY_SCHEMA;
 
@@ -43,12 +47,12 @@ public class DataHandlerService {
 
 	@Autowired
 	public DataHandlerService(MdmsV2Util mdmsV2Util,
-							  LocalizationUtil localizationUtil,
-							  TenantManagementUtil tenantManagementUtil,
-							  ServiceConfiguration serviceConfig,
-							  ObjectMapper objectMapper,
-							  ResourceLoader resourceLoader,
-							  WorkflowUtil workflowUtil) {
+			LocalizationUtil localizationUtil,
+			TenantManagementUtil tenantManagementUtil,
+			ServiceConfiguration serviceConfig,
+			ObjectMapper objectMapper,
+			ResourceLoader resourceLoader,
+			WorkflowUtil workflowUtil) {
 		this.mdmsV2Util = mdmsV2Util;
 		this.localizationUtil = localizationUtil;
 		this.tenantManagementUtil = tenantManagementUtil;
@@ -62,7 +66,7 @@ public class DataHandlerService {
 		if (defaultDataRequest.getSchemaCodes() != null) {
 			if (defaultDataRequest.getSchemaCodes().contains(TENANT_BOUNDARY_SCHEMA)) {
 				createTenantBoundarydata(defaultDataRequest.getRequestInfo(), defaultDataRequest.getTargetTenantId());
-//				defaultDataRequest.getSchemaCodes().remove(TENANT_BOUNDARY_SCHEMA);
+				// defaultDataRequest.getSchemaCodes().remove(TENANT_BOUNDARY_SCHEMA);
 			}
 			DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
 					.requestInfo(defaultDataRequest.getRequestInfo())
@@ -104,9 +108,10 @@ public class DataHandlerService {
 					.schemaDefinition(schemaDefinition)
 					.build();
 			mdmsV2Util.createMdmsSchema(schemaDefinitionRequest);
-			//Search data for the schema code in default tenetId
-			List<Mdms> mdmsList = getAllMdmsResults(serviceConfig.getDefaultTenantId(), schemaDefinition.getCode(), requestInfo);
-			//Create schema data in the given tenantId
+			// Search data for the schema code in default tenetId
+			List<Mdms> mdmsList = getAllMdmsResults(serviceConfig.getDefaultTenantId(), schemaDefinition.getCode(),
+					requestInfo);
+			// Create schema data in the given tenantId
 			for (Mdms mdms : mdmsList) {
 				mdms.setTenantId(targetTenantId);
 
@@ -118,7 +123,8 @@ public class DataHandlerService {
 					// Modify the 'code' field within the 'boundary' node
 					boundaryNode.put("code", targetTenantId);
 
-					// Set the modified 'data' back to the Mdms object (optional, since it's mutable)
+					// Set the modified 'data' back to the Mdms object (optional, since it's
+					// mutable)
 					((ObjectNode) dataNode).set("boundary", boundaryNode);
 					mdms.setData(dataNode);
 				} else {
@@ -170,7 +176,8 @@ public class DataHandlerService {
 	}
 
 	public void createTenantConfig(TenantRequest tenantRequest) {
-		TenantConfigResponse tenantConfigSearchResponse = tenantManagementUtil.searchTenantConfig(serviceConfig.getDefaultTenantId(), tenantRequest.getRequestInfo());
+		TenantConfigResponse tenantConfigSearchResponse = tenantManagementUtil
+				.searchTenantConfig(serviceConfig.getDefaultTenantId(), tenantRequest.getRequestInfo());
 		List<TenantConfig> tenantConfigList = tenantConfigSearchResponse.getTenantConfigs();
 
 		for (TenantConfig tenantConfig : tenantConfigList) {
@@ -241,7 +248,8 @@ public class DataHandlerService {
 		// Load the JSON file
 		Resource resource = resourceLoader.getResource("classpath:PgrWorkflowConfig.json");
 		try (InputStream inputStream = resource.getInputStream()) {
-			BusinessServiceRequest businessServiceRequest = objectMapper.readValue(inputStream, BusinessServiceRequest.class);
+			BusinessServiceRequest businessServiceRequest = objectMapper.readValue(inputStream,
+					BusinessServiceRequest.class);
 			businessServiceRequest.getBusinessServices().forEach(service -> service.setTenantId(targetTenantId));
 			workflowUtil.createWfConfig(businessServiceRequest);
 		} catch (IOException e) {
@@ -260,4 +268,62 @@ public class DataHandlerService {
 			}
 		}
 	}
+
+	public void addMdmsData(DataSetupRequest dataSetupRequest) {
+
+		Resource resource = resourceLoader.getResource("classpath:MDMS.json");
+
+		try (InputStream inputStream = resource.getInputStream()) {
+
+					JsonNode rootNode = objectMapper.readTree(inputStream);
+					Map<String, List<Mdms>> mdmsMap = new HashMap<>();
+			
+					// Iterate over each module (PGR, HRMS, etc.)
+					Iterator<Map.Entry<String, JsonNode>> fields = rootNode.fields();
+					while (fields.hasNext()) {
+						Map.Entry<String, JsonNode> field = fields.next();
+						String module = field.getKey();
+						JsonNode moduleNode = field.getValue();
+			
+						// Convert the module node to List<Mdms>
+						List<Mdms> mdmsList = new ArrayList<>();
+						if (moduleNode.isArray()) {
+							for (JsonNode itemNode : moduleNode) {
+								Mdms mdms = objectMapper.treeToValue(itemNode, Mdms.class);
+								mdms.setData(itemNode);
+								mdmsList.add(mdms);
+							}
+						}
+			
+						mdmsMap.put(module, mdmsList);
+					}
+			
+			// Get the target tenant ID from the request
+			String targetTenantId = dataSetupRequest.getTargetTenantId();
+			
+			// Filter the mdmsData based on the targetTenantId if needed
+			List<Mdms> filteredMdmsData = mdmsMap.get(dataSetupRequest.getModule());
+
+			// Iterate over each filtered Mdms entry and create an MDMS entry
+			for (Mdms mdms : filteredMdmsData) {
+
+				mdms.setTenantId(targetTenantId);
+				mdms.setSchemaCode("ACCESSCONTROL-ROLEACTIONS.roleactions");
+				String uniqueId = mdms.getData().get("actionid").asText()+"."+mdms.getData().get("rolecode").asText();
+				mdms.setUniqueIdentifier(uniqueId);
+				// Build an MdmsRequest for each entry
+				MdmsRequest mdmsRequest = MdmsRequest.builder()
+						.requestInfo(dataSetupRequest.getRequestInfo())
+						.mdms(mdms) // Assuming MdmsRequest has a field to set Mdms data
+						.build();
+
+				// Call createMdmsData for each mdmsRequest
+				mdmsV2Util.createMdmsData(mdmsRequest);
+			}
+
+		} catch (IOException e) {
+			throw new CustomException("IO_EXCEPTION", "Error reading or mapping JSON file: " + e.getMessage());
+		}
+	}
+
 }

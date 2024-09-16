@@ -31,6 +31,7 @@ public class DataHandlerController {
 
 	@RequestMapping(value = "/defaultdata/setup", method = RequestMethod.POST)
 	public ResponseEntity<DataSetupResponse> DefaultDataCreatePost(@Valid @RequestBody DataSetupRequest dataSetupRequest) {
+		dataHandlerService.addMdmsData(dataSetupRequest);
 		DefaultDataRequest defaultDataRequest = dataHandlerService.setupDefaultData(dataSetupRequest);
 		ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(dataSetupRequest.getRequestInfo(), true);
 
