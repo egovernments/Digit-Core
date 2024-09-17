@@ -1,0 +1,45 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "cf89c8d0-3a2e-4596-9b33-a0a502e98198",
+            "tenantId": "pg",
+            "code": "common-masters.IdFormat",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "format",
+                    "idname"
+                ],
+                "x-unique": [
+                    "idname"
+                ],
+                "properties": {
+                    "format": {
+                        "type": "string"
+                    },
+                    "idname": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "lastModifiedBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "createdTime": 1701688795683,
+                "lastModifiedTime": 1701688795683
+            }
+        }
+    ]
+}

@@ -2,9 +2,8 @@ package org.egov.access.web.contract.action;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
+import jakarta.validation.constraints.Size;
 import org.egov.access.domain.criteria.ActionSearchCriteria;
 import org.egov.access.domain.model.Action;
 import org.egov.common.contract.request.RequestInfo;
@@ -23,7 +22,6 @@ import lombok.NoArgsConstructor;
 
 public class ActionRequest {
 
-	@NotNull
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo;
 	private List<String> roleCodes;

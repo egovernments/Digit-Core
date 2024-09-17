@@ -3,7 +3,7 @@ package org.egov.infra.indexer.custom.pt;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 @Getter
 @Setter

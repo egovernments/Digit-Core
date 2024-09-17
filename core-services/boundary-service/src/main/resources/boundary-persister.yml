@@ -1,0 +1,122 @@
+serviceMaps:
+  serviceName: boundary-Service
+  mappings:
+    - version: 1.0
+      description: Persists the boundary entity data
+      fromTopic: create-boundary-entity
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary (id, tenantId, code, geometry, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Boundary.*
+          jsonMaps:
+            - jsonPath: $.Boundary.*.id
+
+            - jsonPath: $.Boundary.*.tenantId
+
+            - jsonPath: $.Boundary.*.code
+
+            - jsonPath: $.Boundary.*.geometry
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.auditDetails.createdBy
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Boundary.*.auditDetails.createdTime
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedTime
+    - version: 1.0
+      description: Persists the boundary entity data
+      fromTopic: update-boundary-entity
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE boundary SET geometry = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE code = ? AND tenantId = ?;
+          basePath: $.Boundary.*
+          jsonMaps:
+            - jsonPath: $.Boundary.*.geometry
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.Boundary.*.code
+
+            - jsonPath: $.Boundary.*.tenantId
+    - version: 1.0
+      description: Persists the boundary hierarchy definition data
+      fromTopic: save-boundary-hierarchy-definition
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary_hierarchy (id, tenantId, hierarchyType, boundaryHierarchy, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.BoundaryHierarchy
+          jsonMaps:
+            - jsonPath: $.BoundaryHierarchy.id
+
+            - jsonPath: $.BoundaryHierarchy.tenantId
+
+            - jsonPath: $.BoundaryHierarchy.hierarchyType
+
+            - jsonPath: $.BoundaryHierarchy.boundaryHierarchyJsonNode
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.createdTime
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.createdBy
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.lastModifiedBy
+    - version: 1.0
+      description: Persists the boundary relationship data
+      fromTopic: save-boundary-relationship
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary_relationship (id, tenantId, code, hierarchyType, boundaryType, parent, ancestralMaterializedPath, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.BoundaryRelationship
+          jsonMaps:
+            - jsonPath: $.BoundaryRelationship.id
+
+            - jsonPath: $.BoundaryRelationship.tenantId
+
+            - jsonPath: $.BoundaryRelationship.code
+
+            - jsonPath: $.BoundaryRelationship.hierarchyType
+
+            - jsonPath: $.BoundaryRelationship.boundaryType
+
+            - jsonPath: $.BoundaryRelationship.parent
+
+            - jsonPath: $.BoundaryRelationship.ancestralMaterializedPath
+
+            - jsonPath: $.BoundaryRelationship.auditDetails.createdTime
+
+            - jsonPath: $.BoundaryRelationship.auditDetails.createdBy
+
+            - jsonPath: $.BoundaryRelationship.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryRelationship.auditDetails.lastModifiedBy
+    - version: 1.0
+      description: Updates boundary relationship data
+      fromTopic: update-boundary-relationship
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE boundary_relationship SET parent = ?, ancestralmaterializedpath = ?, lastmodifiedtime = ?, lastmodifiedby = ? WHERE id = ?;
+          basePath: $.BoundaryRelationshipList.*
+          jsonMaps:
+            - jsonPath: $.BoundaryRelationshipList.*.parent
+
+            - jsonPath: $.BoundaryRelationshipList.*.ancestralMaterializedPath
+
+            - jsonPath: $.BoundaryRelationshipList.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryRelationshipList.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.BoundaryRelationshipList.*.id

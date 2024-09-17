@@ -41,9 +41,8 @@ package org.egov.pg.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import jakarta.validation.constraints.Max;
 import lombok.Data;
-
-import javax.validation.constraints.Max;
 import java.util.List;
 
 @Data

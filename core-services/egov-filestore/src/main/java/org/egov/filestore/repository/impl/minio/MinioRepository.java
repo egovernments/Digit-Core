@@ -17,6 +17,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import io.minio.PutObjectArgs;
+import io.minio.errors.*;
 import org.apache.commons.io.FilenameUtils;
 import org.egov.filestore.config.FileStoreConfig;
 import org.egov.filestore.domain.model.FileLocation;
@@ -33,14 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectOptions;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidExpiresRangeException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.MinioException;
-import io.minio.errors.XmlParserException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -88,9 +82,27 @@ public class MinioRepository implements CloudFilesManager {
 		try {
 			InputStream is = multipartFile.getInputStream();
 			long contentLength = multipartFile.getSize();
-			PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
+
+			/*PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
 			putObjectOptions.setContentType(multipartFile.getContentType());
-			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);
+			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);*/
+
+			long fileSize = is.available();
+			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
+					.bucket(minioConfig.getBucketName())
+					.object(fileNameWithPath)
+					.stream(is, fileSize, -1) // Set part size to -1 for auto detection
+					.contentType(multipartFile.getContentType()); // Change this as per your file's content type
+
+			// If the file is larger than 5 MB, set the part size explicitly (5 * 1024 * 1024 bytes)
+			/*if (fileSize > 5 * 1024 * 1024) {
+				putObjectArgsBuilder.  .partSize(5 * 1024 * 1024);
+			}*/
+
+			minioClient.putObject(putObjectArgsBuilder.build());
+
+
+
 			log.debug("Upload Successful");
 
 		} catch (MinioException | InvalidKeyException | IllegalArgumentException | NoSuchAlgorithmException
@@ -103,9 +115,17 @@ public class MinioRepository implements CloudFilesManager {
 
 	private void push(InputStream is, long contentLength, String contentType, String fileNameWithPath) {
 		try {
-			PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
+			/*PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
 			putObjectOptions.setContentType(contentType);
-			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);
+			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);*/
+
+			long fileSize = is.available();
+			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
+					.bucket(minioConfig.getBucketName())
+					.object(fileNameWithPath)
+					.stream(is, fileSize, -1) // Set part size to -1 for auto detection
+					.contentType(contentType); // Change this as per your file's content type
+			minioClient.putObject(putObjectArgsBuilder.build());
 
 		} catch (MinioException | InvalidKeyException | IllegalArgumentException | NoSuchAlgorithmException
 				| IOException e) {
@@ -186,11 +206,11 @@ public class MinioRepository implements CloudFilesManager {
 					fileStoreConfig.getPreSignedUrlTimeOut(), new HashMap<String, String>());
 		} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException | InsufficientDataException
 				| InternalException | InvalidBucketNameException | InvalidExpiresRangeException
-				| InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException e) {
+				| InvalidResponseException | NoSuchAlgorithmException | XmlParserException | ServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return signedUrl;
+        return signedUrl;
 	}
 
 	public Resource read(FileLocation fileLocation) {
@@ -204,9 +224,10 @@ public class MinioRepository implements CloudFilesManager {
 
 			try {
 				minioClient.getObject(minioConfig.getBucketName(), fileName, f.getName());
-			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException | InsufficientDataException
-					| InternalException | InvalidBucketNameException | InvalidResponseException
-					| NoSuchAlgorithmException | XmlParserException | IOException e) {
+			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException |
+                     InsufficientDataException | InternalException | InvalidBucketNameException |
+                     InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException |
+                     ServerException e) {
 				log.error("Error while downloading the file ", e);
 				Map<String, String> map = new HashMap<>();
 				map.put("ERROR_MINIO_DOWNLOAD",

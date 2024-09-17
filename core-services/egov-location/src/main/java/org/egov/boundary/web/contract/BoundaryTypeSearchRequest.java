@@ -1,6 +1,6 @@
 package org.egov.boundary.web.contract;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.egov.boundary.domain.model.BoundaryType;
 import org.egov.common.contract.request.RequestInfo;

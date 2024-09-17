@@ -1,0 +1,116 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "26aed672-5d5a-4280-a70a-ce784802d285",
+            "tenantId": "pg",
+            "code": "PropertyTax.CommonFieldsConfig",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "head",
+                    "body"
+                ],
+                "x-unique": [
+                    "head"
+                ],
+                "properties": {
+                    "body": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "route",
+                                "component",
+                                "nextStep",
+                                "key",
+                                "texts"
+                            ],
+                            "properties": {
+                                "key": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "route": {
+                                    "type": "string"
+                                },
+                                "texts": {
+                                    "type": "object",
+                                    "required": [
+                                        "header",
+                                        "cardText"
+                                    ],
+                                    "properties": {
+                                        "header": {
+                                            "type": "string"
+                                        },
+                                        "cardText": {
+                                            "type": "string"
+                                        },
+                                        "nextText": {
+                                            "type": "string"
+                                        },
+                                        "skipText": {
+                                            "type": "string"
+                                        },
+                                        "headerCaption": {
+                                            "type": "string"
+                                        },
+                                        "submitBarLabel": {
+                                            "type": "string"
+                                        },
+                                        "skipAndContinueText": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                },
+                                "nextStep": {
+                                    "type": "string"
+                                },
+                                "component": {
+                                    "type": "string"
+                                },
+                                "isMandatory": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "withoutLabel": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "hideInEmployee": {
+                                    "type": "boolean",
+                                    "default": true
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "head": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259916236,
+                "lastModifiedTime": 1701259916236
+            }
+        }
+    ]
+}

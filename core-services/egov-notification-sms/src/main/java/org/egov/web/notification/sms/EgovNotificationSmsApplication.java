@@ -3,6 +3,7 @@ package org.egov.web.notification.sms;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.*;
 import org.egov.hash.HashService;
 import org.egov.tracer.config.TracerConfiguration;
@@ -20,7 +21,6 @@ import org.springframework.kafka.annotation.*;
 import org.springframework.util.*;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.*;
 
 @SpringBootApplication
 @Import(TracerConfiguration.class)

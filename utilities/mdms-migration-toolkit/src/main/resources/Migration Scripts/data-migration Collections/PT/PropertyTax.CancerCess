@@ -1,0 +1,38 @@
+curl --location 'http://localhost:8094/mdms-v2/v2/_create/PropertyTax.CancerCess' \
+--header 'Content-Type: application/json' \
+--data '{
+    "RequestInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "action": null,
+        "did": null,
+        "key": null,
+        "msgId": "search with from and to values",
+        "authToken": "dfcca143-b5a6-4726-b5cd-c2c949cb0f2b",
+        "correlationId": null,
+        "userInfo": {
+            "id": "1",
+            "userName": null,
+            "name": null,
+            "type": null,
+            "mobileNumber": null,
+            "emailId": null,
+            "roles": null,
+            "uuid": "40dceade-992d-4a8f-8243-19dda76a4171"
+        }
+    },
+    "Mdms": {
+        "tenantId": "pg",
+        "schemaCode": "PropertyTax.CancerCess",
+        "data": {
+            "rate": 5,
+            "minAmount": null,
+            "flatAmount": null,
+            "maxAmount": null,
+            "fromFY": "2015-16"
+        },
+        "isActive": true
+    }
+}'
+

@@ -46,7 +46,6 @@ import java.util.Set;
 
 import org.egov.boundary.web.contract.BoundaryType;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.SafeHtml;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -57,7 +56,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -85,7 +84,6 @@ public class Boundary {
 	private Date toDate;
 	private boolean isHistory;
 	private Long bndryId;
-	@SafeHtml
 	private String localName;
 	private Float longitude;
 	private Float latitude;

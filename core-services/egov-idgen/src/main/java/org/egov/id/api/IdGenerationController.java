@@ -1,5 +1,6 @@
 package org.egov.id.api;
 
+import jakarta.validation.Valid;
 import org.egov.id.model.IdGenerationRequest;
 import org.egov.id.model.IdGenerationResponse;
 import org.egov.id.service.IdGenerationService;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 
 /**
  * api's related to the IdGeneration Controller

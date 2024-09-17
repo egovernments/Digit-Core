@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Service
 @Slf4j
@@ -51,7 +50,7 @@ public class OtpEmailRepository {
     }
 
     public void send(String emailId, String otpNumber, OtpRequest otpRequest) {
-    	if (isEmpty(emailId)) {
+    	if (emailId == null || emailId.isEmpty()) {
 			return;
 		}
 		sendEmail(emailId, otpNumber, otpRequest);

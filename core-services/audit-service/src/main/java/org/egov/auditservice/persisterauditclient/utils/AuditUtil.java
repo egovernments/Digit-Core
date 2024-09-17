@@ -2,6 +2,7 @@ package org.egov.auditservice.persisterauditclient.utils;
 
 import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.auditservice.persisterauditclient.models.contract.AuditAttributes;
 import org.egov.auditservice.persisterauditclient.models.contract.RowData;
@@ -10,7 +11,6 @@ import org.egov.auditservice.web.models.enums.OperationType;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import javax.annotation.PostConstruct;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;

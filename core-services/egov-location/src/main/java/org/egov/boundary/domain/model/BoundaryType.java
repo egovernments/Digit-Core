@@ -42,8 +42,8 @@ package org.egov.boundary.domain.model;
 
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import org.egov.boundary.web.contract.HierarchyType;
 

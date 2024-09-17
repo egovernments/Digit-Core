@@ -1,11 +1,11 @@
 package org.egov.pg.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.egov.common.contract.response.ResponseInfo;
 
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter

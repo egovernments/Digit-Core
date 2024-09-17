@@ -1,6 +1,6 @@
 package org.egov.infra.indexer.web.contract;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.egov.common.contract.request.RequestInfo;
 

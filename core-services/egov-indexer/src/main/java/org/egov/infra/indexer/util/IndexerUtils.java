@@ -8,9 +8,12 @@ import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.infra.indexer.consumer.config.CoreIndexConsumerConfig;
+import org.egov.infra.indexer.consumer.config.LegacyIndexConsumerConfig;
 import org.egov.infra.indexer.consumer.config.ReindexConsumerConfig;
 import org.egov.infra.indexer.models.AuditDetails;
 import org.egov.infra.indexer.producer.IndexerProducer;
@@ -29,8 +32,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import java.util.Base64;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -46,8 +52,8 @@ public class IndexerUtils {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Autowired
-	private ReindexConsumerConfig kafkaConsumerConfig;
+//	@Autowired
+//	private ReindexConsumerConfig kafkaConsumerConfig;
 
 	private Version defaultSemVer;
 
@@ -79,6 +85,12 @@ public class IndexerUtils {
 	@Value("${topic.push.enabled}")
 	private Boolean topicPushEnable;
 
+	@Value("${egov.indexer.es.username}")
+	private String esUsername;
+
+	@Value("${egov.indexer.es.password}")
+	private String esPassword;
+
 	@Value("${id.timezone}")
 	private String timezone;
 
@@ -99,7 +111,9 @@ public class IndexerUtils {
 	 *
 	 */
 	public void orchestrateListenerOnESHealth() {
-		kafkaConsumerConfig.pauseContainer();
+		ReindexConsumerConfig.pauseContainer();
+		CoreIndexConsumerConfig.pauseContainer();
+		LegacyIndexConsumerConfig.pauseContainer();
 		log.info("Polling ES....");
 		final Runnable esPoller = new Runnable() {
 			boolean threadRun = true;
@@ -110,13 +124,18 @@ public class IndexerUtils {
 					try {
 						StringBuilder url = new StringBuilder();
 						url.append(esHostUrl).append("/_search");
-						response = restTemplate.getForObject(url.toString(), Map.class);
+						final HttpHeaders headers = new HttpHeaders();
+						headers.add("Authorization", getESEncodedCredentials());
+						final HttpEntity entity = new HttpEntity( headers);
+						response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
 					} catch (Exception e) {
 						log.error("ES is DOWN..");
 					}
 					if (response != null) {
 						log.info("ES is UP!");
-						kafkaConsumerConfig.startContainer();
+						ReindexConsumerConfig.resumeContainer();
+						CoreIndexConsumerConfig.resumeContainer();
+						LegacyIndexConsumerConfig.resumeContainer();
 						threadRun = false;
 					}
 				}
@@ -238,6 +257,49 @@ public class IndexerUtils {
 		}
 		return serviceCallUri.toString();
 	}
+
+	public void fillJsonPath(Object request, String kafkaJson) {
+		try {
+			if (request instanceof Map) {
+				Map<String, Object> searchParamObject = (Map<String, Object>) request;
+				for (Map.Entry<String, Object> entry : searchParamObject.entrySet()) {
+					String key = entry.getKey();
+					Object value = entry.getValue();
+					if (value instanceof String && ((String) value).contains("$.")) {
+						Object filledValue = JsonPath.read(kafkaJson, (String) value);
+						if(filledValue instanceof String){
+							searchParamObject.put(key,filledValue.toString());
+						}
+						else{
+							searchParamObject.put(key, filledValue);
+						}
+					} else if (value instanceof Map) {
+						fillJsonPath(value, kafkaJson); // Recursive call for nested map
+					} else if (value instanceof List) {
+						List<Object> valueList = (List<Object>) value;
+						for (int i = 0; i < valueList.size(); i++) {
+							Object arrayItem = valueList.get(i);
+							if (arrayItem instanceof String && ((String) arrayItem).contains("$.")) {
+								Object filledArrayItem = JsonPath.read(kafkaJson, (String) arrayItem);
+								if(filledArrayItem instanceof String){
+									valueList.set(i,filledArrayItem.toString());
+								}
+								else{
+									valueList.set(i, filledArrayItem);
+								}
+							} else if (arrayItem instanceof Map) {
+								fillJsonPath(arrayItem, kafkaJson); // Recursive call for nested map within array
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error while filling JSONPath in searchParam: " + e.getMessage());
+		}
+	}
+
+
 
 
 	@Cacheable(value = "masterData", sync = true)
@@ -753,5 +815,12 @@ public class IndexerUtils {
 		}catch (UnexpectedCharacterException e){
 			return defaultSemVer;
 		}
+	}
+
+	public String getESEncodedCredentials() {
+		String credentials = esUsername + ":" + esPassword;
+		byte[] credentialsBytes = credentials.getBytes();
+		byte[] base64CredentialsBytes = Base64.getEncoder().encode(credentialsBytes);
+		return "Basic " + new String(base64CredentialsBytes);
 	}
 }

@@ -1,5 +1,6 @@
 package org.egov.access.web.controller;
 
+import jakarta.validation.Valid;
 import org.egov.access.domain.model.Action;
 import org.egov.access.domain.model.ActionValidation;
 import org.egov.access.domain.model.authorize.AuthorizationRequestWrapper;
@@ -26,7 +27,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.egov.access.web.contract.action.Module;
 
-import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;

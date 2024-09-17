@@ -14,9 +14,10 @@ import java.util.Map;
 import java.util.Set;
 
 
-import javax.annotation.PostConstruct;
 
 import com.fasterxml.jackson.core.type.*;
+import jakarta.annotation.PostConstruct;
+import net.minidev.json.JSONArray;
 import org.apache.commons.io.*;
 import org.egov.infra.mdms.utils.MDMSConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
 
 
 @Component

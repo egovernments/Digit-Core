@@ -1,10 +1,10 @@
 package org.egov.pg.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import javax.validation.constraints.NotNull;
 
 @Getter
 @AllArgsConstructor

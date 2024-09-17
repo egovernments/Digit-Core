@@ -5,14 +5,14 @@ import io.swagger.annotations.ApiModel;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Object with the value to be signed
  */
 @ApiModel(description = "Object with the value to be signed")
 @Validated
-@javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2018-10-11T17:31:52.360+05:30")
+@jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2018-10-11T17:31:52.360+05:30")
 
 @Getter
 @Setter

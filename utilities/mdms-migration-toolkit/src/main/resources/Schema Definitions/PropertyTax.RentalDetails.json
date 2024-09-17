@@ -1,0 +1,50 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "8a753a66-b755-4c2b-8b1d-16585c344af1",
+            "tenantId": "pg",
+            "code": "PropertyTax.RentalDetails",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "name",
+                    "code",
+                    "active"
+                ],
+                "x-unique": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259915520,
+                "lastModifiedTime": 1701259915520
+            }
+        }
+    ]
+}

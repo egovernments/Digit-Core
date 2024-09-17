@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minidev.json.JSONArray;
 import org.egov.MDMSApplicationRunnerImpl;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteriaReq;
@@ -14,7 +15,6 @@ import org.springframework.util.StringUtils;
 import com.jayway.jsonpath.JsonPath;
 
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
 
 @Service
 @Slf4j

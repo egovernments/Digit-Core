@@ -40,10 +40,10 @@
 package org.egov.pg.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.egov.common.contract.request.RequestInfo;
 
-import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
 @EqualsAndHashCode

@@ -8,12 +8,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Matchers.anyListOf;
+//import static org.mockito.Matchers.anyListOf;
+
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 
 
@@ -36,7 +38,7 @@ public class MessageRepositoryTest {
 
         messageRepository.save(domainMessages, user);
 
-        verify(messageJpaRepository).saveAll(anyListOf(Message.class));
+        verify(messageJpaRepository).saveAll(anyList());
     }
 
     List<org.egov.domain.model.Message> getDomainMessages() {

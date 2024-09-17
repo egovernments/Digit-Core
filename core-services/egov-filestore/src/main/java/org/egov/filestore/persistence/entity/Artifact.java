@@ -41,15 +41,15 @@
 package org.egov.filestore.persistence.entity;
 
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.egov.filestore.domain.model.FileLocation;
-import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.*;
 
 import static org.egov.filestore.persistence.entity.Artifact.SEQ_FILESTOREMAP;
 

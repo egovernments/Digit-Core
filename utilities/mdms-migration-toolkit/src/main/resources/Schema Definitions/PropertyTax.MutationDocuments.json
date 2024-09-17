@@ -1,0 +1,85 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "b2d040bc-eb72-4b8d-a4c6-622672525929",
+            "tenantId": "pg",
+            "code": "PropertyTax.MutationDocuments",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "code",
+                    "documentType",
+                    "required",
+                    "active",
+                    "hasDropdown",
+                    "dropdownData",
+                    "description"
+                ],
+                "x-unique": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "required": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "hasDropdown": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "documentType": {
+                        "type": "string"
+                    },
+                    "dropdownData": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "code",
+                                "active"
+                            ],
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "active": {
+                                    "type": "boolean",
+                                    "default": false
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259916724,
+                "lastModifiedTime": 1701259916724
+            }
+        }
+    ]
+}

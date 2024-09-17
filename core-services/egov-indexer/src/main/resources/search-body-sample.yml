@@ -1,0 +1,24 @@
+ServiceMaps:
+  serviceName: sample
+  version: 1.0.0
+  mappings:
+    - topic: sample-data-poc-1
+      configKey: INDEX
+      indexes:
+        - name: sample-data-poc
+          type: _doc
+          id: $.id
+          isBulk: false
+          jsonPath: $.request
+          timeStampField: $.time
+          customJsonMapping:
+            indexMapping: {"Data":{"a":"","b":""}}
+            fieldMapping:
+              - inJsonPath: $.billNumber
+                outJsonPath: $.Data.a
+            externalUriMapping:
+              - path: https://unified-dev.digit.org/expense/bill/v1/_search
+                apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"e6434d96-f962-4840-9c2a-621619c62c39","userInfo":{"id":73}},"billCriteria":{"tenantId":"pg.citya","businessService":"EXPENSE.PURCHASE","ids":[],"billNumbers":["$.billNumber"],"status":null},"pagination":{"limit":10,"offSet":0,"sortBy":"string","order":null}}
+                uriResponseMapping:
+                  - inJsonPath: $.bills[0].referenceId
+                    outJsonPath: $.Data.b

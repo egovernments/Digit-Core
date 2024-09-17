@@ -11,6 +11,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
 import org.egov.infra.indexer.consumer.LegacyIndexMessageListener;
 import org.egov.infra.indexer.web.contract.Mapping.ConfigKeyEnum;
+import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -28,7 +29,6 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 
 @Configuration
@@ -54,11 +54,11 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
 	
 	@Value("${egov.indexer.pgr.legacyindex.topic.name}")
 	private String pgrLegacyTopic;
-        
-    @Autowired
-    private StoppingErrorHandler stoppingErrorHandler;
-    
-    @Autowired
+
+	@Autowired
+	private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+
+	@Autowired
     private LegacyIndexMessageListener indexerMessageListener;
     
 	@Autowired
@@ -80,7 +80,7 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
     public String setTopics(){
     	String[] excludeArray = {ptLegacyTopic, pgrLegacyTopic};
     	int noOfExculdedTopics = 0;
-    	List<String> topicsList = runner.getTopicMaps().get(ConfigKeyEnum.LEGACYINDEX.toString());
+		List<String> topicsList = runner.getTopicMaps().get(ConfigKeyEnum.LEGACYINDEX.toString());
     	topicsList.add(legacyIndexTopic);
     	for(String excludeTopic: excludeArray) {
     		if(topicsList.contains(excludeTopic)) noOfExculdedTopics++;
@@ -118,7 +118,7 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setErrorHandler(stoppingErrorHandler);
+        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         
@@ -155,16 +155,27 @@ public class LegacyIndexConsumerConfig implements ApplicationRunner {
     	
     }
     
-    public boolean pauseContainer(){
+    public static boolean pauseContainer(){
     	try {
         	kafkContainer.stop();
 		} catch (Exception e) {
-			log.error("Container couldn't be started: ",e);
+			log.error("Container couldn't be paused: ", e);
 			return false;
 		}	   
-    	log.info("Custom KakfaListenerContainer STOPPED...");    	
+    	log.info("Custom KakfaListenerContainer PAUSED...");
 
     	return true;
     }
 
+	public static boolean resumeContainer(){
+		try {
+			kafkContainer.start();
+		} catch (Exception e) {
+			log.error("Container couldn't be started: ", e);
+			return false;
+		}
+		log.info("Custom KakfaListenerContainer STARTED...");
+
+		return true;
+	}
 }

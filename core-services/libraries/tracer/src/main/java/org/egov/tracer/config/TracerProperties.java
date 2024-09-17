@@ -24,8 +24,14 @@ public class TracerProperties {
     // Topic to which errors need to be published
     private String errorsTopic;
 
+    // Topic to which error details need to be published
+    private String errorDetailsTopic;
+
     // Exclusion list for tracer filter
     private String filterSkipPattern;
+
+    // Flag to enable exceptions caught on tracer interceptor to be persisted on ElasticSearch.
+    private boolean shouldPublishErrorDetailsFlag;
 
 }
 

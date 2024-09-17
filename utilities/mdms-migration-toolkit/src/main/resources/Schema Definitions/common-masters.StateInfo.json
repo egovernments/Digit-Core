@@ -1,0 +1,127 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "a88ed5d4-a77f-4de9-a575-edcd6c5da72f",
+            "tenantId": "pg",
+            "code": "common-masters.StateInfo",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "name",
+                    "code",
+                    "qrCodeURL",
+                    "bannerUrl",
+                    "logoUrl",
+                    "logoUrlWhite",
+                    "statelogo",
+                    "hasLocalisation",
+                    "defaultUrl",
+                    "languages",
+                    "localizationModules"
+                ],
+                "x-unique": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "logoUrl": {
+                        "type": "string"
+                    },
+                    "bannerUrl": {
+                        "type": "string"
+                    },
+                    "languages": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "label",
+                                "value"
+                            ],
+                            "properties": {
+                                "label": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "qrCodeURL": {
+                        "type": "string"
+                    },
+                    "statelogo": {
+                        "type": "string"
+                    },
+                    "defaultUrl": {
+                        "type": "object",
+                        "required": [
+                            "citizen",
+                            "employee"
+                        ],
+                        "properties": {
+                            "citizen": {
+                                "type": "string"
+                            },
+                            "employee": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "logoUrlWhite": {
+                        "type": "string"
+                    },
+                    "hasLocalisation": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "localizationModules": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "label",
+                                "value"
+                            ],
+                            "properties": {
+                                "label": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "lastModifiedBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "createdTime": 1701688795828,
+                "lastModifiedTime": 1701688795828
+            }
+        }
+    ]
+}

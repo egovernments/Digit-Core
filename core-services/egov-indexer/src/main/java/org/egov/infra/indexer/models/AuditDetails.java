@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 /**
  * Collection of audit related fields used by most models
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-02-23T09:30:28.401Z")
 
 @AllArgsConstructor
 @NoArgsConstructor

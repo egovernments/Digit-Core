@@ -1,24 +1,33 @@
 package org.egov.url.shortening.repository;
 
+import jakarta.annotation.PostConstruct;
 import org.egov.url.shortening.model.ShortenRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 
 @Repository
 @Order(2)
 public class URLRedisRepository implements URLRepository {
-    private final Jedis jedis;
-    private final String idKey;
-    private final String urlKey;
+    private Jedis jedis;
+    private String idKey;
+    private String urlKey;
     private static final Logger LOGGER = LoggerFactory.getLogger(URLRedisRepository.class);
+
+    @Value("${spring.redis.host}")
+    private String redisHost;
+
+    @Value("${spring.redis.port}")
+    private String redisPort;
     
     @Autowired
     private ObjectMapper objectMapper;
@@ -33,6 +42,12 @@ public class URLRedisRepository implements URLRepository {
         this.jedis = jedis;
         this.idKey = idKey;
         this.urlKey = urlKey;
+    }
+
+    @PostConstruct
+    private void init() {
+        HostAndPort hostAndPort = new HostAndPort(redisHost, Integer.valueOf(redisPort));
+        this.jedis = new Jedis(hostAndPort);
     }
 
     @Override

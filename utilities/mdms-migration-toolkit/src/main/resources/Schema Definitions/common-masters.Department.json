@@ -1,0 +1,50 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "e9f2bee6-689f-4bbe-a85f-4b3fb4b3e64a",
+            "tenantId": "pg",
+            "code": "common-masters.Department",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "name",
+                    "code",
+                    "active"
+                ],
+                "x-unique": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "lastModifiedBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "createdTime": 1701688795871,
+                "lastModifiedTime": 1701688795871
+            }
+        }
+    ]
+}

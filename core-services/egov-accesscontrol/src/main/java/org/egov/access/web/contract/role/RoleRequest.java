@@ -2,8 +2,8 @@ package org.egov.access.web.contract.role;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
 
+import jakarta.validation.constraints.NotNull;
 import org.egov.access.domain.model.Role;
 import org.egov.common.contract.request.RequestInfo;
 

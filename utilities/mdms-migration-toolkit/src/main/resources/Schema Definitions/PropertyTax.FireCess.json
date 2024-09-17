@@ -1,0 +1,90 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "6ce89ab3-cc44-428f-9386-2570761ae553",
+            "tenantId": "pg",
+            "code": "PropertyTax.FireCess",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "rate",
+                    "fromFY",
+                    "dynamicFirecess",
+                    "dynamicRates"
+                ],
+                "x-unique": [
+                    "fromFY"
+                ],
+                "properties": {
+                    "rate": {
+                        "type": "integer"
+                    },
+                    "fromFY": {
+                        "type": "string",
+                        "pattern": "^\\d\\d\\d\\d-\\d\\d$"
+                    },
+                    "maxAmount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "minAmount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "flatAmount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "dynamicRates": {
+                        "type": "object",
+                        "required": [
+                            "firecess_inflammable",
+                            "firecess_building_height",
+                            "firecess_category_major"
+                        ],
+                        "properties": {
+                            "firecess_inflammable": {
+                                "type": "integer"
+                            },
+                            "firecess_category_major": {
+                                "type": "integer"
+                            },
+                            "firecess_building_height": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "dynamicFirecess": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701259917492,
+                "lastModifiedTime": 1701259917492
+            }
+        }
+    ]
+}
