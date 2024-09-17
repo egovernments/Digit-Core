@@ -55,6 +55,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
@@ -151,7 +152,7 @@ public class UserService {
 
         /* encrypt here */
 
-        userSearchCriteria = encryptionDecryptionUtil.encryptObject(userSearchCriteria, "User", UserSearchCriteria.class);
+        userSearchCriteria = encryptionDecryptionUtil.encryptObject(userSearchCriteria, "User", UserSearchCriteria.class, tenantId);
         List<User> users = userRepository.findAll(userSearchCriteria);
 
         if (users.isEmpty())
@@ -202,7 +203,13 @@ public class UserService {
         	altmobnumber = searchCriteria.getMobileNumber();
         }
 
-        searchCriteria = encryptionDecryptionUtil.encryptObject(searchCriteria, "User", UserSearchCriteria.class);
+        /**
+         * TenantId is added to fetch the enc master data, making it mandatory for search
+         */
+        if(CollectionUtils.isEmpty(searchCriteria.getUuid()))
+        {
+            searchCriteria = encryptionDecryptionUtil.encryptObject(searchCriteria, "User", UserSearchCriteria.class, searchCriteria.getTenantId());
+        }
         
         if(altmobnumber!=null) {
         	searchCriteria.setAlternatemobilenumber(altmobnumber);
@@ -229,7 +236,7 @@ public class UserService {
         user.validateNewUser(createUserValidateName);
         conditionallyValidateOtp(user);
         /* encrypt here */
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
         validateUserUniqueness(user);
         if (isEmpty(user.getPassword())) {
             user.setPassword(UUID.randomUUID().toString());
@@ -364,7 +371,7 @@ public class UserService {
         validatePassword(user.getPassword());
         user.setPassword(encryptPwd(user.getPassword()));
         /* encrypt */
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
         userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
 
         // If user is being unlocked via update, reset failed login attempts
@@ -415,7 +422,7 @@ public class UserService {
      */
     public User partialUpdate(User user, RequestInfo requestInfo) {
         /* encrypt here */
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
 
         User existingUser = getUserByUuid(user.getUuid());
         validateProfileUpdateIsDoneByTheSameLoggedInUser(user);
@@ -489,7 +496,7 @@ public class UserService {
         user.updatePassword(encryptPwd(request.getNewPassword()));
         /* encrypt here */
         /* encrypted value is stored in DB*/
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
         userRepository.update(user, user,user.getId() , user.getUuid());
     }
 
