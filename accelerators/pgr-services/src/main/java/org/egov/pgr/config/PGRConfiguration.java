@@ -222,5 +222,7 @@ public class PGRConfiguration {
     @Value("${is.environment.central.instance}")
     private Boolean isEnvironmentCentralInstance;
 
+    @Value("${pgr.validate.dept.enabled}")
+    private Boolean isValidateDeptEnabled;
 
 }
