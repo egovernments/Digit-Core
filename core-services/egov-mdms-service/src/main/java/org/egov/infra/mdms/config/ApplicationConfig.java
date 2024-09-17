@@ -30,7 +30,4 @@ public class ApplicationConfig {
 	@Value("${mdms.default.limit}")
 	private Integer defaultLimit;
 
-	@Value("${default.tenant.id}")
-	private String defaultTenantId;
-
 }

@@ -1,6 +1,5 @@
 package org.egov.infra.mdms.service;
 
-import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.DefaultMasterDataRequest;
 import org.egov.infra.mdms.repository.impl.DefaultDataRepository;
 import org.egov.infra.mdms.repository.impl.DefaultSchemaRepository;
@@ -15,22 +14,20 @@ public class DefaultMasterDataService {
 
 	private final DefaultDataRepository dataRepository;
 
-	private final ApplicationConfig config;
-
-	public DefaultMasterDataService(DefaultSchemaRepository schemaRepository, DefaultDataRepository dataRepository, ApplicationConfig config) {
+	public DefaultMasterDataService(DefaultSchemaRepository schemaRepository, DefaultDataRepository dataRepository) {
 		this.schemaRepository = schemaRepository;
 		this.dataRepository = dataRepository;
-		this.config = config;
 	}
 
 	public void create(DefaultMasterDataRequest defaultMasterDataRequest) {
 		String targetTenantId = defaultMasterDataRequest.getTargetTenantId();
 		List<String> schemaCodes = defaultMasterDataRequest.getSchemaCodes();
+		String defaultTenantId = defaultMasterDataRequest.getDefaultTenantId();
 
-		schemaRepository.copySchemaDefinitions(config.getDefaultTenantId(), targetTenantId, schemaCodes);
+		schemaRepository.copySchemaDefinitions(defaultTenantId, targetTenantId, schemaCodes);
 
 		if (Boolean.FALSE.equals(defaultMasterDataRequest.getOnlySchemas())) {
-			dataRepository.copySchemaData(config.getDefaultTenantId(), targetTenantId, schemaCodes);
+			dataRepository.copySchemaData(defaultTenantId, targetTenantId, schemaCodes);
 		}
 	}
 

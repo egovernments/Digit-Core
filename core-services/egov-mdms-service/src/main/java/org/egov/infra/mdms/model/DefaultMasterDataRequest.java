@@ -3,6 +3,7 @@ package org.egov.infra.mdms.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
@@ -23,15 +24,19 @@ public class DefaultMasterDataRequest {
 
 	@JsonProperty("targetTenantId")
 	@NotNull
-	@Valid
+	@Size(min = 1, max = 100)
 	private String targetTenantId = null;
 
 	@JsonProperty("schemaCodes")
 	@NotNull
-	@Valid
+	@Size(min = 1, max = 128)
 	private List<String> schemaCodes = null;
 
 	@JsonProperty("onlySchemas")
-	@Valid
 	private Boolean onlySchemas = Boolean.TRUE;
+
+	@JsonProperty("defaultTenantId")
+	@NotNull
+	@Size(min = 1, max = 100)
+	private String defaultTenantId = null;
 }
