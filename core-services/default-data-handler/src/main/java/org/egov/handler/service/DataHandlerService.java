@@ -202,10 +202,10 @@ public class DataHandlerService {
 
 		if (Objects.equals(dataSetupRequest.getModule(), "PGR")) {
 			createPgrWorkflowConfig(dataSetupRequest.getTargetTenantId());
-			defaultDataRequest.setSchemaCodes(serviceConfig.getPgrMdmsSchemaList());
+			defaultDataRequest.setSchemaCodes(serviceConfig.getMdmsSchemacodeList().get("PGR"));
 		}
 		if (Objects.equals(dataSetupRequest.getModule(), "HRMS")) {
-			defaultDataRequest.setSchemaCodes(serviceConfig.getHrmsMdmsSchemaList());
+			defaultDataRequest.setSchemaCodes(serviceConfig.getMdmsSchemacodeList().get("HRMS"));
 		}
 
 		try {

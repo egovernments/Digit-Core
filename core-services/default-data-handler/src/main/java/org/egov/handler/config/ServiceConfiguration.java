@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Data
@@ -36,11 +37,8 @@ public class ServiceConfiguration {
 	@Value("#{'${default.mdms.schema.create.list}'.split(',')}")
 	private List<String> defaultMdmsSchemaList;
 
-	@Value("#{'${pgr.mdms.schema.create.list}'.split(',')}")
-	private List<String> pgrMdmsSchemaList;
-
-	@Value("#{'${hrms.mdms.schema.create.list}'.split(',')}")
-	private List<String> hrmsMdmsSchemaList;
+	@Value("#{${mdms.schemacode.list}}")
+	private Map<String, List<String>> mdmsSchemacodeList;
 
 	//Localization Configs
 	@Value("${egov.localization.host}${egov.localization.default.data.create.endpoint}")
@@ -88,10 +86,6 @@ public class ServiceConfiguration {
 	// Default Tenant Id
 	@Value("${default.tenant.id}")
 	private String defaultTenantId;
-
-	// Module Master Configuration
-	@Value("${sandbox-ui.module.master.config}")
-	private String moduleMasterConfig;
 
 	// Workflow Configuration
 	@Value("${egov.workflow.host}${egov.workflow.businessservice.create.path}")

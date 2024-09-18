@@ -7,10 +7,8 @@ import org.egov.handler.web.models.*;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,37 +16,37 @@ import java.util.List;
 @Component
 public class LocalizationUtil {
 
-    private final RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 
-    private final ServiceConfiguration serviceConfig;
+	private final ServiceConfiguration serviceConfig;
 
-    @Autowired
-    public LocalizationUtil(RestTemplate restTemplate, ServiceConfiguration serviceConfig) {
-        this.restTemplate = restTemplate;
-        this.serviceConfig = serviceConfig;
-    }
+	@Autowired
+	public LocalizationUtil(RestTemplate restTemplate, ServiceConfiguration serviceConfig) {
+		this.restTemplate = restTemplate;
+		this.serviceConfig = serviceConfig;
+	}
 
-    public void createLocalizationData(DefaultLocalizationDataRequest defaultLocalizationDataRequest) {
+	public void createLocalizationData(DefaultLocalizationDataRequest defaultLocalizationDataRequest) {
 
-        StringBuilder uri = new StringBuilder();
-        uri.append(serviceConfig.getLocalizationDefaultDataCreateURI());
-        try {
-            restTemplate.postForObject(uri.toString(), defaultLocalizationDataRequest, ResponseInfo.class);
-        } catch (Exception e) {
-            log.error("Error creating default localization data for {} : {}", defaultLocalizationDataRequest.getTargetTenantId(), e.getMessage());
-            throw new CustomException("LOCALIZATION_DEFAULT_DATA_CREATE_FAILED", "Failed to create localization data for " + defaultLocalizationDataRequest.getTargetTenantId() + " : " + e.getMessage());
-        }
-    }
+		StringBuilder uri = new StringBuilder();
+		uri.append(serviceConfig.getLocalizationDefaultDataCreateURI());
+		try {
+			restTemplate.postForObject(uri.toString(), defaultLocalizationDataRequest, ResponseInfo.class);
+		} catch (Exception e) {
+			log.error("Error creating default localization data for {} : {}", defaultLocalizationDataRequest.getTargetTenantId(), e.getMessage());
+			throw new CustomException("LOCALIZATION_DEFAULT_DATA_CREATE_FAILED", "Failed to create localization data for " + defaultLocalizationDataRequest.getTargetTenantId() + " : " + e.getMessage());
+		}
+	}
 
-    public void upsertLocalization(DefaultLocalizationDataRequest defaultLocalizationDataRequest, TenantRequest tenantRequest) {
+	public void upsertLocalization(DefaultLocalizationDataRequest defaultLocalizationDataRequest, TenantRequest tenantRequest) {
 
-        List<Message> messageList = generateDynamicMessage(tenantRequest);
+		List<Message> messageList = generateDynamicMessage(tenantRequest);
 		defaultLocalizationDataRequest.getRequestInfo().getUserInfo().setId(128L);
-        CreateMessagesRequest createMessagesRequest = CreateMessagesRequest.builder()
+		CreateMessagesRequest createMessagesRequest = CreateMessagesRequest.builder()
 				.requestInfo(defaultLocalizationDataRequest.getRequestInfo())
-                .tenantId(defaultLocalizationDataRequest.getTargetTenantId())
-                .messages(messageList)
-                .build();
+				.tenantId(defaultLocalizationDataRequest.getTargetTenantId())
+				.messages(messageList)
+				.build();
 
 		StringBuilder uri = new StringBuilder();
 		uri.append(serviceConfig.getUpsertLocalizationURI());
@@ -58,9 +56,9 @@ public class LocalizationUtil {
 			log.error("Error creating Tenant localization data for {} : {}", defaultLocalizationDataRequest.getTargetTenantId(), e.getMessage());
 			throw new CustomException("TENANT", "Failed to create localization data for " + defaultLocalizationDataRequest.getTargetTenantId() + " : " + e.getMessage());
 		}
-    }
+	}
 
-	public List<Message> generateDynamicMessage(TenantRequest tenantRequest){
+	public List<Message> generateDynamicMessage(TenantRequest tenantRequest) {
 
 		Tenant tenant = tenantRequest.getTenant();
 
@@ -72,7 +70,7 @@ public class LocalizationUtil {
 				? "TENANT_TENANTS_" + tenantCode
 				: null;
 
-        Message message = Message.builder()
+		Message message = Message.builder()
 				.code(ulbKey)
 				.module("rainmaker-common")
 				.message(tenant.getName())
