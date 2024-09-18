@@ -37,8 +37,8 @@ public class ServiceConfiguration {
 	@Value("#{'${default.mdms.schema.create.list}'.split(',')}")
 	private List<String> defaultMdmsSchemaList;
 
-	@Value("#{${mdms.schemacode.list}}")
-	private Map<String, List<String>> mdmsSchemacodeList;
+	@Value("#{${mdms.schemacode.map}}")
+	private Map<String, List<String>> mdmsSchemacodeMap;
 
 	//Localization Configs
 	@Value("${egov.localization.host}${egov.localization.default.data.create.endpoint}")
