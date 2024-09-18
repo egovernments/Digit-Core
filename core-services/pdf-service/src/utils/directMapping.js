@@ -55,7 +55,7 @@ export const directMapping = async (
       jPath: item.variable,
       val:
         item.value &&
-        getValue(jp.query(req, item.value.path), "NA", item.value.path),
+        getValue(jp.query(req, item.value.path), envVariables.DEFAULT_VARIABLE_VALUE, item.value.path),
       valJsonPath: item.value && item.value.path,
       type: item.type,
       url: item.url,
