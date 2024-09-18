@@ -68,7 +68,7 @@ export const directMapping = async (
   for (var i = 0; i < directArr.length; i++) {
     //for array type direct mapping
     if (directArr[i].type == "citizen-employee-title") {
-      if (get(requestInfo, "userInfo.type", "NA").toUpperCase() == "EMPLOYEE") {
+      if (get(requestInfo, "userInfo.type", envVariables.DEFAULT_VARIABLE_VALUE).toUpperCase() == "EMPLOYEE") {
         variableTovalueMap[directArr[i].jPath] = "Employee Copy";
       } else {
         variableTovalueMap[directArr[i].jPath] = "Citizen Copy";
@@ -77,7 +77,7 @@ export const directMapping = async (
     if (directArr[i].type == "selectFromRequestInfo") {
       directArr[i].val = getValue(
         jp.query(requestInfo, directArr[i].valJsonPath),
-        "NA",
+        envVariables.DEFAULT_VARIABLE_VALUE,
         directArr[i].valJsonPath
       );
 
@@ -121,12 +121,12 @@ export const directMapping = async (
         // var x = 1;
         let ownerObject = {};
         for (let k = 0; k < scema.length; k++) {
-          let fieldValue = get(val[j], scema[k].value, "NA");
-          fieldValue = fieldValue == null ? "NA" : fieldValue;
+          let fieldValue = get(val[j], scema[k].value, envVariables.DEFAULT_VARIABLE_VALUE);
+          fieldValue = fieldValue == null ? envVariables.DEFAULT_VARIABLE_VALUE : fieldValue;
           if (scema[k].type == "date") {
             let myDate = new Date(fieldValue);
             if (isNaN(myDate) || fieldValue === 0) {
-              ownerObject[scema[k].variable] = "NA";
+              ownerObject[scema[k].variable] = envVariables.DEFAULT_VARIABLE_VALUE;
             } else {
               let replaceValue = getDateInRequiredFormat(fieldValue,scema[k].format);
               // set(formatconfig,externalAPIArray[i].jPath[j].variable,replaceValue);
@@ -134,7 +134,7 @@ export const directMapping = async (
             }
           } else {
             if (
-              fieldValue !== "NA" &&
+              fieldValue !== envVariables.DEFAULT_VARIABLE_VALUE &&
               scema[k].localisation &&
               scema[k].localisation.required
             ) {
@@ -184,12 +184,12 @@ export const directMapping = async (
       for (let j = 0; j < val.length; j++) {
         let arrayOfItems = [];
         for (let k = 0; k < scema.length; k++) {
-          let fieldValue = get(val[j], scema[k].value, "NA");
-          fieldValue = fieldValue == null ? "NA" : fieldValue;
+          let fieldValue = get(val[j], scema[k].value, envVariables.DEFAULT_VARIABLE_VALUE);
+          fieldValue = fieldValue == null ? envVariables.DEFAULT_VARIABLE_VALUE : fieldValue;
           if (scema[k].type == "date") {
             let myDate = new Date(fieldValue);
             if (isNaN(myDate) || fieldValue === 0) {
-              arrayOfItems.push("NA");
+              arrayOfItems.push(envVariables.DEFAULT_VARIABLE_VALUE);
             } else {
               let replaceValue = getDateInRequiredFormat(fieldValue,scema[k].format);
               // set(formatconfig,externalAPIArray[i].jPath[j].variable,replaceValue);
@@ -203,7 +203,7 @@ export const directMapping = async (
            * to display the array of string in order list.
            */
           else if (scema[k].type == "array-orderedlist" && Array.isArray(fieldValue)) {
-            if(fieldValue !== "NA") {
+            if(fieldValue !== envVariables.DEFAULT_VARIABLE_VALUE) {
               for (var p = 0; p < fieldValue.length; p++) {
                 let orderedList = [];
                 orderedList.push(fieldValue[p]);
@@ -213,7 +213,7 @@ export const directMapping = async (
             }
           } else {
             if (
-              fieldValue !== "NA" &&
+              fieldValue !== envVariables.DEFAULT_VARIABLE_VALUE &&
               scema[k].localisation &&
               scema[k].localisation.required
             ) {
@@ -276,7 +276,7 @@ export const directMapping = async (
     else if (directArr[i].type == "date") {
       let myDate = new Date(directArr[i].val[0]);
       if (isNaN(myDate) || directArr[i].val[0] === 0) {
-        variableTovalueMap[directArr[i].jPath] = "NA";
+        variableTovalueMap[directArr[i].jPath] = envVariables.DEFAULT_VARIABLE_VALUE;
       } else {
         let replaceValue = getDateInRequiredFormat(directArr[i].val[0],directArr[i].format);
         variableTovalueMap[directArr[i].jPath] = replaceValue;
@@ -286,11 +286,11 @@ export const directMapping = async (
     else {
       directArr[i].val = getValue(
         directArr[i].val,
-        "NA",
+        envVariables.DEFAULT_VARIABLE_VALUE,
         directArr[i].valJsonPath
       );
       if (
-        directArr[i].val !== "NA" &&
+        directArr[i].val !== envVariables.DEFAULT_VARIABLE_VALUE &&
         directArr[i].localisation &&
         directArr[i].localisation.required
       ){
