@@ -36,6 +36,12 @@ public class ServiceConfiguration {
 	@Value("#{'${default.mdms.schema.create.list}'.split(',')}")
 	private List<String> defaultMdmsSchemaList;
 
+	@Value("#{'${pgr.mdms.schema.create.list}'.split(',')}")
+	private List<String> pgrMdmsSchemaList;
+
+	@Value("#{'${hrms.mdms.schema.create.list}'.split(',')}")
+	private List<String> hrmsMdmsSchemaList;
+
 	//Localization Configs
 	@Value("${egov.localization.host}${egov.localization.default.data.create.endpoint}")
 	private String localizationDefaultDataCreateURI;
