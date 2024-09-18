@@ -35,6 +35,10 @@ const envVariables = {
   DATA_CONFIG_URLS: process.env.DATA_CONFIG_URLS,
   FORMAT_CONFIG_URLS: process.env.FORMAT_CONFIG_URLS,
   STATE_LEVEL_TENANT_ID: "in.stateb",
-  DEFAULT_VARIABLE_VALUE: process.env.DEFAULT_VARIABLE_VALUE || "NA",
+  DEFAULT_VARIABLE_VALUE:
+    process.env.DEFAULT_VARIABLE_VALUE === undefined ||
+    process.env.DEFAULT_VARIABLE_VALUE === null
+      ? "NA"
+      : process.env.DEFAULT_VARIABLE_VALUE,
 };
 export default envVariables;
