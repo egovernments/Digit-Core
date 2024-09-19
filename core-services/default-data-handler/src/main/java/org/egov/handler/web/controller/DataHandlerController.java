@@ -38,10 +38,9 @@ public class DataHandlerController {
 		DataSetupResponse dataSetupResponse = DataSetupResponse.builder()
 				.responseInfo(responseInfo)
 				.targetTenantId(defaultDataRequest.getTargetTenantId())
+				.module(dataSetupRequest.getModule())
 				.schemaCodes(defaultDataRequest.getSchemaCodes())
 				.onlySchemas(defaultDataRequest.getOnlySchemas())
-				.locale(defaultDataRequest.getLocale())
-				.modules(defaultDataRequest.getModules())
 				.build();
 		return new ResponseEntity<>(dataSetupResponse, HttpStatus.ACCEPTED);
 	}

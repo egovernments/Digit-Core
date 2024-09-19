@@ -122,8 +122,7 @@ public class DataHandlerService {
 					// Modify the 'code' field within the 'boundary' node
 					boundaryNode.put("code", targetTenantId);
 
-					// Set the modified 'data' back to the Mdms object (optional, since it's
-					// mutable)
+					// Set the modified 'data' back to the Mdms object (optional, since it's mutable)
 					((ObjectNode) dataNode).set("boundary", boundaryNode);
 					mdms.setData(dataNode);
 				} else {
@@ -202,10 +201,17 @@ public class DataHandlerService {
 
 		if (Objects.equals(dataSetupRequest.getModule(), "PGR")) {
 			createPgrWorkflowConfig(dataSetupRequest.getTargetTenantId());
-			defaultDataRequest.setSchemaCodes(serviceConfig.getMdmsSchemacodeMap().get("PGR"));
 		}
-		if (Objects.equals(dataSetupRequest.getModule(), "HRMS")) {
-			defaultDataRequest.setSchemaCodes(serviceConfig.getMdmsSchemacodeMap().get("HRMS"));
+
+		if(dataSetupRequest.getSchemaCodes() == null) {
+			if (Objects.equals(dataSetupRequest.getModule(), "PGR")) {
+				defaultDataRequest.setSchemaCodes(serviceConfig.getMdmsSchemacodeMap().get("PGR"));
+			}
+			if (Objects.equals(dataSetupRequest.getModule(), "HRMS")) {
+				defaultDataRequest.setSchemaCodes(serviceConfig.getMdmsSchemacodeMap().get("HRMS"));
+			}
+		} else {
+			defaultDataRequest.setSchemaCodes(dataSetupRequest.getSchemaCodes());
 		}
 
 		try {
