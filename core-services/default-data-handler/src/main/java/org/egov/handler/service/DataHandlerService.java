@@ -238,6 +238,8 @@ public class DataHandlerService {
 
 	public void addMdmsData(DataSetupRequest dataSetupRequest) {
 
+		List<Mdms> filteredMdmsData = new ArrayList<>();
+
 		Resource resource = resourceLoader.getResource("classpath:MDMS.json");
 
 		try (InputStream inputStream = resource.getInputStream()) {
@@ -264,32 +266,24 @@ public class DataHandlerService {
 
 				mdmsMap.put(module, mdmsList);
 			}
-
-			// Get the target tenant ID from the request
-			String targetTenantId = dataSetupRequest.getTargetTenantId();
-
-			// Filter the mdmsData based on the targetTenantId if needed
-			List<Mdms> filteredMdmsData = mdmsMap.get(dataSetupRequest.getModule());
-
-			// Iterate over each filtered Mdms entry and create an MDMS entry
-			for (Mdms mdms : filteredMdmsData) {
-
-				mdms.setTenantId(targetTenantId);
-				mdms.setSchemaCode("ACCESSCONTROL-ROLEACTIONS.roleactions");
-				String uniqueId = mdms.getData().get("actionid").asText() + "." + mdms.getData().get("rolecode").asText();
-				mdms.setUniqueIdentifier(uniqueId);
-				// Build an MdmsRequest for each entry
-				MdmsRequest mdmsRequest = MdmsRequest.builder()
-						.requestInfo(dataSetupRequest.getRequestInfo())
-						.mdms(mdms) // Assuming MdmsRequest has a field to set Mdms data
-						.build();
-
-				// Call createMdmsData for each mdmsRequest
-				mdmsV2Util.createMdmsData(mdmsRequest);
-			}
-
+			filteredMdmsData = mdmsMap.get(dataSetupRequest.getModule());
 		} catch (IOException e) {
 			throw new CustomException("IO_EXCEPTION", "Error reading or mapping JSON file: " + e.getMessage());
+		}
+		// Iterate over each filtered Mdms entry and create an MDMS entry
+		for (Mdms mdms : filteredMdmsData) {
+			mdms.setTenantId(dataSetupRequest.getTargetTenantId());
+			mdms.setSchemaCode("ACCESSCONTROL-ROLEACTIONS.roleactions");
+			String uniqueId = mdms.getData().get("actionid").asText() + "." + mdms.getData().get("rolecode").asText();
+			mdms.setUniqueIdentifier(uniqueId);
+			// Build an MdmsRequest for each entry
+			MdmsRequest mdmsRequest = MdmsRequest.builder()
+					.requestInfo(dataSetupRequest.getRequestInfo())
+					.mdms(mdms) // Assuming MdmsRequest has a field to set Mdms data
+					.build();
+
+			// Call createMdmsData for each mdmsRequest
+			mdmsV2Util.createMdmsData(mdmsRequest);
 		}
 	}
 
