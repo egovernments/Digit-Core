@@ -12,6 +12,8 @@ public class MdmsDataQueryBuilder {
     private static String SEARCH_MDMS_DATA_QUERY = "SELECT data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM eg_mdms_data data ";
 
+    private static String COUNT_MDMS_DATA_QUERY = "SELECT COUNT(*) FROM eg_mdms_data data";
+
     private static final String MDMS_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc ";
 
     /**
@@ -23,6 +25,12 @@ public class MdmsDataQueryBuilder {
     public String getMdmsDataSearchQuery(MdmsCriteria mdmsCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(mdmsCriteria, preparedStmtList);
         query = QueryUtil.addOrderByClause(query, MDMS_DATA_QUERY_ORDER_BY_CLAUSE);
+        return query;
+    }
+
+    public String getMdmsCountQuery(MdmsCriteria mdmsCriteria, List<Object> preparedStmtList) {
+        String query = buildQuery(mdmsCriteria, preparedStmtList);
+        query = QueryUtil.addOrderByClause(query, COUNT_MDMS_DATA_QUERY);
         return query;
     }
 

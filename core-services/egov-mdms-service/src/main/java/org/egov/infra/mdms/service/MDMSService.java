@@ -67,6 +67,11 @@ public class MDMSService {
 		return Arrays.asList(mdmsRequest.getMdms());
 	}
 
+	public Map<String,Map<String,JSONArray>> count(MdmsCriteriaReq mdmsCriteriaReq){
+		Map<String, Map<String, JSONArray>> tenantMasterMap = search(mdmsCriteriaReq);
+		return tenantMasterMap;
+	}
+
 	/**
 	 * This method processes the requests that come for master data search.
 	 * @param mdmsCriteriaReq

@@ -20,15 +20,13 @@ import jakarta.validation.Valid;
 @NoArgsConstructor
 @Builder
 public class MdmsCriteriaReq {
-    @JsonProperty("RequestInfo")
 
+    @JsonProperty("RequestInfo")
     @Valid
     private RequestInfo requestInfo = null;
 
     @JsonProperty("MdmsCriteria")
-
     @Valid
     private MdmsCriteria mdmsCriteria = null;
-
 
 }

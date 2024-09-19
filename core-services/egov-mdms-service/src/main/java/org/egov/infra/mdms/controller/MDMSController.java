@@ -38,4 +38,18 @@ public class MDMSController {
         return new ResponseEntity<>(mdmsResponse, HttpStatus.OK);
     }
 
+    /**
+     * Request handler for serving v1 count requests.
+     * @param body
+     * @return
+     */
+    @RequestMapping(value="_count", method = RequestMethod.POST)
+    public ResponseEntity<?> count(@Valid @RequestBody MdmsCriteriaReq body) {
+        Map<String,Map<String,JSONArray>>  moduleMasterMap = mdmsService.search(body);
+        MdmsResponse mdmsResponse = MdmsResponse.builder()
+                .mdmsRes(moduleMasterMap)
+                .build();
+        return new ResponseEntity<>(mdmsResponse, HttpStatus.OK);
+    }
+
 }
