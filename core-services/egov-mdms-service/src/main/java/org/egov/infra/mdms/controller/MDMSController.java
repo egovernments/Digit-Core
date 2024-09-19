@@ -26,12 +26,13 @@ public class MDMSController {
 
     /**
      * Request handler for serving v1 search requests.
+     *
      * @param body
      * @return
      */
-    @RequestMapping(value="_search", method = RequestMethod.POST)
+    @RequestMapping(value = "_search", method = RequestMethod.POST)
     public ResponseEntity<?> search(@Valid @RequestBody MdmsCriteriaReq body) {
-        Map<String,Map<String,JSONArray>>  moduleMasterMap = mdmsService.search(body);
+        Map<String, Map<String, JSONArray>> moduleMasterMap = mdmsService.search(body);
         MdmsResponse mdmsResponse = MdmsResponse.builder()
                 .mdmsRes(moduleMasterMap)
                 .build();
@@ -40,12 +41,13 @@ public class MDMSController {
 
     /**
      * Request handler for serving v1 count requests.
+     *
      * @param body
      * @return
      */
-    @RequestMapping(value="_count", method = RequestMethod.POST)
+    @RequestMapping(value = "_count", method = RequestMethod.POST)
     public ResponseEntity<?> count(@Valid @RequestBody MdmsCriteriaReq body) {
-        Map<String,Map<String,JSONArray>>  moduleMasterMap = mdmsService.search(body);
+        Map<String, Map<String, JSONArray>> moduleMasterMap = mdmsService.count(body);
         MdmsResponse mdmsResponse = MdmsResponse.builder()
                 .mdmsRes(moduleMasterMap)
                 .build();

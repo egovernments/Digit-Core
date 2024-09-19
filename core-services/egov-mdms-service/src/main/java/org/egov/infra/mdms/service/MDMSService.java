@@ -2,6 +2,7 @@ package org.egov.infra.mdms.service;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.JsonPath;
 import org.egov.common.utils.MultiStateInstanceUtil;
@@ -68,8 +69,33 @@ public class MDMSService {
 	}
 
 	public Map<String,Map<String,JSONArray>> count(MdmsCriteriaReq mdmsCriteriaReq){
+
+		Map<String,Map<String,JSONArray>> moduleMasterCountMap = new HashMap<>();
+
 		Map<String, Map<String, JSONArray>> tenantMasterMap = search(mdmsCriteriaReq);
-		return tenantMasterMap;
+
+		for (Map.Entry<String, Map<String, JSONArray>> moduleEntry : tenantMasterMap.entrySet()) {
+
+			Map<String,JSONArray> masterCountMap = new HashMap<>();
+			String moduleName = moduleEntry.getKey();  // Get the module name
+			Map<String, JSONArray> masterDataMap = moduleEntry.getValue();  // Get the master data for this module
+
+			for(Map.Entry<String,JSONArray> masterEntry : masterDataMap.entrySet()){
+					// enrich master to count map
+					String masterListSize = String.valueOf(masterEntry.getValue().size());
+					JSONArray jsonArray = new JSONArray();
+					JSONObject jsonObject = new JSONObject();
+					ObjectNode objectNode = new ObjectMapper().createObjectNode();
+					objectNode.put("count",masterListSize);
+					jsonArray.add(objectNode);
+					masterCountMap.put(masterEntry.getKey(),jsonArray);
+			}
+
+			// Step 5: Add the count to the countMap for this module
+			moduleMasterCountMap.put(moduleName, masterCountMap);
+		}
+
+		return moduleMasterCountMap;
 	}
 
 	/**
