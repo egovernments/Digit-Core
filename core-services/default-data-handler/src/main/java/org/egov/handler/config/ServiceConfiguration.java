@@ -53,6 +53,9 @@ public class ServiceConfiguration {
 	@Value("#{'${default.localization.module.create.list}'.split(',')}")
 	private List<String> defaultLocalizationModuleList;
 
+	@Value("${tenant.localization.module}")
+	private String tenantLocalizationModule;
+
 	// User Config
 	@Value("${egov.user.host}")
 	private String userHost;

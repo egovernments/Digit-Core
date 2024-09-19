@@ -63,7 +63,7 @@ public class TenantConsumer {
 				.requestInfo(tenantRequest.getRequestInfo())
 				.targetTenantId(tenantRequest.getTenant().getCode())
 				.locale(serviceConfig.getDefaultLocalizationLocale())
-				.modules(Collections.singletonList("rainmaker-common"))
+				.modules(Collections.singletonList(serviceConfig.getTenantLocalizationModule()))
 				.defaultTenantId(serviceConfig.getDefaultTenantId())
 				.build();
 
