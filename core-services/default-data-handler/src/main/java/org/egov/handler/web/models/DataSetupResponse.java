@@ -23,6 +23,10 @@ public class DataSetupResponse {
 	@Valid
 	private String targetTenantId = null;
 
+	@JsonProperty("module")
+	@Valid
+	private String module = null;
+
 	@JsonProperty("schemaCodes")
 	@Valid
 	private List<String> schemaCodes = null;
@@ -30,13 +34,5 @@ public class DataSetupResponse {
 	@JsonProperty("onlySchemas")
 	@Valid
 	private Boolean onlySchemas = Boolean.TRUE;
-
-	@JsonProperty("locale")
-	@Valid
-	private String locale = null;
-
-	@JsonProperty("modules")
-	@Valid
-	private List<String> modules = null;
 
 }
