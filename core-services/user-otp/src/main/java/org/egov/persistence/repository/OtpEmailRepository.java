@@ -135,13 +135,16 @@ public class OtpEmailRepository {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = PWD_RESET_BODY_EMAIL;
-			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
+//			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
+			body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
+
 		}
 		else {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = LOGIN_BODY_EMAIL;
-			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
+//			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
+			body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
 		}
 		return body;
 	}
