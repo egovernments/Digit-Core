@@ -38,13 +38,13 @@ public class LocalizationUtil {
 		}
 	}
 
-	public void upsertLocalization(DefaultLocalizationDataRequest defaultLocalizationDataRequest, TenantRequest tenantRequest) {
+	public void upsertLocalization(TenantRequest tenantRequest) {
 
 		List<Message> messageList = generateDynamicMessage(tenantRequest);
-		defaultLocalizationDataRequest.getRequestInfo().getUserInfo().setId(128L);
+		tenantRequest.getRequestInfo().getUserInfo().setId(128L);
 		CreateMessagesRequest createMessagesRequest = CreateMessagesRequest.builder()
-				.requestInfo(defaultLocalizationDataRequest.getRequestInfo())
-				.tenantId(defaultLocalizationDataRequest.getTargetTenantId())
+				.requestInfo(tenantRequest.getRequestInfo())
+				.tenantId(tenantRequest.getTenant().getCode())
 				.messages(messageList)
 				.build();
 
@@ -53,8 +53,8 @@ public class LocalizationUtil {
 		try {
 			restTemplate.postForObject(uri.toString(), createMessagesRequest, ResponseInfo.class);
 		} catch (Exception e) {
-			log.error("Error creating Tenant localization data for {} : {}", defaultLocalizationDataRequest.getTargetTenantId(), e.getMessage());
-			throw new CustomException("TENANT", "Failed to create localization data for " + defaultLocalizationDataRequest.getTargetTenantId() + " : " + e.getMessage());
+			log.error("Error creating Tenant localization data for {} : {}", tenantRequest.getTenant().getCode(), e.getMessage());
+			throw new CustomException("TENANT", "Failed to create localization data for " +  tenantRequest.getTenant().getCode() + " : " + e.getMessage());
 		}
 	}
 
@@ -72,7 +72,7 @@ public class LocalizationUtil {
 
 		Message message = Message.builder()
 				.code(ulbKey)
-				.module("rainmaker-common")
+				.module(serviceConfig.getTenantLocalizationModule())
 				.message(tenant.getName())
 				.locale("en_IN")
 				.build();

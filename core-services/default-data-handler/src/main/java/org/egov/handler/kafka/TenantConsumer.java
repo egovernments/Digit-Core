@@ -10,7 +10,6 @@ import org.egov.handler.util.LocalizationUtil;
 import org.egov.handler.util.OtpUtil;
 import org.egov.handler.util.UserUtil;
 import org.egov.handler.web.models.DefaultDataRequest;
-import org.egov.handler.web.models.DefaultLocalizationDataRequest;
 import org.egov.handler.web.models.TenantRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,7 +17,6 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -58,16 +56,7 @@ public class TenantConsumer {
 				.build();
 		tenantRequest.getRequestInfo().setUserInfo(userInfo);
 
-
-		DefaultLocalizationDataRequest defaultLocalizationDataRequest = DefaultLocalizationDataRequest.builder()
-				.requestInfo(tenantRequest.getRequestInfo())
-				.targetTenantId(tenantRequest.getTenant().getCode())
-				.locale(serviceConfig.getDefaultLocalizationLocale())
-				.modules(Collections.singletonList(serviceConfig.getTenantLocalizationModule()))
-				.defaultTenantId(serviceConfig.getDefaultTenantId())
-				.build();
-
-		localizationUtil.upsertLocalization(defaultLocalizationDataRequest, tenantRequest);
+		localizationUtil.upsertLocalization(tenantRequest);
 
 		// create user only for root tenant
 		if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
