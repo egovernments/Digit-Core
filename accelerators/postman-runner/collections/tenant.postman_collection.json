@@ -1,0 +1,99 @@
+{
+	"info": {
+		"_postman_id": "4c9bc5b1-64af-4d38-a4ed-72daec05ef4f",
+		"name": "TenantManagement",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4483016"
+	},
+	"item": [
+		{
+			"name": "tenant create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parse the response body",
+							"let response = pm.response.json();",
+							"",
+							"// Extract the \"code\" value from the \"Tenants\" array",
+							"let codeValue = response.Tenants[0].code;",
+							"",
+							"// Set the extracted value as a Postman variable",
+							"pm.environment.set(\"CODE\", codeValue);",
+							"",
+							"// Log for debugging (optional)",
+							"console.log(\"Extracted CODE:\", codeValue);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"tenant\": {\n        \"name\": \"{{TENANT_NAME}}\",\n        \"email\": \"{{TENANT_EMAIL}}\"\n    },\n    \"RequestInfo\": {\n        \"apiId\": \"Rainmaker\",\n        \"authToken\": null,\n        \"userInfo\": null,\n        \"msgId\": \"1724143085289|en_MZ\",\n        \"plainAccessRequest\": {}\n    }\n}"
+				},
+				"url": {
+					"raw": "{{lts}}/tenant-management/tenant/_create",
+					"host": [
+						"{{lts}}"
+					],
+					"path": [
+						"tenant-management",
+						"tenant",
+						"_create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tenant search",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"RequestInfo\": {\n        \"action\": \"\",\n        \"apiId\": \"Rainmaker\",\n        \"ver\": null,\n        \"ts\": null,\n        \"did\": null,\n        \"key\": null,\n        \"authToken\": \"c54ef5cb-54d9-4ce1-9341-3bd2ba73783e\",\n        \"userInfo\": {\n            \"id\": 1417,\n            \"uuid\": \"d5dfa5da-c22e-4ce6-9bfd-a779efa7d319\",\n            \"userName\": \"AllAcessNewMDMSAd\",\n            \"name\": \"mustak\",\n            \"mobileNumber\": \"9353822214\",\n            \"emailId\": \"xyz@egovernments.org\",\n            \"locale\": \"string\",\n            \"type\": \"EMPLOYEE\",\n            \"roles\": [\n                {\n                    \"name\": \"FSM Administrator\",\n                    \"code\": \"FSM_ADMIN\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Grievance Routing Officer\",\n                    \"code\": \"GRO\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"FSM Desluding Operator\",\n                    \"code\": \"FSM_DSO\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"FSM Employee Report Viewer\",\n                    \"code\": \"FSM_REPORT_VIEWER\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"PGR Last Mile Employee\",\n                    \"code\": \"PGR_LME\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"System\",\n                    \"code\": \"SYSTEM\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"MDMS Admin\",\n                    \"code\": \"MDMS_ADMIN\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"SUPER USER\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Citizen\",\n                    \"code\": \"CITIZEN\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Department Grievance Routing Officer\",\n                    \"code\": \"DGRO\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"HRMS Admin\",\n                    \"code\": \"HRMS_ADMIN\",\n                    \"tenantId\": \"pg\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pg\",\n            \"permanentCity\": \"Kaikoo\"\n        },\n        \"msgId\": \"1695889012604|en_IN\",\n        \"plainAccessRequest\": {}\n    }\n}"
+				},
+				"url": {
+					"raw": "{{lts}}/tenant-management/tenant/_search?code={{CODE}}&includeSubTenants=true",
+					"host": [
+						"{{lts}}"
+					],
+					"path": [
+						"tenant-management",
+						"tenant",
+						"_search"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "{{CODE}}"
+						},
+						{
+							"key": "includeSubTenants",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,26 @@
+# Use a more recent Node.js version
+FROM node:18-alpine
+
+# Set the build argument for the working directory
+ARG WORK_DIR
+
+# Cache npm packages to speed up build time
+ENV npm_config_cache=/tmp
+
+# Set the working directory
+WORKDIR /app
+
+# Copy application files from the WORK_DIR argument
+COPY ${WORK_DIR} .
+
+# Install dependencies
+RUN npm install
+
+# Set the port that the app will run on
+ENV PORT 8080
+
+# Expose the port
+EXPOSE 8080
+
+# Start the application
+CMD ["npm", "start"]
