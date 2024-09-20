@@ -90,48 +90,38 @@ public class DataHandlerService {
 	private void createTenantBoundarydata(RequestInfo requestInfo, String targetTenantId) {
 		List<String> schemaCodes = new ArrayList<>(Collections.singletonList(TENANT_BOUNDARY_SCHEMA));
 
-		SchemaDefCriteria schemaDefCriteria = SchemaDefCriteria.builder()
-				.tenantId(serviceConfig.getDefaultTenantId())
-				.codes(schemaCodes)
-				.build();
-		SchemaDefSearchRequest schemaDefSearchRequest = SchemaDefSearchRequest.builder()
+		DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
 				.requestInfo(requestInfo)
-				.schemaDefCriteria(schemaDefCriteria)
+				.targetTenantId(targetTenantId)
+				.schemaCodes(schemaCodes)
+				.onlySchemas(Boolean.TRUE)
+				.defaultTenantId(serviceConfig.getDefaultTenantId())
 				.build();
-		SchemaDefinitionResponse schemaSearchResponse = mdmsV2Util.searchMdmsSchema(schemaDefSearchRequest);
-		List<SchemaDefinition> schemaDefinitionList = schemaSearchResponse.getSchemaDefinitions();
-		for (SchemaDefinition schemaDefinition : schemaDefinitionList) {
-			schemaDefinition.setTenantId(targetTenantId);
-			SchemaDefinitionRequest schemaDefinitionRequest = SchemaDefinitionRequest.builder()
-					.requestInfo(requestInfo)
-					.schemaDefinition(schemaDefinition)
-					.build();
-			mdmsV2Util.createMdmsSchema(schemaDefinitionRequest);
-			// Search data for the schema code in default tenetId
-			List<Mdms> mdmsList = getAllMdmsResults(serviceConfig.getDefaultTenantId(), schemaDefinition.getCode(),
-					requestInfo);
-			// Create schema data in the given tenantId
-			for (Mdms mdms : mdmsList) {
-				mdms.setTenantId(targetTenantId);
+		mdmsV2Util.createDefaultMdmsData(defaultMdmsDataRequest);
 
-				JsonNode dataNode = mdms.getData();
-				if (dataNode.has("boundary")) {
-					// Cast the 'boundary' node to ObjectNode so that we can modify it
-					ObjectNode boundaryNode = (ObjectNode) dataNode.get("boundary");
+		// Search data for the schema code in default tenetId
+		List<Mdms> mdmsList = getAllMdmsResults(serviceConfig.getDefaultTenantId(), TENANT_BOUNDARY_SCHEMA, requestInfo);
+		// Create schema data in the given tenantId
+		for (Mdms mdms : mdmsList) {
+			mdms.setTenantId(targetTenantId);
 
-					// Modify the 'code' field within the 'boundary' node
-					boundaryNode.put("code", targetTenantId);
+			JsonNode dataNode = mdms.getData();
+			if (dataNode.has("boundary")) {
+				// Cast the 'boundary' node to ObjectNode so that we can modify it
+				ObjectNode boundaryNode = (ObjectNode) dataNode.get("boundary");
 
-					// Set the modified 'data' back to the Mdms object (optional, since it's mutable)
-					((ObjectNode) dataNode).set("boundary", boundaryNode);
-					mdms.setData(dataNode);
-				} else {
-					log.info("Boundary node does not exist in the data.");
-				}
-				MdmsRequest mdmsRequest = MdmsRequest.builder().requestInfo(requestInfo).mdms(mdms).build();
-				log.info("{} : {}", mdms.getSchemaCode(), mdms.getUniqueIdentifier());
-				mdmsV2Util.createMdmsData(mdmsRequest);
+				// Modify the 'code' field within the 'boundary' node
+				boundaryNode.put("code", targetTenantId);
+
+				// Set the modified 'data' back to the Mdms object (optional, since it's mutable)
+				((ObjectNode) dataNode).set("boundary", boundaryNode);
+				mdms.setData(dataNode);
+			} else {
+				log.info("Boundary node does not exist in the data.");
 			}
+			MdmsRequest mdmsRequest = MdmsRequest.builder().requestInfo(requestInfo).mdms(mdms).build();
+			log.info("{} : {}", mdms.getSchemaCode(), mdms.getUniqueIdentifier());
+			mdmsV2Util.createMdmsData(mdmsRequest);
 		}
 	}
 
@@ -203,7 +193,7 @@ public class DataHandlerService {
 			createPgrWorkflowConfig(dataSetupRequest.getTargetTenantId());
 		}
 
-		if(dataSetupRequest.getSchemaCodes() == null) {
+		if (dataSetupRequest.getSchemaCodes() == null) {
 			if (Objects.equals(dataSetupRequest.getModule(), "PGR")) {
 				defaultDataRequest.setSchemaCodes(serviceConfig.getMdmsSchemacodeMap().get("PGR"));
 			}
