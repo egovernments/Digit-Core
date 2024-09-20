@@ -91,10 +91,18 @@ public class MDMSService {
 					masterCountMap.put(masterEntry.getKey(),jsonArray);
 			}
 
-			// Step 5: Add the count to the countMap for this module
+			// Add the count to the countMap for this module
 			moduleMasterCountMap.put(moduleName, masterCountMap);
 		}
 
+		for(Map.Entry<String,String> schemaCode : mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap().entrySet()){
+			String[] moduleMasterArr = schemaCode.getKey().split("\\.");
+			JSONArray jsonArray = new JSONArray();
+			ObjectNode objectNode = new ObjectMapper().createObjectNode();
+			objectNode.put("count","0");
+			jsonArray.add(objectNode);
+			moduleMasterCountMap.get(moduleMasterArr[0]).putIfAbsent(moduleMasterArr[1],jsonArray);
+		}
 		return moduleMasterCountMap;
 	}
 
