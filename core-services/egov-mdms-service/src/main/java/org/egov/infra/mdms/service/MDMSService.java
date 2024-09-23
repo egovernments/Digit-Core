@@ -101,7 +101,10 @@ public class MDMSService {
 			ObjectNode objectNode = new ObjectMapper().createObjectNode();
 			objectNode.put("count","0");
 			jsonArray.add(objectNode);
-			moduleMasterCountMap.get(moduleMasterArr[0]).putIfAbsent(moduleMasterArr[1],jsonArray);
+//			moduleMasterCountMap.get(moduleMasterArr[0]).putIfAbsent(moduleMasterArr[1],jsonArray);
+			moduleMasterCountMap.computeIfAbsent(moduleMasterArr[0], k -> new HashMap<>())
+					.putIfAbsent(moduleMasterArr[1], jsonArray);
+
 		}
 		return moduleMasterCountMap;
 	}
