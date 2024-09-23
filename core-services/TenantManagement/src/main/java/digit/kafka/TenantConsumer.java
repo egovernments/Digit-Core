@@ -39,7 +39,7 @@ public class TenantConsumer {
     @Autowired
     private ApplicationConfig applicationConfig;
 
-    @KafkaListener(topics = {"${kafka.topics.create.tenant}"})
+    // @KafkaListener(topics = {"${kafka.topics.create.tenant}"})
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
 
