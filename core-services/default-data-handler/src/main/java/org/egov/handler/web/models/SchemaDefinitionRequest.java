@@ -1,44 +1,36 @@
 package org.egov.handler.web.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-
+/**
+ * Bind the request meta data(RequestInfo) and Schema defination
+ */
+@Schema(description = "Bind the request meta data(RequestInfo) and Schema defination")
 @Validated
+@jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @ToString
-public class DataSetupRequest {
-
+public class SchemaDefinitionRequest {
 	@JsonProperty("RequestInfo")
 	@NotNull
 	@Valid
 	private RequestInfo requestInfo = null;
 
-	@JsonProperty("targetTenantId")
+	@JsonProperty("SchemaDefinition")
 	@NotNull
 	@Valid
-	private String targetTenantId = null;
+	private SchemaDefinition schemaDefinition = null;
 
-	@JsonProperty("module")
-	@NotNull
-	@Valid
-	private String module = null;
-
-	@JsonProperty("schemaCodes")
-	@Size(min = 1, max = 128)
-	private List<String> schemaCodes = null;
-
-	@JsonProperty("onlySchemas")
-	@Valid
-	private Boolean onlySchemas = Boolean.TRUE;
 
 }
+
+

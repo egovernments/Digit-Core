@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Data
@@ -21,21 +22,39 @@ public class ServiceConfiguration {
 	@Value("${egov.mdms.host}${egov.mdms.default.data.create.endpoint}")
 	private String mdmsDefaultDataCreateURI;
 
+	@Value("${egov.mdms.host}${egov.mdms.schema.create.endpoint}")
+	private String mdmsSchemaCreateURI;
+
+	@Value("${egov.mdms.host}${egov.mdms.schema.search.endpoint}")
+	private String mdmsSchemaSearchURI;
+
+	@Value("${egov.mdms.host}${egov.mdms.data.create.endpoint}")
+	private String mdmsDataCreateURI;
+
 	@Value("${egov.mdms.host}${egov.mdms.data.search.endpoint}")
 	private String mdmsDataSearchURI;
 
 	@Value("#{'${default.mdms.schema.create.list}'.split(',')}")
 	private List<String> defaultMdmsSchemaList;
 
+	@Value("#{${mdms.schemacode.map}}")
+	private Map<String, List<String>> mdmsSchemacodeMap;
+
 	//Localization Configs
 	@Value("${egov.localization.host}${egov.localization.default.data.create.endpoint}")
 	private String localizationDefaultDataCreateURI;
+
+	@Value("${egov.localization.host}${egov.localization.upsert.path}")
+	private String upsertLocalizationURI;
 
 	@Value("${default.localization.locale}")
 	private String defaultLocalizationLocale;
 
 	@Value("#{'${default.localization.module.create.list}'.split(',')}")
 	private List<String> defaultLocalizationModuleList;
+
+	@Value("${tenant.localization.module}")
+	private String tenantLocalizationModule;
 
 	// User Config
 	@Value("${egov.user.host}")
@@ -70,10 +89,6 @@ public class ServiceConfiguration {
 	// Default Tenant Id
 	@Value("${default.tenant.id}")
 	private String defaultTenantId;
-
-	// Module Master Configuration
-	@Value("${sandbox-ui.module.master.config}")
-	private String moduleMasterConfig;
 
 	// Workflow Configuration
 	@Value("${egov.workflow.host}${egov.workflow.businessservice.create.path}")
