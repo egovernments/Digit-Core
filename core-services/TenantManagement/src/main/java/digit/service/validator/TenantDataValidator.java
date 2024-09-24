@@ -2,6 +2,7 @@ package digit.service.validator;
 
 import digit.config.ApplicationConfig;
 import digit.repository.TenantDataRepository;
+import digit.util.TenantUtil;
 import digit.util.UserUtil;
 import digit.web.models.Tenant;
 import digit.web.models.TenantDataSearchCriteria;
@@ -23,33 +24,24 @@ public class TenantDataValidator {
 
     private TenantDataRepository tenantDataRepository;
     private UserUtil util;
+    private TenantUtil tenantUtil;
     private ApplicationConfig applicationConfig;
 
-    public TenantDataValidator(TenantDataRepository tenantDataRepository, UserUtil util, ApplicationConfig applicationConfig) {
+    public TenantDataValidator(TenantDataRepository tenantDataRepository, UserUtil util, TenantUtil tenantUtil, ApplicationConfig applicationConfig) {
         this.tenantDataRepository = tenantDataRepository;
         this.util = util;
+        this.tenantUtil = tenantUtil;
         this.applicationConfig = applicationConfig;
     }
 
 
     public void validateCreateRequest(TenantRequest tenantRequest) {
 
-        // check for parentId then it's a sub tenant and create it
-        // otherwise root tenant create it
-
-        // check for the parentId to exist , if yes create
-
-        if(!Objects.isNull(tenantRequest.getTenant().getParentId())){
-        }
-
+        // Generate code from name
+        String code = tenantUtil.convertNameToCode(tenantRequest.getTenant().getName());
         List<Tenant> tenantList = tenantDataRepository.search(TenantDataSearchCriteria
                 .builder()
-                .code(tenantRequest
-                        .getTenant()
-                        .getCode())
-                .name(tenantRequest
-                        .getTenant()
-                        .getName())
+                .code(code)
                 .includeSubTenants(Boolean.FALSE)
                 .build());
 
@@ -57,15 +49,6 @@ public class TenantDataValidator {
         if (!CollectionUtils.isEmpty(tenantList)) {
             throw new CustomException("DUPLICATE_RECORD", "Duplicate record");
         }
-
-//        UserSearchRequest userSearchRequest = new UserSearchRequest();
-//        userSearchRequest.setUserName(tenantRequest.getTenant().getEmail());
-//        userSearchRequest.setTenantId("pg");
-//        UserDetailResponse userDetailResponse =  util.userCall(userSearchRequest, new StringBuilder(applicationConfig.getUserSearchURI()));
-//        if(!CollectionUtils.isEmpty(userDetailResponse.getUser())){
-//
-//            throw new CustomException("DUPLICATE_USER","User already exists with the given username");
-//        }
 
     }
 

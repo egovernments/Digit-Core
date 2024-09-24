@@ -35,6 +35,7 @@ public class Tenant {
     @Size(min = 1, max = 100)
     private String code = null;
 
+    // JsonIgnore - don't send in res
     @JsonProperty("parentId")
     @Size(min = 1, max = 100)
     @JsonIgnore

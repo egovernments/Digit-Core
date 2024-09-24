@@ -43,7 +43,7 @@ public class SubTenantDataValidator {
         // check for the parentId to exist , if yes create
         List<Tenant> tenants = tenantDataRepository.search(TenantDataSearchCriteria
                 .builder()
-                .code(tenantRequest.getTenant().getParentId())
+                .code(tenantRequest.getTenant().getTenantId())
                 .includeSubTenants(Boolean.FALSE)
                 .build());
 

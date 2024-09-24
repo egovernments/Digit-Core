@@ -37,10 +37,10 @@ public class SubTenant {
     @Size(min = 1, max = 100)
     private String code = null;
 
-    @JsonProperty("parentId")
+    @JsonProperty("tenantId")
     @Size(min = 1, max = 100)
     @NotNull
-    private String parentId = null;
+    private String tenantId = null;
 
     // alphanumeric / alphabet
     @JsonProperty("name")
