@@ -17,6 +17,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -46,7 +47,6 @@ public class CorrIdFormDataFilterHelper implements RewriteFunction<MultiValueMap
 
     @Override
     public Publisher<MultiValueMap> apply(ServerWebExchange exchange, MultiValueMap body) {
-
         String requestURI = exchange.getRequest().getPath().value();
         String requestPath = exchange.getRequest().getPath().toString();
         Boolean isOpenRequest = applicationProperties.getOpenEndpointsWhitelist().contains(requestPath);

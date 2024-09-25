@@ -19,6 +19,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,13 +36,13 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
     public static final String UNAUTHORIZED_USER_MESSAGE = "You are not authorized to access this resource";
     public static final String PROCEED_ROUTING_MESSAGE = "Routing to an endpoint: {} - auth provided";
     private ObjectMapper objectMapper;
-    private  MultiStateInstanceUtil centralInstanceUtil;
+    private MultiStateInstanceUtil centralInstanceUtil;
     private ApplicationProperties applicationProperties;
     private UserUtils userUtils;
 
     public AuthPreCheckFilterHelper(ObjectMapper objectMapper, MultiStateInstanceUtil centralInstanceUtil, UserUtils userUtils, ApplicationProperties applicationProperties) {
         this.centralInstanceUtil = centralInstanceUtil;
-        this.userUtils=userUtils;
+        this.userUtils = userUtils;
         this.objectMapper = objectMapper;
         this.applicationProperties = applicationProperties;
     }
@@ -50,7 +51,7 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
     @Override
     public Publisher<Map> apply(ServerWebExchange exchange, Map body) {
 
-        String authToken;
+        String authToken = null;
         String endPointPath = exchange.getRequest().getPath().value();
 
         if (applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath)) {
@@ -60,8 +61,13 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
         }
 
         try {
-            RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-            authToken = requestInfo.getAuthToken();
+            if (!ObjectUtils.isEmpty(body)) {
+                RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
+                authToken = requestInfo.getAuthToken();
+            } else {
+                body = new HashMap<>();
+            }
+
         } catch (Exception e) {
             log.error(AUTH_TOKEN_RETRIEVE_FAILURE_MESSAGE, e);
             throw new CustomException(AUTH_TOKEN_RETRIEVE_FAILURE_MESSAGE, e.getMessage());
@@ -95,6 +101,7 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
+            if (ObjectUtils.isEmpty(requestInfo)) requestInfo = new RequestInfo();
             requestInfo.setUserInfo(systemUser);
             body.put(REQUEST_INFO_FIELD_NAME_PASCAL_CASE, requestInfo);
         } catch (Exception ex) {

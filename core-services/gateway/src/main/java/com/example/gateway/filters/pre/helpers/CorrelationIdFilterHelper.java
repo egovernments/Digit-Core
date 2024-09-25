@@ -17,6 +17,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import java.util.*;
@@ -46,6 +47,7 @@ public class CorrelationIdFilterHelper implements RewriteFunction<Map, Map> {
 
     @Override
     public Publisher<Map> apply(ServerWebExchange exchange, Map body) {
+        if(ObjectUtils.isEmpty(body)) body = new HashMap<>();
         String requestURI = exchange.getRequest().getPath().value();
         String requestPath = exchange.getRequest().getPath().toString();
         Boolean isOpenRequest = applicationProperties.getOpenEndpointsWhitelist().contains(requestPath);
@@ -80,7 +82,8 @@ public class CorrelationIdFilterHelper implements RewriteFunction<Map, Map> {
     private Set<String> getTenantIdsFromRequest(ServerHttpRequest request, Map body) throws CustomException {
 
         Set<String> tenantIds = new HashSet<>();
-
+//        request.getQueryParams();
+        System.out.println(request.getQueryParams());
         if (CommonUtils.isRequestBodyCompatible(request)) {
 
             try {

@@ -41,7 +41,7 @@ public class UserUtils {
 
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
-    public UserUtils (RestTemplate restTemplate, ApplicationProperties applicationProperties, MultiStateInstanceUtil multiStateInstanceUtil) {
+    public UserUtils(RestTemplate restTemplate, ApplicationProperties applicationProperties, MultiStateInstanceUtil multiStateInstanceUtil) {
         this.restTemplate = restTemplate;
         this.applicationProperties = applicationProperties;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
@@ -62,10 +62,10 @@ public class UserUtils {
         return user;
     }
 
-    @Cacheable(value = "systemUser" , sync = true)
+    @Cacheable(value = "systemUser", sync = true)
     public User fetchSystemUser(String tenantId, String correlationId) {
 
-        UserSearchRequest userSearchRequest =new UserSearchRequest();
+        UserSearchRequest userSearchRequest = new UserSearchRequest();
         userSearchRequest.setRoleCodes(Collections.singletonList("ANONYMOUS"));
         userSearchRequest.setUserType("SYSTEM");
         userSearchRequest.setPageSize(1);
@@ -83,8 +83,10 @@ public class UserUtils {
             UserDetailResponse response = restTemplate.postForObject(uri.toString(), httpEntity, UserDetailResponse.class);
             if (!CollectionUtils.isEmpty(response.getUser()))
                 user = response.getUser().get(0);
-        } catch(Exception e) {
-            log.error("Exception while fetching system user: ",e);
+
+            System.out.println(response);
+        } catch (Exception e) {
+            log.error("Exception while fetching system user: ", e);
         }
 
         /*if(user == null)

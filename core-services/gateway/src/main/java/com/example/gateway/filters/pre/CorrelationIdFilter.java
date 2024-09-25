@@ -5,6 +5,7 @@ import com.example.gateway.filters.pre.helpers.CorrIdFormDataFilterHelper;
 import com.example.gateway.filters.pre.helpers.CorrelationIdFilterHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
+import org.jboss.logging.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static com.example.gateway.constants.GatewayConstants.*;
 
@@ -47,9 +49,15 @@ public class CorrelationIdFilter implements GlobalFilter, Ordered {
         String endPointPath = exchange.getRequest().getPath().value();
 
         if(endPointPath.contains("/filestore")){
+            String requestURI = exchange.getRequest().getPath().value();
+            String correlationId = UUID.randomUUID().toString();
+            MDC.put(CORRELATION_ID_KEY, correlationId);
+            exchange.getAttributes().put(CORRELATION_ID_KEY, correlationId);
+            log.debug(RECEIVED_REQUEST_MESSAGE, requestURI);
             return chain.filter(exchange);
         }
-        else if (contentType != null && (contentType.contains("multipart/form-data") || contentType.contains("application/x-www-form-urlencoded"))) {
+        else
+            if (contentType != null && (contentType.contains("multipart/form-data") || contentType.contains("application/x-www-form-urlencoded"))) {
             return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
                     .setRewriteFunction(MultiValueMap.class, MultiValueMap.class, correlationIdFormDataFilterHelper))
                     .filter(exchange, chain);
