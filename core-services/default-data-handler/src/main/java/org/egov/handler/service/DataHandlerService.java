@@ -213,7 +213,7 @@ public class DataHandlerService {
 		return defaultDataRequest;
 	}
 
-	private void createPgrWorkflowConfig(String targetTenantId) {
+	public void createPgrWorkflowConfig(String targetTenantId) {
 		// Load the JSON file
 		Resource resource = resourceLoader.getResource("classpath:PgrWorkflowConfig.json");
 		try (InputStream inputStream = resource.getInputStream()) {

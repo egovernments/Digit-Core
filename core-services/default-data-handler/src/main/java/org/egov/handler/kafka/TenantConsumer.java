@@ -72,6 +72,7 @@ public class TenantConsumer {
 					.build();
 
 			dataHandlerService.createDefaultData(defaultDataRequest);
+			dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
 			dataHandlerService.createTenantConfig(tenantRequest);
 
 			userUtil.createUser(tenantRequest);
