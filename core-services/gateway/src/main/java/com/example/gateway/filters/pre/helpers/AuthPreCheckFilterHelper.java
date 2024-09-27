@@ -116,7 +116,6 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
      * method to fetch state level tenant-id based on whether the server is a
      * multi-state instance or single-state instance
      *
-     * @param ctx
      * @return
      */
     private String getStateLevelTenantForHost(ServerHttpRequest request) {

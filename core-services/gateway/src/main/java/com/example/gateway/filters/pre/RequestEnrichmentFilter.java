@@ -30,7 +30,7 @@ public class RequestEnrichmentFilter implements GlobalFilter , Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String contentType = exchange.getRequest().getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
 
-        if (contentType != null && (contentType.contains("multipart/form-data") || contentType.contains("application/x-www-form-urlencoded"))) {
+        if (contentType == null || (contentType.contains("multipart/form-data") || contentType.contains("application/x-www-form-urlencoded"))) {
             return chain.filter(exchange);
         } else {
             return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
