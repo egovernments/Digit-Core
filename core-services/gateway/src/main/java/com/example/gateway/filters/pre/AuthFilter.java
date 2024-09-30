@@ -30,15 +30,14 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
         Boolean doAuth = exchange.getAttribute(AUTH_BOOLEAN_FLAG_NAME);
 
-        if(doAuth) {
+        // TODO: handle auth for form-data content type (filestore)
+        if (Boolean.TRUE.equals(doAuth)) {
             return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
                             .setRewriteFunction(Map.class, Map.class, authCheckFilterHelper))
                     .filter(exchange, chain);
-        }
-        else {
+        } else {
             return chain.filter(exchange);
         }
     }
