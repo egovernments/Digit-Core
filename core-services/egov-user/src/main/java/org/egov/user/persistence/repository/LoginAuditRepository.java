@@ -56,7 +56,7 @@ public class LoginAuditRepository {
         parametersMap.put("createdtime", System.currentTimeMillis());
         parametersMap.put("ipaddress", loginAudit.getIpAddress());
         parametersMap.put("loginstatus", String.valueOf(loginAudit.getLoginStatus()));
-        parametersMap.put("logintype", String.valueOf(loginAudit.getLoginType());
+        parametersMap.put("logintype", String.valueOf(loginAudit.getLoginType()));
 
         try {
             String rolesJson = objectMapper.writeValueAsString(loginAudit.getRoles());
