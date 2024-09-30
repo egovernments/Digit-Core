@@ -84,7 +84,7 @@ public class MdmsApiMappings {
     }
 
 
-    @PostConstruct
+//    @PostConstruct
     public void loadMdmsService() throws Exception {
 
         String REQUEST_INFO_STR = MDMS_REQUESTINFO.replace(TENANTID_PLACEHOLDER,stateLevelTenantId);

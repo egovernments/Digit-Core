@@ -42,7 +42,7 @@ public class MdmsService {
     @Value("${egov.statelevel.tenantId}")
     private  String stateLevelTenantId ;
 
-    @PostConstruct
+//    @PostConstruct
     public void loadMdmsService() throws Exception{
 
         String REQUEST_INFO_STR = MDMS_REQUESTINFO.replace(TENANTID_PLACEHOLDER,stateLevelTenantId);
