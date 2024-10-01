@@ -9,23 +9,26 @@ import org.egov.user.domain.model.enums.LoginStatus;
 import org.egov.user.domain.model.enums.LoginType;
 import org.egov.user.domain.model.enums.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 @Component
-public class LoginAuditRowMapper implements RowMapper<List<LoginAudit>> {
+public class LoginAuditRowMapper implements ResultSetExtractor<List<LoginAudit>> {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
-    public List<LoginAudit> mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+    public List<LoginAudit> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
         List<LoginAudit> loginAudits = new LinkedList<>();
 

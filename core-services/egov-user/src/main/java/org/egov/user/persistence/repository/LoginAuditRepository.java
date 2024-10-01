@@ -55,8 +55,8 @@ public class LoginAuditRepository {
         parametersMap.put("userid", loginAudit.getUserid());
         parametersMap.put("createdtime", System.currentTimeMillis());
         parametersMap.put("ipaddress", loginAudit.getIpAddress());
-        parametersMap.put("loginstatus", String.valueOf(loginAudit.getLoginStatus()));
-        parametersMap.put("logintype", String.valueOf(loginAudit.getLoginType()));
+        parametersMap.put("loginstatus", loginAudit.getLoginStatus().toString());
+        parametersMap.put("logintype", loginAudit.getLoginType().toString());
 
         try {
             String rolesJson = objectMapper.writeValueAsString(loginAudit.getRoles());
@@ -77,7 +77,7 @@ public class LoginAuditRepository {
     public List<LoginAudit> getLoginAudits(LoginAuditSearchRequest searchRequest){
         Map<String, Object> parametersMap = new HashMap<String, Object>();
         String selectQuery = queryBuilder.getQuery(searchRequest, parametersMap);
-        List<LoginAudit> loginAudits = namedParameterJdbcTemplate.queryForObject(selectQuery, parametersMap, rowMapper);
+        List<LoginAudit> loginAudits = namedParameterJdbcTemplate.query(selectQuery, parametersMap, rowMapper);
         return loginAudits;
     }
 
