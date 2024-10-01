@@ -17,6 +17,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.rewrite.RewriteFunction;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -64,20 +65,18 @@ public class AuthPreCheckFilter implements GlobalFilter, Ordered {
 
         String contentType = exchange.getRequest().getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
         String endPointPath = exchange.getRequest().getPath().value();
+        boolean isGetRequest = HttpMethod.GET.equals(exchange.getRequest().getMethod());
 
         if (applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath)) {
             exchange.getAttributes().put(AUTH_BOOLEAN_FLAG_NAME, Boolean.FALSE);
             log.info(OPEN_ENDPOINT_MESSAGE, endPointPath);
             return chain.filter(exchange);
 
-        } else if (commonUtils.isFormContentType(contentType)) {
+        } else if (isGetRequest || commonUtils.isFormContentType(contentType)) {
             return handleAuthPreCheck(exchange, chain);
 
         } else {
-            return modifyRequestBodyFilter
-                    .apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                            .setRewriteFunction(Map.class, Map.class, authPreCheckFilterHelper))
-                    .filter(exchange, chain);
+            return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config().setRewriteFunction(Map.class, Map.class, authPreCheckFilterHelper)).filter(exchange, chain);
         }
     }
 

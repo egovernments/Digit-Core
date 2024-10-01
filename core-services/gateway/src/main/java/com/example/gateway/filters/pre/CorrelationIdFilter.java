@@ -34,8 +34,7 @@ public class CorrelationIdFilter implements GlobalFilter, Ordered {
 
     private final CommonUtils commonUtils;
 
-    public CorrelationIdFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyGatewayFilter, CorrelationIdFilterHelper correlationIdFilterHelper,
-                               ApplicationProperties applicationProperties, CommonUtils commonUtils) {
+    public CorrelationIdFilter(ModifyRequestBodyGatewayFilterFactory modifyRequestBodyGatewayFilter, CorrelationIdFilterHelper correlationIdFilterHelper, ApplicationProperties applicationProperties, CommonUtils commonUtils) {
 
         this.modifyRequestBodyFilter = modifyRequestBodyGatewayFilter;
         this.correlationIdFilterHelper = correlationIdFilterHelper;
@@ -62,9 +61,7 @@ public class CorrelationIdFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
 
         } else {
-            return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config()
-                            .setRewriteFunction(Map.class, Map.class, correlationIdFilterHelper))
-                    .filter(exchange, chain);
+            return modifyRequestBodyFilter.apply(new ModifyRequestBodyGatewayFilterFactory.Config().setRewriteFunction(Map.class, Map.class, correlationIdFilterHelper)).filter(exchange, chain);
         }
     }
 
