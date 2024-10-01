@@ -1,0 +1,8 @@
+.custom-class path{
+    fill:orange;
+  }
+.custom-class{
+    border: 2px dotted blue;
+    width: 100px;
+    height: 100px;
+}

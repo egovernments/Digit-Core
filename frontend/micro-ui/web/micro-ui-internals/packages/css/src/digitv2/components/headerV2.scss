@@ -1,0 +1,6 @@
+@import url("../index.scss");
+
+.digit-header {
+  @extend .light-text-color-primary;
+  @apply text-heading-l font-bold mb-md ml-md;
+}

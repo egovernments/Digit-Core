@@ -1,0 +1,39 @@
+@import url("../index.scss");
+
+body {
+  @extend .light-background;
+}
+
+.body-container {
+  @extend .light-background;
+  @apply h-full min-h-screen overflow-x-hidden;
+}
+
+.body-container::-webkit-scrollbar {
+  display: none;
+}
+
+.h1 {
+  @extend .light-text-color-primary;
+  @apply text-heading-l font-bold mb-md ml-md;
+}
+
+.link-label {
+  @extend .light-primary;
+  @apply block mb-md ml-md cursor-pointer;
+
+  &:hover {
+    @extend .light-text-color-primary;
+  }
+}
+
+@screen dt {
+  .h1 {
+    margin-left: 0;
+    @apply text-heading-l-dt;
+  }
+
+  .link-label {
+    margin-left: 0;
+  }
+}
