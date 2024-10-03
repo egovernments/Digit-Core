@@ -8,7 +8,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.2.2</version>
-		<relativePath></relativePath>
+		<relativePath/>
 	</parent>
 	<groupId>org.egov</groupId>
 	<artifactId>egov-filestore</artifactId>
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.5</version>
+			<version>2.14.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
 		<dependency>
@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.11.0</version> <!-- Make sure to use the correct version -->
+			<version>2.14.0</version> <!-- Make sure to use the correct version -->
 		</dependency>
 
 		<dependency>
