@@ -12,6 +12,9 @@ import lombok.Getter;
 @PropertySource("classpath:enc.properties")
 public class EncProperties {
 
+    @Value("${decryption.audit.enabled}")
+    private Boolean decryptionAuditEnabled;
+
     @Value("${kafka.topic.audit}")
     private String auditTopicName;
 
