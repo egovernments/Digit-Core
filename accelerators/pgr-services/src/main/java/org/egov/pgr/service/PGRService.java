@@ -1,19 +1,24 @@
 package org.egov.pgr.service;
 
 
+import com.jayway.jsonpath.JsonPath;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.producer.Producer;
 import org.egov.pgr.repository.PGRRepository;
 import org.egov.pgr.util.MDMSUtils;
 import org.egov.pgr.validator.ServiceRequestValidator;
+import org.egov.pgr.web.models.Service;
 import org.egov.pgr.web.models.ServiceWrapper;
 import org.egov.pgr.web.models.RequestSearchCriteria;
 import org.egov.pgr.web.models.ServiceRequest;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+
+import static org.egov.pgr.util.PGRConstants.MDMS_DEPARTMENT_SEARCH;
 
 @org.springframework.stereotype.Service
 public class PGRService {
@@ -66,6 +71,12 @@ public class PGRService {
         validator.validateCreate(request, mdmsData);
         enrichmentService.enrichCreateRequest(request);
         workflowService.updateWorkflowStatus(request);
+
+        Service service = request.getService();
+        Map<String, Object> additionalDetailMap = new HashMap<>();
+        additionalDetailMap.put("department", getDepartmentFromMDMS(request, mdmsData));
+        service.setAdditionalDetail(additionalDetailMap);
+
         producer.push(tenantId,config.getCreateTopic(),request);
         return request;
     }
@@ -196,4 +207,23 @@ public class PGRService {
 		
 		return Integer.valueOf(config.getComplaintTypes());
 	}
+
+    private String getDepartmentFromMDMS(ServiceRequest request, Object mdmsData) {
+
+        String serviceCode = request.getService().getServiceCode();
+        String jsonPath = MDMS_DEPARTMENT_SEARCH.replace("{SERVICEDEF}", serviceCode);
+
+        try {
+            List<String> department = JsonPath.read(mdmsData, jsonPath);
+
+            if (department == null || department.isEmpty()) {
+                throw new CustomException("DEPARTMENT_NOT_FOUND", "No department found for service: " + serviceCode);
+            }
+
+            return department.get(0);
+        } catch (Exception e) {
+            throw new CustomException("JSONPATH_ERROR", "Failed to parse mdms response for service: " + serviceCode);
+        }
+    }
+
 }
