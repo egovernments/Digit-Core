@@ -44,10 +44,10 @@ public class AnalyticApp {
 		};
 	}
 
-	@Bean
-	@Profile("!test")
-	public CacheManager cacheManager() {
-		return new SpringCache2kCacheManager().addCaches(b -> b.name("versions").expireAfterWrite(cacheExpiry, TimeUnit.MINUTES)
-				.entryCapacity(cacheCapacity));
-	}
+//	@Bean
+//	@Profile("!test")
+//	public CacheManager cacheManager() {
+//		return new SpringCache2kCacheManager().addCaches(b -> b.name("versions").expireAfterWrite(cacheExpiry, TimeUnit.MINUTES)
+//				.entryCapacity(cacheCapacity));
+//	}
 }
