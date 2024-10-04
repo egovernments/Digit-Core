@@ -24,59 +24,62 @@ import java.util.Objects;
 @Component
 public class TenantConsumer {
 
-	private final ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
-	private final DataHandlerService dataHandlerService;
+    private final DataHandlerService dataHandlerService;
 
-	private final UserUtil userUtil;
+    private final UserUtil userUtil;
 
-	private final OtpUtil otpUtil;
+    private final OtpUtil otpUtil;
 
-	private final ServiceConfiguration serviceConfig;
+    private final ServiceConfiguration serviceConfig;
 
-	private final LocalizationUtil localizationUtil;
+    private final LocalizationUtil localizationUtil;
 
-	@Autowired
-	public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil, ServiceConfiguration serviceConfig, LocalizationUtil localizationUtil) {
-		this.mapper = mapper;
-		this.dataHandlerService = dataHandlerService;
-		this.userUtil = userUtil;
-		this.otpUtil = otpUtil;
-		this.serviceConfig = serviceConfig;
-		this.localizationUtil = localizationUtil;
-	}
+    @Autowired
+    public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil, ServiceConfiguration serviceConfig, LocalizationUtil localizationUtil) {
+        this.mapper = mapper;
+        this.dataHandlerService = dataHandlerService;
+        this.userUtil = userUtil;
+        this.otpUtil = otpUtil;
+        this.serviceConfig = serviceConfig;
+        this.localizationUtil = localizationUtil;
+    }
 
-	@KafkaListener(topics = {"${kafka.topics.create.tenant}"})
-	public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-		TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
+    @KafkaListener(topics = {"${kafka.topics.create.tenant}"})
+    public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
 
-		// Setting userInfo with UUID
-		User userInfo = User.builder()
-				.uuid("40dceade-992d-4a8f-8243-19dda76a4171")
-				.build();
-		tenantRequest.getRequestInfo().setUserInfo(userInfo);
+        // Setting userInfo with UUID
+        User userInfo = User.builder()
+                .uuid("40dceade-992d-4a8f-8243-19dda76a4171")
+                .build();
+        tenantRequest.getRequestInfo().setUserInfo(userInfo);
 
-		localizationUtil.upsertLocalization(tenantRequest);
+        localizationUtil.upsertLocalization(tenantRequest);
 
-		// create user only for root tenant
-		if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
-			log.info("Configuring Tenant: {}", tenantRequest.getTenant().getCode());
+        // create user only for root tenant
+        if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
+            log.info("Configuring Tenant: {}", tenantRequest.getTenant().getCode());
 
-			DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
-					.requestInfo(tenantRequest.getRequestInfo())
-					.targetTenantId(tenantRequest.getTenant().getCode())
-					.schemaCodes(serviceConfig.getDefaultMdmsSchemaList())
-					.onlySchemas(Boolean.FALSE)
-					.locale(serviceConfig.getDefaultLocalizationLocale())
-					.modules(serviceConfig.getDefaultLocalizationModuleList())
-					.build();
+            DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
+                    .requestInfo(tenantRequest.getRequestInfo())
+                    .targetTenantId(tenantRequest.getTenant().getCode())
+                    .schemaCodes(serviceConfig.getDefaultMdmsSchemaList())
+                    .onlySchemas(Boolean.FALSE)
+                    .locale(serviceConfig.getDefaultLocalizationLocale())
+                    .modules(serviceConfig.getDefaultLocalizationModuleList())
+                    .build();
 
-			dataHandlerService.createDefaultData(defaultDataRequest);
-			dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
-			dataHandlerService.createTenantConfig(tenantRequest);
+            dataHandlerService.createDefaultData(defaultDataRequest);
+//            dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
+//            dataHandlerService.createTenantConfig(tenantRequest);
 
-			userUtil.createUser(tenantRequest);
-			otpUtil.sendOtp(tenantRequest);
-		}
-	}
+            userUtil.createUser(tenantRequest);
+            otpUtil.sendOtp(tenantRequest);
+
+            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Employee_Approver");
+            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Customer_Support");
+        }
+    }
 }
