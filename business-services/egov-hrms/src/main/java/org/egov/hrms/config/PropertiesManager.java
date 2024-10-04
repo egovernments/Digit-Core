@@ -117,4 +117,7 @@ public class PropertiesManager {
 	@Value("${mobileNumber.enabled.flag}")
 	private Boolean isMobileNumberValidationEnable;
 
+	@Value("${password.generation.flag}")
+	private Boolean isPasswordGenEnabled;
+
 }
