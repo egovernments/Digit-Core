@@ -161,7 +161,7 @@ public class EmployeeValidator {
 		List<Employee> employees = request.getEmployees();
 		validateDataUniqueness(employees,errorMap);
         if(propertiesManager.getIsMobileNumberValidationEnable())validateUserMobile(employees,errorMap,request.getRequestInfo());
-        validateUserName(employees,errorMap,request.getRequestInfo());
+        if(propertiesManager.getIsMobileNumberValidationEnable())validateUserName(employees,errorMap,request.getRequestInfo());
 	}
 
 	/**
