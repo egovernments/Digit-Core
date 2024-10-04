@@ -78,8 +78,8 @@ public class TenantConsumer {
             userUtil.createUser(tenantRequest);
             otpUtil.sendOtp(tenantRequest);
 
-            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Employee_Approver");
-            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Customer_Support");
+            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Resolver");
+            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Assigner");
         }
     }
 }

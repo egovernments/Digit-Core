@@ -289,7 +289,7 @@ public class DataHandlerService {
             // Iterate through each employee in the Employees array
             rootNode.get("Employees").forEach(employee -> {
                 ((ObjectNode) employee).put("tenantId", tenantId);
-                ((ObjectNode) employee).put("code", employeeCode + "_" + tenantId);
+                ((ObjectNode) employee).put("code", employeeCode + "_" + tenantId+"@dummy.com");
 
                 // Iterate through each jurisdiction for the employee
                 employee.get("jurisdictions").forEach(jurisdiction -> {
@@ -310,7 +310,7 @@ public class DataHandlerService {
 
                 // Iterate through roles in user node
                 userNode.get("roles").forEach(role -> {
-                    if (role.get("code").equals("PGR_LME") && employeeCode.equals("Customer_Support")) {
+                    if (role.get("code").equals("PGR_LME") && employeeCode.equals("Assigner")) {
                         ((ObjectNode) role).put("code", "CSR");
                         ((ObjectNode) role).put("code", "Customer Support Representative");
                         ((ObjectNode) role).put("labelKey", "ACCESSCONTROL_ROLES_ROLES_CSR");
