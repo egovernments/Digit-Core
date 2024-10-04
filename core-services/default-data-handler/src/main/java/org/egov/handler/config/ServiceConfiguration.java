@@ -101,4 +101,21 @@ public class ServiceConfiguration {
     @Value("${egov.hrms.path}")
     private String hrmsCreatePath;
 
+    // Elastic Search Configuration
+    @Value("${egov.indexer.es.username}")
+    private String EsUsername;
+
+    @Value("${egov.indexer.es.password}")
+    private String EsPassword;
+
+    @Value("${egov.infra.indexer.host}")
+    private String elasticsearchHost;
+
+    @Value("${elasticsearch.port}")
+    private int elasticsearchPort;
+
+    @Value("${egov.bulk.index.path}")
+    private String bulkIndexPath;
+
+
 }

@@ -289,7 +289,7 @@ public class DataHandlerService {
             // Iterate through each employee in the Employees array
             rootNode.get("Employees").forEach(employee -> {
                 ((ObjectNode) employee).put("tenantId", tenantId);
-                ((ObjectNode) employee).put("code", employeeCode + "_" + tenantId+"@dummy.com");
+                ((ObjectNode) employee).put("code", employeeCode + "_" + tenantId + "@dummy.com");
 
                 // Iterate through each jurisdiction for the employee
                 employee.get("jurisdictions").forEach(jurisdiction -> {

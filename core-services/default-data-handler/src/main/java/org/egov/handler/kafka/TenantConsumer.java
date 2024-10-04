@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.User;
 import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.service.DataHandlerService;
+import org.egov.handler.util.ElasticsearchUtil;
 import org.egov.handler.util.LocalizationUtil;
 import org.egov.handler.util.OtpUtil;
 import org.egov.handler.util.UserUtil;
@@ -17,6 +18,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -36,14 +38,17 @@ public class TenantConsumer {
 
     private final LocalizationUtil localizationUtil;
 
+    private ElasticsearchUtil elasticsearchUtil;
+
     @Autowired
-    public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil, ServiceConfiguration serviceConfig, LocalizationUtil localizationUtil) {
+    public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil, ServiceConfiguration serviceConfig, LocalizationUtil localizationUtil, ElasticsearchUtil elasticsearchUtil) {
         this.mapper = mapper;
         this.dataHandlerService = dataHandlerService;
         this.userUtil = userUtil;
         this.otpUtil = otpUtil;
         this.serviceConfig = serviceConfig;
         this.localizationUtil = localizationUtil;
+        this.elasticsearchUtil = elasticsearchUtil;
     }
 
     @KafkaListener(topics = {"${kafka.topics.create.tenant}"})
@@ -77,9 +82,13 @@ public class TenantConsumer {
 
             userUtil.createUser(tenantRequest);
             otpUtil.sendOtp(tenantRequest);
-
             dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Resolver");
             dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Assigner");
+            try {
+                elasticsearchUtil.createDefaultRecords(tenantRequest.getTenant().getCode());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
