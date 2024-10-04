@@ -63,7 +63,8 @@ public class RestService {
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> requestEntity = new HttpEntity<>(searchQuery, headers);
 		JsonNode responseNode = null;
-
+		// REMOVE IT !!!
+		System.out.println("Query: "+searchQuery);
 		try {
 			ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Object.class);
 			responseNode = new ObjectMapper().convertValue(response.getBody(), JsonNode.class);
