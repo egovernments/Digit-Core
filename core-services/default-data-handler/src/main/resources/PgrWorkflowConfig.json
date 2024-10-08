@@ -190,8 +190,7 @@
               "nextState": "CLOSEDAFTERREJECTION",
               "roles": [
                 "CFC",
-                "CITIZEN",
-                "SUPERUSER"
+                "CITIZEN"
               ]
             }
           ]
