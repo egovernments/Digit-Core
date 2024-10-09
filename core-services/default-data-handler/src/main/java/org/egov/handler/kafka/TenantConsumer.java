@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 
+import static org.egov.handler.constants.UserConstants.ASSIGNER;
+import static org.egov.handler.constants.UserConstants.RESOLVER;
+
 @Slf4j
 @Component
 public class TenantConsumer {
@@ -82,8 +85,8 @@ public class TenantConsumer {
 
             userUtil.createUser(tenantRequest);
             otpUtil.sendOtp(tenantRequest);
-            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Resolver");
-            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), "Assigner");
+            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), RESOLVER, "Rakesh Kumar");
+            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), ASSIGNER, "John Smith");
             try {
                 elasticsearchUtil.createDefaultRecords(tenantRequest.getTenant().getCode());
             } catch (IOException e) {

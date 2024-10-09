@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.*;
 
 import static org.egov.handler.config.ServiceConstants.TENANT_BOUNDARY_SCHEMA;
+import static org.egov.handler.constants.UserConstants.*;
 
 @Slf4j
 @Service
@@ -278,18 +279,16 @@ public class DataHandlerService {
         }
     }
 
-    public void createDefaultEmployee(String tenantId, String emailId, String employeeCode) {
-//        String tenantId = "PG";
-//        String employeeCode = "Counter_Employee";
-//        String emailId = "xyz@gmail.com";
-        Resource resource = resourceLoader.getResource("classpath:HRMS.json");
+    public void createDefaultEmployee(String tenantId, String emailId, String employeeCode, String name) {
+
+        Resource resource = resourceLoader.getResource(HRMS_CLASSPATH);
         try (InputStream inputStream = resource.getInputStream()) {
             JsonNode rootNode = objectMapper.readTree(inputStream);
 
             // Iterate through each employee in the Employees array
             rootNode.get("Employees").forEach(employee -> {
                 ((ObjectNode) employee).put("tenantId", tenantId);
-                ((ObjectNode) employee).put("code", employeeCode + "_" + tenantId + "@dummy.com");
+                ((ObjectNode) employee).put("code", employeeCode + "@demo.com");
 
                 // Iterate through each jurisdiction for the employee
                 employee.get("jurisdictions").forEach(jurisdiction -> {
@@ -304,13 +303,13 @@ public class DataHandlerService {
 
                 // Update the user details for the employee
                 JsonNode userNode = employee.get("user");
-                ((ObjectNode) userNode).put("name", employeeCode + "_" + tenantId);
+                ((ObjectNode) userNode).put("name", name);
                 ((ObjectNode) userNode).put("tenantId", tenantId);
                 ((ObjectNode) userNode).put("emailId", emailId);
 
                 // Iterate through roles in user node
                 userNode.get("roles").forEach(role -> {
-                    if (role.get("code").equals("PGR_LME") && employeeCode.equals("Assigner")) {
+                    if (role.get("code").equals(PGR_LME) && employeeCode.equals(ASSIGNER)) {
                         ((ObjectNode) role).put("code", "CSR");
                         ((ObjectNode) role).put("code", "Customer Support Representative");
                         ((ObjectNode) role).put("labelKey", "ACCESSCONTROL_ROLES_ROLES_CSR");
