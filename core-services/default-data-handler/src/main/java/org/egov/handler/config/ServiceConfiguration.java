@@ -47,8 +47,8 @@ public class ServiceConfiguration {
     @Value("${egov.localization.host}${egov.localization.upsert.path}")
     private String upsertLocalizationURI;
 
-    @Value("${default.localization.locale}")
-    private String defaultLocalizationLocale;
+    @Value("#{'${default.localization.locale.list}'.split(',')}")
+    private List<String> defaultLocalizationLocaleList;
 
     @Value("#{'${default.localization.module.create.list}'.split(',')}")
     private List<String> defaultLocalizationModuleList;

@@ -35,9 +35,9 @@ public class DefaultDataRequest {
 	@Valid
 	private Boolean onlySchemas = Boolean.TRUE;
 
-	@JsonProperty("locale")
+	@JsonProperty("locales")
 	@Valid
-	private String locale = null;
+	private List<String> locales = null;
 
 	@JsonProperty("modules")
 	@Valid

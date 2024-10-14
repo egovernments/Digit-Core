@@ -75,7 +75,7 @@ public class TenantConsumer {
                     .targetTenantId(tenantRequest.getTenant().getCode())
                     .schemaCodes(serviceConfig.getDefaultMdmsSchemaList())
                     .onlySchemas(Boolean.FALSE)
-                    .locale(serviceConfig.getDefaultLocalizationLocale())
+                    .locales(serviceConfig.getDefaultLocalizationLocaleList())
                     .modules(serviceConfig.getDefaultLocalizationModuleList())
                     .build();
 
