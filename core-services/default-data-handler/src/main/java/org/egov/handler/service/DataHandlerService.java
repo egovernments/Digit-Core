@@ -310,8 +310,8 @@ public class DataHandlerService {
 
 				// Iterate through roles in user node
 				userNode.get("roles").forEach(role -> {
-					if (role.get("code").equals(PGR_LME) && employeeCode.equals(ASSIGNER)) {
-						((ObjectNode) role).put("code", "CSR");
+					if (role.get("code").equals(RESOLVER) && employeeCode.equals(ASSIGNER)) {
+						((ObjectNode) role).put("code",ASSIGNER);
 						((ObjectNode) role).put("code", "Customer Support Representative");
 						((ObjectNode) role).put("labelKey", "ACCESSCONTROL_ROLES_ROLES_CSR");
 					}

@@ -22,7 +22,7 @@
           "tenantId": "TENANTID",
           "roles": [
             {
-              "code": "PGR_LME",
+              "code": "Resolver",
               "name": "PGR Last Mile Employee",
               "labelKey": "ACCESSCONTROL_ROLES_ROLES_PGR_LME",
               "tenantId": "TENANTID"
