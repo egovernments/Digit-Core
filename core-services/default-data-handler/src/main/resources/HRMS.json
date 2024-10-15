@@ -22,7 +22,7 @@
           "tenantId": "TENANTID",
           "roles": [
             {
-              "code": "Resolver",
+              "code": "RESOLVER",
               "name": "PGR Last Mile Employee",
               "labelKey": "ACCESSCONTROL_ROLES_ROLES_PGR_LME",
               "tenantId": "TENANTID"
@@ -44,7 +44,7 @@
         "dob": 946339200000,
         "roles": [
           {
-            "code": "PGR_LME",
+            "code": "RESOLVER",
             "name": "PGR Last Mile Employee",
             "labelKey": "ACCESSCONTROL_ROLES_ROLES_PGR_LME",
             "tenantId": "TENANTID"
