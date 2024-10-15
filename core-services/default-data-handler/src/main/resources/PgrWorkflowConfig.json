@@ -48,8 +48,9 @@
               "nextState": "PENDINGFORASSIGNMENT",
               "roles": [
                 "CITIZEN",
-                "CSR",
-                "SUPERUSER"
+                "SUPERUSER",
+                "ADMIN",
+                "COMPLAINTS_ADMIN"
               ]
             }
           ]
@@ -74,18 +75,21 @@
               "action": "ASSIGN",
               "nextState": "PENDINGATLME",
               "roles": [
-                "GRO",
-                "DGRO",
-                "SUPERUSER"
+                "SUPERUSER",
+                "ADMIN",
+                "COMPLAINTS_ADMIN",
+                "ASSIGNER"
               ]
             },
             {
               "action": "REJECT",
               "nextState": "REJECTED",
               "roles": [
-                "GRO",
-                "DGRO",
-                "SUPERUSER"
+                "SUPERUSER",
+                "ADMIN",
+                "COMPLAINTS_ADMIN",
+                "ASSIGNER",
+                "RESOLVER"
               ]
             }
           ]
@@ -110,18 +114,21 @@
               "action": "REASSIGN",
               "nextState": "PENDINGATLME",
               "roles": [
-                "GRO",
-                "DGRO",
-                "SUPERUSER"
+                "SUPERUSER",
+                "ADMIN",
+                "COMPLAINTS_ADMIN",
+                "ASSIGNER"
               ]
             },
             {
               "action": "REJECT",
               "nextState": "REJECTED",
               "roles": [
-                "GRO",
-                "DGRO",
-                "SUPERUSER"
+                "SUPERUSER",
+                "ADMIN",
+                "COMPLAINTS_ADMIN",
+                "ASSIGNER",
+                "RESOLVER"
               ]
             }
           ]
@@ -146,16 +153,20 @@
               "action": "RESOLVE",
               "nextState": "RESOLVED",
               "roles": [
-                "PGR_LME",
-                "SUPERUSER"
+                "SUPERUSER",
+                "ADMIN",
+                "COMPLAINTS_ADMIN",
+                "RESOLVER"
               ]
             },
             {
               "action": "REASSIGN",
               "nextState": "PENDINGFORREASSIGNMENT",
               "roles": [
-                "PGR_LME",
-                "SUPERUSER"
+                "SUPERUSER",
+                "ADMIN",
+                "COMPLAINTS_ADMIN",
+                "ASSIGNER"
               ]
             }
           ]
@@ -180,8 +191,6 @@
               "action": "REOPEN",
               "nextState": "PENDINGFORASSIGNMENT",
               "roles": [
-                "CFC",
-                "CSR",
                 "CITIZEN"
               ]
             },
@@ -189,7 +198,6 @@
               "action": "RATE",
               "nextState": "CLOSEDAFTERREJECTION",
               "roles": [
-                "CFC",
                 "CITIZEN"
               ]
             }
@@ -215,8 +223,6 @@
               "action": "REOPEN",
               "nextState": "PENDINGFORASSIGNMENT",
               "roles": [
-                "CFC",
-                "CSR",
                 "CITIZEN"
               ]
             },
@@ -224,7 +230,6 @@
               "action": "RATE",
               "nextState": "CLOSEDAFTERRESOLUTION",
               "roles": [
-                "CFC",
                 "CITIZEN"
               ]
             }
