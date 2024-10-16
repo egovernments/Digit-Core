@@ -18,4 +18,8 @@ public class UserConstants {
 
     public static final String HRMS_CLASSPATH = "classpath:HRMS.json";
 
+    public static final String WELCOME_MAIL_CLASSPATH = "classpath:WelcomeEmail.HTML";
+
+    public static final String WELCOME_MAIL_SUBJECT = "Welcome to Sandbox";
+
 }

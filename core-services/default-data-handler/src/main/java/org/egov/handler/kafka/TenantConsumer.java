@@ -85,6 +85,10 @@ public class TenantConsumer {
 
             userUtil.createUser(tenantRequest);
             otpUtil.sendOtp(tenantRequest);
+
+            // Send welcome email after everything is set up
+            dataHandlerService.triggerWelcomeEmail(tenantRequest);
+
             dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), RESOLVER, "Rakesh Kumar");
             dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), ASSIGNER, "John Smith");
             try {

@@ -117,5 +117,6 @@ public class ServiceConfiguration {
     @Value("${egov.bulk.index.path}")
     private String bulkIndexPath;
 
-
+    @Value("${topic.notification.mail}")
+    private String emailTopic;
 }

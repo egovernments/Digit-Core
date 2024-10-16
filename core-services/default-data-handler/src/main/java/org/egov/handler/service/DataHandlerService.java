@@ -3,11 +3,14 @@ package org.egov.handler.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.util.*;
 import org.egov.handler.web.models.*;
+import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.egov.handler.config.ServiceConstants.TENANT_BOUNDARY_SCHEMA;
@@ -41,14 +45,10 @@ public class DataHandlerService {
 
     private final WorkflowUtil workflowUtil;
 
+    private final CustomKafkaTemplate producer;
+
     @Autowired
-    public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil,
-                              LocalizationUtil localizationUtil,
-                              TenantManagementUtil tenantManagementUtil,
-                              ServiceConfiguration serviceConfig,
-                              ObjectMapper objectMapper,
-                              ResourceLoader resourceLoader,
-                              WorkflowUtil workflowUtil) {
+    public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper, ResourceLoader resourceLoader, WorkflowUtil workflowUtil, CustomKafkaTemplate producer) {
         this.mdmsV2Util = mdmsV2Util;
         this.hrmsUtil = hrmsUtil;
         this.localizationUtil = localizationUtil;
@@ -57,6 +57,7 @@ public class DataHandlerService {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.workflowUtil = workflowUtil;
+        this.producer = producer;
     }
 
     public void createDefaultData(DefaultDataRequest defaultDataRequest) {
@@ -66,25 +67,13 @@ public class DataHandlerService {
                 createTenantBoundarydata(defaultDataRequest.getRequestInfo(), defaultDataRequest.getTargetTenantId());
                 schemaCodes.remove(TENANT_BOUNDARY_SCHEMA);
             }
-            DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
-                    .requestInfo(defaultDataRequest.getRequestInfo())
-                    .targetTenantId(defaultDataRequest.getTargetTenantId())
-                    .schemaCodes(schemaCodes)
-                    .onlySchemas(defaultDataRequest.getOnlySchemas())
-                    .defaultTenantId(serviceConfig.getDefaultTenantId())
-                    .build();
+            DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder().requestInfo(defaultDataRequest.getRequestInfo()).targetTenantId(defaultDataRequest.getTargetTenantId()).schemaCodes(schemaCodes).onlySchemas(defaultDataRequest.getOnlySchemas()).defaultTenantId(serviceConfig.getDefaultTenantId()).build();
             mdmsV2Util.createDefaultMdmsData(defaultMdmsDataRequest);
         }
 
         if (defaultDataRequest.getLocales() != null && defaultDataRequest.getModules() != null) {
             for (String locale : defaultDataRequest.getLocales()) {
-                DefaultLocalizationDataRequest defaultLocalizationDataRequest = DefaultLocalizationDataRequest.builder()
-                        .requestInfo(defaultDataRequest.getRequestInfo())
-                        .targetTenantId(defaultDataRequest.getTargetTenantId())
-                        .locale(locale)
-                        .modules(defaultDataRequest.getModules())
-                        .defaultTenantId(serviceConfig.getDefaultTenantId())
-                        .build();
+                DefaultLocalizationDataRequest defaultLocalizationDataRequest = DefaultLocalizationDataRequest.builder().requestInfo(defaultDataRequest.getRequestInfo()).targetTenantId(defaultDataRequest.getTargetTenantId()).locale(locale).modules(defaultDataRequest.getModules()).defaultTenantId(serviceConfig.getDefaultTenantId()).build();
                 localizationUtil.createLocalizationData(defaultLocalizationDataRequest);
             }
         }
@@ -93,13 +82,7 @@ public class DataHandlerService {
     private void createTenantBoundarydata(RequestInfo requestInfo, String targetTenantId) {
         List<String> schemaCodes = new ArrayList<>(Collections.singletonList(TENANT_BOUNDARY_SCHEMA));
 
-        DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
-                .requestInfo(requestInfo)
-                .targetTenantId(targetTenantId)
-                .schemaCodes(schemaCodes)
-                .onlySchemas(Boolean.TRUE)
-                .defaultTenantId(serviceConfig.getDefaultTenantId())
-                .build();
+        DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder().requestInfo(requestInfo).targetTenantId(targetTenantId).schemaCodes(schemaCodes).onlySchemas(Boolean.TRUE).defaultTenantId(serviceConfig.getDefaultTenantId()).build();
         mdmsV2Util.createDefaultMdmsData(defaultMdmsDataRequest);
 
         // Search data for the schema code in default tenetId
@@ -136,17 +119,9 @@ public class DataHandlerService {
 
         while (true) {
             // Create MdmsCriteriaV2 with current offset and limit
-            MdmsCriteriaV2 mdmsCriteria = MdmsCriteriaV2.builder()
-                    .tenantId(tenantId)
-                    .schemaCode(schemaCode)
-                    .offset(offset)
-                    .limit(limit)
-                    .build();
+            MdmsCriteriaV2 mdmsCriteria = MdmsCriteriaV2.builder().tenantId(tenantId).schemaCode(schemaCode).offset(offset).limit(limit).build();
 
-            MdmsCriteriaReqV2 mdmsCriteriaReq = MdmsCriteriaReqV2.builder()
-                    .requestInfo(requestInfo)
-                    .mdmsCriteria(mdmsCriteria)
-                    .build();
+            MdmsCriteriaReqV2 mdmsCriteriaReq = MdmsCriteriaReqV2.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
 
             // Fetch results from the repository
             MdmsResponseV2 dataSearchResponse = mdmsV2Util.searchMdmsData(mdmsCriteriaReq);
@@ -167,8 +142,7 @@ public class DataHandlerService {
     }
 
     public void createTenantConfig(TenantRequest tenantRequest) {
-        TenantConfigResponse tenantConfigSearchResponse = tenantManagementUtil
-                .searchTenantConfig(serviceConfig.getDefaultTenantId(), tenantRequest.getRequestInfo());
+        TenantConfigResponse tenantConfigSearchResponse = tenantManagementUtil.searchTenantConfig(serviceConfig.getDefaultTenantId(), tenantRequest.getRequestInfo());
         List<TenantConfig> tenantConfigList = tenantConfigSearchResponse.getTenantConfigs();
 
         for (TenantConfig tenantConfig : tenantConfigList) {
@@ -176,21 +150,14 @@ public class DataHandlerService {
             tenantConfig.setCode(tenantRequest.getTenant().getCode());
             tenantConfig.setName(tenantRequest.getTenant().getName());
 
-            TenantConfigRequest tenantConfigRequest = TenantConfigRequest.builder()
-                    .requestInfo(tenantRequest.getRequestInfo())
-                    .tenantConfig(tenantConfig)
-                    .build();
+            TenantConfigRequest tenantConfigRequest = TenantConfigRequest.builder().requestInfo(tenantRequest.getRequestInfo()).tenantConfig(tenantConfig).build();
 
             tenantManagementUtil.createTenantConfig(tenantConfigRequest);
         }
     }
 
     public DefaultDataRequest setupDefaultData(DataSetupRequest dataSetupRequest) {
-        DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
-                .requestInfo(dataSetupRequest.getRequestInfo())
-                .targetTenantId(dataSetupRequest.getTargetTenantId())
-                .onlySchemas(dataSetupRequest.getOnlySchemas())
-                .build();
+        DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder().requestInfo(dataSetupRequest.getRequestInfo()).targetTenantId(dataSetupRequest.getTargetTenantId()).onlySchemas(dataSetupRequest.getOnlySchemas()).build();
 
         if (Objects.equals(dataSetupRequest.getModule(), "PGR")) {
             createPgrWorkflowConfig(dataSetupRequest.getTargetTenantId());
@@ -220,8 +187,7 @@ public class DataHandlerService {
         // Load the JSON file
         Resource resource = resourceLoader.getResource("classpath:PgrWorkflowConfig.json");
         try (InputStream inputStream = resource.getInputStream()) {
-            BusinessServiceRequest businessServiceRequest = objectMapper.readValue(inputStream,
-                    BusinessServiceRequest.class);
+            BusinessServiceRequest businessServiceRequest = objectMapper.readValue(inputStream, BusinessServiceRequest.class);
             businessServiceRequest.getBusinessServices().forEach(service -> service.setTenantId(targetTenantId));
             workflowUtil.createWfConfig(businessServiceRequest);
         } catch (IOException e) {
@@ -270,9 +236,7 @@ public class DataHandlerService {
             String uniqueId = mdms.getData().get("actionid").asText() + "." + mdms.getData().get("rolecode").asText();
             mdms.setUniqueIdentifier(uniqueId);
             // Build an MdmsRequest for each entry
-            MdmsRequest mdmsRequest = MdmsRequest.builder()
-                    .requestInfo(dataSetupRequest.getRequestInfo())
-                    .mdms(mdms) // Assuming MdmsRequest has a field to set Mdms data
+            MdmsRequest mdmsRequest = MdmsRequest.builder().requestInfo(dataSetupRequest.getRequestInfo()).mdms(mdms) // Assuming MdmsRequest has a field to set Mdms data
                     .build();
 
             // Call createMdmsData for each mdmsRequest
@@ -329,5 +293,25 @@ public class DataHandlerService {
         }
     }
 
+    public void triggerWelcomeEmail(TenantRequest tenantRequest) {
+
+        Resource resource = resourceLoader.getResource(WELCOME_MAIL_CLASSPATH);
+        String emailBody = "";
+        try {
+            emailBody = resource.getContentAsString(Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Email email = Email.builder()
+                .emailTo(Collections.singleton(tenantRequest.getTenant().getEmail()))
+                .tenantId(tenantRequest.getTenant().getCode())
+                .isHTML(Boolean.TRUE)
+                .subject(WELCOME_MAIL_SUBJECT)
+                .body(emailBody)
+                .build();
+
+        EmailRequest emailRequest = EmailRequest.builder().requestInfo(new RequestInfo()).email(email).build();
+        producer.send(serviceConfig.getEmailTopic(), emailRequest);
+    }
 
 }
