@@ -14,11 +14,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
+import io.minio.GetObjectArgs;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.PutObjectArgs;
 import io.minio.errors.*;
+import io.minio.http.Method;
 import org.apache.commons.io.FilenameUtils;
 import org.egov.filestore.config.FileStoreConfig;
 import org.egov.filestore.domain.model.FileLocation;
@@ -34,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.minio.MinioClient;
-import io.minio.PutObjectOptions;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -173,8 +176,7 @@ public class MinioRepository implements CloudFilesManager {
 				try {
 					signedUrl = setThumnailSignedURL(fileName, new StringBuilder(signedUrl));
 				} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException
-						| InsufficientDataException | InternalException | InvalidBucketNameException
-						| InvalidExpiresRangeException | InvalidResponseException | NoSuchAlgorithmException
+						| InsufficientDataException | InternalException | InvalidResponseException | NoSuchAlgorithmException
 						| XmlParserException | IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -187,7 +189,7 @@ public class MinioRepository implements CloudFilesManager {
 		return mapOfIdAndSASUrls;
 	}
 		
-	private String setThumnailSignedURL(String fileName, StringBuilder url) throws InvalidKeyException, ErrorResponseException, IllegalArgumentException, InsufficientDataException, InternalException, InvalidBucketNameException, InvalidExpiresRangeException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException {
+	private String setThumnailSignedURL(String fileName, StringBuilder url) throws InvalidKeyException, ErrorResponseException, IllegalArgumentException, InsufficientDataException, InternalException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException {
 		String[] imageFormats = { fileStoreConfig.get_large(), fileStoreConfig.get_medium(), fileStoreConfig.get_small() };
 		for (String  format : Arrays.asList(imageFormats)) {
 			url.append(",");
@@ -202,10 +204,19 @@ public class MinioRepository implements CloudFilesManager {
 
 		String signedUrl = null;
 		try {
-			signedUrl = minioClient.getPresignedObjectUrl(io.minio.http.Method.GET, minioConfig.getBucketName(), fileName,
-					fileStoreConfig.getPreSignedUrlTimeOut(), new HashMap<String, String>());
+			int timeout = (int) TimeUnit.MILLISECONDS.toSeconds(fileStoreConfig.getPreSignedUrlTimeOut());
+
+			GetPresignedObjectUrlArgs args = GetPresignedObjectUrlArgs.builder()
+					.method(Method.GET)
+					.bucket(minioConfig.getBucketName())
+					.object(fileName)
+					.expiry(timeout)  // The timeout must be in seconds
+					.build();
+			signedUrl = minioClient.getPresignedObjectUrl(args);
+			/*signedUrl = minioClient.getPresignedObjectUrl(io.minio.http.Method.GET, minioConfig.getBucketName(), fileName,
+					fileStoreConfig.getPreSignedUrlTimeOut(), new HashMap<String, String>());*/
 		} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException | InsufficientDataException
-				| InternalException | InvalidBucketNameException | InvalidExpiresRangeException
+				| InternalException
 				| InvalidResponseException | NoSuchAlgorithmException | XmlParserException | ServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -223,9 +234,13 @@ public class MinioRepository implements CloudFilesManager {
 					fileLocation.getFileName().length());
 
 			try {
-				minioClient.getObject(minioConfig.getBucketName(), fileName, f.getName());
+
+				minioClient.getObject(GetObjectArgs.builder()
+						.bucket(minioConfig.getBucketName())
+						.object(fileName) // The name of the file (or object) in the bucket
+						.build());
 			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException |
-                     InsufficientDataException | InternalException | InvalidBucketNameException |
+                     InsufficientDataException | InternalException |
                      InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException |
                      ServerException e) {
 				log.error("Error while downloading the file ", e);
