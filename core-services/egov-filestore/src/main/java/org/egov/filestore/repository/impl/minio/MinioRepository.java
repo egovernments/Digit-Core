@@ -82,8 +82,7 @@ public class MinioRepository implements CloudFilesManager {
 	
 
 	private void push(MultipartFile multipartFile, String fileNameWithPath) {
-		try {
-			InputStream is = multipartFile.getInputStream();
+		try (InputStream is = multipartFile.getInputStream()) {
 			long contentLength = multipartFile.getSize();
 
 			/*PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
@@ -94,7 +93,7 @@ public class MinioRepository implements CloudFilesManager {
 			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
 					.bucket(minioConfig.getBucketName())
 					.object(fileNameWithPath)
-					.stream(is, fileSize, -1) // Set part size to -1 for auto detection
+					.stream(is, contentLength, -1) // Set part size to -1 for auto detection
 					.contentType(multipartFile.getContentType()); // Change this as per your file's content type
 
 			// If the file is larger than 5 MB, set the part size explicitly (5 * 1024 * 1024 bytes)
