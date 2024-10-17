@@ -61,7 +61,7 @@ public class ElasticsearchUtil {
 
     }
 
-    public void createDefaultRecords(String tenantId) throws IOException {
+    public void createDefaultRecords(String tenantId) {
 
         Resource resource = resourceLoader.getResource("classpath:PgrIndexer.json");
 
@@ -84,7 +84,6 @@ public class ElasticsearchUtil {
                     }
                 }
             }
-            System.out.println(bulkRequest);
             String uri = config.getElasticsearchHost() + config.getBulkIndexPath();
             esPost(uri, bulkRequest.toString());
         } catch (IOException e) {

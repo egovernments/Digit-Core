@@ -14,6 +14,8 @@ public class UserConstants {
 
     public static final String ASSIGNER = "Assigner";
 
+    public static final String EMPLOYEE = "EMPLOYEE";
+
     public static final String RESOLVER = "Resolver";
 
     public static final String HRMS_CLASSPATH = "classpath:HRMS.json";

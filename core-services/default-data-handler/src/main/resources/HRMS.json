@@ -24,7 +24,7 @@
             {
               "code": "RESOLVER",
               "name": "PGR Last Mile Employee",
-              "labelKey": "ACCESSCONTROL_ROLES_ROLES_PGR_LME",
+              "labelKey": "ACCESSCONTROL_ROLES_ROLES_RESOLVER",
               "tenantId": "TENANTID"
             },
             {
@@ -45,14 +45,14 @@
         "roles": [
           {
             "code": "RESOLVER",
-            "name": "PGR Last Mile Employee",
-            "labelKey": "ACCESSCONTROL_ROLES_ROLES_PGR_LME",
+            "name": "Resolver",
+            "labelKey": "ACCESSCONTROL_ROLES_ROLES",
             "tenantId": "TENANTID"
           },
           {
             "code": "EMPLOYEE",
             "name": "Employee",
-            "labelKey": "ACCESSCONTROL_ROLES_ROLES_EMPLOYEE",
+            "labelKey": "ACCESSCONTROL_ROLES_ROLES",
             "tenantId": "TENANTID"
           }
         ],

@@ -59,9 +59,7 @@ public class TenantConsumer {
         TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
 
         // Setting userInfo with UUID
-        User userInfo = User.builder()
-                .uuid("40dceade-992d-4a8f-8243-19dda76a4171")
-                .build();
+        User userInfo = User.builder().uuid("40dceade-992d-4a8f-8243-19dda76a4171").build();
         tenantRequest.getRequestInfo().setUserInfo(userInfo);
 
         localizationUtil.upsertLocalization(tenantRequest);
@@ -70,14 +68,7 @@ public class TenantConsumer {
         if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
             log.info("Configuring Tenant: {}", tenantRequest.getTenant().getCode());
 
-            DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder()
-                    .requestInfo(tenantRequest.getRequestInfo())
-                    .targetTenantId(tenantRequest.getTenant().getCode())
-                    .schemaCodes(serviceConfig.getDefaultMdmsSchemaList())
-                    .onlySchemas(Boolean.FALSE)
-                    .locales(serviceConfig.getDefaultLocalizationLocaleList())
-                    .modules(serviceConfig.getDefaultLocalizationModuleList())
-                    .build();
+            DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder().requestInfo(tenantRequest.getRequestInfo()).targetTenantId(tenantRequest.getTenant().getCode()).schemaCodes(serviceConfig.getDefaultMdmsSchemaList()).onlySchemas(Boolean.FALSE).locales(serviceConfig.getDefaultLocalizationLocaleList()).modules(serviceConfig.getDefaultLocalizationModuleList()).build();
 
             dataHandlerService.createDefaultData(defaultDataRequest);
             dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
@@ -89,13 +80,11 @@ public class TenantConsumer {
             // Send welcome email after everything is set up
             dataHandlerService.triggerWelcomeEmail(tenantRequest);
 
-            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), RESOLVER, "Rakesh Kumar");
-            dataHandlerService.createDefaultEmployee(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail(), ASSIGNER, "John Smith");
-            try {
-                elasticsearchUtil.createDefaultRecords(tenantRequest.getTenant().getCode());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            // setup default employee
+            dataHandlerService.defaultEmployeeSetup(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail());
+
+            // create default records in indexer
+            elasticsearchUtil.createDefaultRecords(tenantRequest.getTenant().getCode());
         }
     }
 }

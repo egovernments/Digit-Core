@@ -274,17 +274,15 @@ public class DataHandlerService {
 
                 // Iterate through roles in user node
                 userNode.get("roles").forEach(role -> {
-                    if (role.get("code").equals("RESOLVER") && employeeCode.equals(ASSIGNER)) {
+                    if ((employeeCode.equals(ASSIGNER) && !role.get("code").asText().equals(EMPLOYEE))) {
                         ((ObjectNode) role).put("code", "ASSIGNER");
-                        ((ObjectNode) role).put("name", "Customer Support Representative");
-                        ((ObjectNode) role).put("labelKey", "ACCESSCONTROL_ROLES_ROLES_CSR");
+                        ((ObjectNode) role).put("name", "Assigner");
+                        ((ObjectNode) role).put("labelKey", "ACCESSCONTROL_ROLES_ROLES_");
                     }
                     ((ObjectNode) role).put("tenantId", tenantId);
                 });
             });
 
-            // Print the updated JSON structure for verification
-//            System.out.println(rootNode);
             String jsonPayload = objectMapper.writeValueAsString(rootNode);
 
             hrmsUtil.createHrmsEmployee(jsonPayload, tenantId);
@@ -302,16 +300,15 @@ public class DataHandlerService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Email email = Email.builder()
-                .emailTo(Collections.singleton(tenantRequest.getTenant().getEmail()))
-                .tenantId(tenantRequest.getTenant().getCode())
-                .isHTML(Boolean.TRUE)
-                .subject(WELCOME_MAIL_SUBJECT)
-                .body(emailBody)
-                .build();
+        Email email = Email.builder().emailTo(Collections.singleton(tenantRequest.getTenant().getEmail())).tenantId(tenantRequest.getTenant().getCode()).isHTML(Boolean.TRUE).subject(WELCOME_MAIL_SUBJECT).body(emailBody).build();
 
         EmailRequest emailRequest = EmailRequest.builder().requestInfo(new RequestInfo()).email(email).build();
         producer.send(serviceConfig.getEmailTopic(), emailRequest);
+    }
+
+    public void defaultEmployeeSetup(String tenantId, String emailId) {
+        createDefaultEmployee(tenantId, emailId, RESOLVER, "Rakesh Kumar");
+        createDefaultEmployee(tenantId, emailId, ASSIGNER, "John Smith");
     }
 
 }
