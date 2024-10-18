@@ -50,7 +50,8 @@
                 "CITIZEN",
                 "SUPERUSER",
                 "ADMIN",
-                "COMPLAINTS_ADMIN"
+                "COMPLAINTS_ADMIN",
+                "ASSIGNER"
               ]
             }
           ]
