@@ -37,6 +37,7 @@
         }
       ],
       "user": {
+        "mobileNumber": 9999999999,
         "name": "ACTOR_NAME_TENANTID",
         "correspondenceAddress": "egov foundation",
         "emailId": "demoemployee@gmail.com",
