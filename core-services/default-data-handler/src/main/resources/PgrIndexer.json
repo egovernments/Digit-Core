@@ -1,0 +1,5774 @@
+{
+  "PGR": [
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-10-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "ivr",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-10-03T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "auditDetails": null,
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "sla": null,
+              "state": "PENDINGFORASSIGNMENT",
+              "applicationStatus": "PENDINGFORASSIGNMENT",
+              "docUploadRequired": false,
+              "isStartState": false,
+              "isTerminateState": false,
+              "isStateUpdatable": null,
+              "actions": [
+                {
+                  "auditDetails": null,
+                  "uuid": "bd00e108-aa4e-425a-a8b1-f641cae647a5",
+                  "tenantId": "CHECKINGDSSWORKING",
+                  "currentState": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+                  "action": "COMMENT",
+                  "nextState": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "active": null
+                },
+                {
+                  "auditDetails": null,
+                  "uuid": "5797bf46-7299-4748-8fd4-39e7561415a2",
+                  "tenantId": "CHECKINGDSSWORKING",
+                  "currentState": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+                  "action": "ASSIGN",
+                  "nextState": "3add8586-d19e-4870-82e0-79e7f3045148",
+                  "roles": [
+                    "GRO",
+                    "DGRO",
+                    "SUPERUSER"
+                  ],
+                  "active": null
+                },
+                {
+                  "auditDetails": null,
+                  "uuid": "e9fb3aaf-e75d-45bb-92da-125c14411dc3",
+                  "tenantId": "CHECKINGDSSWORKING",
+                  "currentState": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+                  "action": "REJECT",
+                  "nextState": "19fbf586-208a-436c-ac31-08cb71874ff0",
+                  "roles": [
+                    "GRO",
+                    "DGRO",
+                    "SUPERUSER"
+                  ],
+                  "active": null
+                }
+              ]
+            },
+            "comment": null,
+            "documents": null,
+            "assigner": {
+              "id": 33231,
+              "userName": "checkingdssworking@gmail.com",
+              "name": "checkingdssworking",
+              "type": "EMPLOYEE",
+              "mobileNumber": null,
+              "emailId": "checkingdssworking@gmail.com",
+              "roles": [
+                {
+                  "id": null,
+                  "name": "Super User",
+                  "code": "SUPERUSER",
+                  "tenantId": "CHECKINGDSSWORKING"
+                }
+              ],
+              "tenantId": "CHECKINGDSSWORKING",
+              "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+            },
+            "assignes": null,
+            "nextActions": [],
+            "stateSla": null,
+            "businesssServiceSla": 431954557,
+            "previousStatus": null,
+            "entity": null,
+            "auditDetails": {
+              "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+              "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+              "createdTime": 1727931565106,
+              "lastModifiedTime": 1727931565106
+            },
+            "rating": 0,
+            "escalated": false
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "ivr",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-10-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "mobile",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-06-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "mobile",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-05-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "mobile",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-05-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "mobile",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-08-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "whatsapp",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-08-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "whatsapp",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-08-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "whatsapp",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-07-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-07-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-06-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-07-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-07-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-07-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-08-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-07-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-09-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-03-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-03-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-03-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-05-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-05-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-04-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-04-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-04-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-04-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-04-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-04-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-06-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "NoStreetlight",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-05-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Street Lights"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-03-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-03-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": "Complaint resolved successfully",
+          "verificationDocuments": [],
+          "action": "RESOLVE",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "RESOLVED",
+          "auditDetails": {
+            "lastModifiedTime": 1727946868167,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-03-05T09:14:28.167Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "businessService": "PGR",
+            "documents": [],
+            "escalated": false,
+            "businessId": "PB-PGR-2024-10-03-000211",
+            "moduleName": "pgr-services",
+            "assigner": {
+              "roles": [
+                {
+                  "code": "SUPERUSER",
+                  "name": "Super User",
+                  "tenantId": "LEOMESSSI"
+                }
+              ],
+              "name": "leomesssi",
+              "tenantId": "LEOMESSSI",
+              "emailId": "leomesssi@gmail.com",
+              "id": 33295,
+              "userName": "leomesssi@gmail.com",
+              "type": "EMPLOYEE",
+              "uuid": "eeb57c9c-4062-4ba7-9f50-faca156f85cf"
+            },
+            "rating": 0,
+            "auditDetails": {
+              "lastModifiedTime": 1727946868167,
+              "createdBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "lastModifiedBy": "eeb57c9c-4062-4ba7-9f50-faca156f85cf",
+              "createdTime": 1727946868167
+            },
+            "tenantId": "LEOMESSSI",
+            "action": "RESOLVE",
+            "nextActions": [],
+            "comment": "Complaint resolved successfully",
+            "id": "8247bdf5-135b-428d-aefc-6877afd99ced",
+            "state": {
+              "applicationStatus": "RESOLVED",
+              "isStateUpdatable": null,
+              "state": "RESOLVED",
+              "actions": [
+                {
+                  "roles": [
+                    "CFC",
+                    "CITIZEN"
+                  ],
+                  "action": "RATE",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CITIZEN"
+                  ],
+                  "action": "COMMENT",
+                  "active": null
+                },
+                {
+                  "roles": [
+                    "CFC",
+                    "CSR",
+                    "CITIZEN"
+                  ],
+                  "action": "REOPEN",
+                  "active": null
+                }
+              ],
+              "isTerminateState": true
+            },
+            "businesssServiceSla": 431776032,
+            "previousStatus": null
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    },
+    {
+      "Data": {
+        "workflow": {
+          "comments": null,
+          "verificationDocuments": null,
+          "action": "APPLY",
+          "assignes": null
+        },
+        "service": {
+          "citizen": {
+            "mobileNumber": "XXXXXXXX",
+            "roles": [
+              {
+                "code": "CITIZEN",
+                "name": "Citizen",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "XXXXXXXX",
+            "tenantId": "CHECKINGDSSWORKING",
+            "active": true,
+            "emailId": "XXXXXXXX",
+            "id": null,
+            "userName": "XXXXXXXX",
+            "type": "CITIZEN",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "serviceRequestId": "PB-PGR-2024-09-03-000206",
+          "address": {
+            "country": null,
+            "pincode": "",
+            "city": "checkingdssworking",
+            "plotNo": null,
+            "locality": {
+              "code": "JLC476",
+              "materializedPath": null,
+              "children": null,
+              "latitude": null,
+              "name": "Main Road Abadpura",
+              "label": null,
+              "longitude": null
+            },
+            "buildingName": null,
+            "geoLocation": {
+              "latitude": null,
+              "additionalDetails": null,
+              "longitude": null
+            },
+            "additionDetails": null,
+            "street": null,
+            "district": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "doorNo": null,
+            "id": "41d9d85a-164f-4347-9ebb-e01d4bad1b76",
+            "state": null,
+            "landmark": "akjbfai",
+            "region": "checkingdssworking"
+          },
+          "serviceCode": "BurningOfGarbage",
+          "rating": null,
+          "active": true,
+          "description": "asoidhaod",
+          "source": "web",
+          "accountId": "70bd6069-ca13-449f-84ab-a8c11210b407",
+          "additionalDetail": {},
+          "applicationStatus": "PENDINGFORASSIGNMENT",
+          "auditDetails": {
+            "lastModifiedTime": 1727931561688,
+            "createdBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "lastModifiedBy": "f0a4ef16-50be-4055-87d8-dd92f680fa2e",
+            "createdTime": 1727931561688
+          },
+          "tenantId": "CHECKINGDSSWORKING",
+          "id": "5c195ae3-9503-4ce0-b025-2f8f30e86717"
+        },
+        "RequestInfo": {
+          "userInfo": {
+            "mobileNumber": null,
+            "roles": [
+              {
+                "code": "SUPERUSER",
+                "name": "Super User",
+                "tenantId": "CHECKINGDSSWORKING",
+                "id": null
+              }
+            ],
+            "name": "checkingdssworking",
+            "tenantId": "CHECKINGDSSWORKING",
+            "emailId": "checkingdssworking@gmail.com",
+            "id": 33231,
+            "userName": "checkingdssworking@gmail.com",
+            "type": "EMPLOYEE",
+            "uuid": "f0a4ef16-50be-4055-87d8-dd92f680fa2e"
+          },
+          "ver": null,
+          "authToken": "20e65013-053d-4761-a7e1-b594c2ce7de8",
+          "action": null,
+          "msgId": "1727931505630|en_IN",
+          "correlationId": "badd7905-4721-4395-9ef6-dd2f2ef57b6a",
+          "plainAccessRequest": {
+            "recordId": null,
+            "plainRequestFields": null
+          },
+          "apiId": "Rainmaker",
+          "did": null,
+          "key": null,
+          "ts": null
+        },
+        "@timestamp": "2024-03-04T04:59:21.688Z",
+        "ward": {
+          "code": "JLC476",
+          "name": "Main Road Abadpura",
+          "label": "Locality",
+          "latitude": null,
+          "longitude": null,
+          "area": "",
+          "pincode": [
+            143001
+          ],
+          "boundaryNum": 1,
+          "children": []
+        },
+        "history": [
+          {
+            "id": "bd7f3134-9819-49bf-8a0f-1b623e9f45b0",
+            "tenantId": "CHECKINGDSSWORKING",
+            "businessService": "PGR",
+            "businessId": "PB-PGR-2024-10-03-000206",
+            "action": "APPLY",
+            "moduleName": "pgr-services",
+            "state": {
+              "uuid": "eb4cd9ec-13d0-489a-ad0b-2187b141409c",
+              "tenantId": "CHECKINGDSSWORKING",
+              "businessServiceId": "ea187979-37bd-49ef-bc64-77fbbae4bd34",
+              "applicationStatus": "PENDINGFORASSIGNMENT"
+            }
+          }
+        ],
+        "slaHours": 336,
+        "department": "Health & Sanitation"
+      }
+    }
+  ]
+}
