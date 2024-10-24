@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 public class ServiceConstants {
 
 	public static final String TENANT_BOUNDARY_SCHEMA = "egov-location.TenantBoundary";
-	public static final String TENANT_CITIES_SCHEMA = "tenant.cities";
 
 	public static final String EXTERNAL_SERVICE_EXCEPTION = "External Service threw an Exception: ";
 	public static final String SEARCHER_SERVICE_EXCEPTION = "Exception while fetching from searcher: ";
