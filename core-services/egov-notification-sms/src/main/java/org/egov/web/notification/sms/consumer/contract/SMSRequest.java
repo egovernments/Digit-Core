@@ -33,10 +33,12 @@ public class SMSRequest {
     private String[] users;
 
     public Sms toDomain() {
+        // Prefix "+91" to the mobile number if it's not already prefixed
+        String prefixedMobileNumber = mobileNumber.startsWith("+91") ? mobileNumber : "+91" + mobileNumber;
         if (category == null) {
-            return new Sms(mobileNumber, message, Category.OTHERS, expiryTime);
+            return new Sms(prefixedMobileNumber, message, Category.OTHERS, expiryTime);
         } else {
-            return new Sms(mobileNumber, message, category, expiryTime);
+            return new Sms(prefixedMobileNumber, message, category, expiryTime);
         }
     }
 }
