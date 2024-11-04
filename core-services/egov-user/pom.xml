@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.egov</groupId>
             <artifactId>enc-client</artifactId>
-            <version>2.0.4-AUDIT-CHANGES</version>
+            <version>2.0.4-AUDITCHANGES</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.kafka</groupId>
