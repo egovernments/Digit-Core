@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 public class AuditService {
 
-    @Autowired
+    @Autowired(required = false)
     private Producer producer;
     @Autowired
     private EncProperties encProperties;
