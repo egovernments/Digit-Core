@@ -126,7 +126,9 @@ public class EncryptionServiceImpl implements EncryptionService {
             decryptNode = maskingService.maskData(decryptNode, attributesToBeMasked, uniqueIdentifier, requestInfo);
         }
 
-        auditService.audit(decryptNode, model, purpose, requestInfo);
+        if(encProperties.getDecryptionAuditEnabled()) {
+            auditService.audit(decryptNode, model, purpose, requestInfo);
+        }
 
         return decryptNode;
     }

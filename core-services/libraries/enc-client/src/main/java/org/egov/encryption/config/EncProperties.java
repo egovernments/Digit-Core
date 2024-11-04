@@ -34,4 +34,8 @@ public class EncProperties {
     
     @Value("${egov.enc.decrypt.endpoint}")
     private String egovEncDecryptPath;
+
+    @Value("${decryption.audit.enabled}")
+    private Boolean decryptionAuditEnabled;
+
 }
