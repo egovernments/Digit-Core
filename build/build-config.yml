@@ -172,7 +172,7 @@ config:
     build:
       - work-dir: "core-services/egov-mdms-service"
         image-name: "mdms-v2"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-java17/Dockerfile"
       - work-dir: "core-services/egov-mdms-service/src/main/resources/db"
         image-name: "mdms-v2-db"
 
