@@ -2,7 +2,7 @@ package org.egov.infra.mdms.controller;
 
 import java.util.Map;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.MDMSService;
 import org.springframework.beans.factory.annotation.Autowired;
