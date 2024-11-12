@@ -54,6 +54,7 @@ public class UserUtil {
 				.tenantId(tenant.getCode())
 				.userName(tenant.getEmail())
 				.emailId(tenant.getEmail())
+				.mobileNumber("9999999999")
 				.active(true)
 				.name(tenant.getName())
 				.type(USER_TYPE_EMPLOYEE)
