@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -74,6 +75,7 @@ public class GatewayApplication {
 	 * @return
 	 */
 	@Bean
+	@Primary
 	public RedisRateLimiter redisRateLimiter() {
 		return new RedisRateLimiter(applicationProperties.getDefaultReplenishRate(), applicationProperties.getDefaultBurstCapacity());
 	}
