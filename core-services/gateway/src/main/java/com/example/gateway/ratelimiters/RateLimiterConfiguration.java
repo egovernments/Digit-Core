@@ -32,8 +32,21 @@ public class RateLimiterConfiguration {
      * @return
      */
     @Bean
+    @Primary
     public KeyResolver ipKeyResolver() {
-        return exchange -> Mono.just(Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getAddress().getHostAddress());
+        return exchange -> {
+            String xForwardedForHeader = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
+            if (xForwardedForHeader != null) {
+                // Use the first IP in the X-Forwarded-For header
+                return Mono.just(xForwardedForHeader.split(",")[0]);
+            }
+            // Fallback to remote address if no X-Forwarded-For header is present
+            return Mono.just(
+                    Objects.requireNonNull(exchange.getRequest().getRemoteAddress())
+                            .getAddress()
+                            .getHostAddress()
+            );
+        };
     }
 
 
@@ -55,22 +68,5 @@ public class RateLimiterConfiguration {
         };
     }
 
-    @Bean
-    @Primary
-    public KeyResolver xForwardedIpKeyResolver() {
-        return exchange -> {
-            String xForwardedForHeader = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
-            if (xForwardedForHeader != null) {
-                // Use the first IP in the X-Forwarded-For header
-                return Mono.just(xForwardedForHeader.split(",")[0]);
-            }
-            // Fallback to remote address if no X-Forwarded-For header is present
-            return Mono.just(
-                    Objects.requireNonNull(exchange.getRequest().getRemoteAddress())
-                            .getAddress()
-                            .getHostAddress()
-            );
-        };
-    }
 
 }
