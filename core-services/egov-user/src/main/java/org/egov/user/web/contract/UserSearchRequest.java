@@ -8,6 +8,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.model.UserSearchCriteria;
 import org.egov.user.domain.model.enums.UserType;
+import org.egov.user.domain.service.utils.HashUtil;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -97,6 +98,10 @@ public class UserSearchRequest {
                 .tenantId(tenantId)
                 .roleCodes(roleCodes)
                 .uuid(uuid)
+                .hashedUserName(HashUtil.hashValue(userName != null ? userName.trim() : null))
+                .hashedName(HashUtil.hashValue(name != null ? name.trim() : null))
+                .hashedMobileNumber(HashUtil.hashValue(mobileNumber != null ? mobileNumber.trim() : null))
+                .hashedEmailId(HashUtil.hashValue(emailId != null ? emailId.trim() : null))
                 .build();
     }
 }

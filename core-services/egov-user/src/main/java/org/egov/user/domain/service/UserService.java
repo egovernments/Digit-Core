@@ -248,7 +248,7 @@ public class UserService {
     private void validateUserUniqueness(User user) {
     	
 		String tenantId = userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType());
-		Boolean isUserPresent = userRepository.isUserPresent(user.getUsername(), tenantId, user.getType());
+		Boolean isUserPresent = userRepository.isUserPresent(user.getHashedUsername(), tenantId, user.getType());
 		if (isUserPresent)
 			throw new DuplicateUserNameException(UserSearchCriteria.builder().userName(user.getUsername())
 					.type(user.getType()).tenantId(user.getTenantId()).build());

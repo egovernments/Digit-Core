@@ -142,12 +142,12 @@ public class UserRepository {
      * @param tenantId
      * @return
      */
-    public boolean isUserPresent(String userName, String tenantId, UserType userType) {
+    public boolean isUserPresent(String hashedUserName, String tenantId, UserType userType) {
 
         String query = userTypeQueryBuilder.getUserPresentByUserNameAndTenant();
 
         final Map<String, Object> parametersMap = new HashMap<String, Object>();
-        parametersMap.put("userName", userName);
+        parametersMap.put("hashedUserName", hashedUserName);
         parametersMap.put("tenantId", tenantId);
         parametersMap.put("userType", userType.toString());
 
@@ -203,6 +203,7 @@ public class UserRepository {
         Map<String, Object> updateuserInputs = new HashMap<>();
 
         updateuserInputs.put("username", oldUser.getUsername());
+        updateuserInputs.put("HashedUsername", oldUser.getHashedUsername());
         updateuserInputs.put("type", oldUser.getType().toString());
         
         String tenantId = oldUser.getTenantId();
@@ -248,6 +249,7 @@ public class UserRepository {
             updateuserInputs.put("Dob", oldUser.getDob());
         }
         updateuserInputs.put("EmailId", user.getEmailId());
+        updateuserInputs.put("HashedEmailId", user.getHashedEmailId());
 
         if (user.getGender() != null) {
             if (Gender.FEMALE.toString().equals(user.getGender().toString())) {
@@ -279,11 +281,16 @@ public class UserRepository {
         }
         updateuserInputs.put("IdentificationMark", user.getIdentificationMark());
         updateuserInputs.put("Locale", user.getLocale());
-        if (null != user.getMobileNumber())
+        if (null != user.getMobileNumber()) {
             updateuserInputs.put("MobileNumber", user.getMobileNumber());
-        else
+            updateuserInputs.put("HashedMobileNumber", user.getHashedMobileNumber());
+        }
+        else {
             updateuserInputs.put("MobileNumber", oldUser.getMobileNumber());
+            updateuserInputs.put("HashedMobileNumber", oldUser.getHashedMobileNumber());
+        }
         updateuserInputs.put("Name", user.getName());
+        updateuserInputs.put("HashedName", user.getHashedName());
         updateuserInputs.put("Pan", user.getPan());
 
         if (!isEmpty(user.getPassword()))
@@ -567,6 +574,11 @@ public class UserRepository {
         userInputs.put("createdby", entityUser.getLoggedInUserId());
         userInputs.put("lastmodifiedby", entityUser.getLoggedInUserId());
         userInputs.put("alternatemobilenumber", entityUser.getAlternateMobileNumber());
+
+        userInputs.put("hashedusername", entityUser.getHashedUsername());
+        userInputs.put("hashedname", entityUser.getHashedName());
+        userInputs.put("hashedmobilenumber", entityUser.getHashedMobileNumber());
+        userInputs.put("hashedemailid", entityUser.getHashedEmailId());
 
         namedParameterJdbcTemplate.update(userTypeQueryBuilder.getInsertUserQuery(), userInputs);
         return entityUser;

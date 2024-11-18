@@ -63,7 +63,7 @@ public class UserTypeQueryBuilder {
             ".password, userdata.pwdexpirydate,  userdata.mobilenumber, userdata.altcontactnumber, userdata.emailid, userdata.createddate, userdata" +
             ".lastmodifieddate,  userdata.createdby, userdata.lastmodifiedby, userdata.active, userdata.name, userdata.gender, userdata.pan, userdata.aadhaarnumber, userdata" +
             ".type,  userdata.version, userdata.guardian, userdata.guardianrelation, userdata.signature, userdata.accountlocked, userdata.accountlockeddate, userdata" +
-            ".bloodgroup, userdata.photo, userdata.identificationmark,  userdata.tenantid, userdata.id, userdata.uuid, userdata.alternatemobilenumber, addr.id as addr_id, addr.type as " +
+            ".bloodgroup, userdata.photo, userdata.identificationmark,  userdata.tenantid, userdata.id, userdata.uuid, userdata.alternatemobilenumber, userdata.hashedusername, userdata.hashedname, userdata.hashedmobilenumber,  userdata.hashedemailid, addr.id as addr_id, addr.type as " +
             "addr_type, addr .address as addr_address,  addr.city as addr_city, addr.pincode as addr_pincode, addr" +
             ".tenantid as " +
             "addr_tenantid, addr.userid as addr_userid, ur.role_code as role_code, ur.role_tenantid as role_tenantid \n" +
@@ -138,14 +138,14 @@ public class UserTypeQueryBuilder {
 
         if (userSearchCriteria.getUserName() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.username = ?");
-            preparedStatementValues.add(userSearchCriteria.getUserName().trim());
+            selectQuery.append(" userdata.hashedusername = ?");
+            preparedStatementValues.add(userSearchCriteria.getHashedUserName());
         }
 
         if (!userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getName() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.name = ?");
-            preparedStatementValues.add(userSearchCriteria.getName().trim());
+            selectQuery.append(" userdata.hashedname = ?");
+            preparedStatementValues.add(userSearchCriteria.getHashedName());
         }
 
         if (userSearchCriteria.getActive() != null) {
@@ -156,8 +156,8 @@ public class UserTypeQueryBuilder {
 
         if (userSearchCriteria.getEmailId() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.emailid = ?");
-            preparedStatementValues.add(userSearchCriteria.getEmailId().trim());
+            selectQuery.append(" userdata.hashedemailid = ?");
+            preparedStatementValues.add(userSearchCriteria.getHashedEmailId());
         }
 //
 //        if (userSearchCriteria.getAadhaarNumber() != null) {
@@ -168,16 +168,16 @@ public class UserTypeQueryBuilder {
 
         if (userSearchCriteria.getMobileNumber() != null && userSearchCriteria.getAlternatemobilenumber()!=null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" ( userdata.mobilenumber = ? OR ");
-            preparedStatementValues.add(userSearchCriteria.getMobileNumber().trim());
+            selectQuery.append(" ( userdata.hashedmobilenumber = ? OR ");
+            preparedStatementValues.add(userSearchCriteria.getHashedMobileNumber());
             selectQuery.append(" userdata.alternatemobilenumber = ? )");
             preparedStatementValues.add(userSearchCriteria.getAlternatemobilenumber().trim());
         }
         
         else if(userSearchCriteria.getMobileNumber() != null) {
         	isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.mobilenumber = ? ");
-            preparedStatementValues.add(userSearchCriteria.getMobileNumber().trim());
+            selectQuery.append(" userdata.hashedmobilenumber = ? ");
+            preparedStatementValues.add(userSearchCriteria.getHashedMobileNumber());
         }
 
 //        if (userSearchCriteria.getPan() != null) {
@@ -194,7 +194,7 @@ public class UserTypeQueryBuilder {
 
         if (userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getName() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.name like " + "'%").append(userSearchCriteria.getName().trim()).append("%'");
+            selectQuery.append(" userdata.hashedname like " + "'%").append(userSearchCriteria.getHashedName()).append("%'");
         }
 
         if (!isEmpty(userSearchCriteria.getUuid())) {
@@ -286,9 +286,9 @@ public class UserTypeQueryBuilder {
 
     public String getInsertUserQuery() {
         return "insert into eg_user (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
-                + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,createddate,lastmodifieddate,createdby,lastmodifiedby,alternatemobilenumber) values (:id,:uuid,:tenantid,:salutation,"
+                + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,createddate,lastmodifieddate,createdby,lastmodifiedby,alternatemobilenumber,hashedusername,hashedname,hashedmobilenumber,hashedemailid) values (:id,:uuid,:tenantid,:salutation,"
                 + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:altcontactnumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
-                + ":accountlocked,:bloodgroup,:photo,:identificationmark,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby,:alternatemobilenumber) ";
+                + ":accountlocked,:bloodgroup,:photo,:identificationmark,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby,:alternatemobilenumber,:hashedusername,:hashedname,:hashedmobilenumber,:hashedemailid) ";
     }
 
     public String getUpdateUserQuery() {
@@ -296,12 +296,12 @@ public class UserTypeQueryBuilder {
                 + "type=:Type,guardian=:Guardian,guardianrelation=:GuardianRelation,signature=:Signature," +
                 "accountlocked=:AccountLocked, accountlockeddate=:AccountLockedDate, bloodgroup=:BloodGroup," +
                 "photo=:Photo, identificationmark=:IdentificationMark,lastmodifieddate=:LastModifiedDate," +
-                "lastmodifiedby=:LastModifiedBy, alternatemobilenumber=:alternatemobilenumber where username=:username and tenantid=:tenantid and type=:type";
+                "lastmodifiedby=:LastModifiedBy, alternatemobilenumber=:alternatemobilenumber, hashedname=:HashedName, hashedmobilenumber=:HashedMobileNumber, hashedemailid=:HashedEmailId where hashedusername=:HashedUsername and tenantid=:tenantid and type=:type";
     }
 
 
     public String getUserPresentByUserNameAndTenant() {
-        return "select count(*) from eg_user where username =:userName and tenantId =:tenantId and type = :userType ";
+        return "select count(*) from eg_user where hashedusername =:hashedUserName and tenantId =:tenantId and type = :userType ";
     }
 
 }

@@ -8,6 +8,7 @@ import org.egov.user.domain.model.Address;
 import org.egov.user.domain.model.Role;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.*;
+import org.egov.user.domain.service.utils.HashUtil;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.SafeHtml;
 
@@ -234,7 +235,7 @@ public class UserRequest {
                 .passwordExpiryDate(this.pwdExpiryDate)
                 .locale(this.locale)
                 .type(this.type)
-                .accountLocked(isAccountLocked(isCreate))
+                .accountLocked( isAccountLocked(isCreate))
                 .accountLockedDate(this.accountLockedDate)
                 .signature(this.signature)
                 .photo(this.photo)
@@ -252,7 +253,12 @@ public class UserRequest {
                 .permanentAddress(toDomainPermanentAddress())
                 .correspondenceAddress(toDomainCorrespondenceAddress())
                 .guardian(fatherOrHusbandName)
-                .guardianRelation(relationship).alternateMobileNumber(this.alternatemobilenumber)
+                .guardianRelation(relationship)
+                .alternateMobileNumber(this.alternatemobilenumber)
+                .hashedUsername(HashUtil.hashValue(this.userName))
+                .hashedName(HashUtil.hashValue(this.name))
+                .hashedMobileNumber(HashUtil.hashValue(this.mobileNumber))
+                .hashedEmailId(HashUtil.hashValue(this.emailId))
                 .build();
     }
 

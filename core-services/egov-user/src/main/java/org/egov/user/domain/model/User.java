@@ -88,6 +88,12 @@ public class User {
     private boolean mobileValidationMandatory = true;
     private String alternateMobileNumber;
 
+    private String hashedUsername;
+    private String hashedName;
+    private String hashedMobileNumber;
+    private String hashedEmailId;
+
+
     public User addAddressItem(Address addressItem) {
         if (this.addresses == null) {
             this.addresses = new HashSet<>();
