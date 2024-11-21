@@ -136,13 +136,13 @@ public class UserTypeQueryBuilder {
             preparedStatementValues.add(userSearchCriteria.getTenantId().trim());
         }
 
-        if (userSearchCriteria.getUserName() != null) {
+        if (userSearchCriteria.getHashedUserName() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.hashedusername = ?");
             preparedStatementValues.add(userSearchCriteria.getHashedUserName());
         }
 
-        if (!userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getName() != null) {
+        if (!userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getHashedName() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.hashedname = ?");
             preparedStatementValues.add(userSearchCriteria.getHashedName());
@@ -154,7 +154,7 @@ public class UserTypeQueryBuilder {
             preparedStatementValues.add(userSearchCriteria.getActive());
         }
 
-        if (userSearchCriteria.getEmailId() != null) {
+        if (userSearchCriteria.getHashedEmailId() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.hashedemailid = ?");
             preparedStatementValues.add(userSearchCriteria.getHashedEmailId());
@@ -166,7 +166,7 @@ public class UserTypeQueryBuilder {
 //            preparedStatementValues.add(userSearchCriteria.getAadhaarNumber().trim());
 //        }
 
-        if (userSearchCriteria.getMobileNumber() != null && userSearchCriteria.getAlternatemobilenumber()!=null) {
+        if (userSearchCriteria.getHashedMobileNumber() != null && userSearchCriteria.getAlternatemobilenumber()!=null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" ( userdata.hashedmobilenumber = ? OR ");
             preparedStatementValues.add(userSearchCriteria.getHashedMobileNumber());
@@ -174,7 +174,7 @@ public class UserTypeQueryBuilder {
             preparedStatementValues.add(userSearchCriteria.getAlternatemobilenumber().trim());
         }
         
-        else if(userSearchCriteria.getMobileNumber() != null) {
+        else if(userSearchCriteria.getHashedMobileNumber() != null) {
         	isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.hashedmobilenumber = ? ");
             preparedStatementValues.add(userSearchCriteria.getHashedMobileNumber());
@@ -192,7 +192,7 @@ public class UserTypeQueryBuilder {
             preparedStatementValues.add(userSearchCriteria.getType().toString());
         }
 
-        if (userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getName() != null) {
+        if (userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getHashedName() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.hashedname like " + "'%").append(userSearchCriteria.getHashedName()).append("%'");
         }

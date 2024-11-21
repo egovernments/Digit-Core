@@ -23,9 +23,9 @@ import org.springframework.stereotype.Repository;
 public class AuditRepository {
 	
 	public static final String INSERT_AUDIT_DETAILS = "insert into eg_user_audit_table (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
-            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime) values (:id,:uuid,:tenantid,:salutation,"
+            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime,hashedusername,hashedname,hashedmobilenumber,hashedemailid) values (:id,:uuid,:tenantid,:salutation,"
             + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:alternatemobilenumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
-            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime) ";
+            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime,:hashedusername,:hashedname,:hashedmobilenumber,:hashedemailid) ";
 
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private JdbcTemplate jdbcTemplate;
@@ -147,7 +147,10 @@ public class AuditRepository {
 
         auditInputs.put("alternatemobilenumber", oldUser.getAlternateMobileNumber());
 
-        
+        auditInputs.put("hashedusername", oldUser.getHashedUsername());
+        auditInputs.put("hashedname", oldUser.getHashedName());
+        auditInputs.put("hashedmobilenumber", oldUser.getHashedMobileNumber());
+        auditInputs.put("hashedemailid", oldUser.getHashedEmailId());
         
     	
         namedParameterJdbcTemplate.update(INSERT_AUDIT_DETAILS, auditInputs); 
