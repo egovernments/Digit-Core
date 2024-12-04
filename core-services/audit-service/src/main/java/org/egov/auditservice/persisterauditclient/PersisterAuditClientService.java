@@ -29,7 +29,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
 import static java.util.Objects.isNull;
+
 @Service
 @Slf4j
 public class PersisterAuditClientService {
@@ -84,10 +86,9 @@ public class PersisterAuditClientService {
                 try {
                     List<AuditLog> currentBatchOfAuditRecords = auditUtil.getAuditRecord(rowDataList, query);
                     auditLogs.addAll(currentBatchOfAuditRecords);
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
-                    log.error("AUDIT_LOG_ERROR","Failed to create audit log for: "+rowDataList);
+                    log.error("AUDIT_LOG_ERROR", "Failed to create audit log for: " + rowDataList);
                     AuditError auditError = AuditError.builder().mapping(mapping)
                             .query(query)
                             .rowDataList(rowDataList)
@@ -100,7 +101,7 @@ public class PersisterAuditClientService {
             auditLogs.forEach(auditLog -> {
                 auditLog.setAuditCorrelationId(objectIdVsAuditCorrelationIdMap.get(auditLog.getObjectId()));
             });
-            if(!CollectionUtils.isEmpty(auditLogs)) {
+            if (!CollectionUtils.isEmpty(auditLogs)) {
                 chooseSignerAndVerifier.selectImplementationAndSign(AuditLogRequest.builder().auditLogs(auditLogs).build());
                 AuditLogResponse response = AuditLogResponse.builder().auditLogs(auditLogs).build();
                 kafkaTemplate.send(auditTopic, AuditLogRequest.builder().auditLogs(auditLogs).build());
@@ -112,7 +113,7 @@ public class PersisterAuditClientService {
 
     private void enrichObjectIdVsAuditCorrelationIdMap(List<RowData> rowDataList, Map<String, String> objectIdVsAuditCorrelationIdMap) {
         rowDataList.forEach(rowData -> {
-            if(!objectIdVsAuditCorrelationIdMap.containsKey(rowData.getAuditAttributes().getObjectId())){
+            if (!objectIdVsAuditCorrelationIdMap.containsKey(rowData.getAuditAttributes().getObjectId())) {
                 objectIdVsAuditCorrelationIdMap.put(rowData.getAuditAttributes().getObjectId(), UUID.randomUUID().toString());
             }
         });
@@ -147,15 +148,15 @@ public class PersisterAuditClientService {
                         jsonPath = jsonPath.replace("{".concat(attribute).concat("}"), "\"" + rawDataRecord.get(attribute).toString() + "\"");
                         JSONArray jsonArray = JsonPath.read(jsonObj, jsonPath);
                         // row.add(jsonArray.get(0));
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), jsonArray.get(0));
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath, keyValuePairs), jsonArray.get(0));
                         continue;
                     } else if (type.equals(TypeEnum.CURRENTDATE)) {
                         if (dbType.equals(TypeEnum.DATE)) {
                             //    row.add(new Date());
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), new Date());
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), new Date());
                         } else if (dbType.equals(TypeEnum.LONG)) {
                             //   row.add(new Date().getTime());
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), new Date().getTime());
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), new Date().getTime());
                         }
                         continue;
                     } else if ((type.equals(TypeEnum.ARRAY)) && dbType.equals(TypeEnum.STRING)) {
@@ -174,12 +175,12 @@ public class PersisterAuditClientService {
                     }
                     if (jsonPath.startsWith("default")) {
                         //    row.add(null);
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), null);
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), null);
                     } else if (type.equals(TypeEnum.JSON) && dbType.equals(TypeEnum.STRING)) {
                         try {
                             String json = objectMapper.writeValueAsString(value);
                             //    row.add(json);
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), json);
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), json);
                         } catch (JsonProcessingException e) {
                             log.error("Error while processing JSON object to string", e);
                         }
@@ -190,7 +191,7 @@ public class PersisterAuditClientService {
                             pGobject.setType("jsonb");
                             pGobject.setValue(json);
                             //     row.add(pGobject);
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), pGobject);
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), pGobject);
                         } catch (JsonProcessingException e) {
                             log.error("Error while processing JSON object to string", e);
                         } catch (SQLException e) {
@@ -199,10 +200,10 @@ public class PersisterAuditClientService {
                     } else if (type.equals(TypeEnum.LONG)) {
                         if (dbType == null) {
                             //    row.add(value);
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), value);
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), value);
                         } else if (dbType.equals(TypeEnum.DATE)) {
                             //    row.add(new java.sql.Date(Long.parseLong(value.toString())));
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), new java.sql.Date(Long.parseLong(value.toString())));
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), new java.sql.Date(Long.parseLong(value.toString())));
                         }
                     } else if (type.equals(TypeEnum.DATE) & value != null) {
                         String date = value.toString();
@@ -214,10 +215,10 @@ public class PersisterAuditClientService {
                             log.error("Unable to parse date", e);
                         }
                         // row.add(startDate);
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), startDate);
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), startDate);
                     } else {
                         //    row.add(value);
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), value);
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), value);
                     }
                 }
                 RowData rowData = RowData.builder().auditAttributes(auditAttributes).keyValueMap(keyValuePairs).build();
@@ -226,13 +227,14 @@ public class PersisterAuditClientService {
         }
         return rowDataList;
     }
+
     /**
      * Extract data from the tree using provided base json path
-     *  - If base path signifies bulk, then extract array of data
-     *  - If base path is not bulk, then extract single row of data and wrap as list
+     * - If base path signifies bulk, then extract array of data
+     * - If base path is not bulk, then extract single row of data and wrap as list
      *
      * @param baseJsonPath Base json path
-     * @param document Data source tree
+     * @param document     Data source tree
      * @return Partial data source tree based on provided json base path
      */
     private Map<AuditAttributes, List<LinkedHashMap<String, Object>>> extractData(String baseJsonPath, Mapping mapping, Object document) {
@@ -256,7 +258,7 @@ public class PersisterAuditClientService {
                                 childObj.addAll(JsonPath.read(parentObjects.get(i), relativeJsonPath));
                             else
                                 childObj.addAll(Collections.singletonList(JsonPath.read(parentObjects.get(i), relativeJsonPath)));
-                        }catch (Exception ignore){
+                        } catch (Exception ignore) {
                             log.info("Relative jsonpath not found in parent object, ignoring object with relative jsonpath - " + relativeJsonPath);
                         }
                         auditAttributesToNumberOfObjMap.put(auditAttributes, childObj.size());
@@ -293,13 +295,13 @@ public class PersisterAuditClientService {
                 }
                 data.put(auditAttributes, list);
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new CustomException("INVALID_JSONPATH","Failed to fetch auditAttributes");
+            throw new CustomException("INVALID_JSONPATH", "Failed to fetch auditAttributes");
         }
         return data;
     }
+
     /**
      * Fetch leaf node value recursively based on json path from java represented json tree
      *
@@ -331,17 +333,18 @@ public class PersisterAuditClientService {
         }
         return value;
     }
+
     /**
      * Check if leaf node, is null,
-     *  for ex, user has optional address in config, if address is null in datasource skip persisting to address table
+     * for ex, user has optional address in config, if address is null in datasource skip persisting to address table
      *
      * @param baseJsonPath Base json path
-     * @param jsonTree Java represented json tree
+     * @param jsonTree     Java represented json tree
      * @return If node not available, return true, else false
      */
     private boolean isChildObjectEmpty(String baseJsonPath, LinkedHashMap<String, Object> jsonTree) {
 
-        if ( baseJsonPath.contains("*") && ! baseJsonPath.endsWith("*")) {
+        if (baseJsonPath.contains("*") && !baseJsonPath.endsWith("*")) {
             String baseJsonPathForNullCheck = baseJsonPath.substring(baseJsonPath.lastIndexOf("*.") + 2);
             String[] baseObjectsForNullCheck = baseJsonPathForNullCheck.split("\\.");
             LinkedHashMap<String, Object> temp = new LinkedHashMap<>(jsonTree);
@@ -349,21 +352,21 @@ public class PersisterAuditClientService {
                 if (isNull(temp.get(baseObjectForNullCheck))) {
                     log.info("Skipping persisting record with basePath {} as it's empty!", baseJsonPath);
                     return true;
-                }
-                else
+                } else
                     temp = (LinkedHashMap<String, Object>) temp.get(baseObjectForNullCheck);
             }
             return false;
         } else
             return false;
     }
-    private AuditAttributes getAuditAttribute(Mapping mapping, Object json, String userUUID, Boolean isBulkUseCase){
+
+    private AuditAttributes getAuditAttribute(Mapping mapping, Object json, String userUUID, Boolean isBulkUseCase) {
         AuditAttributes auditAttributes = new AuditAttributes();
         Boolean isAuditEnabled = mapping.getIsAuditEnabled();
-        if(isAuditEnabled == null){
+        if (isAuditEnabled == null) {
             isAuditEnabled = false;
         }
-        if(isAuditEnabled){
+        if (isAuditEnabled) {
             // Fetch the values required to attribute using mapping and json
             String module = mapping.getModule();
 
@@ -371,10 +374,10 @@ public class PersisterAuditClientService {
             String transactionCodeJsonPath = mapping.getTransactionCodeJsonPath();
             String objectIdJsonPath = mapping.getObjecIdJsonPath();
 
-            if(!isBulkUseCase){
+            if (!isBulkUseCase) {
                 tenantIdJsonPath = mapping.getAuditAttributeBasePath() + tenantIdJsonPath.substring(tenantIdJsonPath.indexOf("."));
                 objectIdJsonPath = mapping.getAuditAttributeBasePath() + objectIdJsonPath.substring(objectIdJsonPath.indexOf("."));
-                if(!ObjectUtils.isEmpty(transactionCodeJsonPath))
+                if (!ObjectUtils.isEmpty(transactionCodeJsonPath))
                     transactionCodeJsonPath = mapping.getAuditAttributeBasePath() + transactionCodeJsonPath.substring(transactionCodeJsonPath.indexOf("."));
             }
 
@@ -387,47 +390,55 @@ public class PersisterAuditClientService {
             auditAttributes.setTenantId(tenantId);
             auditAttributes.setUserUUID(userUUID);
 
-            if(!ObjectUtils.isEmpty(transactionCodeJsonPath)) {
+            if (!ObjectUtils.isEmpty(transactionCodeJsonPath)) {
                 String transactionCode = getValueFromJsonPath(transactionCodeJsonPath, json);
                 auditAttributes.setTransactionCode(transactionCode);
             }
         }
         return auditAttributes;
     }
+
     /**
      * Function to execute jsonPath on given json. Returns null in case of error
+     *
      * @param jsonPath
      * @param json
      * @return
      */
-    private String getValueFromJsonPath(String jsonPath, Object json){
+    private String getValueFromJsonPath(String jsonPath, Object json) {
         String value = null;
         try {
             value = JsonPath.read(json, jsonPath);
-        }
-        catch (Exception e){
-            throw new CustomException("JSONPATH_ERROR","Error while executing jsonPath: " + jsonPath);
+        } catch (Exception e) {
+            throw new CustomException("JSONPATH_ERROR", "Error while executing jsonPath: " + jsonPath);
         }
         return value;
     }
-    private List<Mapping> filterMappings(List<Mapping> mappings, Object json){
+
+    private List<Mapping> filterMappings(List<Mapping> mappings, Object json) {
         List<Mapping> filteredMaps = new ArrayList<>();
         String version = "";
         try {
             version = JsonPath.read(json, "$.RequestInfo.ver");
-        }catch (PathNotFoundException ignore){
+        } catch (PathNotFoundException ignore) {
         }
         Version semVer = auditUtil.getSemVer(version);
-        for (Mapping map: mappings) {
-            if(semVer.satisfies(map.getVersion()))
+        for (Mapping map : mappings) {
+            if (semVer.satisfies(map.getVersion()))
                 filteredMaps.add(map);
         }
         return filteredMaps;
     }
 
-    private String extractSanitizedFieldNameFromJsonPath(String jsonPath){
-        if(jsonPath.contains(".")){
+    private String extractSanitizedFieldNameFromJsonPath(String jsonPath, Map<String, Object> keyValuePairs) {
+
+        if (jsonPath.contains(".")) {
             jsonPath = jsonPath.substring(jsonPath.lastIndexOf(".") + 1);
+        }
+        if (keyValuePairs.containsKey(jsonPath)) {
+            if (jsonPath.startsWith("$.")) {
+                jsonPath = jsonPath.replaceFirst("^\\$\\.", "");
+            }
         }
         return jsonPath;
     }
