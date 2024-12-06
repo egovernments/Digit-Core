@@ -1,0 +1,7 @@
+@import url("../index.scss");
+
+.digit-action-links {
+  @extend .light-primary;
+  @apply text-text-btn mr-lg !important;
+  cursor: pointer;
+}

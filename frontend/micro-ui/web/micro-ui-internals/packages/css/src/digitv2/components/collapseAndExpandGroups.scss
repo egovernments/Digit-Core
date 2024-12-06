@@ -1,0 +1,60 @@
+@import url("../../digitv2/index.scss");
+
+.digit-expand-collapse-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.digit-expand-collapse-header {
+  background-color: #f2f2f2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 12px;
+  position: relative;
+  font-weight: bolder;
+  border: 1px solid #828282;
+  border-radius: 4px;
+}
+
+.digit-icon-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translate(0%, -50%);
+  cursor: pointer;
+  span{
+    display: inline-flex;
+    align-items: center;
+
+    h5{
+      color: theme(colors.primary.main);
+      display: inline;
+    }
+  }
+}
+
+.digit-expand-collapse-header .label {
+  display: block;
+  text-align: left;
+}
+
+.digit-expand-collapse-header .value {
+  display: block;
+  text-align: right;
+  margin-right: 2rem;
+}
+
+.digit-toggling-wrapper.digit-collapse {
+  flex: none;
+  overflow: hidden;
+  height: 0;
+  transition: 0.2s ease-in-out;
+}
+
+.digit-toggling-wrapper {
+  flex: 1;
+  transition: 0.2s ease-in-out;
+  box-sizing: border-box;
+}
