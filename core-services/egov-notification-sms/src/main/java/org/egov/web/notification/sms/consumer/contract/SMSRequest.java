@@ -18,27 +18,25 @@ import org.egov.web.notification.sms.models.Sms;
 @ToString
 public class SMSRequest {
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "MobileNumber should be 10 digit number")
-    private String mobileNumber;
+	@Pattern(regexp = "^[0-9]{10}$", message = "MobileNumber should be 10 digit number")
+	private String mobileNumber;
 
-    @Size(max = 1000)
-    private String message;
-    private Category category;
-    private Long expiryTime;
+	@Size(max = 1000)
+	private String message;
+	private Category category;
+	private Long expiryTime;
 
-    //Unused for future upgrades
-    private String locale;
-    private String tenantId;
-    private String email;
-    private String[] users;
+	//Unused for future upgrades
+	private String locale;
+	private String tenantId;
+	private String email;
+	private String[] users;
 
-    public Sms toDomain() {
-        // Prefix "+91" to the mobile number if it's not already prefixed
-        String prefixedMobileNumber = mobileNumber.startsWith("+91") ? mobileNumber : "+91" + mobileNumber;
-        if (category == null) {
-            return new Sms(prefixedMobileNumber, message, Category.OTHERS, expiryTime);
-        } else {
-            return new Sms(prefixedMobileNumber, message, category, expiryTime);
-        }
-    }
+	public Sms toDomain() {
+		if (category == null) {
+			return new Sms(mobileNumber, message, Category.OTHERS, expiryTime);
+		} else {
+			return new Sms(mobileNumber, message, category, expiryTime);
+		}
+	}
 }
