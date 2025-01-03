@@ -1,5 +1,6 @@
 package org.egov.tracer.config;
 
+import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentracing.noop.NoopTracerFactory;
 import org.egov.tracer.http.RestTemplateLoggingInterceptor;
 import org.egov.tracer.http.filters.TracerFilter;
@@ -11,6 +12,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
 
@@ -72,7 +74,10 @@ public class TracerConfiguration {
         return NoopTracerFactory.create();
     }
 
-
+    @Bean
+    public OtlpGrpcSpanExporter otlpHttpSpanExporter(@Value("${tracing.url}") String url) {
+        return OtlpGrpcSpanExporter.builder().setEndpoint(url).build();
+    }
 }
 
 
