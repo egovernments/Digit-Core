@@ -3,14 +3,11 @@ package com.example.gateway.filters.pre;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
-import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -19,9 +16,6 @@ public class JwtToHeaderGlobalFilter implements GlobalFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return ReactiveSecurityContextHolder.getContext()
-                .doOnNext(securityContext -> {
-                    System.out.println("Authentication: " + securityContext.getAuthentication());
-                })
                 .flatMap(securityContext -> {
                     Object principal = securityContext.getAuthentication().getPrincipal();
                     if (principal instanceof Jwt) {
