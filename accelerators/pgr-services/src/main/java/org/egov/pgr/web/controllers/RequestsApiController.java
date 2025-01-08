@@ -50,10 +50,6 @@ public class RequestsApiController{
     @RequestMapping(value="/request/_create", method = RequestMethod.POST)
     public ResponseEntity<ServiceResponse> requestsCreatePost(@Valid @RequestBody ServiceRequest request) throws IOException {
         String userId = httpServletRequest.getHeader("x-user-id");
-        if (request.getRequestInfo().getUserInfo().getUuid() == null && (userId == null || userId.isEmpty())) {
-            throw new CustomException("NO_USER_ID", "No UUID found for the user");
-        }
-
         if (userId != null && !userId.isEmpty()) {
             request.getRequestInfo().getUserInfo().setUuid(userId);
         }
