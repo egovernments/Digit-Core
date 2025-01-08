@@ -8,11 +8,14 @@ import org.egov.pgr.service.PGRService;
 import org.egov.pgr.util.PGRConstants;
 import org.egov.pgr.util.ResponseInfoFactory;
 import org.egov.pgr.web.models.*;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
+
 
 import java.io.IOException;
 import java.util.*;
@@ -32,23 +35,34 @@ public class RequestsApiController{
 
     private ResponseInfoFactory responseInfoFactory;
 
+    private HttpServletRequest httpServletRequest;
+
 
     @Autowired
-    public RequestsApiController(ObjectMapper objectMapper, PGRService pgrService, ResponseInfoFactory responseInfoFactory) {
+    public RequestsApiController(ObjectMapper objectMapper, PGRService pgrService, ResponseInfoFactory responseInfoFactory,HttpServletRequest httpServletRequest) {
         this.objectMapper = objectMapper;
         this.pgrService = pgrService;
         this.responseInfoFactory = responseInfoFactory;
+        this.httpServletRequest=httpServletRequest;
     }
 
 
     @RequestMapping(value="/request/_create", method = RequestMethod.POST)
     public ResponseEntity<ServiceResponse> requestsCreatePost(@Valid @RequestBody ServiceRequest request) throws IOException {
+        String userId = httpServletRequest.getHeader("x-user-id");
+        if (request.getRequestInfo().getUserInfo().getUuid() == null && (userId == null || userId.isEmpty())) {
+            throw new CustomException("NO_USER_ID", "No UUID found for the user");
+        }
+
+        if (userId != null && !userId.isEmpty()) {
+            request.getRequestInfo().getUserInfo().setUuid(userId);
+        }
+
         ServiceRequest enrichedReq = pgrService.create(request);
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
         ServiceWrapper serviceWrapper = ServiceWrapper.builder().service(enrichedReq.getService()).workflow(enrichedReq.getWorkflow()).build();
         ServiceResponse response = ServiceResponse.builder().responseInfo(responseInfo).serviceWrappers(Collections.singletonList(serviceWrapper)).build();
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @RequestMapping(value="/request/_search", method = RequestMethod.POST)
