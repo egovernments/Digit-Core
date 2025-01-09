@@ -8,7 +8,6 @@ import org.egov.pgr.service.PGRService;
 import org.egov.pgr.util.PGRConstants;
 import org.egov.pgr.util.ResponseInfoFactory;
 import org.egov.pgr.web.models.*;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,14 +45,25 @@ public class RequestsApiController{
         this.httpServletRequest=httpServletRequest;
     }
 
+    private void enrichUUIDForCreateAndUpdateFromHeader(ServiceRequest request){
+        String userId = httpServletRequest.getHeader("x-user-id");
+        if (userId != null && !userId.isEmpty() && request.getRequestInfo() != null &&
+                request.getRequestInfo().getUserInfo() != null) {
+            request.getRequestInfo().getUserInfo().setUuid(userId);
+        }
+    }
+
+    private void enrichUUIDForSearchFromHeader(RequestInfoWrapper request){
+        String userId = httpServletRequest.getHeader("x-user-id");
+        if (userId != null && !userId.isEmpty() &&
+                request.getRequestInfo().getUserInfo() != null) {
+            request.getRequestInfo().getUserInfo().setUuid(userId);
+        }
+    }
 
     @RequestMapping(value="/request/_create", method = RequestMethod.POST)
     public ResponseEntity<ServiceResponse> requestsCreatePost(@Valid @RequestBody ServiceRequest request) throws IOException {
-        String userId = httpServletRequest.getHeader("x-user-id");
-        if (userId != null && !userId.isEmpty()) {
-            request.getRequestInfo().getUserInfo().setUuid(userId);
-        }
-
+        enrichUUIDForCreateAndUpdateFromHeader(request);
         ServiceRequest enrichedReq = pgrService.create(request);
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
         ServiceWrapper serviceWrapper = ServiceWrapper.builder().service(enrichedReq.getService()).workflow(enrichedReq.getWorkflow()).build();
@@ -64,7 +74,8 @@ public class RequestsApiController{
     @RequestMapping(value="/request/_search", method = RequestMethod.POST)
     public ResponseEntity<ServiceResponse> requestsSearchPost(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper,
                                                               @Valid @ModelAttribute RequestSearchCriteria criteria) {
-    	
+
+        enrichUUIDForSearchFromHeader(requestInfoWrapper);
     	String tenantId = criteria.getTenantId();
         List<ServiceWrapper> serviceWrappers = pgrService.search(requestInfoWrapper.getRequestInfo(), criteria);
         Map<String,Integer> dynamicData = pgrService.getDynamicData(tenantId);
@@ -82,6 +93,7 @@ public class RequestsApiController{
 
     @RequestMapping(value = "request/_plainsearch", method = RequestMethod.POST)
     public ResponseEntity<ServiceResponse> requestsPlainSearchPost(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper, @Valid @ModelAttribute RequestSearchCriteria requestSearchCriteria) {
+        enrichUUIDForSearchFromHeader(requestInfoWrapper);
         List<ServiceWrapper> serviceWrappers = pgrService.plainSearch(requestInfoWrapper.getRequestInfo(), requestSearchCriteria);
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo(), true);
         ServiceResponse response = ServiceResponse.builder().responseInfo(responseInfo).serviceWrappers(serviceWrappers).build();
@@ -91,6 +103,7 @@ public class RequestsApiController{
 
     @RequestMapping(value="/request/_update", method = RequestMethod.POST)
     public ResponseEntity<ServiceResponse> requestsUpdatePost(@Valid @RequestBody ServiceRequest request) throws IOException {
+        enrichUUIDForCreateAndUpdateFromHeader(request);
         ServiceRequest enrichedReq = pgrService.update(request);
         ServiceWrapper serviceWrapper = ServiceWrapper.builder().service(enrichedReq.getService()).workflow(enrichedReq.getWorkflow()).build();
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
@@ -101,6 +114,7 @@ public class RequestsApiController{
     @RequestMapping(value="/request/_count", method = RequestMethod.POST)
     public ResponseEntity<CountResponse> requestsCountPost(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper,
                                                            @Valid @ModelAttribute RequestSearchCriteria criteria) {
+        enrichUUIDForSearchFromHeader(requestInfoWrapper);
         Integer count = pgrService.count(requestInfoWrapper.getRequestInfo(), criteria);
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo(), true);
         CountResponse response = CountResponse.builder().responseInfo(responseInfo).count(count).build();
