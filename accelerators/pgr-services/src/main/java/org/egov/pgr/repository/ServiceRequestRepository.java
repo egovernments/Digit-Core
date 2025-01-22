@@ -3,7 +3,6 @@ package org.egov.pgr.repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
-import org.egov.tracer.model.ServiceCallException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
@@ -34,7 +33,7 @@ public class ServiceRequestRepository {
 			response = restTemplate.postForObject(uri.toString(), request, Map.class);
 		}catch(HttpClientErrorException e) {
 			log.error("External Service threw an Exception: ",e);
-			throw new ServiceCallException(e.getResponseBodyAsString());
+			throw new RuntimeException("PGR ERROR");
 		}catch(Exception e) {
 			log.error("Exception while fetching from searcher: ",e);
 		}

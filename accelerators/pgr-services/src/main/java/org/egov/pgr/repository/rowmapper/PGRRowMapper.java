@@ -3,7 +3,6 @@ package org.egov.pgr.repository.rowmapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.pgr.web.models.*;
-import org.egov.tracer.model.CustomException;
 import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -136,7 +135,7 @@ public class PGRRowMapper implements ResultSetExtractor<List<Service>> {
             }
         }
         catch (IOException | SQLException e){
-            throw new CustomException("PARSING_ERROR","Failed to parse additionalDetail object");
+            throw new RuntimeException("PGR ERROR");
         }
         return additionalDetail;
     }

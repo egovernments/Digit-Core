@@ -6,8 +6,7 @@ import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.web.models.Idgen.IdGenerationRequest;
 import org.egov.pgr.web.models.Idgen.IdGenerationResponse;
 import org.egov.pgr.web.models.Idgen.IdRequest;
-import org.egov.tracer.model.CustomException;
-import org.egov.tracer.model.ServiceCallException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
@@ -54,11 +53,11 @@ public class IdGenRepository {
         try {
             response = restTemplate.postForObject( config.getIdGenHost()+ config.getIdGenPath(), req, IdGenerationResponse.class);
         } catch (HttpClientErrorException e) {
-            throw new ServiceCallException(e.getResponseBodyAsString());
+           // throw new ServiceCallException(e.getResponseBodyAsString());
         } catch (Exception e) {
             Map<String, String> map = new HashMap<>();
             map.put(e.getCause().getClass().getName(),e.getMessage());
-            throw new CustomException(map);
+          // throw new CustomException(map);
         }
         return response;
     }

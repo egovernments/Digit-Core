@@ -19,7 +19,7 @@ import java.util.HashMap;
 import static org.apache.kafka.common.requests.FetchMetadata.log;
 import static org.egov.pgr.util.PGRConstants.TENANTID_MDC_STRING;
 
-@Component
+//@Component
 @Slf4j
 public class NotificationConsumer {
     @Autowired

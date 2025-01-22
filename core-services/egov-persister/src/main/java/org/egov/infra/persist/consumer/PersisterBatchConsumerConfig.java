@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.infra.persist.web.contract.TopicMap;
-import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -52,8 +51,8 @@ public class PersisterBatchConsumerConfig {
     @Autowired
     private KafkaProperties kafkaProperties;
 
-    @Autowired
-    private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+    /*@Autowired
+    private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;*/
 
     private Set<String> topics = new HashSet<>();
 
@@ -95,7 +94,7 @@ public class PersisterBatchConsumerConfig {
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
-        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
+      //  factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
 
 
         // BATCH PROPERTY

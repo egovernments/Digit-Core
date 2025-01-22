@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
-import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.repository.ServiceRequestRepository;
 import org.egov.pgr.util.HRMSUtil;
@@ -18,7 +17,6 @@ import org.egov.pgr.web.models.RequestInfoWrapper;
 import org.egov.pgr.web.models.ServiceRequest;
 import org.egov.pgr.web.models.workflow.ProcessInstance;
 import org.egov.pgr.web.models.workflow.ProcessInstanceResponse;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -59,8 +57,7 @@ public class NotificationService {
     @Autowired
     private ObjectMapper mapper;
 
-    @Autowired
-    private MultiStateInstanceUtil centralInstanceUtil;
+
 
     public void process(ServiceRequest request, String topic) {
         try {
@@ -619,10 +616,12 @@ public class NotificationService {
         try {
             processInstanceResponse = mapper.convertValue(result, ProcessInstanceResponse.class);
         } catch (IllegalArgumentException e) {
-            throw new CustomException("PARSING ERROR", "Failed to parse response of workflow processInstance search");
+            throw new RuntimeException("PGR ERROR");
+            //throw new CustomException("PARSING ERROR", "Failed to parse response of workflow processInstance search");
         }
         if (CollectionUtils.isEmpty(processInstanceResponse.getProcessInstances()))
-            throw new CustomException("WORKFLOW_NOT_FOUND", "The workflow object is not found");
+            throw new RuntimeException("PGR ERROR");
+           // throw new CustomException("WORKFLOW_NOT_FOUND", "The workflow object is not found");
 
         for(ProcessInstance processInstance:processInstanceResponse.getProcessInstances()){
             if(processInstance.getAction().equalsIgnoreCase(action))
@@ -643,11 +642,13 @@ public class NotificationService {
             res = JsonPath.read(mdmsData,jsonPath);
         }
         catch (Exception e){
-            throw new CustomException("JSONPATH_ERROR","Failed to parse mdms response");
+            throw new RuntimeException("PGR ERROR");
+           // throw new CustomException("JSONPATH_ERROR","Failed to parse mdms response");
         }
 
         if(CollectionUtils.isEmpty(res))
-            throw new CustomException("INVALID_SERVICECODE","The service code: "+serviceCode+" is not present in MDMS");
+            throw new RuntimeException("PGR ERROR");
+            //throw new CustomException("INVALID_SERVICECODE","The service code: "+serviceCode+" is not present in MDMS");
 
         return res.get(0).toString();
 
@@ -676,11 +677,13 @@ public class NotificationService {
             hrmsDepartmentList = JsonPath.read(response, HRMS_DEPARTMENT_JSONPATH);
         }
         catch (Exception e){
-            throw new CustomException("JSONPATH_ERROR","Failed to parse mdms response for department");
+            throw new RuntimeException("PGR ERROR");
+            //throw new CustomException("JSONPATH_ERROR","Failed to parse mdms response for department");
         }
 
         if(CollectionUtils.isEmpty(mdmsDepartmentList))
-            throw new CustomException("PARSING_ERROR","Failed to fetch department from mdms data for serviceCode: "+request.getService().getServiceCode());
+            throw new RuntimeException("PGR ERROR");
+           // throw new CustomException("PARSING_ERROR","Failed to fetch department from mdms data for serviceCode: "+request.getService().getServiceCode());
         else departmentFromMDMS = mdmsDepartmentList.get(0);
 
         if(hrmsDepartmentList.contains(departmentFromMDMS)){
@@ -695,7 +698,8 @@ public class NotificationService {
             employeeName = JsonPath.read(response, HRMS_EMP_NAME_JSONPATH);
         }
         catch (Exception e){
-            throw new CustomException("JSONPATH_ERROR","Failed to parse mdms response for department");
+            throw new RuntimeException("PGR ERROR");
+            //throw new CustomException("JSONPATH_ERROR","Failed to parse mdms response for department");
         }
 
         String localisedDesignation = notificationUtil.getCustomizedMsgForPlaceholder(localisationMessageForPlaceholder,"COMMON_MASTERS_DESIGNATION_"+designation.get(0));
@@ -809,8 +813,8 @@ public class NotificationService {
 
     public String getUiAppHost(String tenantId)
     {
-        String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(tenantId);
-        return config.getUiAppHostMap().get(stateLevelTenantId);
+        //String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(tenantId);
+        return config.getUiAppHostMap().get(tenantId);
     }
 
 }

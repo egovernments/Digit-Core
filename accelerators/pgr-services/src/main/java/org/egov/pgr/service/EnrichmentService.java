@@ -6,7 +6,6 @@ import org.egov.pgr.repository.IdGenRepository;
 import org.egov.pgr.util.PGRUtils;
 import org.egov.pgr.web.models.*;
 import org.egov.pgr.web.models.Idgen.IdResponse;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -145,7 +144,7 @@ public class EnrichmentService {
         List<IdResponse> idResponses = idGenRepository.getId(requestInfo, tenantId, idKey, idformat, count).getIdResponses();
 
         if (CollectionUtils.isEmpty(idResponses))
-            throw new CustomException("IDGEN ERROR", "No ids returned from idgen Service");
+            throw new RuntimeException("ERROR PGR");
 
         return idResponses.stream()
                 .map(IdResponse::getId).collect(Collectors.toList());

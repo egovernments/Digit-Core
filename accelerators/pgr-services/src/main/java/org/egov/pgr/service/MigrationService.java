@@ -13,7 +13,6 @@ import org.egov.pgr.web.models.pgrV1.Address;
 import org.egov.pgr.web.models.pgrV1.Service;
 import org.egov.pgr.web.models.pgrV1.ServiceResponse;
 import org.egov.pgr.web.models.workflow.*;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -84,7 +83,7 @@ public class MigrationService {
     @PostConstruct
     private void setStatusToUUIDMap(){
         this.statusToUUIDMap = migrationUtils.getStatusToUUIDMap(statelevelTenantIdForMigration);
-        this.serviceCodeToSLA = migrationUtils.getServiceCodeToSLAMap(statelevelTenantIdForMigration);
+       // this.serviceCodeToSLA = migrationUtils.getServiceCodeToSLAMap(statelevelTenantIdForMigration);
     }
 
 

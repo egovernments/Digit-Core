@@ -62,10 +62,10 @@ public class PGRService {
      */
     public ServiceRequest create(ServiceRequest request){
         String tenantId = request.getService().getTenantId();
-        Object mdmsData = mdmsUtils.mDMSCall(request);
-        validator.validateCreate(request, mdmsData);
+    //    Object mdmsData = mdmsUtils.mDMSCall(request);
+       /* validator.validateCreate(request, mdmsData);
         enrichmentService.enrichCreateRequest(request);
-        workflowService.updateWorkflowStatus(request);
+        workflowService.updateWorkflowStatus(request);*/
         producer.push(tenantId,config.getCreateTopic(),request);
         return request;
     }
@@ -95,7 +95,7 @@ public class PGRService {
         if(CollectionUtils.isEmpty(serviceWrappers))
             return new ArrayList<>();;
 
-        userService.enrichUsers(serviceWrappers);
+        /*userService.enrichUsers(serviceWrappers);
         List<ServiceWrapper> enrichedServiceWrappers = workflowService.enrichWorkflow(requestInfo,serviceWrappers);
         Map<Long, List<ServiceWrapper>> sortedWrappers = new TreeMap<>(Collections.reverseOrder());
         for(ServiceWrapper svc : enrichedServiceWrappers){
@@ -110,8 +110,8 @@ public class PGRService {
         List<ServiceWrapper> sortedServiceWrappers = new ArrayList<>();
         for(Long createdTimeDesc : sortedWrappers.keySet()){
             sortedServiceWrappers.addAll(sortedWrappers.get(createdTimeDesc));
-        }
-        return sortedServiceWrappers;
+        }*/
+        return serviceWrappers;
     }
 
 

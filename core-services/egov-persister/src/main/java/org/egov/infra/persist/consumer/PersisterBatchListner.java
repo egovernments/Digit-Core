@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.egov.infra.persist.service.PersistService;
-import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,7 +28,7 @@ public class PersisterBatchListner implements BatchMessageListener<String, Objec
     private PersistService persistService;
 
     @Autowired
-    private CustomKafkaTemplate kafkaTemplate;
+    private KafkaTemplate kafkaTemplate;
 
     @Value("${audit.persist.kafka.topic}")
     private String persistAuditKafkaTopic;

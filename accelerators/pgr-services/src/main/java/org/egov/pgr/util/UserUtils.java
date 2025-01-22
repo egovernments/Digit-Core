@@ -3,12 +3,10 @@ package org.egov.pgr.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.Role;
-import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.repository.ServiceRequestRepository;
 import org.egov.pgr.web.models.User;
 import org.egov.pgr.web.models.user.UserDetailResponse;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +28,7 @@ public class UserUtils {
 
     private PGRConfiguration config;
 
-    @Autowired
-    private MultiStateInstanceUtil centralInstanceUtil;
+
 
     @Autowired
     public UserUtils(ObjectMapper mapper, ServiceRequestRepository serviceRequestRepository, PGRConfiguration config) {
@@ -61,7 +58,8 @@ public class UserUtils {
         }
         catch(IllegalArgumentException  e)
         {
-            throw new CustomException("IllegalArgumentException","ObjectMapper not able to convertValue in userCall");
+            throw new RuntimeException("PGR_ERROR");
+
         }
     }
 
@@ -100,7 +98,7 @@ public class UserUtils {
         try {
             d = f.parse(date);
         } catch (ParseException e) {
-            throw new CustomException("INVALID_DATE_FORMAT","Failed to parse date format in user");
+            throw new RuntimeException("PGR_ERROR");
         }
         return  d.getTime();
     }
@@ -136,7 +134,7 @@ public class UserUtils {
     public String getStateLevelTenant(String tenantId){
        /* return tenantId.split("\\.")[0];*/
         log.info("tenantId"+ tenantId);
-        return centralInstanceUtil.getStateLevelTenant(tenantId);
+        return tenantId;
     }
 
 

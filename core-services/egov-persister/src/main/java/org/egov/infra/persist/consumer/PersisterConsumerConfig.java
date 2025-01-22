@@ -1,11 +1,12 @@
 package org.egov.infra.persist.consumer;
 
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.spring.kafka.v2_7.SpringKafkaTelemetry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.infra.persist.web.contract.TopicMap;
-import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +48,10 @@ public class PersisterConsumerConfig {
     private KafkaProperties kafkaProperties;
 
     @Autowired
-    private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+    private OpenTelemetry openTelemetry;
+
+/*    @Autowired
+    private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;*/
 
     private Set<String> topics = new HashSet<>();
 
@@ -83,7 +87,8 @@ public class PersisterConsumerConfig {
         factory.getContainerProperties();
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
-        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
+        //factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
+        factory.setRecordInterceptor(SpringKafkaTelemetry.create(openTelemetry).createRecordInterceptor());
 
         log.info("Custom KafkaListenerContainerFactory built...");
         return factory;

@@ -7,7 +7,6 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.repository.ServiceRequestRepository;
 import org.egov.pgr.web.models.RequestInfoWrapper;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -51,12 +50,10 @@ public class HRMSUtil {
              departments = JsonPath.read(res, HRMS_DEPARTMENT_JSONPATH);
         }
         catch (Exception e){
-            throw new CustomException("PARSING_ERROR","Failed to parse HRMS response");
-        }
+            throw new RuntimeException("PGR ERROR");        }
 
         if(CollectionUtils.isEmpty(departments))
-            throw new CustomException("DEPARTMENT_NOT_FOUND","The Department of the user with uuid: "+uuids.toString()+" is not found");
-
+            throw new RuntimeException("PGR ERROR");
         return departments;
 
     }

@@ -9,10 +9,10 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import java.util.TimeZone;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.egov.tracer.config.TracerConfiguration;
+//import org.egov.tracer.config.TracerConfiguration;
 
 
-@Import({TracerConfiguration.class})
+//@Import({TracerConfiguration.class})
 public class MainConfiguration {
 
     @Value("${app.timezone}")

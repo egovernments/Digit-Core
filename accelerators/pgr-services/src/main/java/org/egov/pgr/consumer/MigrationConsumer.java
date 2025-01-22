@@ -1,3 +1,4 @@
+/*
 package org.egov.pgr.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,3 +51,4 @@ public class MigrationConsumer {
     }
 
 }
+*/

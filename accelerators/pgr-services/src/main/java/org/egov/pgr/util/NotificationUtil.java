@@ -4,14 +4,12 @@ import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.producer.Producer;
 import org.egov.pgr.repository.ServiceRequestRepository;
 import org.egov.pgr.web.models.Notification.EventRequest;
 import org.egov.pgr.web.models.Notification.SMSRequest;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -36,8 +34,7 @@ public class NotificationUtil {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    private MultiStateInstanceUtil centralInstanceUtil;
+
 
 
     /**
@@ -51,7 +48,7 @@ public class NotificationUtil {
         @SuppressWarnings("rawtypes")
         LinkedHashMap responseMap = (LinkedHashMap) serviceRequestRepository.fetchResult(getUri(tenantId, requestInfo, module),
                 requestInfo);
-        return new JSONObject(responseMap).toString();
+        return  "";
     }
 
     /**
@@ -65,7 +62,6 @@ public class NotificationUtil {
 
         /*if (config.getIsLocalizationStateLevel())
             tenantId= centralInstanceUtil.getStateLevelTenant(tenantId);*/
-        tenantId= centralInstanceUtil.getStateLevelTenant(tenantId);
         log.info("tenantId after calling central instance method :"+ tenantId);
         String locale = NOTIFICATION_LOCALE;
         if (!StringUtils.isEmpty(requestInfo.getMsgId()) && requestInfo.getMsgId().split("|").length >= 2)

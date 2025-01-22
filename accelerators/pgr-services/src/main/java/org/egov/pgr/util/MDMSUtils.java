@@ -1,11 +1,7 @@
 package org.egov.pgr.util;
 
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.utils.MultiStateInstanceUtil;
-import org.egov.mdms.model.MasterDetail;
-import org.egov.mdms.model.MdmsCriteria;
-import org.egov.mdms.model.MdmsCriteriaReq;
-import org.egov.mdms.model.ModuleDetail;
+
 import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.repository.ServiceRequestRepository;
 import org.egov.pgr.web.models.ServiceRequest;
@@ -26,8 +22,7 @@ public class MDMSUtils {
 
     private ServiceRequestRepository serviceRequestRepository;
 
-    @Autowired
-    private MultiStateInstanceUtil multiStateInstanceUtil;
+
 
     @Autowired
     public MDMSUtils(PGRConfiguration config, ServiceRequestRepository serviceRequestRepository) {
@@ -41,11 +36,11 @@ public class MDMSUtils {
      * @return
      */
     public Object mDMSCall(ServiceRequest request){
-        RequestInfo requestInfo = request.getRequestInfo();
+/*        RequestInfo requestInfo = request.getRequestInfo();
         String tenantId = request.getService().getTenantId();
-        MdmsCriteriaReq mdmsCriteriaReq = getMDMSRequest(requestInfo,multiStateInstanceUtil.getStateLevelTenant(tenantId));
-        Object result = serviceRequestRepository.fetchResult(getMdmsSearchUrl(), mdmsCriteriaReq);
-        return result;
+        //MdmsCriteriaReq mdmsCriteriaReq = getMDMSRequest(requestInfo,multiStateInstanceUtil.getStateLevelTenant(tenantId));
+        Object result = serviceRequestRepository.fetchResult(getMdmsSearchUrl(), mdmsCriteriaReq);*/
+        return new Object();
     }
 
 
@@ -55,7 +50,7 @@ public class MDMSUtils {
      * @param tenantId
      * @return
      */
-    public MdmsCriteriaReq getMDMSRequest(RequestInfo requestInfo,String tenantId){
+   /* public MdmsCriteriaReq getMDMSRequest(RequestInfo requestInfo,String tenantId){
         List<ModuleDetail> pgrModuleRequest = getPGRModuleRequest();
 
         List<ModuleDetail> moduleDetails = new LinkedList<>();
@@ -67,14 +62,14 @@ public class MDMSUtils {
         MdmsCriteriaReq mdmsCriteriaReq = MdmsCriteriaReq.builder().mdmsCriteria(mdmsCriteria)
                 .requestInfo(requestInfo).build();
         return mdmsCriteriaReq;
-    }
+    }*/
 
 
     /**
      * Creates request to search serviceDef from MDMS
      * @return request to search UOM from MDMS
      */
-    private List<ModuleDetail> getPGRModuleRequest() {
+    /*private List<ModuleDetail> getPGRModuleRequest() {
 
         // master details for TL module
         List<MasterDetail> pgrMasterDetails = new ArrayList<>();
@@ -90,7 +85,7 @@ public class MDMSUtils {
 
         return Collections.singletonList(pgrModuleDtls);
 
-    }
+    }*/
 
 
     /**

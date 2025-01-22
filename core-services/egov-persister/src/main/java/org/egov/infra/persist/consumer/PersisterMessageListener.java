@@ -2,7 +2,6 @@ package org.egov.infra.persist.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.egov.infra.persist.service.PersistService;
-import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -28,7 +27,7 @@ public class PersisterMessageListener implements MessageListener<String, Object>
 	private ObjectMapper objectMapper;
 
 	@Autowired
-	private CustomKafkaTemplate kafkaTemplate;
+	private KafkaTemplate kafkaTemplate;
 
 	@Value("${audit.persist.kafka.topic}")
 	private String persistAuditKafkaTopic;

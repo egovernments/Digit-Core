@@ -2,7 +2,6 @@ package org.egov.pgr.repository.rowmapper;
 
 import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.web.models.RequestSearchCriteria;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -148,7 +147,7 @@ public class PGRQueryBuilder {
         } else {
             //if only toDate is provided as parameter without fromDate parameter, throw an exception.
             if (criteria.getToDate() != null) {
-                throw new CustomException("INVALID_SEARCH", "Cannot specify to-Date without a from-Date");
+                throw new RuntimeException("PGR ERROR");
             }
         }
 

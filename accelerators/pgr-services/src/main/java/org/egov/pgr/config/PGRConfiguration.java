@@ -6,7 +6,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +19,7 @@ import java.util.TimeZone;
 
 @Component
 @Data
-@Import({TracerConfiguration.class})
+//@Import({TracerConfiguration.class})
 @NoArgsConstructor
 @AllArgsConstructor
 public class PGRConfiguration {

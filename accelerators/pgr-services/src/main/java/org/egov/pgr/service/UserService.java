@@ -8,7 +8,6 @@ import org.egov.pgr.web.models.*;
 import org.egov.pgr.web.models.user.CreateUserRequest;
 import org.egov.pgr.web.models.user.UserDetailResponse;
 import org.egov.pgr.web.models.user.UserSearchRequest;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -109,7 +108,8 @@ public class UserService {
         UserDetailResponse userDetailResponse = searchUser(userUtils.getStateLevelTenant(tenantId),accountId,null);
 
         if(userDetailResponse.getUser().isEmpty())
-            throw new CustomException("INVALID_ACCOUNTID","No user exist for the given accountId");
+            throw new RuntimeException("PGR ERROR");
+            //throw new CustomException("INVALID_ACCOUNTID","No user exist for the given accountId");
 
         else request.getService().setCitizen(userDetailResponse.getUser().get(0));
 
@@ -208,7 +208,8 @@ public class UserService {
         List<User> users = userDetailResponse.getUser();
 
         if(CollectionUtils.isEmpty(users))
-            throw new CustomException("USER_NOT_FOUND","No user found for the uuids");
+            throw new RuntimeException("PGR ERROR");
+            //throw new CustomException("USER_NOT_FOUND","No user found for the uuids");
 
         Map<String,User> idToUserMap = users.stream().collect(Collectors.toMap(User::getUuid, Function.identity()));
 

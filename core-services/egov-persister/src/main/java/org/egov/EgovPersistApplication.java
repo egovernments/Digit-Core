@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.infra.persist.web.contract.Mapping;
 import org.egov.infra.persist.web.contract.Service;
 import org.egov.infra.persist.web.contract.TopicMap;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -142,7 +141,7 @@ public class EgovPersistApplication {
             }
 
             if (!errorMap.isEmpty())
-                throw new CustomException(errorMap);
+                throw new RuntimeException();
             else
                 log.info("====================== CONFIGS LOADED SUCCESSFULLY! ====================== ");
         } catch (Exception ex) {

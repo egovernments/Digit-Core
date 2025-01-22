@@ -8,7 +8,6 @@ import org.egov.pgr.config.PGRConfiguration;
 import org.egov.pgr.repository.ServiceRequestRepository;
 import org.egov.pgr.web.models.*;
 import org.egov.pgr.web.models.workflow.*;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -48,11 +47,12 @@ public class WorkflowService {
         try {
             response = mapper.convertValue(result, BusinessServiceResponse.class);
         } catch (IllegalArgumentException e) {
-            throw new CustomException("PARSING ERROR", "Failed to parse response of workflow business service search");
+           // throw new CustomException("PARSING ERROR", "Failed to parse response of workflow business service search");
         }
 
         if (CollectionUtils.isEmpty(response.getBusinessServices()))
-            throw new CustomException("BUSINESSSERVICE_NOT_FOUND", "The businessService " + PGR_BUSINESSSERVICE + " is not found");
+            throw new RuntimeException("PGR ERROR");
+           // throw new CustomException("BUSINESSSERVICE_NOT_FOUND", "The businessService " + PGR_BUSINESSSERVICE + " is not found");
 
         return response.getBusinessServices().get(0);
     }
@@ -135,11 +135,12 @@ public class WorkflowService {
             try {
                 processInstanceResponse = mapper.convertValue(result, ProcessInstanceResponse.class);
             } catch (IllegalArgumentException e) {
-                throw new CustomException("PARSING ERROR", "Failed to parse response of workflow processInstance search");
+                //throw new CustomException("PARSING ERROR", "Failed to parse response of workflow processInstance search");
             }
 
             if (CollectionUtils.isEmpty(processInstanceResponse.getProcessInstances()) || processInstanceResponse.getProcessInstances().size() != serviceRequestIds.size())
-                throw new CustomException("WORKFLOW_NOT_FOUND", "The workflow object is not found");
+                throw new RuntimeException("PGR ERROR");
+                //throw new CustomException("WORKFLOW_NOT_FOUND", "The workflow object is not found");
 
             Map<String, Workflow> businessIdToWorkflow = getWorkflow(processInstanceResponse.getProcessInstances());
 
