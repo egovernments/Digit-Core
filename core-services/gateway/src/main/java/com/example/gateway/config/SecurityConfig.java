@@ -32,6 +32,7 @@ public class SecurityConfig {
 		List<String> whitelistedEndpoints = applicationProperties.getOpenEndpointsWhitelist();
 
 		http
+				.csrf(ServerHttpSecurity.CsrfSpec::disable)
 				.authorizeExchange(exchanges -> exchanges
 						.pathMatchers("/health").permitAll() // Allow access to health and info endpoints
 						.pathMatchers(whitelistedEndpoints.toArray(String[]::new)).permitAll() // Allow access to whitelisted endpoints
