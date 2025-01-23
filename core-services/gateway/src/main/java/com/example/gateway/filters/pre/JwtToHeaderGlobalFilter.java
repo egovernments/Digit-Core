@@ -3,12 +3,15 @@ package com.example.gateway.filters.pre;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,17 +22,27 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.gateway.constants.GatewayConstants.AUTH_BOOLEAN_FLAG_NAME;
 import static com.example.gateway.constants.GatewayConstants.USER_INFO_KEY;
 
 @Component
 @Slf4j
-public class JwtToHeaderGlobalFilter implements GlobalFilter {
+public class JwtToHeaderGlobalFilter implements GlobalFilter, Ordered {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        Boolean doAuth = exchange.getAttribute(AUTH_BOOLEAN_FLAG_NAME);
+        boolean isGetRequest = HttpMethod.GET.equals(exchange.getRequest().getMethod());
+        String contentType = exchange.getRequest().getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+
+        if ((Boolean.FALSE.equals(doAuth))) {
+            return chain.filter(exchange);
+        }
+
         return ReactiveSecurityContextHolder.getContext().flatMap(securityContext -> {
             Object principal = securityContext.getAuthentication().getPrincipal();
             if (principal instanceof Jwt) {
@@ -47,6 +60,8 @@ public class JwtToHeaderGlobalFilter implements GlobalFilter {
             }
             return chain.filter(exchange);
         });
+
+
     }
 
     private User buildUserFromJwt(Jwt jwt) {
@@ -62,19 +77,10 @@ public class JwtToHeaderGlobalFilter implements GlobalFilter {
         String tenantId = extractRealmFromIssuer(issuer);
 
         Map<String, Object> realmAccess = jwt.hasClaim("realm_access") ? jwt.getClaimAsMap("realm_access") : null;
-        List<String> rolesString = realmAccess != null && realmAccess.containsKey("roles") ? (List<String>) realmAccess.get("roles"): null;
+        List<String> rolesString = realmAccess != null && realmAccess.containsKey("roles") ? (List<String>) realmAccess.get("roles") : null;
         List<Role> roles = rolesString != null ? rolesString.stream().map(role -> Role.builder().name(role).code(role).tenantId(tenantId).build()).toList() : null;
 
-        return User.builder()
-                .userName(userName)
-                .name(name)
-                .type(type)
-                .mobileNumber(mobileNumber)
-                .emailId(emailId)
-                .roles(roles)
-                .tenantId(tenantId)
-                .uuid(uuid)
-                .build();
+        return User.builder().userName(userName).name(name).type(type).mobileNumber(mobileNumber).emailId(emailId).roles(roles).tenantId(tenantId).uuid(uuid).build();
     }
 
     private String extractRealmFromIssuer(String issuer) {
@@ -91,4 +97,8 @@ public class JwtToHeaderGlobalFilter implements GlobalFilter {
         }
     }
 
+    @Override
+    public int getOrder() {
+        return 4;
+    }
 }

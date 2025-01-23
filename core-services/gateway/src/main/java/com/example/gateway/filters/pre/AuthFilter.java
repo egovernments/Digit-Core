@@ -51,7 +51,8 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
             if (isGetRequest || commonUtils.isFormContentType(contentType)) {
                 String authToken = exchange.getRequest().getHeaders().get(AUTH_TOKEN).get(0);
-                User user = userUtils.getUser(authToken, exchange);
+//                User user = userUtils.getUser(authToken, exchange);
+                User user = objectMapper.convertValue(MDC.get(USER_INFO_KEY), User.class);
                 try {
                     MDC.put(USER_INFO_KEY, objectMapper.writeValueAsString(user));
                 } catch (JsonProcessingException e) {
@@ -68,7 +69,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return 4;
+        return 5;
     }
 
 }

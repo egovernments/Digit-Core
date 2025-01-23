@@ -149,6 +149,6 @@ public class RbacFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return 5;
+        return 6;
     }
 }

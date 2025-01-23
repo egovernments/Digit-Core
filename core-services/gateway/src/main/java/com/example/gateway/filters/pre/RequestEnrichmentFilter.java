@@ -46,6 +46,6 @@ public class RequestEnrichmentFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return 6;
+        return 7;
     }
 }

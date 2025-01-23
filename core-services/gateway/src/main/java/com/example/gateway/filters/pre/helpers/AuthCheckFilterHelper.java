@@ -7,6 +7,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.tracer.model.CustomException;
 import org.reactivestreams.Publisher;
+import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.factory.rewrite.RewriteFunction;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -16,8 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.example.gateway.constants.GatewayConstants.AUTH_TOKEN;
-import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_NAME_PASCAL_CASE;
+import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
 @Component
@@ -38,12 +38,16 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
         // TODO: Handle cases when body is null but you want to check for authorization
         try {
             if (ObjectUtils.isEmpty(body)) {
-                String authToken = exchange.getRequest().getHeaders().get(AUTH_TOKEN).get(0);
-                userUtils.getUser(authToken, exchange);
+//              String authToken = exchange.getRequest().getHeaders().get(AUTH_TOKEN).get(0);
+//              userUtils.getUser(authToken, exchange);
+                String userInfoJson = MDC.get(USER_INFO_KEY);
+                User user = objectMapper.readValue(userInfoJson, User.class);
                 return Mono.just(new HashMap<>());
             } else {
                 RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-                requestInfo.setUserInfo(userUtils.getUser(requestInfo.getAuthToken(), exchange));
+                String userInfoJson = MDC.get(USER_INFO_KEY);
+                User user = objectMapper.readValue(userInfoJson, User.class);
+                requestInfo.setUserInfo(user);
                 body.put(REQUEST_INFO_FIELD_NAME_PASCAL_CASE, requestInfo);
                 return Mono.just(body);
             }
