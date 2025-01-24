@@ -19,11 +19,10 @@ import java.util.List;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 	private ApplicationProperties applicationProperties;
-	private UserHeaderEnrichmentFilter userHeaderEnrichmentFilter;
+//	private UserHeaderEnrichmentFilter userHeaderEnrichmentFilter;
 
-	public SecurityConfig(ApplicationProperties applicationProperties, UserHeaderEnrichmentFilter userHeaderEnrichmentFilter) {
+	public SecurityConfig(ApplicationProperties applicationProperties) {
 		this.applicationProperties = applicationProperties;
-		this.userHeaderEnrichmentFilter = userHeaderEnrichmentFilter;
 	}
 
 	@Bean
