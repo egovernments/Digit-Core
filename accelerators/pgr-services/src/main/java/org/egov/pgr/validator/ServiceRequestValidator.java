@@ -41,7 +41,7 @@ public class ServiceRequestValidator {
      */
     public void validateCreate(ServiceRequest request, Object mdmsData){
         Map<String,String> errorMap = new HashMap<>();
-        validateUserData(request,errorMap);
+//        validateUserData(request,errorMap);
         validateSource(request.getService().getSource());
         validateMDMS(request, mdmsData);
         if(config.getIsValidateDeptEnabled()) validateDepartment(request, mdmsData);
