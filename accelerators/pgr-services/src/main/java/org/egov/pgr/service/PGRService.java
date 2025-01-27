@@ -63,9 +63,9 @@ public class PGRService {
     public ServiceRequest create(ServiceRequest request){
         String tenantId = request.getService().getTenantId();
     //    Object mdmsData = mdmsUtils.mDMSCall(request);
-       /* validator.validateCreate(request, mdmsData);
-        enrichmentService.enrichCreateRequest(request);
-        workflowService.updateWorkflowStatus(request);*/
+      //  validator.validateCreate(request, mdmsData);
+    //    enrichmentService.enrichCreateRequest(request);
+        //workflowService.updateWorkflowStatus(request);
         producer.push(tenantId,config.getCreateTopic(),request);
         return request;
     }

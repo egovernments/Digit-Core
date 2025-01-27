@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="pgr-services" />
+        <module name="egov-idgen" />
         <module name="egov-persister" />
       </profile>
     </annotationProcessing>
@@ -17,6 +18,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="egov-idgen" options="-parameters" />
       <module name="egov-mdms-service-test" options="-parameters" />
       <module name="egov-persister" options="-parameters" />
       <module name="pgr-services" options="-parameters" />

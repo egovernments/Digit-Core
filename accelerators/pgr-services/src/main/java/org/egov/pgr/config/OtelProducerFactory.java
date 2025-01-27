@@ -1,3 +1,4 @@
+/*
 package org.egov.pgr.config;
 
 import io.opentelemetry.api.OpenTelemetry;
@@ -31,4 +32,4 @@ public class OtelProducerFactory extends DefaultKafkaProducerFactory<String, Str
     }
 
 
-}
+}*/

@@ -1,3 +1,4 @@
+/*
 package org.egov.pgr.config;
 import io.opentelemetry.api.OpenTelemetry;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,4 +46,4 @@ public class KafkaConfig {
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
-}
+}*/

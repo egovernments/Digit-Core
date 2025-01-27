@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 @Slf4j
 public class PersisterMessageListener implements MessageListener<String, Object> {
-	
+
 	@Autowired
 	private PersistService persistService;
 
@@ -38,7 +38,7 @@ public class PersisterMessageListener implements MessageListener<String, Object>
 	@Override
 	public void onMessage(ConsumerRecord<String, Object> data) {
 		String rcvData = null;
-		
+
 		try {
 			rcvData = objectMapper.writeValueAsString(data.value());
 		} catch (JsonProcessingException e) {

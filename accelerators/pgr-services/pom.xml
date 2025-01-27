@@ -59,12 +59,12 @@
             <version>2.1.0-alpha</version>
         </dependency>
 
-        <!-- OpenTelemetry Kafka Clients Instrumentation (if using Kafka) -->
+<!--        &lt;!&ndash; OpenTelemetry Kafka Clients Instrumentation (if using Kafka) &ndash;&gt;
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-kafka-clients-2.6</artifactId>
             <version>2.1.0-alpha</version>
-        </dependency>
+        </dependency>-->
 
         <!-- OpenTelemetry Spring Kafka Instrumentation (if using Kafka) -->
         <dependency>

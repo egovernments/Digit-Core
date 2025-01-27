@@ -4,9 +4,10 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/../../core-services/egov-persister/pom.xml" />
         <option value="$PROJECT_DIR$/../../core-services/egov-mdms-service/pom.xml" />
+        <option value="$PROJECT_DIR$/../../core-services/egov-idgen/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

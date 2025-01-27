@@ -26,6 +26,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import jakarta.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 
@@ -71,11 +72,21 @@ public class PersisterConsumerConfig {
 
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
+      //  props.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingConsumerInterceptor.class.getName());
 
         JsonDeserializer jsonDeserializer = new JsonDeserializer<>(Object.class,false);
 
         ErrorHandlingDeserializer<String> errorHandlingDeserializer
                 = new ErrorHandlingDeserializer<>(jsonDeserializer);
+
+        /*KafkaTelemetry kafkaTelemetry = KafkaTelemetry.create(GlobalOpenTelemetry.get());
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), errorHandlingDeserializer) {
+            @Override
+            public Consumer<String, String> createConsumer(String groupId, String clientIdSuffix) {
+                Consumer<String, String> consumer = super.createConsumer(groupId, clientIdSuffix);
+                return kafkaTelemetry.wrap(consumer); // Wrap the consumer with KafkaTelemetry
+            }
+        };*/
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), errorHandlingDeserializer);
     }
@@ -88,7 +99,8 @@ public class PersisterConsumerConfig {
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         //factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
-        factory.setRecordInterceptor(SpringKafkaTelemetry.create(openTelemetry).createRecordInterceptor());
+       // factory.setRecordInterceptor(SpringKafkaTelemetry.create(openTelemetry).createRecordInterceptor());
+        factory.getContainerProperties().setObservationEnabled(true);
 
         log.info("Custom KafkaListenerContainerFactory built...");
         return factory;
@@ -103,15 +115,18 @@ public class PersisterConsumerConfig {
      //   properties.setPauseAfter(0);
      //   properties.setGenericErrorHandler(kafkaConsumerErrorHandler);
         properties.setMessageListener(indexerMessageListener);
+        properties.setObservationEnabled(true);
 
         log.info("Custom KafkaListenerContainer built...");
 
-        return new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        KafkaMessageListenerContainer<String, String> kf = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        kf.setRecordInterceptor(SpringKafkaTelemetry.create(openTelemetry).createRecordInterceptor());
+        return kf;
     }
 
     @Bean
     public boolean startContainer(){
-        KafkaMessageListenerContainer<String, String> container = null;
+            KafkaMessageListenerContainer<String, String> container = null;
         try {
             container = container();
         } catch (Exception e) {

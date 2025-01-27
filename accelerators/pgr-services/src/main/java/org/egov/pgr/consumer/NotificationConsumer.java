@@ -19,7 +19,7 @@ import java.util.HashMap;
 import static org.apache.kafka.common.requests.FetchMetadata.log;
 import static org.egov.pgr.util.PGRConstants.TENANTID_MDC_STRING;
 
-//@Component
+@Component
 @Slf4j
 public class NotificationConsumer {
     @Autowired
@@ -39,14 +39,16 @@ public class NotificationConsumer {
     @KafkaListener(topicPattern = "${pgr.kafka.notification.topic.pattern}")
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         try {
-            ServiceRequest request = mapper.convertValue(record, ServiceRequest.class);
+            System.out.println("Notification message received!!!!!!!!!");
+            Thread.sleep(50);
+        /*    ServiceRequest request = mapper.convertValue(record, ServiceRequest.class);
 
             String tenantId = request.getService().getTenantId();
 
             // Adding in MDC so that tracer can add it in header
             MDC.put(PGRConstants.TENANTID_MDC_STRING, tenantId);
 
-            notificationService.process(request, topic);
+            notificationService.process(request, topic);*/
         } catch (Exception ex) {
             StringBuilder builder = new StringBuilder("Error while listening to value: ").append(record)
                     .append("on topic: ").append(topic);

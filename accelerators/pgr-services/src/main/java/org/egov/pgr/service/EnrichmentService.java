@@ -53,7 +53,7 @@ public class EnrichmentService {
         if(requestInfo.getUserInfo().getType().equalsIgnoreCase(USERTYPE_CITIZEN))
             serviceRequest.getService().setAccountId(requestInfo.getUserInfo().getUuid());
 
-        userService.callUserService(serviceRequest);
+      //  userService.callUserService(serviceRequest);
 
 
         AuditDetails auditDetails = utils.getAuditDetails(requestInfo.getUserInfo().getUuid(), service,true);

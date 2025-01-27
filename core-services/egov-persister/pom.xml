@@ -44,11 +44,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-<!--    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>${commons-lang-version}</version>
-    </dependency>-->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -58,11 +53,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
     </dependency>
- <!--   <dependency>
-      <groupId>org.springframework.kafka</groupId>
-      <artifactId>spring-kafka</artifactId>
-    </dependency>-->
-
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
       <artifactId>json-path</artifactId>
@@ -123,21 +113,25 @@
     </dependency>
 
 
+    <!-- OpenTelemetry Spring Boot Starter -->
     <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-spring-boot-starter</artifactId>
       <version>2.1.0-alpha</version>
     </dependency>
-    <dependency>
-      <groupId>io.opentelemetry.instrumentation</groupId>
-      <artifactId>opentelemetry-kafka-clients-2.6</artifactId>
-      <version>2.1.0-alpha</version>
-    </dependency>
+    <!-- OpenTelemetry Spring Kafka Instrumentation (if using Kafka) -->
     <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-spring-kafka-2.7</artifactId>
       <version>2.1.0-alpha</version>
     </dependency>
+
+    <dependency>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-kafka-clients-2.6</artifactId>
+      <version>2.1.0-alpha</version>
+    </dependency>
+
     <!-- OpenTelemetry Exporter for Jaeger -->
     <dependency>
       <groupId>io.opentelemetry</groupId>
@@ -145,11 +139,15 @@
       <version>1.35.0</version>
     </dependency>
     <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
+      <version>1.35.0</version>
+    </dependency>
+    <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-jdbc</artifactId>
       <version>2.0.0-alpha</version>
     </dependency>
-
 
 
 
