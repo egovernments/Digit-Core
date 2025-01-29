@@ -70,7 +70,7 @@ public class InboxQueryBuilder implements QueryBuilderInterface {
                 nameToOperator, mustClauseList);
 
         innerBoolClause.put(MUST_KEY, mustClauseList);
-        System.out.println("Final ES Query after adding must clause: " + baseEsQuery.toString());
+        log.info("Final ES Query after adding must clause: " + baseEsQuery.toString());
         return baseEsQuery;
     }
 
@@ -339,4 +339,5 @@ public class InboxQueryBuilder implements QueryBuilderInterface {
 
         return path;
     }
+
 }
