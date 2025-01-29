@@ -73,11 +73,9 @@ public class InboxServiceV2 {
                 inboxQueryConfiguration);
         List<Inbox> items = getInboxItems(inboxRequest, inboxQueryConfiguration.getIndex());
         enrichProcessInstanceInInboxItems(items);
-        Integer totalCount = CollectionUtils.isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus()) ? 0
-                : getTotalApplicationCount(inboxRequest, inboxQueryConfiguration.getIndex());
-        List<HashMap<String, Object>> statusCountMap = CollectionUtils
-                .isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus()) ? new ArrayList<>()
-                        : getStatusCountMap(inboxRequest, inboxQueryConfiguration.getIndex());
+        Integer totalCount = getTotalApplicationCount(inboxRequest, inboxQueryConfiguration.getIndex());
+        List<HashMap<String, Object>> statusCountMap = getStatusCountMap(inboxRequest,
+                inboxQueryConfiguration.getIndex());
         Integer nearingSlaCount = CollectionUtils
                 .isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus()) ? 0
                         : getApplicationsNearingSlaCount(inboxRequest, inboxQueryConfiguration.getIndex());
@@ -194,12 +192,22 @@ public class InboxServiceV2 {
     }
 
     public List<HashMap<String, Object>> getStatusCountMap(InboxRequest inboxRequest, String indexName) {
+        List<BusinessService> businessServices = workflowService.getBusinessServices(inboxRequest);
+
+        HashMap<String, String> StatusIdNameMap = workflowService.getActionableStatusesForRole(
+                inboxRequest.getRequestInfo(), businessServices,
+                inboxRequest.getInbox().getProcessSearchCriteria());
+        log.info(StatusIdNameMap.toString());
+        List<String> actionableStatus = new ArrayList<>();
+        // add keys
+        StatusIdNameMap.keySet().forEach(actionableStatus::add);
         Map<String, Object> finalQueryBody = queryBuilder.getStatusCountQuery(inboxRequest);
+        log.info("Query for status count: " + finalQueryBody.toString());
         StringBuilder uri = getURI(indexName, SEARCH_PATH);
         Map<String, Object> response = (Map<String, Object>) serviceRequestRepository.fetchResult(uri, finalQueryBody);
-        Set<String> actionableStatuses = new HashSet<>(inboxRequest.getInbox().getProcessSearchCriteria().getStatus());
+        Set<String> actionableStatusHSet = new HashSet<>(actionableStatus);
         HashMap<String, Object> statusCountMap = parseStatusCountMapFromAggregationResponse(response,
-                actionableStatuses);
+                actionableStatusHSet);
         List<HashMap<String, Object>> transformedStatusMap = transformStatusMap(inboxRequest, statusCountMap);
         return transformedStatusMap;
     }
@@ -295,9 +303,11 @@ public class InboxServiceV2 {
             List<Map<String, Object>> statusCountBuckets = JsonPath.read(response,
                     STATUS_COUNT_AGGREGATIONS_BUCKETS_PATH);
             HashMap<String, Object> statusCountMap = new HashMap<>();
+            actionableStatuses.forEach(status -> {
+                statusCountMap.put(status, 0);
+            });
             statusCountBuckets.forEach(bucket -> {
-                if (actionableStatuses.contains(bucket.get(KEY)))
-                    statusCountMap.put((String) bucket.get(KEY), bucket.get(DOC_COUNT_KEY));
+                statusCountMap.put((String) bucket.get(KEY), bucket.get(DOC_COUNT_KEY));
             });
             statusCountResponse.add(statusCountMap);
         }
