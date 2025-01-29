@@ -67,7 +67,7 @@
     <dependency>
       <groupId>org.egov.services</groupId>
       <artifactId>tracer</artifactId>
-      <version>2.9.0-SNAPSHOT</version>
+      <version>2.9.1-LOCAL</version>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>

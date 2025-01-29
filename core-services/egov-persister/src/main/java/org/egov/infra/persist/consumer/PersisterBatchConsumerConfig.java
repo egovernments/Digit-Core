@@ -3,6 +3,8 @@
 package org.egov.infra.persist.consumer;
 
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.spring.kafka.v2_7.SpringKafkaTelemetry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -60,6 +62,9 @@ public class PersisterBatchConsumerConfig {
     @Value("${persister.batch.size}")
     private Integer batchSize;
 
+    @Autowired
+    private OpenTelemetry openTelemetry;
+
     @PostConstruct
     public void setTopics() {
         topicMap.getTopicMap().keySet().forEach(topic -> {
@@ -116,8 +121,9 @@ public class PersisterBatchConsumerConfig {
         properties.setMessageListener(indexerMessageListener);
 
         log.info("Custom KafkaListenerContainer built...");
-
-        return new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        container.setRecordInterceptor(SpringKafkaTelemetry.create(openTelemetry).createRecordInterceptor());
+        return container;
     }
 
     @Bean("startBatchContainer")

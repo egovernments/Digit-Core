@@ -1,6 +1,8 @@
 package org.egov.infra.persist.consumer;
 
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.spring.kafka.v2_7.SpringKafkaTelemetry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -48,6 +50,9 @@ public class PersisterConsumerConfig {
 
     @Autowired
     private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+
+    @Autowired
+    private OpenTelemetry openTelemetry;
 
     private Set<String> topics = new HashSet<>();
 
@@ -101,7 +106,9 @@ public class PersisterConsumerConfig {
 
         log.info("Custom KafkaListenerContainer built...");
 
-        return new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        container.setRecordInterceptor(SpringKafkaTelemetry.create(openTelemetry).createRecordInterceptor());
+        return container;
     }
 
     @Bean
