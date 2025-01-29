@@ -30,7 +30,10 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class WorkflowService {
 
 	private InboxConfiguration config;
@@ -191,7 +194,7 @@ public class WorkflowService {
 
 	@Cacheable(value = "businessServices")
 	public List<BusinessService> getBusinessServices(InboxRequest request) {
-		String tenantId = request.getInbox().getTenantId().split("\\.")[0];
+		String tenantId = request.getInbox().getProcessSearchCriteria().getTenantId().split("\\.")[0];
 		RequestInfo requestInfo = request.getRequestInfo();
 		List<String> businessServicesCodes = request.getInbox().getProcessSearchCriteria().getBusinessService();
 		String businessServiceList = String.join(",", businessServicesCodes);
@@ -326,8 +329,6 @@ public class WorkflowService {
 	public HashMap<String, String> getActionableStatusesForRole(RequestInfo requestInfo,
 			List<BusinessService> businessServices, ProcessInstanceSearchCriteria criteria) {
 
-		String tenantId;
-		List<String> userRoleCodes;
 		Map<String, List<String>> tenantIdToUserRolesMap = getTenantIdToUserRolesMap(requestInfo);
 		Map<String, List<BusinessService>> tenantIdToBuisnessSevicesMap = getTenantIdToBuisnessSevicesMap(
 				businessServices);
@@ -374,15 +375,16 @@ public class WorkflowService {
 	public Map<String, List<String>> getTenantIdToUserRolesMap(RequestInfo requestInfo) {
 		Map<String, List<String>> tenantIdToUserRoles = new HashMap<>();
 		requestInfo.getUserInfo().getRoles().forEach(role -> {
-			if (tenantIdToUserRoles.containsKey(role.getTenantId())) {
-				tenantIdToUserRoles.get(role.getTenantId()).add(role.getCode());
+			if (tenantIdToUserRoles.containsKey(role.getTenantId().split("\\.")[0])) {
+				tenantIdToUserRoles.get(role.getTenantId().split("\\.")[0]).add(role.getCode());
 			} else {
 				List<String> roleCodes = new LinkedList<>();
 				roleCodes.add(role.getCode());
-				tenantIdToUserRoles.put(role.getTenantId(), roleCodes);
+				tenantIdToUserRoles.put(role.getTenantId().split("\\.")[0], roleCodes);
 			}
 
 		});
+		log.info("tenantIdToUserRoles:" + tenantIdToUserRoles.toString());
 		return tenantIdToUserRoles;
 	}
 
