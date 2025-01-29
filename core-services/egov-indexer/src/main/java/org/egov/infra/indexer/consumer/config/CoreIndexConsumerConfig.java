@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.spring.kafka.v2_7.SpringKafkaTelemetry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.IndexerApplicationRunnerImpl;
@@ -87,6 +90,9 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     
 	@Autowired
 	private IndexerApplicationRunnerImpl runner;
+
+	@Autowired
+	private OpenTelemetry openTelemetry;
     
     public String[] topics = {};
     
@@ -161,7 +167,10 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     	 
          log.info("Custom KafkaListenerContainer built...");
 
-         return new KafkaMessageListenerContainer<>(consumerFactory(), properties); 
+
+		KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+		container.setRecordInterceptor(SpringKafkaTelemetry.create(openTelemetry).createRecordInterceptor());
+		return container;
     }
         
     public boolean initializeContainer(){
