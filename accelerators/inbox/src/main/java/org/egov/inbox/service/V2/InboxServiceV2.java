@@ -285,13 +285,15 @@ public class InboxServiceV2 {
         for (Map.Entry<String, Object> entry : statusCountMap.entrySet()) {
             String statusId = entry.getKey();
             Integer count = (Integer) entry.getValue();
-            HashMap<String, Object> map = new HashMap<>();
-            map.put(COUNT_CONSTANT, count);
-            map.put(APPLICATION_STATUS_KEY, statusIdToApplicationStatusMap.get(statusId));
-            map.put(BUSINESSSERVICE_KEY, statusIdToBusinessServiceMap.get(statusId));
-            map.put(STATUSID_KEY, statusId);
-            map.put(STATE_KEY, statusIdToStateMap.get(statusId));
-            statusCountMapTransformed.add(map);
+            if (statusIdToStateMap.get(statusId) != null) {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put(COUNT_CONSTANT, count);
+                map.put(APPLICATION_STATUS_KEY, statusIdToApplicationStatusMap.get(statusId));
+                map.put(BUSINESSSERVICE_KEY, statusIdToBusinessServiceMap.get(statusId));
+                map.put(STATUSID_KEY, statusId);
+                map.put(STATE_KEY, statusIdToStateMap.get(statusId));
+                statusCountMapTransformed.add(map);
+            }
         }
         return statusCountMapTransformed;
     }
