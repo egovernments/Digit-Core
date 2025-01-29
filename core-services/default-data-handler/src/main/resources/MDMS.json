@@ -1,0 +1,30 @@
+{
+    "PGR":[ 
+    {
+        "actionid": 2200,
+        "rolecode": "SUPERUSER",
+        "tenantId": "pg",
+        "actioncode": ""
+    },
+    {
+        "actionid": 2201,
+        "rolecode": "SUPERUSER",
+        "tenantId": "pg",
+        "actioncode": ""
+    }
+    ],
+    "HRMS":[ 
+    {
+        "actionid": 2203,
+        "rolecode": "SUPERUSER",
+        "tenantId": "pg",
+        "actioncode": ""
+    },
+    {
+        "actionid": 2204,
+        "rolecode": "SUPERUSER",
+        "tenantId": "pg",
+        "actioncode": ""
+    }
+    ]
+}
