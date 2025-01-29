@@ -132,9 +132,7 @@ public class InboxServiceV2 {
     private List<Inbox> getInboxItems(InboxRequest inboxRequest, String indexName) {
         List<BusinessService> businessServices = workflowService.getBusinessServices(inboxRequest);
         enrichActionableStatusesFromRole(inboxRequest, businessServices);
-        if (CollectionUtils.isEmpty(inboxRequest.getInbox().getProcessSearchCriteria().getStatus())) {
-            return new ArrayList<>();
-        }
+
         Map<String, Object> finalQueryBody = queryBuilder.getESQuery(inboxRequest, Boolean.TRUE);
         try {
             String q = mapper.writeValueAsString(finalQueryBody);
@@ -164,7 +162,8 @@ public class InboxServiceV2 {
                 inboxRequest.getInbox().getProcessSearchCriteria());
         log.info(StatusIdNameMap.toString());
         List<String> actionableStatus = new ArrayList<>();
-        if (StatusIdNameMap.values().size() > 0) {
+        if (StatusIdNameMap.values().size() > 0 && processCriteria.getStatus() != null
+                && !processCriteria.getStatus().isEmpty()) {
             if (!CollectionUtils.isEmpty(processCriteria.getStatus())) {
                 processCriteria.getStatus().forEach(status -> {
                     if (StatusIdNameMap.values().contains(status)) {
