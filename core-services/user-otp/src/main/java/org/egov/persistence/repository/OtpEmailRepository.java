@@ -41,6 +41,15 @@ public class OtpEmailRepository {
 	@Autowired
 	private MultiStateInstanceUtil centralInstanceUtil;
 
+	@Value("${enable.mail.html}")
+	private boolean isHtmlEnabled;
+
+	@Value("${sandbox.host.url}")
+	private String sandboxURL;
+
+	@Value("${flag.sandbox.url}")
+	private Boolean enableSandboxUrl;
+
     @Autowired
     public OtpEmailRepository(CustomKafkaTemplate<String, EmailRequest> kafkaTemplate,
 							  @Value("${email.topic}") String emailTopic, LocalizationService localizationService) {
@@ -61,6 +70,7 @@ public class OtpEmailRepository {
 			.body(getBody(otpNumber,otpRequest))
 			.subject(getSubject(otpRequest))
 			.emailTo(Collections.singleton(emailId))
+			.isHTML(isHtmlEnabled)
 			.build();
 		EmailRequest emailRequest = EmailRequest.builder().requestInfo(RequestInfo.builder().build()).email(email).build();
 		String updatedTopic = centralInstanceUtil.getStateSpecificTopicName(otpRequest.getTenantId(), emailTopic);
@@ -79,7 +89,7 @@ public class OtpEmailRepository {
 		return locale;
 	}
 
-	private String getMessages(OtpRequest otpRequest, String localizationKey){
+	private String getMessages(OtpRequest otpRequest, String localizationKey) {
 		String tenantId = getRequiredTenantId(otpRequest.getTenantId());
 		String locale = getLocale(otpRequest);
 		Map<String, String> localisedMessages = localizationService.getLocalisedMessages(tenantId, locale, "egov-user");
@@ -88,7 +98,18 @@ public class OtpEmailRepository {
 			localisedMessages.put(LOCALIZATION_KEY_PWD_RESET_SUBJECT_EMAIL, "Password Reset");
 			localisedMessages.put(LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL, "Your OTP for recovering password is %s.");
 			localisedMessages.put(LOCALIZATION_KEY_LOGIN_SUBJECT_EMAIL, "Login OTP");
-			localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear Citizen, Your Login OTP is %s.");
+			if (enableSandboxUrl) {
+				localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear User,<br><br>"
+						+ "To complete creation of your Sandbox Account, please enter the below OTP:<br><br>"
+						+ "<b style='font-size: 24px; color: #000;'>%s</b><br><br>"
+						+ "Your exclusive login URL is <a href='%s/sandbox-ui/%s/employee'>%s/sandbox-ui/%s/employee</a><br><br>"
+						+ "Please bookmark and use this URL for future access to Sandbox.<br><br>"
+						+ "If you did not initiate this action, please contact <a href='mailto:digit.sandbox@egovernments.org'>digit.sandbox@egovernments.org</a><br><br>"
+						+ "Regards,<br>Sandbox Team");
+			} else {
+				localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear User,<br><br>To complete creation of your Sandbox Account, please enter the below OTP:<br><br><b style='font-size: 24px; color: #000;'>%s</b><br><br>If you did not initiate this action, please contact <a href='mailto:support@sandbox.com'>support@sandbox.com</a><br><br>Regards,<br>Sandbox Team");
+			}
+
 		}
 		return localisedMessages.get(localizationKey);
 	}
@@ -114,13 +135,16 @@ public class OtpEmailRepository {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = PWD_RESET_BODY_EMAIL;
-			body = format(body, otpNumber);
+//			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
+			body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
+
 		}
 		else {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = LOGIN_BODY_EMAIL;
-			body = format(body, otpNumber);
+//			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
+			body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
 		}
 		return body;
 	}
