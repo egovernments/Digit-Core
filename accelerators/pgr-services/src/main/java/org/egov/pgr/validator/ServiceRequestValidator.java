@@ -44,7 +44,7 @@ public class ServiceRequestValidator {
         validateUserData(request,errorMap);
         validateSource(request.getService().getSource());
         validateMDMS(request, mdmsData);
-        validateDepartment(request, mdmsData);
+        if(config.getIsValidateDeptEnabled()) validateDepartment(request, mdmsData);
         if(!errorMap.isEmpty())
             throw new CustomException(errorMap);
     }
