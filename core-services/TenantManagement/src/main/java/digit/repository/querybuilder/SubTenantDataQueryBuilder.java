@@ -13,7 +13,7 @@ import java.util.Objects;
 @Component
 public class SubTenantDataQueryBuilder {
 
-    private static final String SEARCH_TENANT_DATA_QUERY = "SELECT data.id, data.code, data.parentId, data.name, data.email, " +
+    private static final String SEARCH_TENANT_DATA_QUERY = "SELECT data.id, data.code, data.tenantId, data.name, data.email, " +
             "data.additionalAttributes, data.isActive, data.createdBy, data.lastModifiedBy, " +
             "data.createdTime, data.lastModifiedTime " +
             "FROM tenant data";

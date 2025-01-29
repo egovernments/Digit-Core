@@ -27,6 +27,7 @@ public class TenantDataQueryBuilder {
 
     /**
      * Method to handle request for fetching MDMS data search query
+     *
      * @param tenantDataSearchCriteria
      * @param preparedStmtList
      * @return
@@ -41,6 +42,7 @@ public class TenantDataQueryBuilder {
 
     /**
      * Method to build query dynamically based on the criteria passed to the method
+     *
      * @param tenantDataSearchCriteria
      * @param preparedStmtList
      * @return
@@ -57,7 +59,7 @@ public class TenantDataQueryBuilder {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             if (includeSubTenants) {
                 // Search by parentId instead of code
-                builder.append(" data.parentId = ? ");
+                builder.append(" data.tenantId = ? ");
             } else {
                 // Default search by code
                 builder.append(" data.code = ? ");
@@ -66,7 +68,7 @@ public class TenantDataQueryBuilder {
         }
 
         // TODO: Search based on name and flag combination
-        if(!Objects.isNull(tenantDataSearchCriteria.getName())){
+        if (!Objects.isNull(tenantDataSearchCriteria.getName())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.name = ? ");
             preparedStmtList.add(tenantDataSearchCriteria.getName());

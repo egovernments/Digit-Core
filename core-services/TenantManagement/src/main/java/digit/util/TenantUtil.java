@@ -14,7 +14,7 @@ public class TenantUtil {
     }
 
     public String generateSubTenantCode(SubTenantRequest tenantRequest) {
-        String parentCode = convertNameToCode(tenantRequest.getTenant().getParentId());
+        String parentCode = convertNameToCode(tenantRequest.getTenant().getTenantId());
         String tenantNameCode = convertNameToCode(tenantRequest.getTenant().getName());
         return parentCode + "." + tenantNameCode;
     }

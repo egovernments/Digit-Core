@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: create-tenant
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO tenant (id, parentId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO tenant (id, tenantId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tenant
           jsonMaps:
 
@@ -39,12 +39,12 @@ serviceMaps:
       fromTopic: create-sub-tenant
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO tenant (id, parentId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO tenant (id, tenantId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tenant
           jsonMaps:
             - jsonPath: $.tenant.id
 
-            - jsonPath: $.tenant.parentId
+            - jsonPath: $.tenant.tenantId
 
             - jsonPath: $.tenant.code
 
@@ -163,3 +163,15 @@ serviceMaps:
             - jsonPath: $.tenantConfig.auditDetails.lastModifiedTime
 
             - jsonPath: $.tenantConfig.code
+        - query: UPDATE tenant_documents SET fileStoreId  = ? , url = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE id = ?;
+          basePath: $.tenantConfig.documents.*
+          jsonMaps:
+            - jsonPath: $.tenantConfig.documents.*.fileStoreId
+
+            - jsonPath: $.tenantConfig.documents.*.url
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.tenantConfig.documents.*.id

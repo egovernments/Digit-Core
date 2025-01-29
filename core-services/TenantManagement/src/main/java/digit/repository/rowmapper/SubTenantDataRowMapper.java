@@ -57,7 +57,7 @@ public class SubTenantDataRowMapper implements ResultSetExtractor<List<SubTenant
                     .id(resultSet.getString("id"))
                     .name(resultSet.getString("name"))
                     .code(resultSet.getString("code"))
-                    .parentId(resultSet.getString("parentId"))
+                    .tenantId(resultSet.getString("tenantId"))
                     .additionalAttributes(data)
                     .email(resultSet.getString("email"))
                     .auditDetails(auditDetails).build();
