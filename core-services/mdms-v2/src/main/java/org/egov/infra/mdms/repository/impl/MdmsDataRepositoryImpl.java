@@ -14,12 +14,14 @@ import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilderV2;
 import org.egov.infra.mdms.repository.rowmapper.MdmsDataRowMapper;
 import org.egov.infra.mdms.repository.rowmapper.MdmsDataRowMapperV2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -86,5 +88,21 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         String query = mdmsDataQueryBuilder.getMdmsDataSearchQuery(mdmsCriteria, preparedStmtList);
         log.info(query);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapper);
+    }
+
+    /**
+     * @param mdmsCriteria
+     * @return
+     */
+    public Integer count(MdmsCriteria mdmsCriteria) {
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = mdmsDataQueryBuilder.getMdmsCountQuery(mdmsCriteria, preparedStmtList);
+        log.info(query);
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class)).orElse(0);
+        } catch (DataAccessException e) {
+            log.error("Error executing count query", e);
+            throw new RuntimeException("Failed to execute count query", e);
+        }
     }
 }

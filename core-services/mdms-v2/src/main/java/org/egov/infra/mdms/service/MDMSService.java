@@ -2,6 +2,7 @@ package org.egov.infra.mdms.service;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.JsonPath;
 import org.egov.common.utils.MultiStateInstanceUtil;
@@ -65,6 +66,47 @@ public class MDMSService {
 		mdmsDataRepository.create(mdmsRequest);
 
 		return Arrays.asList(mdmsRequest.getMdms());
+	}
+
+	public Map<String,Map<String,JSONArray>> count(MdmsCriteriaReq mdmsCriteriaReq){
+
+		Map<String,Map<String,JSONArray>> moduleMasterCountMap = new HashMap<>();
+
+		Map<String, Map<String, JSONArray>> tenantMasterMap = search(mdmsCriteriaReq);
+
+		for (Map.Entry<String, Map<String, JSONArray>> moduleEntry : tenantMasterMap.entrySet()) {
+
+			Map<String,JSONArray> masterCountMap = new HashMap<>();
+			String moduleName = moduleEntry.getKey();  // Get the module name
+			Map<String, JSONArray> masterDataMap = moduleEntry.getValue();  // Get the master data for this module
+
+			for(Map.Entry<String,JSONArray> masterEntry : masterDataMap.entrySet()){
+					// enrich master to count map
+					String masterListSize = String.valueOf(masterEntry.getValue().size());
+					JSONArray jsonArray = new JSONArray();
+					JSONObject jsonObject = new JSONObject();
+					ObjectNode objectNode = new ObjectMapper().createObjectNode();
+					objectNode.put("count",masterListSize);
+					jsonArray.add(objectNode);
+					masterCountMap.put(masterEntry.getKey(),jsonArray);
+			}
+
+			// Add the count to the countMap for this module
+			moduleMasterCountMap.put(moduleName, masterCountMap);
+		}
+
+		for(Map.Entry<String,String> schemaCode : mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap().entrySet()){
+			String[] moduleMasterArr = schemaCode.getKey().split("\\.");
+			JSONArray jsonArray = new JSONArray();
+			ObjectNode objectNode = new ObjectMapper().createObjectNode();
+			objectNode.put("count","0");
+			jsonArray.add(objectNode);
+//			moduleMasterCountMap.get(moduleMasterArr[0]).putIfAbsent(moduleMasterArr[1],jsonArray);
+			moduleMasterCountMap.computeIfAbsent(moduleMasterArr[0], k -> new HashMap<>())
+					.putIfAbsent(moduleMasterArr[1], jsonArray);
+
+		}
+		return moduleMasterCountMap;
 	}
 
 	/**
