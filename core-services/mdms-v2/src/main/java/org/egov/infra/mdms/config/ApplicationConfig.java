@@ -15,19 +15,19 @@ import org.springframework.context.annotation.Import;
 @Import({MultiStateInstanceUtil.class})
 public class ApplicationConfig {
 
-    @Value("${egov.mdms.schema.definition.save.topic}")
-    private String saveSchemaDefinitionTopicName;
+	@Value("${egov.mdms.schema.definition.save.topic}")
+	private String saveSchemaDefinitionTopicName;
 
-    @Value("${egov.mdms.data.save.topic}")
-    private String saveMdmsDataTopicName;
+	@Value("${egov.mdms.data.save.topic}")
+	private String saveMdmsDataTopicName;
 
-    @Value("${egov.mdms.data.update.topic}")
-    private String updateMdmsDataTopicName;
+	@Value("${egov.mdms.data.update.topic}")
+	private String updateMdmsDataTopicName;
 
-    @Value("${mdms.default.offset}")
-    private Integer defaultOffset;
+	@Value("${mdms.default.offset}")
+	private Integer defaultOffset;
 
-    @Value("${mdms.default.limit}")
-    private Integer defaultLimit;
+	@Value("${mdms.default.limit}")
+	private Integer defaultLimit;
 
 }

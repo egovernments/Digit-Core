@@ -30,8 +30,8 @@ public class MDMSControllerV2 {
      * @param schemaCode
      * @return
      */
-    @RequestMapping(value="_create", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest) {
+    @RequestMapping(value="_create/{schemaCode}", method = RequestMethod.POST)
+    public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
         List<Mdms> masterDataList = mdmsServiceV2.create(mdmsRequest);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
     }
