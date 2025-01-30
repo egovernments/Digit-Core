@@ -22,6 +22,8 @@ import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
 import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
+import org.egov.user.domain.model.enums.LoginStatus;
+import org.egov.user.domain.model.enums.LoginType;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
@@ -145,16 +147,22 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (user.getType() != null && user.getType().equals(UserType.CITIZEN))
             isCitizen = true;
 
+        LoginType loginType;
+        String ipAddress = request.getHeader(IP_HEADER_NAME);
+
         boolean isPasswordMatched;
         if (isCitizen) {
             if (fixedOTPEnabled && !fixedOTPPassword.equals("") && fixedOTPPassword.equals(password)) {
                 //for automation allow fixing otp validation to a fixed otp
                 isPasswordMatched = true;
+                loginType = LoginType.OTP;
             } else {
                 isPasswordMatched = isPasswordMatch(citizenLoginPasswordOtpEnabled, password, user, authentication);
+                loginType = citizenLoginPasswordOtpEnabled ? LoginType.OTP : LoginType.PASSWORD;
             }
         } else {
             isPasswordMatched = isPasswordMatch(employeeLoginPasswordOtpEnabled, password, user, authentication);
+            loginType = employeeLoginPasswordOtpEnabled ? LoginType.OTP : LoginType.PASSWORD;
         }
 
         if (isPasswordMatched) {
@@ -168,13 +176,14 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             grantedAuths.add(new SimpleGrantedAuthority("ROLE_" + user.getType()));
             final SecureUser secureUser = new SecureUser(getUser(user));
             userService.resetFailedLoginAttempts(user);
+            userService.auditLogin(user,ipAddress,loginType,LoginStatus.SUCCESS);
             return new UsernamePasswordAuthenticationToken(secureUser,
                     password, grantedAuths);
         } else {
             // Handle failed login attempt
             // Fetch Real IP after being forwarded by reverse proxy
             userService.handleFailedLogin(user, request.getHeader(IP_HEADER_NAME), requestInfo);
-
+            userService.auditLogin(user,ipAddress,loginType,LoginStatus.FAILURE);
             throw new OAuth2Exception("Invalid login credentials");
         }
 

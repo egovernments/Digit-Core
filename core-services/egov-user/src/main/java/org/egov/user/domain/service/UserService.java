@@ -28,16 +28,16 @@ import org.egov.user.domain.exception.PasswordMismatchException;
 import org.egov.user.domain.exception.UserNameNotValidException;
 import org.egov.user.domain.exception.UserNotFoundException;
 import org.egov.user.domain.exception.UserProfileUpdateDeniedException;
-import org.egov.user.domain.model.LoggedInUserUpdatePasswordRequest;
-import org.egov.user.domain.model.NonLoggedInUserUpdatePasswordRequest;
-import org.egov.user.domain.model.User;
-import org.egov.user.domain.model.UserSearchCriteria;
+import org.egov.user.domain.model.*;
+import org.egov.user.domain.model.enums.LoginStatus;
+import org.egov.user.domain.model.enums.LoginType;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.domain.service.utils.NotificationUtil;
 import org.egov.user.domain.service.utils.UserUtils;
 import org.egov.user.persistence.dto.FailedLoginAttempt;
 import org.egov.user.persistence.repository.FileStoreRepository;
+import org.egov.user.persistence.repository.LoginAuditRepository;
 import org.egov.user.persistence.repository.OtpRepository;
 import org.egov.user.persistence.repository.UserRepository;
 import org.egov.user.web.contract.Otp;
@@ -55,7 +55,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +73,7 @@ public class UserService {
     private FileStoreRepository fileRepository;
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
     private TokenStore tokenStore;
+    private LoginAuditRepository loginAuditRepository;
 
     @Value("${egov.user.host}")
     private String userHost;
@@ -108,6 +108,7 @@ public class UserService {
 
     public UserService(UserRepository userRepository, OtpRepository otpRepository, FileStoreRepository fileRepository, UserUtils userUtils,
                        PasswordEncoder passwordEncoder, EncryptionDecryptionUtil encryptionDecryptionUtil, TokenStore tokenStore,
+                       LoginAuditRepository loginAuditRepository,
                        @Value("${default.password.expiry.in.days}") int defaultPasswordExpiryInDays,
                        @Value("${citizen.login.password.otp.enabled}") boolean isCitizenLoginOtpBased,
                        @Value("${employee.login.password.otp.enabled}") boolean isEmployeeLoginOtpBased,
@@ -116,6 +117,7 @@ public class UserService {
                        @Value("${egov.user.pwd.pattern.min.length}") Integer pwdMinLength) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
+        this.loginAuditRepository = loginAuditRepository;
         this.passwordEncoder = passwordEncoder;
         this.defaultPasswordExpiryInDays = defaultPasswordExpiryInDays;
         this.isCitizenLoginOtpBased = isCitizenLoginOtpBased;
@@ -152,7 +154,7 @@ public class UserService {
 
         /* encrypt here */
 
-        userSearchCriteria = encryptionDecryptionUtil.encryptObject(userSearchCriteria, "User", UserSearchCriteria.class, tenantId);
+        userSearchCriteria = encryptionDecryptionUtil.encryptObject(userSearchCriteria, "User", UserSearchCriteria.class);
         List<User> users = userRepository.findAll(userSearchCriteria);
 
         if (users.isEmpty())
@@ -203,13 +205,7 @@ public class UserService {
         	altmobnumber = searchCriteria.getMobileNumber();
         }
 
-        /**
-         * TenantId is added to fetch the enc master data, making it mandatory for search
-         */
-        if(CollectionUtils.isEmpty(searchCriteria.getUuid()))
-        {
-            searchCriteria = encryptionDecryptionUtil.encryptObject(searchCriteria, "User", UserSearchCriteria.class, searchCriteria.getTenantId());
-        }
+        searchCriteria = encryptionDecryptionUtil.encryptObject(searchCriteria, "User", UserSearchCriteria.class);
         
         if(altmobnumber!=null) {
         	searchCriteria.setAlternatemobilenumber(altmobnumber);
@@ -236,7 +232,7 @@ public class UserService {
         user.validateNewUser(createUserValidateName);
         conditionallyValidateOtp(user);
         /* encrypt here */
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
         validateUserUniqueness(user);
         if (isEmpty(user.getPassword())) {
             user.setPassword(UUID.randomUUID().toString());
@@ -346,7 +342,7 @@ public class UserService {
      * @return
      */
     public Boolean validateOtp(User user) {
-        Otp otp = Otp.builder().otp(user.getOtpReference()).identity(user.getMobileNumber()).tenantId(user.getTenantId())
+        Otp otp = Otp.builder().otp(user.getOtpReference()).identity(user.getUsername()).tenantId(user.getTenantId())
                 .userType(user.getType()).build();
         RequestInfo requestInfo = RequestInfo.builder().action("validate").ts(System.currentTimeMillis()).build();
         OtpValidateRequest otpValidationRequest = OtpValidateRequest.builder().requestInfo(requestInfo).otp(otp)
@@ -371,7 +367,7 @@ public class UserService {
         validatePassword(user.getPassword());
         user.setPassword(encryptPwd(user.getPassword()));
         /* encrypt */
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
         userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
 
         // If user is being unlocked via update, reset failed login attempts
@@ -422,7 +418,7 @@ public class UserService {
      */
     public User partialUpdate(User user, RequestInfo requestInfo) {
         /* encrypt here */
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
 
         User existingUser = getUserByUuid(user.getUuid());
         validateProfileUpdateIsDoneByTheSameLoggedInUser(user);
@@ -496,7 +492,7 @@ public class UserService {
         user.updatePassword(encryptPwd(request.getNewPassword()));
         /* encrypt here */
         /* encrypted value is stored in DB*/
-        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
         userRepository.update(user, user,user.getId() , user.getUuid());
     }
 
@@ -670,6 +666,27 @@ public class UserService {
             throw new CustomException(errorMap);
         }
     }
+
+    /**
+     * Audits each login request
+     * @param user
+     */
+    public void auditLogin(User user, String ipAddress, LoginType loginType, LoginStatus loginStatus){
+
+        LoginAudit loginAudit = LoginAudit.builder()
+                .loginStatus(loginStatus)
+                .loginType(loginType)
+                .ipAddress(ipAddress)
+                .userid(user.getUuid())
+                .createdTime(System.currentTimeMillis())
+                .tenantId(user.getTenantId())
+                .roles(user.getRoles())
+                .build();
+
+        loginAuditRepository.saveLoginAudit(loginAudit);
+
+    }
+
 
 
 }
