@@ -1,5 +1,6 @@
 package org.egov.enc.keymanagement;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.egov.enc.config.AppProperties;
@@ -8,6 +9,7 @@ import org.egov.enc.models.AsymmetricKey;
 import org.egov.enc.models.MethodEnum;
 import org.egov.enc.models.SymmetricKey;
 import org.egov.enc.repository.KeyRepository;
+import org.egov.enc.services.VaultTransitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -23,6 +25,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 
 
 
@@ -56,6 +59,9 @@ public class KeyStore implements ApplicationRunner {
 
     private static HashMap<String, Integer> activeSymmetricKeys;
     private static HashMap<String, Integer> activeAsymmetricKeys;
+
+    @Autowired
+    private VaultTransitService vaultTransitService;
 
     @Autowired
     public KeyStore()  {
@@ -203,6 +209,17 @@ public class KeyStore implements ApplicationRunner {
         keyIds.addAll(symmetricKeyHashMap.keySet());
         keyIds.addAll(asymmetricKeyHashMap.keySet());
         return keyIds;
+    }
+
+
+
+    @PostConstruct
+    public void initializeVaultKeys() {
+        List<String> tenantIds = keyRepository.fetchDistinctTenantIds();
+        for (String tenantId : tenantIds) {
+            vaultTransitService.createVaultKey(tenantId);
+            vaultTransitService.createVaultAsymKey(tenantId);
+        }
     }
 
 }

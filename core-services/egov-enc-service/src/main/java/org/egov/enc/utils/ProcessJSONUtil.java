@@ -8,6 +8,7 @@ import org.egov.enc.models.ModeEnum;
 import org.egov.enc.models.Plaintext;
 import org.egov.enc.services.SymmetricEncryptionService;
 import org.egov.enc.services.AsymmetricEncryptionService;
+import org.egov.enc.services.VaultTransitFallbackDecryptService;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,9 @@ public class ProcessJSONUtil {
     private SymmetricEncryptionService symmetricEncryptionService;
     @Autowired
     private AsymmetricEncryptionService asymmetricEncryptionService;
+
+    @Autowired
+    private VaultTransitFallbackDecryptService vaultTransitFallbackDecryptService;
     @Autowired
     private KeyStore keyStore;
 
@@ -91,29 +95,34 @@ public class ProcessJSONUtil {
         }
         if(mode.equals(ModeEnum.ENCRYPT)) {
             Ciphertext ciphertext;
+            String cipherString=null;
             Plaintext plaintext = new Plaintext(tenantId, value.toString());
             if(method.equals(MethodEnum.SYM)) {
-                ciphertext = symmetricEncryptionService.encrypt(plaintext);
+                cipherString = symmetricEncryptionService.encryptVault(plaintext);
             } else {
-                ciphertext = asymmetricEncryptionService.encrypt(plaintext);
+                cipherString = asymmetricEncryptionService.encryptVault(plaintext);
             }
-            return ciphertext.toString();
+            //return ciphertext.toString();
+            String delimiter="|";
+            return method+delimiter+tenantId+delimiter+cipherString;
         }
         else {
             Plaintext plaintext;
-            Ciphertext ciphertext = new Ciphertext(value.toString());
-            if(!keyStore.checkIfKeyExists(ciphertext.getKeyId())) {
-                keyStore.refreshKeys();
-                if(!keyStore.checkIfKeyExists(ciphertext.getKeyId()))
-                    throw new CustomException("KEY_NOT_FOUND", "Key not found in the database");
-            }
-            method = keyStore.getTypeOfKey(ciphertext.getKeyId());
-            if(method.equals(MethodEnum.SYM)) {
-                plaintext = symmetricEncryptionService.decrypt(ciphertext);
-            } else {
-                plaintext = asymmetricEncryptionService.decrypt(ciphertext);
-            }
-            return plaintext.toString();
+//            Ciphertext ciphertext = new Ciphertext(value.toString());
+//            if(!keyStore.checkIfKeyExists(ciphertext.getKeyId())) {
+//                keyStore.refreshKeys();
+//                if(!keyStore.checkIfKeyExists(ciphertext.getKeyId()))
+//                    throw new CustomException("KEY_NOT_FOUND", "Key not found in the database");
+//            }
+            //method = keyStore.getTypeOfKey(ciphertext.getKeyId());
+//            if(method.equals(MethodEnum.SYM)) {
+//                plaintext = symmetricEncryptionService.decrypt(ciphertext);
+//            } else {
+//                plaintext = asymmetricEncryptionService.decrypt(ciphertext);
+//            }
+
+            String decryptedText =vaultTransitFallbackDecryptService.decryptWithFallback(value.toString());
+            return decryptedText;
         }
     }
 

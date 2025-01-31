@@ -92,6 +92,10 @@
       <artifactId>aws-java-sdk-kms</artifactId>
       <version>1.11.762</version>
     </dependency>
+      <dependency>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>tomcat-annotations-api</artifactId>
+      </dependency>
   </dependencies>
   <repositories>
     <repository>
