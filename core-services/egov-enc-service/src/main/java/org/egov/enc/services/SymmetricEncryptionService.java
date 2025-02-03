@@ -6,6 +6,7 @@ import org.egov.enc.models.Plaintext;
 import org.egov.enc.models.SymmetricKey;
 import org.egov.enc.utils.SymmetricEncryptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -29,8 +30,11 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
     @Autowired
     private KeyStore keyStore;
 
-    private static final String VAULT_URL = "http://127.0.0.1:8200/v1/transit/";
-    private static final String VAULT_TOKEN = "hvs.aMU0nimyrQEn2pcnR0k33QXC";
+    @Value("${vault.url}")
+    private String VAULT_URL;
+
+    @Value("${vault.root.token}")
+    private String VAULT_TOKEN;
     public Ciphertext encrypt(Plaintext plaintext) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeySpecException {
         SymmetricKey symmetricKey = keyStore.getSymmetricKey(plaintext.getTenantId());
         SecretKey secretKey = keyStore.getSecretKey(symmetricKey);

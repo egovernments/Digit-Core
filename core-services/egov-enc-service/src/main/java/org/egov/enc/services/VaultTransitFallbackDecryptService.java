@@ -3,6 +3,7 @@ package org.egov.enc.services;
 import com.jayway.jsonpath.JsonPath;
 import org.egov.enc.models.MethodEnum;
 import org.egov.tracer.model.CustomException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,10 +17,11 @@ import java.util.Map;
 @Service
 public class VaultTransitFallbackDecryptService {
 
-    // Vault Transit base URL (update as needed)
-    private static final String VAULT_URL = "http://127.0.0.1:8200/v1/transit/";
-    // Token with capability to decrypt
-    private static final String VAULT_TOKEN = "hvs.aMU0nimyrQEn2pcnR0k33QXC";
+    @Value("${vault.url}")
+    private String VAULT_URL;
+
+    @Value("${vault.root.token}")
+    private String VAULT_TOKEN;
     // Reusable RestTemplate instance
     private final RestTemplate restTemplate = new RestTemplate();
 

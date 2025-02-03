@@ -2,6 +2,7 @@ package org.egov.enc.services;
 
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -11,9 +12,12 @@ import java.util.Map;
 @Service
 public class VaultTransitService {
 
-    private static final String VAULT_URL = "http://127.0.0.1:8200/v1/transit/";
-    private static final String VAULT_TOKEN = "hvs.aMU0nimyrQEn2pcnR0k33QXC";
 
+
+    private static final String VAULT_URL="http://127.0.0.1:8200/v1/transit/";
+
+    @Value("${vault.root.token}")
+    private String VAULT_TOKEN;
 
     // Enable Transit Engine (Run Once)
     public void enableTransitEngine() {
