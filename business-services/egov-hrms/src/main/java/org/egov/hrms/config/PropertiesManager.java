@@ -113,4 +113,11 @@ public class PropertiesManager {
 
 	@Value("${decryption.abac.enable}")
 	private Boolean isDecryptionEnable;
+
+	@Value("${mobileNumber.enabled.flag}")
+	private Boolean isMobileNumberValidationEnable;
+
+	@Value("${password.generation.flag}")
+	private Boolean isPasswordGenEnabled;
+
 }

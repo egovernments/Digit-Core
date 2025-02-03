@@ -46,7 +46,7 @@ public class MdmsServiceImpl implements ClientService {
     Map<String, List<String>> groupTenantIds;
 
     @Override
-    @Cacheable(value="versions", key="#request.hashKey")
+//  @Cacheable(value="versions", key="#request.hashKey")
     public AggregateDto getAggregatedData(AggregateRequestDto request, List<RoleDto> roles) throws AINException, IOException {
         // Read visualization Code
         String chartId = request.getVisualizationCode();
