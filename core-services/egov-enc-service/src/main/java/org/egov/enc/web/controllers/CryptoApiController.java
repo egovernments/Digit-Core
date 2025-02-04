@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.enc.services.KeyManagementService;
 import org.egov.enc.services.EncryptionService;
 import org.egov.enc.services.SignatureService;
+import org.egov.enc.services.VaultSigningService;
 import org.egov.enc.web.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,9 @@ public class CryptoApiController{
     private KeyManagementService keyManagementService;
 
     @Autowired
+    private VaultSigningService vaultSigningService;
+
+    @Autowired
     public CryptoApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
@@ -50,12 +54,12 @@ public class CryptoApiController{
 
     @RequestMapping(value="/crypto/v1/_sign", method = RequestMethod.POST)
     public ResponseEntity<SignResponse> cryptoSignPost(@Valid @RequestBody SignRequest signRequest) throws Exception {
-        return new ResponseEntity<>(signatureService.hashAndSign(signRequest), HttpStatus.OK);
+        return new ResponseEntity<>(vaultSigningService.signData(signRequest), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/crypto/v1/_verify", method = RequestMethod.POST)
-    public ResponseEntity<VerifyResponse> cryptoVerifyPost(@Valid @RequestBody VerifyRequest verifyRequest) throws Exception {
-        return new ResponseEntity<>(signatureService.hashAndVerify(verifyRequest), HttpStatus.OK);
+    public ResponseEntity<VerifyResponse> cryptoVerifyPost(@Valid @RequestBody VaultVerifyRequest verifyRequest) {
+        return new ResponseEntity<>(vaultSigningService.verifySignature(verifyRequest), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/crypto/v1/_rotateallkeys", method=RequestMethod.POST)
