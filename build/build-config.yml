@@ -545,3 +545,11 @@ config:
       - work-dir: "accelerators/im-services-analytics"
         image-name: "im-services-analytics"
         dockerfile: "build/maven/Dockerfile"
+
+  - name: "builds/Digit-Core/accelerators/enc-vault-service"
+    build:
+      - work-dir: "accelerators/egov-enc-service"
+        image-name: "enc-vault-service"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "accelerators/enc-vault-service/src/main/resources/db"
+        image-name: "enc-vault-service-db"
