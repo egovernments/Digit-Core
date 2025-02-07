@@ -225,4 +225,32 @@ public class PGRConfiguration {
     @Value("${pgr.validate.dept.enabled}")
     private Boolean isValidateDeptEnabled;
 
+    // Individual Config
+    @Value("${egov.individual.host}")
+    private String individualHost;
+
+    @Value("${egov.individual.context.path}")
+    private String individualContextPath;
+
+    @Value("${egov.individual.create.path}")
+    private String individualCreateEndpoint;
+
+    @Value("${egov.individual.search.path}")
+    private String individualSearchEndpoint;
+
+    @Value("${egov.individual.update.path}")
+    private String individualUpdateEndpoint;
+
+    @Value("${egov.individual.search.limit}")
+    private Integer individualSearchLimit;
+
+    @Value("${egov.individual.search.offset}")
+    private Integer individualSearchOffset;
+
+    @Value("${pgr.individual.integration.enabled}")
+    private Boolean isIndividualIntegrationEnabled;
+
+    @Value("${pgr.user.integration.enabled}")
+    private Boolean isUserIntegrationEnabled;
+
 }

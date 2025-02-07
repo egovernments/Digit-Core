@@ -43,11 +43,12 @@ public class PGRService {
 
     private MDMSUtils mdmsUtils;
 
+    private IndividualService individualService;
 
     @Autowired
     public PGRService(EnrichmentService enrichmentService, UserService userService, WorkflowService workflowService,
                       ServiceRequestValidator serviceRequestValidator, ServiceRequestValidator validator, Producer producer,
-                      PGRConfiguration config, PGRRepository repository, MDMSUtils mdmsUtils) {
+                      PGRConfiguration config, PGRRepository repository, MDMSUtils mdmsUtils, IndividualService individualService) {
         this.enrichmentService = enrichmentService;
         this.userService = userService;
         this.workflowService = workflowService;
@@ -57,6 +58,7 @@ public class PGRService {
         this.config = config;
         this.repository = repository;
         this.mdmsUtils = mdmsUtils;
+        this.individualService = individualService;
     }
 
 
@@ -106,7 +108,14 @@ public class PGRService {
         if(CollectionUtils.isEmpty(serviceWrappers))
             return new ArrayList<>();;
 
-        userService.enrichUsers(serviceWrappers);
+        if(config.getIsUserIntegrationEnabled()) {
+            userService.enrichUsers(serviceWrappers);
+        }
+
+        if(config.getIsIndividualIntegrationEnabled()) {
+            individualService.enrichIndividuals(requestInfo, serviceWrappers);
+        }
+
         List<ServiceWrapper> enrichedServiceWrappers = workflowService.enrichWorkflow(requestInfo,serviceWrappers);
         Map<Long, List<ServiceWrapper>> sortedWrappers = new TreeMap<>(Collections.reverseOrder());
         for(ServiceWrapper svc : enrichedServiceWrappers){
@@ -174,7 +183,14 @@ public class PGRService {
             return new ArrayList<>();
         }
 
-        userService.enrichUsers(serviceWrappers);
+        if(config.getIsUserIntegrationEnabled()) {
+            userService.enrichUsers(serviceWrappers);
+        }
+
+        if(config.getIsIndividualIntegrationEnabled()) {
+            individualService.enrichIndividuals(requestInfo, serviceWrappers);
+        }
+
         List<ServiceWrapper> enrichedServiceWrappers = workflowService.enrichWorkflow(requestInfo, serviceWrappers);
 
         Map<Long, List<ServiceWrapper>> sortedWrappers = new TreeMap<>(Collections.reverseOrder());
