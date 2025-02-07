@@ -236,7 +236,7 @@ public class IndividualService {
 	 * calls the individual search API based on the given list of user uuids
 	 *
 	 * @param requestInfo
-	 * @param uuids
+	 * @param individualIds
 	 * @return
 	 */
 	private Map<String, User> searchBulkIndividual(RequestInfo requestInfo, String tenantId, List<String> individualIds) {
