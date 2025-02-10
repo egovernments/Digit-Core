@@ -546,7 +546,7 @@ config:
         image-name: "im-services-analytics"
         dockerfile: "build/maven/Dockerfile"
 
-  - name: "builds/Digit-Core/accelerators/enc-vault-service"
+  - name: "builds/Digit-Core/accelerators/vault-enc-service"
     build:
       - work-dir: "accelerators/vault-enc-service"
         image-name: "vault-enc-service"
