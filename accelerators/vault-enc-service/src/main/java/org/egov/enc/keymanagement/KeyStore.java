@@ -213,13 +213,13 @@ public class KeyStore implements ApplicationRunner {
 
 
 
-    @PostConstruct
-    public void initializeVaultKeys() {
-        List<String> tenantIds = keyRepository.fetchDistinctTenantIds();
-        for (String tenantId : tenantIds) {
-            vaultTransitService.createVaultKey(tenantId);
-            vaultTransitService.createVaultAsymKey(tenantId);
-        }
-    }
+//    @PostConstruct
+//    public void initializeVaultKeys() {
+//        List<String> tenantIds = keyRepository.fetchDistinctTenantIds();
+//        for (String tenantId : tenantIds) {
+//            vaultTransitService.createVaultKey(tenantId);
+//            vaultTransitService.createVaultAsymKey(tenantId);
+//        }
+//    }
 
 }

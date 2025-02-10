@@ -27,30 +27,47 @@ public class AsymmetricEncryptionService implements EncryptionServiceInterface {
     @Autowired
     private KeyStore keyStore;
 
-    @Value("${vault.url}")
-    private String VAULT_URL;
+    // Vault host (kept separate from any endpoint paths; include trailing slash)
+    @Value("${vault.host}")
+    private String vaultHost;
 
+    // The relative path for the asymmetric encryption endpoint in Vault (e.g., "encrypt/")
+    @Value("${vault.asym.encrypt.path}")
+    private String vaultAsymEncryptPath;
+
+    // Vault root token (fallback; could be replaced by a dynamic token from VaultAuthService in production)
     @Value("${vault.root.token}")
-    private String VAULT_TOKEN;
+    private String vaultToken;
 
-    public Ciphertext encrypt(Plaintext plaintext) throws InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Override
+    public Ciphertext encrypt(Plaintext plaintext) throws InvalidKeySpecException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
+            InvalidAlgorithmParameterException {
         AsymmetricKey asymmetricKey = keyStore.getAsymmetricKey(plaintext.getTenantId());
         PublicKey publicKey = keyStore.getPublicKey(asymmetricKey);
 
-        byte[] cipherBytes = AsymmetricEncryptionUtil.encrypt(plaintext.getPlaintext().getBytes(StandardCharsets.UTF_8), publicKey);
+        byte[] cipherBytes = AsymmetricEncryptionUtil.encrypt(
+                plaintext.getPlaintext().getBytes(StandardCharsets.UTF_8), publicKey);
 
-        Ciphertext ciphertext = new Ciphertext(asymmetricKey.getKeyId(), Base64.getEncoder().encodeToString
-                (cipherBytes));
-
-        return ciphertext;
+        return new Ciphertext(asymmetricKey.getKeyId(), Base64.getEncoder().encodeToString(cipherBytes));
     }
 
+    /**
+     * Encrypts data using Vault's asymmetric encryption endpoint.
+     * The URL is constructed dynamically as: {vaultHost}/{vaultAsymEncryptPath}/{tenantId + "-asym"}
+     *
+     * @param plaintext The plaintext to encrypt.
+     * @return The ciphertext returned from Vault.
+     */
     public String encryptVault(Plaintext plaintext) {
-        RestTemplate restTemplate= new RestTemplate();
         String encodedPlaintext = Base64.getEncoder().encodeToString(plaintext.getPlaintext().getBytes());
-
         String tenantId = plaintext.getTenantId();
-        String url = VAULT_URL + "encrypt/" + tenantId +"-asym"; // Encrypt using tenant-specific key
+        // Append the suffix "-asym" to the tenantId to use the tenant-specific asymmetric key.
+        String tenantSegment = tenantId + "-asym";
+        // Build the full URL using the helper method.
+        String url = buildVaultUrl(vaultAsymEncryptPath, tenantSegment);
 
         HttpHeaders headers = createHeaders();
         Map<String, String> body = Collections.singletonMap("plaintext", encodedPlaintext);
@@ -61,7 +78,7 @@ public class AsymmetricEncryptionService implements EncryptionServiceInterface {
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
             if (data != null) {
-                return (String) data.get("ciphertext"); // Return only ciphertext string
+                return (String) data.get("ciphertext"); // Return only the ciphertext string.
             }
         }
         return null;
@@ -70,21 +87,39 @@ public class AsymmetricEncryptionService implements EncryptionServiceInterface {
     private HttpHeaders createHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-Vault-Token", VAULT_TOKEN);
+        headers.set("X-Vault-Token", vaultToken);
         return headers;
     }
 
-
-    public Plaintext decrypt(Ciphertext ciphertext) throws InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+    @Override
+    public Plaintext decrypt(Ciphertext ciphertext) throws InvalidKeySpecException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
+            InvalidAlgorithmParameterException {
         AsymmetricKey asymmetricKey = keyStore.getAsymmetricKey(ciphertext.getKeyId());
         PrivateKey privateKey = keyStore.getPrivateKey(asymmetricKey);
 
-        byte[] plainBytes = AsymmetricEncryptionUtil.decrypt(Base64.getDecoder().decode(ciphertext.getCiphertext()), privateKey);
+        byte[] plainBytes = AsymmetricEncryptionUtil.decrypt(
+                Base64.getDecoder().decode(ciphertext.getCiphertext()), privateKey);
         String plain = new String(plainBytes, StandardCharsets.UTF_8);
 
-        Plaintext plaintext = new Plaintext(plain);
-
-        return plaintext;
+        return new Plaintext(plain);
     }
 
+    /**
+     * Helper method to build the full URL by appending the relative path and tenant segment to the Vault host.
+     * Assumes that the properties (vaultHost and vaultAsymEncryptPath) already include the necessary slashes.
+     *
+     * @param relativePath  The relative path for the endpoint (e.g., "encrypt/")
+     * @param tenantSegment The tenant identifier with suffix (e.g., "tenantId-asym")
+     * @return The complete URL.
+     */
+    private String buildVaultUrl(String relativePath, String tenantSegment) {
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(vaultHost);
+        // Append the relative path.
+        urlBuilder.append(relativePath);
+        // Append the tenant segment.
+        urlBuilder.append(tenantSegment);
+        return urlBuilder.toString();
+    }
 }
