@@ -44,6 +44,10 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
     @Value("${vault.root.token}")
     private String vaultRootToken;
 
+
+    @Value("${vault.transit.base.path}")
+    private String encryptBasePath;
+
     @Autowired
     private VaultAuthService vaultAuthService;
 
@@ -80,9 +84,11 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-
+        log.info("the response from is"+ response);
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            log.info("inside the if condition for response");
             Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
+            log.info("data in if condition is"+ data);
             if (data != null) {
                 return (String) data.get("ciphertext");
             }
@@ -102,6 +108,7 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(vaultHost);
         urlBuilder.append(relativePath);
+        urlBuilder.append(encryptBasePath);
         urlBuilder.append(tenantId);
         return urlBuilder.toString();
     }

@@ -127,13 +127,7 @@ public class VaultTransitFallbackDecryptService {
     private String buildVaultUrl(String relativePath, String keyName) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(vaultHost);
-        if (!vaultHost.endsWith("/")) {
-            urlBuilder.append("/");
-        }
         urlBuilder.append(transitBasePath);
-        if (!transitBasePath.endsWith("/")) {
-            urlBuilder.append("/");
-        }
         urlBuilder.append(relativePath);
         if (!relativePath.endsWith("/")) {
             urlBuilder.append("/");
