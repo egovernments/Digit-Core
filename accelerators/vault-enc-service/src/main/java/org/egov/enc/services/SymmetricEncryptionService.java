@@ -107,8 +107,8 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
     private String buildVaultUrl(String relativePath, String tenantId) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(vaultHost);
-        urlBuilder.append(relativePath);
         urlBuilder.append(encryptBasePath);
+        urlBuilder.append(relativePath);
         urlBuilder.append(tenantId);
         return urlBuilder.toString();
     }
