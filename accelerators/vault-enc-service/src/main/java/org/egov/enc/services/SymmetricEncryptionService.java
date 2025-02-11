@@ -1,5 +1,6 @@
 package org.egov.enc.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.egov.enc.keymanagement.KeyStore;
 import org.egov.enc.models.Ciphertext;
 import org.egov.enc.models.Plaintext;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class SymmetricEncryptionService implements EncryptionServiceInterface {
 
     @Autowired
@@ -72,7 +74,7 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
 
         // Construct the URL dynamically using the helper method.
         String url = buildVaultUrl(vaultEncryptPath, tenantId);
-
+        log.info("encrypt url is this"+url);
         HttpHeaders headers = createHeaders();
         Map<String, String> body = Collections.singletonMap("plaintext", encodedPlaintext);
 
@@ -99,18 +101,9 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
     private String buildVaultUrl(String relativePath, String tenantId) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(vaultHost);
-        // If vaultHost doesn't end with a slash, add it.
-        if (!vaultHost.endsWith("/")) {
-            urlBuilder.append("/");
-        }
         urlBuilder.append(relativePath);
-        // If relativePath doesn't end with a slash, add one.
-        if (!relativePath.endsWith("/")) {
-            urlBuilder.append("/");
-        }
         urlBuilder.append(tenantId);
-        //return urlBuilder.toString();
-        return "https://digit-lts.digit.org/enc-vault-service/encrypt/pb";
+        return urlBuilder.toString();
     }
 
     private HttpHeaders createHeaders() {
@@ -118,9 +111,6 @@ public class SymmetricEncryptionService implements EncryptionServiceInterface {
         headers.setContentType(MediaType.APPLICATION_JSON);
         // Try to get the token from VaultAuthService; if not available, use the configured root token.
         String token = vaultAuthService.getVaultToken();
-        if (token == null || token.isEmpty()) {
-            token = vaultRootToken;
-        }
         headers.set("X-Vault-Token", token);
         return headers;
     }

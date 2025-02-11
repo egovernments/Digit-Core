@@ -138,10 +138,7 @@ public class VaultTransitService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String token = vaultAuthService.getVaultToken();
-        if (token == null || token.isEmpty()) {
-            token = vaultToken;
-        }
-        headers.set("X-Vault-Token", vaultToken);
+        headers.set("X-Vault-Token", token);
         return headers;
     }
 }

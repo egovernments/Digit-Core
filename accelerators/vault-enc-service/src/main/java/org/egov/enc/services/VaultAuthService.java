@@ -2,6 +2,7 @@ package org.egov.enc.services;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -71,6 +72,8 @@ public class VaultAuthService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
+            log.info("the request is"+ request);
+
 
             ResponseEntity<Map> response = restTemplate.postForEntity(loginUrl, request, Map.class);
 
@@ -79,18 +82,15 @@ public class VaultAuthService {
                 Map<String, Object> auth = (Map<String, Object>) response.getBody().get("auth");
                 vaultToken = auth.get("client_token").toString();
 
-                // Lease duration is typically provided in seconds.
+                log.info("the auth token is"+ vaultToken);
                 int leaseDuration = (int) auth.get("lease_duration");
-                // Set expiry time (in milliseconds) using the current time plus lease duration.
                 tokenExpiryTimeMillis = System.currentTimeMillis() + (leaseDuration * 1000L);
-
-                System.out.println("Obtained new Vault token; lease duration: " + leaseDuration + " seconds.");
                 return vaultToken;
             } else {
                 throw new RuntimeException("Failed to retrieve Vault token: " + response.getBody());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error refreshing Vault token", e);
+            throw new CustomException("VAULT_TOKEN_ERROR", "error creating vault token");
         }
     }
 
