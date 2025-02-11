@@ -1,6 +1,7 @@
 package org.egov.enc.services;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @Service
 @Getter
+@Slf4j
 public class VaultAuthService {
 
     // The Vault host (e.g., http://127.0.0.1:8200/). Ensure trailing slash if needed.
@@ -41,15 +43,20 @@ public class VaultAuthService {
      * Refreshes the Vault token using Kubernetes authentication.
      * This method is synchronized to avoid concurrent refreshes.
      */
-    private synchronized void refreshToken() {
+    public String refreshToken() {
         try {
+            log.info("in the refreshtoken method");
+
             // Read the Kubernetes service account token from the configured file path.
             String k8sToken = new String(Files.readAllBytes(Paths.get(k8sTokenPath)));
+            log.info("the k8s token obtained from the the file"+ k8sToken);
 
             // Build the payload for Vault Kubernetes login.
             Map<String, String> payload = new HashMap<>();
             payload.put("role", k8sAuthRole);
             payload.put("jwt", k8sToken);
+
+            log.info("the payload is"+ payload);
 
             // Build the full login URL using StringBuilder.
             StringBuilder loginUrlBuilder = new StringBuilder();
@@ -59,6 +66,7 @@ public class VaultAuthService {
             }
             loginUrlBuilder.append(k8sLoginPath); // e.g., v1/auth/kubernetes/login
             String loginUrl = loginUrlBuilder.toString();
+            log.info("the login url is"+ loginUrl);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -77,6 +85,7 @@ public class VaultAuthService {
                 tokenExpiryTimeMillis = System.currentTimeMillis() + (leaseDuration * 1000L);
 
                 System.out.println("Obtained new Vault token; lease duration: " + leaseDuration + " seconds.");
+                return vaultToken;
             } else {
                 throw new RuntimeException("Failed to retrieve Vault token: " + response.getBody());
             }
@@ -92,19 +101,16 @@ public class VaultAuthService {
      * This lazy-loading approach ensures that the Vault login happens only when a token is requested.
      */
     public String getVaultToken() {
-        if (vaultToken == null || isTokenExpiredOrNearExpiry()) {
-            refreshToken();
-        }
-        return vaultToken;
+        return refreshToken();
     }
 
     /**
      * Checks whether the token is expired or will expire in the next 60 seconds.
      */
-    private boolean isTokenExpiredOrNearExpiry() {
-        // Consider the token near expiry if less than 60 seconds remain.
-        return System.currentTimeMillis() > (tokenExpiryTimeMillis - 60000);
-    }
+//    private boolean isTokenExpiredOrNearExpiry() {
+//        // Consider the token near expiry if less than 60 seconds remain.
+//        return System.currentTimeMillis() > (tokenExpiryTimeMillis - 60000);
+//    }
 
     // Optionally, you can remove or comment out any scheduled refresh methods
     // so that the token is only refreshed on-demand when getVaultToken() is called.
