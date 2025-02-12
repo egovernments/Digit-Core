@@ -1,2 +1,3 @@
+/home/admin1/keycloak-policy/keycloak-custom-provider/src/main/java/com/example/keycloak/policy/EmailDomainPolicyRepresentation.java
 /home/admin1/keycloak-policy/keycloak-custom-provider/src/main/java/com/example/keycloak/policy/EmailDomainPolicyProviderFactory.java
 /home/admin1/keycloak-policy/keycloak-custom-provider/src/main/java/com/example/keycloak/policy/EmailDomainPolicyProvider.java
