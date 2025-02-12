@@ -105,23 +105,24 @@ func getRoutes(s *v1.ServiceList) (r *[]Route) {
                     serviceNamespace = internalGatewayNamespace
                 }
 				url := fmt.Sprintf("http://%s.%s:%d/", serviceName, serviceNamespace, s.Spec.Ports[0].Port)
+
 				// Initialize variables for rate limiter annotations
-                		rateLimiter := false
+                rateLimiter := false
 				keyResolver := ""
-                		replenishRate := ""
-                		burstCapacity := ""
+                replenishRate := ""
+                burstCapacity := ""
 				if val, ok := s.Annotations[gatewayKeyResolver]; ok {
-                    			rateLimiter = true
-                    			keyResolver = val
-                		}
-                		if val, ok := s.Annotations[gatewayReplenishRate]; ok {
-                    			rateLimiter = true
-                    			replenishRate = val
-                		}
-                		if val, ok := s.Annotations[gatewayBurstCapacity]; ok {
-                    			rateLimiter = true
-                    			burstCapacity = val
-                		}
+                    rateLimiter = true
+                    keyResolver = val
+                }
+                if val, ok := s.Annotations[gatewayReplenishRate]; ok {
+                    rateLimiter = true
+                    replenishRate = val
+                }
+                if val, ok := s.Annotations[gatewayBurstCapacity]; ok {
+                    rateLimiter = true
+                    burstCapacity = val
+                }
 
 				routes = append(routes, Route{path, url, rateLimiter, keyResolver, replenishRate, burstCapacity})
 				log.Printf("Configuring service %s routing to service URL %s \n", path, url)
