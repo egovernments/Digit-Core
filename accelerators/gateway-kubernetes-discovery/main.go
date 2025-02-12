@@ -80,14 +80,39 @@ func listAllServices(clientset *kubernetes.Clientset, namespace string) (s *v1.S
 }
 
 func getRoutes(s *v1.ServiceList) (r *[]Route) {
-    alternateRouteMap := make(map[string]string)
-    internalRouterMap, exists := os.LookupEnv("INTERNAL_ROUTER_MAP")
-    if exists {
-        alternateRouteMap = getAlternateRouteMap(internalRouterMap)
+    // Check if central instance mode is enabled
+    isCentralInstance := false
+    if value, exists := os.LookupEnv("IS_ENVIRONMENT_CENTRAL_INSTANCE"); exists && strings.EqualFold(value, "true") {
+        isCentralInstance = true
     }
 
-    internalGatewayHost, isHostSet := os.LookupEnv("INTERNAL_GATEWAY_HOST")
-    internalGatewayNamespace, isNamespaceSet := os.LookupEnv("INTERNAL_GATEWAY_NAMESPACE")
+    // Only fetch required env variables if central instance mode is enabled
+    var alternateRouteMap map[string]string
+    var internalGatewayHost, internalGatewayNamespace string
+
+    if isCentralInstance {
+        requiredVars := []string{"INTERNAL_ROUTER_MAP", "INTERNAL_GATEWAY_HOST", "INTERNAL_GATEWAY_NAMESPACE"}
+        missingVars := []string{}
+        envVars := make(map[string]string)
+
+        for _, key := range requiredVars {
+            if value, exists := os.LookupEnv(key); exists && strings.TrimSpace(value) != "" {
+                envVars[key] = value
+            } else {
+                missingVars = append(missingVars, key)
+            }
+        }
+
+        if len(missingVars) > 0 {
+            log.Panicln(fmt.Sprintf("Error: Required environment variables missing or empty: %v", missingVars))
+        }
+
+        log.Println("Central instance mode detected. Using internal routing configuration.")
+
+        alternateRouteMap = getAlternateRouteMap(envVars["INTERNAL_ROUTER_MAP"])
+        internalGatewayHost = envVars["INTERNAL_GATEWAY_HOST"]
+        internalGatewayNamespace = envVars["INTERNAL_GATEWAY_NAMESPACE"]
+    }
 
 	routes := []Route{}
 	for _, s := range s.Items {
@@ -96,32 +121,28 @@ func getRoutes(s *v1.ServiceList) (r *[]Route) {
 			if val, ok := s.Annotations[sAnnotation]; ok {
 				path := fmt.Sprintf("%s", val)
 
-				serviceName := s.Name
-                serviceNamespace := s.Namespace
-                if replacedPath, found := alternateRouteMap[path]; found {
-                    serviceName = replacedPath
+                serviceName, serviceNamespace := s.Name, s.Namespace
+
+                // Apply alternate route mapping and internal gateway namespace logic only in central instance mode
+                if isCentralInstance {
+                    if replacedPath, found := alternateRouteMap[path]; found {
+                        serviceName = replacedPath
+                    }
+                    if strings.EqualFold(internalGatewayHost, serviceName) {
+                        serviceNamespace = internalGatewayNamespace
+                    }
                 }
-                if isHostSet && isNamespaceSet && strings.EqualFold(internalGatewayHost, serviceName) {
-                    serviceNamespace = internalGatewayNamespace
-                }
+
 				url := fmt.Sprintf("http://%s.%s:%d/", serviceName, serviceNamespace, s.Spec.Ports[0].Port)
 
 				// Initialize variables for rate limiter annotations
                 rateLimiter := false
-				keyResolver := ""
-                replenishRate := ""
-                burstCapacity := ""
-				if val, ok := s.Annotations[gatewayKeyResolver]; ok {
+				keyResolver, _ := s.Annotations[gatewayKeyResolver]
+                replenishRate, _ := s.Annotations[gatewayReplenishRate]
+                burstCapacity, _ := s.Annotations[gatewayBurstCapacity]
+
+                if keyResolver != "" || replenishRate != "" || burstCapacity != "" {
                     rateLimiter = true
-                    keyResolver = val
-                }
-                if val, ok := s.Annotations[gatewayReplenishRate]; ok {
-                    rateLimiter = true
-                    replenishRate = val
-                }
-                if val, ok := s.Annotations[gatewayBurstCapacity]; ok {
-                    rateLimiter = true
-                    burstCapacity = val
                 }
 
 				routes = append(routes, Route{path, url, rateLimiter, keyResolver, replenishRate, burstCapacity})
@@ -129,9 +150,7 @@ func getRoutes(s *v1.ServiceList) (r *[]Route) {
 			}
 		}
 	}
-
 	return &routes
-
 }
 
 func writeTemplate(r *[]Route) {
