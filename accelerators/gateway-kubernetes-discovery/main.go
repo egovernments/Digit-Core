@@ -80,13 +80,31 @@ func listAllServices(clientset *kubernetes.Clientset, namespace string) (s *v1.S
 }
 
 func getRoutes(s *v1.ServiceList) (r *[]Route) {
+    alternateRouteMap := make(map[string]string)
+    internalRouterMap, exists := os.LookupEnv("INTERNAL_ROUTER_MAP")
+    if exists {
+        alternateRouteMap = getAlternateRouteMap(internalRouterMap)
+    }
+
+    internalGatewayHost, isHostSet := os.LookupEnv("INTERNAL_GATEWAY_HOST")
+    internalGatewayNamespace, isNamespaceSet := os.LookupEnv("INTERNAL_GATEWAY_NAMESPACE")
+
 	routes := []Route{}
 	for _, s := range s.Items {
 
 		if s.Annotations != nil {
 			if val, ok := s.Annotations[sAnnotation]; ok {
 				path := fmt.Sprintf("%s", val)
-				url := fmt.Sprintf("http://%s.%s:%d/", s.Name, s.Namespace, s.Spec.Ports[0].Port)
+
+				serviceName := s.Name
+                serviceNamespace := s.Namespace
+                if replacedPath, found := alternateRouteMap[path]; found {
+                    serviceName = replacedPath
+                }
+                if isHostSet && isNamespaceSet && strings.EqualFold(internalGatewayHost, serviceName) {
+                    serviceNamespace = internalGatewayNamespace
+                }
+				url := fmt.Sprintf("http://%s.%s:%d/", serviceName, serviceNamespace, s.Spec.Ports[0].Port)
 				// Initialize variables for rate limiter annotations
                 		rateLimiter := false
 				keyResolver := ""
@@ -133,6 +151,25 @@ func writeTemplate(r *[]Route) {
 	}
 
 	f.Close()
+}
+
+func getAlternateRouteMap(routes string) map[string]string {
+	keymap := make(map[string]string)
+
+	if routes == "" {
+		return keymap // Return empty map if no routes are defined
+	}
+
+	routeList := strings.Split(routes, ",")
+	for _, element := range routeList {
+		arr := strings.Split(element, ":")
+		if len(arr) == 2 { // Prevent out-of-bounds errors
+			keymap[arr[0]] = arr[1]
+		} else {
+			log.Printf("Skipping invalid route mapping entry: %s", element)
+		}
+	}
+	return keymap
 }
 
 // Get all kubernetes services in the cluster using config serviceaccount
