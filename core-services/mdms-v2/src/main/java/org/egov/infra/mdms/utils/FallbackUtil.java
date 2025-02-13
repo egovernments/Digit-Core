@@ -1,5 +1,6 @@
 package org.egov.infra.mdms.utils;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import net.minidev.json.JSONArray;
 import org.egov.infra.mdms.model.Mdms;
 
@@ -27,7 +28,7 @@ public class FallbackUtil {
 
         return subTenantList;
     }
-
+    @WithSpan("backTrackTenantMasterDataMap")
     public static Map<String, JSONArray> backTrackTenantMasterDataMap(Map<String, Map<String, JSONArray>> tenantMasterMap, String tenantId) {
         List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
         Map<String, JSONArray> masterDataPostFallBack = new HashMap<>();

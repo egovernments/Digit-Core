@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.JsonPath;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
@@ -140,6 +141,7 @@ public class MDMSService {
 		return getModuleMasterMap(masterDataMap);
 	}
 
+	@WithSpan("applyFilterToData")
 	private Map<String, Map<String, JSONArray>> applyFilterToData(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, String> schemaCodeFilterMap) {
 		Map<String, Map<String, JSONArray>> tenantMasterMapPostFiltering = new HashMap<>();
 
@@ -163,7 +165,7 @@ public class MDMSService {
 		JSONArray filteredMasters = JsonPath.read(masters, filterExp);
 		return filteredMasters;
 	}
-
+	@WithSpan("getModuleMasterMap")
 	private Map<String, Map<String, JSONArray>> getModuleMasterMap(Map<String, JSONArray> masterMap) {
 		Map<String, Map<String, JSONArray>> moduleMasterMap = new HashMap<>();
 
