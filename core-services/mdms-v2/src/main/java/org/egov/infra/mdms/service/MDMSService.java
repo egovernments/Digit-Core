@@ -142,7 +142,7 @@ public class MDMSService {
 	}
 
 	@WithSpan("applyFilterToData")
-	private Map<String, Map<String, JSONArray>> applyFilterToData(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, String> schemaCodeFilterMap) {
+	public Map<String, Map<String, JSONArray>> applyFilterToData(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, String> schemaCodeFilterMap) {
 		Map<String, Map<String, JSONArray>> tenantMasterMapPostFiltering = new HashMap<>();
 
 		tenantMasterMap.keySet().forEach(tenantId -> {
@@ -165,8 +165,9 @@ public class MDMSService {
 		JSONArray filteredMasters = JsonPath.read(masters, filterExp);
 		return filteredMasters;
 	}
+
 	@WithSpan("getModuleMasterMap")
-	private Map<String, Map<String, JSONArray>> getModuleMasterMap(Map<String, JSONArray> masterMap) {
+	public Map<String, Map<String, JSONArray>> getModuleMasterMap(Map<String, JSONArray> masterMap) {
 		Map<String, Map<String, JSONArray>> moduleMasterMap = new HashMap<>();
 
 		for (Map.Entry<String, JSONArray> entry : masterMap.entrySet()) {

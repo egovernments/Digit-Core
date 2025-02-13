@@ -28,6 +28,7 @@ public class FallbackUtil {
 
         return subTenantList;
     }
+
     @WithSpan("backTrackTenantMasterDataMap")
     public static Map<String, JSONArray> backTrackTenantMasterDataMap(Map<String, Map<String, JSONArray>> tenantMasterMap, String tenantId) {
         List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
