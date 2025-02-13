@@ -32,7 +32,7 @@ public class Tenant {
     private String id = null;
 
     @JsonProperty("code")
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 50)
     private String code = null;
 
     // JsonIgnore - don't send in res
@@ -44,11 +44,12 @@ public class Tenant {
     // alphanumeric / alphabet
     @JsonProperty("name")
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 50)
     private String name = null;
 
     @JsonProperty("email")
     @Email(message = "Email should be valid")
+    @Size(max = 64)
     private String email = null;
 
     @JsonProperty("additionalAttributes")
