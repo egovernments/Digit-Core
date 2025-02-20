@@ -91,7 +91,7 @@ public class UserService {
     private Long maxInvalidLoginAttempts;
 
     @Value("${default.otp}")
-    private Integer defaultOtp;
+    private String defaultOtp;
 
     @Value("${egov.user.pwd.pattern}")
     private String pwdRegex;
