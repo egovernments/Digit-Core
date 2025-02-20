@@ -14,6 +14,8 @@ import org.egov.persistence.repository.OtpSMSRepository;
 import org.egov.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+
 
 @Service
 @Slf4j
@@ -23,6 +25,9 @@ public class OtpService {
     private OtpSMSRepository otpSMSSender;
     private OtpEmailRepository otpEmailRepository;
     private UserRepository userRepository;
+
+    @Value("${default.otp}")
+    private String defaultOtp;
 
     @Autowired
     public OtpService(OtpRepository otpRepository, OtpSMSRepository otpSMSSender, OtpEmailRepository otpEmailRepository,
@@ -52,7 +57,8 @@ public class OtpService {
         else if (otpRequest.isLoginRequestType() && null == matchingUser)
             throw new UserNotExistingInSystemException();
 
-        final String otpNumber = otpRepository.fetchOtp(otpRequest);
+        // final String otpNumber = otpRepository.fetchOtp(otpRequest);
+        final String otpNumber = defaultOtp;
 
         // TEMPORARILY ADDED FOR TESTING
         // REMOVE IT !!!!!!!!!!!!!!!!!!!!!!
