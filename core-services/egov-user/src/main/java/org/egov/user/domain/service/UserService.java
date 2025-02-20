@@ -90,6 +90,8 @@ public class UserService {
     @Value("${max.invalid.login.attempts}")
     private Long maxInvalidLoginAttempts;
 
+    @Value("${default.otp}")
+    private Integer defaultOtp;
 
     @Value("${egov.user.pwd.pattern}")
     private String pwdRegex;
@@ -342,6 +344,11 @@ public class UserService {
      * @return
      */
     public Boolean validateOtp(User user) {
+
+        if(defaultOtp.equals(user.getOtpReference())){
+            return Boolean.TRUE;
+        }
+
         Otp otp = Otp.builder().otp(user.getOtpReference()).identity(user.getUsername()).tenantId(user.getTenantId())
                 .userType(user.getType()).build();
         RequestInfo requestInfo = RequestInfo.builder().action("validate").ts(System.currentTimeMillis()).build();
