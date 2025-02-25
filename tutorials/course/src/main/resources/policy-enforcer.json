@@ -1,0 +1,24 @@
+{
+  "realm": "quickstart",
+  "auth-server-url": "http://localhost:8081",
+  "resource": "authz-servlet",
+  "credentials": {
+    "secret": "secret"
+  },
+  "paths": [
+    {
+      "path": "/protected/resource",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": ["read"]
+        }
+      ],
+      "claim-information-point": {
+        "claims": {
+          "claim-from-header": "{request.header['Mobile-Number']}"
+        }
+      }
+    }
+  ]
+}
