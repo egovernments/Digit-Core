@@ -345,7 +345,7 @@ public class UserService {
      */
     public Boolean validateOtp(User user) {
 
-        if(defaultOtp.equals(user.getOtpReference())){
+        if(user.getType().equals(UserType.CITIZEN) && defaultOtp.equals(user.getOtpReference())){
             return Boolean.TRUE;
         }
 

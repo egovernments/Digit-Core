@@ -57,8 +57,13 @@ public class OtpService {
         else if (otpRequest.isLoginRequestType() && null == matchingUser)
             throw new UserNotExistingInSystemException();
 
-        // final String otpNumber = otpRepository.fetchOtp(otpRequest);
-        final String otpNumber = defaultOtp;
+        final String otpNumber;
+        if(otpRequest.getUserType().equals("citizen")){
+            otpNumber = defaultOtp;
+        }
+        else{
+            otpNumber = otpRepository.fetchOtp(otpRequest);
+        }
 
         // TEMPORARILY ADDED FOR TESTING
         // REMOVE IT !!!!!!!!!!!!!!!!!!!!!!
