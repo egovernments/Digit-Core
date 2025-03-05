@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import static com.example.gateway.constants.GatewayConstants.CURRENT_REQUEST_START_TIME;
 
 @Slf4j
-@Component
+//@Component
 public class RequestStartTimeFilter implements GlobalFilter, Ordered {
 
     public RequestStartTimeFilter() {

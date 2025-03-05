@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Slf4j
-@Component
+//@Component
 public class RequestEnrichmentFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;

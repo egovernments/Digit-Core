@@ -15,7 +15,7 @@ import java.util.List;
 import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
-@Component
+//@Component
 public class RbacPreCheckFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
