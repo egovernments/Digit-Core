@@ -37,7 +37,7 @@ import java.util.Set;
 import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
-//@Component
+@Component
 public class RbacFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
