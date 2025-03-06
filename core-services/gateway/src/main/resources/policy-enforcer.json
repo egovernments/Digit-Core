@@ -1,0 +1,8 @@
+{
+  "realm": "quickstart",
+  "auth-server-url": "https://digit-lts.digit.org/keycloak-test",
+  "resource": "authz-servlet",
+  "credentials": {
+    "secret": "GQSmRETOOYEVXkqhRy4YvKoCdyzw5qV0"
+  }
+}

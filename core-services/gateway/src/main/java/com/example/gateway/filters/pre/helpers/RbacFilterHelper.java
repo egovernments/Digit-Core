@@ -31,7 +31,7 @@ import java.util.Set;
 import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
-@Component
+//@Component
 public class RbacFilterHelper implements RewriteFunction<Map, Map> {
 
     private ObjectMapper objectMapper;
