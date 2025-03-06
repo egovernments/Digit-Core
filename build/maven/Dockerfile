@@ -18,7 +18,10 @@ WORKDIR /opt/egov
 # Copy artifacts from the build stage
 COPY --from=build /app/target/*.jar /app/start.sh /opt/egov/
 
-# Make start script executable
-RUN chmod +x /opt/egov/start.sh
+# Ensure the start script has correct line endings and is executable
+RUN dos2unix /opt/egov/start.sh && chmod +x /opt/egov/start.sh
+
+# Verify architecture inside the container
+RUN uname -m
 
 CMD ["/opt/egov/start.sh"]
