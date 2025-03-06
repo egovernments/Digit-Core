@@ -23,7 +23,7 @@ import java.util.Map;
 import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
-//@Component
+@Component
 public class AuthFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;

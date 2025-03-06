@@ -38,7 +38,7 @@ import static com.example.gateway.constants.GatewayConstants.OPEN_ENDPOINT_MESSA
 import static com.example.gateway.filters.pre.helpers.AuthPreCheckFilterHelper.*;
 
 @Slf4j
-//@Component
+@Component
 public class AuthPreCheckFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;

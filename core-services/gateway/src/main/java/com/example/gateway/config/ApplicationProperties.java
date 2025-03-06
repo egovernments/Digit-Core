@@ -21,6 +21,12 @@ public class ApplicationProperties {
     @Value("${egov.auth-service-uri}")
     private String authUri;
 
+    @Value("${keycloak.auth-server-url}")
+    private String keycloakBaseUrl;
+
+    @Value("${keycloak.auth-server-client}")
+    private String clientId;
+
     @Value("${egov.auth-service-host}${egov.user.search.path}")
     private String userSearchURI;
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import static com.example.gateway.constants.GatewayConstants.AUTH_BOOLEAN_FLAG_NAME;
 import static com.example.gateway.constants.GatewayConstants.USER_INFO_KEY;
 
-//@Component
+@Component
 @Slf4j
 public class JwtToHeaderGlobalFilter implements GlobalFilter, Ordered {
 

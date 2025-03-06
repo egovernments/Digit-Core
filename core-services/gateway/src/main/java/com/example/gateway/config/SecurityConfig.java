@@ -60,7 +60,7 @@ public class SecurityConfig {
 		};
 	}
 
-	private String extractIssuer(String token) {
+	public String extractIssuer(String token) {
 		try {
 			String[] chunks = token.split("\\.");
 			String payload = new String(java.util.Base64.getDecoder().decode(chunks[1]));

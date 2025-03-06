@@ -25,7 +25,7 @@ import java.util.*;
 import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
-//@Component
+@Component
 public class CorrelationIdFilter implements GlobalFilter, Ordered {
 
     private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
