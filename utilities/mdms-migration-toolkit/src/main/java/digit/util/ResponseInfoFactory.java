@@ -1,5 +1,6 @@
 package digit.util;
 
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.stereotype.Component;
 
 import digit.web.models.ResponseInfo;
