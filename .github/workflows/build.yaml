@@ -1,0 +1,183 @@
+name: Dynamic Build and Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - docker-arm-update  # Trigger pipeline on changes pushed to the dev branch
+  workflow_dispatch:  # Allows manual trigger for deployment jobs
+env:
+  DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+jobs:
+  detect-changes:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+    outputs:
+      changed-services: ${{ steps.detect.outputs.changed-services }}
+      root-folder: ${{ steps.detect.outputs.root-folder }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Fetch the last two commits to allow HEAD~1
+
+      - name: Detect Changed Services
+        id: detect
+        run: |
+            # Initialize empty strings for root folder and changed services
+            ROOT_FOLDER=""
+            CHANGED_SERVICES=""
+            # Get the diff of changed files between the previous commit and the current commit
+            for changed_file in $(git diff --name-only HEAD~1 HEAD); do
+            # Check if the change is within core-services or business-services
+            if [[ "$changed_file" =~ ^core-services/ ]]; then
+                # Set the root folder to core-services and extract the service path
+                ROOT_FOLDER="core-services"
+                SERVICE_PATH=$(echo "$changed_file" | cut -d/ -f2)  # Get the second part after core-services/
+                CHANGED_SERVICES="${CHANGED_SERVICES} ${SERVICE_PATH} "
+            elif [[ "$changed_file" =~ ^business-services/ ]]; then
+                # Set the root folder to business-services and extract the service path
+                ROOT_FOLDER="business-services"
+                SERVICE_PATH=$(echo "$changed_file" | cut -d/ -f2)  # Get the second part after business-services/
+                CHANGED_SERVICES="${CHANGED_SERVICES} ${SERVICE_PATH} "
+            fi
+            done
+            # Set the output for root-folder
+            echo "::set-output name=root-folder::$ROOT_FOLDER"
+            # Output the result as a valid JSON array
+            if [[ -n "$CHANGED_SERVICES" ]]; then
+                CHANGED_SERVICES_JSON="[\"$(echo $CHANGED_SERVICES | sed 's/,/","/g')\"]"
+                echo "::set-output name=changed-services::$CHANGED_SERVICES_JSON"
+            else
+                echo "::set-output name=changed-services::[]"
+            fi
+      - name: Debug Output
+        run: |
+          echo "Changed Services: ${{ steps.detect.outputs.changed-services }}"
+          echo "root-folder: ${{ steps.detect.outputs.root-folder }}"
+    
+  build:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.changed-services != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.changed-services) }}
+    outputs:
+      docker_image: ${{ steps.save_docker_image.outputs.docker_image }}
+      db_image: ${{ steps.save_db_image.outputs.db_image }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Cache Docker layers
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.service }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Generate the Next Tag
+        id: tag
+        run: |
+          echo "Generating the next tag for service: ${{ matrix.service }}"
+      
+          # Set variables
+          BRANCH=${{ github.ref_name }}
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          SERVICE_NAME=${{ matrix.service }}
+      
+          # Log in to Docker Hub and fetch a token
+          TOKEN=$(curl -s -X POST "https://hub.docker.com/v2/users/login/" \
+            -H "Content-Type: application/json" \
+            -d '{"username": "'$DOCKER_USERNAME'", "password": "'$DOCKER_PASSWORD'"}' | jq -r .token)
+      
+          # Check if the repository exists
+          REPO_CHECK=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: JWT $TOKEN" \
+            "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$SERVICE_NAME/")
+      
+          if [ "$REPO_CHECK" -ne 200 ]; then
+            echo "Repository does not exist. Assuming a first-time build."
+            NEXT_TAG="${BRANCH}-${COMMIT_HASH}"
+          else
+            # Fetch existing tags for the service
+            EXISTING_TAGS=$(curl -s -H "Authorization: JWT $TOKEN" \
+              "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$SERVICE_NAME/tags?page_size=100" | jq -r '.results[].name')
+      
+            # Filter for the current branch and commit hash
+            LATEST_TAG=$(echo "$EXISTING_TAGS" | grep "^${BRANCH}-${COMMIT_HASH}" | sort -V )
+            if [ -z "$LATEST_TAG" ]; then
+              # No tag exists for this branch and commit hash
+              NEXT_TAG="${BRANCH}-${COMMIT_HASH}"
+            # else
+            #   # Increment the numeric part of the latest tag
+            #   TAG_NUMBER=$(echo "$LATEST_TAG" | awk -F- '{print $NF}')
+            #   NEXT_TAG="${BRANCH}-${COMMIT_HASH}-$(TAG_NUMBER)"
+            fi
+          fi
+      
+          # Export the next tag
+          echo "::set-output name=tag::$NEXT_TAG"
+          echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
+          echo "Generated Tag: $NEXT_TAG"
+          echo "ma"
+
+      - name: Build and Push Application Docker Image
+        id: build_push_docker
+        uses: docker/build-push-action@v5
+        with:
+            context: .
+            file: build/maven/Dockerfile
+            push: true
+            tags: |
+                ${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
+            build-args: |
+                WORK_DIR=${{ needs.detect-changes.outputs.root-folder }}/${{ matrix.service }}
+            
+      - name: Check if DB folder exists
+        id: check-db-folder
+        run: |
+            FOLDER_PATH="${{ needs.detect-changes.outputs.root-folder }}/${{ matrix.service }}/src/main/resources/db"
+            if [ -d "$FOLDER_PATH" ]; then
+                echo "folder_exists=true" >> $GITHUB_ENV
+            else
+                echo "folder_exists=false" >> $GITHUB_ENV
+            fi
+    
+      - name: Build and Push Database Docker Image
+        if: ${{ env.folder_exists == 'true' }}
+        id: build_push_db_docker
+        uses: docker/build-push-action@v5
+        with:   
+            context: ${{ needs.detect-changes.outputs.root-folder }}/${{ matrix.service }}/src/main/resources/db
+            file: ${{ needs.detect-changes.outputs.root-folder }}/${{ matrix.service }}/src/main/resources/db/Dockerfile
+            push: true
+            tags: |
+                ${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}
+      - name: Save Application Docker Image
+        id: save_docker_image
+        run: |
+          DOCKER="$DOCKER_USERNAME/${{ matrix.service }}:${{ steps.tag.outputs.tag }}"
+          echo "docker_image=$DOCKER"
+          echo "docker_image=$DOCKER" >> "$GITHUB_OUTPUT"
+          
+      - name: Save Database Docker Image
+        id: save_db_image
+        if: ${{ env.folder_exists == 'true' }}
+        run: |
+          DB="$DOCKER_USERNAME/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
+          echo "db_image=$DB"
+          echo "db_image=$DB" >> "$GITHUB_OUTPUT"
