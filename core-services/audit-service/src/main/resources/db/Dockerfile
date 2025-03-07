@@ -1,5 +1,5 @@
 # Use an ARM64-compatible Flyway image
-FROM --platform=linux/arm64 flyway/flyway:10.7.1-alpine
+FROM flyway/flyway:10.7.1-alpine
 
 COPY ./migration/main /flyway/sql
 COPY migrate.sh /usr/bin/migrate.sh
