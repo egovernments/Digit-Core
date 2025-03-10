@@ -36,6 +36,6 @@ public class GatewayConstants {
     public static final String REQUEST_TENANT_ID_KEY = "tenantId";
     public static final String TENANT_ID_KEY = "TENANT_ID";
     public static final String OPEN_ENDPOINT_MESSAGE = "Routing to an open endpoint: {}";
-
+    public static final String BOUNDARY_ID = "boundary_id";
 
 }

@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Slf4j
-@Component
+//@Component
 public class RbacKeycloakFilter implements GlobalFilter, Ordered {
 
     private  RestTemplate restTemplate;
