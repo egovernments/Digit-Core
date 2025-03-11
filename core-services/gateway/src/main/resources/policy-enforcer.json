@@ -1,8 +1,8 @@
 {
   "realm": "quickstart",
-  "auth-server-url": "https://digit-lts.digit.org/keycloak-test",
+  "auth-server-url": "http://localhost:8081",
   "resource": "authz-servlet",
   "credentials": {
-    "secret": "GQSmRETOOYEVXkqhRy4YvKoCdyzw5qV0"
+    "secret": "secret"
   }
 }

@@ -66,26 +66,26 @@ public class SecurityConfig {
 		return new PolicyEnforcerWebFilter();
 	}
 
-	static class PolicyEnforcerWebFilter implements WebFilter {
-		private final PolicyEnforcerConfig policyEnforcerConfig;
-
-		public PolicyEnforcerWebFilter() {
-			try {
-				this.policyEnforcerConfig = JsonSerialization.readValue(
-						getClass().getResourceAsStream("/policy-enforcer.json"),
-						PolicyEnforcerConfig.class
-				);
-			} catch (IOException e) {
-				throw new RuntimeException("Failed to load policy enforcer config", e);
-			}
-		}
-
-		@Override
-		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-			// Implement your access control logic here
-			return chain.filter(exchange);
-		}
-	}
+//	static class PolicyEnforcerWebFilter implements WebFilter {
+//		private final PolicyEnforcerConfig policyEnforcerConfig;
+//
+//		public PolicyEnforcerWebFilter() {
+//			try {
+//				this.policyEnforcerConfig = JsonSerialization.readValue(
+//						getClass().getResourceAsStream("/policy-enforcer.json"),
+//						PolicyEnforcerConfig.class
+//				);
+//			} catch (IOException e) {
+//				throw new RuntimeException("Failed to load policy enforcer config", e);
+//			}
+//		}
+//
+//		@Override
+//		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+//			// Implement your access control logic here
+//			return chain.filter(exchange);
+//		}
+//	}
 
 //	@Bean
 //	public WebFilter policyEnforcerFilter() {
