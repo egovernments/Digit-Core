@@ -21,7 +21,7 @@ import java.util.*;
 
 @Service
 @Slf4j
-public class UserService {
+public class UserService implements UserAdapter{
 
 
     private WorkflowConfig config;

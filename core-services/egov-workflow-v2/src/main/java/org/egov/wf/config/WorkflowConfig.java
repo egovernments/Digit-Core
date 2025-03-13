@@ -104,7 +104,17 @@ public class WorkflowConfig {
     @Value("${is.environment.central.instance}")
     private Boolean isEnvironmentCentralInstance;
 
+    //Individual
+    @Value("${egov.individual.host}")
+    private String individualHost;
 
+    @Value("${egov.individual.search.endpoint}")
+    private String individualSearchEndpoint;
 
+    @Value("${egov.individual.search.limit}")
+    private Integer individualSearchLimit;
+
+    @Value("${egov.individual.search.offset}")
+    private Integer individualSearchOffset;
 
 }
