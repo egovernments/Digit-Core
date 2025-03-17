@@ -37,5 +37,9 @@ public class GatewayConstants {
     public static final String TENANT_ID_KEY = "TENANT_ID";
     public static final String OPEN_ENDPOINT_MESSAGE = "Routing to an open endpoint: {}";
     public static final String BOUNDARY_ID = "boundary_id";
+    public static final String USER_SERVICE_UUIDS = "userServiceUuids";
+    public static final String JBAC_BOOLEAN_FLAG_NAME = "shouldDoJbac";
+    public static final String SKIP_JBAC = "JBAC check skipped";
+    public static final String Jurisdiction_JSON_PATH = "$.Employees[*].jurisdictions[*].boundary";
 
 }

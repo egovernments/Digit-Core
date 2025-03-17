@@ -1,5 +1,6 @@
 package com.example.gateway.filters.pre;
 
+import com.example.gateway.config.ApplicationProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -30,20 +31,24 @@ public class Jbac implements GlobalFilter, Ordered {
 
     private ObjectMapper objectMapper;
     private RestTemplate restTemplate;
+    private ApplicationProperties configs;
 
-    public Jbac(ObjectMapper objectMapper, RestTemplate restTemplate) {
+    public Jbac(ObjectMapper objectMapper, RestTemplate restTemplate, ApplicationProperties applicationProperties) {
         this.objectMapper = objectMapper;
         this.restTemplate = restTemplate;
+        this.configs = applicationProperties;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
+        Boolean jbacFlag = exchange.getAttribute(JBAC_BOOLEAN_FLAG_NAME);
+        if (Boolean.FALSE.equals(jbacFlag)) chain.filter(exchange);
+
         // extract the code {boundary_id} from header
         String boundaryId = exchange.getRequest().getHeaders().getFirst(BOUNDARY_ID);
 
         // call the hrms employee search with user details
-
         String userInfo = MDC.get(USER_INFO_KEY);
         User user;
         List<String> boundaries;
@@ -51,13 +56,13 @@ public class Jbac implements GlobalFilter, Ordered {
 
             user = objectMapper.readValue(userInfo, User.class);
             RequestInfo requestInfo = RequestInfo.builder().userInfo(user).apiId("Rainmaker").build();
-            String url = UriComponentsBuilder.fromHttpUrl("http://localhost:8071/egov-hrms/employees/_search").queryParam("tenantId", MDC.get(TENANT_ID_KEY)).queryParam("uuids", "6d5cda08-9cd1-4b87-a4a3-b2c4f322300b").toUriString();
+            String url = UriComponentsBuilder.fromHttpUrl(configs.getHrmsSearch()).queryParam(REQUEST_TENANT_ID_KEY, MDC.get(TENANT_ID_KEY)).queryParam(USER_SERVICE_UUIDS, user.getUuid()).toUriString();
 
             log.info(url);
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("RequestInfo", requestInfo);
             String response = restTemplate.postForObject(url, requestBody, String.class);
-            boundaries = JsonPath.read(response, "$.Employees[*].jurisdictions[*].boundary");
+            boundaries = JsonPath.read(response, Jurisdiction_JSON_PATH);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -72,6 +77,6 @@ public class Jbac implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return 5;
+        return 7;
     }
 }

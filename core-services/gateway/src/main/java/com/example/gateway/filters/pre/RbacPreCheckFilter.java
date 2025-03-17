@@ -35,12 +35,23 @@ public class RbacPreCheckFilter implements GlobalFilter, Ordered {
 
         String endPointPath = exchange.getRequest().getPath().value();
 
+        // checks for Role-Based access control
         if (applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath) || applicationProperties.getMixedModeEndpointsWhitelist().contains(endPointPath)) {
             exchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, false);
             log.info(SKIP_RBAC, endPointPath);
         } else {
             exchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, true);
         }
+
+        // checks for Jurisdiction-based access control
+        if(applicationProperties.getJbacEnabledWhitelist().contains(endPointPath)){
+            exchange.getAttributes().put(JBAC_BOOLEAN_FLAG_NAME,true);
+        }
+        else{
+            exchange.getAttributes().put(JBAC_BOOLEAN_FLAG_NAME,false);
+            log.info(SKIP_JBAC,endPointPath);
+        }
+
         return chain.filter(exchange);
 
     }

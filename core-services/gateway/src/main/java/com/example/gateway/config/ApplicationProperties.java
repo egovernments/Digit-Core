@@ -39,11 +39,16 @@ public class ApplicationProperties {
     @Value("${egov.authorize.access.control.host}${egov.authorize.access.control.uri}")
     private String authorizationUrl;
 
+    @Value("${egov.hrms.host}${egov.hrms.search.uri}")
+    private String hrmsSearch;
+
     private List<String> encryptedUrlSet;
 
     private List<String> openEndpointsWhitelist;
 
     private List<String> mixedModeEndpointsWhitelist;
+
+    private List<String> jbacEnabledWhitelist;
 
     @Value("${egov.encrypted-endpoints-list}")
     public void setEncryptedUrlListValues(List<String> encryptedListFromProperties) {
@@ -60,5 +65,9 @@ public class ApplicationProperties {
         this.mixedModeEndpointsWhitelist = Collections.unmodifiableList(mixModeUrlListFromProperties);
     }
 
+    @Value("${jbac.enabled.list}")
+    public void setJbacEnabledWhitelistValues(List<String> jbacEnabledWhitelist) {
+        this.jbacEnabledWhitelist = Collections.unmodifiableList(jbacEnabledWhitelist);
+    }
 
 }
