@@ -25,8 +25,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -64,9 +67,12 @@ class WorkflowQueryBuilderTest {
     @Test
     void testGetProcessInstanceIds4() {
 
-        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 0, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -105,8 +111,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds6() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -204,8 +213,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds7() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -305,8 +317,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds9() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -404,8 +419,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds10() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -503,8 +521,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds11() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -601,8 +622,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds12() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -698,8 +722,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds13() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -796,8 +823,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds14() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -895,8 +925,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds15() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -996,8 +1029,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds16() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -1098,8 +1134,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds17() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -1200,8 +1239,11 @@ class WorkflowQueryBuilderTest {
     void testGetProcessInstanceIds18() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -1955,8 +1997,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery3() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -1996,9 +2041,12 @@ class WorkflowQueryBuilderTest {
     @Test
     void testGetInboxIdQuery4() {
 
-        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 0, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
 
@@ -2039,8 +2087,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery6() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2141,8 +2192,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery7() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2244,8 +2298,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery8() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2347,8 +2404,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery9() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2447,8 +2507,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery10() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2547,8 +2610,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery11() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2649,8 +2715,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery12() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2751,8 +2820,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery13() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2853,8 +2925,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery14() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -2955,8 +3030,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery15() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -3055,8 +3133,11 @@ class WorkflowQueryBuilderTest {
     void testGetInboxIdQuery17() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", false, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -3159,8 +3240,11 @@ class WorkflowQueryBuilderTest {
 
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(0);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         ProcessInstanceSearchCriteria processInstanceSearchCriteria = mock(ProcessInstanceSearchCriteria.class);
@@ -5710,8 +5794,11 @@ class WorkflowQueryBuilderTest {
     void testGetEscalatedApplicationsCount11() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -5806,9 +5893,12 @@ class WorkflowQueryBuilderTest {
     @Test
     void testGetEscalatedApplicationsCount12() {
 
-        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 0, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -5904,8 +5994,11 @@ class WorkflowQueryBuilderTest {
     void testGetEscalatedApplicationsCount14() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6001,8 +6094,11 @@ class WorkflowQueryBuilderTest {
     void testGetEscalatedApplicationsCount15() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6098,8 +6194,11 @@ class WorkflowQueryBuilderTest {
     void testGetEscalatedApplicationsCount16() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6193,8 +6292,11 @@ class WorkflowQueryBuilderTest {
     void testGetEscalatedApplicationsCount17() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6290,8 +6392,11 @@ class WorkflowQueryBuilderTest {
     void testGetEscalatedApplicationsCount18() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6706,8 +6811,11 @@ class WorkflowQueryBuilderTest {
 
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6802,9 +6910,12 @@ class WorkflowQueryBuilderTest {
     @Test
     void testGetAutoEscalatedApplicationsFinalQuery12() {
 
-        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 0, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+        WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6900,8 +7011,11 @@ class WorkflowQueryBuilderTest {
     void testGetAutoEscalatedApplicationsFinalQuery14() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -6997,8 +7111,11 @@ class WorkflowQueryBuilderTest {
     void testGetAutoEscalatedApplicationsFinalQuery15() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -7094,8 +7211,11 @@ class WorkflowQueryBuilderTest {
     void testGetAutoEscalatedApplicationsFinalQuery16() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -7189,8 +7309,11 @@ class WorkflowQueryBuilderTest {
     void testGetAutoEscalatedApplicationsFinalQuery17() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);
@@ -7286,8 +7409,11 @@ class WorkflowQueryBuilderTest {
     void testGetAutoEscalatedApplicationsFinalQuery18() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.setDefaultLimit(1);
         WorkflowQueryBuilder workflowQueryBuilder = new WorkflowQueryBuilder(workflowConfig);
         RequestInfo requestInfo = mock(RequestInfo.class);

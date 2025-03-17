@@ -16,13 +16,16 @@ class WorkflowConfigTest {
     void testInitialize() {
 
         WorkflowConfig workflowConfig = new WorkflowConfig("UTC", 1, 1, 3, "Save Transition Topic",
-                "Save Business Service Topic", "2020-03-01", "localhost", "https://config.us-east-2.amazonaws.com",
-                "localhost", "https://config.us-east-2.amazonaws.com", true, "MD", 3, 3, true);
+                "Save Business Service Topic", "Update Business Service Topic",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                "localhost", "https://config.us-east-2.amazonaws.com",
+                true, "MD", 3, 3, true,
+                "localhost", "https://individual-search-endpoint.com", 10, 0);
         workflowConfig.initialize();
         assertTrue(workflowConfig.getAssignedOnly());
         assertEquals("https://config.us-east-2.amazonaws.com", workflowConfig.getUserSearchEndpoint());
         assertEquals("localhost", workflowConfig.getUserHost());
-        assertEquals("2020-03-01", workflowConfig.getUpdateBusinessServiceTopic());
+        assertEquals("Update Business Service Topic", workflowConfig.getUpdateBusinessServiceTopic());
         assertEquals("UTC", workflowConfig.getTimeZone());
         assertEquals(3, workflowConfig.getStateLevelTenantIdLength().intValue());
         assertEquals("MD", workflowConfig.getStateLevelTenantId());
@@ -35,6 +38,10 @@ class WorkflowConfigTest {
         assertEquals(3, workflowConfig.getEscalationBatchSize().intValue());
         assertEquals(1, workflowConfig.getDefaultOffset().intValue());
         assertEquals(1, workflowConfig.getDefaultLimit().intValue());
+        assertEquals("localhost", workflowConfig.getIndividualHost());
+        assertEquals("https://individual-search-endpoint.com", workflowConfig.getIndividualSearchEndpoint());
+        assertEquals(10, workflowConfig.getIndividualSearchLimit().intValue());
+        assertEquals(0, workflowConfig.getIndividualSearchOffset().intValue());
     }
 
     @Test
