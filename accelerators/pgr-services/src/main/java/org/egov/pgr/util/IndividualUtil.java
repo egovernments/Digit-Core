@@ -11,7 +11,6 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
@@ -74,13 +73,17 @@ public class IndividualUtil {
 			return new Name(null, null, null);
 		}
 
-		String[] nameParts = name.trim().split("\\s+"); // Splitting by one or more spaces
-		String givenName = nameParts[0]; // First word is the given name
-		String familyName = nameParts.length > 1
-				? String.join(" ", Arrays.copyOfRange(nameParts, 1, nameParts.length)).trim()
-				: null; // Join the remaining words as the family name
+//		String[] nameParts = name.trim().split("\\s+"); // Splitting by one or more spaces
+//		String givenName = nameParts[0]; // First word is the given name
+//		String familyName = nameParts.length > 1
+//				? String.join(" ", Arrays.copyOfRange(nameParts, 1, nameParts.length)).trim()
+//				: null; // Join the remaining words as the family name
+//
+//		return new Name(givenName, familyName, null);
 
-		return new Name(givenName, familyName, null);
+		return Name.builder()
+				.givenName(name)
+				.build();
 	}
 
 	private UserDetails buildUserDetailsFromUser(User user) {
