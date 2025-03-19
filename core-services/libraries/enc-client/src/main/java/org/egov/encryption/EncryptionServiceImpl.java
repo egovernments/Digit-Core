@@ -75,15 +75,12 @@ public class EncryptionServiceImpl implements EncryptionService {
             plaintextNodeCopy = arrayNode;
         }
         JsonNode encryptedNode = encryptJsonArray(plaintextNodeCopy, model, tenantId);
-
-        if (!plaintextNode.isArray()) {
-            return encryptedNode.get(0);
-        }
-        return encryptedNode;
+        return !plaintextNode.isArray() ? encryptedNode.get(0) : encryptedNode;
     }
 
     public <E, P> P encryptJson(Object plaintextJson, String model, String tenantId, Class<E> valueType) throws IOException {
         return ConvertClass.convertTo(encryptJson(plaintextJson, model, tenantId), valueType);
+
     }
 
     private JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson,
@@ -116,7 +113,7 @@ public class EncryptionServiceImpl implements EncryptionService {
         JsonNode jsonNode = JacksonUtils.filterJsonNodeForPaths(ciphertextNode, pathsToBeDecrypted);
 
         if (!jsonNode.isEmpty(objectMapper.getSerializerProvider())) {
-            JsonNode returnedDecryptedNode = encryptionServiceRestConnection.callDecrypt(jsonNode);
+            JsonNode returnedDecryptedNode = encryptionServiceRestConnection.callDecrypt(encProperties.getStateLevelTenantId(), jsonNode);
             decryptNode = JacksonUtils.merge(returnedDecryptedNode, decryptNode);
         }
 
