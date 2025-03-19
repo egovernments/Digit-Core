@@ -1,0 +1,2 @@
+import digit_client
+print(digit_client.__version__)
