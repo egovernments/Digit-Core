@@ -19,8 +19,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.example.gateway.constants.GatewayConstants.AUTH_BOOLEAN_FLAG_NAME;
 import static com.example.gateway.constants.GatewayConstants.USER_INFO_KEY;
@@ -47,7 +49,7 @@ public class JwtToHeaderGlobalFilter implements GlobalFilter, Ordered {
             Object principal = securityContext.getAuthentication().getPrincipal();
             if (principal instanceof Jwt) {
                 Jwt jwt = (Jwt) principal;
-                String userId = jwt.getClaim("sid");
+                String userId = jwt.getClaim("sub");
                 User user = buildUserFromJwt(jwt);
                 try {
                     MDC.put(USER_INFO_KEY, objectMapper.writeValueAsString(user));
@@ -69,16 +71,26 @@ public class JwtToHeaderGlobalFilter implements GlobalFilter, Ordered {
         String name = jwt.hasClaim("name") ? jwt.getClaim("name") : null;
         String mobileNumber = jwt.hasClaim("phone_number") ? jwt.getClaim("phone_number") : null;
         String emailId = jwt.hasClaim("email") ? jwt.getClaim("email") : null;
-        String uuid = jwt.hasClaim("sid") ? jwt.getClaim("sid") : null;
-
-        String type = "EMPLOYEE";
+        String uuid = jwt.hasClaim("sub") ? jwt.getClaim("sub") : null;
 
         String issuer = jwt.hasClaim("iss") ? jwt.getClaim("iss") : null;
         String tenantId = extractRealmFromIssuer(issuer);
 
         Map<String, Object> realmAccess = jwt.hasClaim("realm_access") ? jwt.getClaimAsMap("realm_access") : null;
-        List<String> rolesString = realmAccess != null && realmAccess.containsKey("roles") ? (List<String>) realmAccess.get("roles") : null;
-        List<Role> roles = rolesString != null ? rolesString.stream().map(role -> Role.builder().name(role).code(role).tenantId(tenantId).build()).toList() : null;
+        List<String> rolesString = Collections.emptyList();
+        if (realmAccess != null && realmAccess.containsKey("roles")) {
+            Object rolesObj = realmAccess.get("roles");
+            if (rolesObj instanceof List<?>) {
+                rolesString = ((List<?>) rolesObj).stream()
+                        .filter(String.class::isInstance)
+                        .map(String.class::cast)
+                        .toList();
+            }
+        }
+
+        // Determine the user type based on roles
+        String type = rolesString.contains("CITIZEN") ? "CITIZEN" : "EMPLOYEE";
+        List<Role> roles = rolesString.stream().map(role -> Role.builder().name(role).code(role).tenantId(tenantId).build()).toList();
 
         return User.builder().userName(userName).name(name).type(type).mobileNumber(mobileNumber).emailId(emailId).roles(roles).tenantId(tenantId).uuid(uuid).build();
     }
