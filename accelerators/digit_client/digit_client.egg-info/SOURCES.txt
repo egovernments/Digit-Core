@@ -2,10 +2,9 @@ README.md
 setup.py
 digit_client/__init__.py
 digit_client/api_client.py
-digit_client/auth.py
 digit_client/config.py
 digit_client/exceptions.py
-digit_client/pre_install.py
+digit_client/request_config.py
 digit_client/utils.py
 digit_client.egg-info/PKG-INFO
 digit_client.egg-info/SOURCES.txt
@@ -14,8 +13,12 @@ digit_client.egg-info/requires.txt
 digit_client.egg-info/top_level.txt
 digit_client/models/__init__.py
 digit_client/models/boundary.py
+digit_client/models/citizen_user.py
+digit_client/models/search_models.py
 digit_client/models/service.py
 digit_client/models/service_definition.py
 digit_client/models/user.py
+digit_client/models/user_profile.py
 digit_client/services/__init__.py
+digit_client/services/tenant_service.py
 digit_client/services/user_service.py

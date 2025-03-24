@@ -1,34 +1,34 @@
 from setuptools import setup, find_packages
-import os
-import sys
-from setuptools.command.install import install
-from setuptools.command.develop import develop
+# import os
+# import sys
+# from setuptools.command.install import install
+# from setuptools.command.develop import develop
 
-def run_auth():
-    import importlib.util
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    pre_install_path = os.path.join(current_dir, 'digit_client', 'pre_install.py')
+# def run_auth():
+#     import importlib.util
+#     current_dir = os.path.dirname(os.path.abspath(__file__))
+#     pre_install_path = os.path.join(current_dir, 'digit_client', 'pre_install.py')
     
-    spec = importlib.util.spec_from_file_location("pre_install", pre_install_path)
-    pre_install = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(pre_install)
+#     spec = importlib.util.spec_from_file_location("pre_install", pre_install_path)
+#     pre_install = importlib.util.module_from_spec(spec)
+#     spec.loader.exec_module(pre_install)
     
-    return pre_install.main()
+#     return pre_install.main()
 
-class PreInstallCommand(install):
-    def run(self):
-        # Only run authentication during pip install
-        if any('pip' in arg for arg in sys.argv):
-            if not run_auth():
-                sys.exit(1)
-        install.run(self)
+# class PreInstallCommand(install):
+#     def run(self):
+#         # Only run authentication during pip install
+#         if any('pip' in arg for arg in sys.argv):
+#             if not run_auth():
+#                 sys.exit(1)
+#         install.run(self)
 
-class DevelopCommand(develop):
-    def run(self):
-        if any('pip' in arg for arg in sys.argv):
-            if not run_auth():
-                sys.exit(1)
-        develop.run(self)
+# class DevelopCommand(develop):
+#     def run(self):
+#         if any('pip' in arg for arg in sys.argv):
+#             if not run_auth():
+#                 sys.exit(1)
+#         develop.run(self)
 
 setup(
     name='digit_client',

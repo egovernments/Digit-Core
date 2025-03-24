@@ -11,8 +11,10 @@ class APIClient:
         response = requests.get(f"{self.base_url}/{endpoint}", headers=headers, params=params)
         return response.json()
 
-    def post(self, endpoint, json_data):
+    def post(self, endpoint, json_data, additional_headers=None):
         headers = {'Authorization': f'Bearer {self.auth_token}'}
+        if additional_headers:
+            headers.update(additional_headers)
         response = requests.post(f"{self.base_url}/{endpoint}", headers=headers, json=json_data)
         return response.json()
 
