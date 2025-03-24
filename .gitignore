@@ -14,3 +14,5 @@ accelerators/digit_client/digit_client/__pycache__/__init__.cpython-313.pyc
 accelerators/authenticate/__pycache__/auth.cpython-313.pyc
 accelerators/digit_client/dist/digit_client-0.1-py3-none-any.whl
 accelerators/digit_client/digit_client/__pycache__/__init__.cpython-313.pyc
+accelerators/digit_client/tests/__pycache__/test_user_service.cpython-313.pyc
+accelerators/digit_client/digit_client/__pycache__/__init__.cpython-313.pyc

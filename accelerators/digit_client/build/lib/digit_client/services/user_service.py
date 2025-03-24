@@ -188,4 +188,54 @@ class UserService:
         endpoint = f"{self.base_url}/_search"
         return self.api_client.post(endpoint, json_data=payload)
 
+    def create_user_no_validate(self, citizen_user: CitizenUser, temp_auth_token: Optional[str] = None) -> Dict:
+        """
+        Create a new user without validation in the DIGIT platform.
+        
+        Args:
+            user_data (Dict): The user data containing all required fields
+            temp_auth_token (str, optional): Temporary auth token to use for this request
+            
+        Returns:
+            Dict: Response from the user creation API
+        """
+        request_info = RequestConfig.get_request_info(
+            action="POST",
+            msg_id="create-user-no-validate",
+            temp_auth_token=temp_auth_token
+        )
+
+        payload = {
+            "RequestInfo": request_info.to_dict(),
+            "user": citizen_user.to_dict()
+        }
+
+        endpoint = f"{self.base_url}/users/_createnovalidate"
+        return self.api_client.post(endpoint, json_data=payload)
+
+    def update_user_no_validate(self, user_profile: UserProfileUpdate, temp_auth_token: Optional[str] = None) -> Dict:
+        """
+        Update a user without validation in the DIGIT platform.
+        
+        Args:
+            user_data (Dict): The user data containing all fields to update including id and uuid
+            temp_auth_token (str, optional): Temporary auth token to use for this request
+            
+        Returns:
+            Dict: Response from the user update API
+        """
+        request_info = RequestConfig.get_request_info(
+            action="POST",
+            msg_id="update-user-no-validate",
+            temp_auth_token=temp_auth_token
+        )
+
+        payload = {
+            "RequestInfo": request_info.to_dict(),
+            "user": user_profile.to_dict()
+        }
+
+        endpoint = f"{self.base_url}/users/_updatenovalidate"
+        return self.api_client.post(endpoint, json_data=payload)
+
     

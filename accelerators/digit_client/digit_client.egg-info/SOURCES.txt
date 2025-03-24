@@ -22,3 +22,4 @@ digit_client/models/user_profile.py
 digit_client/services/__init__.py
 digit_client/services/tenant_service.py
 digit_client/services/user_service.py
+tests/test_user_service.py

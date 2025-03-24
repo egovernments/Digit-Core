@@ -1,10 +1,10 @@
-from digit_client import RequestConfig, UserService, CitizenUserBuilder, Role
+from digit_client import RequestConfig, UserService, CitizenUserBuilder, Role, UserProfileUpdate, UserProfileUpdateBuilder
 from pprint import pprint
 
 def main():
     try:
         # Initialize with default auth token
-        auth_token = "50b80fa6-bec2-438e-a168-ce5ad53770b5"
+        auth_token = "ba5e5f01-dbb5-4c94-95cf-5fa52ffae078"
         RequestConfig.initialize(
             api_id="DIGIT-CLIENT",
             version="1.0.0",
@@ -21,7 +21,7 @@ def main():
             .with_name("mustak")
             .with_gender("MALE")
             .with_mobile_number("9353822214")
-            .with_tenant_id("pg")
+            .with_tenant_id("POM")
             .build())  # Will automatically add CITIZEN role
         
         print("\nBasic Citizen User:")
@@ -29,7 +29,7 @@ def main():
 
         # Example 2: Create a detailed citizen user with all fields
         detailed_citizen = (CitizenUserBuilder()
-            .with_user_name("9353822214")
+            .with_user_name("93538222114")
             .with_password("Must@123NK")
             .with_salutation("Ms")
             .with_name("mustak")
@@ -56,15 +56,53 @@ def main():
             .with_identification_mark("Wears spects")
             .with_photo("a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25")
             .with_otp_reference("14856")
-            .with_tenant_id("pg")
+            .with_tenant_id("POM")
+            .with_roles([
+                Role(code="CITIZEN", name="Citizen", tenant_id="POM"),
+                Role(code="EMPLOYEE", name="Employee", tenant_id="POM"),
+                Role(code="ADMIN", name="Administrator", tenant_id="POM")
+            ])
             .build())
 
         print("\nDetailed Citizen User:")
         pprint(detailed_citizen.to_dict())
 
         # Create citizen user
-        response = user_service.create_citizen(detailed_citizen)
+        response = user_service.create_user_no_validate(detailed_citizen)
         print("\nCreate Response:", response)
+
+        # Example 3: Update existing user without validation
+        update_user = (UserProfileUpdateBuilder()
+            .with_id(338)
+            .with_uuid("afc7eaf1-a25f-46c9-b16f-3f7de29009ff")
+            .with_user_name("EGOvM134NmNmd")
+            .with_name("gudduPoilce")
+            .with_mobile_number("9353822214")
+            .with_email("xyz123@egovernments.org")
+            .with_locale("string")
+            .with_type("EMPLOYEE")
+            .with_roles([
+                Role(code="EMPLOYEE", name="Employee", tenant_id="pg"),
+                Role(code="GRO", name="Grievance Routing Officer", tenant_id="pg"),
+                Role(code="SYSTEM", name="System user", tenant_id="pg"),
+                Role(code="SUPERUSER", name="Super User", tenant_id="pg"),
+                Role(code="HRMS_ADMIN", name="HRMS ADMIN", tenant_id="pg"),
+                Role(code="DGRO", name="Department Grievance Routing Officer", tenant_id="pg")
+            ])
+            .with_active(True)
+            .with_tenant_id("pg")
+            .with_permanent_city("Kaikoo")
+            # .with_gender("MALE")
+            # .with_photo(None)
+            .build())
+
+        print("\nUpdating User:")
+        pprint(update_user.to_dict())
+
+        # Update user
+        update_response = user_service.update_user_no_validate(update_user)
+        print("\nUpdate Response:")
+        pprint(update_response)
 
     except ValueError as ve:
         print(f"Validation error: {str(ve)}")

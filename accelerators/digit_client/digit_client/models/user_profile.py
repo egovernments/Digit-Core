@@ -29,6 +29,8 @@ class UserProfileUpdate:
     active: bool
     tenant_id: str
     permanent_city: Optional[str] = None
+    gender: Optional[str] = None
+    photo: Optional[str] = None
 
     def to_dict(self) -> dict:
         return {
@@ -43,7 +45,9 @@ class UserProfileUpdate:
             "roles": [role.to_dict() for role in self.roles],
             "active": self.active,
             "tenantId": self.tenant_id,
-            "permanentCity": self.permanent_city
+            "permanentCity": self.permanent_city,
+            "gender": self.gender,
+            "photo": self.photo
         }
 
 class UserProfileUpdateBuilder:
@@ -62,6 +66,8 @@ class UserProfileUpdateBuilder:
         self._active: bool = True
         self._tenant_id: Optional[str] = None
         self._permanent_city: Optional[str] = None
+        self._gender: Optional[str] = None
+        self._photo: Optional[str] = None
 
     def with_id(self, id: int) -> 'UserProfileUpdateBuilder':
         self._id = id
@@ -115,6 +121,14 @@ class UserProfileUpdateBuilder:
         self._permanent_city = permanent_city
         return self
 
+    def with_gender(self, gender: str) -> 'UserProfileUpdateBuilder':
+        self._gender = gender
+        return self
+
+    def with_photo(self, photo: str) -> 'UserProfileUpdateBuilder':
+        self._photo = photo
+        return self
+
     def build(self) -> UserProfileUpdate:
         """Build and validate the UserProfileUpdate object"""
         # Validate required fields
@@ -147,5 +161,7 @@ class UserProfileUpdateBuilder:
             roles=self._roles,
             active=self._active,
             tenant_id=self._tenant_id,
-            permanent_city=self._permanent_city
+            permanent_city=self._permanent_city,
+            gender=self._gender,
+            photo=self._photo
         ) 
