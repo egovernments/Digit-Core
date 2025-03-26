@@ -63,7 +63,8 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
         addRequestHeaders(exchange, body);
         if (Objects.isNull(body)) {
             return Mono.empty();
-        } else return Mono.just(body);
+        }
+        return Mono.just(body);
     }
 
     private void addRequestHeaders(ServerWebExchange exchange, Map body) {
@@ -77,12 +78,13 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
         String correlationId = (String) exchange.getAttributes().get(CORRELATION_ID_KEY);
         String TenantId = (String) exchange.getAttributes().get(TENANTID_MDC);
 
-        exchange.getRequest().mutate().headers(httpHeaders -> {
-            httpHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId);
-            if (centralInstanceUtil.getIsEnvironmentCentralInstance()) {
-                httpHeaders.add(REQUEST_TENANT_ID_KEY, TenantId);
-            }
-        });
+        exchange.getRequest().mutate()
+                .headers(httpHeaders -> {
+                    httpHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId);
+                    if (centralInstanceUtil.getIsEnvironmentCentralInstance()) {
+                        httpHeaders.add(REQUEST_TENANT_ID_KEY, TenantId);
+                    }
+                }).build();
     }
 
     private void addUserInfoHeader(ServerWebExchange exchange, Map body) {
