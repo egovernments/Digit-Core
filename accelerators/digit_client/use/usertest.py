@@ -1,16 +1,39 @@
-from digit_client import RequestConfig, UserService, CitizenUserBuilder, Role, UserProfileUpdate, UserProfileUpdateBuilder
+from digit_client import RequestConfig, UserService, CitizenUserBuilder, Role, UserProfileUpdate, UserProfileUpdateBuilder, RequestInfoBuilder
 from pprint import pprint
 
 def main():
     try:
         # Initialize with default auth token
         auth_token = "ba5e5f01-dbb5-4c94-95cf-5fa52ffae078"
+        userinfo = {
+            "username": "priyanhugupta753@gmail.com",
+            "password": "Scaler@123",
+            "tenantId": "pg"
+        }
+        
+        # First initialize with basic config
         RequestConfig.initialize(
             api_id="DIGIT-CLIENT",
-            version="1.0.0",
-            auth_token=auth_token
+            version="1.0.0"
         )
 
+        # Get initial request info
+        request_info = RequestConfig.get_request_info(action="GET")
+        print("Initial request info:")
+        print(request_info.to_dict())
+        
+        # Update with auth token
+        RequestConfig.update_auth_token(auth_token)
+        request_info = RequestConfig.get_request_info(action="GET")
+        print("\nRequest info with auth token:")
+        print(request_info.to_dict())
+        
+        # Update with user info
+        RequestConfig.update_user_info(userinfo)
+        request_info = RequestConfig.get_request_info(action="GET")
+        print("\nRequest info with user info:")
+        print(request_info.to_dict())
+        
         # Create user service
         user_service = UserService()
 

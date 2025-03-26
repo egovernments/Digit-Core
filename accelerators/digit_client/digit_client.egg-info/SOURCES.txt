@@ -12,14 +12,13 @@ digit_client.egg-info/dependency_links.txt
 digit_client.egg-info/requires.txt
 digit_client.egg-info/top_level.txt
 digit_client/models/__init__.py
+digit_client/models/auth.py
 digit_client/models/boundary.py
 digit_client/models/citizen_user.py
 digit_client/models/search_models.py
-digit_client/models/service.py
 digit_client/models/service_definition.py
-digit_client/models/user.py
 digit_client/models/user_profile.py
 digit_client/services/__init__.py
-digit_client/services/tenant_service.py
+digit_client/services/authenticate.py
 digit_client/services/user_service.py
 tests/test_user_service.py

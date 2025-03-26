@@ -161,7 +161,6 @@ class UserService:
         endpoint = f"{self.base_url}/profile/_update"
         return self.api_client.post(endpoint, json_data=payload)
 
-
     def search_users(self, search_criteria: UserSearchModel, temp_auth_token: Optional[str] = None) -> Dict:
         """
         Search for users based on given criteria
