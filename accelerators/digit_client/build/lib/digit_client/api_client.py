@@ -11,7 +11,7 @@ class APIClient:
         response = requests.get(f"{self.base_url}/{endpoint}", headers=headers, params=params)
         return response.json()
 
-    def post(self, endpoint, json_data=None, data=None, additional_headers=None):
+    def post(self, endpoint, json_data=None, data=None, additional_headers=None, params=None):
         """
         Make a POST request
         
@@ -20,6 +20,7 @@ class APIClient:
             json_data (dict, optional): JSON data to send
             data (dict, optional): Form data to send
             additional_headers (dict, optional): Additional headers to include
+            params (dict, optional): Query parameters to include in the URL
             
         Returns:
             dict: Response JSON
@@ -30,12 +31,14 @@ class APIClient:
         print(headers)
         print(json_data)
         print(data)
+        print(params)
             
         response = requests.post(
             f"{self.base_url}/{endpoint}", 
             headers=headers,
             json=json_data if json_data is not None else None,
-            data=data if data is not None else None
+            data=data if data is not None else None,
+            params=params if params is not None else None
         )
         return response.json()
 
