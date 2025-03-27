@@ -29,6 +29,9 @@ class ProducerTest {
     @MockBean
     private WorkflowConfig workflowConfig;
 
+    @MockBean
+    private MultiStateInstanceUtil multiStateInstanceUtil;
+
     @Test
     void testPush() {
         when(workflowConfig.getIsEnvironmentCentralInstance()).thenReturn(true);
