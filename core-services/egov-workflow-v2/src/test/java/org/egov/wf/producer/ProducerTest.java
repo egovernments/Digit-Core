@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.egov.common.utils.MultiStateInstanceUtil;
 
 @ContextConfiguration(classes = {Producer.class})
 @ExtendWith(SpringExtension.class)
