@@ -14,6 +14,7 @@ Classifier: Programming Language :: Python :: 3.8
 Classifier: Programming Language :: Python :: 3.9
 Requires-Python: >=3.6
 Requires-Dist: requests>=2.25.1
+Requires-Dist: jsonschema>=4.0.0
 Dynamic: author
 Dynamic: author-email
 Dynamic: classifier

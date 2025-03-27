@@ -25,7 +25,8 @@ class APIClient:
         Returns:
             dict: Response JSON
         """
-        headers = {'Authorization': f'Bearer {self.auth_token}'}
+        # headers = {'Authorization': f'Bearer {self.auth_token}'}
+        headers = {'Content-Type': 'application/json'}
         if additional_headers:
             headers.update(additional_headers)
         print(headers)

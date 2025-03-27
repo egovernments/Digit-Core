@@ -23,10 +23,7 @@ class MDMSService:
         """
         # Get request info if not provided
         if request_info is None:
-            request_info = RequestConfig.get_request_info(
-                action="POST",
-                msg_id="5bfa85e7-dfa1-47c8-98b2-747bf552be86"
-            )
+            request_info = RequestConfig.get_request_info()
 
         # Build complete request body
         payload = {
@@ -63,10 +60,7 @@ class MDMSService:
         """
         # Get request info if not provided
         if request_info is None:
-            request_info = RequestConfig.get_request_info(
-                action="POST",
-                msg_id="5bfa85e7-dfa1-47c8-98b2-747bf552be86"
-            )
+            request_info = RequestConfig.get_request_info()
 
         # Build query parameters
         params = {

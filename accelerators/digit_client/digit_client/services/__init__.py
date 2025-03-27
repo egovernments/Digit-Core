@@ -2,5 +2,6 @@
 from .authenticate import AuthenticationService
 from .user_service import UserService
 from .master_data_v1 import MDMSService
-
-__all__ = ['AuthenticationService', 'UserService', 'MDMSService']
+from .mdms_v2 import MDMSV2Service
+from .authorize import AuthorizeService
+__all__ = ['AuthenticationService', 'UserService', 'MDMSService', 'MDMSV2Service', 'AuthorizeService']

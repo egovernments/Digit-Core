@@ -225,7 +225,8 @@ class RequestConfig:
                   msg_id: Optional[str] = None,
                   requester_id: Optional[str] = None,
                   correlation_id: Optional[str] = None,
-                  action: str = "") -> None:
+                  action: str = "",
+                  ts: Optional[int] = None) -> None:
         """
         Initialize the default request configuration.
         
@@ -244,15 +245,15 @@ class RequestConfig:
         cls._default_request_info = RequestInfo(
             api_id=api_id,
             ver=version,
-            ts=int(time.time() * 1000),
+            ts=ts,
             action=action,
             auth_token=auth_token,
             user_info=user_info,
             did=did,
             key=key,
-            msg_id=msg_id or str(uuid.uuid4()),
+            msg_id=msg_id,
             requester_id=requester_id,
-            correlation_id=correlation_id or str(uuid.uuid4())
+            correlation_id=correlation_id
         )
 
     @classmethod
@@ -417,7 +418,7 @@ class RequestConfig:
         )
 
     @classmethod
-    def get_request_info(cls, action: str, temp_auth_token: Optional[str] = None, **kwargs) -> RequestInfo:
+    def get_request_info(cls,temp_auth_token: Optional[str] = None, **kwargs) -> RequestInfo:
         """
         Get a new RequestInfo instance with default values and specified overrides.
         
@@ -435,10 +436,6 @@ class RequestConfig:
         # Create new request info with current timestamp
         request_info_dict = cls._default_request_info.to_dict()
         request_info_dict.update({
-            "ts": int(time.time() * 1000),
-            "action": action,
-            "msgId": str(uuid.uuid4()),
-            "correlationId": str(uuid.uuid4()),
             **kwargs
         })
 

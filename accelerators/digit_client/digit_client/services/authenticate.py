@@ -44,7 +44,10 @@ class AuthenticationService:
             request_info = RequestConfig.get_request_info(
                 action="POST",
             )
-        
+        headers = {
+            'Authorization': 'Basic ZWdvdi11c2VyLWNsaWVudDo=',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
         payload = {
             "RequestInfo": request_info.to_dict()
         }
@@ -52,27 +55,23 @@ class AuthenticationService:
         endpoint = f"{self.base_url}/password/nologin/_update"
         return self.api_client.post(
             endpoint,
-            json_data=payload
+            json_data=payload,
+            additional_headers=headers
         )
 
-    def logout(self, request_info: Optional[RequestInfo] = None, temp_auth_token: Optional[str] = None) -> Dict:
+    def logout(self, request_info: Optional[RequestInfo] = None) -> Dict:
         """
         Logout the user using their access token
         
         Args:
             request_info (Optional[RequestInfo]): Request information containing auth details
-            temp_auth_token (Optional[str]): Temporary authentication token for the request
             
         Returns:
             Dict: Response from the logout API
         """
         # Get request info for logout action if not provided
         if request_info is None:
-            request_info = RequestConfig.get_request_info(
-                action="POST",
-                msg_id="create-citizen-user",
-                temp_auth_token=temp_auth_token
-            )
+            request_info = RequestConfig.get_request_info()
         
         payload = {
             "RequestInfo": request_info.to_dict()

@@ -36,6 +36,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'requests>=2.25.1',
+        'jsonschema>=4.0.0',
     ],
     description='Python client for DIGIT services with authentication',
     author='eGov Foundation',
