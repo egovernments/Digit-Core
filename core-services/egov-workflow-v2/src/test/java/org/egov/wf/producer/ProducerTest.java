@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.egov.wf.config.WorkflowConfig;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.egov.common.utils.MultiStateInstanceUtil;
 
 @ContextConfiguration(classes = {Producer.class})
 @ExtendWith(SpringExtension.class)
@@ -24,14 +24,14 @@ class ProducerTest {
     @MockBean(name = "customKafkaTemplate")
     private CustomKafkaTemplate<String, Object> customKafkaTemplate;
 
+    @MockBean
+    private MultiStateInstanceUtil multiStateInstanceUtil;
+
     @Autowired
     private Producer producer;
 
     @MockBean
     private WorkflowConfig workflowConfig;
-
-    @MockBean
-    private MultiStateInstanceUtil multiStateInstanceUtil;
 
     @Test
     void testPush() {
@@ -41,7 +41,7 @@ class ProducerTest {
         when(customKafkaTemplate.send((String) any(), (Object) any())).thenReturn(
                 new SendResult<>(producerRecord, new RecordMetadata(new TopicPartition("Topic", 1), 1L, 1, 10L, 3, 3)));
         producer.push("42", "Topic", "Value");
-        verify(workflowConfig).getIsEnvironmentCentralInstance();
+        verify(multiStateInstanceUtil).getStateSpecificTopicName("42", "Topic");
         verify(customKafkaTemplate).send((String) any(), (Object) any());
     }
 
@@ -53,7 +53,7 @@ class ProducerTest {
         when(customKafkaTemplate.send((String) any(), (Object) any())).thenReturn(
                 new SendResult<>(producerRecord, new RecordMetadata(new TopicPartition("Topic", 1), 1L, 1, 10L, 3, 3)));
         producer.push("42", "Topic", "Value");
-        verify(workflowConfig).getIsEnvironmentCentralInstance();
+        verify(multiStateInstanceUtil).getStateSpecificTopicName("42", "Topic");
         verify(customKafkaTemplate).send((String) any(), (Object) any());
     }
 
@@ -65,7 +65,7 @@ class ProducerTest {
         when(customKafkaTemplate.send((String) any(), (Object) any())).thenReturn(
                 new SendResult<>(producerRecord, new RecordMetadata(new TopicPartition("Topic", 1), 1L, 1, 10L, 3, 3)));
         producer.push("org.egov.wf.producer.Producer", "Topic", "Value");
-        verify(workflowConfig).getIsEnvironmentCentralInstance();
+        verify(multiStateInstanceUtil).getStateSpecificTopicName("org.egov.wf.producer.Producer", "Topic");
         verify(customKafkaTemplate).send((String) any(), (Object) any());
     }
 }
