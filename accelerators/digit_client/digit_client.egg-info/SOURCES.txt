@@ -11,6 +11,7 @@ digit_client.egg-info/SOURCES.txt
 digit_client.egg-info/dependency_links.txt
 digit_client.egg-info/requires.txt
 digit_client.egg-info/top_level.txt
+digit_client/models/ActionRequest.py
 digit_client/models/AuthorizationRequest.py
 digit_client/models/__init__.py
 digit_client/models/auth.py

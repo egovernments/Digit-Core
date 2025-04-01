@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 from ..api_client import APIClient
 from ..models.AuthorizationRequest import AuthorizationRequest  # New model
 from ..request_config import RequestConfig, RequestInfo
+from ..models.ActionRequest import ActionRequest
 
 class AuthorizeService:
     def __init__(self, api_client: Optional[APIClient] = None):
@@ -34,4 +35,32 @@ class AuthorizeService:
             endpoint,
             json_data=payload,
             additional_headers=headers
+        )
+
+    def get_mdms_action(self,
+                        action_request: ActionRequest,
+                        request_info: Optional[RequestInfo] = None) -> Dict:
+        """
+        Get MDMS action details
+        
+        Args:
+            action_request: Parameters for the MDMS action request
+            request_info: Authentication and request metadata. If provided, will override the request_info in action_request
+            
+        Returns:
+            Dict: MDMS action response data
+        """
+        # If request_info is provided, update the action_request's request_info
+        if request_info:
+            action_request.request_info = request_info
+        else:
+            # If no request_info provided, use the global one
+            action_request.request_info = RequestConfig.get_request_info()
+
+        payload = action_request.to_dict()
+
+        endpoint = f"{self.base_url}/actions/mdms/_get"
+        return self.api_client.post(
+            endpoint,
+            json_data=payload
         )

@@ -1,12 +1,13 @@
 from digit_client.services import AuthorizeService
-from digit_client.models import AuthorizationRequest, Role, RoleBuilder, AuthorizationRequestBuilder
+from digit_client.models import AuthorizationRequest, Role, RoleBuilder, AuthorizationRequestBuilder, ActionRequest, ActionRequestBuilder, Action, ActionBuilder
 from digit_client.request_config import RequestConfig, RequestInfo
+
 
 authorize_service = AuthorizeService()
 RequestConfig.initialize(
     api_id="asset-services",
     version="1.0.0",
-    auth_token="a0cf23e2-6027-4eed-9d19-121fd2adddec",
+    auth_token="0e9b955f-5e25-4809-b680-97ef37ccf53f",
     msg_id="authorize_action",
     user_info={
         "id": "1",
@@ -36,6 +37,8 @@ authorization_request = AuthorizationRequestBuilder() \
 
 response = authorize_service.authorize_action(authorization_request)
 print(response) 
+
+print(authorize_service.get_mdms_action(ActionRequestBuilder().with_tenant_id("LMN").with_role_codes(["CITIZEN"]).with_actions([ActionBuilder().with_parent_module("TradeLicense").with_service_code("ASSET_SERVICE").build()]).build()))
 
 
 

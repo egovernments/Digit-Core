@@ -36,7 +36,7 @@ from .models.mdms_v2 import (
     
 )
 from .models.AuthorizationRequest import AuthorizationRequest, AuthorizationRequestBuilder, Role, RoleBuilder
-
+from .models.ActionRequest import ActionRequest, ActionBuilder, ActionRequestBuilder, Action
 __all__ = [
     'APIClient',
     'Config',
@@ -79,4 +79,8 @@ __all__ = [
     'AuthorizationRequestBuilder',
     'Role',
     'RoleBuilder',
+    'ActionRequest',
+    'ActionBuilder',
+    'ActionRequestBuilder',
+    'Action'
 ] 
