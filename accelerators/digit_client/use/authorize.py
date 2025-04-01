@@ -38,7 +38,7 @@ authorization_request = AuthorizationRequestBuilder() \
 response = authorize_service.authorize_action(authorization_request)
 print(response) 
 
-print(authorize_service.get_mdms_action(ActionRequestBuilder().with_tenant_id("LMN").with_role_codes(["CITIZEN"]).with_actions([ActionBuilder().with_parent_module("TradeLicense").with_service_code("ASSET_SERVICE").build()]).build()))
+print(authorize_service.get_mdms_action(ActionRequestBuilder().with_tenant_id("LMN").add_role_code("CITIZEN").with_actions([ActionBuilder().with_parent_module("TradeLicense").with_service_code("ASSET_SERVICE").build()]).build()))
 
 
 

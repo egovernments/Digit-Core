@@ -6,43 +6,40 @@ from digit_client.models.mdms import (
     MdmsCriteriaBuilder
 )
 from digit_client.request_config import RequestConfig, RequestInfo
-from digit_client.models.user_profile import UserRole, UserProfileUpdateBuilder
+from digit_client.models import Role, UserBuilder
 
 def example_mdms_search():
     # Initialize the MDMS service
     mdms_service = MDMSService()
     
     roles = [
-        UserRole(
+        Role(
             name="Employee",
             code="EMPLOYEE",
             tenant_id="LMN"
         ),
-        UserRole(
+        Role(
             name="System user",
             code="SYSTEM",
             tenant_id="LMN"
         ),
-        UserRole(
+        Role(
             name="Super User",
             code="SUPERUSER",
             tenant_id="LMN"
         )
     ]
-    auth_token="3a9dc53a-169a-4cfc-90bb-7a290f3fa9e4"
-    user_info = UserProfileUpdateBuilder()\
+    auth_token="0e9b955f-5e25-4809-b680-97ef37ccf53f"
+    user_info = UserBuilder()\
         .with_id(181)\
         .with_user_name("TestEggMUSTAKIMNK")\
         .with_uuid("4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92")\
-        .with_locale("string")\
         .with_type("EMPLOYEE")\
         .with_name("mustak")\
         .with_mobile_number("1234567890")\
         .with_email("xyz@egovernments.org")\
         .with_roles(roles)\
-        .with_active(True)\
         .with_tenant_id("LMN")\
-        .with_permanent_city("Kaikoo")\
         .build()
     # Initialize RequestConfig with user info
     RequestConfig.initialize(

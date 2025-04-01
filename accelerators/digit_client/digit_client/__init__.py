@@ -6,11 +6,11 @@ __version__ = "0.1.0"
 
 from .api_client import APIClient
 from .config import Config
-from .services import AuthenticationService, UserService, MDMSService, MDMSV2Service, AuthorizeService
+from .services import AuthenticationService, UserService, MDMSService, MDMSV2Service, AuthorizeService, WorkflowV2Service
 from .request_config import RequestConfig, RequestInfo, RequestInfoBuilder
 from .models.citizen_user import CitizenUser, Role, CitizenUserBuilder
-from .models.search_models import UserSearchModel
-from .models.user_profile import UserProfileUpdate, UserRole,UserProfileUpdateBuilder
+from .models.search_models import UserSearchModel, UserSearchModelBuilder
+from .models.user import User,UserBuilder
 from .models.auth import AuthenticationRequest, AuthenticationRequestBuilder
 from .models.mdms import (
     MdmsCriteriaReq, 
@@ -33,7 +33,18 @@ from .models.mdms_v2 import (
     MdmsBuilder,
     MdmsCriteriaV2,
     MdmsCriteriaV2Builder,
-    
+)
+from .models.workflow import (
+    Document,
+    DocumentBuilder,
+    WorkflowAction,
+    WorkflowActionBuilder,
+    State,
+    StateBuilder,
+    ProcessInstance,
+    ProcessInstanceBuilder,
+    ProcessInstanceSearchCriteria,
+    ProcessInstanceSearchCriteriaBuilder,
 )
 from .models.AuthorizationRequest import AuthorizationRequest, AuthorizationRequestBuilder, Role, RoleBuilder
 from .models.ActionRequest import ActionRequest, ActionBuilder, ActionRequestBuilder, Action
@@ -45,15 +56,16 @@ __all__ = [
     'MDMSService',
     'MDMSV2Service',
     'AuthorizeService',
+    'WorkflowV2Service',
     'RequestConfig',
     'RequestInfo',
     'RequestInfoBuilder',
     'CitizenUser',
     'Role',
     'UserSearchModel',
-    'UserProfileUpdate',
-    'UserRole',
-    'UserProfileUpdateBuilder',
+    'UserSearchModelBuilder',
+    'User',
+    'UserBuilder',
     'CitizenUserBuilder',
     'AuthenticationRequest',
     'AuthenticationRequestBuilder',
@@ -82,5 +94,14 @@ __all__ = [
     'ActionRequest',
     'ActionBuilder',
     'ActionRequestBuilder',
-    'Action'
+    'WorkflowAction',
+    'WorkflowActionBuilder',
+    'Document',
+    'DocumentBuilder',
+    'State',
+    'StateBuilder',
+    'ProcessInstance',
+    'ProcessInstanceBuilder',
+    'ProcessInstanceSearchCriteria',
+    'ProcessInstanceSearchCriteriaBuilder',
 ] 

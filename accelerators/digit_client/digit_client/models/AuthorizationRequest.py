@@ -20,12 +20,22 @@ class Role:
             raise ValueError("tenant_id must be at most 50 characters")
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "id": self.id,
-            "name": self.name,
-            "code": self.code,
-            "tenantId": self.tenant_id
-        }
+        result = {}
+        if self.id is not None:
+            result["id"] = self.id
+        if self.name is not None:
+            result["name"] = self.name
+        if self.code is not None:
+            result["code"] = self.code
+        if self.tenant_id is not None:
+            result["tenantId"] = self.tenant_id
+        return result
+
+    # def __setattr__(self, name, value):
+    #     if name in ['id', 'name', 'code', 'tenant_id']:
+    #         super().__setattr__(name, value)
+    #     else:
+    #         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
 @dataclass
 class AuthorizationRequest:

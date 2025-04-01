@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 from ..api_client import APIClient
 from ..models.citizen_user import CitizenUser
 from ..models.search_models import UserSearchModel
-from ..models.user_profile import UserProfileUpdate
+from ..models.user import User
 from ..request_config import RequestConfig, RequestInfo
 
 class UserService:
@@ -71,12 +71,12 @@ class UserService:
         endpoint = f"{self.base_url}/_details"
         return self.api_client.post(endpoint, json_data=payload, params=params)
 
-    def update_profile(self, user_profile: UserProfileUpdate, request_info: Optional[RequestInfo] = None) -> Dict:
+    def update_profile(self, user_profile: User, request_info: Optional[RequestInfo] = None) -> Dict:
         """
         Update user profile.
 
         Args:
-            user_profile (UserProfileUpdate): The updated user profile data
+            user_profile (User): The updated user profile data
             request_info (RequestInfo, optional): Custom RequestInfo to use. If not provided, uses global RequestConfig
 
         Returns:
@@ -141,12 +141,12 @@ class UserService:
         endpoint = f"{self.base_url}/users/_createnovalidate"
         return self.api_client.post(endpoint, json_data=payload)
 
-    def update_user_no_validate(self, user_profile: UserProfileUpdate, request_info: Optional[RequestInfo] = None) -> Dict:
+    def update_user_no_validate(self, user_profile: User, request_info: Optional[RequestInfo] = None) -> Dict:
         """
         Update a user without validation in the DIGIT platform.
         
         Args:
-            user_profile (UserProfileUpdate): The updated user profile data
+            user_profile (User): The updated user profile data
             request_info (RequestInfo, optional): Custom RequestInfo to use. If not provided, uses global RequestConfig
             
         Returns:
