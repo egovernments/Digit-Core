@@ -1,52 +1,107 @@
-# __init__.py for digit_client package
-import os
-import sys
-from pathlib import Path
+"""
+DIGIT Client Library for Python
+"""
 
-# Store auth file in the package directory instead of home
-PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
-AUTH_FILE = os.path.join(PACKAGE_DIR, '.digit_client_auth')
+__version__ = "0.1.0"
 
-def check_auth():
-    """Check if authentication has been done"""
-    try:
-        return os.path.exists(AUTH_FILE)
-    except Exception:
-        return False
-
-def perform_auth():
-    """Perform authentication"""
-    try:
-        # Ensure we import from the correct path
-        # sys.path.insert(0, os.path.dirname(PACKAGE_DIR))
-        from digit_client.pre_install import main as auth_main
-        
-        success, access_token = auth_main()
-        if success and access_token:
-            # Create auth file after successful authentication
-            try:
-                # with open(AUTH_FILE, 'w') as f:
-                #     f.write(access_token)
-                return True
-            except Exception as e:
-                print(f"Failed to create auth file: {e}")
-                return False
-        return False
-    except Exception as e:
-        print(f"Authentication error: {e}")
-        return False
-
-print("Initializing DIGIT Client...")
-# Check authentication on import
-if not check_auth():
-    print("\nAuthentication required for DIGIT Client")
-    if not perform_auth():
-        print("Authentication failed. Package cannot be used.")
-        sys.exit(1)
-    print("Authentication successful!")
-
-# Only import DigitAuth after successful authentication
-from .auth import DigitAuth
-
-__version__ = '0.1'
-__all__ = ['DigitAuth']
+from .api_client import APIClient
+from .config import Config
+from .services import AuthenticationService, UserService, MDMSService, MDMSV2Service, AuthorizeService, WorkflowV2Service
+from .request_config import RequestConfig, RequestInfo, RequestInfoBuilder
+from .models.citizen_user import CitizenUser, Role, CitizenUserBuilder
+from .models.search_models import UserSearchModel, UserSearchModelBuilder
+from .models.user import User,UserBuilder
+from .models.auth import AuthenticationRequest, AuthenticationRequestBuilder
+from .models.mdms import (
+    MdmsCriteriaReq, 
+    MdmsCriteriaReqBuilder,
+    MdmsCriteria,
+    MdmsCriteriaBuilder,
+    ModuleDetail,
+    ModuleDetailBuilder,
+    MasterDetail,
+    MasterDetailBuilder
+)
+from .models.mdms_v2 import (
+    SchemaDefinition,
+    SchemaDefinitionBuilder,
+    SchemaDefCriteria,
+    SchemaDefCriteriaBuilder,
+    AuditDetails,
+    AuditDetailsBuilder,
+    Mdms,
+    MdmsBuilder,
+    MdmsCriteriaV2,
+    MdmsCriteriaV2Builder,
+)
+from .models.workflow import (
+    Document,
+    DocumentBuilder,
+    WorkflowAction,
+    WorkflowActionBuilder,
+    State,
+    StateBuilder,
+    ProcessInstance,
+    ProcessInstanceBuilder,
+    ProcessInstanceSearchCriteria,
+    ProcessInstanceSearchCriteriaBuilder,
+)
+from .models.AuthorizationRequest import AuthorizationRequest, AuthorizationRequestBuilder, Role, RoleBuilder
+from .models.ActionRequest import ActionRequest, ActionBuilder, ActionRequestBuilder, Action
+__all__ = [
+    'APIClient',
+    'Config',
+    'AuthenticationService',
+    'UserService',
+    'MDMSService',
+    'MDMSV2Service',
+    'AuthorizeService',
+    'WorkflowV2Service',
+    'RequestConfig',
+    'RequestInfo',
+    'RequestInfoBuilder',
+    'CitizenUser',
+    'Role',
+    'UserSearchModel',
+    'UserSearchModelBuilder',
+    'User',
+    'UserBuilder',
+    'CitizenUserBuilder',
+    'AuthenticationRequest',
+    'AuthenticationRequestBuilder',
+    'MdmsCriteriaReq',
+    'MdmsCriteriaReqBuilder',
+    'MdmsCriteria',
+    'MdmsCriteriaBuilder',
+    'ModuleDetail',
+    'ModuleDetailBuilder',
+    'MasterDetail',
+    'MasterDetailBuilder',
+    'SchemaDefinition',
+    'SchemaDefinitionBuilder',
+    'SchemaDefCriteria',
+    'SchemaDefCriteriaBuilder',
+    'AuditDetails',
+    'AuditDetailsBuilder',
+    'Mdms',
+    'MdmsBuilder',
+    'MdmsCriteriaV2',
+    'MdmsCriteriaV2Builder',
+    'AuthorizationRequest',
+    'AuthorizationRequestBuilder',
+    'Role',
+    'RoleBuilder',
+    'ActionRequest',
+    'ActionBuilder',
+    'ActionRequestBuilder',
+    'WorkflowAction',
+    'WorkflowActionBuilder',
+    'Document',
+    'DocumentBuilder',
+    'State',
+    'StateBuilder',
+    'ProcessInstance',
+    'ProcessInstanceBuilder',
+    'ProcessInstanceSearchCriteria',
+    'ProcessInstanceSearchCriteriaBuilder',
+] 
