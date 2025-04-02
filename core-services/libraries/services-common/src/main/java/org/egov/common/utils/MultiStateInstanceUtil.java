@@ -51,13 +51,17 @@ public class MultiStateInstanceUtil {
 	public String replaceSchemaPlaceholder(String query, String tenantId) throws InvalidTenantIdException {
 
 		String finalQuery = null;
-		if (tenantId.contains(".") && getIsEnvironmentCentralInstance()) {
+		if (getIsEnvironmentCentralInstance()) {
 
 			if (stateSchemaIndexPositionInTenantId >= tenantId.length()) {
 				throw new InvalidTenantIdException(
 						"The tenantId length is smaller than the defined schema index in tenantId for central instance");
 			}
-			String schemaName = tenantId.split("\\.")[getStateSchemaIndexPositionInTenantId()];
+			String schemaName;
+			if(tenantId.contains("."))
+				schemaName = tenantId.split("\\.")[getStateSchemaIndexPositionInTenantId()];
+			else
+				schemaName = tenantId;
 			finalQuery = query.replaceAll("(?i)" + Pattern.quote(SCHEMA_REPLACE_STRING), schemaName);
 		} else {
 			finalQuery = query.replaceAll("(?i)" + Pattern.quote(SCHEMA_REPLACE_STRING.concat(".")), "");
@@ -129,8 +133,11 @@ public class MultiStateInstanceUtil {
 		if (getIsEnvironmentCentralInstance()) {
 
 			String[] tenants = tenantId.split("\\.");
-			if (tenants.length > 1)
+			if(tenantId.contains(".") && tenants.length > 1)
 				updatedTopic = tenants[stateSchemaIndexPositionInTenantId].concat("-").concat(topic);
+			else
+				updatedTopic = tenantId.concat("-").concat(topic);
+				
 		}
 		return updatedTopic;
 	}
