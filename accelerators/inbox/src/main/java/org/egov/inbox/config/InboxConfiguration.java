@@ -106,8 +106,8 @@ public class InboxConfiguration {
 	@Value("${egov.user.create.path}")
 	private String userCreateEndpoint;
 
-	@Value("${egov.internal.microservice.user.uuid}")
-	private String egovInternalMicroserviceUserUuid;
+	// @Value("${egov.internal.microservice.user.uuid}")
+	// private String egovInternalMicroserviceUserUuid;
 
 	@Value("${parent.level.tenant.id}")
 	private String parentLevelTenantId;
