@@ -40,7 +40,7 @@ public class RbacPreCheckFilter implements GlobalFilter, Ordered {
 
         String endPointPath = exchange.getRequest().getPath().value();
 
-        if(applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath) || anonymousEndpointsWhitelist.contains(endPointPath)){
+        if(applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath) || applicationProperties.getMixedModeEndpointsWhitelist().contains(endPointPath)){
             exchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, false);
             log.info(SKIP_RBAC, endPointPath);
         }

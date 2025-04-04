@@ -1,12 +1,14 @@
 package com.example.gateway;
 import com.example.gateway.config.ApplicationProperties;
 import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +19,7 @@ import java.util.List;
 @SpringBootApplication
 @RestController
 @PropertySource({"${spring.routes.filepath}"})
+//@Import({TracerConfiguration.class, MultiStateInstanceUtil.class})
 public class GatewayApplication {
 
 	@Autowired
