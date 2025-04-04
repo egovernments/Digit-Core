@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 import logger from "./config/logger";
-import producer from "./kafka/producer";
+const { producer } = require("./kafka/producer");
 import envVariables from "./EnvironmentVariables";
 import PDFMerger from 'pdf-merger-js';
 import { fileStoreAPICall, getFilestoreUrl } from "./utils/fileStoreAPICall";
@@ -106,25 +106,26 @@ export const insertStoreIds = (
   documentType,
   moduleName
 ) => {
-  var payloads = [];
+  
   var endtime = new Date().getTime();
   var id = uuidv4();
   let createJobKafkaTopic = envVariables.KAFKA_CREATE_JOB_TOPIC;
   if(isEnvironmentCentralInstance())
     createJobKafkaTopic = getUpdatedTopic(tenantId, createJobKafkaTopic);
 
-  payloads.push({
-    topic: createJobKafkaTopic,
-    messages: JSON.stringify({ jobs: dbInsertRecords })
+  
+  var messages = [];
+  messages.push({
+    value: JSON.stringify({ jobs: dbInsertRecords })
   });
-  producer.send(payloads, function(err, data) {
-    if (err) {
-      logger.error(err.stack || err);
-      errorCallback({
-        message: `error while publishing to kafka: ${err.message}`
-      });
-    } else {
-      logger.info("jobid: " + jobid + ": published to kafka successfully");
+  var payload = {
+    topic: createJobKafkaTopic,
+    messages: messages
+  }
+
+  producer.send(payload).then((data) => {
+    logger.info('Message sent to Kafka:', data);
+    logger.info("jobid: " + jobid + ": published to kafka successfully");
       successCallback({
         message: "Success",
         jobid: jobid,
@@ -137,8 +138,12 @@ export const insertStoreIds = (
         documentType,
         moduleName
       });
-    }
-  });
+  }).catch(err => {
+    logger.error(err.stack || err);
+    errorCallback({
+      message: `error while publishing to kafka: ${err.message}`
+    });
+  })
 };
 
 
@@ -239,20 +244,22 @@ export async function mergePdf(bulkPdfJobId, tenantId, userid, numberOfFiles, mo
           }
         } catch (error) {
           logger.error(error.stack || error);
-          var errorPlayloads = [];
-          
-          errorPlayloads.push({
+          var messages = [];
+          messages.push({
+            value: error
+          });
+          var errorPlayloads = {
             topic: envVariables.KAFKA_PDF_ERROR_TOPIC,
-            messages: error
-          });
-          producer.send(errorPlayloads, function(err, data) {
-            if (err) {
-              logger.error(err.stack || err);
-              errorCallback({
-                message: `error while publishing to kafka: ${err.message}`
-              });
-            } 
-          });
+            messages: messages
+          }
+          producer.send(errorPlayloads).then((data) => {
+            logger.info('Message sent to Kafka:', data);
+          }).catch(err => {
+            logger.error(err.stack || err);
+            errorCallback({
+              message: `error while publishing to kafka: ${err.message}`
+            });
+          })
         }
         
 
@@ -270,18 +277,19 @@ export async function sendNoitification(filestoreid, mobileNumber, tenantId){
   let smsRequest = {};
   smsRequest['mobileNumber'] = mobileNumber;
   smsRequest['message'] = "Your download is ready. It will expire in 24 hours. Please click on the link below to download the pdf.\n"+pdfLink;
-  let payloads = [];
-  payloads.push({
-    topic,
-    messages: JSON.stringify(smsRequest)
-  });
 
-  producer.send(payloads, function(err, data) {
-    if (!err) {
-      console.log(data);
-    } else {
-      console.log(err);
-    }
+  var messages = [];
+  messages.push({
+    value: JSON.stringify(smsRequest)
+  });
+  var payload = {
+    topic: topic,
+    messages: messages
+  }
+  producer.send(payload).then((data) => {
+    logger.info('Message sent to Kafka:', data);
+  }).catch(err => {
+    logger.error(err.stack || err);
   });
 }
 
