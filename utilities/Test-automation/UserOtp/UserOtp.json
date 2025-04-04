@@ -1,0 +1,207 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "4907bb19-7ea9-445c-9575-31a0ebed422e",
+        "name": "UserOtp",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-03-20T09:38:07.000Z",
+        "createdAt": "2024-03-20T09:03:01.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-4907bb19-7ea9-445c-9575-31a0ebed422e"
+      },
+      "item": [
+        {
+          "name": "Tc_sendOpt_005",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "deb0774e-04d5-4a0f-86fc-17ab65a78eef",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "b5c2c78a-3930-4276-9269-f4d87b29f5cc",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"otp\": {\r\n        //    \"userName\": \"Mujjaxyz\",\r\n        //  \"password\": \"Mujja@123N\",\r\n        \"mobileNumber\": \"9353822214\",\r\n        \"type\": \"login\",\r\n        \"tenantId\": \"pg\"\r\n        //,\r\n        //   \"userType\": \"EMPLOYEE\"\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user-otp/v1/_send",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user-otp",
+                "v1",
+                "_send"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-b5c2c78a-3930-4276-9269-f4d87b29f5cc"
+        },
+        {
+          "name": "Tc_sendOpt_007",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "052d298f-4dc3-4d57-a1a1-4d5bfd4c42dd",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "819ab41e-4212-49da-a80f-562714b1ecee",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"otp\": {\r\n       \r\n        \"mobileNumber\": \"0123456789\",\r\n        \"type\": \"login\",\r\n        \"tenantId\": \"pg\"\r\n        \r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user-otp/v1/_send",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user-otp",
+                "v1",
+                "_send"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-819ab41e-4212-49da-a80f-562714b1ecee"
+        },
+        {
+          "name": "Tc_sendOpt_006",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9b2173fe-3850-439d-b7f1-3d7a5a9215ce",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "3acf1822-05e1-4928-9bcd-fae4307ca190",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"otp\": {\r\n        \r\n        \"mobileNumber\": \"9090909090\",\r\n        \"type\": \"login\",\r\n        \"tenantId\": \"pg\"\r\n      \r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user-otp/v1/_send",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user-otp",
+                "v1",
+                "_send"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-3acf1822-05e1-4928-9bcd-fae4307ca190"
+        },
+        {
+          "name": "Tc_sendOpt_008",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "1f09e856-46bc-4478-b657-2e5119c0e17c",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "da740797-76d0-4aab-a544-b3a06eb89cd8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    },\r\n    \"otp\": {\r\n        //    \"userName\": \"Mujjaxyz\",\r\n        //  \"password\": \"Mujja@123N\",\r\n        \"mobileNumber\": \"1323334353\",\r\n        \"type\": \"login\",\r\n        \"tenantId\": \"pg\"\r\n        //,\r\n        //   \"userType\": \"EMPLOYEE\"\r\n    }\r\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user-otp/v1/_send",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user-otp",
+                "v1",
+                "_send"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-da740797-76d0-4aab-a544-b3a06eb89cd8"
+        }
+      ]
+    }
+  }

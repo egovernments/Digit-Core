@@ -1,0 +1,1221 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "925dc9b2-816f-4bd4-812e-c34d7d8b1c5e",
+        "name": "EncryptionAPIS",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-06-19T11:21:48.000Z",
+        "createdAt": "2024-01-24T05:00:20.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-925dc9b2-816f-4bd4-812e-c34d7d8b1c5e"
+      },
+      "item": [
+        {
+          "name": "Tc_Cr_EMP_001",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d53f460d-1cf0-4aef-839e-ac6eb1858c8f",
+                "exec": [
+                  "var userName;\r",
+                  "var password=\"passwordTest2@\";\r",
+                  "var type;\r",
+                  "var tenantId;\r",
+                  "var id;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   userName=jsonData.user[0].userName;\r",
+                  "   type=jsonData.user[0].type;\r",
+                  "   tenantId=jsonData.user[0].tenantId;\r",
+                  "   id=jsonData.user[0].id;\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"USERNAMe\",userName );\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"PASSWORd\", password);\r",
+                  "pm.collectionVariables.set(\"TYPe\", type);\r",
+                  "pm.collectionVariables.set(\"TENANTId\", tenantId);\r",
+                  "pm.collectionVariables.set(\"ID\", id);\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"id\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "f657bc06-6ebc-4e0d-bd64-ad48188a14d0",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token13}}\"\r\n    },\r\n    \"user\": {\r\n        \"userName\": \"{{UserForEncy}}\",\r\n        \"password\": \"passwordTest2@\",\r\n        \"salutation\": \"Ms\",\r\n        \"name\": \"mustak\",\r\n        \"gender\": \"MALE\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"altContactNumber\": \"\",\r\n        \"pan\": \"VFGGC5624P\",\r\n        \"aadhaarNumber\": \"96a70\",\r\n        \"permanentAddress\": \"Dawakhana\",\r\n        \"permanentCity\": \"Kaikoo\",\r\n        \"permanentPincode\": \"111111\",\r\n        \"correspondenceCity\": \"banglore\",\r\n        \"correspondencePincode\": \"123456\",\r\n        \"correspondenceAddress\": \"correAddress\",\r\n        \"active\": true,\r\n        \"dob\": \"08/08/1999\",\r\n        \"pwdExpiryDate\": null,\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"signature\": \"\",\r\n        \"accountLocked\": false,\r\n        \"fatherOrHusbandName\": \"Palash\",\r\n        \"bloodGroup\": \"O_POSITIVE\",\r\n        \"identificationMark\": \"Wears spects\",\r\n        \"photo\": \"a8a6cf1e-c84d-4a0c-b2d5-57ec8711ba25\",\r\n        \"otpReference\": \"14856\",\r\n        \"tenantId\": \"pg\",\r\n        \"roles\": [\r\n            {\r\n                \"code\": \"SUPERUSER\",\r\n                \"name\": \"Super User\",\r\n                \"description\": \"System Administrator. Can change all master data and has access to all the system screens.\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"EMPLOYEE\",\r\n                \"name\": \"Employee\",\r\n                \"description\": \"Default role for all employees\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"SYSTEM\",\r\n                \"name\": \"System\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"FSM_ADMIN\",\r\n                \"name\": \"FSM Administrator\",\r\n                \"description\": \"FSM Administrator\", \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"code\": \"FSM_DSO\",\r\n                \"name\": \"FSM Desluding Operator\",\r\n                \"description\": \"FSM Desluding Operator\", \"tenantId\": \"pg\"\r\n            }\r\n        ]\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user/users/_createnovalidate",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user",
+                "users",
+                "_createnovalidate"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-f657bc06-6ebc-4e0d-bd64-ad48188a14d0"
+        },
+        {
+          "name": "Tc_Lg_emp_001 Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "4b9c2228-ef40-4c93-a6dd-f9d071de6a25",
+                "exec": [
+                  "var Token_pg;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "   var jsonData = JSON.parse(responseBody);\r",
+                  "   Token_pg=jsonData.access_token;\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"TokenEncry\", Token_pg);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "0c2fc02a-e500-45c2-83e3-97be45f1169c",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "authority",
+                "value": "unified-dev.digit.org"
+              },
+              {
+                "key": "accept",
+                "value": "application/json, text/plain, */*"
+              },
+              {
+                "key": "accept-language",
+                "value": "en-GB,en-US;q=0.9,en;q=0.8"
+              },
+              {
+                "key": "authorization",
+                "value": "Basic ZWdvdi11c2VyLWNsaWVudDo="
+              },
+              {
+                "key": "content-type",
+                "value": "application/x-www-form-urlencoded"
+              },
+              {
+                "key": "cookie",
+                "value": "_ga_6130JJKLD4=GS1.1.1689144121.1.1.1689144147.34.0.0; _ga_2E44ZSYXS7=GS1.1.1693551022.10.0.1693551537.0.0.0; _ga=GA1.1.1506416593.1687179320; _ga_P1TZCPKF6S=GS1.1.1695629661.2.0.1695629664.57.0.0; _ga_H9YC8FEN6F=GS1.1.1696831541.125.1.1696831564.37.0.0; io=f_4QRb-VaOOVAUJ0AAAB; locale=en_IN; PGADMIN_LANGUAGE=en; __cuid=44ff2be0a12e4499973904b80d92ef3d; amp_fef1e8=21a46ed7-716d-4b59-aa13-c513dd00a213R...1hflua14j.1hflua14o.kq.46.p0; _ga_XBQP06FR8V=GS1.1.1700469736.4.0.1700469739.57.0.0; _oauth2_proxy=eyJFbWFpbCI6ImFuc2guZ295YWxAZWdvdmVybm1lbnRzLm9yZyIsIlVzZXIiOiJhbnNoLWVnb3YifQ==|1700724084|8Aayfxx0DRsJ4Lgw6jJiVnYjs_k="
+              },
+              {
+                "key": "origin",
+                "value": "https://unified-dev.digit.org"
+              },
+              {
+                "key": "referer",
+                "value": "https://unified-dev.digit.org/works-ui/employee/user/login?from=%2Fworks-ui%2Femployee"
+              },
+              {
+                "key": "sec-ch-ua",
+                "value": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\""
+              },
+              {
+                "key": "sec-ch-ua-mobile",
+                "value": "?0"
+              },
+              {
+                "key": "sec-ch-ua-platform",
+                "value": "\"Linux\""
+              },
+              {
+                "key": "sec-fetch-dest",
+                "value": "empty"
+              },
+              {
+                "key": "sec-fetch-mode",
+                "value": "cors"
+              },
+              {
+                "key": "sec-fetch-site",
+                "value": "same-origin"
+              },
+              {
+                "key": "user-agent",
+                "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "type": "text",
+                  "key": "username",
+                  "value": "{{USERNAMe}}"
+                },
+                {
+                  "type": "text",
+                  "key": "password",
+                  "value": "{{PASSWORd}}"
+                },
+                {
+                  "type": "text",
+                  "key": "userType",
+                  "value": "{{TYPe}}"
+                },
+                {
+                  "type": "text",
+                  "key": "tenantId",
+                  "value": "{{TENANTId}}"
+                },
+                {
+                  "type": "text",
+                  "key": "scope",
+                  "value": "read"
+                },
+                {
+                  "type": "text",
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user/oauth/token?_=1700804704480",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user",
+                "oauth",
+                "token"
+              ],
+              "query": [
+                {
+                  "key": "_",
+                  "value": "1700804704480"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-0c2fc02a-e500-45c2-83e3-97be45f1169c"
+        },
+        {
+          "name": "Tc_En_003",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "0cf116f8-7e48-402e-ab0e-ed7f4f644d16",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "var En3;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   En3=jsonData[0];\r",
+                  "  \r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"Enc3\",En3 );"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "19be2e8f-1970-4c99-80b2-72af8d27a7b6",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n    \"apiId\": null,\r\n    \"ver\": null,\r\n    \"ts\": null,\r\n    \"action\": \"POST\",\r\n    \"did\": null,\r\n    \"key\": null,\r\n    \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n    \"userInfo\": {\r\n        \"id\": 286,\r\n        \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n        \"userName\": \"TestTheEny\",\r\n        \"name\": \"mustak\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"roles\": [\r\n            {\r\n                \"name\": \"Employee\",\r\n                \"code\": \"EMPLOYEE\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"System user\",\r\n                \"code\": \"SYSTEM\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"Super User\",\r\n                \"code\": \"SUPERUSER\",\r\n                \"tenantId\": \"pg\"\r\n            }\r\n        ],\r\n        \"active\": true,\r\n        \"tenantId\": \"pg\",\r\n        \"permanentCity\": \"Kaikoo\"\r\n    },\r\n    \"authToken\": \"{{TokenEncry}}\"\r\n},\r\n   \"encryptionRequests\": [\r\n        {\r\n            \"tenantId\": \"pg\",\r\n            \"type\": \"Imp\",\r\n            \"value\": \"My email account\"\r\n        }\r\n    ]\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_encrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-19be2e8f-1970-4c99-80b2-72af8d27a7b6"
+        },
+        {
+          "name": "Tc_Dc_003",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "fa2ab803-843f-4de9-a76c-836af507cdfd",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"My email account\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "de0fdc56-d47e-4461-b938-f96396c29f0f",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n     [\r\n        \"896077|I/8Xwqr5MwB6UucEP8/Q5wiCHpbaNqGE\",\r\n        \"896077|I+gMx6TjN0BcLxudEiYQKIDKtSlmpJY=\"\r\n    ]\r\n\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_decrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_decrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-de0fdc56-d47e-4461-b938-f96396c29f0f"
+        },
+        {
+          "name": "Tc_En_005",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "07821251-3894-4f10-9436-ac5281e33c6a",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "var En3;\r",
+                  "var En3_1;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   En3=jsonData[0];\r",
+                  "   En3_1=jsonData[1];\r",
+                  "  \r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"Enc5_0\",En3 );\r",
+                  "pm.collectionVariables.set(\"Enc5_1\",En3_1 );"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "dace91b0-22ff-42db-8814-8471218fa739",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{  \r\n     \"RequestInfo\": {\r\n    \"apiId\": null,\r\n    \"ver\": null,\r\n    \"ts\": null,\r\n    \"action\": \"POST\",\r\n    \"did\": null,\r\n    \"key\": null,\r\n    \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n    \"userInfo\": {\r\n        \"id\": 286,\r\n        \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n        \"userName\": \"TestTheEny\",\r\n        \"name\": \"mustak\",\r\n        \"mobileNumber\": \"1234567890\",\r\n        \"emailId\": \"xyz@egovernments.org\",\r\n        \"locale\": \"string\",\r\n        \"type\": \"EMPLOYEE\",\r\n        \"roles\": [\r\n            {\r\n                \"name\": \"Employee\",\r\n                \"code\": \"EMPLOYEE\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"System user\",\r\n                \"code\": \"SYSTEM\",\r\n                \"tenantId\": \"pg\"\r\n            },\r\n            {\r\n                \"name\": \"Super User\",\r\n                \"code\": \"SUPERUSER\",\r\n                \"tenantId\": \"pg\"\r\n            }\r\n        ],\r\n        \"active\": true,\r\n        \"tenantId\": \"pg\",\r\n        \"permanentCity\": \"Kaikoo\"\r\n    },\r\n    \"authToken\": \"{{TokenEncry}}\"\r\n},\r\n    \"encryptionRequests\": [\r\n        {\r\n            \"tenantId\": \"pg\",\r\n            \"type\": \"Imp\",\r\n            \"value\": \"My email account\"\r\n        },\r\n        {\r\n            \"tenantId\": \"pg\",\r\n            \"type\": \"Imp\",\r\n            \"value\": \"My email account\"\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-dace91b0-22ff-42db-8814-8471218fa739"
+        },
+        {
+          "name": "Tc_Dc_005",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "03a71ad7-4114-47df-bc98-668d3dcf665f",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"My email account\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "448ca6ef-12ad-41f9-9597-586aa9210b8c",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    \"{{Enc5_0}}\",\r\n    \"{{Enc5_1}}\"\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_decrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_decrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-448ca6ef-12ad-41f9-9597-586aa9210b8c"
+        },
+        {
+          "name": "Tc_En_006",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "40ce1a46-aff8-43d4-bc16-35496916f93a",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "var En3;\r",
+                  "var En3_1;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   En3=jsonData[0];\r",
+                  "   En3_1=jsonData[1];\r",
+                  "  \r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"Enc6_0\",En3 );\r",
+                  "pm.collectionVariables.set(\"Enc6_1\",En3_1 );"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "03b4dfe8-9294-4cbe-8415-1d92e607a9f2",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 286,\r\n            \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n            \"userName\": \"TestTheEny\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{TokenEncry}}\"\r\n    },\r\n    \"encryptionRequests\": [\r\n        {\r\n            \"tenantId\": \"pg\",\r\n            \"type\": \"Imp\",\r\n            \"value\": \"My email account\"\r\n        },\r\n        {\r\n            \"tenantId\": \"pg\",\r\n            \"type\": \"Normal\",\r\n            \"value\": \"My email account\"\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-03b4dfe8-9294-4cbe-8415-1d92e607a9f2"
+        },
+        {
+          "name": "Tc_Dc_006",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8e23927e-48ad-4c35-978d-6076c882c1dd",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"My email account\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "4cf7566c-cf67-4807-9cf8-b3174076e7c6",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    \"{{Enc6_0}}\",\r\n    \"{{Enc6_1}}\"\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_decrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_decrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-4cf7566c-cf67-4807-9cf8-b3174076e7c6"
+        },
+        {
+          "name": "NTc_En_007 Gateway",
+          "id": "71414ab6-2287-42be-bd42-c6e6f94140fe",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 286,\r\n            \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n            \"userName\": \"TestTheEny\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{TokenEncry}}\"\r\n    }, \"encryptionRequests\": [\r\n        {\r\n            \"tenantId\": \"pb\",\r\n            \"type\": \"Imp\",\r\n            \"value\": 1234\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-71414ab6-2287-42be-bd42-c6e6f94140fe"
+        },
+        {
+          "name": "NTC_En_008",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "c8e0dbd7-351a-4a6f-8ca0-4ed314465110",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"null\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "0d95a0d8-ff2b-4cd2-acd1-1c8ee72edac5",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 286,\r\n            \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n            \"userName\": \"TestTheEny\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{TokenEncry}}\"\r\n    },\r\n                \"encryptionRequests\": [\r\n                  {\r\n                    \"tenantId\": \"pg\",\r\n                    \"type\": \"Imp\",\r\n                    \"value\": null\r\n                  }\r\n                ]\r\n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-0d95a0d8-ff2b-4cd2-acd1-1c8ee72edac5"
+        },
+        {
+          "name": "NTc_En_009",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ede67754-5850-4f1a-9212-ee055aad2544",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "var En3;\r",
+                  "var En3_1;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   En3=jsonData[0];\r",
+                  "   En3_1=jsonData[1];\r",
+                  "  \r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"Enc9\",En3 );\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "55919f3f-5e38-449d-943c-11fd69014e71",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{  \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 286,\r\n            \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n            \"userName\": \"TestTheEny\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{TokenEncry}}\"\r\n    },\r\n                \"encryptionRequests\": [\r\n                  {\r\n                    \"tenantId\": \"pg\",\r\n                    \"type\": \"Imp\",\r\n                    \"value\": 1234.5\r\n                  }\r\n                ]\r\n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-55919f3f-5e38-449d-943c-11fd69014e71"
+        },
+        {
+          "name": "Tc_Dc_009",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "03a71ad7-4114-47df-bc98-668d3dcf665f",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"1234.5\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "3314995b-5653-4b55-bed8-eb7b6e35fedf",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    \"{{Enc9}}\"\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_decrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_decrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-3314995b-5653-4b55-bed8-eb7b6e35fedf"
+        },
+        {
+          "name": "Tc_En_010",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "bb10707d-f02c-4198-913c-dd4abc5916c1",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "var En3;\r",
+                  "var En3_1;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   En3=jsonData[0][0];\r",
+                  "   En3_1=jsonData[0][1];\r",
+                  "  \r",
+                  "  \r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"Enc10_0\",En3 );\r",
+                  "pm.collectionVariables.set(\"Enc10_1\",En3 );\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "b3efd523-1b4b-442f-9edd-f4100147c5c7",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n       \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 286,\r\n            \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n            \"userName\": \"TestTheEny\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{TokenEncry}}\"\r\n    },\r\n            \"encryptionRequests\": [\r\n                  {\r\n                    \"tenantId\": \"pg\",\r\n                    \"type\": \"Normal\",\r\n                    \"value\": [\r\n                      \"mustakim\",\r\n                      \"koujalagi\"\r\n                    ]\r\n                  }\r\n                ]\r\n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-b3efd523-1b4b-442f-9edd-f4100147c5c7"
+        },
+        {
+          "name": "Tc_Dc_0010",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "03a71ad7-4114-47df-bc98-668d3dcf665f",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"mustakim\");\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"koujalagi\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "f8328956-49ea-4bbf-bd39-92f3b2d31ee6",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    [\r\n        \"{{Enc10_0}}\",\r\n        \"{{Enc10_1}}\"\r\n    ]\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_decrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_decrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-f8328956-49ea-4bbf-bd39-92f3b2d31ee6"
+        },
+        {
+          "name": "Tc_En_011",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f1fd1feb-840c-4755-ac2f-9e525d8f82cc",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "var En3;\r",
+                  "var En3_1;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   En3=jsonData[0][0];\r",
+                  "   En3_1=jsonData[0][1];\r",
+                  "  \r",
+                  "  \r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"Enc11_0\",En3 );\r",
+                  "pm.collectionVariables.set(\"Enc11_1\",En3_1 );\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "19ee73fe-fb95-4fac-b7bf-f14dbc0ba2c4",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n       \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 286,\r\n            \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n            \"userName\": \"TestTheEny\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{TokenEncry}}\"\r\n    },\r\n             \"encryptionRequests\": [\r\n                  {\r\n                    \"tenantId\": \"pg\",\r\n                    \"type\": \"Imp\",\r\n                    \"value\": [\r\n                      \"mustakim\",\r\n                      \"koujalagi\"\r\n                    ]\r\n                  }\r\n                ]\r\n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-19ee73fe-fb95-4fac-b7bf-f14dbc0ba2c4"
+        },
+        {
+          "name": "Tc_Dc_0011",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "03a71ad7-4114-47df-bc98-668d3dcf665f",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"mustakim\");\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"koujalagi\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "e5ff2824-fed2-43dc-adc5-54057b6ee83b",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    [\r\n        \"{{Enc11_0}}\",\r\n        \"{{Enc11_1}}\"\r\n    ]\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_decrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_decrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-e5ff2824-fed2-43dc-adc5-54057b6ee83b"
+        },
+        {
+          "name": "Tc_En_012",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ccc24d18-3c2f-4449-b550-78c802e3b1f9",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "var En3;\r",
+                  "var En3_1;\r",
+                  "pm.test(\"Your test name\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "   En3=jsonData[0][0].userObject1.mobileNumber;\r",
+                  "   En3_1=jsonData[0][0].userObject1.name;\r",
+                  "  \r",
+                  "  \r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"Enc12_0\",En3 );\r",
+                  "pm.collectionVariables.set(\"Enc12_1\",En3_1 );\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "e7916316-73e3-4088-b900-9c2295dc909b",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n      \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 286,\r\n            \"uuid\": \"c4428962-73fc-42f1-b533-52e81d40d001\",\r\n            \"userName\": \"TestTheEny\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{TokenEncry}}\"\r\n    },\r\n             \"encryptionRequests\": [\r\n                  {\r\n                    \"tenantId\": \"pg\",\r\n                    \"type\": \"Normal\",\r\n                    \"value\": [\r\n                        [\"mustakim\",\"koujalagi\"],\r\n                    {\r\n                    \"userObject1\": {\r\n                        \"name\": \"John Doe\",\r\n                        \"mobileNumber\": \"98989121234\"\r\n                    }\r\n                    }\r\n                    ] \r\n                  }\r\n                ]\r\n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8081/egov-enc-service/crypto/v1/_encrypt",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_encrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-e7916316-73e3-4088-b900-9c2295dc909b"
+        },
+        {
+          "name": "Tc_Dc_0012",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "03a71ad7-4114-47df-bc98-668d3dcf665f",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"98989121234\");\r",
+                  "});\r",
+                  "pm.test(\"Body matches string\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"John Doe\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "id": "13a37fe9-d99a-4403-a8c5-dd8763404115",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    [\r\n        {\r\n            \"userObject1\": {\r\n                \"mobileNumber\": \"{{Enc12_0}}\",\r\n                \"name\": \"{{Enc12_1}}\"\r\n            }\r\n        }\r\n    ]\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/egov-enc-service/crypto/v1/_decrypt",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "egov-enc-service",
+                "crypto",
+                "v1",
+                "_decrypt"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-13a37fe9-d99a-4403-a8c5-dd8763404115"
+        }
+      ],
+      "variable": [
+        {
+          "key": "encrypt",
+          "value": "crypto/v1/_encrypt"
+        },
+        {
+          "key": "USERNAMe",
+          "value": ""
+        },
+        {
+          "key": "PASSWORd",
+          "value": ""
+        },
+        {
+          "key": "TYPe",
+          "value": ""
+        },
+        {
+          "key": "TENANTId",
+          "value": ""
+        },
+        {
+          "key": "ID",
+          "value": ""
+        },
+        {
+          "key": "TokenEncry",
+          "value": ""
+        },
+        {
+          "key": "Enc3",
+          "value": ""
+        },
+        {
+          "key": "Enc5",
+          "value": ""
+        },
+        {
+          "key": "Enc5_0",
+          "value": ""
+        },
+        {
+          "key": "Enc5_1",
+          "value": ""
+        },
+        {
+          "key": "Enc6_0",
+          "value": ""
+        },
+        {
+          "key": "Enc6_1",
+          "value": ""
+        },
+        {
+          "key": "Enc9",
+          "value": ""
+        },
+        {
+          "key": "Enc10_0",
+          "value": ""
+        },
+        {
+          "key": "Enc10_1",
+          "value": ""
+        },
+        {
+          "key": "Enc10",
+          "value": ""
+        },
+        {
+          "key": "Enc11_0",
+          "value": ""
+        },
+        {
+          "key": "Enc11_1",
+          "value": ""
+        },
+        {
+          "key": "Enc12_0",
+          "value": ""
+        },
+        {
+          "key": "Enc12_1",
+          "value": ""
+        }
+      ]
+    }
+  }

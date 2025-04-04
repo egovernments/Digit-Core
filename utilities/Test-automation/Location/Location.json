@@ -1,0 +1,296 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "34f66801-d946-46b9-952b-06db74abffef",
+        "name": "location",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-02-19T06:10:26.000Z",
+        "createdAt": "2024-02-12T10:14:23.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-34f66801-d946-46b9-952b-06db74abffef"
+      },
+      "item": [
+        {
+          "name": "SearchBoundry_pg cityb",
+          "id": "07be618d-2897-495f-a3bf-e3722a264d5b",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token13}}\"\r\n    }\r\n    // ,\r\n    // \"Boundary\": {\r\n    // \t\"name\" : \"test\",\r\n    // \t\"tenantId\" : \"default\",\r\n    // \t\"code\" : \"TEST\",\r\n    // \t\"boundaryType\" : {\r\n    // \t\t\"code\" : \"2\"\r\n    // \t},\r\n    // \t\"boundaryNum\" : 2\r\n    // }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/egov-location/location/v11/boundarys/_search?tenantId=pg.cityb&hierarchyTypeCode=REVENU",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "egov-location",
+                "location",
+                "v11",
+                "boundarys",
+                "_search"
+              ],
+              "query": [
+                {
+                  "key": "tenantId",
+                  "value": "pg.cityb"
+                },
+                {
+                  "key": "boundaryType",
+                  "value": "City",
+                  "disabled": true
+                },
+                {
+                  "key": "hierarchyTypeCode",
+                  "value": "REVENU"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-07be618d-2897-495f-a3bf-e3722a264d5b"
+        },
+        {
+          "name": "SearchBoundry_pg citya",
+          "id": "7a649b19-ff54-4dd2-b99f-20f9c625b221",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"5b899769-a279-45bc-8ef8-eb7e48ab8001\"\r\n    }\r\n //https://github.com/egovernments/egov-mdms-data/blob/DEV/data/pb/phagwara/egov-location/boundary-data.json\r\n//  label indicates  boundaryType\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://unified-dev.digit.org/egov-location/location/v11/boundarys/_search?tenantId=pg.citya&hierarchyTypeCode=REVENUE",
+              "protocol": "http",
+              "host": [
+                "unified-dev",
+                "digit",
+                "org"
+              ],
+              "path": [
+                "egov-location",
+                "location",
+                "v11",
+                "boundarys",
+                "_search"
+              ],
+              "query": [
+                {
+                  "key": "tenantId",
+                  "value": "pg.citya"
+                },
+                {
+                  "key": "boundaryType",
+                  "value": "City",
+                  "disabled": true
+                },
+                {
+                  "key": "hierarchyTypeCode",
+                  "value": "REVENUE"
+                },
+                {
+                  "key": "hierarchyTypeCode",
+                  "value": "ADMIN",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-7a649b19-ff54-4dd2-b99f-20f9c625b221"
+        },
+        {
+          "name": "SearchBoundry_pg cityc",
+          "id": "6f45d9e9-7d7d-4f58-a3f2-dbe10a6ee851",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token13}}\"\r\n    }\r\n //https://github.com/egovernments/egov-mdms-data/blob/DEV/data/pb/phagwara/egov-location/boundary-data.json\r\n//  label indicates  boundaryType\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://digit-lts.digit.org/egov-location/location/v11/boundarys/_search?tenantId=pg.cityc&hierarchyTypeCode=REVENUE",
+              "protocol": "http",
+              "host": [
+                "digit-lts",
+                "digit",
+                "org"
+              ],
+              "path": [
+                "egov-location",
+                "location",
+                "v11",
+                "boundarys",
+                "_search"
+              ],
+              "query": [
+                {
+                  "key": "tenantId",
+                  "value": "pg.cityc"
+                },
+                {
+                  "key": "boundaryType",
+                  "value": "City",
+                  "disabled": true
+                },
+                {
+                  "key": "hierarchyTypeCode",
+                  "value": "REVENUE"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-6f45d9e9-7d7d-4f58-a3f2-dbe10a6ee851"
+        },
+        {
+          "name": "SearchBoundry_pg cityd",
+          "id": "6a367e36-4acd-4719-ac9c-cf6831b54fa3",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n //https://github.com/egovernments/egov-mdms-data/blob/DEV/data/pb/phagwara/egov-location/boundary-data.json\r\n//  label indicates  boundaryType\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://digit-lts.digit.org/egov-location/location/v11/boundarys/_search?tenantId=pg.cityd&hierarchyTypeCode=REVENUE",
+              "protocol": "https",
+              "host": [
+                "digit-lts",
+                "digit",
+                "org"
+              ],
+              "path": [
+                "egov-location",
+                "location",
+                "v11",
+                "boundarys",
+                "_search"
+              ],
+              "query": [
+                {
+                  "key": "tenantId",
+                  "value": "pg.cityd"
+                },
+                {
+                  "key": "boundaryType",
+                  "value": "City",
+                  "disabled": true
+                },
+                {
+                  "key": "hierarchyTypeCode",
+                  "value": "ADMIN",
+                  "disabled": true
+                },
+                {
+                  "key": "hierarchyTypeCode",
+                  "value": "REVENUE"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-6a367e36-4acd-4719-ac9c-cf6831b54fa3"
+        },
+        {
+          "name": "SearchBoundry_pg citye",
+          "id": "cce75c86-b925-4a98-bfc2-6af74164c66a",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": " {\"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"3f5af673-c392-49f0-bf0b-debf565eabc8\"\r\n    }\r\n }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/localization/messages/v1/_search?locale=punjab&tenantId=pg&module=Bank KB_ALPHA&codes=M1k1mm",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "localization",
+                "messages",
+                "v1",
+                "_search"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "punjab"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg"
+                },
+                {
+                  "key": "module",
+                  "value": "Bank KB_ALPHA"
+                },
+                {
+                  "key": "codes",
+                  "value": "M1k1mm"
+                },
+                {
+                  "key": "boundaryType",
+                  "value": "City E",
+                  "disabled": true
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pb.mohali",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-cce75c86-b925-4a98-bfc2-6af74164c66a"
+        }
+      ]
+    }
+  }

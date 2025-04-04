@@ -1,0 +1,1189 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "fb88e6c1-6328-45b2-8c58-1a1bc9289e9d",
+        "name": "localization",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-07-02T13:34:04.000Z",
+        "createdAt": "2024-05-23T09:10:07.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-fb88e6c1-6328-45b2-8c58-1a1bc9289e9d"
+      },
+      "item": [
+        {
+          "name": "CreateMassages",
+          "item": [
+            {
+              "name": "create messages1_Copy",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "128d2fb2-9e13-4d76-91ef-f459b8a0a9c9",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "var code;\r",
+                      "var locale;\r",
+                      "var module;\r",
+                      "var tenantId=\"pg\";\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      "   code=jsonData.messages[0].code;\r",
+                      "   locale=jsonData.messages[0].locale;\r",
+                      "   module=jsonData.messages[0].module;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"Message1tenantId\", tenantId);\r",
+                      "pm.collectionVariables.set(\"Message1code\", code);\r",
+                      "pm.collectionVariables.set(\"Message1locale\", locale);\r",
+                      "pm.collectionVariables.set(\"Message1module\", module);\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "3dea6f96-a5a7-44c2-9d0e-35854279d643",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": null,\n        \"ver\": null,\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\n        \"userInfo\": {\n            \"id\": 181,\n            \"userName\": \"TestEggMUSTAKIMNK\",\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\n            \"locale\": \"string\",\n            \"type\": \"EMPLOYEE\",\n            \"name\": \"mustak\",\n            \"mobileNumber\": \"1234567890\",\n            \"alternatemobilenumber\": null,\n            \"emailId\": \"xyz@egovernments.org\",\n            \"roles\": [\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"System user\",\n                    \"code\": \"SYSTEM\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Super User\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pg\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pg\",\n            \"permanentCity\": \"Kaikoo\"\n        },\n        \"authToken\": \"{{Token1}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"messages\": [\n        {\n            \"code\": \"{{code1}}\",\n            \"locale\": \"{{locale1}}\",\n            \"module\": \"Bank KB_BETA\",\n            \"message\": \"456\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_create",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_create"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-3dea6f96-a5a7-44c2-9d0e-35854279d643"
+            },
+            {
+              "name": "create messages1_Copy 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "df77c04d-f23f-487e-b7c7-a81cb9c89c24",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "var code;\r",
+                      "var locale;\r",
+                      "var module;\r",
+                      "var tenantId=\"pg\";\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      "   code=jsonData.messages[0].code;\r",
+                      "   locale=jsonData.messages[0].locale;\r",
+                      "   module=jsonData.messages[0].module;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"Message1tenantId\", tenantId);\r",
+                      "pm.collectionVariables.set(\"Message1code\", code);\r",
+                      "pm.collectionVariables.set(\"Message1locale\", locale);\r",
+                      "pm.collectionVariables.set(\"Message1module\", module);\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "815159c6-977c-4403-b0eb-9c3ccd7ebc34",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": null,\n        \"ver\": null,\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\n        \"userInfo\": {\n            \"id\": 181,\n            \"userName\": \"TestEggMUSTAKIMNK\",\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\n            \"locale\": \"string\",\n            \"type\": \"EMPLOYEE\",\n            \"name\": \"mustak\",\n            \"mobileNumber\": \"1234567890\",\n            \"alternatemobilenumber\": null,\n            \"emailId\": \"xyz@egovernments.org\",\n            \"roles\": [\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"System user\",\n                    \"code\": \"SYSTEM\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Super User\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pg\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pg\",\n            \"permanentCity\": \"Kaikoo\"\n        },\n        \"authToken\": \"{{Token1}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"messages\": [\n        {\n            \"code\": \"{{code1}}\",\n            \"locale\": \"{{locale1}}\",\n            \"module\": \"Bank KB_GAMA\",\n            \"message\": \"789\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_create",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_create"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-815159c6-977c-4403-b0eb-9c3ccd7ebc34"
+            },
+            {
+              "name": "create messages 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "33ffdcf0-6a90-48de-aceb-7197233f5b3a",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "bd572537-bd22-4783-bb08-ac3e9c52e981",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": \"null\",\n        \"ver\": \"null\",\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"8c11c5ca-03bd-11e7-93ae-92361f002671\",\n        \"userInfo\": {\n        \"id\": 281,\n        \"uuid\": \"255d6b05-103d-4c13-a920-3b6b43fde75f\",\n        \"userName\": \"ExXTRAMnkLL\",\n        \"name\": \"mustak\",\n        \"mobileNumber\": \"1234567890\",\n        \"emailId\": \"xyz@egovernments.org\",\n        \"locale\": \"string\",\n        \"type\": \"EMPLOYEE\",\n        \"roles\": [\n            {\n                \"name\": \"System user\",\n                \"code\": \"SYSTEM\",\n                \"tenantId\": \"pg\"\n            }\n        ],\n        \"active\": true,\n        \"tenantId\": \"pg\",\n        \"permanentCity\": \"Kaikoo\"\n    },\n        \"authToken\": \"{{Token1}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"messages\": [\n        {\n            \"code\": \"{{code2}}\",\n            \"locale\": \"{{locale2}}\",\n            \"module\": \"Bank KB_ALPHA\",\n            \"message\": \"123\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_create",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_create"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-bd572537-bd22-4783-bb08-ac3e9c52e981"
+            },
+            {
+              "name": "create messages 2 Copy",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "279ad4b7-783b-4fe5-a536-76e9c6327ba2",
+                    "exec": [
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"Combination of tenant, locale, module and code should be unique.\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "e4e98606-977d-4fc8-8f7f-4fcd2de2f11b",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": \"null\",\n        \"ver\": \"null\",\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"8c11c5ca-03bd-11e7-93ae-92361f002671\",\n        \"userInfo\": {\n        \"id\": 281,\n        \"uuid\": \"255d6b05-103d-4c13-a920-3b6b43fde75f\",\n        \"userName\": \"ExXTRAMnkLL\",\n        \"name\": \"mustak\",\n        \"mobileNumber\": \"1234567890\",\n        \"emailId\": \"xyz@egovernments.org\",\n        \"locale\": \"string\",\n        \"type\": \"EMPLOYEE\",\n        \"roles\": [\n            {\n                \"name\": \"System user\",\n                \"code\": \"SYSTEM\",\n                \"tenantId\": \"pg\"\n            }\n        ],\n        \"active\": true,\n        \"tenantId\": \"pg\",\n        \"permanentCity\": \"Kaikoo\"\n    },\n        \"authToken\": \"{{Token1}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"messages\": [\n        {\n           \"code\": \"{{code2}}\",\n            \"locale\": \"{{locale2}}\",\n            \"module\": \"Bank KB_ALPHA\",\n            \"message\": \"123\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_create",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_create"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-e4e98606-977d-4fc8-8f7f-4fcd2de2f11b"
+            },
+            {
+              "name": "create messages 3",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "a6a7f6e7-cbac-4bb4-bad8-9de8747bf301",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "\r",
+                      "var code;\r",
+                      "var locale;\r",
+                      "var module;\r",
+                      "var tenantId=\"pg\";\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      "   code=jsonData.messages[0].code;\r",
+                      "   locale=jsonData.messages[0].locale;\r",
+                      "   module=jsonData.messages[0].module;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"Message3tenantId\", tenantId);\r",
+                      "pm.collectionVariables.set(\"Message3code\", code);\r",
+                      "pm.collectionVariables.set(\"Message3locale\", locale);\r",
+                      "pm.collectionVariables.set(\"Message3module\", module);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "2782f2fa-b377-4be9-9f25-29d73d64c6a3",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": \"null\",\n        \"ver\": \"null\",\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"8c11c5ca-03bd-11e7-93ae-92361f002671\",\n        \"userInfo\": {\n        \"id\": 281,\n        \"uuid\": \"255d6b05-103d-4c13-a920-3b6b43fde75f\",\n        \"userName\": \"ExXTRAMnkLL\",\n        \"name\": \"mustak\",\n        \"mobileNumber\": \"1234567890\",\n        \"emailId\": \"xyz@egovernments.org\",\n        \"locale\": \"string\",\n        \"type\": \"EMPLOYEE\",\n        \"roles\": [\n            {\n                \"name\": \"System user\",\n                \"code\": \"SYSTEM\",\n                \"tenantId\": \"pg\"\n            }\n        ],\n        \"active\": true,\n        \"tenantId\": \"pg\",\n        \"permanentCity\": \"Kaikoo\"\n    },\n        \"authToken\": \"{{Token1}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"messages\": [\n        {\n            \"code\": \"{{code3}}\",\n            \"locale\": \"{{locale3}}\",\n            \"module\": \"Bank AF\",\n            \"message\": \"xyzmAF\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_create",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_create"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-2782f2fa-b377-4be9-9f25-29d73d64c6a3"
+            },
+            {
+              "name": "create messages 3 Copy",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "e8a3d24c-a5ae-41c4-b99f-52d65b9ed777",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "var locale;\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      " \r",
+                      "   locale=jsonData.messages[0].locale;\r",
+                      "  \r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"Message3locale_sec\", locale);\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "6348b1e5-ecee-4865-95c9-70ac1e89da46",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": \"null\",\n        \"ver\": \"null\",\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"8c11c5ca-03bd-11e7-93ae-92361f002671\",\n        \"userInfo\": {\n        \"id\": 281,\n        \"uuid\": \"255d6b05-103d-4c13-a920-3b6b43fde75f\",\n        \"userName\": \"ExXTRAMnkLL\",\n        \"name\": \"mustak\",\n        \"mobileNumber\": \"1234567890\",\n        \"emailId\": \"xyz@egovernments.org\",\n        \"locale\": \"string\",\n        \"type\": \"EMPLOYEE\",\n        \"roles\": [\n            {\n                \"name\": \"System user\",\n                \"code\": \"SYSTEM\",\n                \"tenantId\": \"pg\"\n            }\n        ],\n        \"active\": true,\n        \"tenantId\": \"pg\",\n        \"permanentCity\": \"Kaikoo\"\n    },\n        \"authToken\": \"{{Token1}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"messages\": [\n        {\n             \"code\": \"{{code3}}\",\n            \"locale\": \"{{locale3_sub}}\",\n            \"module\": \"Bank AF\",\n            \"message\": \"xyzmAF\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_create",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_create"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-6348b1e5-ecee-4865-95c9-70ac1e89da46"
+            },
+            {
+              "name": "create messages4",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "7cab547d-56bf-459f-88f7-b2b5d0110b61",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "var code;\r",
+                      "var locale;\r",
+                      "var module;\r",
+                      "var tenantId=\"pg\";\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "   var jsonData = JSON.parse(responseBody);\r",
+                      "   module=jsonData.messages[0].module;\r",
+                      "});\r",
+                      "\r",
+                      "pm.collectionVariables.set(\"Message4tenantId\", tenantId);\r",
+                      "pm.collectionVariables.set(\"Message4module\", module);\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "f8657597-f27b-4cd7-92fd-66c8032c4e6e",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": null,\n        \"ver\": null,\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\n        \"userInfo\": {\n            \"id\": 181,\n            \"userName\": \"TestEggMUSTAKIMNK\",\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\n            \"locale\": \"string\",\n            \"type\": \"EMPLOYEE\",\n            \"name\": \"mustak\",\n            \"mobileNumber\": \"1234567890\",\n            \"alternatemobilenumber\": null,\n            \"emailId\": \"xyz@egovernments.org\",\n            \"roles\": [\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"System user\",\n                    \"code\": \"SYSTEM\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Super User\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pg\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pg\",\n            \"permanentCity\": \"Kaikoo\"\n        },\n        \"authToken\": \"{{Token1}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"messages\": [\n        {\n            //code is unique for the massage , locale is mandatory,We can have same code, locale and massages for diffrent modul\n            \"code\": \"{{code4}}\",\n            \"locale\": \"{{locale4}}\",\n            \"module\": \"Bank KB_ALPHA\",\n            \"message\": \"The massage\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_create",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_create"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-f8657597-f27b-4cd7-92fd-66c8032c4e6e"
+            }
+          ],
+          "id": "d807df45-e976-4c58-98dc-dad6040d3800",
+          "uid": "32355655-d807df45-e976-4c58-98dc-dad6040d3800"
+        },
+        {
+          "name": "fetchMassages",
+          "item": [
+            {
+              "name": "fetch messages1",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "fe363032-1bae-4050-99d2-57569fea28b0",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData.messages[0].message).to.eql(\"789\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "ebdb2128-de6e-437f-a863-6a434e1a1c00",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n }"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_search?locale={{Message1locale}}&tenantId={{Message1tenantId}}&module={{Message1module}}&codes={{Message1code}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "locale",
+                      "value": "{{Message1locale}}"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "{{Message1tenantId}}"
+                    },
+                    {
+                      "key": "module",
+                      "value": "{{Message1module}}"
+                    },
+                    {
+                      "key": "codes",
+                      "value": "{{Message1code}}"
+                    }
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-ebdb2128-de6e-437f-a863-6a434e1a1c00"
+            },
+            {
+              "name": "fetch messages1_sec",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "00c39103-8976-4fc1-a513-bbad93b72b49",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData.messages[1].message).to.eql(\"123\");\r",
+                      "});\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData.messages[2].message).to.eql(\"456\");\r",
+                      "});\r",
+                      "pm.test(\"Your test name\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData.messages[0].message).to.eql(\"789\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "381e1bea-22d7-4f7e-b6d0-6587e6bffa1a",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n }"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_search?locale={{Message1locale}}&tenantId={{Message1tenantId}}&module={{Message1module}}&codes={{Message1code}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "locale",
+                      "value": "{{Message1locale}}"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "{{Message1tenantId}}"
+                    },
+                    {
+                      "key": "module",
+                      "value": "{{Message1module}}"
+                    },
+                    {
+                      "key": "codes",
+                      "value": "{{Message1code}}"
+                    }
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-381e1bea-22d7-4f7e-b6d0-6587e6bffa1a"
+            },
+            {
+              "name": "fetch messages 3",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "74f25aa1-2cb6-4c0a-9156-349c1946cc31",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "c092e14f-674e-45f7-b2b9-1a428792fdd2",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_search?locale={{Message3locale}}&tenantId={{Message3tenantId}}&module={{Message3module}}&codes={{Message3code}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "locale",
+                      "value": "{{Message3locale}}"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "{{Message3tenantId}}"
+                    },
+                    {
+                      "key": "module",
+                      "value": "{{Message3module}}"
+                    },
+                    {
+                      "key": "codes",
+                      "value": "{{Message3code}}"
+                    }
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-c092e14f-674e-45f7-b2b9-1a428792fdd2"
+            },
+            {
+              "name": "fetch messages 3 _sec",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "1635be6d-7551-4106-9569-74478c85f5a5",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"messages\");\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "a346ca2f-5cf1-405d-afee-5ccec60fc29e",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_search?locale={{Message3locale_sec}}&tenantId={{Message3tenantId}}&module={{Message3module}}&codes={{Message3code}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "locale",
+                      "value": "{{Message3locale_sec}}"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "{{Message3tenantId}}"
+                    },
+                    {
+                      "key": "module",
+                      "value": "{{Message3module}}"
+                    },
+                    {
+                      "key": "codes",
+                      "value": "{{Message3code}}"
+                    }
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-a346ca2f-5cf1-405d-afee-5ccec60fc29e"
+            }
+          ],
+          "id": "ed4baf72-958a-4cf0-bcf5-b45fde6312d5",
+          "uid": "32355655-ed4baf72-958a-4cf0-bcf5-b45fde6312d5"
+        },
+        {
+          "name": "updateMassages",
+          "item": [
+            {
+              "name": "update messages 4",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "a3c5f717-cd50-4939-877d-127d867ea06b",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"The first massage updated\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "00f3340c-5592-48a5-86db-cc0dc4144c8a",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": null,\n        \"ver\": null,\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\n        \"userInfo\": {\n            \"id\": 181,\n            \"userName\": \"TestEggMUSTAKIMNK\",\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\n            \"locale\": \"string\",\n            \"type\": \"EMPLOYEE\",\n            \"name\": \"mustak\",\n            \"mobileNumber\": \"1234567890\",\n            \"alternatemobilenumber\": null,\n            \"emailId\": \"xyz@egovernments.org\",\n            \"roles\": [\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"System user\",\n                    \"code\": \"SYSTEM\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Super User\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pg\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pg\",\n            \"permanentCity\": \"Kaikoo\"\n        },\n        \"authToken\": \"{{Token13}}\"\n    },\n    \"tenantId\": \"pg\",\n    \"locale\": \"MNK_LOCALE4A\",\n    \"module\": \"Bank KB_ALPHA\",\n    \"messages\": [\n        {\n            \"code\": \"MNK_CODE4Aim\",\n            \"message\": \"The first massage updated 1\"\n        }\n    ]\n            \n}\n\n"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_update",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_update"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-00f3340c-5592-48a5-86db-cc0dc4144c8a"
+            },
+            {
+              "name": "fetch messages upd 4",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "13d32802-a395-481c-9f7c-5a8b9b09dd4f",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"The first massage updated\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "e7615aa3-0827-458f-b9c0-e668c1a4f4c8",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n }"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_search?locale=MNK_LOCALE4A&tenantId={{Message4tenantId}}&module=Bank KB_ALPHA&codes=MNK_CODE4Aim",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "locale",
+                      "value": "MNK_LOCALE4A"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "{{Message4tenantId}}"
+                    },
+                    {
+                      "key": "module",
+                      "value": "Bank KB_ALPHA"
+                    },
+                    {
+                      "key": "codes",
+                      "value": "MNK_CODE4Aim"
+                    }
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-e7615aa3-0827-458f-b9c0-e668c1a4f4c8"
+            }
+          ],
+          "id": "0467fa02-bac9-4f4d-a484-0d66f168d68e",
+          "uid": "32355655-0467fa02-bac9-4f4d-a484-0d66f168d68e"
+        },
+        {
+          "name": "Delete Massages",
+          "item": [
+            {
+              "name": "delete messages",
+              "id": "19c3883c-537a-43c7-8c16-d8ae5339f224",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n     \"RequestInfo\": {\n        \"apiId\": null,\n        \"ver\": null,\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\n        \"userInfo\": {\n            \"id\": 181,\n            \"userName\": \"TestEggMUSTAKIMNK\",\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\n            \"locale\": \"string\",\n            \"type\": \"EMPLOYEE\",\n            \"name\": \"mustak\",\n            \"mobileNumber\": \"1234567890\",\n            \"alternatemobilenumber\": null,\n            \"emailId\": \"xyz@egovernments.org\",\n            \"roles\": [\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"System user\",\n                    \"code\": \"SYSTEM\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Super User\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pg\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pg\",\n            \"permanentCity\": \"Kaikoo\"\n        },\n        \"authToken\": \"{{Token13}}\"\n    },\n    \"tenantId\": \"{{Message4tenantId}}\",\n    \"messages\": [\n        {\n            \"code\": \"{{code4}}\",\n            \"module\": \"{{Message4module}}\",\n            \"locale\": \"{{locale4}}\",\n            \"message\": \"The first massage updated\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_delete",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_delete"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-19c3883c-537a-43c7-8c16-d8ae5339f224"
+            },
+            {
+              "name": "fetch messages upd 4 Copy",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "695e0ffc-0705-4c65-95b8-4cfab1752f50",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"null\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "ae9ccdb1-ae08-4e6c-917a-b21bdb2433c6",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n }"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_search?locale={{locale4}}&tenantId={{Message4tenantId}}&module={{Message4module}}&codes={{code4}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "locale",
+                      "value": "{{locale4}}"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "{{Message4tenantId}}"
+                    },
+                    {
+                      "key": "module",
+                      "value": "{{Message4module}}"
+                    },
+                    {
+                      "key": "codes",
+                      "value": "{{code4}}"
+                    }
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-ae9ccdb1-ae08-4e6c-917a-b21bdb2433c6"
+            }
+          ],
+          "id": "f57c4df7-2d4a-4270-8f90-09941b27f22b",
+          "uid": "32355655-f57c4df7-2d4a-4270-8f90-09941b27f22b"
+        },
+        {
+          "name": "brust localisaiton",
+          "item": [
+            {
+              "name": "bust localization cache",
+              "id": "db1f929c-e2b3-47cc-89a8-a101abe39966",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8081/localization/messages/cache-bust",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8081",
+                  "path": [
+                    "localization",
+                    "messages",
+                    "cache-bust"
+                  ]
+                },
+                "description": "Bust Redis cache for localization messages"
+              },
+              "response": [],
+              "uid": "32355655-db1f929c-e2b3-47cc-89a8-a101abe39966"
+            }
+          ],
+          "id": "ff546408-1340-4913-be79-f576d8beda53",
+          "uid": "32355655-ff546408-1340-4913-be79-f576d8beda53"
+        },
+        {
+          "name": "Upsert",
+          "item": [
+            {
+              "name": "Upsert_001",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "3ec93db7-89d5-478a-b98f-83c23cb0b9bd",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"The first massage updated\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "e766f8c9-25ee-4983-9307-0a37381a0204",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"RequestInfo\": {\n        \"apiId\": null,\n        \"ver\": null,\n        \"ts\": null,\n        \"action\": \"POST\",\n        \"did\": null,\n        \"key\": null,\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\n        \"userInfo\": {\n            \"id\": 181,\n            \"userName\": \"TestEggMUSTAKIMNK\",\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\n            \"locale\": \"string\",\n            \"type\": \"EMPLOYEE\",\n            \"name\": \"mustak\",\n            \"mobileNumber\": \"1234567890\",\n            \"alternatemobilenumber\": null,\n            \"emailId\": \"xyz@egovernments.org\",\n            \"roles\": [\n                {\n                    \"name\": \"Employee\",\n                    \"code\": \"EMPLOYEE\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"System user\",\n                    \"code\": \"SYSTEM\",\n                    \"tenantId\": \"pg\"\n                },\n                {\n                    \"name\": \"Super User\",\n                    \"code\": \"SUPERUSER\",\n                    \"tenantId\": \"pg\"\n                }\n            ],\n            \"active\": true,\n            \"tenantId\": \"pg\",\n            \"permanentCity\": \"Kaikoo\"\n        },\n        \"authToken\": \"{{Token13}}\"\n    },\n    \"tenantId\": \"pg\",\n    \n   \n    \"messages\": [\n        {\n            \"code\": \"MNK_CODE4A MB1\",\n            \"message\": \"The first massage updated\",\n            \"locale\": \"MNK_LOCALE4A\",\n            \"module\": \"Bank KB_ALPHA\"\n        }\n    ]\n            \n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/localization/messages/v1/_upsert",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "localization",
+                    "messages",
+                    "v1",
+                    "_upsert"
+                  ]
+                },
+                "description": "Fetch messages for given locale"
+              },
+              "response": [],
+              "uid": "32355655-e766f8c9-25ee-4983-9307-0a37381a0204"
+            }
+          ],
+          "id": "3ba459e5-6da7-4505-a9e6-b6c2aea91a0c",
+          "uid": "32355655-3ba459e5-6da7-4505-a9e6-b6c2aea91a0c"
+        }
+      ],
+      "variable": [
+        {
+          "key": "Message1code",
+          "value": ""
+        },
+        {
+          "key": "Message1massage",
+          "value": ""
+        },
+        {
+          "key": "Message1module",
+          "value": ""
+        },
+        {
+          "key": "Message1tenantId",
+          "value": ""
+        },
+        {
+          "key": "Message1locale",
+          "value": ""
+        },
+        {
+          "key": "Message3tenantId",
+          "value": ""
+        },
+        {
+          "key": "Message3code",
+          "value": ""
+        },
+        {
+          "key": "Message3locale",
+          "value": ""
+        },
+        {
+          "key": "Message3module",
+          "value": ""
+        },
+        {
+          "key": "Message3locale_sec",
+          "value": ""
+        },
+        {
+          "key": "Message4tenantId",
+          "value": ""
+        },
+        {
+          "key": "Message4module",
+          "value": ""
+        }
+      ]
+    }
+  }
