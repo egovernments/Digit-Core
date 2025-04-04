@@ -184,6 +184,14 @@ config:
       - work-dir: "core-services/mdms-v2/src/main/resources/db"
         image-name: "mdms-v2-db"
 
+  - name: "builds/Digit-Core/core-services/MDMS-v2"
+    build:
+      - work-dir: "core-services/MDMS-v2"
+        image-name: "NDNS-v2"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/MDMS-v2/src/main/resources/db"
+        image-name: "MDMS-v2-db"
+
   - name: "builds/Digit-Core/core-services/egov-notification-mail"
     build:
       - work-dir: "core-services/egov-notification-mail"
