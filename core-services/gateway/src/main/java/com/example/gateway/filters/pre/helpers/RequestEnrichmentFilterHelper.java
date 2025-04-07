@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.factory.rewrite.RewriteFunction;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -63,7 +64,8 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
         addRequestHeaders(exchange, body);
         if (Objects.isNull(body)) {
             return Mono.empty();
-        } else return Mono.just(body);
+        }
+        return Mono.just(body);
     }
 
     private void addRequestHeaders(ServerWebExchange exchange, Map body) {
@@ -76,13 +78,16 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
 
         String correlationId = (String) exchange.getAttributes().get(CORRELATION_ID_KEY);
         String TenantId = (String) exchange.getAttributes().get(TENANTID_MDC);
-
-        exchange.getRequest().mutate().headers(httpHeaders -> {
-            httpHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId);
-            if (centralInstanceUtil.getIsEnvironmentCentralInstance()) {
-                httpHeaders.add(REQUEST_TENANT_ID_KEY, TenantId);
-            }
-        });
+        ServerHttpRequest mutatedRequest = exchange.getRequest()
+                .mutate()
+                .headers(httpHeaders -> {
+                    httpHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId);
+                    // Conditional header addition
+                    if (centralInstanceUtil.getIsEnvironmentCentralInstance()) {
+                        httpHeaders.add(REQUEST_TENANT_ID_KEY, TenantId);
+                    }
+                })
+                .build();
     }
 
     private void addUserInfoHeader(ServerWebExchange exchange, Map body) {
@@ -94,7 +99,7 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }).build();
             logger.info(ADDED_USER_INFO_TO_HEADER_MESSAGE);
         }
     }
@@ -107,7 +112,7 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
     private void addPassThroughGatewayHeader(ServerWebExchange exchange) {
         exchange.getRequest().mutate().headers(httpHeaders -> {
             httpHeaders.add(PASS_THROUGH_GATEWAY_HEADER_NAME, PASS_THROUGH_GATEWAY_HEADER_VALUE);
-        });
+        }).build();
     }
 
     private boolean isUserInfoPresent(Map body) {
