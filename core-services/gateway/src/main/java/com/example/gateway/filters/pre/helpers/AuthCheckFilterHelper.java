@@ -11,13 +11,10 @@ import org.reactivestreams.Publisher;
 import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.factory.rewrite.RewriteFunction;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import java.util.Map;
 
-import static com.example.gateway.constants.GatewayConstants.AUTH_TOKEN;
 import java.util.Set;
 
 import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_NAME_PASCAL_CASE;
@@ -46,7 +43,7 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
     public Publisher<Map> apply(ServerWebExchange serverWebExchange, Map body) {
         try {
             RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-            requestInfo.setUserInfo(userUtils.getUser(requestInfo.getAuthToken()));
+            requestInfo.setUserInfo(userUtils.getUser(requestInfo.getAuthToken(), serverWebExchange));
             body.put(REQUEST_INFO_FIELD_NAME_PASCAL_CASE, requestInfo);
 
             if (centralInstanceUtil.getIsEnvironmentCentralInstance()) {

@@ -103,23 +103,6 @@ public class CommonUtils {
                 .orElse("");
     }
 
-
-    public String getLowLevelTenantIdFromSet(Set<String> tenants) {
-
-        String lowLevelTenant = null;
-        int countOfSubTenantsPresent = 0;
-
-        for (String tenant : tenants) {
-            int currentCount = tenant.split("\\.").length;
-            if (currentCount >= countOfSubTenantsPresent) {
-                countOfSubTenantsPresent = currentCount;
-                lowLevelTenant = tenant;
-            }
-        }
-        return lowLevelTenant;
-    }
-
-
     public Set<String> validateRequestAndSetRequestTenantId(ServerWebExchange exchange, Map body) {
 
         return getTenantIdsFromRequest(exchange.getRequest(), body);
@@ -243,6 +226,8 @@ public class CommonUtils {
             // Throw a custom exception
             throw new CustomException("AUTHENTICATION_ERROR", ex.getMessage());
         }
+    }
+
     /**
      * Picks the lowest level tenantId from the set of state all levels of tenants
      *
