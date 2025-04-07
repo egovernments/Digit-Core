@@ -234,7 +234,7 @@ public class CommonUtils {
      * @param tenants
      * @return
      */
-    public String getLowLevelTenatFromSet(Set<String> tenants) {
+    public String getLowLevelTenantIdFromSet(Set<String> tenants) {
 
         String lowLevelTenant = null;
         int countOfSubTenantsPresent = 0;

@@ -52,7 +52,7 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
                 /*
                  * Adding tenantId to header for tracer logging with correlation-id and routing
                  */
-                String singleTenantId = commonUtils.getLowLevelTenatFromSet(tenantIds);
+                String singleTenantId = commonUtils.getLowLevelTenantIdFromSet(tenantIds);
                 MDC.put(TENANTID_MDC, singleTenantId);
                 serverWebExchange.getAttributes().put(TENANTID_MDC, singleTenantId);
             }
