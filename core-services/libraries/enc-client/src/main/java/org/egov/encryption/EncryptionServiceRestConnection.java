@@ -15,14 +15,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.Base64;
 
 @Component
 @Slf4j
 public class EncryptionServiceRestConnection {
-
-//    private static final Logger log = LoggerFactory.getLogger(EncryptionServiceRestConnection.class);
 
     // Vault host (ensure trailing slash if needed)
     @Value("${vault.host}")
@@ -32,7 +31,7 @@ public class EncryptionServiceRestConnection {
     @Value("${vault.root.token}")
     private String vaultRootToken;
 
-    // Not used directly if using k8s token.
+    // Optionally configured token – not used if using k8s auth.
     @Value("${vault.token}")
     private String vaultToken;
 
@@ -48,6 +47,7 @@ public class EncryptionServiceRestConnection {
     @Value("${vault.decrypt.path}")
     private String vaultDecryptPath;
 
+    // The encryption context (for deterministic encryption)
     @Value("${vault.encrypt.context}")
     private String CONTEXT;
 
@@ -63,20 +63,24 @@ public class EncryptionServiceRestConnection {
     @Autowired
     private JsonFieldUtil jsonFieldUtil;
 
+    // Optionally, if you want to capture a mobile number value from a field
+    // during extraction you could continue to do so.
+    // (In our revised approach all fields are processed uniformly.)
+    private String capturedMobile = null;
 
     /**
-     * Encrypts the given value by extracting its fields recursively,
-     * building a Vault batch encryption request, and merging the resulting
-     * ciphertexts back into the original structure.
+     * Encrypts the given value by extracting its fields recursively, building a Vault batch encryption request,
+     * merging the resulting ciphertexts back into the original structure and (if applicable) appending a hashed
+     * version of the mobile number.
      *
      * @param tenantId Tenant identifier.
      * @param type     A type parameter (not used here).
      * @param value    The object to encrypt.
-     * @return The merged object with encrypted field values.
+     * @return The merged object with encrypted field values and, if available, the "hashedmobilenumber" field.
      */
     public Object callEncrypt(String tenantId, String type, Object value) {
         try {
-            // Optional: if the input is a JSON string, parse it into an Object.
+            // (Optionally) parse the value if it is a JSON string.
             if (value instanceof String) {
                 String s = ((String) value).trim();
                 if (s.startsWith("{") || s.startsWith("[")) {
@@ -89,7 +93,10 @@ public class EncryptionServiceRestConnection {
                 }
             }
 
+            // Deep copy the original object.
             Object original = jsonFieldUtil.deepCopy(value);
+
+            // Recursively extract all fields.
             List<JsonFieldUtil.Field> fields = jsonFieldUtil.extractFields(value);
             log.debug("Extracted {} field(s): {}", fields.size(), fields);
             if (fields.isEmpty()) {
@@ -104,13 +111,19 @@ public class EncryptionServiceRestConnection {
                 entry.put("plaintext", encoded);
                 entry.put("context", CONTEXT);
                 batchInput.add(entry);
+
+                // (Optional) If you want to capture a mobile number from any field,
+                // you could check the field name here. For example:
+                 if (f.getPath().toLowerCase().contains("mobilenumber") && capturedMobile == null) {
+                     capturedMobile = f.getValue();
+                 }
             }
             Map<String, Object> requestPayload = new LinkedHashMap<>();
             requestPayload.put("batch_input", batchInput);
             String jsonPayload = objectMapper.writeValueAsString(requestPayload);
             log.debug("Vault encryption request payload: {}", jsonPayload);
 
-            // Build URL using StringBuilder.
+            // Build the Vault encryption URL.
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(vaultHost);
             if (!vaultHost.endsWith("/")) {
@@ -148,12 +161,35 @@ public class EncryptionServiceRestConnection {
                 }
                 ciphertexts.add(result.get("ciphertext").asText());
             }
+            // Build a map from field paths to ciphertexts.
             Map<String, String> encryptedFields = new LinkedHashMap<>();
             for (int i = 0; i < fields.size(); i++) {
                 encryptedFields.put(fields.get(i).getPath(), ciphertexts.get(i));
             }
             log.debug("Encrypted fields mapping: {}", encryptedFields);
+
+            // Merge the encrypted fields back into the deep copy.
             Object merged = jsonFieldUtil.mergeEncryptedFields(original, encryptedFields);
+
+            // -----------------------------------------------------------------
+            // Append hashedmobile number (if applicable) using a separate function.
+            // In this example, if a mobile number was captured during extraction,
+            // we add a new key "hashedmobilenumber" computed via getHashedMobile().
+            // (You can uncomment and modify the following block if desired.)
+            // -----------------------------------------------------------------
+            if (capturedMobile != null) {
+                merged = appendHashedMobileNumber(merged, capturedMobile);
+            }
+            if (merged instanceof Map) {
+                Map<String, Object> mergedMap = (Map<String, Object>) merged;
+                Object mobile = mergedMap.get("mobileNumber");
+                if (mobile != null && mobile instanceof String) {
+                    String hashed = getHashedMobile(mobile.toString());
+                    mergedMap.put("hashedmobilenumber", hashed);
+                }
+            }
+            // -----------------------------------------------------------------
+
             return merged;
         } catch (Exception e) {
             log.error("Error in callEncrypt", e);
@@ -162,8 +198,8 @@ public class EncryptionServiceRestConnection {
     }
 
     /**
-     * Decrypts the given object (produced by callEncrypt) by extracting its fields,
-     * sending a batch decryption request to Vault, and merging the decrypted values back.
+     * Decrypts the given object (produced by callEncrypt) by extracting its fields recursively,
+     * building a Vault batch decryption request, and merging the decrypted values back.
      *
      * @param tenantId The tenant identifier.
      * @param input    The object to decrypt.
@@ -189,6 +225,7 @@ public class EncryptionServiceRestConnection {
             String jsonPayload = objectMapper.writeValueAsString(requestPayload);
             log.debug("Vault decryption request payload: {}", jsonPayload);
 
+            // Build the Vault decryption URL.
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(vaultHost);
             if (!vaultHost.endsWith("/")) {
@@ -240,7 +277,9 @@ public class EncryptionServiceRestConnection {
         }
     }
 
-    // Creates HTTP headers with the Vault token (using Kubernetes auth with fallback).
+    // -------------------------------------------------------------------------
+    // Helper method to create HTTP headers with proper Vault token.
+    // Uses the VaultAuthService to obtain a token, falling back to the root token if needed.
     private HttpHeaders createHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -253,5 +292,44 @@ public class EncryptionServiceRestConnection {
         }
         headers.set("X-Vault-Token", token);
         return headers;
+    }
+
+    // -------------------------------------------------------------------------
+    // Separate function to compute a SHA-256 hash of a mobile number.
+    // This method can be reused later in the search flow.
+    public String getHashedMobile(String mobile) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(mobile.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1)
+                hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    /**
+     * Helper method to append a "hashedmobilenumber" key to the merged object.
+     * If the merged object is a Map, the key is added at the root.
+     * If it is a List, each element (if it is a Map) gets the key.
+     *
+     * @param merged      The merged object.
+     * @param mobilePlain The plaintext mobile number.
+     * @return The modified merged object containing "hashedmobilenumber".
+     */
+    public Object appendHashedMobileNumber(Object merged, String mobilePlain) throws Exception {
+        String hashed = getHashedMobile(mobilePlain);
+        if (merged instanceof Map) {
+            ((Map<String, Object>) merged).put("hashedmobilenumber", hashed);
+        } else if (merged instanceof List) {
+            for (Object element : (List<Object>) merged) {
+                if (element instanceof Map) {
+                    ((Map<String, Object>) element).put("hashedmobilenumber", hashed);
+                }
+            }
+        }
+        return merged;
     }
 }
