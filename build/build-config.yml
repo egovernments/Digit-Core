@@ -474,6 +474,12 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/TenantManagement/src/main/resources/db"
         image-name: "tenant-management-db"
+
+  - name: "builds/Digit-Core/core-services/keycloak-spi"
+    build:
+      - work-dir: "core-services/keycloak-spi"
+        image-name: "keycloak"
+        dockerfile: "core-services/keycloak-spi/Dockerfile"
   
   # PGR AI chatbot
   - name: "builds/Digit-Core/accelerators/pgr-ai-chatbot"
