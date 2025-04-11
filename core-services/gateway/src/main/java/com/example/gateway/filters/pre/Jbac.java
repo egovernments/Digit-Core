@@ -43,7 +43,7 @@ public class Jbac implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         Boolean jbacFlag = exchange.getAttribute(JBAC_BOOLEAN_FLAG_NAME);
-        if (Boolean.FALSE.equals(jbacFlag)) chain.filter(exchange);
+        if (Boolean.FALSE.equals(jbacFlag)) return chain.filter(exchange);
 
         // extract the code {boundary_id} from header
         String boundaryId = exchange.getRequest().getHeaders().getFirst(BOUNDARY_ID);
