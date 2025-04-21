@@ -32,18 +32,19 @@ jobs:
         service: [ "${{ github.event.inputs.service }}" ]
     outputs:
       docker_image: ${{ steps.save_docker_image.outputs.docker_image }}
-      db_image: ${{ steps.save_db_image.outputs.db_image }}
+      db_image:     ${{ steps.save_db_image.outputs.db_image }}
     steps:
-      - name: Checkout Code from selected branch
+      - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.branch }}
+          # use the manual-input branch if provided, otherwise use the ref from push
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        
+
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3  
+        uses: docker/setup-qemu-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -62,13 +63,14 @@ jobs:
       - name: Generate the Next Tag
         id: tag
         run: |
-          BRANCH=${{ github.event.inputs.branch }}
+          BRANCH=${{ github.event.inputs.branch || github.ref_name }}
           COMMIT_HASH=$(git rev-parse --short HEAD)
           SERVICE_NAME=${{ matrix.service }}
 
           TOKEN=$(curl -s -X POST "https://hub.docker.com/v2/users/login/" \
             -H "Content-Type: application/json" \
-            -d '{"username": "'$DOCKER_USERNAME'", "password": "'$DOCKER_PASSWORD'"}' | jq -r .token)
+            -d "{\"username\":\"$DOCKER_USERNAME\",\"password\":\"$DOCKER_PASSWORD\"}" \
+            | jq -r .token)
 
           REPO_CHECK=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: JWT $TOKEN" \
@@ -78,16 +80,17 @@ jobs:
             NEXT_TAG="${BRANCH}-${COMMIT_HASH}"
           else
             EXISTING_TAGS=$(curl -s -H "Authorization: JWT $TOKEN" \
-              "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$SERVICE_NAME/tags?page_size=100" | jq -r '.results[].name')
+              "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$SERVICE_NAME/tags?page_size=100" \
+              | jq -r '.results[].name')
 
-            LATEST_TAG=$(echo "$EXISTING_TAGS" | grep "^${BRANCH}-${COMMIT_HASH}" | sort -V )
-            if [ -z "$LATEST_TAG" ]; then
+            # if no exact match, use branch‑hash
+            if ! echo "$EXISTING_TAGS" | grep -q "^${BRANCH}-${COMMIT_HASH}"; then
               NEXT_TAG="${BRANCH}-${COMMIT_HASH}"
             fi
           fi
 
-          echo "::set-output name=tag::$NEXT_TAG"
           echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
+          echo "::set-output name=tag::$NEXT_TAG"
 
       - name: Build and Push Application Docker Image
         id: build_push_docker
@@ -119,20 +122,18 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           context: ${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db
-          file: ${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db/Dockerfile
-          push: true
+          file:    ${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db/Dockerfile
+          push:    true
           tags: |
             ${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}
 
       - name: Save Application Docker Image
         id: save_docker_image
         run: |
-          DOCKER="$DOCKER_USERNAME/${{ matrix.service }}:${{ steps.tag.outputs.tag }}"
-          echo "docker_image=$DOCKER" >> "$GITHUB_OUTPUT"
+          echo "docker_image=${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}:${{ steps.tag.outputs.tag }}" >> "$GITHUB_OUTPUT"
 
       - name: Save Database Docker Image
         id: save_db_image
         if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
         run: |
-          DB="$DOCKER_USERNAME/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
-          echo "db_image=$DB" >> "$GITHUB_OUTPUT"
+          echo "db_image=${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}" >> "$GITHUB_OUTPUT"
