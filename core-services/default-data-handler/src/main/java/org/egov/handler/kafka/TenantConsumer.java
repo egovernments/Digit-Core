@@ -70,18 +70,19 @@ public class TenantConsumer {
 
             DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder().requestInfo(tenantRequest.getRequestInfo()).targetTenantId(tenantRequest.getTenant().getCode()).schemaCodes(serviceConfig.getDefaultMdmsSchemaList()).onlySchemas(Boolean.FALSE).locales(serviceConfig.getDefaultLocalizationLocaleList()).modules(serviceConfig.getDefaultLocalizationModuleList()).build();
 
+            dataHandlerService.importKeycloakRealm(tenantRequest);
             dataHandlerService.createDefaultData(defaultDataRequest);
             dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
             dataHandlerService.createTenantConfig(tenantRequest);
 
-            userUtil.createUser(tenantRequest);
-            otpUtil.sendOtp(tenantRequest);
+//            userUtil.createUser(tenantRequest);
+//            otpUtil.sendOtp(tenantRequest);
 
             // Send welcome email after everything is set up
             dataHandlerService.triggerWelcomeEmail(tenantRequest);
 
             // setup default employee
-            dataHandlerService.defaultEmployeeSetup(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail());
+//            dataHandlerService.defaultEmployeeSetup(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail());
 
             // create default records in indexer
             elasticsearchUtil.createDefaultRecords(tenantRequest.getTenant().getCode());

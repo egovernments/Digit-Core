@@ -119,4 +119,20 @@ public class ServiceConfiguration {
 
     @Value("${topic.notification.mail}")
     private String emailTopic;
+
+    // Keycloak Configuration
+    @Value("${keycloak.host}")
+    private String keycloakHost;
+
+    @Value("${keycloak.master.realm}")
+    private String keycloakRealm;
+
+    @Value("${keycloak.client.id}")
+    private String keycloakClientId;
+
+    @Value("${keycloak.admin.username}")
+    private String keycloakAdminUsername;
+
+    @Value("${keycloak.admin.password}")
+    private String keycloakAdminPassword;
 }

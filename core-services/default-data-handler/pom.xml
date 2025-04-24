@@ -58,6 +58,11 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-admin-client</artifactId>
+			<version>25.0.1</version>
+		</dependency>
 		<!-- Egov dependencies -->
 		<dependency>
 			<groupId>org.egov.services</groupId>
