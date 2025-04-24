@@ -4,15 +4,20 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.gateway.config.ApplicationProperties;
+import com.example.gateway.model.*;
+import digit.models.coremodels.mdms.MasterDetail;
+import digit.models.coremodels.mdms.MdmsCriteria;
+import digit.models.coremodels.mdms.MdmsCriteriaReq;
+import digit.models.coremodels.mdms.ModuleDetail;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
 import org.slf4j.MDC;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
@@ -22,9 +27,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 
 import static com.example.gateway.constants.GatewayConstants.*;
+import static java.util.Objects.isNull;
 
 @Component
 @Slf4j
@@ -36,22 +44,29 @@ public class CommonUtils {
 
     private UserUtils userUtils;
 
+    private ApplicationProperties properties;
 
-    public CommonUtils(ObjectMapper objectMapper, MultiStateInstanceUtil centralInstanceUtil, UserUtils userUtils) {
+    private RestTemplate restTemplate;
+
+    private static final String OPENING_BRACES = "{";
+    private static final String CLOSING_BRACES = "}";
+    private static final String PARAMETER_PLACEHOLDER_REGEX = "\\{\\w+\\}";
+    private static final String ANY_WORD_REGEX = "\\\\w+";
+
+
+    public CommonUtils(ObjectMapper objectMapper, MultiStateInstanceUtil centralInstanceUtil, UserUtils userUtils, ApplicationProperties properties, RestTemplate restTemplate) {
         this.objectMapper = objectMapper;
         this.centralInstanceUtil = centralInstanceUtil;
         this.userUtils = userUtils;
+        this.properties = properties;
+        this.restTemplate = restTemplate;
     }
 
     public static boolean isRequestBodyCompatible(ServerHttpRequest serverHttpRequest) {
         String requestMethod = getRequestMethod(serverHttpRequest);
         String contentType = getRequestContentType(serverHttpRequest);
 
-        return (POST.equalsIgnoreCase(requestMethod)
-                || PUT.equalsIgnoreCase(requestMethod)
-                || PATCH.equalsIgnoreCase(requestMethod))
-                && (contentType.contains(JSON_TYPE)
-                || contentType.contains(X_WWW_FORM_URLENCODED_TYPE));
+        return (POST.equalsIgnoreCase(requestMethod) || PUT.equalsIgnoreCase(requestMethod) || PATCH.equalsIgnoreCase(requestMethod)) && (contentType.contains(JSON_TYPE) || contentType.contains(X_WWW_FORM_URLENCODED_TYPE));
     }
 
     public boolean isFormContentType(String contentType) {
@@ -59,8 +74,7 @@ public class CommonUtils {
     }
 
     public void handleCentralInstanceLogic(ServerWebExchange exchange, String requestURI, boolean isOpenRequest, boolean isMixedModeRequest, Map body) {
-        if (centralInstanceUtil.getIsEnvironmentCentralInstance() && (isOpenRequest || isMixedModeRequest)
-                && !requestURI.equalsIgnoreCase("/user/oauth/token")) {
+        if (centralInstanceUtil.getIsEnvironmentCentralInstance() && (isOpenRequest || isMixedModeRequest) && !requestURI.equalsIgnoreCase("/user/oauth/token")) {
 
             Set<String> tenantIds = new HashSet<>();
             if (HttpMethod.GET.equals(exchange.getRequest().getMethod()) || ObjectUtils.isEmpty(body)) {
@@ -97,10 +111,7 @@ public class CommonUtils {
         }
 
         // Get the first content type header, convert it to lowercase, and return it
-        return contentTypeOptional.get().stream()
-                .findFirst()
-                .map(String::toLowerCase)
-                .orElse("");
+        return contentTypeOptional.get().stream().findFirst().map(String::toLowerCase).orElse("");
     }
 
 
@@ -152,8 +163,7 @@ public class CommonUtils {
 
                 if (!tenants.isEmpty()) {
                     tenants.forEach(tenant -> {
-                        if (tenant != null && !tenant.equalsIgnoreCase("null"))
-                            tenantIds.add(tenant);
+                        if (tenant != null && !tenant.equalsIgnoreCase("null")) tenantIds.add(tenant);
                     });
                 } else {
                     setTenantIdsFromQueryParams(request.getQueryParams(), tenantIds);
@@ -173,8 +183,7 @@ public class CommonUtils {
 
     public void setTenantIdsFromQueryParams(MultiValueMap<String, String> queryParams, Set<String> tenantIds) throws CustomException {
 
-        if (!CollectionUtils.isEmpty(queryParams) && queryParams.containsKey(REQUEST_TENANT_ID_KEY)
-                && queryParams.get(REQUEST_TENANT_ID_KEY).size() > 0) {
+        if (!CollectionUtils.isEmpty(queryParams) && queryParams.containsKey(REQUEST_TENANT_ID_KEY) && queryParams.get(REQUEST_TENANT_ID_KEY).size() > 0) {
             String tenantId = queryParams.get(REQUEST_TENANT_ID_KEY).get(0);
             if (tenantId.contains(",")) {
                 tenantIds.addAll(Arrays.asList(tenantId.split(",")));
@@ -244,5 +253,49 @@ public class CommonUtils {
             throw new CustomException("AUTHENTICATION_ERROR", ex.getMessage());
         }
     }
+
+
+    public void validateUriJurisdictionAuthorization(ServerWebExchange exchange, User user, String JurisdictionId) {
+
+        String requestUri = exchange.getRequest().getURI().getPath();
+
+        AuthorizationRequest request = AuthorizationRequest.builder().roles(new HashSet<>(user.getRoles())).uri(requestUri).tenantIds(Collections.singleton(MDC.get(TENANT_ID_KEY))).JurisdictionId(JurisdictionId).build();
+
+        boolean isUriAuthorised = isUriAuthorized(request, exchange);
+
+        if (!isUriAuthorised) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED.toString(), "You are not authorized to access this resource");
+        }
+
+    }
+
+    private boolean isUriAuthorized(AuthorizationRequest authorizationRequest, ServerWebExchange exchange) {
+
+        AuthorizationRequestWrapper authorizationRequestWrapper = new AuthorizationRequestWrapper(new RequestInfo(), authorizationRequest);
+
+        final HttpHeaders headers = new HttpHeaders();
+
+        headers.add(CORRELATION_ID_HEADER_NAME, (String) exchange.getAttributes().get(CORRELATION_ID_KEY));
+
+        if (centralInstanceUtil.getIsEnvironmentCentralInstance())
+            headers.add(REQUEST_TENANT_ID_KEY, (String) exchange.getAttributes().get(TENANTID_MDC));
+
+        final HttpEntity<Object> httpEntity = new HttpEntity<>(authorizationRequestWrapper, headers);
+
+        try {
+
+            ResponseEntity<Void> responseEntity = restTemplate.postForEntity(properties.getAuthorizationUrl(), httpEntity, Void.class);
+
+            return responseEntity.getStatusCode().equals(HttpStatus.OK);
+        } catch (HttpClientErrorException e) {
+            log.warn("Exception while attempting to authorize via access control", e);
+            return false;
+        } catch (Exception e) {
+            log.error("Unknown exception occurred while attempting to authorize via access control", e);
+            return false;
+        }
+
+    }
+
 
 }

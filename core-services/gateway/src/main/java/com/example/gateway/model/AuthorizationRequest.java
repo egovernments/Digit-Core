@@ -27,4 +27,5 @@ public class AuthorizationRequest {
     @NotNull
     private Set<String> tenantIds;
 
+    private String JurisdictionId;
 }

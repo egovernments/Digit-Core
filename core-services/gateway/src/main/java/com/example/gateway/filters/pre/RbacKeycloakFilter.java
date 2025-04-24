@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static com.example.gateway.constants.GatewayConstants.JBAC_BOOLEAN_FLAG_NAME;
 import static com.example.gateway.constants.GatewayConstants.RBAC_BOOLEAN_FLAG_NAME;
 
 @Slf4j
@@ -40,7 +41,8 @@ public class RbacKeycloakFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         
         Boolean rbacFlag = exchange.getAttribute(RBAC_BOOLEAN_FLAG_NAME);
-        if(Boolean.FALSE.equals(rbacFlag)) return chain.filter(exchange);
+        Boolean jbacFlag = exchange.getAttribute(JBAC_BOOLEAN_FLAG_NAME);
+        if(Boolean.FALSE.equals(rbacFlag) || Boolean.TRUE.equals(jbacFlag)) return chain.filter(exchange);
         
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         String requestPath = exchange.getRequest().getURI().getPath();

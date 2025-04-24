@@ -1,13 +1,16 @@
 package com.example.gateway.utils;
 
 import com.example.gateway.config.ApplicationProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.common.contract.user.UserDetailResponse;
 import org.egov.common.contract.user.UserSearchRequest;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
@@ -16,8 +19,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.example.gateway.constants.GatewayConstants.*;
@@ -95,6 +100,22 @@ public class UserUtils {
             throw new CustomException("NO_SYSTEUSER_FOUND","No system user found");*/
 
         return user;
+    }
+
+    public String fetchHrmsUserData(User user, String tenantId) throws JsonProcessingException {
+
+        if (user == null) {
+            throw new RuntimeException("User information not found. Can't execute RBAC filter");
+        }
+        RequestInfo requestInfo = RequestInfo.builder()
+                .userInfo(user)
+                .apiId("Rainmaker")
+                .build();
+        String url = UriComponentsBuilder.fromHttpUrl(applicationProperties.getHrmsSearch()).queryParam(REQUEST_TENANT_ID_KEY, tenantId).queryParam(USER_SERVICE_UUIDS, user.getUuid()).toUriString();
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("RequestInfo", requestInfo);
+        String response = restTemplate.postForObject(url, requestBody, String.class);
+        return response;
     }
 
 }

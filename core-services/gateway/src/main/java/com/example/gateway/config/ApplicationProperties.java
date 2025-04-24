@@ -42,6 +42,24 @@ public class ApplicationProperties {
     @Value("${egov.hrms.host}${egov.hrms.search.uri}")
     private String hrmsSearch;
 
+    @Value("${egov.mdms.host}${egov.mdms.path}")
+    private String mdmsUrl;
+
+    @Value("${mdms.roleactionmodule.name}")
+    private String roleActionModule;
+
+    @Value("${mdms.actionstestmodule.name}")
+    private String actionModule;
+
+    @Value("${mdms.roleactionmaster.names}")
+    private String roleActionMaster;
+
+    @Value("${mdms.actiontestmaster.names}")
+    private String actionMaster;
+
+    @Value("${action.master.mdms.filter}")
+    private String actionFilter;
+
     private List<String> encryptedUrlSet;
 
     private List<String> openEndpointsWhitelist;
