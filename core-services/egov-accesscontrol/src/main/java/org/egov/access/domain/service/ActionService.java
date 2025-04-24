@@ -152,7 +152,7 @@ public class ActionService {
 
 	private boolean isAuthorizedOnGivenTenantLevel(AuthorizationRequest authorizeRequest, String tenantId){
 
-		Map<String, ActionContainer>  roleActions = mdmsRepository.fetchRoleActionData(tenantId);
+		Map<String, ActionContainer>  roleActions = mdmsRepository.fetchRoleActionData(tenantId, authorizeRequest.getJurisdictionId());
 
 		String uriToBeAuthorized = authorizeRequest.getUri();
 		Set<String> applicableRoles = getApplicableRoles(authorizeRequest);
@@ -169,7 +169,7 @@ public class ActionService {
 
 		boolean isAuthorized = uris.contains(uriToBeAuthorized) || containsRegexUri(regexUris, uriToBeAuthorized);
 
-		//log.info("Request tenant ids:  " + authorizeRequest.getTenantIds());
+		// log.info("Request tenant ids:  " + authorizeRequest.getTenantIds());
 		log.info("Role {} has access to requested URI {} : {}", applicableRoles, uriToBeAuthorized,
 				isAuthorized);
 

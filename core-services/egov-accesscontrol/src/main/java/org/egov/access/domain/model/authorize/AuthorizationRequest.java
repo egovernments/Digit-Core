@@ -24,4 +24,6 @@ public class AuthorizationRequest {
     @Size(min = 1)
     private Set<String> tenantIds;
 
+    private String JurisdictionId;
+
 }

@@ -2,12 +2,7 @@ package org.egov.access.persistence.repository;
 
 import static java.util.Objects.isNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.egov.access.domain.model.Action;
@@ -75,7 +70,7 @@ public class MdmsRepository {
      * @return Map of roles to URIs authorized
      */
     @Cacheable(value = "roleActions", sync = true)
-    public  Map<String, ActionContainer> fetchRoleActionData(String tenantId){
+    public  Map<String, ActionContainer> fetchRoleActionData(String tenantId, String JurisdictionId){
         List<ModuleDetail> moduleDetail = new ArrayList<ModuleDetail>();
         RequestInfo requestInfo = new RequestInfo();
 
@@ -111,7 +106,7 @@ public class MdmsRepository {
             throw new CustomException("DATA_NOT_AVAILABLE", "Data not available for this tenant");
 
 
-        return transformMdmsResponse(response);
+        return transformMdmsResponse(response,JurisdictionId);
 
 //        Map<String, List<String>> map = Arrays.stream(roleActions)
 //                .filter( roleAction -> actionMap.containsKey(roleAction.getActionId()) )
@@ -124,12 +119,17 @@ public class MdmsRepository {
 
     }
 
-    private Map<String, ActionContainer> transformMdmsResponse(Map<String, Map<String, List>> rawResponse){
+    private Map<String, ActionContainer> transformMdmsResponse(Map<String, Map<String, List>> rawResponse, String JurisdictionId){
         RoleAction[] roleActions = objectMapper.convertValue(rawResponse.get(roleActionModule).get(
                 roleActionMaster), RoleAction[].class);
         Action[] actions = objectMapper.convertValue(rawResponse.get(actionModule).get(
                 actionMaster), Action[].class);
 
+        // Filter roles matching JurisdictionId
+        if(!Objects.isNull(JurisdictionId))
+            roleActions = Arrays.stream(roleActions)
+                    .filter(roleAction -> JurisdictionId.equals(roleAction.getTenantId()))
+                    .toList().toArray(new RoleAction[0]);
 
         Map<Long,List<Action>> actionMap =
                 Arrays.stream(actions).collect(Collectors.groupingBy(Action::getId) );
