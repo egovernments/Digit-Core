@@ -135,4 +135,8 @@ public class ServiceConfiguration {
 
     @Value("${keycloak.admin.password}")
     private String keycloakAdminPassword;
+
+    //Individual Configuration
+    @Value("${egov.individual.host}${egov.individual.create.path}")
+    private String individualCreateEndpoint;
 }

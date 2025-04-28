@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.user.enums.UserType;
 import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.util.*;
 import org.egov.handler.web.models.*;
@@ -13,6 +14,7 @@ import org.egov.tracer.model.CustomException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.RealmRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -24,6 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static org.egov.handler.config.ServiceConstants.EMPLOYEE_UPPER;
 import static org.egov.handler.config.ServiceConstants.TENANT_BOUNDARY_SCHEMA;
 import static org.egov.handler.constants.UserConstants.*;
 
@@ -47,10 +50,12 @@ public class DataHandlerService {
 
 	private final WorkflowUtil workflowUtil;
 
+	private final IndividualUtil individualUtil;
+
 	private final CustomKafkaTemplate producer;
 
 	@Autowired
-	public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper, ResourceLoader resourceLoader, WorkflowUtil workflowUtil, CustomKafkaTemplate producer) {
+	public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper, ResourceLoader resourceLoader, WorkflowUtil workflowUtil, CustomKafkaTemplate producer, IndividualUtil individualUtil) {
 		this.mdmsV2Util = mdmsV2Util;
 		this.hrmsUtil = hrmsUtil;
 		this.localizationUtil = localizationUtil;
@@ -60,9 +65,10 @@ public class DataHandlerService {
 		this.resourceLoader = resourceLoader;
 		this.workflowUtil = workflowUtil;
 		this.producer = producer;
+		this.individualUtil = individualUtil;
 	}
 
-	public void importKeycloakRealm(TenantRequest tenantRequest) {
+	public UserRepresentation importKeycloakRealm(TenantRequest tenantRequest) {
 		//Initialize Keycloak admin client
 		Keycloak keycloak = KeycloakBuilder.builder()
 				.serverUrl(serviceConfig.getKeycloakHost())
@@ -75,9 +81,20 @@ public class DataHandlerService {
 		//Load and create realm configuration
 		RealmRepresentation realm = loadAndCreateRealmConfig(tenantRequest);
 
-		// 3. Import realm
+		//Import realm
 		keycloak.realms().create(realm);
 		log.info("Realm imported successfully: {}", tenantRequest.getTenant().getCode());
+
+		//Search for the user by username (email)
+		List<UserRepresentation> users = keycloak.realm(tenantRequest.getTenant().getCode()).users().search(tenantRequest.getTenant().getEmail(), 0, 1);
+		if (!users.isEmpty()) {
+			UserRepresentation user = users.get(0);
+			log.info("User details: {}", user);
+			return user;
+		} else {
+			log.warn("User not found in realm: {}", tenantRequest.getTenant().getCode());
+			throw new CustomException("USER_NOT_FOUND", "User not found in realm: " + tenantRequest.getTenant().getCode());
+		}
 	}
 
 	private RealmRepresentation loadAndCreateRealmConfig(TenantRequest tenantRequest) {
@@ -102,6 +119,61 @@ public class DataHandlerService {
 		} catch (IOException e) {
 			throw new CustomException("Failed to load realm configuration", e.getMessage());
 		}
+	}
+
+	public void createIndividualForDefaultUser(TenantRequest tenantRequest, UserRepresentation user) {
+		Name name = Name.builder()
+				.givenName(user.getFirstName())
+				.familyName(user.getLastName())
+				.build();
+
+		UserDetails userDetails = UserDetails.builder()
+				.username(user.getUsername())
+				.tenantId(tenantRequest.getTenant().getCode())
+				.roles(createRoles(user.getRealmRoles(), tenantRequest.getTenant().getCode()))
+				.userType(UserType.EMPLOYEE)
+				.build();
+
+		Individual individual = Individual.builder()
+				.tenantId(tenantRequest.getTenant().getCode())
+				.name(name)
+				.mobileNumber(getMobileNumberFromUserRepresentation(user))
+				.email(user.getEmail())
+				.isSystemUser(true)
+				.userUuid(user.getId())
+				.userDetails(userDetails)
+				.build();
+
+		IndividualRequest individualRequest = IndividualRequest.builder()
+				.requestInfo(tenantRequest.getRequestInfo())
+				.individual(individual)
+				.build();
+
+		individualUtil.createIndividual(individualRequest);
+	}
+
+	private List<Role> createRoles(List<String> roles, String tenantId) {
+		List<Role> roleList = new ArrayList<>();
+		for (String role : roles) {
+			Role roleObj = Role.builder()
+					.name(role)
+					.code(role)
+					.tenantId(tenantId)
+					.build();
+			roleList.add(roleObj);
+		}
+		return roleList;
+	}
+
+	private String getMobileNumberFromUserRepresentation(UserRepresentation user) {
+		String mobileNumber = null;
+		if (user.getAttributes() != null) {
+			List<String> mobileNumbers = user.getAttributes().get("mobileNumber");
+			if (mobileNumbers != null && !mobileNumbers.isEmpty() && mobileNumbers.get(0) != null && !mobileNumbers.get(0).isBlank()) {
+				mobileNumber = mobileNumbers.get(0);
+			}
+		}
+		return mobileNumber;
 	}
 
 	public void createDefaultData(DefaultDataRequest defaultDataRequest) {

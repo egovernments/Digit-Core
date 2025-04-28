@@ -12,6 +12,7 @@ import org.egov.handler.util.OtpUtil;
 import org.egov.handler.util.UserUtil;
 import org.egov.handler.web.models.DefaultDataRequest;
 import org.egov.handler.web.models.TenantRequest;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -70,10 +71,11 @@ public class TenantConsumer {
 
             DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder().requestInfo(tenantRequest.getRequestInfo()).targetTenantId(tenantRequest.getTenant().getCode()).schemaCodes(serviceConfig.getDefaultMdmsSchemaList()).onlySchemas(Boolean.FALSE).locales(serviceConfig.getDefaultLocalizationLocaleList()).modules(serviceConfig.getDefaultLocalizationModuleList()).build();
 
-            dataHandlerService.importKeycloakRealm(tenantRequest);
+            UserRepresentation user = dataHandlerService.importKeycloakRealm(tenantRequest);
             dataHandlerService.createDefaultData(defaultDataRequest);
             dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
             dataHandlerService.createTenantConfig(tenantRequest);
+            dataHandlerService.createIndividualForDefaultUser(tenantRequest, user);
 
 //            userUtil.createUser(tenantRequest);
 //            otpUtil.sendOtp(tenantRequest);
