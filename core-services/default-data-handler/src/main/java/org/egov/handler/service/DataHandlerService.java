@@ -127,10 +127,12 @@ public class DataHandlerService {
 				.familyName(user.getLastName())
 				.build();
 
+		Role role = Role.builder().tenantId(tenantRequest.getTenant().getCode()).code(DEFAULT_ROOT_USER_ROLE).build();
+
 		UserDetails userDetails = UserDetails.builder()
 				.username(user.getUsername())
 				.tenantId(tenantRequest.getTenant().getCode())
-				.roles(createRoles(user.getRealmRoles(), tenantRequest.getTenant().getCode()))
+				.roles(Collections.singletonList(role))
 				.userType(UserType.EMPLOYEE)
 				.build();
 
@@ -150,19 +152,6 @@ public class DataHandlerService {
 				.build();
 
 		individualUtil.createIndividual(individualRequest);
-	}
-
-	private List<Role> createRoles(List<String> roles, String tenantId) {
-		List<Role> roleList = new ArrayList<>();
-		for (String role : roles) {
-			Role roleObj = Role.builder()
-					.name(role)
-					.code(role)
-					.tenantId(tenantId)
-					.build();
-			roleList.add(roleObj);
-		}
-		return roleList;
 	}
 
 	private String getMobileNumberFromUserRepresentation(UserRepresentation user) {
