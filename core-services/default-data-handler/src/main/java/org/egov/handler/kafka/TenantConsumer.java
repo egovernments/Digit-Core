@@ -19,75 +19,72 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
-
-import static org.egov.handler.constants.UserConstants.ASSIGNER;
-import static org.egov.handler.constants.UserConstants.RESOLVER;
 
 @Slf4j
 @Component
 public class TenantConsumer {
 
-    private final ObjectMapper mapper;
+	private final ObjectMapper mapper;
 
-    private final DataHandlerService dataHandlerService;
+	private final DataHandlerService dataHandlerService;
 
-    private final UserUtil userUtil;
+	private final UserUtil userUtil;
 
-    private final OtpUtil otpUtil;
+	private final OtpUtil otpUtil;
 
-    private final ServiceConfiguration serviceConfig;
+	private final ServiceConfiguration serviceConfig;
 
-    private final LocalizationUtil localizationUtil;
+	private final LocalizationUtil localizationUtil;
 
-    private ElasticsearchUtil elasticsearchUtil;
+	private ElasticsearchUtil elasticsearchUtil;
 
-    @Autowired
-    public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil, ServiceConfiguration serviceConfig, LocalizationUtil localizationUtil, ElasticsearchUtil elasticsearchUtil) {
-        this.mapper = mapper;
-        this.dataHandlerService = dataHandlerService;
-        this.userUtil = userUtil;
-        this.otpUtil = otpUtil;
-        this.serviceConfig = serviceConfig;
-        this.localizationUtil = localizationUtil;
-        this.elasticsearchUtil = elasticsearchUtil;
-    }
+	@Autowired
+	public TenantConsumer(ObjectMapper mapper, DataHandlerService dataHandlerService, UserUtil userUtil, OtpUtil otpUtil, ServiceConfiguration serviceConfig, LocalizationUtil localizationUtil, ElasticsearchUtil elasticsearchUtil) {
+		this.mapper = mapper;
+		this.dataHandlerService = dataHandlerService;
+		this.userUtil = userUtil;
+		this.otpUtil = otpUtil;
+		this.serviceConfig = serviceConfig;
+		this.localizationUtil = localizationUtil;
+		this.elasticsearchUtil = elasticsearchUtil;
+	}
 
-    @KafkaListener(topics = {"${kafka.topics.create.tenant}"})
-    public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
+	@KafkaListener(topics = {"${kafka.topics.create.tenant}"})
+	public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+		TenantRequest tenantRequest = mapper.convertValue(record, TenantRequest.class);
 
-        // Setting userInfo with UUID
-        User userInfo = User.builder().uuid("40dceade-992d-4a8f-8243-19dda76a4171").build();
-        tenantRequest.getRequestInfo().setUserInfo(userInfo);
+		// Setting userInfo with UUID
+		User userInfo = User.builder().uuid("40dceade-992d-4a8f-8243-19dda76a4171").build();
+		tenantRequest.getRequestInfo().setUserInfo(userInfo);
 
-        localizationUtil.upsertLocalization(tenantRequest);
+		localizationUtil.upsertLocalization(tenantRequest);
 
-        // create user only for root tenant
-        if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
-            log.info("Configuring Tenant: {}", tenantRequest.getTenant().getCode());
+		// create user only for root tenant
+		if (Objects.isNull(tenantRequest.getTenant().getParentId())) {
+			log.info("Configuring Tenant: {}", tenantRequest.getTenant().getCode());
 
-            DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder().requestInfo(tenantRequest.getRequestInfo()).targetTenantId(tenantRequest.getTenant().getCode()).schemaCodes(serviceConfig.getDefaultMdmsSchemaList()).onlySchemas(Boolean.FALSE).locales(serviceConfig.getDefaultLocalizationLocaleList()).modules(serviceConfig.getDefaultLocalizationModuleList()).build();
+			DefaultDataRequest defaultDataRequest = DefaultDataRequest.builder().requestInfo(tenantRequest.getRequestInfo()).targetTenantId(tenantRequest.getTenant().getCode()).schemaCodes(serviceConfig.getDefaultMdmsSchemaList()).onlySchemas(Boolean.FALSE).locales(serviceConfig.getDefaultLocalizationLocaleList()).modules(serviceConfig.getDefaultLocalizationModuleList()).build();
 
-            UserRepresentation user = dataHandlerService.importKeycloakRealm(tenantRequest);
-            dataHandlerService.createDefaultData(defaultDataRequest);
-            dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
-            dataHandlerService.createTenantConfig(tenantRequest);
-            dataHandlerService.createIndividualForDefaultUser(tenantRequest, user);
+			UserRepresentation user = dataHandlerService.importKeycloakRealm(tenantRequest);
+			dataHandlerService.createDefaultData(defaultDataRequest);
+			dataHandlerService.createBoundaryData(tenantRequest.getRequestInfo(), tenantRequest.getTenant().getCode());
+			dataHandlerService.createPgrWorkflowConfig(tenantRequest.getTenant().getCode());
+			dataHandlerService.createTenantConfig(tenantRequest);
+			dataHandlerService.createIndividualForDefaultUser(tenantRequest, user);
 
 //            userUtil.createUser(tenantRequest);
 //            otpUtil.sendOtp(tenantRequest);
 
-            // Send welcome email after everything is set up
-            dataHandlerService.triggerWelcomeEmail(tenantRequest);
+			// Send welcome email after everything is set up
+			dataHandlerService.triggerWelcomeEmail(tenantRequest);
 
-            // setup default employee
+			// setup default employee
 //            dataHandlerService.defaultEmployeeSetup(tenantRequest.getTenant().getCode(), tenantRequest.getTenant().getEmail());
 
-            // create default records in indexer
-            elasticsearchUtil.createDefaultRecords(tenantRequest.getTenant().getCode());
-        }
-    }
+			// create default records in indexer
+			elasticsearchUtil.createDefaultRecords(tenantRequest.getTenant().getCode());
+		}
+	}
 }

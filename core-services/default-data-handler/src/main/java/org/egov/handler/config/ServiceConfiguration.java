@@ -139,4 +139,8 @@ public class ServiceConfiguration {
     //Individual Configuration
     @Value("${egov.individual.host}${egov.individual.create.path}")
     private String individualCreateEndpoint;
+
+    //Boundary Configuration
+    @Value("${egov.boundary.host}${egov.boundary.create.path}")
+    private String boundaryCreateEndpoint;
 }

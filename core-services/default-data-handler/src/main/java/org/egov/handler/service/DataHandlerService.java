@@ -26,7 +26,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static org.egov.handler.config.ServiceConstants.EMPLOYEE_UPPER;
 import static org.egov.handler.config.ServiceConstants.TENANT_BOUNDARY_SCHEMA;
 import static org.egov.handler.constants.UserConstants.*;
 
@@ -52,10 +51,12 @@ public class DataHandlerService {
 
 	private final IndividualUtil individualUtil;
 
+	private final BoundaryUtil boundaryUtil;
+
 	private final CustomKafkaTemplate producer;
 
 	@Autowired
-	public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper, ResourceLoader resourceLoader, WorkflowUtil workflowUtil, CustomKafkaTemplate producer, IndividualUtil individualUtil) {
+	public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper, ResourceLoader resourceLoader, WorkflowUtil workflowUtil, CustomKafkaTemplate producer, IndividualUtil individualUtil, BoundaryUtil boundaryUtil) {
 		this.mdmsV2Util = mdmsV2Util;
 		this.hrmsUtil = hrmsUtil;
 		this.localizationUtil = localizationUtil;
@@ -66,6 +67,7 @@ public class DataHandlerService {
 		this.workflowUtil = workflowUtil;
 		this.producer = producer;
 		this.individualUtil = individualUtil;
+		this.boundaryUtil = boundaryUtil;
 	}
 
 	public UserRepresentation importKeycloakRealm(TenantRequest tenantRequest) {
@@ -163,6 +165,21 @@ public class DataHandlerService {
 			}
 		}
 		return mobileNumber;
+	}
+
+	public void createBoundaryData(RequestInfo requestInfo, String tenantId) {
+		Boundary boundary = Boundary.builder()
+				.tenantId(tenantId)
+				.code("citya")
+				.geometry(null)
+				.build();
+
+		BoundaryRequest boundaryRequest = BoundaryRequest.builder()
+				.requestInfo(requestInfo)
+				.boundary(Collections.singletonList(boundary))
+				.build();
+
+		boundaryUtil.createBoundary(boundaryRequest);
 	}
 
 	public void createDefaultData(DefaultDataRequest defaultDataRequest) {
