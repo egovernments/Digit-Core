@@ -1,0 +1,50 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to raise a query, request, or report a bug. 
+        
+  - type: input
+    id: name
+    attributes:
+      label: Your Name
+      description: "Enter your full name."
+      placeholder: "e.g., John Doe"
+    validations:
+      required: true
+
+  - type: input
+    id: organization
+    attributes:
+      label: Organization
+      description: "Enter the name of the organization you represent"
+      placeholder: "e.g., XYZ"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: product_name
+    attributes:
+      label: Product
+      options: 
+        - Property Tax
+        - PGR
+        - Trade License
+        - Fire NOC
+        - OBPAS
+        - Birth & Death
+        - mcollect/Bill Genie
+        - mSewa
+        - Finance
+        - Survey
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "Describe your issue/query. Submit one issue per form—do not combine multiple queries. Attach relevant screenshots with the URL clearly visible."
+      placeholder: "Add description here"
+    validations:
+      required: false
