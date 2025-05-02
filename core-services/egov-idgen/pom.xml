@@ -10,15 +10,14 @@
   </parent>
   <groupId>org.egov</groupId>
   <artifactId>egov-idgen</artifactId>
-  <version>2.9.0-SNAPSHOT</version>
+  <version>2.9.3-SNAPSHOT</version>
   <name>egov-idgen</name>
   <description>Id generation service</description>
   <properties>
-    <log4j2.version>2.17.1</log4j2.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <lombok.version>1.18.22</lombok.version>
+    <lombok.version>1.18.30</lombok.version>
   </properties>
   <dependencies>
     <dependency>
@@ -32,6 +31,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-to-slf4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -111,6 +116,24 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <image>
+            <name>egov-idgen:native-image-1.0</name>
+          </image>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <image>
+            <builder>paketobuildpacks/builder-jammy-buildpackless-tiny</builder><!--required for AArch64/M1 support -->
+            <buildpacks>
+              <buildpack>paketobuildpacks/oracle</buildpack>
+              <buildpack>paketobuildpacks/java-native-image</buildpack>
+            </buildpacks>
+          </image>
+        </configuration>
       </plugin>
     </plugins>
   </build>
