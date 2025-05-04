@@ -31,7 +31,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
-      <version>4.3.4.RELEASE</version>
+      <version>6.1.14</version>
     </dependency>
     <dependency>
       <groupId>javax.mail</groupId>
