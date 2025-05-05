@@ -104,7 +104,9 @@ public class WorkflowConfig {
     @Value("${is.environment.central.instance}")
     private Boolean isEnvironmentCentralInstance;
 
-
+    //Workflow Config
+    @Value("${egov.wf.host}${egov.wf.transition.endpoint}")
+    private String wfTransitionEndpoint;
 
 
 }

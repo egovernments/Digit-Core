@@ -137,6 +137,7 @@ public class TransitionService {
                 .collect(Collectors.toList());
         criteria.setTenantId(processInstances.get(0).getTenantId());
         criteria.setBusinessIds(businessIds);
+        criteria.setBusinessService(businessService.getBusinessService());
         /*
          * fetching the result from repository
          *

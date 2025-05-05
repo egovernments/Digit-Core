@@ -1,0 +1,78 @@
+{
+  "tenantId": "pg",
+  "businessService": "FIRE",
+  "business": "fire-dept",
+  "businessServiceSla": 432000000,
+  "states": [
+    {
+      "sla": null,
+      "state": null,
+      "applicationStatus": null,
+      "docUploadRequired": false,
+      "isStartState": true,
+      "isTerminateState": false,
+      "isStateUpdatable": true,
+      "actions": [
+        {
+          "action": "APPLY",
+          "nextState": "APPLIED",
+          "roles": [
+            "CITIZEN",
+            "ADMIN",
+            "SUPERUSER",
+            "EMPLOYEE"
+          ]
+        }
+      ]
+    },
+    {
+      "sla": null,
+      "state": "APPLIED",
+      "applicationStatus": "APPLIED",
+      "docUploadRequired": false,
+      "isStartState": false,
+      "isTerminateState": false,
+      "isStateUpdatable": false,
+      "actions": [
+        {
+          "action": "REJECT",
+          "nextState": "REJECTED",
+          "roles": [
+            "CITIZEN",
+            "ADMIN",
+            "SUPERUSER",
+            "EMPLOYEE"
+          ]
+        },
+        {
+          "action": "APPROVE",
+          "nextState": "APPROVED",
+          "roles": [
+            "CITIZEN",
+            "ADMIN",
+            "SUPERUSER",
+            "EMPLOYEE"
+          ]
+        }
+      ]
+    },
+    {
+      "sla": null,
+      "state": "REJECTED",
+      "applicationStatus": "REJECTED",
+      "docUploadRequired": false,
+      "isStartState": false,
+      "isTerminateState": true,
+      "isStateUpdatable": false
+    },
+    {
+      "sla": null,
+      "state": "APPROVED",
+      "applicationStatus": "APPROVED",
+      "docUploadRequired": false,
+      "isStartState": false,
+      "isTerminateState": true,
+      "isStateUpdatable": false
+    }
+  ]
+}
