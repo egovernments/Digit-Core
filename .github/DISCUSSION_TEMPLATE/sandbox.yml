@@ -1,3 +1,5 @@
+name: "Sandbox"
+description: "Use this form to raise a query, request, or report a bug in the sandbox environment."
 body:
   - type: markdown
     attributes:
