@@ -14,7 +14,7 @@ on:
         type: choice
         options:
           - core-services
-          - accelerator 
+          - accelerators
         default: core-services
       service:
         description: 'Name of the service to build and deploy'
