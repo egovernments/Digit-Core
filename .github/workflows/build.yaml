@@ -20,7 +20,7 @@ on:
         required: true
         type: choice
         options:
-          - "MDMS-v2"
+          - "mdms-v2"
           - "audit-service"
           - "boundary-service"
           - "build"
