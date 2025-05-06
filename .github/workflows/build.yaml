@@ -62,20 +62,8 @@ on:
           - "tenant"
           - "user-otp"
           - "xstate-chatbot"
-          - "workbench-ui"
-          - "vault-enc-service"
-          - "egov-hrms"
           - "zuul-kubernetes-discovery"
-          - "citizen"
-          - "core-ui"
-          - "dashboard-analytics"
-          - "default-data-handler"
-          - "digit-ui"
-          - "employee"
           - "gateway-kubernetes-discovery"
-          - "individual"
-          - "pgr-services"
-          - "sandbox-ui"
           - "zuul"
         default: "audit-service"
 
@@ -160,7 +148,7 @@ jobs:
           file: build/maven/Dockerfile
           push: true
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
+            egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
           build-args: |
             WORK_DIR=${{ github.event.inputs.service_folder }}/${{ matrix.service }}
 
@@ -184,12 +172,12 @@ jobs:
           file: ${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db/Dockerfile
           push: true
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}
+            egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}
 
       - name: Save Application Docker Image
         id: save_docker_image
         run: |
-          IMG="${DOCKER_USERNAME}/${{ matrix.service }}:${{ steps.tag.outputs.tag }}"
+          IMG="egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}"
           echo "$IMG"
           echo "docker_image=$IMG" >> "$GITHUB_OUTPUT"
 
@@ -197,6 +185,6 @@ jobs:
         id: save_db_image
         if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
         run: |
-          IMG="${DOCKER_USERNAME}/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
+          IMG="egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
           echo "$IMG"
           echo "db_image=$IMG" >> "$GITHUB_OUTPUT"
