@@ -14,6 +14,7 @@ on:
         type: choice
         options:
           - core-services
+          - business-services 
         default: core-services
       service:
         description: 'Name of the service to build and deploy'
@@ -61,6 +62,21 @@ on:
           - "tenant"
           - "user-otp"
           - "xstate-chatbot"
+          - "workbench-ui"
+          - "vault-enc-service"
+          - "egov-hrms"
+          - "zuul-kubernetes-discovery"
+          - "egov-enc-service"
+          - "citizen"
+          - "core-ui"
+          - "dashboard-analytics"
+          - "default-data-handler"
+          - "digit-ui"
+          - "employee"
+          - "gateway-kubernetes-discovery"
+          - "individual"
+          - "pgr-services"
+          - "sandbox-ui"
           - "zuul"
         default: "audit-service"
 
