@@ -66,7 +66,6 @@ on:
           - "vault-enc-service"
           - "egov-hrms"
           - "zuul-kubernetes-discovery"
-          - "egov-enc-service"
           - "citizen"
           - "core-ui"
           - "dashboard-analytics"
