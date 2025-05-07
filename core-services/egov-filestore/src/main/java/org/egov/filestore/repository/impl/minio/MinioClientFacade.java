@@ -32,15 +32,20 @@ public class MinioClientFacade {
 				.credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey())
 				.region(minioConfig.getRegion())
 				.build();*/
+		log.info("Minio Endpoint: {}", minioConfig.getEndPoint());
+		log.info("Minio Access Key: {}", minioConfig.getAccessKey());
+		log.info("Minio Secret Key: {}", minioConfig.getSecretKey());
 		MinioClient minioClient;
 		if (minioConfig.getEndPoint().contains("googleapis")) {
 			// Skip region for GCP
+			log.info("Skip region for GCP");
 			minioClient = MinioClient.builder()
 				.endpoint(minioConfig.getEndPoint())
 				.credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey())
 				.build();
 		} else {
 			// Use region for AWS or other S3-compatible providers
+			log.info("Use region for AWS or other S3-compatible providers");
 			minioClient = MinioClient.builder()
 				.endpoint(minioConfig.getEndPoint())
 				.credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey())
