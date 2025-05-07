@@ -105,8 +105,6 @@ public class MinioRepository implements CloudFilesManager {
 
 			minioClient.putObject(putObjectArgsBuilder.build());
 
-
-
 			log.debug("Upload Successful");
 
 		} catch (MinioException | InvalidKeyException | IllegalArgumentException | NoSuchAlgorithmException
@@ -134,6 +132,8 @@ public class MinioRepository implements CloudFilesManager {
 					.stream(is, contentLength, -1) // Set part size to -1 for auto detection
 					.contentType(contentType); // Change this as per your file's content type
 			minioClient.putObject(putObjectArgsBuilder.build());
+
+			log.debug("Upload Successful");
 
 		} catch (MinioException | InvalidKeyException | IllegalArgumentException | NoSuchAlgorithmException
 				| IOException e) {
