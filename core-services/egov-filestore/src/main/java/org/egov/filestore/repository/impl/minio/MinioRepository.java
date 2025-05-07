@@ -87,6 +87,11 @@ public class MinioRepository implements CloudFilesManager {
 			putObjectOptions.setContentType(multipartFile.getContentType());
 			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);*/
 
+			log.info("Uploading MultipartFile file: {}", fileNameWithPath);
+			log.info("Target bucket: {}", minioConfig.getBucketName());
+			log.info("Content-Type: {}", multipartFile.getContentType());
+			log.info("Content-Length: {}", contentLength);
+
 			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
 					.bucket(minioConfig.getBucketName())
 					.object(fileNameWithPath)
@@ -117,6 +122,11 @@ public class MinioRepository implements CloudFilesManager {
 			/*PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
 			putObjectOptions.setContentType(contentType);
 			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);*/
+
+			log.info("Uploading InputStream file: {}", fileNameWithPath);
+			log.info("Target bucket: {}", minioConfig.getBucketName());
+			log.info("Content-Type: {}", contentType);
+			log.info("Content-Length: {}", contentLength);
 
 			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
 					.bucket(minioConfig.getBucketName())
