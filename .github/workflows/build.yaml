@@ -14,6 +14,7 @@ on:
         type: choice
         options:
           - core-services
+          - accelerators
         default: core-services
       service:
         description: 'Name of the service to build and deploy'
@@ -62,6 +63,7 @@ on:
           - "user-otp"
           - "xstate-chatbot"
           - "zuul"
+          - "gateway-kubernetes-discovery"
         default: "audit-service"
 
 env:
