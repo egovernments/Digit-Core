@@ -1,10 +1,11 @@
 #name: "Sandbox"
 #description: "Use this form to raise a query, request, or report a bug in the sandbox environment."
+labels: ["sandbox"]
 body:
   - type: markdown
     attributes:
       value: |
-        Use this form to raise a query, request, or report a bug. 
+        Use this form to raise a query, request, or report a bug you've come across in our Sandbox. 
         
   - type: input
     id: name
@@ -29,14 +30,14 @@ body:
     attributes:
       label: Product
       options: 
-        - Property Tax
-        - PGR
-        - Trade License
-        - Fire NOC
-        - OBPAS
-        - Birth & Death
-        - mcollect/Bill Genie
-        - mSewa
+        - Property Tax System
+        - Citizen Complaint Resolution System
+        - Local Business License Issuing System
+        - Fire Safety Certifications (NOC)
+        - Residential Construction Permit System
+        - Birth and Death Certificate Issuance
+        - mCollect
+        - Water and Sewerage Connections
         - Finance
         - Survey
     validations:
