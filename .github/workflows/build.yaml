@@ -14,7 +14,11 @@ on:
         type: choice
         options:
           - core-services
+<<<<<<< HEAD
           - business-services 
+=======
+          - accelerators
+>>>>>>> 6de69e03f602b72fc57581b83ed7b345fb9bdae6
         default: core-services
       service:
         description: 'Name of the service to build and deploy'
@@ -62,6 +66,7 @@ on:
           - "tenant"
           - "user-otp"
           - "xstate-chatbot"
+<<<<<<< HEAD
           - "workbench-ui"
           - "vault-enc-service"
           - "egov-hrms"
@@ -77,6 +82,10 @@ on:
           - "individual"
           - "pgr-services"
           - "sandbox-ui"
+=======
+          - "zuul-kubernetes-discovery"
+          - "gateway-kubernetes-discovery"
+>>>>>>> 6de69e03f602b72fc57581b83ed7b345fb9bdae6
           - "zuul"
         default: "audit-service"
 
@@ -161,7 +170,7 @@ jobs:
           file: build/maven/Dockerfile
           push: true
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
+            egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
           build-args: |
             WORK_DIR=${{ github.event.inputs.service_folder }}/${{ matrix.service }}
 
@@ -185,12 +194,12 @@ jobs:
           file: ${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db/Dockerfile
           push: true
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}
+            egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}
 
       - name: Save Application Docker Image
         id: save_docker_image
         run: |
-          IMG="${DOCKER_USERNAME}/${{ matrix.service }}:${{ steps.tag.outputs.tag }}"
+          IMG="egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}"
           echo "$IMG"
           echo "docker_image=$IMG" >> "$GITHUB_OUTPUT"
 
@@ -198,6 +207,6 @@ jobs:
         id: save_db_image
         if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
         run: |
-          IMG="${DOCKER_USERNAME}/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
+          IMG="egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
           echo "$IMG"
           echo "db_image=$IMG" >> "$GITHUB_OUTPUT"
