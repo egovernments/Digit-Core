@@ -207,8 +207,9 @@ class TransitionServiceTest {
 
         ArrayList<State> stateList = new ArrayList<>();
         ArrayList<Action> actions = new ArrayList<>();
+        List<String> parallelWorkflows = new ArrayList<>();
         stateList.add(new State("01234567-89AB-CDEF-FEDC-BA9876543210", "42", "42", 1L, "MD", "Application Status", true,
-                true, true, true, actions, new AuditDetails()));
+                true, true, true, parallelWorkflows, actions, new AuditDetails()));
 
         BusinessService businessService = new BusinessService();
         businessService.setStates(stateList);
@@ -234,8 +235,9 @@ class TransitionServiceTest {
 
         ArrayList<State> stateList = new ArrayList<>();
         ArrayList<Action> actions = new ArrayList<>();
+        List<String> parallelWorkflows = new ArrayList<>();
         stateList.add(new State("01234567-89AB-CDEF-FEDC-BA9876543210", "42", "42", 1L, "MD", "Application Status", true,
-                true, true, true, actions, new AuditDetails()));
+                true, true, true, parallelWorkflows, actions, new AuditDetails()));
         BusinessService businessService = new BusinessService();
         businessService.setStates(stateList);
         ArrayList<BusinessService> businessServiceList = new ArrayList<>();
@@ -259,8 +261,9 @@ class TransitionServiceTest {
 
         ArrayList<State> stateList = new ArrayList<>();
         ArrayList<Action> actions = new ArrayList<>();
+        List<String> parallelWorkflows = new ArrayList<>();
         stateList.add(new State("01234567-89AB-CDEF-FEDC-BA9876543210", "42", "42", 1L, "MD", "Application Status", true,
-                true, true, true, actions, new AuditDetails()));
+                true, true, true, parallelWorkflows, actions, new AuditDetails()));
 
         BusinessService businessService = new BusinessService();
         businessService.setStates(stateList);

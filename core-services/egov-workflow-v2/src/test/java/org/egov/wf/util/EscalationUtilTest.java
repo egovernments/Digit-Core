@@ -144,8 +144,9 @@ class EscalationUtilTest {
     void testGetStatusUUIDStatusNotFound() {
         BusinessService businessService = new BusinessService();
         ArrayList<Action> actions = new ArrayList<>();
+        List<String> parallelWorkflows = new ArrayList<>();
         businessService.addStatesItem(new State("01234567-89AB-CDEF-FEDC-BA9876543210", "42", "42", 1L, "MD",
-                "STATUS_NOT_FOUND", true, true, true, true, actions, new AuditDetails()));
+                "STATUS_NOT_FOUND", true, true, true, true, parallelWorkflows, actions, new AuditDetails()));
 
         ArrayList<BusinessService> businessServiceList = new ArrayList<>();
         businessServiceList.add(businessService);

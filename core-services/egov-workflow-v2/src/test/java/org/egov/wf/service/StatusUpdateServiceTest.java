@@ -13,6 +13,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.producer.Producer;
+import org.egov.wf.util.BusinessUtil;
 import org.egov.wf.web.models.Action;
 import org.egov.wf.web.models.AuditDetails;
 import org.egov.wf.web.models.Document;
@@ -39,6 +40,11 @@ class StatusUpdateServiceTest {
     @MockBean
     private WorkflowConfig workflowConfig;
 
+    @MockBean
+    private BusinessUtil businessUtil;
+
+    @MockBean
+    private WorkflowService workflowService;
 
     @Test
     void testUpdateStatusWithSaveTransition() {
@@ -122,7 +128,7 @@ class StatusUpdateServiceTest {
         verify(this.workflowConfig).getSaveTransitionTopic();
         verify(this.producer).push((String) any(), (String) any(), (String) any());
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromRequest();
-        verify(processStateAndAction).getResultantState();
+        verify(processStateAndAction, atLeast(1)).getResultantState();
         verify(processStateAndAction).setAction((Action) any());
         verify(processStateAndAction).setCurrentState((State) any());
         verify(processStateAndAction).setProcessInstanceFromDb((ProcessInstance) any());
