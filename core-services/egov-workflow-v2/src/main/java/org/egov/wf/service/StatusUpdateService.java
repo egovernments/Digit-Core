@@ -9,6 +9,7 @@ import org.egov.wf.web.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -49,7 +50,7 @@ public class StatusUpdateService {
 				processStateAndAction.getProcessInstanceFromRequest().setPreviousStatus(prevStatus);
 			}
 			processStateAndAction.getProcessInstanceFromRequest().setState(processStateAndAction.getResultantState());
-			if (processStateAndAction.getResultantState().getTriggerParallelWorkflows() != null) {
+			if (!CollectionUtils.isEmpty(processStateAndAction.getResultantState().getTriggerParallelWorkflows())) {
 				triggerParallelWorkflows(requestInfo, processStateAndAction, processStateAndAction.getResultantState().getTriggerParallelWorkflows());
 			}
 		}
@@ -82,7 +83,6 @@ public class StatusUpdateService {
 		List<ProcessInstance> processInstances = new LinkedList<>();
 		processInstances.add(processInstance);
 		ProcessInstanceRequest processInstanceRequest = new ProcessInstanceRequest(requestInfo, processInstances);
-		System.out.println("businessservice:  " + parallelWorkflow);
 		workflowService.transition(processInstanceRequest);
 	}
 
