@@ -140,9 +140,16 @@ public class WorkflowQueryBuilder {
 
 
         if (!criteria.getHistory()) {
-            with_query_builder.append(" pi_outer.lastmodifiedTime = (" +
-                    "SELECT max(lastmodifiedTime) from {SCHEMA}.eg_wf_processinstance_v2 as pi_inner where pi_inner.businessid = pi_outer.businessid and tenantid = ? " +
-                    ") ");
+            if (criteria.getBusinessService() != null) {
+                with_query_builder.append(" pi_outer.lastmodifiedTime = (" +
+                        "SELECT max(lastmodifiedTime) from {SCHEMA}.eg_wf_processinstance_v2 as pi_inner where pi_inner.businessid = pi_outer.businessid and pi_inner.businessservice = pi_outer.businessservice and tenantid = ? " +
+                        ") ");
+            }
+            else {
+                with_query_builder.append(" pi_outer.lastmodifiedTime = (" +
+                        "SELECT max(lastmodifiedTime) from {SCHEMA}.eg_wf_processinstance_v2 as pi_inner where pi_inner.businessid = pi_outer.businessid and tenantid = ? " +
+                        ") ");
+            }
             preparedStmtList.add(criteria.getTenantId());
         }
 
