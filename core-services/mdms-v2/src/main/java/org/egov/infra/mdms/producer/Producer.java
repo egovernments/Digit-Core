@@ -10,11 +10,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class Producer {
 
-    @Autowired
-    private CustomKafkaTemplate<String, Object> kafkaTemplate;
+    private final CustomKafkaTemplate<String, Object> kafkaTemplate;
+
+    private final MultiStateInstanceUtil multiStateInstanceUtil;
 
     @Autowired
-    private MultiStateInstanceUtil multiStateInstanceUtil;
+    public Producer(CustomKafkaTemplate<String, Object> kafkaTemplate, MultiStateInstanceUtil multiStateInstanceUtil) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.multiStateInstanceUtil = multiStateInstanceUtil;
+    }
+
 
     /**
      * Publishes a message to a Kafka topic after building a tenant-specific topic name.
