@@ -263,7 +263,7 @@ class WorkflowQueryBuilderTest {
         assertEquals(
                 " select id from {SCHEMA}.eg_wf_processinstance_v2 pi_outer WHERE  pi_outer.lastmodifiedTime = (SELECT"
                         + " max(lastmodifiedTime) from {SCHEMA}.eg_wf_processinstance_v2 as pi_inner where pi_inner.businessid ="
-                        + " pi_outer.businessid and tenantid = ? )  AND pi_outer.tenantid=?  and id in (select processinstanceid"
+                        + " pi_outer.businessid and pi_inner.businessservice = pi_outer.businessservice and tenantid = ? )  AND pi_outer.tenantid=?  and id in (select processinstanceid"
                         + " from {SCHEMA}.eg_wf_assignee_v2 asg_inner where asg_inner.assignee = ?) AND pi_outer.tenantid = ?  AND"
                         + " pi_outer.businessservice =?  AND pi_outer.modulename =?  ORDER BY pi_outer.lastModifiedTime DESC "
                         + " OFFSET ?  LIMIT ? ",
