@@ -25,6 +25,6 @@ public class ErrorCodes {
 
     public static final String UNIQUE_ATTRIBUTE_LIST_INVALID_MSG = "Fields provided under unique fields must be a subset of required attributes list";
 
-
+    public static final String INVALID_TENANT_ID_ERR_CODE = "INVALID_TENANT_ID";
 
 }
