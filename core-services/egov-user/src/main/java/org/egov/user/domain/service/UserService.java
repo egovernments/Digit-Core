@@ -501,7 +501,7 @@ public class UserService {
      */
     public void resetFailedLoginAttempts(User user) {
         if (user.getUuid() != null)
-            userRepository.resetFailedLoginAttemptsForUser(user.getUuid());
+            userRepository.resetFailedLoginAttemptsForUser(user.getTenantId(), user.getUuid());
     }
 
     /**
@@ -540,7 +540,7 @@ public class UserService {
     public void handleFailedLogin(User user, String ipAddress, RequestInfo requestInfo) {
         if (!Objects.isNull(user.getUuid())) {
             List<FailedLoginAttempt> failedLoginAttempts =
-                    userRepository.fetchFailedAttemptsByUserAndTime(user.getUuid(),
+                    userRepository.fetchFailedAttemptsByUserAndTime(user.getTenantId(), user.getUuid(),
                             System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(maxInvalidLoginAttemptsPeriod));
 
             if (failedLoginAttempts.size() + 1 >= maxInvalidLoginAttempts) {
@@ -558,7 +558,7 @@ public class UserService {
                 throw new OAuth2Exception("Account locked");
             }
 
-            userRepository.insertFailedLoginAttempt(new FailedLoginAttempt(user.getUuid(), ipAddress,
+            userRepository.insertFailedLoginAttempt(user.getTenantId(), new FailedLoginAttempt(user.getUuid(), ipAddress,
                     System.currentTimeMillis(), true));
         }
     }

@@ -1,5 +1,6 @@
 package org.egov.user.persistence.repository;
 
+import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.util.Date;
@@ -11,27 +12,31 @@ import java.util.stream.Collectors;
 import org.egov.user.domain.model.Address;
 import org.egov.user.domain.model.enums.AddressType;
 import org.egov.user.repository.rowmapper.AddressRowMapper;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 @Repository
 public class AddressRepository {
 
-    public static final String GET_ADDRESS_BY_USERID = "select * from eg_user_address where userid=:userId and tenantid =:tenantId";
-    public static final String INSERT_ADDRESS_BYUSERID = "insert into eg_user_address (id,type,address,city,pincode,userid,tenantid,createddate,lastmodifieddate,createdby,lastmodifiedby) "
+    public static final String GET_ADDRESS_BY_USERID = "select * from " + SCHEMA_REPLACE_STRING +".eg_user_address where userid=:userId and tenantid =:tenantId";
+    public static final String INSERT_ADDRESS_BYUSERID = "insert into " + SCHEMA_REPLACE_STRING +".eg_user_address (id,type,address,city,pincode,userid,tenantid,createddate,lastmodifieddate,createdby,lastmodifiedby) "
             + "values(:id,:type,:address,:city,:pincode,:userid,:tenantid,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby)";
-    public static final String SELECT_NEXT_SEQUENCE = "select nextval('seq_eg_user_address')";
-    public static final String DELETE_ADDRESSES = "delete from eg_user_address where id IN (:id)";
-    public static final String DELETE_ADDRESS = "delete from eg_user_address where id=:id";
-    public static final String UPDATE_ADDRESS_BYIDAND_TENANTID = "update eg_user_address set address=:address,city=:city,pincode=:pincode,lastmodifiedby=:lastmodifiedby,lastmodifieddate=:lastmodifieddate where userid=:userid and tenantid=:tenantid and type=:type";
+    public static final String SELECT_NEXT_SEQUENCE = "select nextval('" + SCHEMA_REPLACE_STRING +".seq_eg_user_address')";
+    public static final String DELETE_ADDRESSES = "delete from " + SCHEMA_REPLACE_STRING +".eg_user_address where id IN (:id)";
+    public static final String DELETE_ADDRESS = "delete from " + SCHEMA_REPLACE_STRING +".eg_user_address where id=:id";
+    public static final String UPDATE_ADDRESS_BYIDAND_TENANTID = "update " + SCHEMA_REPLACE_STRING +".eg_user_address set address=:address,city=:city,pincode=:pincode,lastmodifiedby=:lastmodifiedby,lastmodifieddate=:lastmodifieddate where userid=:userid and tenantid=:tenantid and type=:type";
 
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final DatabaseSchemaUtils databaseSchemaUtils;
 
-    public AddressRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, JdbcTemplate jdbcTemplate) {
+    public AddressRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, JdbcTemplate jdbcTemplate, DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.jdbcTemplate = jdbcTemplate;
+        this.databaseSchemaUtils = databaseSchemaUtils;
     }
 
     /**
@@ -45,7 +50,7 @@ public class AddressRepository {
     public Address create(Address address, Long userId, String tenantId) {
         Map<String, Object> addressInputs = new HashMap<String, Object>();
 
-        addressInputs.put("id", getNextSequence());
+        addressInputs.put("id", getNextSequence(tenantId));
         addressInputs.put("type", address.getType().toString());
         addressInputs.put("address", address.getAddress());
         addressInputs.put("city", address.getCity());
@@ -56,18 +61,22 @@ public class AddressRepository {
         addressInputs.put("lastmodifieddate", new Date());
         addressInputs.put("createdby", userId);
         addressInputs.put("lastmodifiedby", address.getUserId());
-
-        namedParameterJdbcTemplate.update(INSERT_ADDRESS_BYUSERID, addressInputs);
+        String query = INSERT_ADDRESS_BYUSERID;
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
+        namedParameterJdbcTemplate.update(query, addressInputs);
         return address;
     }
 
     /**
      * api will give the next sequence generator for user-address.
      *
+     * @param tenantId tenant identifier
      * @return
      */
-    private Long getNextSequence() {
-        return jdbcTemplate.queryForObject(SELECT_NEXT_SEQUENCE, Long.class);
+    private Long getNextSequence(String tenantId) {
+        String query = SELECT_NEXT_SEQUENCE;
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
+        return jdbcTemplate.queryForObject(query, Long.class);
     }
 
     /**
@@ -82,8 +91,9 @@ public class AddressRepository {
         final Map<String, Object> Map = new HashMap<String, Object>();
         Map.put("userId", userId);
         Map.put("tenantId", tenantId);
-
-        List<Address> entityAddresses = namedParameterJdbcTemplate.query(GET_ADDRESS_BY_USERID, Map,
+        String query = GET_ADDRESS_BY_USERID;
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
+        List<Address> entityAddresses = namedParameterJdbcTemplate.query(query, Map,
                 new AddressRowMapper());
 
         if (isEmpty(domainAddresses) && isEmpty(entityAddresses)) {
@@ -108,8 +118,9 @@ public class AddressRepository {
         final Map<String, Object> Map = new HashMap<String, Object>();
         Map.put("userId", userId);
         Map.put("tenantId", tenantId);
-
-        List<Address> addressList = namedParameterJdbcTemplate.query(GET_ADDRESS_BY_USERID, Map,
+        String query = INSERT_ADDRESS_BYUSERID;
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
+        List<Address> addressList = namedParameterJdbcTemplate.query(query, Map,
                 new AddressRowMapper());
         return addressList;
     }
@@ -150,8 +161,9 @@ public class AddressRepository {
         addressInputs.put("tenantid", matchingEntityAddress.getTenantId());
         addressInputs.put("lastmodifieddate", new Date());
         addressInputs.put("lastmodifiedby", userId);
-
-        namedParameterJdbcTemplate.update(UPDATE_ADDRESS_BYIDAND_TENANTID, addressInputs);
+        String query = UPDATE_ADDRESS_BYIDAND_TENANTID;
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, address.getTenantId());
+        namedParameterJdbcTemplate.update(query, addressInputs);
     }
 
     private Map<String, Address> toMap(List<Address> entityAddresses) {
@@ -169,8 +181,11 @@ public class AddressRepository {
         List<Long> ids = entityAddresses.parallelStream().map(Address::getId).collect(Collectors.toList());
         final Map<String, Object> adressInputs = new HashMap<String, Object>();
         adressInputs.put("id", ids);
-        if (ids != null && !ids.isEmpty()) {
-            namedParameterJdbcTemplate.update(DELETE_ADDRESSES, adressInputs);
+        if (!CollectionUtils.isEmpty(ids)) {
+            String tenantId = entityAddresses.stream().findFirst().get().getTenantId();
+            String query = DELETE_ADDRESSES;
+            query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
+            namedParameterJdbcTemplate.update(query, adressInputs);
         }
     }
 
@@ -178,7 +193,9 @@ public class AddressRepository {
 
         final Map<String, Object> adressInputs = new HashMap<String, Object>();
         adressInputs.put("id", adress.getId());
-        namedParameterJdbcTemplate.update(DELETE_ADDRESS, adressInputs);
+        String query = DELETE_ADDRESS;
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, adress.getTenantId());
+        namedParameterJdbcTemplate.update(query, adressInputs);
     }
 
     private void deleteRemovedAddresses(List<Address> domainAddresses,
