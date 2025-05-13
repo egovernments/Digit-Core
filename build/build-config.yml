@@ -170,12 +170,12 @@ config:
       - work-dir: "core-services/boundary-service/src/main/resources/db"
         image-name: "boundary-service-db"
 
-  - name: "builds/Digit-Core/core-services/TenantManagement"
+  - name: "builds/Digit-Core/core-services/tenant-management"
     build:
-      - work-dir: "core-services/TenantManagement"
+      - work-dir: "core-services/tenant-management"
         image-name: "tenant-management"
         dockerfile: "build/maven/Dockerfile"
-      - work-dir: "core-services/TenantManagement/src/main/resources/db"
+      - work-dir: "core-services/tenant-management/src/main/resources/db"
         image-name: "tenant-management-db"
 
   - name: "builds/Digit-Core/core-services/egov-mdms-service"
