@@ -53,6 +53,26 @@
             "SUPERUSER",
             "EMPLOYEE"
           ]
+        },
+        {
+          "action": "AUTO-APPROVE",
+          "nextState": "APPROVED",
+          "roles": [
+            "CITIZEN",
+            "ADMIN",
+            "SUPERUSER",
+            "EMPLOYEE"
+          ]
+        },
+        {
+          "action": "AUTO-REJECT",
+          "nextState": "REJECTED",
+          "roles": [
+            "CITIZEN",
+            "ADMIN",
+            "SUPERUSER",
+            "EMPLOYEE"
+          ]
         }
       ]
     },
