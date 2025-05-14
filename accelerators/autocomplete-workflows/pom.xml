@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>org.egov</groupId>
+	<artifactId>autocomplete-workflows</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>autocomplete-workflows</name>
+	<description>Consumer to autocomplete the child parallel workflows when parent workflow reaches terminal state.</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<!-- For JSON deserialization -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<!-- Lombok (Used at compile time, not packaged) -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- Swagger -->
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-core</artifactId>
+			<version>1.5.18</version>
+		</dependency>
+
+		<!-- Egov dependencies -->
+		<dependency>
+			<groupId>org.egov.services</groupId>
+			<artifactId>tracer</artifactId>
+			<version>2.9.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
