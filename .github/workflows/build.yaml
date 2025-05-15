@@ -25,6 +25,7 @@ on:
           - "boundary-service"
           - "build"
           - "chatbot"
+          - "default-data-handler"
           - "docs"
           - "egov-accesscontrol"
           - "egov-common-masters"
