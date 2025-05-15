@@ -60,6 +60,7 @@ on:
           - "service-request"
           - "tenant"
           - "user-otp"
+          - "vault-enc-service"
           - "xstate-chatbot"
           - "zuul"
         default: "audit-service"
