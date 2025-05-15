@@ -63,6 +63,7 @@ on:
           - "user-otp"
           - "xstate-chatbot"
           - "zuul"
+          - "dashboard-analytics"
         default: "audit-service"
 
 env:
