@@ -12,6 +12,7 @@ import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.entity.Artifact;
 import org.egov.filestore.repository.CloudFilesManager;
 import org.egov.filestore.repository.impl.AzureBlobStorageImpl;
+import org.egov.filestore.repository.impl.GoogleCloudStorageImpl;
 import org.egov.filestore.repository.impl.minio.MinioRepository;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,12 @@ public class ArtifactRepository {
 
 	@Value("${source.azure.blob}")
 	private String azureBlobSource;
+
+	@Value("${isGcpStorageEnabled}")
+	private Boolean isGcpStorageEnabled;
+
+	@Value("${gcp.source}")
+	private String gcpSource;
 
 	
 
@@ -69,6 +76,8 @@ public class ArtifactRepository {
 				.build();
 		if (isAzureStorageEnabled)
 			entityArtifact.setFileSource(azureBlobSource);
+		else if(isGcpStorageEnabled)
+			entityArtifact.setFileSource(gcpSource);
 	
 
 		return entityArtifact;
@@ -115,6 +124,11 @@ public class ArtifactRepository {
 			AzureBlobStorageImpl repo = (AzureBlobStorageImpl) cloudFilesManager;
 			resource = repo.read(artifact.getFileLocation());
 		}
+		else if(artifact.getFileLocation().getFileSource().equals(gcpSource)) {
+			GoogleCloudStorageImpl repo = (GoogleCloudStorageImpl) cloudFilesManager;
+			resource = repo.read(artifact.getFileLocation());
+		}
+
 		 
       if(null!=resource)
 		return new Resource(artifact.getContentType(), artifact.getFileName(), resource, artifact.getTenantId(),
