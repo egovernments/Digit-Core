@@ -1,160 +1,3 @@
-// package org.egov.filestore.repository.impl;
-
-// import com.google.cloud.storage.*;
-// import org.egov.filestore.domain.model.Artifact;
-// import org.egov.filestore.repository.CloudFilesManager;
-// import org.egov.tracer.model.CustomException;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.beans.factory.annotation.Value;
-// import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-// import org.springframework.stereotype.Service;
-// import lombok.extern.slf4j.Slf4j;
-// import org.apache.commons.io.FilenameUtils;
-
-// import java.io.IOException;
-// import java.util.*;
-// import java.util.concurrent.TimeUnit;
-// import java.awt.image.BufferedImage;
-// import javax.imageio.ImageIO;
-// import java.io.ByteArrayOutputStream;
-
-// @Slf4j
-// @Service
-// @ConditionalOnProperty(value = "isGcpStorageEnabled", havingValue = "true")
-// public class GoogleCloudStorageImpl implements CloudFilesManager {
-
-//     @Autowired
-//     private Storage storage;
-
-//     @Value("${gcp.bucket.name}")
-//     private String bucketName;
-
-//     @Value("${gcp.signed.url.expiry.minutes}")
-//     private Integer signedUrlExpiryMinutes;
-
-//     @Value("${gcp.project.id}")
-//     private String projectId;
-
-//     private static final String _large = "_large";
-//     private static final String _medium = "_medium";
-//     private static final String _small = "_small";
-
-//     @Override
-//     public void saveFiles(List<Artifact> artifacts) {
-//         try {
-//             for (Artifact artifact : artifacts) {
-//                 String completeName = artifact.getFileLocation().getFileName();
-//                 int index = completeName.indexOf('/');
-//                 String fileNameWithPath = completeName.substring(index + 1);
-
-//                 // Upload the main file
-//                 BlobId blobId = BlobId.of(bucketName, fileNameWithPath);
-//                 BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-//                         .setContentType(artifact.getMultipartFile().getContentType())
-//                         .build();
-
-//                 storage.create(blobInfo, artifact.getMultipartFile().getBytes());
-
-//                 // Handle thumbnail images if present
-//                 if (artifact.getThumbnailImages() != null && !artifact.getThumbnailImages().isEmpty()) {
-//                     for (Map.Entry<String, BufferedImage> entry : artifact.getThumbnailImages().entrySet()) {
-//                         ByteArrayOutputStream os = new ByteArrayOutputStream();
-//                         ImageIO.write(entry.getValue(), 
-//                             FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename()), 
-//                             os);
-                        
-//                         BlobId thumbnailBlobId = BlobId.of(bucketName, entry.getKey());
-//                         BlobInfo thumbnailBlobInfo = BlobInfo.newBuilder(thumbnailBlobId)
-//                                 .setContentType(artifact.getMultipartFile().getContentType())
-//                                 .build();
-
-//                         storage.create(thumbnailBlobInfo, os.toByteArray());
-//                         os.flush();
-//                     }
-//                 }
-//             }
-//         } catch (IOException e) {
-//             log.error("Error while uploading files to GCP: ", e);
-//             throw new CustomException("GCP_UPLOAD_ERROR", "Failed to upload files to Google Cloud Storage");
-//         }
-//     }
-
-//     @Override
-//     public Map<String, String> getFiles(List<org.egov.filestore.persistence.entity.Artifact> artifacts) {
-//         Map<String, String> mapOfIdAndUrls = new HashMap<>();
-        
-//         try {
-//             for (org.egov.filestore.persistence.entity.Artifact artifact : artifacts) {
-//                 String completeName = artifact.getFileName();
-//                 int index = completeName.indexOf('/');
-//                 String fileNameWithPath = completeName.substring(index + 1);
-
-//                 if (isFileAnImage(fileNameWithPath)) {
-//                     // Handle image files with thumbnails
-//                     StringBuilder url = new StringBuilder();
-//                     String[] imageFormats = {_large, _medium, _small};
-                    
-//                     // Get URL for original image
-//                     url.append(getSignedUrl(fileNameWithPath));
-                    
-//                     // Get URLs for thumbnails
-//                     String replaceString = fileNameWithPath.substring(
-//                         fileNameWithPath.lastIndexOf('.'),
-//                         fileNameWithPath.length()
-//                     );
-                    
-//                     for (String format : imageFormats) {
-//                         url.append(",");
-//                         String thumbnailPath = fileNameWithPath.replaceAll(
-//                             replaceString, 
-//                             format + replaceString
-//                         );
-//                         url.append(getSignedUrl(thumbnailPath));
-//                     }
-                    
-//                     mapOfIdAndUrls.put(artifact.getFileStoreId(), url.toString());
-//                 } else {
-//                     // Handle non-image files
-//                     mapOfIdAndUrls.put(
-//                         artifact.getFileStoreId(), 
-//                         getSignedUrl(fileNameWithPath)
-//                     );
-//                 }
-//             }
-//         } catch (Exception e) {
-//             log.error("Error while generating signed URLs: ", e);
-//             throw new CustomException("GCP_URL_GENERATION_ERROR", "Failed to generate signed URLs");
-//         }
-        
-//         return mapOfIdAndUrls;
-//     }
-
-//     private String getSignedUrl(String fileName) {
-//         try {
-//             BlobId blobId = BlobId.of(bucketName, fileName);
-//             Blob blob = storage.get(blobId);
-            
-//             if (blob == null) {
-//                 throw new CustomException("GCP_BLOB_NOT_FOUND", "File not found in Google Cloud Storage");
-//             }
-
-//             return blob.signUrl(signedUrlExpiryMinutes, TimeUnit.MINUTES).toString();
-//         } catch (Exception e) {
-//             log.error("Error generating signed URL for file {}: {}", fileName, e.getMessage());
-//             throw new CustomException("GCP_SIGNED_URL_ERROR", "Failed to generate signed URL");
-//         }
-//     }
-
-//     private boolean isFileAnImage(String filePath) {
-//         if (filePath.split("[\\.]").length > 1) {
-//             String extension = filePath.substring(filePath.lastIndexOf('.') + 1).toLowerCase();
-//             return Arrays.asList("jpg", "jpeg", "png", "gif", "bmp").contains(extension);
-//         }
-//         return false;
-//     }
-// } 
-
-
 package org.egov.filestore.repository.impl;
 
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -187,8 +30,11 @@ public class GoogleCloudStorageImpl implements CloudFilesManager {
     @Value("${gcp.project.id}")
     private String projectId;
 
-    @Value("${gcp.credentials.path}")
-    private String credentialsPath;
+    @Value("${gcp.client.email}")
+    private String clientEmail;
+
+    @Value("${gcp.private.key}")
+    private String privateKey;
 
     @Value("${gcp.bucket.name}")
     private String bucketName;
@@ -207,14 +53,24 @@ public class GoogleCloudStorageImpl implements CloudFilesManager {
 
     @PostConstruct
     public void init() throws IOException {
-
-        storage = StorageOptions.newBuilder()
-                .setProjectId(projectId)
-                .setCredentials(ServiceAccountCredentials.fromStream(new FileInputStream(credentialsPath)))
-                .build()
-                .getService();
-
-
+        try {
+            ServiceAccountCredentials credentials = ServiceAccountCredentials.fromPkcs8(
+                null, // clientId (optional)
+                clientEmail,
+                privateKey,
+                null, // privateKeyId (optional)
+                null  // scopes or user-defined headers
+            );
+            
+            storage = StorageOptions.newBuilder()
+                    .setProjectId(projectId)
+                    .setCredentials(credentials)
+                    .build()
+                    .getService();
+        } catch (Exception e) {
+            log.error("Error initializing GCP storage: ", e);
+            throw new CustomException("GCP_INIT_ERROR", "Failed to initialize Google Cloud Storage");
+        }
     }
 
     @Override

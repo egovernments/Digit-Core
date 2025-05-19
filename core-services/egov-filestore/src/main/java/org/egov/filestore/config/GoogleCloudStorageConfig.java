@@ -19,20 +19,20 @@ public class GoogleCloudStorageConfig {
     @Value("${gcp.project.id}")
     private String projectId;
 
-    @Value("${gcp.credentials.path}")
-    private String credentialsPath;
+    // @Value("${gcp.credentials.path}")
+    // private String credentialsPath;
 
-    @Bean
-    public Storage storage() throws IOException {
-        return StorageOptions.newBuilder()
-                .setProjectId(projectId)
-                .setCredentials(
-                    ServiceAccountCredentials.fromStream(
-                        new FileInputStream(credentialsPath)
-                    )
-                )
-                .build()
-                .getService();
-    }
+    // @Bean
+    // public Storage storage() throws IOException {
+    //     return StorageOptions.newBuilder()
+    //             .setProjectId(projectId)
+    //             .setCredentials(
+    //                 ServiceAccountCredentials.fromStream(
+    //                     new FileInputStream(credentialsPath)
+    //                 )
+    //             )
+    //             .build()
+    //             .getService();
+    // }
     
 } 
