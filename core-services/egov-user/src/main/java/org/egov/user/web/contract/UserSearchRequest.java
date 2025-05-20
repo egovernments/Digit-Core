@@ -9,6 +9,7 @@ import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.model.UserSearchCriteria;
 import org.egov.user.domain.model.enums.UserType;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Collections;
@@ -59,6 +60,7 @@ public class UserSearchRequest {
     @Setter
     private Boolean active;
 
+    @NotBlank(message = "User search request must have a valid tenant id")
     @Pattern(regexp = UserServiceConstants.PATTERN_TENANT)
     @Size(max = 256)
     @JsonProperty("tenantId")
