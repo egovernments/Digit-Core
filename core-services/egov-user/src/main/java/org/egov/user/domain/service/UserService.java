@@ -162,10 +162,11 @@ public class UserService {
         return users.get(0);
     }
 
-    public User getUserByUuid(String uuid) {
+    public User getUserByUuid(String uuid, String tenantId) {
 
         UserSearchCriteria userSearchCriteria = UserSearchCriteria.builder()
                 .uuid(Collections.singletonList(uuid))
+                .tenantId(tenantId)
                 .build();
 
         if (isEmpty(uuid)) {
@@ -357,7 +358,7 @@ public class UserService {
      */
     // TODO Fix date formats
     public User updateWithoutOtpValidation(User user, RequestInfo requestInfo) {
-        final User existingUser = getUserByUuid(user.getUuid());
+        final User existingUser = getUserByUuid(user.getUuid(), user.getTenantId());
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         validateUserRoles(user);
         user.validateUserModification();
@@ -371,7 +372,7 @@ public class UserService {
         if (user.getAccountLocked() != null && !user.getAccountLocked() && existingUser.getAccountLocked())
             resetFailedLoginAttempts(user);
 
-        User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid());
+        User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid(), user.getTenantId());
         User decryptedupdatedUserfromDB = encryptionDecryptionUtil.decryptObject(encryptedUpdatedUserfromDB, "UserSelf", User.class, requestInfo);
         return decryptedupdatedUserfromDB;
     }
@@ -417,12 +418,12 @@ public class UserService {
         /* encrypt here */
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
 
-        User existingUser = getUserByUuid(user.getUuid());
+        User existingUser = getUserByUuid(user.getUuid(), user.getTenantId());
         validateProfileUpdateIsDoneByTheSameLoggedInUser(user);
         user.nullifySensitiveFields();
         validatePassword(user.getPassword());
         userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
-        User updatedUser = getUserByUuid(user.getUuid());
+        User updatedUser = getUserByUuid(user.getUuid(), user.getTenantId());
         
         /* decrypt here */
         existingUser = encryptionDecryptionUtil.decryptObject(existingUser, "UserSelf", User.class, requestInfo);
