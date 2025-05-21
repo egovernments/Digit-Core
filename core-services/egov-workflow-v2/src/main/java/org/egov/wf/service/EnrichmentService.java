@@ -128,6 +128,15 @@ public class EnrichmentService {
      */
     public void enrichUsers(RequestInfo requestInfo,List<ProcessStateAndAction> processStateAndActions){
         List<String> uuids = new LinkedList<>();
+        Map<String,String> errorMap = new HashMap<>();
+
+        if (CollectionUtils.isEmpty(processStateAndActions)) return;
+
+        String tenantId = processStateAndActions.get(0).getProcessInstanceFromRequest().getTenantId();
+
+        if(processStateAndActions.get(0).getProcessInstanceFromDb() != null) {
+            tenantId = processStateAndActions.get(0).getProcessInstanceFromDb().getTenantId();
+        }
 
         processStateAndActions.forEach(processStateAndAction -> {
 
@@ -144,8 +153,8 @@ public class EnrichmentService {
         });
 
 
-        Map<String,User> idToUserMap = userService.searchUser(requestInfo,uuids);
-        Map<String,String> errorMap = new HashMap<>();
+        Map<String,User> idToUserMap = userService.searchUser(tenantId, requestInfo,uuids);
+
         processStateAndActions.forEach(processStateAndAction -> {
 
             // Setting Assignes
@@ -174,6 +183,10 @@ public class EnrichmentService {
      */
     public void enrichUsersFromSearch(RequestInfo requestInfo,List<ProcessInstance> processInstances){
         List<String> uuids = new LinkedList<>();
+
+        if(CollectionUtils.isEmpty(processInstances)) return;
+
+        String tenantId = processInstances.get(0).getTenantId();
         processInstances.forEach(processInstance -> {
 
             if(!CollectionUtils.isEmpty(processInstance.getAssignes()))
@@ -181,7 +194,7 @@ public class EnrichmentService {
 
             uuids.add(processInstance.getAssigner().getUuid());
         });
-        Map<String,User> idToUserMap = userService.searchUser(requestInfo,uuids);
+        Map<String,User> idToUserMap = userService.searchUser(tenantId, requestInfo,uuids);
         Map<String,String> errorMap = new HashMap<>();
         processInstances.forEach(processInstance -> {
 
