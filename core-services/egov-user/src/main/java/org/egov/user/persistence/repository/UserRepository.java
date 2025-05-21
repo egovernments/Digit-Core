@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.model.Address;
 import org.egov.user.domain.model.Role;
@@ -34,6 +33,7 @@ import org.egov.user.persistence.dto.FailedLoginAttempt;
 import org.egov.user.repository.builder.RoleQueryBuilder;
 import org.egov.user.repository.builder.UserTypeQueryBuilder;
 import org.egov.user.repository.rowmapper.UserResultSetExtractor;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,7 +42,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @Slf4j
@@ -50,9 +49,8 @@ public class UserRepository {
 	
 	@Autowired
 	private UserUtils userUtils;
-	
-	@Autowired
-	private MultiStateInstanceUtil multiStateInstanceUtil;
+
+    private final DatabaseSchemaUtils databaseSchemaUtils;
 
     private AddressRepository addressRepository;
     private AuditRepository auditRepository;
@@ -63,10 +61,11 @@ public class UserRepository {
     private UserResultSetExtractor userResultSetExtractor;
 
     @Autowired
-    UserRepository(RoleRepository roleRepository, UserTypeQueryBuilder userTypeQueryBuilder,
+    UserRepository(DatabaseSchemaUtils databaseSchemaUtils, RoleRepository roleRepository, UserTypeQueryBuilder userTypeQueryBuilder,
                    AddressRepository addressRepository, UserResultSetExtractor userResultSetExtractor,
                    JdbcTemplate jdbcTemplate,
                    NamedParameterJdbcTemplate namedParameterJdbcTemplate, AuditRepository auditRepository) {
+        this.databaseSchemaUtils = databaseSchemaUtils;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
         this.userTypeQueryBuilder = userTypeQueryBuilder;
@@ -87,6 +86,7 @@ public class UserRepository {
         final List<Object> preparedStatementValues = new ArrayList<>();
         boolean RoleSearchHappend = false;
         List<Long> userIds = new ArrayList<>();
+        String tenantId = userSearch.getTenantId();
         if (!isEmpty(userSearch.getRoleCodes()) && userSearch.getTenantId() != null) {
             userIds = findUsersWithRole(userSearch);
             RoleSearchHappend = true;
@@ -108,8 +108,8 @@ public class UserRepository {
             }
         }
         String queryStr = userTypeQueryBuilder.getQuery(userSearch, preparedStatementValues);
+        queryStr = databaseSchemaUtils.replaceSchemaPlaceholder(queryStr, tenantId);
         log.debug(queryStr);
-
         users = jdbcTemplate.query(queryStr, preparedStatementValues.toArray(), userResultSetExtractor);
         enrichRoles(users);
 
@@ -127,6 +127,7 @@ public class UserRepository {
         final List<Object> preparedStatementValues = new ArrayList<>();
         List<Long> usersIds = new ArrayList<>();
         String queryStr = userTypeQueryBuilder.getQueryUserRoleSearch(userSearch, preparedStatementValues);
+        queryStr = databaseSchemaUtils.replaceSchemaPlaceholder(queryStr, userSearch.getTenantId());
         log.debug(queryStr);
 
         usersIds = jdbcTemplate.queryForList(queryStr, preparedStatementValues.toArray(), Long.class);
@@ -150,7 +151,7 @@ public class UserRepository {
         parametersMap.put("userName", userName);
         parametersMap.put("tenantId", tenantId);
         parametersMap.put("userType", userType.toString());
-
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         int count = namedParameterJdbcTemplate.queryForObject(query, parametersMap, Integer.class);
 
         return count > 0;
@@ -164,7 +165,7 @@ public class UserRepository {
      */
     public User create(User user) {
         validateAndEnrichRoles(Collections.singletonList(user));
-        final Long newId = getNextSequence();
+        final Long newId = getNextSequence(user.getTenantId());
         user.setId(newId);
         user.setUuid(UUID.randomUUID().toString());
         user.setCreatedDate(new Date());
@@ -323,8 +324,8 @@ public class UserRepository {
         updateuserInputs.put("LastModifiedBy", userId );
         
         updateAuditDetails(oldUser, userId, uuid);
-
-        namedParameterJdbcTemplate.update(userTypeQueryBuilder.getUpdateUserQuery(), updateuserInputs);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getUpdateUserQuery(), tenantId);
+        namedParameterJdbcTemplate.update(query, updateuserInputs);
         if (user.getRoles() != null && !CollectionUtils.isEmpty(user.getRoles()) && !oldUser.getRoles().equals(user.getRoles())) {
             validateAndEnrichRoles(Collections.singletonList(user));
             updateRoles(user);
@@ -334,11 +335,11 @@ public class UserRepository {
         }
     }
 
-	public void fetchFailedLoginAttemptsByUser(String uuid) {
-        fetchFailedAttemptsByUserAndTime(uuid, 0L);
+	public void fetchFailedLoginAttemptsByUser(String tenantId, String uuid) {
+        fetchFailedAttemptsByUserAndTime(tenantId, uuid, 0L);
     }
 
-    public List<FailedLoginAttempt> fetchFailedAttemptsByUserAndTime(String uuid, long attemptStartDate) {
+    public List<FailedLoginAttempt> fetchFailedAttemptsByUserAndTime(String tenantId, String uuid, long attemptStartDate) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("user_uuid", uuid);
         params.put("attempt_date", attemptStartDate);
@@ -350,27 +351,27 @@ public class UserRepository {
 //			failedLoginAttempt.setAttemptDate(rs.getLong("attempt_date"));
 //			return failedLoginAttempt;
 //		};
-
-        return namedParameterJdbcTemplate.query(SELECT_FAILED_ATTEMPTS_BY_USER_SQL, params,
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_FAILED_ATTEMPTS_BY_USER_SQL, tenantId);
+        return namedParameterJdbcTemplate.query(query, params,
                 new BeanPropertyRowMapper<>(FailedLoginAttempt.class));
 
     }
 
-    public FailedLoginAttempt insertFailedLoginAttempt(FailedLoginAttempt failedLoginAttempt) {
+    public FailedLoginAttempt insertFailedLoginAttempt(String tenantId, FailedLoginAttempt failedLoginAttempt) {
         Map<String, Object> inputs = new HashMap<>();
         inputs.put("user_uuid", failedLoginAttempt.getUserUuid());
         inputs.put("ip", failedLoginAttempt.getIp());
         inputs.put("attempt_date", failedLoginAttempt.getAttemptDate());
         inputs.put("active", failedLoginAttempt.isActive());
-
-        namedParameterJdbcTemplate.update(UserTypeQueryBuilder.INSERT_FAILED_ATTEMPTS_SQL, inputs);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.INSERT_FAILED_ATTEMPTS_SQL, tenantId);
+        namedParameterJdbcTemplate.update(query, inputs);
 
         return failedLoginAttempt;
     }
 
-    public void resetFailedLoginAttemptsForUser(String uuid) {
-
-        namedParameterJdbcTemplate.update(UserTypeQueryBuilder.UPDATE_FAILED_ATTEMPTS_SQL,
+    public void resetFailedLoginAttemptsForUser(String tenantId, String uuid) {
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.UPDATE_FAILED_ATTEMPTS_SQL, tenantId);
+        namedParameterJdbcTemplate.update(query,
                 Collections.singletonMap("user_uuid", uuid));
     }
 
@@ -448,7 +449,7 @@ public class UserRepository {
             return Collections.emptyMap();
 
 		Set<Role> validatedRoles = fetchRolesByCode(roleCodes,
-				multiStateInstanceUtil.getStateLevelTenant(users.get(0).getTenantId()));
+				databaseSchemaUtils.getStateLevelTenant(users.get(0).getTenantId()));
 
         Map<String, Role> roleCodeMap = new HashMap<>();
 
@@ -476,8 +477,8 @@ public class UserRepository {
                             .addValue("lastmodifieddate", new Date())
                             .getValues());
         }
-        namedParameterJdbcTemplate.batchUpdate(RoleQueryBuilder.INSERT_USER_ROLES,
-                batchValues.toArray(new Map[entityUser.getRoles().size()]));
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.INSERT_USER_ROLES, entityUser.getTenantId());
+        namedParameterJdbcTemplate.batchUpdate(query, batchValues.toArray(new Map[entityUser.getRoles().size()]));
     }
 
     /**
@@ -567,8 +568,8 @@ public class UserRepository {
         userInputs.put("createdby", entityUser.getLoggedInUserId());
         userInputs.put("lastmodifiedby", entityUser.getLoggedInUserId());
         userInputs.put("alternatemobilenumber", entityUser.getAlternateMobileNumber());
-
-        namedParameterJdbcTemplate.update(userTypeQueryBuilder.getInsertUserQuery(), userInputs);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(), entityUser.getTenantId());
+        namedParameterJdbcTemplate.update(query, userInputs);
         return entityUser;
     }
 
@@ -577,8 +578,9 @@ public class UserRepository {
      *
      * @return
      */
-    private Long getNextSequence() {
-        return jdbcTemplate.queryForObject(SELECT_NEXT_SEQUENCE_USER, Long.class);
+    private Long getNextSequence(String tenantId) {
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_NEXT_SEQUENCE_USER, tenantId);
+        return jdbcTemplate.queryForObject(query, Long.class);
     }
 
     /**
@@ -607,7 +609,8 @@ public class UserRepository {
         Map<String, Object> roleInputs = new HashMap<String, Object>();
         roleInputs.put("user_id", user.getId());
         roleInputs.put("user_tenantid", user.getTenantId());
-        namedParameterJdbcTemplate.update(RoleQueryBuilder.DELETE_USER_ROLES, roleInputs);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.DELETE_USER_ROLES, user.getTenantId());
+        namedParameterJdbcTemplate.update(query, roleInputs);
         saveUserRoles(user);
     }
 
