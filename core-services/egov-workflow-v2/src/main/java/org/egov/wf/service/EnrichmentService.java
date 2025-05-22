@@ -130,10 +130,13 @@ public class EnrichmentService {
         List<String> uuids = new LinkedList<>();
         Map<String,String> errorMap = new HashMap<>();
 
+        // returning if processStateAndActions is empty
         if (CollectionUtils.isEmpty(processStateAndActions)) return;
 
+        // getting tenant id from processInstanceFromRequest to search users
         String tenantId = processStateAndActions.get(0).getProcessInstanceFromRequest().getTenantId();
 
+        // if processInstanceFromDb existing then using the same tenant id instead
         if(processStateAndActions.get(0).getProcessInstanceFromDb() != null) {
             tenantId = processStateAndActions.get(0).getProcessInstanceFromDb().getTenantId();
         }
@@ -186,6 +189,7 @@ public class EnrichmentService {
 
         if(CollectionUtils.isEmpty(processInstances)) return;
 
+        // Getting tenant id of the first process instance to search users
         String tenantId = processInstances.get(0).getTenantId();
         processInstances.forEach(processInstance -> {
 
