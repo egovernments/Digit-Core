@@ -75,7 +75,7 @@ public class DatabaseSchemaUtils {
         String updatedTopic = topic;
         if (this.getIsEnvironmentCentralInstance()) {
             String[] tenants = tenantId.split("\\.");
-            if (tenantId.contains(".") && tenants.length > 1) {
+            if (tenantId.contains(".") && tenants.length > 1 && this.stateSchemaIndexPositionInTenantId < tenants.length) {
                 updatedTopic = tenants[this.stateSchemaIndexPositionInTenantId].concat("-").concat(topic);
             } else {
                 updatedTopic = tenantId.concat("-").concat(topic);

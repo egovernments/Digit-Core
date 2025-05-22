@@ -118,7 +118,7 @@ public class AddressRepository {
         final Map<String, Object> Map = new HashMap<String, Object>();
         Map.put("userId", userId);
         Map.put("tenantId", tenantId);
-        String query = INSERT_ADDRESS_BYUSERID;
+        String query = GET_ADDRESS_BY_USERID;
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         List<Address> addressList = namedParameterJdbcTemplate.query(query, Map,
                 new AddressRowMapper());
