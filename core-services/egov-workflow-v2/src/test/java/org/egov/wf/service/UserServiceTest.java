@@ -52,7 +52,7 @@ class UserServiceTest {
         when(this.serviceRequestRepository.fetchResult((StringBuilder) any(), (Object) any()))
                 .thenThrow(new CustomException("name", "An error occurred"));
         RequestInfo requestInfo = new RequestInfo();
-        assertThrows(CustomException.class, () -> this.userService.searchUser(requestInfo, new ArrayList<>()));
+        assertThrows(CustomException.class, () -> this.userService.searchUser("dev", requestInfo, new ArrayList<>()));
         verify(this.workflowConfig).getUserHost();
         verify(this.workflowConfig).getUserSearchEndpoint();
         verify(this.serviceRequestRepository).fetchResult((StringBuilder) any(), (Object) any());
@@ -66,7 +66,7 @@ class UserServiceTest {
         when(this.serviceRequestRepository.fetchResult((StringBuilder) any(), (Object) any()))
                 .thenThrow(new IllegalArgumentException("name"));
         RequestInfo requestInfo = new RequestInfo();
-        assertThrows(CustomException.class, () -> this.userService.searchUser(requestInfo, new ArrayList<>()));
+        assertThrows(CustomException.class, () -> this.userService.searchUser("dev", requestInfo, new ArrayList<>()));
         verify(this.workflowConfig).getUserHost();
         verify(this.workflowConfig).getUserSearchEndpoint();
         verify(this.serviceRequestRepository).fetchResult((StringBuilder) any(), (Object) any());
@@ -95,7 +95,7 @@ class UserServiceTest {
                 .thenReturn(new LinkedHashMap<>());
         when(this.objectMapper.convertValue((Object) any(), (Class<Object>) any())).thenReturn(new UserDetailResponse());
         RequestInfo requestInfo = new RequestInfo();
-        assertThrows(CustomException.class, () -> this.userService.searchUser(requestInfo, new ArrayList<>()));
+        assertThrows(CustomException.class, () -> this.userService.searchUser("dev", requestInfo, new ArrayList<>()));
         verify(this.workflowConfig).getUserHost();
         verify(this.workflowConfig).getUserSearchEndpoint();
         verify(this.serviceRequestRepository).fetchResult((StringBuilder) any(), (Object) any());

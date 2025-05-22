@@ -44,10 +44,11 @@ public class UserService {
      * @param uuids The list of uuid of the user's
      * @return OwnerInfo of the user with the given uuid
      */
-    public Map<String,User> searchUser(RequestInfo requestInfo,List<String> uuids){
+    public Map<String,User> searchUser(String tenantId, RequestInfo requestInfo,List<String> uuids){
         UserSearchRequest userSearchRequest =new UserSearchRequest();
         userSearchRequest.setRequestInfo(requestInfo);
         userSearchRequest.setUuid(uuids);
+        userSearchRequest.setTenantId(tenantId);
         StringBuilder url = new StringBuilder(config.getUserHost());
         url.append(config.getUserSearchEndpoint());
         UserDetailResponse userDetailResponse = userCall(userSearchRequest,url);

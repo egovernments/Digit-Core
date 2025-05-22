@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
@@ -12,8 +15,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.egov.common.contract.request.RequestInfo;
@@ -32,7 +37,6 @@ import org.egov.wf.web.models.ProcessInstance;
 import org.egov.wf.web.models.ProcessInstanceSearchCriteria;
 import org.egov.wf.web.models.ProcessStateAndAction;
 import org.egov.wf.web.models.State;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,18 +63,39 @@ class EnrichmentServiceTest {
     @MockBean
     private WorkflowUtil workflowUtil;
 
+    ProcessInstance getMockedProcessInstance() {
+        ProcessInstance processInstance = mock(ProcessInstance.class);
+        when(processInstance.getTenantId()).thenReturn("dev");
+        return processInstance;
+    }
+
+    List<ProcessStateAndAction> getMockedProcessStateAndActionList() {
+
+        ProcessStateAndAction processStateAndAction = new ProcessStateAndAction();
+        processStateAndAction.setProcessInstanceFromRequest(getMockedProcessInstance());
+
+        // Mock the ProcessInstanceList
+        List<ProcessStateAndAction> processStateAndActionList = mock(ArrayList.class);
+
+        // Mock behavior of isEmpty() and get(0) methods
+        when(processStateAndActionList.isEmpty()).thenReturn(false);  // Assuming list is not empty
+        when(processStateAndActionList.get(0)).thenReturn(processStateAndAction);  // Return the mock ProcessStateAndAction
+
+        return  processStateAndActionList;
+    }
+
 
     @Test
     void testEnrichProcessRequest() {
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(new AuditDetails());
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         User user = new User();
         requestInfo.setUserInfo(user);
-        this.enrichmentService.enrichProcessRequest(requestInfo, new ArrayList<>());
+        this.enrichmentService.enrichProcessRequest(requestInfo, getMockedProcessStateAndActionList());
         verify(this.workflowUtil).getAuditDetails((String) any(), (Boolean) any());
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
         assertSame(user, requestInfo.getUserInfo());
     }
 
@@ -78,15 +103,21 @@ class EnrichmentServiceTest {
     @Test
     void testEnrichProcessRequestWithRequestInfoList() {
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(new AuditDetails());
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any()))
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any()))
                 .thenThrow(new CustomException("Code", "An error occurred"));
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
-        assertThrows(CustomException.class,
-                () -> this.enrichmentService.enrichProcessRequest(requestInfo, new ArrayList<>()));
-        verify(this.workflowUtil).getAuditDetails((String) any(), (Boolean) any());
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        requestInfo.getUserInfo().setUuid("some-uuid");
+
+        // Run the test and assert exception is thrown
+        assertThrows(CustomException.class, () -> {
+            this.enrichmentService.enrichProcessRequest(requestInfo, getMockedProcessStateAndActionList());
+        });
+
+        // Verify mock interactions
+        verify(this.workflowUtil).getAuditDetails(eq("some-uuid"), anyBoolean());
+        verify(this.userService).searchUser(eq("dev"), (RequestInfo) any(), (java.util.List<String>) any());
     }
 
 
@@ -95,7 +126,7 @@ class EnrichmentServiceTest {
     void EnrichProcessRequest() {
 
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(new AuditDetails());
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
@@ -116,7 +147,7 @@ class EnrichmentServiceTest {
     @Test
     void testEnrichProcessRequestWithError() {
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(new AuditDetails());
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
@@ -153,7 +184,7 @@ class EnrichmentServiceTest {
     void testEnrichProcessRequestWithProcessStateAndActionList() {
 
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(new AuditDetails());
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
@@ -184,7 +215,7 @@ class EnrichmentServiceTest {
     @Test
     void testEnrichProcessRequestWithInvalidUuid() {
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(new AuditDetails());
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
@@ -230,7 +261,7 @@ class EnrichmentServiceTest {
         AuditDetails auditDetails = new AuditDetails();
         auditDetails.setLastModifiedTime(1L);
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(auditDetails);
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
@@ -267,7 +298,7 @@ class EnrichmentServiceTest {
         doNothing().when(auditDetails).setLastModifiedTime((Long) any());
         auditDetails.setLastModifiedTime(4L);
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(auditDetails);
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
         ProcessStateAndAction processStateAndAction = mock(ProcessStateAndAction.class);
@@ -301,7 +332,7 @@ class EnrichmentServiceTest {
         doNothing().when(auditDetails).setLastModifiedTime((Long) any());
         auditDetails.setLastModifiedTime(4L);
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(auditDetails);
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
         ProcessInstance processInstance = new ProcessInstance();
@@ -339,7 +370,7 @@ class EnrichmentServiceTest {
         doNothing().when(auditDetails).setLastModifiedTime((Long) any());
         auditDetails.setLastModifiedTime(4L);
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(auditDetails);
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
@@ -379,7 +410,7 @@ class EnrichmentServiceTest {
         doNothing().when(auditDetails).setLastModifiedTime((Long) any());
         auditDetails.setLastModifiedTime(4L);
         when(this.workflowUtil.getAuditDetails((String) any(), (Boolean) any())).thenReturn(auditDetails);
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setUserInfo(new User());
         AuditDetails auditDetails1 = new AuditDetails();
@@ -419,7 +450,7 @@ class EnrichmentServiceTest {
         verify(this.workflowUtil).getAuditDetails((String) any(), (Boolean) any());
         verify(auditDetails).getLastModifiedTime();
         verify(auditDetails).setLastModifiedTime((Long) any());
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
         verify(processStateAndAction, atLeast(1)).getAction();
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromDb();
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromRequest();
@@ -433,10 +464,10 @@ class EnrichmentServiceTest {
 
     @Test
     void TestEnrichUsers() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
-        this.enrichmentService.enrichUsers(requestInfo, new ArrayList<>());
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        this.enrichmentService.enrichUsers(requestInfo, getMockedProcessStateAndActionList());
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
     }
 
 
@@ -444,7 +475,7 @@ class EnrichmentServiceTest {
 
     void testEnrichUsers() {
 
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ProcessStateAndAction processStateAndAction = new ProcessStateAndAction();
@@ -462,15 +493,15 @@ class EnrichmentServiceTest {
 
     @Test
     void testEnrichUsersWithCodeError() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any()))
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any()))
                 .thenThrow(new CustomException("Code", "An error occurred"));
         RequestInfo requestInfo = new RequestInfo();
-        assertThrows(CustomException.class, () -> this.enrichmentService.enrichUsers(requestInfo, new ArrayList<>()));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        assertThrows(CustomException.class, () -> this.enrichmentService.enrichUsers(requestInfo, getMockedProcessStateAndActionList()));
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
     }
 
     void testEnrichUsers4() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
         ProcessStateAndAction processStateAndAction = mock(ProcessStateAndAction.class);
         when(processStateAndAction.getProcessInstanceFromDb()).thenReturn(new ProcessInstance());
@@ -497,7 +528,7 @@ class EnrichmentServiceTest {
         processStateAndActionList.add(processStateAndAction);
         assertThrows(CustomException.class,
                 () -> this.enrichmentService.enrichUsers(requestInfo, processStateAndActionList));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromDb();
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromRequest();
         verify(processStateAndAction).setAction((Action) any());
@@ -510,7 +541,7 @@ class EnrichmentServiceTest {
 
     @Test
     void testEnrichUserWIthNull() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
         ProcessStateAndAction processStateAndAction = mock(ProcessStateAndAction.class);
         when(processStateAndAction.getProcessInstanceFromDb()).thenReturn(null);
@@ -537,7 +568,7 @@ class EnrichmentServiceTest {
         processStateAndActionList.add(processStateAndAction);
         assertThrows(CustomException.class,
                 () -> this.enrichmentService.enrichUsers(requestInfo, processStateAndActionList));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(eq("42"), (RequestInfo) any(), (java.util.List<String>) any());
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromDb();
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromRequest();
         verify(processStateAndAction).setAction((Action) any());
@@ -549,11 +580,12 @@ class EnrichmentServiceTest {
 
     @Test
     void testEnrichUsersWithProcessInstance() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ProcessInstance processInstance = new ProcessInstance();
         processInstance.addUsersItem(new User());
+        processInstance.setTenantId("dev");
         ProcessStateAndAction processStateAndAction = mock(ProcessStateAndAction.class);
         when(processStateAndAction.getProcessInstanceFromDb()).thenReturn(processInstance);
         State state = new State();
@@ -579,7 +611,7 @@ class EnrichmentServiceTest {
         processStateAndActionList.add(processStateAndAction);
         assertThrows(CustomException.class,
                 () -> this.enrichmentService.enrichUsers(requestInfo, processStateAndActionList));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(eq("dev"), (RequestInfo) any(), (java.util.List<String>) any());
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromDb();
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromRequest();
         verify(processStateAndAction).setAction((Action) any());
@@ -592,7 +624,7 @@ class EnrichmentServiceTest {
 
     @Test
     void testEnrichUsersTrue() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ArrayList<User> userList = new ArrayList<>();
@@ -623,7 +655,7 @@ class EnrichmentServiceTest {
         processStateAndActionList.add(processStateAndAction);
         assertThrows(CustomException.class,
                 () -> this.enrichmentService.enrichUsers(requestInfo, processStateAndActionList));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(eq(null), (RequestInfo) any(), (java.util.List<String>) any());
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromDb();
         verify(processStateAndAction, atLeast(1)).getProcessInstanceFromRequest();
         verify(processStateAndAction).setAction((Action) any());
@@ -638,7 +670,7 @@ class EnrichmentServiceTest {
 
     void testEnrichUsersWithNull() {
 
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
         ProcessStateAndAction processStateAndAction = mock(ProcessStateAndAction.class);
         when(processStateAndAction.getProcessInstanceFromDb()).thenReturn(new ProcessInstance());
@@ -661,17 +693,23 @@ class EnrichmentServiceTest {
 
     @Test
     void testEnrichUsersFromSearch() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
-        this.enrichmentService.enrichUsersFromSearch(requestInfo, new ArrayList<>());
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        User user = new User();
+        user.setUuid("some-uuid");
+        ProcessInstance processInstance = getMockedProcessInstance();
+        when(processInstance.getAssigner()).thenReturn(user);
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(Map.of(
+                "some-uuid", user
+        ));
+        this.enrichmentService.enrichUsersFromSearch(requestInfo, Collections.singletonList(processInstance));
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
     }
 
     @Test
 
     void testEnrichUsersFromSearchWithNull() {
 
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ArrayList<ProcessInstance> processInstanceList = new ArrayList<>();
@@ -682,28 +720,32 @@ class EnrichmentServiceTest {
 
     @Test
     void testEnrichUsersFromSearchWithCodeError() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any()))
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any()))
                 .thenThrow(new CustomException("Code", "An error occurred"));
         RequestInfo requestInfo = new RequestInfo();
+        User user = new User();
+        user.setUuid("some-uuid");
+        ProcessInstance processInstance = getMockedProcessInstance();
+        when(processInstance.getAssigner()).thenReturn(user);
         assertThrows(CustomException.class,
-                () -> this.enrichmentService.enrichUsersFromSearch(requestInfo, new ArrayList<>()));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+                () -> this.enrichmentService.enrichUsersFromSearch(requestInfo, Collections.singletonList(processInstance)));
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
     }
 
 
     @Test
     void testEnrichUsersFromSearchWithList() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
-        ProcessInstance processInstance = new ProcessInstance();
-        processInstance.setAssigner(new User());
+        ProcessInstance processInstance = getMockedProcessInstance();
+        when(processInstance.getAssigner()).thenReturn(new User());
 
         ArrayList<ProcessInstance> processInstanceList = new ArrayList<>();
         processInstanceList.add(processInstance);
         assertThrows(CustomException.class,
                 () -> this.enrichmentService.enrichUsersFromSearch(requestInfo, processInstanceList));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any());
     }
 
     @Test
@@ -711,7 +753,7 @@ class EnrichmentServiceTest {
     void testEnrichUsersFromSearchAddNull() {
 
 
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ArrayList<ProcessInstance> processInstanceList = new ArrayList<>();
@@ -724,7 +766,7 @@ class EnrichmentServiceTest {
     void testEnrichUsersFromSearchMapUser() {
 
 
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ProcessInstance processInstance = new ProcessInstance();
@@ -738,18 +780,19 @@ class EnrichmentServiceTest {
 
     @Test
     void testEnrichUsersFromSearchWithUsersItem() {
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ProcessInstance processInstance = new ProcessInstance();
         processInstance.setAssigner(new User());
         processInstance.addUsersItem(new User());
+        processInstance.setTenantId("dev");
 
         ArrayList<ProcessInstance> processInstanceList = new ArrayList<>();
         processInstanceList.add(processInstance);
         assertThrows(CustomException.class,
                 () -> this.enrichmentService.enrichUsersFromSearch(requestInfo, processInstanceList));
-        verify(this.userService).searchUser((RequestInfo) any(), (java.util.List<String>) any());
+        verify(this.userService).searchUser(eq("dev"), (RequestInfo) any(), (java.util.List<String>) any());
     }
 
 
@@ -757,7 +800,7 @@ class EnrichmentServiceTest {
 
     void testEnrichUsersFromSearchWithNullItem() {
 
-        when(this.userService.searchUser((RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
+        when(this.userService.searchUser(anyString(), (RequestInfo) any(), (java.util.List<String>) any())).thenReturn(new HashMap<>());
         RequestInfo requestInfo = new RequestInfo();
 
         ProcessInstance processInstance = new ProcessInstance();
