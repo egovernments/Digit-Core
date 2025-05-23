@@ -393,7 +393,7 @@ public class UserRepository {
     private Set<Role> fetchRolesByCode(Set<String> roleCodes, String tenantId) {
 
 
-        Set<Role> validatedRoles = roleRepository.findRolesByCode(roleCodes, "mz");
+        Set<Role> validatedRoles = roleRepository.findRolesByCode(roleCodes, tenantId);
 
         return validatedRoles;
     }
