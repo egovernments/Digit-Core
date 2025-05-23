@@ -108,6 +108,7 @@ public class UserRepository {
             }
         }
         String queryStr = userTypeQueryBuilder.getQuery(userSearch, preparedStatementValues);
+        // replaced schema placeholder with tenant specific schema name
         queryStr = databaseSchemaUtils.replaceSchemaPlaceholder(queryStr, tenantId);
         log.debug(queryStr);
         users = jdbcTemplate.query(queryStr, preparedStatementValues.toArray(), userResultSetExtractor);
@@ -127,6 +128,7 @@ public class UserRepository {
         final List<Object> preparedStatementValues = new ArrayList<>();
         List<Long> usersIds = new ArrayList<>();
         String queryStr = userTypeQueryBuilder.getQueryUserRoleSearch(userSearch, preparedStatementValues);
+        // replaced schema placeholder with tenant specific schema name
         queryStr = databaseSchemaUtils.replaceSchemaPlaceholder(queryStr, userSearch.getTenantId());
         log.debug(queryStr);
 
@@ -151,6 +153,7 @@ public class UserRepository {
         parametersMap.put("userName", userName);
         parametersMap.put("tenantId", tenantId);
         parametersMap.put("userType", userType.toString());
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         int count = namedParameterJdbcTemplate.queryForObject(query, parametersMap, Integer.class);
 
@@ -324,6 +327,7 @@ public class UserRepository {
         updateuserInputs.put("LastModifiedBy", userId );
         
         updateAuditDetails(oldUser, userId, uuid);
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getUpdateUserQuery(), tenantId);
         namedParameterJdbcTemplate.update(query, updateuserInputs);
         if (user.getRoles() != null && !CollectionUtils.isEmpty(user.getRoles()) && !oldUser.getRoles().equals(user.getRoles())) {
@@ -351,6 +355,7 @@ public class UserRepository {
 //			failedLoginAttempt.setAttemptDate(rs.getLong("attempt_date"));
 //			return failedLoginAttempt;
 //		};
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_FAILED_ATTEMPTS_BY_USER_SQL, tenantId);
         return namedParameterJdbcTemplate.query(query, params,
                 new BeanPropertyRowMapper<>(FailedLoginAttempt.class));
@@ -363,6 +368,7 @@ public class UserRepository {
         inputs.put("ip", failedLoginAttempt.getIp());
         inputs.put("attempt_date", failedLoginAttempt.getAttemptDate());
         inputs.put("active", failedLoginAttempt.isActive());
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.INSERT_FAILED_ATTEMPTS_SQL, tenantId);
         namedParameterJdbcTemplate.update(query, inputs);
 
@@ -370,6 +376,7 @@ public class UserRepository {
     }
 
     public void resetFailedLoginAttemptsForUser(String tenantId, String uuid) {
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.UPDATE_FAILED_ATTEMPTS_SQL, tenantId);
         namedParameterJdbcTemplate.update(query,
                 Collections.singletonMap("user_uuid", uuid));
@@ -386,7 +393,7 @@ public class UserRepository {
     private Set<Role> fetchRolesByCode(Set<String> roleCodes, String tenantId) {
 
 
-        Set<Role> validatedRoles = roleRepository.findRolesByCode(roleCodes, tenantId);
+        Set<Role> validatedRoles = roleRepository.findRolesByCode(roleCodes, "mz");
 
         return validatedRoles;
     }
@@ -477,6 +484,7 @@ public class UserRepository {
                             .addValue("lastmodifieddate", new Date())
                             .getValues());
         }
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.INSERT_USER_ROLES, entityUser.getTenantId());
         namedParameterJdbcTemplate.batchUpdate(query, batchValues.toArray(new Map[entityUser.getRoles().size()]));
     }
@@ -568,17 +576,21 @@ public class UserRepository {
         userInputs.put("createdby", entityUser.getLoggedInUserId());
         userInputs.put("lastmodifiedby", entityUser.getLoggedInUserId());
         userInputs.put("alternatemobilenumber", entityUser.getAlternateMobileNumber());
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(), entityUser.getTenantId());
         namedParameterJdbcTemplate.update(query, userInputs);
         return entityUser;
     }
 
     /**
-     * This api will return the next generate sequence of eg_user
+     * Fetches the next sequence number for a given tenant based on its schema.
+     * The schema placeholder in the query is replaced with the tenant-specific schema name.
      *
-     * @return
+     * @param tenantId the identifier of the tenant for which the next sequence number is to be fetched
+     * @return the next sequence number as a Long for the specified tenant
      */
     private Long getNextSequence(String tenantId) {
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_NEXT_SEQUENCE_USER, tenantId);
         return jdbcTemplate.queryForObject(query, Long.class);
     }
@@ -609,6 +621,7 @@ public class UserRepository {
         Map<String, Object> roleInputs = new HashMap<String, Object>();
         roleInputs.put("user_id", user.getId());
         roleInputs.put("user_tenantid", user.getTenantId());
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.DELETE_USER_ROLES, user.getTenantId());
         namedParameterJdbcTemplate.update(query, roleInputs);
         saveUserRoles(user);

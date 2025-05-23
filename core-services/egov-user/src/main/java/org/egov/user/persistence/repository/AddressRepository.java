@@ -1,6 +1,6 @@
 package org.egov.user.persistence.repository;
 
-import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
+import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.util.Date;
@@ -33,6 +33,13 @@ public class AddressRepository {
     private final JdbcTemplate jdbcTemplate;
     private final DatabaseSchemaUtils databaseSchemaUtils;
 
+    /**
+     * Constructs an instance of AddressRepository with the provided dependencies.
+     *
+     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate used for executing parameterized queries
+     * @param jdbcTemplate the JdbcTemplate used for executing SQL queries
+     * @param databaseSchemaUtils the DatabaseSchemaUtils used for handling schema-related operations
+     */
     public AddressRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, JdbcTemplate jdbcTemplate, DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.jdbcTemplate = jdbcTemplate;
@@ -62,6 +69,7 @@ public class AddressRepository {
         addressInputs.put("createdby", userId);
         addressInputs.put("lastmodifiedby", address.getUserId());
         String query = INSERT_ADDRESS_BYUSERID;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         namedParameterJdbcTemplate.update(query, addressInputs);
         return address;
@@ -75,6 +83,7 @@ public class AddressRepository {
      */
     private Long getNextSequence(String tenantId) {
         String query = SELECT_NEXT_SEQUENCE;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         return jdbcTemplate.queryForObject(query, Long.class);
     }
@@ -92,6 +101,7 @@ public class AddressRepository {
         Map.put("userId", userId);
         Map.put("tenantId", tenantId);
         String query = GET_ADDRESS_BY_USERID;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         List<Address> entityAddresses = namedParameterJdbcTemplate.query(query, Map,
                 new AddressRowMapper());
@@ -119,6 +129,7 @@ public class AddressRepository {
         Map.put("userId", userId);
         Map.put("tenantId", tenantId);
         String query = GET_ADDRESS_BY_USERID;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         List<Address> addressList = namedParameterJdbcTemplate.query(query, Map,
                 new AddressRowMapper());
@@ -162,6 +173,7 @@ public class AddressRepository {
         addressInputs.put("lastmodifieddate", new Date());
         addressInputs.put("lastmodifiedby", userId);
         String query = UPDATE_ADDRESS_BYIDAND_TENANTID;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, address.getTenantId());
         namedParameterJdbcTemplate.update(query, addressInputs);
     }
@@ -184,6 +196,7 @@ public class AddressRepository {
         if (!CollectionUtils.isEmpty(ids)) {
             String tenantId = entityAddresses.stream().findFirst().get().getTenantId();
             String query = DELETE_ADDRESSES;
+            // replaced schema placeholder with tenant specific schema name
             query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
             namedParameterJdbcTemplate.update(query, adressInputs);
         }
@@ -194,6 +207,7 @@ public class AddressRepository {
         final Map<String, Object> adressInputs = new HashMap<String, Object>();
         adressInputs.put("id", adress.getId());
         String query = DELETE_ADDRESS;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, adress.getTenantId());
         namedParameterJdbcTemplate.update(query, adressInputs);
     }

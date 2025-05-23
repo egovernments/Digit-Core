@@ -1,7 +1,7 @@
 package org.egov.user.persistence.repository;
 
 import static java.util.Objects.isNull;
-import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
+import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.ArrayList;
@@ -32,6 +32,15 @@ public class AuditRepository {
 	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final DatabaseSchemaUtils databaseSchemaUtils;
 
+    /**
+     * Constructs an instance of AuditRepository with the given namedParameterJdbcTemplate
+     * and databaseSchemaUtils.
+     *
+     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate instance responsible
+     *                                    for executing database operations with named parameters
+     * @param databaseSchemaUtils        the DatabaseSchemaUtils instance for handling schema
+     *                                    related operations and utilities
+     */
     public AuditRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.databaseSchemaUtils = databaseSchemaUtils;
@@ -150,6 +159,7 @@ public class AuditRepository {
         auditInputs.put("alternatemobilenumber", oldUser.getAlternateMobileNumber());
 
         String query = INSERT_AUDIT_DETAILS;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, oldUser.getTenantId());
         namedParameterJdbcTemplate.update(query, auditInputs);
     	

@@ -62,6 +62,14 @@ public class RoleRepository {
     @Value("${mdms.path}")
     private String path;
 
+    /**
+     * Constructs an instance of RoleRepository with the specified dependencies.
+     *
+     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate instance used for database operations
+     * @param restTemplate the RestTemplate instance used for making REST calls
+     * @param objectMapper the ObjectMapper instance used for JSON processing
+     * @param databaseSchemaUtils the DatabaseSchemaUtils instance used for database schema utilities
+     */
     public RoleRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, RestTemplate restTemplate,
                           ObjectMapper objectMapper, DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
@@ -83,6 +91,7 @@ public class RoleRepository {
         parametersMap.put("userId", userId);
         parametersMap.put("tenantId", tenantId);
         String query = RoleQueryBuilder.GET_ROLES_BY_ID_TENANTID;
+        // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
         List<Role> roleList = namedParameterJdbcTemplate.query(query, parametersMap,
                 new UserRoleRowMapper());
@@ -99,6 +108,7 @@ public class RoleRepository {
             final Map<String, Object> Map = new HashMap<String, Object>();
             Map.put("id", roleIdList);
             Map.put("tenantId", tenantid);
+            // replaced schema placeholder with tenant specific schema name
             query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.GET_ROLES_BY_ROLEIDS, tenantId);
             roles = namedParameterJdbcTemplate.query(query, Map, new RoleRowMapper());
         }
@@ -119,6 +129,7 @@ public class RoleRepository {
         parametersMap.put("code", code);
         parametersMap.put("tenantId", tenantId);
         Role role = null;
+        // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.GET_ROLE_BYTENANT_ANDCODE, tenantId);
         List<Role> roleList = namedParameterJdbcTemplate
                 .query(query, parametersMap, new RoleRowMapper());

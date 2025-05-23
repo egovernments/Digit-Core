@@ -50,7 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Objects.isNull;
-import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
+import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Component

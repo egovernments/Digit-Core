@@ -2,7 +2,7 @@ package org.egov.user.repository.builder;
 
 import org.springframework.stereotype.Component;
 
-import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
+import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
 
 @Component
 public class AddressQueryBuilder {
