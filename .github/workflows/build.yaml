@@ -62,6 +62,7 @@ on:
           - "user-otp"
           - "xstate-chatbot"
           - "zuul"
+          - "pgr-services"
         default: "audit-service"
 
 env:
