@@ -2,6 +2,8 @@ package org.egov.infra.mdms.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
+import org.egov.common.exception.InvalidTenantIdException;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsCriteria;
@@ -13,6 +15,7 @@ import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilder;
 import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilderV2;
 import org.egov.infra.mdms.repository.rowmapper.MdmsDataRowMapper;
 import org.egov.infra.mdms.repository.rowmapper.MdmsDataRowMapperV2;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -21,24 +24,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.egov.infra.mdms.errors.ErrorCodes.INVALID_TENANT_ID_ERR_CODE;
+
 @Repository
 @Slf4j
 public class MdmsDataRepositoryImpl implements MdmsDataRepository {
 
-    private Producer producer;
-    private JdbcTemplate jdbcTemplate;
-    private ApplicationConfig applicationConfig;
-    private MdmsDataQueryBuilder mdmsDataQueryBuilder;
-    private MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2;
-    private MdmsDataRowMapperV2 mdmsDataRowMapperV2;
-    private MdmsDataRowMapper mdmsDataRowMapper;
+    private final Producer producer;
+    private final JdbcTemplate jdbcTemplate;
+    private final ApplicationConfig applicationConfig;
+    private final MdmsDataQueryBuilder mdmsDataQueryBuilder;
+    private final MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2;
+    private final MdmsDataRowMapperV2 mdmsDataRowMapperV2;
+    private final MdmsDataRowMapper mdmsDataRowMapper;
+    private final MultiStateInstanceUtil multiStateInstanceUtil;
 
+    /**
+     * Constructs an instance of MdmsDataRepositoryImpl with the necessary dependencies.
+     *
+     * @param producer The producer component responsible for Kafka message publication.
+     * @param jdbcTemplate The JdbcTemplate for executing database operations.
+     * @param applicationConfig The configuration object containing application-specific properties.
+     * @param mdmsDataQueryBuilder The query builder used for constructing MDMS data search queries.
+     * @param mdmsDataRowMapperV2 The row mapper implementation for mapping result sets to MDMS data objects (version 2).
+     * @param mdmsDataQueryBuilderV2 The query builder used for constructing MDMS data search queries (version 2).
+     * @param mdmsDataRowMapper The row mapper implementation for mapping result sets to MDMS data objects.
+     * @param multiStateInstanceUtil Utility for handling multi-state-specific logic and configurations.
+     */
     @Autowired
     public MdmsDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
                                   ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
                                   MdmsDataRowMapperV2 mdmsDataRowMapperV2,
                                   MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2,
-                                  MdmsDataRowMapper mdmsDataRowMapper) {
+                                  MdmsDataRowMapper mdmsDataRowMapper, MultiStateInstanceUtil multiStateInstanceUtil) {
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
@@ -46,6 +64,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         this.mdmsDataRowMapper = mdmsDataRowMapper;
         this.mdmsDataRowMapperV2 = mdmsDataRowMapperV2;
         this.mdmsDataQueryBuilderV2 = mdmsDataQueryBuilderV2;
+        this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
     /**
@@ -53,7 +72,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      */
     @Override
     public void create(MdmsRequest mdmsRequest) {
-        producer.push(applicationConfig.getSaveMdmsDataTopicName(), mdmsRequest);
+        producer.push(mdmsRequest.getMdms().getTenantId(), applicationConfig.getSaveMdmsDataTopicName(), mdmsRequest);
     }
 
     /**
@@ -61,7 +80,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      */
     @Override
     public void update(MdmsRequest mdmsRequest) {
-        producer.push(applicationConfig.getUpdateMdmsDataTopicName(), mdmsRequest);
+        producer.push(mdmsRequest.getMdms().getTenantId(), applicationConfig.getUpdateMdmsDataTopicName(), mdmsRequest);
     }
 
     /**
@@ -72,7 +91,13 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     public List<Mdms> searchV2(MdmsCriteriaV2 mdmsCriteriaV2) {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = mdmsDataQueryBuilderV2.getMdmsDataSearchQuery(mdmsCriteriaV2, preparedStmtList);
-        log.info(query);
+        try {
+            // Replaced schema placeholder in the query with tenant specific schema name
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, mdmsCriteriaV2.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
+        }
+        log.info("Mdms Data search query: {}", query);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
     }
 
@@ -84,7 +109,13 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     public Map<String, Map<String, JSONArray>> search(MdmsCriteria mdmsCriteria) {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = mdmsDataQueryBuilder.getMdmsDataSearchQuery(mdmsCriteria, preparedStmtList);
-        log.info(query);
+        try {
+            // Replaced schema placeholder in the query with tenant specific schema name
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, mdmsCriteria.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
+        }
+        log.info("Mdms Data search query: {}", query);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapper);
     }
 }
