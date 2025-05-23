@@ -39,6 +39,18 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     private final MdmsDataRowMapper mdmsDataRowMapper;
     private final MultiStateInstanceUtil multiStateInstanceUtil;
 
+    /**
+     * Constructs an instance of MdmsDataRepositoryImpl with the necessary dependencies.
+     *
+     * @param producer The producer component responsible for Kafka message publication.
+     * @param jdbcTemplate The JdbcTemplate for executing database operations.
+     * @param applicationConfig The configuration object containing application-specific properties.
+     * @param mdmsDataQueryBuilder The query builder used for constructing MDMS data search queries.
+     * @param mdmsDataRowMapperV2 The row mapper implementation for mapping result sets to MDMS data objects (version 2).
+     * @param mdmsDataQueryBuilderV2 The query builder used for constructing MDMS data search queries (version 2).
+     * @param mdmsDataRowMapper The row mapper implementation for mapping result sets to MDMS data objects.
+     * @param multiStateInstanceUtil Utility for handling multi-state-specific logic and configurations.
+     */
     @Autowired
     public MdmsDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
                                   ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
@@ -80,6 +92,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = mdmsDataQueryBuilderV2.getMdmsDataSearchQuery(mdmsCriteriaV2, preparedStmtList);
         try {
+            // Replaced schema placeholder in the query with tenant specific schema name
             query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, mdmsCriteriaV2.getTenantId());
         } catch (InvalidTenantIdException e) {
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
@@ -97,6 +110,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = mdmsDataQueryBuilder.getMdmsDataSearchQuery(mdmsCriteria, preparedStmtList);
         try {
+            // Replaced schema placeholder in the query with tenant specific schema name
             query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, mdmsCriteria.getTenantId());
         } catch (InvalidTenantIdException e) {
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());

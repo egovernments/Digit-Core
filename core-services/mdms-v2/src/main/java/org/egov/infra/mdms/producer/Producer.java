@@ -14,6 +14,12 @@ public class Producer {
 
     private final MultiStateInstanceUtil multiStateInstanceUtil;
 
+    /**
+     * Constructs a new instance of the Producer class with the given dependencies.
+     *
+     * @param kafkaTemplate An instance of CustomKafkaTemplate used to interact with Kafka for message publishing.
+     * @param multiStateInstanceUtil An instance of MultiStateInstanceUtil used for handling tenant-specific topics.
+     */
     @Autowired
     public Producer(CustomKafkaTemplate<String, Object> kafkaTemplate, MultiStateInstanceUtil multiStateInstanceUtil) {
         this.kafkaTemplate = kafkaTemplate;

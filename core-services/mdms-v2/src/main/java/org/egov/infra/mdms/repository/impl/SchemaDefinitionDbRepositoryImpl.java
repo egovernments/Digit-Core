@@ -36,6 +36,16 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
 
     private final MultiStateInstanceUtil multiStateInstanceUtil;
 
+    /**
+     * Constructs a new instance of SchemaDefinitionDbRepositoryImpl.
+     *
+     * @param producer The Producer instance used to emit messages to Kafka topics.
+     * @param jdbcTemplate The JdbcTemplate instance for database interactions.
+     * @param applicationConfig The ApplicationConfig instance for accessing application-level configurations.
+     * @param rowMapper The SchemaDefinitionRowMapper instance for mapping ResultSet rows to SchemaDefinition objects.
+     * @param schemaDefinitionQueryBuilder The SchemaDefinitionQueryBuilder instance to build database queries for schema definitions.
+     * @param multiStateInstanceUtil The MultiStateInstanceUtil instance to handle tenant-specific operations.
+     */
     @Autowired
     public SchemaDefinitionDbRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
                                             ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper, SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder, MultiStateInstanceUtil multiStateInstanceUtil){
@@ -69,6 +79,7 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
         // Invoke query builder to generate query based on the provided criteria
         String query = schemaDefinitionQueryBuilder.getSchemaSearchQuery(schemaDefCriteria, preparedStatementList);
         try {
+            // Replaced schema placeholder in the query with tenant specific schema name
             query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, schemaDefCriteria.getTenantId());
         } catch (InvalidTenantIdException e) {
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
