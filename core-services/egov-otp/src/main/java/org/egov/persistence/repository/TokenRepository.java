@@ -39,6 +39,13 @@ public class TokenRepository {
 
     private final OtpConfiguration otpConfiguration;
 
+    /**
+     * Constructs a new TokenRepository instance with the necessary dependencies.
+     *
+     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate used for executing parameterized SQL queries
+     * @param multiStateInstanceUtil the utility to handle multi-state or central-instance specific logic
+     * @param otpConfiguration the configuration object containing OTP-related settings
+     */
     public TokenRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, MultiStateInstanceUtil multiStateInstanceUtil, OtpConfiguration otpConfiguration) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
@@ -61,6 +68,7 @@ public class TokenRepository {
         tokenInputs.put("createdBy", 0l);
         tokenInputs.put("version", 0l);
         tokenInputs.put("createddatenew", System.currentTimeMillis());
+        // replaced schema placeholder with tenant specific schema name
         String query = replaceSchemaPlaceholder(INSERT_TOKEN, token.getTenantId());
         namedParameterJdbcTemplate.update(query, tokenInputs);
 
@@ -82,6 +90,7 @@ public class TokenRepository {
 
         final Map<String, Object> tokenInputs = new HashMap<String, Object>();
         tokenInputs.put("id", id);
+        // replaced schema placeholder with tenant specific schema name
         String query = replaceSchemaPlaceholder(UPDATE_TOKEN, tenantId);
         return namedParameterJdbcTemplate.update(query, tokenInputs);
     }
@@ -99,6 +108,7 @@ public class TokenRepository {
         tokenInputs.put("tokenIdentity", request.getIdentity());
         tokenInputs.put("tenantId", tenantId);
         tokenInputs.put("timestamp", System.currentTimeMillis());
+        // replaced schema placeholder with tenant specific schema name
         String query = replaceSchemaPlaceholder(GETTOKENS_BY_NUMBER_IDENTITY_TENANT, tenantId);
         List<Token> domainTokens = namedParameterJdbcTemplate.query(query, tokenInputs,
                 new TokenRowMapper());
@@ -111,6 +121,7 @@ public class TokenRepository {
         Token token = null;
         final Map<String, Object> tokenInputs = new HashMap<String, Object>();
         tokenInputs.put("id", searchCriteria.getUuid());
+        // replaced schema placeholder with tenant specific schema name
         String query = replaceSchemaPlaceholder(GETTOKEN_BYID, searchCriteria.getTenantId());
         List<Token> domainTokens = namedParameterJdbcTemplate.query(query, tokenInputs, new TokenRowMapper());
         if (domainTokens != null && !domainTokens.isEmpty()) {
@@ -124,12 +135,14 @@ public class TokenRepository {
         tokenInputs.put("id", t.getUuid());
         tokenInputs.put("ttl", otpConfiguration.getTtl());
         tokenInputs.put("timestamp", System.currentTimeMillis());
+        // replaced schema placeholder with tenant specific schema name
         String query = replaceSchemaPlaceholder(UPDATETOKEN_TLL_BYID, t.getTenantId());
         return namedParameterJdbcTemplate.update(query, tokenInputs);
     }
 
     private String replaceSchemaPlaceholder(String query, String tenantId) {
         try {
+            // replaced schema placeholder with tenant specific schema name
             return multiStateInstanceUtil.replaceSchemaPlaceholder(query, tenantId);
         } catch (InvalidTenantIdException e) {
             throw new CustomException("INVALID_TENANT_ID", e.getMessage());
