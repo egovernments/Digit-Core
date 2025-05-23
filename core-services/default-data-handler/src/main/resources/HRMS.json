@@ -1,0 +1,94 @@
+{
+  "Employees": [
+    {
+      "tenantId": "TENANTID",
+      "employeeStatus": "EMPLOYED",
+      "assignments": [
+        {
+          "fromDate": 1725494400000,
+          "isCurrentAssignment": true,
+          "department": "DEPT_2",
+          "designation": "DESIG_04"
+        }
+      ],
+      "code": "demoemployee@gmail.com",
+      "dateOfAppointment": 1718841600000,
+      "employeeType": "PERMANENT",
+      "jurisdictions": [
+        {
+          "hierarchy": "REVENUE",
+          "boundaryType": "City",
+          "boundary": "TENANTID",
+          "tenantId": "TENANTID",
+          "roles": [
+            {
+              "code": "RESOLVER",
+              "name": "PGR Last Mile Employee",
+              "labelKey": "ACCESSCONTROL_ROLES_ROLES_RESOLVER",
+              "tenantId": "TENANTID"
+            },
+            {
+              "code": "EMPLOYEE",
+              "name": "Employee",
+              "labelKey": "ACCESSCONTROL_ROLES_ROLES_EMPLOYEE",
+              "tenantId": "TENANTID"
+            }
+          ]
+        }
+      ],
+      "user": {
+        "mobileNumber": 9999999999,
+        "name": "ACTOR_NAME_TENANTID",
+        "correspondenceAddress": "egov foundation",
+        "emailId": "demoemployee@gmail.com",
+        "gender": "MALE",
+        "dob": 946339200000,
+        "roles": [
+          {
+            "code": "RESOLVER",
+            "name": "Resolver",
+            "labelKey": "ACCESSCONTROL_ROLES_ROLES",
+            "tenantId": "TENANTID"
+          },
+          {
+            "code": "EMPLOYEE",
+            "name": "Employee",
+            "labelKey": "ACCESSCONTROL_ROLES_ROLES",
+            "tenantId": "TENANTID"
+          }
+        ],
+        "tenantId": "TENANTID"
+      },
+      "serviceHistory": [],
+      "education": [],
+      "tests": []
+    }
+  ],
+  "RequestInfo": {
+    "apiId": "Rainmaker",
+    "authToken": "0d756e9d-bb0a-4712-a34f-d94e422e4fe8",
+    "userInfo": {
+      "id": 33293,
+      "uuid": "b49e84c3-33fe-4e5c-8df7-3c7d48a1f899",
+      "userName": "USERNAME",
+      "name": "hrmscreate",
+      "mobileNumber": null,
+      "emailId": "hrmscreate@gmail.com",
+      "locale": null,
+      "type": "EMPLOYEE",
+      "roles": [
+        {
+          "name": "Super User",
+          "code": "SUPERUSER",
+          "tenantId": "TENANTID"
+        }
+      ],
+      "active": true,
+      "tenantId": "TENANTID",
+      "permanentCity": null
+    },
+    "msgId": "1727945914463|en_IN",
+    "plainAccessRequest": {
+    }
+  }
+}
