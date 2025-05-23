@@ -97,19 +97,15 @@ public class TokenRepository {
 
     public Tokens findByIdentityAndTenantId(ValidateRequest request) {
 
-    	String tenantId = request.getTenantId();
-        /*
-         * using only IN in central instance since OTP is for only citizen
-         */
-        if(tenantId.contains("."))
-        	tenantId = tenantId.split("\\.")[0];
+        String originalTenantId = request.getTenantId();
+        String stateLevelTenantId = multiStateInstanceUtil.getStateLevelTenant(originalTenantId);
         
         final Map<String, Object> tokenInputs = new HashMap<String, Object>();
         tokenInputs.put("tokenIdentity", request.getIdentity());
-        tokenInputs.put("tenantId", tenantId);
+        tokenInputs.put("tenantId", stateLevelTenantId);
         tokenInputs.put("timestamp", System.currentTimeMillis());
         // replaced schema placeholder with tenant specific schema name
-        String query = replaceSchemaPlaceholder(GETTOKENS_BY_NUMBER_IDENTITY_TENANT, tenantId);
+        String query = replaceSchemaPlaceholder(GETTOKENS_BY_NUMBER_IDENTITY_TENANT, originalTenantId);
         List<Token> domainTokens = namedParameterJdbcTemplate.query(query, tokenInputs,
                 new TokenRowMapper());
         return new Tokens(domainTokens);
