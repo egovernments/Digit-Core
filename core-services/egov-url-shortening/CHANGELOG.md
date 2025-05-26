@@ -11,6 +11,10 @@ All notable changes to this module will be documented in this file.
 - Upgraded org.egov.services:tracer version from 2.1.2-SNAPSHOT to 2.9.0-SNAPSHOT
 - Upgraded redis.clients:jedis version to 5.0.0
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.1.2 - 2022-03-03
 -Added support for randomized short url generation
 
