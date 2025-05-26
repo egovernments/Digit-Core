@@ -7,6 +7,10 @@ All notable changes to this module will be documented in this file.
 - Upgraded java version from 1.8 to 17
 - Upgraded lombok version from 1.18.8 to 1.18.22
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.2.0 - 15-03-2023
 
 - Added new API for sms bounce-back tracking 
