@@ -10,6 +10,10 @@ All notable changes to this module will be documented in this file.
 - Upgraded org.flywaydb:flyway-core version from 6.4.4 to 9.22.3
 - Upgraded lombok version from 1.18.8 to 1.18.22
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.1.5 - 2023-03-16
 - Fixed bug where search on root level boundary type yields empty search response.
 

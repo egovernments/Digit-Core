@@ -15,6 +15,10 @@ All notable changes to this module will be documented in this file.
 - Upgraded javax.validation:validation-api version to 3.0.2
 - Upgraded org.egov.services:tracer version from 2.1.1-SNAPSHOT to 2.9.0-SNAPSHOT
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.2.3 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 
