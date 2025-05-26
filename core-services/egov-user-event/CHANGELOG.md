@@ -5,6 +5,10 @@ All notable changes to this module will be documented in this file.
 
 - Enhanced the search API to support date filter
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.1.4 - 2022-01-13
 
 - Updated to log4j2 version 2.17.1
