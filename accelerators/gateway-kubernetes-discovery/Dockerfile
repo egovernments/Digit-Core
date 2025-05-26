@@ -1,31 +1,52 @@
+# docker buildx build \
+# -f utilities/zuul-kubernetes-discovery/Dockerfile \
+# --platform linux/amd64,linux/arm64 \
+# --build-arg WORK_DIR=utilities/zuul-kubernetes-discovery \
+# -t egovio/zuul-kubernetes-discovery:multiarch \
+# --push \
+# .
 
-FROM golang:1.13-alpine as build
+# 1) BUILD STAGE
+FROM golang:1.13-alpine AS builder
 
-ENV GO111MODULE=on
-ENV GOCACHE=/tmp
 
-ARG WORK_DIR
+# expose BuildKit’s target vars
+ARG TARGETOS
+ARG TARGETARCH
+
+# point this at your zuul module folder
+ARG WORK_DIR=utilities/zuul-kubernetes-discovery
+
+# enable modules and disable CGO
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=${TARGETOS} \
+    GOARCH=${TARGETARCH}
+
 WORKDIR /app
 
-COPY ${WORK_DIR}/go.mod .
-COPY ${WORK_DIR}/go.sum .
-
+# only bring in the module files first (for caching)
+COPY ${WORK_DIR}/go.mod ${WORK_DIR}/go.sum ./
 RUN go mod download
 
-COPY . .
+# then copy the actual source
+COPY ${WORK_DIR}/ ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+# build into a single binary
+RUN go build -o zuul-kubernetes-discovery .
 
 
-# Create runtime image
+
+# 2) RUNTIME STAGE
 FROM alpine:3
 
 WORKDIR /opt/egov
+RUN addgroup -S egov && adduser -S -G egov egov
 
-RUN addgroup -S egov && adduser -S -G egov egov 
-COPY --chown=egov:egov --from=build /app/zuul-kubernetes-discovery /opt/egov/
+# pull in the correctly-arch compiled binary
+COPY --from=builder /app/zuul-kubernetes-discovery .
 
-RUN chmod +x /opt/egov/zuul-kubernetes-discovery 
+RUN chmod +x ./zuul-kubernetes-discovery
+USER egov
 
-CMD ["/opt/egov/zuul-kubernetes-discovery"]
-# USER egov
+CMD ["./zuul-kubernetes-discovery"]
