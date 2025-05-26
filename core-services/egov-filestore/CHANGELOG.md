@@ -8,6 +8,10 @@ All notable changes to this module will be documented in this file.
 - Upgraded lombok version from 1.18.8 to 1.18.22
 - Upgraded minio library version from 7.0.2 to 7.1.4
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.3.0 - 2023-03-15
 - Fixes flow to store and retrieve files from `Azure blob storage`.
 
