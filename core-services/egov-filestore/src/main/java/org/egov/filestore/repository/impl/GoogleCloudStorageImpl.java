@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -77,12 +78,16 @@ public class GoogleCloudStorageImpl implements CloudFilesManager {
     public void saveFiles(List<Artifact> artifacts) {
         for (Artifact artifact : artifacts) {
             try {
-                String filePath = artifact.getFileLocation().getFileName();
-                BlobId blobId = BlobId.of(bucketName, filePath);
+                // String filePath = artifact.getFileLocation().getFileName();
+                String completeName = artifact.getFileLocation().getFileName();
+                int index = completeName.indexOf('/');
+                String fileNameWithPath = completeName.substring(index + 1, completeName.length());
+    
+                BlobId blobId = BlobId.of(bucketName, fileNameWithPath);
                 BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(artifact.getMultipartFile().getContentType()).build();
 
                 if (artifact.getMultipartFile().getContentType().startsWith("image/")) {
-                    String extension = filePath.substring(filePath.lastIndexOf('.') + 1);
+                    String extension = fileNameWithPath.substring(fileNameWithPath.lastIndexOf('.') + 1);
                     Map<String, BufferedImage> thumbnails = artifact.getThumbnailImages();
                     for (String key : thumbnails.keySet()) {
                         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -105,7 +110,10 @@ public class GoogleCloudStorageImpl implements CloudFilesManager {
     public Map<String, String> getFiles(List<org.egov.filestore.persistence.entity.Artifact> artifacts) {
         Map<String, String> result = new HashMap<>();
         for (org.egov.filestore.persistence.entity.Artifact artifact : artifacts) {
-            String fileName = artifact.getFileName();
+            String completeName = artifact.getFileLocation().getFileName();
+            int index = completeName.indexOf('/');
+            String fileName = completeName.substring(index + 1, completeName.length());
+
             if (util.isFileAnImage(fileName)) {
                 StringBuilder url = new StringBuilder();
                 String[] formats = {_large, _medium, _small};
@@ -161,7 +169,11 @@ public class GoogleCloudStorageImpl implements CloudFilesManager {
 
     private String generateSignedUrl(String objectName) {
         BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(bucketName, objectName)).build();
-        return storage.signUrl(blobInfo, 15, java.util.concurrent.TimeUnit.MINUTES).toString();
+        return storage.signUrl(
+            blobInfo,
+            15,
+            TimeUnit.MINUTES
+        ).toString();
     }
 }
 
