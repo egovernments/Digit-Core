@@ -10,6 +10,9 @@ All notable changes to this module will be documented in this file.
 - Added finally blocked wherever missing
 - Changes to error handling
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
 
 ## 1.3.0 - 2020-05-29
 
