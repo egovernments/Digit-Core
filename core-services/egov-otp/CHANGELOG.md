@@ -9,6 +9,10 @@ All notable changes to this module will be documented in this file.
 - Upgraded org.flywaydb:flyway-core version from 6.4.3 to 9.22.3
 - Upgraded org.egov.services:tracer version from 2.0.0-SNAPSHOT to 2.9.0-SNAPSHOT
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.2.3 - 2023-03-15
 - Removed Database timezone dependency
 
