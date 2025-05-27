@@ -6,6 +6,10 @@ All notable changes to this module will be documented in this file.
 ## 2.10.0 - 2025-05-27
 - Fixed Flyway migration issue by removing hardcoded `public` schema name (requires manual deletion of existing row in `public.egov_enc_service_schema`)
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 2.9.0 - 2024-02-29
 - Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
 - Upgraded java version from 1.8 to 17
