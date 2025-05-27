@@ -3,15 +3,15 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 2.9.0 - 2024-02-29
 - Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
 - Upgraded java version from 1.8 to 17
 - Upgraded postgresql version to 42.7.1
 - Upgraded lombok version from 1.18.8 to 1.18.22
-
-## 2.9.1 - 2025-05-21
-- Upgraded tracer version from 2.9.0 to 2.9.1
-- added variables in application.properties required for opentelemetry
 
 ## 1.1.4 - 2023-08-11
 - Central Instance Library Integration
