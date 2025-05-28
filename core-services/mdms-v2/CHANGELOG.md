@@ -3,7 +3,7 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
-## 2.9.1 - 2025-05-09
+## 2.10.0 - 2025-05-09
 - Introduced tenant-specific topic for message publishing
 - Database schema resolution as per tenant id and central instance configuration
 - Added multi schema migration script
