@@ -84,23 +84,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # ─────────── Install `yq` for YAML parsing ───────────
       - name: Install yq (for parsing YAML)
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      # ─────────── Read build-config.yml and extract the dockerfile field ───────────
       - name: Determine Dockerfile path from build-config.yml
         id: pick_dockerfile
         run: |
           SERVICE="${{ matrix.service }}"
-          # default to some fallback, e.g. build/maven/Dockerfile
           DEFAULT_DOCKERFILE="build/maven/Dockerfile"
 
-          # Try to extract ".config[].build[] | select(.\"image-name\" == SERVICE) | .dockerfile"
           DF=$(yq eval \
-            '.config[] .build[] | select(.["image-name"] == strenv(SERVICE)) | .dockerfile // ""' \
+            '.config[].build[] | select(.["image-name"] == strenv(SERVICE)) | .dockerfile // ""' \
             build/build-config.yml)
 
           if [ -z "$DF" ] || [ "$DF" = "null" ]; then
@@ -125,16 +121,18 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Generate the Next Tag
         id: tag
         run: |
           set -euxo pipefail
+
           BRANCH="${GITHUB_REF##*/}"
           COMMIT_HASH=$(git rev-parse --short HEAD)
           SERVICE_NAME="${{ matrix.service }}"
+
           TOKEN=$(curl -s -X POST "https://hub.docker.com/v2/users/login/" \
             -H "Content-Type: application/json" \
             -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" \
@@ -162,14 +160,13 @@ jobs:
           echo "tag=$NEXT_TAG" >> "$GITHUB_OUTPUT"
           echo "NEXT_TAG=$NEXT_TAG" >> "$GITHUB_ENV"
 
-      # ─────────── Build & Push Application Image ───────────
       - name: Build and Push Application Docker Image
         id: build_push_docker
         uses: docker/build-push-action@v5
         with:
           platforms: linux/amd64,linux/arm64
           context: .
-          file: ${{ env.DOCKERFILE_PATH }}             # ← dynamically chosen
+          file: ${{ env.DOCKERFILE_PATH }}
           push: true
           tags: |
             egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
