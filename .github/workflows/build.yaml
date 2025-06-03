@@ -1,11 +1,6 @@
 name: Build Pipeline
 
 on:
-  push:
-    branches:
-      - build-multiarch-images
-      - docker-arm-update
-      - master
   workflow_dispatch:
     inputs:
       service_folder:
@@ -20,7 +15,7 @@ on:
         required: true
         type: choice
         options:
-          - "MDMS-v2"
+          - "mdms-v2"
           - "audit-service"
           - "boundary-service"
           - "build"
@@ -71,17 +66,46 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
-      # Using matrix for potential future expansion. For now, it runs a single service.
       matrix:
         service: [ "${{ github.event.inputs.service }}" ]
+
     outputs:
       docker_image: ${{ steps.save_docker_image.outputs.docker_image }}
-      db_image: ${{ steps.save_db_image.outputs.db_image }}
+      db_image:     ${{ steps.save_db_image.outputs.db_image }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Install yq (for parsing YAML)
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Determine Dockerfile path from build-config.yml
+        id: pick_dockerfile
+        run: |
+          SERVICE="${{ matrix.service }}"
+          DEFAULT_DOCKERFILE="build/maven/Dockerfile"
+
+          # Debug: list all image-name / dockerfile pairs
+          echo "All build entries from build-config.yml:"
+          yq eval '.config[].build[] | "✱ image-name: \(.["image-name"]) → dockerfile: \(.dockerfile // "N/A")"' build/build-config.yml || true
+
+          # Try matching with the SERVICE variable directly (no strenv)
+          DF=$(yq eval ".config[].build[] | select(.\"image-name\" == \"${SERVICE}\") | .dockerfile // \"\"" build/build-config.yml)
+
+          if [ -z "$DF" ] || [ "$DF" = "null" ]; then
+            echo "No dockerfile entry found for \"$SERVICE\" in build-config.yml; using default"
+            DF="$DEFAULT_DOCKERFILE"
+          else
+            echo "Found dockerfile \"$DF\" for service \"$SERVICE\"."
+          fi
+
+          echo "dockerfile_path=$DF" >> "$GITHUB_OUTPUT"
+          echo "DOCKERFILE_PATH=$DF" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -97,8 +121,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Generate the Next Tag
         id: tag
@@ -142,7 +166,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           context: .
-          file: build/maven/Dockerfile
+          file: ${{ env.DOCKERFILE_PATH }}
           push: true
           tags: |
             egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
@@ -178,6 +202,10 @@ jobs:
           echo "$IMG"
           echo "docker_image=$IMG" >> "$GITHUB_OUTPUT"
 
+          # Append to GitHub Actions summary
+          echo "### Application Docker Image" >> "$GITHUB_STEP_SUMMARY"
+          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Save Database Docker Image
         id: save_db_image
         if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
@@ -185,3 +213,7 @@ jobs:
           IMG="egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
           echo "$IMG"
           echo "db_image=$IMG" >> "$GITHUB_OUTPUT"
+
+          # Append to GitHub Actions summary
+          echo "### Database Docker Image" >> "$GITHUB_STEP_SUMMARY"
+          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
