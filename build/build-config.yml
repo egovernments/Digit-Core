@@ -178,10 +178,10 @@ config:
 
   - name: "builds/Digit-Core/core-services/mdms-v2"
     build:
-      - work-dir: "core-services/egov-mdms-service"
+      - work-dir: "core-services/mdms-v2"
         image-name: "mdms-v2"
         dockerfile: "build/maven/Dockerfile"
-      - work-dir: "core-services/egov-mdms-service/src/main/resources/db"
+      - work-dir: "core-services/mdms-v2/src/main/resources/db"
         image-name: "mdms-v2-db"
 
   - name: "builds/Digit-Core/core-services/egov-notification-mail"
@@ -237,6 +237,14 @@ config:
         dockerfile: "build/maven-java8/Dockerfile"
       - work-dir: "core-services/egov-user/src/main/resources/db"
         image-name: "egov-user-db"
+
+  - name: "builds/Digit-Core/core-services/egov-user-event"
+    build:
+      - work-dir: "core-services/egov-user-event"
+        image-name: "egov-user-event"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/egov-user-event/src/main/resources/db"
+        image-name: "egov-user-event-db"
 
   - name: "builds/Digit-Core/core-services/egov-workflow-v2"
     build:
@@ -301,7 +309,7 @@ config:
     build:
       - work-dir: "core-services/zuul"
         image-name: "zuul"
-        dockerfile: "build/maven-java8/Dockerfile"
+        dockerfile: "build/maven/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/gateway"
     build:
@@ -390,6 +398,7 @@ config:
       - work-dir: "core-services/libraries/mdms-client"
         image-name: "mdms-client"
 
+
   - name: "builds/Digit-Core/core-services/libraries/tracer"
     build:
       - work-dir: "core-services/libraries/tracer"
@@ -436,6 +445,14 @@ config:
       - work-dir: "accelerators/gateway-kubernetes-discovery"
         image-name: "gateway-kubernetes-discovery"
 
+  - name: "builds/Digit-Core/accelerators/pgr-services"
+    build:
+      - work-dir: "accelerators/pgr-services"
+        image-name: "pgr-services"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "accelerators/pgr-services/src/main/resources/db"
+        image-name: "pgr-services-db"
+
   - name: "builds/Digit-Core/core-services/service-request"
     build:
       - work-dir: "core-services/service-request"
@@ -444,6 +461,33 @@ config:
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
 
+  - name: "builds/Digit-Core/core-services/default-data-handler"
+    build:
+      - work-dir: "core-services/default-data-handler"
+        image-name: "default-data-handler"
+        dockerfile: "build/maven/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/TenantManagement"
+    build:
+      - work-dir: "core-services/TenantManagement"
+        image-name: "tenant-management"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/TenantManagement/src/main/resources/db"
+        image-name: "tenant-management-db"
+
+  - name: "builds/Digit-Core/core-services/keycloak-spi"
+    build:
+      - work-dir: "core-services/keycloak-spi"
+        image-name: "keycloak"
+        dockerfile: "core-services/keycloak-spi/Dockerfile"
+  
+  # PGR AI chatbot
+  - name: "builds/Digit-Core/accelerators/pgr-ai-chatbot"
+    build:
+      - work-dir: "accelerators/pgr-ai-chatbot"
+        image-name: "pgr-ai-chatbot"
+        dockerfile: "accelerators/pgr-ai-chatbot/ops/Dockerfile"
+    
 
 # frontend
   - name: builds/Digit-Core/accelerators/workbench-ui
@@ -470,3 +514,48 @@ config:
         dockerfile: frontend/micro-ui/web/docker/Dockerfile
         image-name: digit-ui
 
+#lts-demo-birth-service
+  - name: "builds/Digit-Core/accelerators/egov-birth-service"
+    build:
+      - work-dir: "accelerators/egov-birth-service"
+        dockerfile: "build/maven/Dockerfile"
+        image-name: "egov-birth-service"
+      - work-dir: "accelerators/egov-birth-service/src/main/resources/db"
+        image-name: "egov-birth-service-db"
+
+  - name: "builds/Digit-Core/accelerators/sample-services/backend/java/egov-birth-service"
+    build:
+      - work-dir: "accelerators/sample-services/backend/java/egov-birth-service"
+        dockerfile: "build/maven/Dockerfile"
+        image-name: "egov-birth-service"
+      - work-dir: "accelerators/sample-services/backend/java/egov-birth-service/src/main/resources/db"
+        image-name: "egov-birth-service-db"
+        
+  - name: "builds/Digit-Core/accelerators/sunbirdrc-credential-service"
+    build:
+      - work-dir: "accelerators/sunbirdrc-credential-service"
+        image-name: "sunbirdrc-credential-service"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "accelerators/sunbirdrc-credential-service/src/main/resources/db"
+        image-name: "sunbirdrc-credential-service-db"
+
+  - name: "builds/Digit-Core/accelerators/qr-scanner-ui"
+    build:
+      - work-dir: "accelerators/qr-scanner-ui"
+        image-name: "qr-scanner-ui"
+        dockerfile: "accelerators/qr-scanner-ui/Dockerfile"
+
+#Accelerators
+  - name: "builds/Digit-Core/accelerators/im-services-analytics"
+    build:
+      - work-dir: "accelerators/im-services-analytics"
+        image-name: "im-services-analytics"
+        dockerfile: "build/maven/Dockerfile"
+
+  - name: "builds/Digit-Core/accelerators/vault-enc-service"
+    build:
+      - work-dir: "accelerators/vault-enc-service"
+        image-name: "vault-enc-service"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "accelerators/vault-enc-service/src/main/resources/db"
+        image-name: "vault-enc-service-db"
