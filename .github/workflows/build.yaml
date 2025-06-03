@@ -207,6 +207,10 @@ jobs:
           echo "$IMG"
           echo "docker_image=$IMG" >> "$GITHUB_OUTPUT"
 
+          # Append to GitHub Actions summary
+          echo "### Application Docker Image" >> "$GITHUB_STEP_SUMMARY"
+          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Save Database Docker Image
         id: save_db_image
         if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
@@ -214,3 +218,7 @@ jobs:
           IMG="egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
           echo "$IMG"
           echo "db_image=$IMG" >> "$GITHUB_OUTPUT"
+
+          # Append to GitHub Actions summary
+          echo "### Database Docker Image" >> "$GITHUB_STEP_SUMMARY"
+          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
