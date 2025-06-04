@@ -23,7 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
     </properties>
-<dependencyManagement>Add commentMore actions
+<dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>io.opentelemetry</groupId>
