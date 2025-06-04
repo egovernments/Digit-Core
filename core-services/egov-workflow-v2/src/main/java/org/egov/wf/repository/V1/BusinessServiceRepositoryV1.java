@@ -85,7 +85,7 @@ public class BusinessServiceRepositoryV1 {
         if(!CollectionUtils.isEmpty(stateLevelBusinessServices)){
         	
             BusinessServiceSearchCriteria stateLevelCriteria = new BusinessServiceSearchCriteria();
-            stateLevelCriteria.setTenantId(criteria.getTenantId());
+            stateLevelCriteria.setTenantId(multiStateInstanceUtil.getStateLevelTenant(criteria.getTenantId()));
             stateLevelCriteria.setBusinessServices(stateLevelBusinessServices);
             List<Object> stateLevelPreparedStmtList = new ArrayList<>();
             
