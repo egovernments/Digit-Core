@@ -1,11 +1,6 @@
 name: Build Pipeline
 
 on:
-  push:
-    branches:
-      - build-multiarch-images
-      - docker-arm-update
-      - master
   workflow_dispatch:
     inputs:
       service_folder:
