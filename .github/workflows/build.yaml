@@ -84,10 +84,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install yq (for parsing YAML)
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
+      - name: Install yq
+        uses: mikefarah/setup-yq@v4
+        with:
+          version: v4.30.8
 
       - name: Determine Dockerfile path from build-config.yml
         id: pick_dockerfile
