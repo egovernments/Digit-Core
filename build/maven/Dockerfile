@@ -8,7 +8,7 @@ COPY build/maven/start.sh ./start.sh
 COPY ${WORK_DIR}/src ./src
 
 # Build the project
-RUN mvn -B -f /app/pom.xml package -DskipTests
+RUN mvn -B -f /app/pom.xml package
 
 # Runtime image – using a multi-arch base image
 FROM amazoncorretto:17-alpine
