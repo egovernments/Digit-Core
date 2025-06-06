@@ -1,7 +1,6 @@
 package org.egov.user.web.controller;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -29,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PasswordController.class)
-@Import(TestConfiguration.class)
+@Import({TestConfiguration.class})
 public class PasswordControllerTest {
 
     @Autowired
