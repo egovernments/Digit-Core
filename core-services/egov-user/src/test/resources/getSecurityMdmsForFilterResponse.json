@@ -1,0 +1,501 @@
+[
+  {
+    "model": "Organisation",
+    "attributes": [
+      {
+        "name": "contactName",
+        "jsonPath": "contactName",
+        "patternId": "002",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "contactMobileNumber",
+        "jsonPath": "contactMobileNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "contactEmail",
+        "jsonPath": "contactEmail",
+        "patternId": "004",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "BankAccountNumberEncrypt",
+    "attributes": [
+      {
+        "name": "accountNumber",
+        "jsonPath": "accountNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "BankAccountHolderNameEncrypt",
+    "attributes": [
+      {
+        "name": "accountHolderName",
+        "jsonPath": "accountHolderName",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "BankAccountDecrypt",
+    "attributes": [
+      {
+        "name": "accountHolderName",
+        "jsonPath": "accountHolderName",
+        "patternId": "001",
+        "defaultVisibility": "MASKED"
+      },
+      {
+        "name": "accountNumber",
+        "jsonPath": "accountNumber",
+        "patternId": "001",
+        "defaultVisibility": "MASKED"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": [
+      {
+        "roles": [
+          "BILL_ACCOUNTANT",
+          "MUKTA_ADMIN"
+        ],
+        "attributeAccessList": [
+          {
+            "attribute": "accountHolderName",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "accountNumber",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "model": "BankAccountEncrypt",
+    "attributes": [
+      {
+        "name": "accountHolderName",
+        "jsonPath": "accountHolderName",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "accountNumber",
+        "jsonPath": "accountNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "IndividualSearchMobileNumberEncrypt",
+    "attributes": [
+      {
+        "name": "mobileNumber",
+        "jsonPath": "mobileNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "IndividualSearchIdentifierEncrypt",
+    "attributes": [
+      {
+        "name": "aadhaarNumber",
+        "jsonPath": "identifier/identifierId",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "IndividualDecrypt",
+    "attributes": [
+      {
+        "name": "mobileNumber",
+        "jsonPath": "mobileNumber",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "aadhaarNumber",
+        "jsonPath": "identifiers/*/identifierId",
+        "patternId": "001",
+        "defaultVisibility": "MASKED"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "IndividualSearchEncrypt",
+    "attributes": [
+      {
+        "name": "mobileNumber",
+        "jsonPath": "mobileNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "aadhaarNumber",
+        "jsonPath": "identifier/identifierId",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "IndividualEncrypt",
+    "attributes": [
+      {
+        "name": "mobileNumber",
+        "jsonPath": "mobileNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "aadhaarNumber",
+        "jsonPath": "identifiers/*/identifierId",
+        "patternId": "001",
+        "defaultVisibility": "MASKED"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "id",
+      "jsonPath": "/id"
+    },
+    "roleBasedDecryptionPolicy": [
+      {
+        "roles": [
+          "MUKTA_ADMIN"
+        ],
+        "attributeAccessList": [
+          {
+            "attribute": "aadhaarNumber",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "model": "UserSelf",
+    "attributes": [
+      {
+        "name": "name",
+        "jsonPath": "name",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "mobileNumber",
+        "jsonPath": "mobileNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "emailId",
+        "jsonPath": "emailId",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "username",
+        "jsonPath": "username",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "altContactNumber",
+        "jsonPath": "altContactNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "alternatemobilenumber",
+        "jsonPath": "alternatemobilenumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "pan",
+        "jsonPath": "pan",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "aadhaarNumber",
+        "jsonPath": "aadhaarNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "guardian",
+        "jsonPath": "guardian",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "permanentAddress",
+        "jsonPath": "permanentAddress/address",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "correspondenceAddress",
+        "jsonPath": "correspondenceAddress/address",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "fatherOrHusbandName",
+        "jsonPath": "fatherOrHusbandName",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "uuid",
+      "jsonPath": "/uuid"
+    },
+    "roleBasedDecryptionPolicy": []
+  },
+  {
+    "model": "User",
+    "attributes": [
+      {
+        "name": "name",
+        "jsonPath": "name",
+        "patternId": "002",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "mobileNumber",
+        "jsonPath": "mobileNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "emailId",
+        "jsonPath": "emailId",
+        "patternId": "004",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "username",
+        "jsonPath": "username",
+        "patternId": "002",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "altContactNumber",
+        "jsonPath": "altContactNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "alternatemobilenumber",
+        "jsonPath": "alternatemobilenumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "pan",
+        "jsonPath": "pan",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "aadhaarNumber",
+        "jsonPath": "aadhaarNumber",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "guardian",
+        "jsonPath": "guardian",
+        "patternId": "002",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "permanentAddress",
+        "jsonPath": "permanentAddress/address",
+        "patternId": "003",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "correspondenceAddress",
+        "jsonPath": "correspondenceAddress/address",
+        "patternId": "003",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "fatherOrHusbandName",
+        "jsonPath": "fatherOrHusbandName",
+        "patternId": "002",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "searchUsername",
+        "jsonPath": "userName",
+        "patternId": "002",
+        "defaultVisibility": "PLAIN"
+      }
+    ],
+    "uniqueIdentifier": {
+      "name": "uuid",
+      "jsonPath": "/uuid"
+    },
+    "roleBasedDecryptionPolicy": [
+      {
+        "roles": [
+          "PGR_LME",
+          "GRO"
+        ],
+        "attributeAccessList": [
+          {
+            "attribute": "name",
+            "firstLevelVisibility": "MASKED",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "mobileNumber",
+            "firstLevelVisibility": "MASKED",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "username",
+            "firstLevelVisibility": "MASKED",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "permanentAddress",
+            "firstLevelVisibility": "MASKED",
+            "secondLevelVisibility": "PLAIN"
+          }
+        ]
+      },
+      {
+        "roles": [
+          "INTERNAL_MICROSERVICE_ROLE"
+        ],
+        "attributeAccessList": [
+          {
+            "attribute": "mobileNumber",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "fatherOrHusbandName",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "correspondenceAddress",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "name",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "emailId",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "permanentAddress",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "username",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "altContactNumber",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "alternatemobilenumber",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "pan",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "aadhaarNumber",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          },
+          {
+            "attribute": "guardian",
+            "firstLevelVisibility": "PLAIN",
+            "secondLevelVisibility": "PLAIN"
+          }
+        ]
+      }
+    ]
+  }
+]
