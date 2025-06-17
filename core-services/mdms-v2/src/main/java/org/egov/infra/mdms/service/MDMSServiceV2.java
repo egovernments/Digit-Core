@@ -1,15 +1,20 @@
 package org.egov.infra.mdms.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
+import org.egov.infra.mdms.utils.CacheUtil;
 import org.egov.infra.mdms.utils.FallbackUtil;
 import org.egov.infra.mdms.utils.SchemaUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -30,6 +35,15 @@ public class MDMSServiceV2 {
     private SchemaUtil schemaUtil;
 
     private MultiStateInstanceUtil multiStateInstanceUtil;
+
+    @Autowired
+    private CacheUtil cacheUtil;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     public MDMSServiceV2(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
@@ -82,10 +96,23 @@ public class MDMSServiceV2 {
         // Make a call to repository and get list of master data
         for(String subTenantId : subTenantListForFallback) {
             mdmsCriteriaReqV2.getMdmsCriteria().setTenantId(subTenantId);
+
+            String cacheKey = cacheUtil.generateSHA256Key(mdmsCriteriaReqV2);
+
+            List<Mdms> cached = cacheUtil.getFromCache(cacheKey, new TypeReference<List<Mdms>>() {});
+            if (cached != null && !cached.isEmpty()) {
+                masterDataList = cached;
+                break;
+            }
+
             masterDataList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
 
-            if(!CollectionUtils.isEmpty(masterDataList))
+            if (!CollectionUtils.isEmpty(masterDataList)) {
+                cacheUtil.putToCache(cacheKey, masterDataList);
+                cacheUtil.addToReverseIndexV2(cacheKey, mdmsCriteriaReqV2.getMdmsCriteria()); // To aid future invalidation
                 break;
+            }
+
         }
 
         return masterDataList;
@@ -109,6 +136,14 @@ public class MDMSServiceV2 {
 
         // Emit MDMS update event to be listened by persister
         mdmsDataRepository.update(mdmsRequest);
+
+//        cacheUtil.invalidateMdmsCache(mdmsRequest.getMdms().getTenantId(),mdmsRequest.getMdms().getSchemaCode());
+        String tenantId = mdmsRequest.getMdms().getTenantId();
+        String[] parts = mdmsRequest.getMdms().getSchemaCode().split("\\.", 2);
+        String moduleName = parts.length > 0 ? parts[0] : null;
+        String masterName = parts.length > 1 ? parts[1] : null;
+
+        cacheUtil.invalidateAllByMaster(tenantId,moduleName,masterName);
 
         return Arrays.asList(mdmsRequest.getMdms());
     }
