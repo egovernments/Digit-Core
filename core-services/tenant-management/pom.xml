@@ -31,7 +31,7 @@
             </plugin>
         </plugins>
     </build>
-     <dependencyManagement>Add commentMore actions
+     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>io.opentelemetry</groupId>
