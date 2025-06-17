@@ -44,19 +44,9 @@ public class MDMSController {
 
     @RequestMapping(value="_search", method = RequestMethod.POST)
     public ResponseEntity<?> search(@Valid @RequestBody MdmsCriteriaReq body) {
-        //  Generate cache key
-        String cacheKey = cacheUtil.generateSHA256Key(body.getMdmsCriteria());
-
-        //  Try cache first
-        MdmsResponse cached = cacheUtil.getFromCache(cacheKey, MdmsResponse.class);
-        if (cached != null) {
-            log.info("Cache hit for key: {}", cacheKey);
-            return ResponseEntity.ok(cached);
-        }
-        log.info("Cache miss for key: {}, proceeding to service", cacheKey);
 
         //  Fallback to service
-        MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(body, cacheKey);
+        MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(body);
 
         return ResponseEntity.ok(mdmsResponse);
     }

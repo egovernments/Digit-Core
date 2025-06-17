@@ -14,6 +14,7 @@ import org.egov.infra.mdms.utils.FallbackUtil;
 import org.egov.infra.mdms.utils.SchemaUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,19 @@ public class MDMSService {
 	 * @return
 	 */
 
-	public MdmsResponse searchWithCacheSupport(MdmsCriteriaReq mdmsCriteriaReq, String cacheKey) {
+	public MdmsResponse searchWithCacheSupport(MdmsCriteriaReq mdmsCriteriaReq) {
+
+		//  Generate cache key
+		String cacheKey = cacheUtil.generateSHA256Key(mdmsCriteriaReq.getMdmsCriteria());
+
+		//  Try cache first
+		MdmsResponse cached = cacheUtil.getFromCache(cacheKey, MdmsResponse.class);
+		if (cached != null) {
+			log.info("Cache hit for key: {}", cacheKey);
+			return cached;
+		}
+		log.info("Cache miss for key: {}, proceeding to service", cacheKey);
+
 
 		// Perform your existing operations first
 		String tenantId = new StringBuilder(mdmsCriteriaReq
