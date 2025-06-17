@@ -64,7 +64,7 @@ on:
           - "xstate-chatbot"
           - "zuul"
           - "pgr-services"
-          - "TenantManagement"
+          - "tenant-management"
         default: "audit-service"
 
 env:
