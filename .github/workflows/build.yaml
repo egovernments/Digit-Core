@@ -15,6 +15,7 @@ on:
         options:
           - core-services
           - accelerators
+          - business-services
         default: core-services
       service:
         description: 'Name of the service to build and deploy'
@@ -65,6 +66,8 @@ on:
           - "zuul"
           - "pgr-services"
           - "tenant-management"
+          - "dashboard-analytics"
+          - "egov-hrms"
         default: "audit-service"
 
 env:
