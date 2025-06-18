@@ -20,12 +20,12 @@ import lombok.Setter;
 @Builder
 public class Email {
 
-	private Set<String> emailTo;
-	private String subject;
-	private String body;
-	Map<String, String> fileStoreId;
-	private String tenantId;
-	@JsonProperty("isHTML")
-	private boolean isHTML;
+    private Set<String> emailTo;
+    private String subject;
+    private String body;
+    Map<String, String> fileStoreId;
+    private String tenantId;
+    @JsonProperty("isHTML")
+    private boolean isHTML;
 
 }

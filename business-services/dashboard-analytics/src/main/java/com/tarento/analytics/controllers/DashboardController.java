@@ -163,6 +163,23 @@ public class DashboardController {
 				requestInfo.setModuleLevel(Constants.Modules.HOME_REVENUE);
 			}
 
+			// Ensure tenantId is present in the filters of requestInfo
+			Map<String, Object> filters = requestInfo.getFilters();
+
+			// Initialize filters if null
+			if (filters == null) {
+				filters = new HashMap<>();
+			}
+
+			// Check if "tenantId" is already present in the filters
+			if (!filters.containsKey("tenantId")) {
+				filters.put("tenantId", (String) headers.get("tenantId")); // Add tenantId if not present
+			}
+
+			// Update the filters back to requestInfo
+			requestInfo.setFilters(filters);
+
+
 				Object responseData = clientServiceFactory.get(requestInfo.getVisualizationCode()).getAggregatedData(requestInfo, user.getRoles());
 			response = ResponseGenerator.successResponse(responseData);
 

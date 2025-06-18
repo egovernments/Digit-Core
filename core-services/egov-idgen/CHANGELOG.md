@@ -8,6 +8,10 @@ All notable changes to this module will be documented in this file.
 - Upgraded lombok version from 1.18.8 to 1.18.22
 - Upgraded org.flywaydb:flyway-core version from 6.4.3 to 9.22.3
 
+## 2.9.1 - 2025-05-21
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.2.3 - 2022-01-13
 - Updated to log4j2 version 2.17.1
 
