@@ -22,6 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.22</lombok.version>
     </properties>
+   
     <dependencies>
         <dependency>
             <groupId>ch.qos.logback</groupId>
