@@ -9,10 +9,12 @@ import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
+import org.egov.infra.mdms.utils.CacheUtil;
 import org.egov.infra.mdms.utils.FallbackUtil;
 import org.egov.infra.mdms.utils.SchemaUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,15 +37,18 @@ public class MDMSService {
 
 	private MultiStateInstanceUtil multiStateInstanceUtil;
 
+	private final CacheUtil cacheUtil;
+
 	@Autowired
 	public MDMSService(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-					   MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil) {
+                       MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil, CacheUtil cacheUtil) {
 		this.mdmsDataValidator = mdmsDataValidator;
 		this.mdmsDataEnricher = mdmsDataEnricher;
 		this.mdmsDataRepository = mdmsDataRepository;
 		this.schemaUtil = schemaUtil;
 		this.multiStateInstanceUtil = multiStateInstanceUtil;
-	}
+        this.cacheUtil = cacheUtil;
+    }
 
 	/**
 	 * This method processes the requests that come for master data creation.
@@ -72,31 +77,86 @@ public class MDMSService {
 	 * @param mdmsCriteriaReq
 	 * @return
 	 */
-	public Map<String, Map<String, JSONArray>> search(MdmsCriteriaReq mdmsCriteriaReq) {
-		Map<String, Map<String, JSONArray>> tenantMasterMap = new HashMap<>();
 
-		/*
-		 * Set incoming tenantId as state level tenantId for fallback in case master data for
-		 * concrete tenantId does not exist.
-		 */
-		String tenantId = new StringBuilder(mdmsCriteriaReq.getMdmsCriteria().getTenantId()).toString();
-		mdmsCriteriaReq.getMdmsCriteria().setTenantId(multiStateInstanceUtil.getStateLevelTenant(tenantId));
+	public MdmsResponse searchWithCacheSupport(MdmsCriteriaReq mdmsCriteriaReq) {
+
+		//  Generate cache key
+		String cacheKey = cacheUtil.generateSHA256Key(mdmsCriteriaReq.getMdmsCriteria());
+
+		//  Try cache first
+		MdmsResponse cached = cacheUtil.getFromCache(cacheKey, MdmsResponse.class);
+		if (cached != null) {
+			log.info("Cache hit for key: {}", cacheKey);
+			return cached;
+		}
+		log.info("Cache miss for key: {}, proceeding to service", cacheKey);
+
+
+		// Perform your existing operations first
+		String tenantId = new StringBuilder(mdmsCriteriaReq
+				.getMdmsCriteria()
+				.getTenantId()
+		).toString();
+
+		mdmsCriteriaReq.getMdmsCriteria()
+				.setTenantId(multiStateInstanceUtil.getStateLevelTenant(tenantId));
 
 		Map<String, String> schemaCodes = getSchemaCodes(mdmsCriteriaReq.getMdmsCriteria());
-		mdmsCriteriaReq.getMdmsCriteria().setSchemaCodeFilterMap(schemaCodes);
+		mdmsCriteriaReq.getMdmsCriteria()
+				.setSchemaCodeFilterMap(schemaCodes);
 
-		// Make a call to the repository layer to fetch data as per given criteria
-		tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
+		// 1. Retrieve from repository
+		Map<String, Map<String, JSONArray>> tenantMasterMap = mdmsDataRepository
+				.search(mdmsCriteriaReq.getMdmsCriteria());
 
-		// Apply filters to incoming data
-		tenantMasterMap = applyFilterToData(tenantMasterMap, mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
+		// 2. Apply filter
+		tenantMasterMap = applyFilterToData(tenantMasterMap,
+				mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
 
-		// Perform fallback
-		Map<String, JSONArray> masterDataMap = FallbackUtil.backTrackTenantMasterDataMap(tenantMasterMap, tenantId);
+		// 3. Perform fallback
+		Map<String, JSONArray> masterDataMap = FallbackUtil
+				.backTrackTenantMasterDataMap(tenantMasterMap, tenantId);
 
-		// Return response in MDMS v1 search response format for backward compatibility
-		return getModuleMasterMap(masterDataMap);
+		// 4. Prepare final MDMS response
+		MdmsResponse mdmsResponse = MdmsResponse.builder()
+				.mdmsRes(getModuleMasterMap(masterDataMap))
+				.build();
+
+		// 5. Put into cache
+		cacheUtil.putToCache(cacheKey, mdmsResponse);
+		cacheUtil.addToReverseIndexV1(cacheKey, mdmsCriteriaReq.getMdmsCriteria());
+
+		return mdmsResponse;
 	}
+
+
+
+
+//	public Map<String, Map<String, JSONArray>> search(MdmsCriteriaReq mdmsCriteriaReq) {
+//		Map<String, Map<String, JSONArray>> tenantMasterMap = new HashMap<>();
+//
+//		/*
+//		 * Set incoming tenantId as state level tenantId for fallback in case master data for
+//		 * concrete tenantId does not exist.
+//		 */
+//		String tenantId = new StringBuilder(mdmsCriteriaReq.getMdmsCriteria().getTenantId()).toString();
+//		mdmsCriteriaReq.getMdmsCriteria().setTenantId(multiStateInstanceUtil.getStateLevelTenant(tenantId));
+//
+//		Map<String, String> schemaCodes = getSchemaCodes(mdmsCriteriaReq.getMdmsCriteria());
+//		mdmsCriteriaReq.getMdmsCriteria().setSchemaCodeFilterMap(schemaCodes);
+//
+//		// Make a call to the repository layer to fetch data as per given criteria
+//		tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
+//
+//		// Apply filters to incoming data
+//		tenantMasterMap = applyFilterToData(tenantMasterMap, mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
+//
+//		// Perform fallback
+//		Map<String, JSONArray> masterDataMap = FallbackUtil.backTrackTenantMasterDataMap(tenantMasterMap, tenantId);
+//
+//		// Return response in MDMS v1 search response format for backward compatibility
+//		return getModuleMasterMap(masterDataMap);
+//	}
 
 	private Map<String, Map<String, JSONArray>> applyFilterToData(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, String> schemaCodeFilterMap) {
 		Map<String, Map<String, JSONArray>> tenantMasterMapPostFiltering = new HashMap<>();
