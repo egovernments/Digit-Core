@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.1 - 2025-06-18
+- Upgraded tracer version from 2.9.0 to 2.9.1
+- added variables in application.properties required for opentelemetry
+
 ## 1.1.8 - 2023-08-10
 
 - Central Instance Library Integration
