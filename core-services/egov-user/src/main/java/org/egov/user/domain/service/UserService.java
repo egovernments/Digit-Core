@@ -162,10 +162,11 @@ public class UserService {
         return users.get(0);
     }
 
-    public User getUserByUuid(String uuid) {
+    public User getUserByUuid(String uuid, String tenantId) {
 
         UserSearchCriteria userSearchCriteria = UserSearchCriteria.builder()
                 .uuid(Collections.singletonList(uuid))
+                .tenantId(tenantId)
                 .build();
 
         if (isEmpty(uuid)) {
@@ -357,7 +358,7 @@ public class UserService {
      */
     // TODO Fix date formats
     public User updateWithoutOtpValidation(User user, RequestInfo requestInfo) {
-        final User existingUser = getUserByUuid(user.getUuid());
+        final User existingUser = getUserByUuid(user.getUuid(), user.getTenantId());
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         validateUserRoles(user);
         user.validateUserModification();
@@ -371,7 +372,7 @@ public class UserService {
         if (user.getAccountLocked() != null && !user.getAccountLocked() && existingUser.getAccountLocked())
             resetFailedLoginAttempts(user);
 
-        User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid());
+        User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid(), user.getTenantId());
         User decryptedupdatedUserfromDB = encryptionDecryptionUtil.decryptObject(encryptedUpdatedUserfromDB, "UserSelf", User.class, requestInfo);
         return decryptedupdatedUserfromDB;
     }
@@ -417,12 +418,12 @@ public class UserService {
         /* encrypt here */
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
 
-        User existingUser = getUserByUuid(user.getUuid());
+        User existingUser = getUserByUuid(user.getUuid(), user.getTenantId());
         validateProfileUpdateIsDoneByTheSameLoggedInUser(user);
         user.nullifySensitiveFields();
         validatePassword(user.getPassword());
         userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
-        User updatedUser = getUserByUuid(user.getUuid());
+        User updatedUser = getUserByUuid(user.getUuid(), user.getTenantId());
         
         /* decrypt here */
         existingUser = encryptionDecryptionUtil.decryptObject(existingUser, "UserSelf", User.class, requestInfo);
@@ -501,7 +502,7 @@ public class UserService {
      */
     public void resetFailedLoginAttempts(User user) {
         if (user.getUuid() != null)
-            userRepository.resetFailedLoginAttemptsForUser(user.getUuid());
+            userRepository.resetFailedLoginAttemptsForUser(user.getTenantId(), user.getUuid());
     }
 
     /**
@@ -540,7 +541,7 @@ public class UserService {
     public void handleFailedLogin(User user, String ipAddress, RequestInfo requestInfo) {
         if (!Objects.isNull(user.getUuid())) {
             List<FailedLoginAttempt> failedLoginAttempts =
-                    userRepository.fetchFailedAttemptsByUserAndTime(user.getUuid(),
+                    userRepository.fetchFailedAttemptsByUserAndTime(user.getTenantId(), user.getUuid(),
                             System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(maxInvalidLoginAttemptsPeriod));
 
             if (failedLoginAttempts.size() + 1 >= maxInvalidLoginAttempts) {
@@ -558,7 +559,7 @@ public class UserService {
                 throw new OAuth2Exception("Account locked");
             }
 
-            userRepository.insertFailedLoginAttempt(new FailedLoginAttempt(user.getUuid(), ipAddress,
+            userRepository.insertFailedLoginAttempt(user.getTenantId(), new FailedLoginAttempt(user.getUuid(), ipAddress,
                     System.currentTimeMillis(), true));
         }
     }
