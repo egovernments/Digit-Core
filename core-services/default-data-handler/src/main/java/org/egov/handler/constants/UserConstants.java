@@ -24,4 +24,6 @@ public class UserConstants {
 
     public static final String WELCOME_MAIL_SUBJECT = "Welcome to Sandbox";
 
+    public static final String WELCOME_MAIL_SANDBOX_CLASSPATH = "classpath:WelcomeEmailSandbox.HTML";
+
 }

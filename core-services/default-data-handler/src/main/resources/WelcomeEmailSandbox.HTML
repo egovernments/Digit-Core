@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIGIT Sandbox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #3c4a5c;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-dots {
+            display: flex;
+            gap: 2px;
+            margin-right: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-orange { background-color: #ff6b35; }
+        .dot-yellow { background-color: #ffc107; }
+        .dot-green { background-color: #28a745; }
+        .dot-blue { background-color: #007bff; }
+        .dot-purple { background-color: #6f42c1; }
+        .dot-red { background-color: #dc3545; }
+
+        .brand-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .foundation-text {
+            font-size: 10px;
+            color: #8a9ba8;
+            margin-right: 15px;
+        }
+
+        .divider {
+            margin: 0 15px;
+            color: #8a9ba8;
+            font-size: 18px;
+        }
+
+        .sandbox-text {
+            font-size: 18px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            min-height: calc(100vh - 60px);
+        }
+
+        .content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #002147;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .credentials-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .credentials-title {
+            color: #002147;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .credential-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .credential-label {
+            min-width: 120px;
+            color: #002147;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .credential-value {
+            margin-left: 30px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .login-button-container {
+            text-align: center;
+        }
+
+        .login-button {
+            display: inline-block;
+            background-color: #ff6b35;
+            color: white !important;
+            text-decoration: none !important;
+            border: none;
+            padding: 4px 40px;
+            border-radius: 0;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 24px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            background-color: #e55a2b;
+        }
+
+        .what-you-can-do {
+            margin-bottom: 1px;
+        }
+
+        .section-title {
+            color: #002147;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .devices-image {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        .feature-item {
+            text-align: left;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .icon-purple { background-color: #e8d5ff; color: #7c3aed; }
+        .icon-orange { background-color: #fed7aa; color: #ea580c; }
+        .icon-teal { background-color: #ccfbf1; color: #0d9488; }
+
+        .feature-title {
+            color: #ff6b35;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .feature-description {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .contact-info {
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+
+        .contact-text {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .contact-email {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer {
+            background-color: #3c4a5c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .footer-logo {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .footer-logo .egov-text {
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .footer-links {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #8a9ba8;
+            text-decoration: none;
+            font-size: 12px;
+            margin: 0 5px;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #8a9ba8;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo">
+        <div class="logo-dots">
+            <div class="dot dot-orange"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <div class="dot dot-blue"></div>
+            <div class="dot dot-purple"></div>
+            <div class="dot dot-red"></div>
+        </div>
+        <div>
+            <div class="brand-text">DIGIT</div>
+            <div class="foundation-text">by eGov Foundation</div>
+        </div>
+        <span class="divider">|</span>
+        <span class="sandbox-text">Sandbox</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+        <h1>Welcome to our Sandbox!</h1>
+
+        <div class="intro-text">
+            Thank you for signing up for Sandbox! You can now begin your journey on DIGIT, the world's
+            largest open source platform for transforming public service delivery. With no setup or
+            infrastructure costs, Sandbox lets you get started with DIGIT products in a matter of minutes!
+        </div>
+
+        <div class="credentials-section">
+            <div class="credentials-title">Your Credentials</div>
+            <div class="credential-row">
+                <span class="credential-label">Organisation Name:</span>
+                <span class="credential-value">{{orgName}}</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Work Email ID:</span>
+                <span class="credential-value">{{email}}</span>
+            </div>
+            <div class="login-button-container">
+                <a href="{{logInURL}}" class="login-button">Login</a>
+            </div>
+        </div>
+
+        <div class="what-you-can-do">
+            <div class="section-title">What You Can Do</div>
+
+            <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/welcome.png" alt="DIGIT Platform Devices" class="devices-image" />
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon icon-purple">
+                        📊
+                    </div>
+                    <div class="feature-title">Explore products on DIGIT</div>
+                    <div class="feature-description">
+                        Drive partner confidence and speed up decision-making
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon icon-orange">
+                        👤
+                    </div>
+                    <div class="feature-title">Experience service delivery in action</div>
+                    <div class="feature-description">
+                        Take a pick from our globally deployed solutions
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon icon-teal">
+                        ≡
+                    </div>
+                    <div class="feature-title">Assess real world fit instantly</div>
+                    <div class="feature-description">
+                        Start experiencing products immediately with pre-configured data
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-info">
+            <div class="contact-text">
+                Please feel free to reach out in case of any questions at <a href="mailto:digit.sandbox@egovernments.org" class="contact-email">digit.sandbox@egovernments.org</a>
+            </div>
+            <div style="margin-top: 10px;">
+                <div class="contact-text">Regards,</div>
+                <div class="contact-text">Sandbox Team</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-logo">
+            <span class="egov-text">eGOV</span>
+        </div>
+        <div class="footer-links">
+            <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-r/">Website</a> | <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-y/">LinkedIn</a>
+        </div>
+        <div class="footer-text">© 2025 eGov Foundation. All rights reserved.</div>
+    </div>
+</div>
+</body>
+</html>
