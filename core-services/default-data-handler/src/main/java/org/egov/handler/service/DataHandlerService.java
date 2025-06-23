@@ -298,8 +298,12 @@ public class DataHandlerService {
         try {
             emailBody = resource.getContentAsString(Charset.defaultCharset());
 
+            // Get login URL from properties and replace {tenant}
+            String loginUrl = serviceConfig.getLoginUrl()
+                    .replace("{tenant}", tenantRequest.getTenant().getCode());
+
             // Inject values into HTML template
-            emailBody = emailBody.replace("{{logInURL}}", serviceConfig.getLoginUrl());
+            emailBody = emailBody.replace("{{logInURL}}", loginUrl);
             emailBody = emailBody.replace("{{email}}", tenantRequest.getTenant().getEmail());
             emailBody = emailBody.replace("{{orgName}}", tenantRequest.getTenant().getCode());
         } catch (IOException e) {
