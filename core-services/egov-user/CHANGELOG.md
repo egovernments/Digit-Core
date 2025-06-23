@@ -2,7 +2,7 @@
 All notable changes to this module will be documented in this file.
 
 
-## 1.2.9 - 2025-05-27
+## 1.3.0 - 2025-05-27
 - Introduced tenant-specific database schema support and dynamic schema resolution
 - Refactored repositories and services to use dynamic schema placeholders and centralized schema utilities.
 - Updated method signatures and constructors for tenant context and new dependencies.
