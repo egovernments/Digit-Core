@@ -1,6 +1,12 @@
 name: Build Pipeline
 
 on:
+  push:
+    branches:
+      - build-multiarch-images
+      - docker-arm-update
+      - master
+
   workflow_dispatch:
     inputs:
       service_folder:
@@ -9,6 +15,8 @@ on:
         type: choice
         options:
           - core-services
+          - accelerators
+
         default: core-services
       service:
         description: 'Name of the service to build and deploy'
@@ -56,6 +64,9 @@ on:
           - "tenant"
           - "user-otp"
           - "xstate-chatbot"
+          - "zuul-kubernetes-discovery"
+          - "gateway-kubernetes-discovery"
+
           - "zuul"
         default: "audit-service"
 
@@ -66,14 +77,13 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
+      # Using matrix for potential future expansion. For now, it runs a single service.
       matrix:
         service: [ "${{ github.event.inputs.service }}" ]
-
     outputs:
       docker_image: ${{ steps.save_docker_image.outputs.docker_image }}
-      db_image:     ${{ steps.save_db_image.outputs.db_image }}
+      db_image: ${{ steps.save_db_image.outputs.db_image }}
 
     steps:
       - name: Checkout Code
@@ -123,8 +133,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Generate the Next Tag
         id: tag
@@ -168,7 +178,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           context: .
-          file: ${{ env.DOCKERFILE_PATH }}
+          file: build/maven/Dockerfile
           push: true
           tags: |
             egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}

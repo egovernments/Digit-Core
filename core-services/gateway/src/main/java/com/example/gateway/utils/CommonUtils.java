@@ -146,4 +146,25 @@ public class CommonUtils {
 
     }
 
+    /**
+     * Picks the lowest level tenantId from the set of state all levels of tenants
+     *
+     * @param tenants
+     * @return
+     */
+    public String getLowLevelTenatFromSet(Set<String> tenants) {
+
+        String lowLevelTenant = null;
+        int countOfSubTenantsPresent = 0;
+
+        for (String tenant : tenants) {
+            int currentCount = tenant.split("\\.").length;
+            if (currentCount >= countOfSubTenantsPresent) {
+                countOfSubTenantsPresent = currentCount;
+                lowLevelTenant = tenant;
+            }
+        }
+        return lowLevelTenant;
+    }
+
 }

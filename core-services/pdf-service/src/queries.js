@@ -9,12 +9,18 @@ import fs, {
 } from "fs";
 import { getStateSchemaIndexPositionInTenantId, isEnvironmentCentralInstance } from "./utils/commons";
 
+var ssl = envVariables.DB_SSL;
+if(typeof ssl =="string")
+  ssl = (ssl.toLowerCase() == "true");
+const sslConfig = ssl ? { rejectUnauthorized: false } : false;
+
 const pool = new Pool({
   user: envVariables.DB_USER,
   host: envVariables.DB_HOST,
   database: envVariables.DB_NAME,
   password: envVariables.DB_PASSWORD,
   port: envVariables.DB_PORT,
+  ssl: sslConfig,
 })
 
 const uuidv4 = require("uuid/v4");
