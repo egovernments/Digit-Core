@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+
+## 1.3.0 - 2025-05-27
+- Introduced tenant-specific database schema support and dynamic schema resolution
+- Refactored repositories and services to use dynamic schema placeholders and centralized schema utilities.
+- Updated method signatures and constructors for tenant context and new dependencies.
+- Updated test classes for new dependencies 
+- Implemented multi-schema migration scripts and utilities for schema handling.
+
 ## 1.2.8 - 2023-03-15
 - Added fallback to default message if user email update localization messages are not configured.
 - Fixed bug where updating citizen profile causes server error.

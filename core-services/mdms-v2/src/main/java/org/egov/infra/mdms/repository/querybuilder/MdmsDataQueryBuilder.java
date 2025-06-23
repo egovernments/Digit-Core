@@ -6,11 +6,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
+
 @Component
 public class MdmsDataQueryBuilder {
 
     private static String SEARCH_MDMS_DATA_QUERY = "SELECT data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
-            " FROM eg_mdms_data data ";
+            " FROM " + SCHEMA_REPLACE_STRING + ".eg_mdms_data data ";
 
     private static final String MDMS_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc ";
 
