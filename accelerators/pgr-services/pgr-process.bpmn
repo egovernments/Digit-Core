@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0x0z1y2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0">
+  <bpmn:process id="pgr-process" name="Public Grievance Redressal" isExecutable="true" camunda:historyTimeToLive="30">
+    <bpmn:startEvent id="start_event_apply" name="Grievance Applied">
+      <bpmn:outgoing>Flow_to_assign</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="task_assign_grievance" name="Assign Grievance">
+      <bpmn:incoming>Flow_to_assign</bpmn:incoming>
+      <bpmn:outgoing>Flow_to_assign_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_to_assign" sourceRef="start_event_apply" targetRef="task_assign_grievance" />
+    <bpmn:exclusiveGateway id="gateway_after_assign" name="Action?">
+      <bpmn:incoming>Flow_to_assign_gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_to_rejected_end</bpmn:outgoing>
+      <bpmn:outgoing>Flow_to_resolve_task</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_to_assign_gateway" sourceRef="task_assign_grievance" targetRef="gateway_after_assign" />
+    <bpmn:sequenceFlow id="Flow_to_rejected_end" name="REJECT" sourceRef="gateway_after_assign" targetRef="end_event_rejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == 'REJECT'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="end_event_rejected" name="Grievance Rejected">
+      <bpmn:incoming>Flow_to_rejected_end</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="task_resolve_grievance" name="Resolve Grievance" camunda:assignee="${assignee}">
+      <bpmn:incoming>Flow_to_resolve_task</bpmn:incoming>
+      <bpmn:incoming>Flow_reopen_to_resolve</bpmn:incoming>
+      <bpmn:outgoing>Flow_to_verify_task</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_to_resolve_task" name="ASSIGN" sourceRef="gateway_after_assign" targetRef="task_resolve_grievance">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == 'ASSIGN'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="task_verify_resolution" name="Verify Resolution" camunda:assignee="${citizenUuid}">
+      <bpmn:incoming>Flow_to_verify_task</bpmn:incoming>
+      <bpmn:outgoing>Flow_to_verify_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_to_verify_task" sourceRef="task_resolve_grievance" targetRef="task_verify_resolution" />
+    <bpmn:exclusiveGateway id="gateway_after_verify" name="Accepted?">
+      <bpmn:incoming>Flow_to_verify_gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_to_closed_end</bpmn:outgoing>
+      <bpmn:outgoing>Flow_reopen_to_resolve</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_to_verify_gateway" sourceRef="task_verify_resolution" targetRef="gateway_after_verify" />
+    <bpmn:endEvent id="end_event_closed" name="Grievance Closed">
+      <bpmn:incoming>Flow_to_closed_end</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_to_closed_end" name="ACCEPT" sourceRef="gateway_after_verify" targetRef="end_event_closed">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == 'ACCEPT'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_reopen_to_resolve" name="REOPEN" sourceRef="gateway_after_verify" targetRef="task_resolve_grievance">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == 'REOPEN'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions> 

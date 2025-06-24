@@ -80,16 +80,12 @@ public class PGRConfiguration {
     @Value("${pgr.business.codes}")
     private List<String> businessServiceList;
 
-    @Value("${egov.workflow.host}")
     private String wfHost;
 
-    @Value("${egov.workflow.transition.path}")
     private String wfTransitionPath;
 
-    @Value("${egov.workflow.businessservice.search.path}")
     private String wfBusinessServiceSearchPath;
 
-    @Value("${egov.workflow.processinstance.search.path}")
     private String wfProcessInstanceSearchPath;
 
     @Value("${is.workflow.enabled}")
@@ -224,5 +220,17 @@ public class PGRConfiguration {
 
     @Value("${pgr.validate.dept.enabled}")
     private Boolean isValidateDeptEnabled;
+
+    @Value("${camunda.host}")
+    private String camundaHost;
+
+    @Value("${camunda.process-definition.start.path}")
+    private String camundaProcessDefinitionStartPath;
+
+    @Value("${camunda.task.search.path}")
+    private String camundaTaskSearchPath;
+
+    @Value("${camunda.task.complete.path}")
+    private String camundaTaskCompletePath;
 
 }

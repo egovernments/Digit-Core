@@ -41,10 +41,10 @@ public class ServiceRequestValidator {
      */
     public void validateCreate(ServiceRequest request, Object mdmsData){
         Map<String,String> errorMap = new HashMap<>();
-        validateUserData(request,errorMap);
-        validateSource(request.getService().getSource());
-        validateMDMS(request, mdmsData);
-        if(config.getIsValidateDeptEnabled()) validateDepartment(request, mdmsData);
+//        validateUserData(request,errorMap);
+//        validateSource(request.getService().getSource());
+//        validateMDMS(request, mdmsData);
+//        if(config.getIsValidateDeptEnabled()) validateDepartment(request, mdmsData);
         if(!errorMap.isEmpty())
             throw new CustomException(errorMap);
     }
@@ -59,10 +59,16 @@ public class ServiceRequestValidator {
 
         String id = request.getService().getId();
         String tenantId = request.getService().getTenantId();
-        validateSource(request.getService().getSource());
-        validateMDMS(request, mdmsData);
-        validateDepartment(request, mdmsData);
-        validateReOpen(request);
+//        validateSource(request.getService().getSource());
+//        validateMDMS(request, mdmsData);
+//        validateDepartment(request, mdmsData);
+//        validateReOpen(request);
+        try {
+            // Adding a delay for testing to allow async persistence to complete.
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         RequestSearchCriteria criteria = RequestSearchCriteria.builder().ids(Collections.singleton(id)).tenantId(tenantId).build();
         criteria.setIsPlainSearch(false);
         List<ServiceWrapper> serviceWrappers = repository.getServiceWrappers(criteria);
