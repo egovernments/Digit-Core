@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DIGIT Sandbox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,7 +13,8 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300;
             background-color: #f5f5f5;
         }
 
@@ -20,60 +22,79 @@
             background-color: #3c4a5c;
             color: white;
             padding: 15px 20px;
+            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 800px;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: nowrap;
         }
 
         .logo-dots {
-            display: flex;
-            gap: 2px;
-            margin-right: 8px;
+            display: inline-block;
+            width: 30px;
+            height: 28px;
+            position: relative;
+            margin-right: 0px;
+            vertical-align: middle;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
+            background-color: white;
+            position: absolute;
         }
 
-        .dot-orange { background-color: #ff6b35; }
-        .dot-yellow { background-color: #ffc107; }
-        .dot-green { background-color: #28a745; }
-        .dot-blue { background-color: #007bff; }
-        .dot-purple { background-color: #6f42c1; }
-        .dot-red { background-color: #dc3545; }
+        .dot:nth-child(1) { left: 0px; top: 0px; }
+        .dot:nth-child(2) { left: 8px; top: 0px; }
+        .dot:nth-child(3) { left: 16px; top: 0px; }
+        .dot:nth-child(4) { left: 8px; top: 10px; }
+        .dot:nth-child(5) { left: 16px; top: 10px; }
+        .dot:nth-child(6) { left: 16px; top: 20px; }
 
         .brand-text {
-            font-size: 18px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        .foundation-text {
-            font-size: 10px;
-            color: #8a9ba8;
-            margin-right: 15px;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         .divider {
-            margin: 0 15px;
             color: #8a9ba8;
-            font-size: 18px;
+            font-size: 28px;
+            font-weight: 300;
+            margin: 0 8px;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         .sandbox-text {
-            font-size: 18px;
+            font-size: 28px;
+            color: white;
+            font-weight: 300;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
             min-height: calc(100vh - 60px);
@@ -87,6 +108,7 @@
         h1 {
             color: #002147;
             font-size: 24px;
+            font-weight: 300;
             margin-bottom: 20px;
         }
 
@@ -95,6 +117,7 @@
             line-height: 1.6;
             margin-bottom: 30px;
             font-size: 14px;
+            font-weight: 300;
         }
 
         .credentials-section {
@@ -107,7 +130,7 @@
         .credentials-title {
             color: #002147;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 400;
             margin-bottom: 15px;
             text-align: center;
         }
@@ -122,6 +145,7 @@
             min-width: 120px;
             color: #002147;
             font-size: 14px;
+            font-weight: 300;
             text-align: left;
         }
 
@@ -129,6 +153,7 @@
             margin-left: 30px;
             color: #333;
             font-size: 14px;
+            font-weight: 300;
         }
 
         .login-button-container {
@@ -144,10 +169,10 @@
             padding: 4px 40px;
             border-radius: 0;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 700;
             line-height: 24px;
             cursor: pointer;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin-top: 10px;
         }
 
@@ -162,8 +187,9 @@
         .section-title {
             color: #002147;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 400;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         .devices-image {
@@ -175,16 +201,27 @@
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
             margin-bottom: 30px;
-            background-color: #f8f9fa;
-            padding: 30px;
-            border-radius: 8px;
+            padding: 0;
+            border-radius: 0;
+            background-color: transparent;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .feature-item {
             text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            min-height: 180px;
         }
 
         .feature-icon {
@@ -195,7 +232,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
+            align-self: flex-start;
         }
 
         .icon-purple { background-color: #e8d5ff; color: #7c3aed; }
@@ -205,15 +243,22 @@
         .feature-title {
             color: #ff6b35;
             font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-weight: 400;
+            margin-bottom: 12px;
             line-height: 1.3;
+            text-align: left;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #dee2e6;
+            width: 100%;
         }
 
         .feature-description {
             color: #666;
             font-size: 12px;
+            font-weight: 300;
             line-height: 1.4;
+            text-align: left;
+            margin-top: 8px;
         }
 
         .contact-info {
@@ -224,12 +269,15 @@
         .contact-text {
             color: #666;
             font-size: 12px;
+            font-weight: 300;
             line-height: 1.4;
+            text-align: left;
         }
 
         .contact-email {
             color: #007bff;
             text-decoration: none;
+            font-weight: 300;
         }
 
         .footer {
@@ -241,12 +289,14 @@
 
         .footer-logo {
             margin-bottom: 10px;
-            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .footer-logo .egov-text {
-            color: #ff6b35;
-            font-weight: bold;
+        .egov-logo {
+            width: 80px;
+            height: auto;
         }
 
         .footer-links {
@@ -254,9 +304,10 @@
         }
 
         .footer-links a {
-            color: #8a9ba8;
+            color: white;
             text-decoration: none;
             font-size: 12px;
+            font-weight: 300;
             margin: 0 5px;
         }
 
@@ -266,7 +317,27 @@
 
         .footer-text {
             font-size: 12px;
-            color: #8a9ba8;
+            font-weight: 300;
+            color: white;
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 900px) {
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .feature-item {
+                text-align: left;
+            }
         }
     </style>
 </head>
@@ -274,17 +345,14 @@
 <div class="header">
     <div class="logo">
         <div class="logo-dots">
-            <div class="dot dot-orange"></div>
-            <div class="dot dot-yellow"></div>
-            <div class="dot dot-green"></div>
-            <div class="dot dot-blue"></div>
-            <div class="dot dot-purple"></div>
-            <div class="dot dot-red"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
         </div>
-        <div>
-            <div class="brand-text">DIGIT</div>
-            <div class="foundation-text">by eGov Foundation</div>
-        </div>
+        <div class="brand-text">DIGIT</div>
         <span class="divider">|</span>
         <span class="sandbox-text">Sandbox</span>
     </div>
@@ -323,7 +391,9 @@
             <div class="features-grid">
                 <div class="feature-item">
                     <div class="feature-icon icon-purple">
-                        📊
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
                     </div>
                     <div class="feature-title">Explore products on DIGIT</div>
                     <div class="feature-description">
@@ -333,7 +403,9 @@
 
                 <div class="feature-item">
                     <div class="feature-icon icon-orange">
-                        👤
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
                     </div>
                     <div class="feature-title">Experience service delivery in action</div>
                     <div class="feature-description">
@@ -343,7 +415,9 @@
 
                 <div class="feature-item">
                     <div class="feature-icon icon-teal">
-                        ≡
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
                     </div>
                     <div class="feature-title">Assess real world fit instantly</div>
                     <div class="feature-description">
@@ -366,7 +440,7 @@
 
     <div class="footer">
         <div class="footer-logo">
-            <span class="egov-text">eGOV</span>
+            <img src="{{egovLogoURL}}" alt="eGov Logo" class="egov-logo"/>
         </div>
         <div class="footer-links">
             <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-r/">Website</a> | <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-y/">LinkedIn</a>

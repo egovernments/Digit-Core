@@ -26,4 +26,6 @@ public class UserConstants {
 
     public static final String WELCOME_MAIL_SANDBOX_CLASSPATH = "classpath:WelcomeEmailSandbox.HTML";
 
+    public static final String EGOV_LOGO_CLASSPATH = "classpath:eGov_logo.png";
+
 }
