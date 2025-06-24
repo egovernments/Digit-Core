@@ -294,7 +294,6 @@ public class DataHandlerService {
     public void triggerWelcomeEmail(TenantRequest tenantRequest) {
 
         Resource resource = resourceLoader.getResource(WELCOME_MAIL_SANDBOX_CLASSPATH);
-        Resource resource1 = resourceLoader.getResource(EGOV_LOGO_CLASSPATH);
         String emailBody = "";
         try {
             emailBody = resource.getContentAsString(Charset.defaultCharset());
@@ -303,7 +302,6 @@ public class DataHandlerService {
             emailBody = emailBody.replace("{{logInURL}}", serviceConfig.getLoginUrl());
             emailBody = emailBody.replace("{{email}}", tenantRequest.getTenant().getEmail());
             emailBody = emailBody.replace("{{orgName}}", tenantRequest.getTenant().getCode());
-            emailBody = emailBody.replace("{{egovLogoURL}}", (CharSequence) resource1);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
