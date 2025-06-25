@@ -3,7 +3,7 @@
     <groupId>org.egov</groupId>
     <artifactId>pgr-camunda-services</artifactId>
     <packaging>jar</packaging>
-    <name>pgr-services</name>
+    <name>pgr-camunda-services</name>
     <version>2.9.0</version>
     <properties>
         <log4j2.version>2.17.1</log4j2.version>
