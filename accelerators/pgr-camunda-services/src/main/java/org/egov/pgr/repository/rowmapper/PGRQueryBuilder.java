@@ -35,14 +35,14 @@ public class PGRQueryBuilder {
 
 
     private static final String QUERY = "select ser.*,ads.*," + QUERY_ALIAS+
-                                        " from {schema}.eg_pgr_service_v2 ser INNER JOIN {schema}.eg_pgr_address_v2 ads" +
+                                        " from {schema}.eg_pgr_camunda_service_v2 ser INNER JOIN {schema}.eg_pgr_camunda_address_v2 ads" +
                                         " ON ads.parentId = ser.id ";
 
     private static final String COUNT_WRAPPER = "select count(*) from ({INTERNAL_QUERY}) as count";
 
-    private static final String RESOLVED_COMPLAINTS_QUERY = "select count(*) from {schema}.eg_pgr_service_v2 where applicationstatus='CLOSEDAFTERRESOLUTION' and tenantid=? and lastmodifiedtime>? ";
+    private static final String RESOLVED_COMPLAINTS_QUERY = "select count(*) from {schema}.eg_pgr_camunda_service_v2 where applicationstatus='CLOSEDAFTERRESOLUTION' and tenantid=? and lastmodifiedtime>? ";
 
-    private static final String AVERAGE_RESOLUTION_TIME_QUERY = "select round(avg(lastmodifiedtime-createdtime)/86400000) from {schema}.eg_pgr_service_v2 where applicationstatus='CLOSEDAFTERRESOLUTION' and tenantid=? ";
+    private static final String AVERAGE_RESOLUTION_TIME_QUERY = "select round(avg(lastmodifiedtime-createdtime)/86400000) from {schema}.eg_pgr_camunda_service_v2 where applicationstatus='CLOSEDAFTERRESOLUTION' and tenantid=? ";
 
 
 
