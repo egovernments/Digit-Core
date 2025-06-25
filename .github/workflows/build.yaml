@@ -8,8 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - core-services
-        default: core-services
+          - accelerators
+        default: accelerators
       service:
         description: 'Name of the service to build and deploy'
         required: true
@@ -57,6 +57,7 @@ on:
           - "user-otp"
           - "xstate-chatbot"
           - "zuul"
+          - "pgr-camunda-services"
         default: "audit-service"
 
 env:
