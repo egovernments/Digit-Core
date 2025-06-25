@@ -1,4 +1,4 @@
-CREATE TABLE eg_camunda_pgr_service_v2(
+CREATE TABLE eg_pgr_camunda_service_v2(
 
 id                  character varying(64),
 tenantId            character varying(256),
@@ -14,11 +14,11 @@ createdby           character varying(256)  NOT NULL,
 createdtime         bigint                  NOT NULL,
 lastmodifiedby      character varying(256),
 lastmodifiedtime    bigint,
-CONSTRAINT uk_camunda_eg_pgr_service_v2 UNIQUE (id),
-CONSTRAINT pk_eg_camunda__pgr_serviceReq_v2 PRIMARY KEY (tenantId,serviceRequestId)
+CONSTRAINT uk_eg_pgr_camunda_service_v2 UNIQUE (id),
+CONSTRAINT pk_eg_pgr_camunda_service_v2 PRIMARY KEY (tenantId,serviceRequestId)
 );
 
-CREATE TABLE eg_camunda_pgr_address_v2 (
+CREATE TABLE eg_pgr_camunda_address_v2 (
 
 tenantId          CHARACTER VARYING(256)  NOT NULL,
 id                CHARACTER VARYING(256)  NOT NULL,
@@ -43,8 +43,8 @@ lastmodifiedby   	CHARACTER VARYING(128),
 lastmodifiedtime 	BIGINT,
 additionaldetails JSONB,
 
-CONSTRAINT pk_eg_camunda_pgr_address_v2 PRIMARY KEY (id),
-CONSTRAINT fk_eg_camunda_pgr_address_v2 FOREIGN KEY (parentid) REFERENCES eg_camunda_pgr_service_v2 (id)
+CONSTRAINT pk_eg_pgr_camunda__address_v2 PRIMARY KEY (id),
+CONSTRAINT fk_eg_pgr_camunda_address_v2 FOREIGN KEY (parentid) REFERENCES eg_pgr_camunda_service_v2 (id)
 );
 
 
