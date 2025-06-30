@@ -119,4 +119,7 @@ public class ServiceConfiguration {
 
     @Value("${topic.notification.mail}")
     private String emailTopic;
+
+    @Value("${sandbox.login.url}")
+    private String loginUrl;
 }
