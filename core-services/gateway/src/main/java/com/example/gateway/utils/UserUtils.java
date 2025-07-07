@@ -15,12 +15,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Collections;
 import java.util.Map;
 
-import static com.example.gateway.constants.GatewayConstants.CORRELATION_ID_HEADER_NAME;
-import static com.example.gateway.constants.GatewayConstants.REQUEST_TENANT_ID_KEY;
+import static com.example.gateway.constants.GatewayConstants.*;
 
 @Slf4j
 @Component
@@ -41,31 +41,35 @@ public class UserUtils {
 
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
-    public UserUtils (RestTemplate restTemplate, ApplicationProperties applicationProperties, MultiStateInstanceUtil multiStateInstanceUtil) {
+    public UserUtils(RestTemplate restTemplate, ApplicationProperties applicationProperties, MultiStateInstanceUtil multiStateInstanceUtil) {
         this.restTemplate = restTemplate;
         this.applicationProperties = applicationProperties;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
-    public User getUser(String authToken) {
-        String authURL = String.format("%s%s%s", applicationProperties.getAuthServiceHost(), applicationProperties.getAuthUri(), authToken);
-
+    public User getUser(String authToken, ServerWebExchange exchange) {
         User user;
+        String authURL = String.format("%s%s%s", applicationProperties.getAuthServiceHost(), applicationProperties.getAuthUri(), authToken);
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(CORRELATION_ID_HEADER_NAME, (String) exchange.getAttributes().get(CORRELATION_ID_KEY));
+        if (multiStateInstanceUtil.getIsEnvironmentCentralInstance())
+            headers.add(REQUEST_TENANT_ID_KEY, (String) exchange.getAttributes().get(TENANTID_MDC));
+        final HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
 
         try {
-            user = restTemplate.postForObject(authURL, null, User.class);
+            user = restTemplate.postForObject(authURL, httpEntity, User.class);
         } catch (Exception e) {
             throw new CustomException("Exception occurred while fetching user: ", e.getMessage());
-//          throw new CustomException("Exception occurred while fetching user: ", "Error while authenticating the auth token");
         }
 
         return user;
     }
 
-    @Cacheable(value = "systemUser" , sync = true)
+    // TODO: test this once for actual data
+    @Cacheable(value = "systemUser", sync = true)
     public User fetchSystemUser(String tenantId, String correlationId) {
 
-        UserSearchRequest userSearchRequest =new UserSearchRequest();
+        UserSearchRequest userSearchRequest = new UserSearchRequest();
         userSearchRequest.setRoleCodes(Collections.singletonList("ANONYMOUS"));
         userSearchRequest.setUserType("SYSTEM");
         userSearchRequest.setPageSize(1);
@@ -83,8 +87,8 @@ public class UserUtils {
             UserDetailResponse response = restTemplate.postForObject(uri.toString(), httpEntity, UserDetailResponse.class);
             if (!CollectionUtils.isEmpty(response.getUser()))
                 user = response.getUser().get(0);
-        } catch(Exception e) {
-            log.error("Exception while fetching system user: ",e);
+        } catch (Exception e) {
+            log.error("Exception while fetching system user: ", e);
         }
 
         /*if(user == null)

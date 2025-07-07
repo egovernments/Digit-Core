@@ -4,8 +4,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.request.User;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,17 +21,26 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import static com.example.gateway.constants.GatewayConstants.*;
 
 @Component
+@Slf4j
 public class CommonUtils {
 
     private ObjectMapper objectMapper;
 
-    public CommonUtils(ObjectMapper objectMapper) {
+    private MultiStateInstanceUtil centralInstanceUtil;
+
+    private UserUtils userUtils;
+
+
+    public CommonUtils(ObjectMapper objectMapper, MultiStateInstanceUtil centralInstanceUtil, UserUtils userUtils) {
         this.objectMapper = objectMapper;
+        this.centralInstanceUtil = centralInstanceUtil;
+        this.userUtils = userUtils;
     }
 
     public static boolean isRequestBodyCompatible(ServerHttpRequest serverHttpRequest) {
@@ -37,6 +52,32 @@ public class CommonUtils {
                 || PATCH.equalsIgnoreCase(requestMethod))
                 && (contentType.contains(JSON_TYPE)
                 || contentType.contains(X_WWW_FORM_URLENCODED_TYPE));
+    }
+
+    public boolean isFormContentType(String contentType) {
+        return contentType == null || contentType.contains(FORM_DATA) || contentType.contains(X_WWW_FORM_URLENCODED_TYPE);
+    }
+
+    public void handleCentralInstanceLogic(ServerWebExchange exchange, String requestURI, boolean isOpenRequest, boolean isMixedModeRequest, Map body) {
+        if (centralInstanceUtil.getIsEnvironmentCentralInstance() && (isOpenRequest || isMixedModeRequest)
+                && !requestURI.equalsIgnoreCase("/user/oauth/token")) {
+
+            Set<String> tenantIds = new HashSet<>();
+            if (HttpMethod.GET.equals(exchange.getRequest().getMethod()) || ObjectUtils.isEmpty(body)) {
+                setTenantIdsFromQueryParams(exchange.getRequest().getQueryParams(), tenantIds);
+            } else {
+                tenantIds = getTenantIdsFromRequest(exchange.getRequest(), body);
+
+            }
+
+            if (CollectionUtils.isEmpty(tenantIds) && isOpenRequest) {
+                throw new CustomException("INVALID_TENANT_ID", "No tenantId in the request");
+            }
+
+            String tenantId = getLowLevelTenantIdFromSet(tenantIds);
+            MDC.put(TENANTID_MDC, tenantId);
+            exchange.getAttributes().put(TENANTID_MDC, tenantId);
+        }
     }
 
     private static String getRequestMethod(ServerHttpRequest serverHttpRequest) {
@@ -79,7 +120,7 @@ public class CommonUtils {
     }
 
 
-    public Set<String> validateRequestAndSetRequestTenantId(ServerWebExchange exchange , Map body) {
+    public Set<String> validateRequestAndSetRequestTenantId(ServerWebExchange exchange, Map body) {
 
         return getTenantIdsFromRequest(exchange.getRequest(), body);
     }
@@ -123,13 +164,13 @@ public class CommonUtils {
                 customException.setCode(HttpStatus.UNAUTHORIZED.toString());
                 throw customException;
             }
-        }
-        else {
+        } else {
             setTenantIdsFromQueryParams(request.getQueryParams(), tenantIds);
         }
 
         return tenantIds;
     }
+
     public void setTenantIdsFromQueryParams(MultiValueMap<String, String> queryParams, Set<String> tenantIds) throws CustomException {
 
         if (!CollectionUtils.isEmpty(queryParams) && queryParams.containsKey(REQUEST_TENANT_ID_KEY)
@@ -144,6 +185,64 @@ public class CommonUtils {
             throw new CustomException("TENANT_ID_MANDATORY", "TenantId is mandatory in URL for non json requests");
         }
 
+    }
+
+    public String getRequestURL(ServerHttpRequest request) {
+
+        // Manually construct the full request URL
+        String scheme = request.getURI().getScheme(); // e.g., "http" or "https"
+        String host = request.getURI().getHost();     // e.g., "example.com"
+        int port = request.getURI().getPort();        // e.g., 80 or 443 (can be -1 if default port is used)
+        String path = request.getURI().getPath();     // e.g., "/api/users"
+
+        // Construct the full URL
+        StringBuilder requestURL = new StringBuilder(scheme).append("://").append(host);
+
+        // Add the port if it's not the default (80 for HTTP, 443 for HTTPS)
+        if (port != -1) {
+            requestURL.append(":").append(port);
+        }
+
+        // Append the request path
+        requestURL.append(path);
+
+        return requestURL.toString();
+    }
+
+    /**
+     * method to fetch state level tenant-id based on whether the server is a
+     * multi-state instance or single-state instance
+     *
+     * @return
+     */
+    public String getStateLevelTenantForHost(ServerHttpRequest request) {
+        String tenantId = "";
+        if (centralInstanceUtil.getIsEnvironmentCentralInstance()) {
+            String requestURL = getRequestURL(request);
+            String host = requestURL.replace(request.getURI().getPath(), "").replace("https://", "").replace("http://", "");
+            tenantId = userUtils.getStateLevelTenantMap().get(host);
+        } else {
+            tenantId = userUtils.getStateLevelTenant();
+        }
+        return tenantId;
+    }
+
+    public void setAnonymousUser(ServerWebExchange exchange, Map body) {
+        ServerHttpRequest request = exchange.getRequest();
+        String CorrelationId = exchange.getAttributes().get(CORRELATION_ID_KEY).toString();
+        String tenantId = getStateLevelTenantForHost(request);
+        User systemUser = userUtils.fetchSystemUser(tenantId, CorrelationId);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
+            requestInfo.setUserInfo(systemUser);
+            body.put(REQUEST_INFO_FIELD_NAME_PASCAL_CASE, requestInfo);
+        } catch (Exception ex) {
+            log.error("An error occured while transforming the request body to set Anonymous User {}", ex);
+
+            // Throw a custom exception
+            throw new CustomException("AUTHENTICATION_ERROR", ex.getMessage());
+        }
     }
 
 }
