@@ -36,7 +36,8 @@ public class CommonUtils {
                 || PUT.equalsIgnoreCase(requestMethod)
                 || PATCH.equalsIgnoreCase(requestMethod))
                 && (contentType.contains(JSON_TYPE)
-                || contentType.contains(X_WWW_FORM_URLENCODED_TYPE));
+                || contentType.contains(X_WWW_FORM_URLENCODED_TYPE) 
+                || contentType.contains("multipart/form-data"));
     }
 
     private static String getRequestMethod(ServerHttpRequest serverHttpRequest) {
