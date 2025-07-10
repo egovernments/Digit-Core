@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 maven:3.9.6-amazoncorretto-17 AS build
+FROM maven:3.9.6-amazoncorretto-17 AS build
 ARG WORK_DIR
 WORKDIR /app
 
@@ -10,8 +10,8 @@ COPY ${WORK_DIR}/src ./src
 # Build the project
 RUN mvn -B -f /app/pom.xml package
 
-# Runtime image - Use an ARM64-supported Amazon Corretto image
-FROM --platform=linux/arm64 amazoncorretto:17-alpine
+# Runtime image - Multi-arch compatible
+FROM amazoncorretto:17-alpine
 
 WORKDIR /opt/egov
 

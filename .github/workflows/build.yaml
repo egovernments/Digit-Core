@@ -121,9 +121,6 @@ jobs:
             platform: linux/arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
-    outputs:
-      amd64_digest: ${{ steps.digest_amd64.outputs.amd64_digest }}
-      arm64_digest: ${{ steps.digest_arm64.outputs.arm64_digest }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -146,18 +143,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-${{ matrix.arch }}
-
-      - name: Export digest (amd64)
-        if: matrix.arch == 'amd64'
-        id: digest_amd64
-        run: |
-          echo "amd64_digest=${{ steps.build_push.outputs.digest }}" >> $GITHUB_OUTPUT
-
-      - name: Export digest (arm64)
-        if: matrix.arch == 'arm64'
-        id: digest_arm64
-        run: |
-          echo "arm64_digest=${{ steps.build_push.outputs.digest }}" >> $GITHUB_OUTPUT
+          build-args: |
+            WORK_DIR=${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}
 
   create-manifest:
     needs: [build-matrix, resolve-config]
@@ -173,6 +160,6 @@ jobs:
         run: |
           docker manifest create \
             egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }} \
-            --amend egovio/${{ github.event.inputs.service }}@${{ needs.build-matrix.outputs.amd64_digest }} \
-            --amend egovio/${{ github.event.inputs.service }}@${{ needs.build-matrix.outputs.arm64_digest }}
+            --amend egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-amd64 \
+            --amend egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-arm64
           docker manifest push egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}
