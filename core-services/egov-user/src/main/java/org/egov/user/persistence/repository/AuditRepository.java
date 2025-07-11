@@ -1,6 +1,7 @@
 package org.egov.user.persistence.repository;
 
 import static java.util.Objects.isNull;
+import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import org.egov.user.domain.model.enums.BloodGroup;
 import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.GuardianRelation;
 import org.egov.user.domain.model.enums.UserType;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -22,17 +24,26 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AuditRepository {
 	
-	public static final String INSERT_AUDIT_DETAILS = "insert into eg_user_audit_table (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
+	public static final String INSERT_AUDIT_DETAILS = "insert into " + SCHEMA_REPLACE_STRING + ".eg_user_audit_table (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
             + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime) values (:id,:uuid,:tenantid,:salutation,"
             + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:alternatemobilenumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
             + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime) ";
 
-	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private JdbcTemplate jdbcTemplate;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final DatabaseSchemaUtils databaseSchemaUtils;
 
-    public AuditRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, JdbcTemplate jdbcTemplate) {
+    /**
+     * Constructs an instance of AuditRepository with the given namedParameterJdbcTemplate
+     * and databaseSchemaUtils.
+     *
+     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate instance responsible
+     *                                    for executing database operations with named parameters
+     * @param databaseSchemaUtils        the DatabaseSchemaUtils instance for handling schema
+     *                                    related operations and utilities
+     */
+    public AuditRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-        this.jdbcTemplate = jdbcTemplate;
+        this.databaseSchemaUtils = databaseSchemaUtils;
     }    
 
 	public void auditUser(User oldUser, long userId, String uuid) {
@@ -147,10 +158,10 @@ public class AuditRepository {
 
         auditInputs.put("alternatemobilenumber", oldUser.getAlternateMobileNumber());
 
-        
-        
-    	
-        namedParameterJdbcTemplate.update(INSERT_AUDIT_DETAILS, auditInputs); 
+        String query = INSERT_AUDIT_DETAILS;
+        // replaced schema placeholder with tenant specific schema name
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, oldUser.getTenantId());
+        namedParameterJdbcTemplate.update(query, auditInputs);
     	
 	}
 

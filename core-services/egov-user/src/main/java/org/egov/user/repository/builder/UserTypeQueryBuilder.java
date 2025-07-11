@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Objects.isNull;
+import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Component
@@ -67,8 +68,8 @@ public class UserTypeQueryBuilder {
             "addr_type, addr .address as addr_address,  addr.city as addr_city, addr.pincode as addr_pincode, addr" +
             ".tenantid as " +
             "addr_tenantid, addr.userid as addr_userid, ur.role_code as role_code, ur.role_tenantid as role_tenantid \n" +
-            "\tFROM eg_user userdata LEFT OUTER JOIN eg_user_address addr ON userdata.id = addr.userid AND userdata.tenantid = addr" +
-            ".tenantid LEFT OUTER JOIN eg_userrole_v1 ur ON userdata.id = ur.user_id AND userdata.tenantid = ur.user_tenantid  ";
+            "\tFROM " + SCHEMA_REPLACE_STRING + ".eg_user userdata LEFT OUTER JOIN " + SCHEMA_REPLACE_STRING + ".eg_user_address addr ON userdata.id = addr.userid AND userdata.tenantid = addr" +
+            ".tenantid LEFT OUTER JOIN " + SCHEMA_REPLACE_STRING + ".eg_userrole_v1 ur ON userdata.id = ur.user_id AND userdata.tenantid = ur.user_tenantid  ";
 
     private static final String PAGINATION_WRAPPER = "SELECT * FROM " +
             "(SELECT *, DENSE_RANK() OVER (ORDER BY id) offset_ FROM " +
@@ -76,19 +77,19 @@ public class UserTypeQueryBuilder {
             " result) result_offset " +
             "WHERE offset_ > ? AND offset_ <= ?";
 
-    public static final String SELECT_NEXT_SEQUENCE_USER = "select nextval('seq_eg_user')";
+    public static final String SELECT_NEXT_SEQUENCE_USER = "select nextval('" + SCHEMA_REPLACE_STRING + ".seq_eg_user')";
 
     public static final String SELECT_FAILED_ATTEMPTS_BY_USER_SQL = "select user_uuid, ip, attempt_date, active from " +
-            "eg_user_login_failed_attempts WHERE user_uuid = :user_uuid AND attempt_date >= :attempt_date AND active " +
+            SCHEMA_REPLACE_STRING + ".eg_user_login_failed_attempts WHERE user_uuid = :user_uuid AND attempt_date >= :attempt_date AND active " +
             "= 'true' ";
 
-    public static final String INSERT_FAILED_ATTEMPTS_SQL = " INSERT INTO eg_user_login_failed_attempts (user_uuid, " +
+    public static final String INSERT_FAILED_ATTEMPTS_SQL = " INSERT INTO " + SCHEMA_REPLACE_STRING + ".eg_user_login_failed_attempts (user_uuid, " +
             "ip, attempt_date, active) VALUES ( :user_uuid, :ip , :attempt_date, :active ) ";
 
-    public static final String UPDATE_FAILED_ATTEMPTS_SQL = " UPDATE eg_user_login_failed_attempts SET active = " +
+    public static final String UPDATE_FAILED_ATTEMPTS_SQL = " UPDATE " + SCHEMA_REPLACE_STRING + ".eg_user_login_failed_attempts SET active = " +
             "'false' WHERE user_uuid = :user_uuid";
 
-    private static final String SELECT_USER_ROLE_QUERY = "SELECT distinct(user_id) from eg_userrole_v1 ur";
+    private static final String SELECT_USER_ROLE_QUERY = "SELECT distinct(user_id) from " + SCHEMA_REPLACE_STRING + ".eg_userrole_v1 ur";
 
     @SuppressWarnings("rawtypes")
     public String getQuery(final UserSearchCriteria userSearchCriteria, final List preparedStatementValues) {
@@ -285,14 +286,14 @@ public class UserTypeQueryBuilder {
     }
 
     public String getInsertUserQuery() {
-        return "insert into eg_user (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
+        return "insert into " + SCHEMA_REPLACE_STRING + ".eg_user (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
                 + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,createddate,lastmodifieddate,createdby,lastmodifiedby,alternatemobilenumber) values (:id,:uuid,:tenantid,:salutation,"
                 + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:altcontactnumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
                 + ":accountlocked,:bloodgroup,:photo,:identificationmark,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby,:alternatemobilenumber) ";
     }
 
     public String getUpdateUserQuery() {
-        return "update eg_user set salutation=:Salutation,dob=:Dob,locale=:Locale,password=:Password,pwdexpirydate=:PasswordExpiryDate,mobilenumber=:MobileNumber,altcontactnumber=:AltContactNumber,emailid=:EmailId,active=:Active,name=:Name,gender=:Gender,pan=:Pan,aadhaarnumber=:AadhaarNumber,"
+        return "update " + SCHEMA_REPLACE_STRING + ".eg_user set salutation=:Salutation,dob=:Dob,locale=:Locale,password=:Password,pwdexpirydate=:PasswordExpiryDate,mobilenumber=:MobileNumber,altcontactnumber=:AltContactNumber,emailid=:EmailId,active=:Active,name=:Name,gender=:Gender,pan=:Pan,aadhaarnumber=:AadhaarNumber,"
                 + "type=:Type,guardian=:Guardian,guardianrelation=:GuardianRelation,signature=:Signature," +
                 "accountlocked=:AccountLocked, accountlockeddate=:AccountLockedDate, bloodgroup=:BloodGroup," +
                 "photo=:Photo, identificationmark=:IdentificationMark,lastmodifieddate=:LastModifiedDate," +
@@ -301,7 +302,7 @@ public class UserTypeQueryBuilder {
 
 
     public String getUserPresentByUserNameAndTenant() {
-        return "select count(*) from eg_user where username =:userName and tenantId =:tenantId and type = :userType ";
+        return "select count(*) from " + SCHEMA_REPLACE_STRING + ".eg_user where username =:userName and tenantId =:tenantId and type = :userType ";
     }
 
 }

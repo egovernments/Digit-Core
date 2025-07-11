@@ -9,6 +9,8 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 
+import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
+
 @Component
 public class SchemaDefinitionQueryBuilder {
 
@@ -17,7 +19,7 @@ public class SchemaDefinitionQueryBuilder {
 
     private static final String SEARCH_SCHEMA_DEF_QUERY = "SELECT schema.id,schema.tenantid, schema.code, schema.description, schema.definition, schema.isactive, " +
             "schema.createdby, schema.lastmodifiedby, schema.createdtime, schema.lastmodifiedtime FROM " +
-            "eg_mdms_schema_definition schema ";
+            SCHEMA_REPLACE_STRING + ".eg_mdms_schema_definition schema ";
 
     private static final String SEARCH_SCHEMA_DEF_ORDER_BY_CLAUSE = " order by schema.createdtime desc ";
 

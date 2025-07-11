@@ -23,6 +23,7 @@ const envVariables = {
   DB_HOST: process.env.DB_HOST || "localhost",
   DB_NAME: process.env.DB_NAME || "PdfGen",
   DB_PORT: process.env.DB_PORT || 5432,
+  DB_SSL: process.env.DB_SSL || true,
   EGOV_EXTERNAL_HOST: process.env.EGOV_EXTERNAL_HOST || "https://dev.digit.org/" ,
   IS_ENVIRONMENT_CENTRAL_INSTANCE: process.env.IS_ENVIRONMENT_CENTRAL_INSTANCE || false,
   STATE_SCHEMA_INDEX_POSITION_TENANTID: process.env.STATE_SCHEMA_INDEX_POSITION_TENANTID || 1,
@@ -33,6 +34,6 @@ const envVariables = {
     process.env.DEFAULT_LOCALISATION_TENANT || "pb",
     DATA_CONFIG_URLS: process.env.DATA_CONFIG_URLS ,
     FORMAT_CONFIG_URLS: process.env.FORMAT_CONFIG_URLS ,
-    STATE_LEVEL_TENANT_ID: "in.stateb"
+    STATE_LEVEL_TENANT_ID: process.env.STATE_LEVEL_TENANT_ID || "pg"
 };
 export default envVariables;

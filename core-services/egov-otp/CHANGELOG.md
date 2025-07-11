@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.10.0 - 2025-05-27
+- Introduced tenant-specific database schema support and dynamic schema resolution
+- Refactored repositories and services to use dynamic schema placeholders and centralized schema utilities.
+- Updated method signatures and constructors for tenant context and new dependencies.
+- Updated test classes for new dependencies 
+- Implemented multi-schema migration scripts and utilities for schema handling.
+
 ## 2.9.1 - 2025-05-21
 - Upgraded tracer version from 2.9.0 to 2.9.1
 - added variables in application.properties required for opentelemetry

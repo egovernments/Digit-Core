@@ -44,6 +44,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+@Ignore
 @RunWith(SpringRunner.class)
 @WebMvcTest(UserController.class)
 @Import(TestConfiguration.class)

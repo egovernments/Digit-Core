@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.config.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +24,7 @@ import java.util.TimeZone;
 
 
 @SpringBootApplication
-@Import(TracerConfiguration.class)
+@Import({MultiStateInstanceUtil.class, TracerConfiguration.class})
 public class OtpApplication {
 
     private static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";

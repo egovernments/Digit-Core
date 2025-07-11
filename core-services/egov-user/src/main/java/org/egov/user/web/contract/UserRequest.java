@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -131,6 +132,7 @@ public class UserRequest {
     private String otpReference;
     private Long lastModifiedBy;
 
+    @NotNull(message = "User request must have a valid tenant id")
     @Pattern(regexp = UserServiceConstants.PATTERN_TENANT)
     @Size(max = 50)
     private String tenantId;
@@ -276,6 +278,7 @@ public class UserRequest {
                 .city(permanentCity)
                 .pinCode(permanentPinCode)
                 .address(permanentAddress)
+                .tenantId(tenantId)
                 .build();
     }
 
@@ -285,6 +288,7 @@ public class UserRequest {
                 .city(correspondenceCity)
                 .pinCode(correspondencePinCode)
                 .address(correspondenceAddress)
+                .tenantId(tenantId)
                 .build();
     }
 

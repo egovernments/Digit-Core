@@ -198,8 +198,10 @@ public class BPACustomDecorator {
 		apiRequest.put("RequestInfo", requestInfo);
 		String edcrNumber="";
 
-		RequestInfo bpaRequestInfo = new RequestInfo();
-		BeanUtils.copyProperties(requestInfo, bpaRequestInfo);
+//		RequestInfo bpaRequestInfo = new RequestInfo();
+//		BeanUtils.copyProperties(requestInfo, bpaRequestInfo);
+		RequestInfoWrapper bpaRequestInfo = new RequestInfoWrapper();
+		bpaRequestInfo.setRequestInfo(requestInfo);
 		LinkedHashMap responseMap = null;
 		try {
 			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), bpaRequestInfo, bpaObject.getTenantId());
@@ -429,8 +431,10 @@ public class BPACustomDecorator {
 		apiRequest.put("RequestInfo", requestInfo);
 		
 
-		RequestInfo bpaRequestInfo = new RequestInfo();
-		BeanUtils.copyProperties(requestInfo, bpaRequestInfo);
+//		RequestInfo bpaRequestInfo = new RequestInfo();
+//		BeanUtils.copyProperties(requestInfo, bpaRequestInfo);
+		RequestInfoWrapper bpaRequestInfo = new RequestInfoWrapper();
+		bpaRequestInfo.setRequestInfo(requestInfo);
 		LinkedHashMap responseMap = null;
 		try {
 			String jsonContent = serviceRequestRepository.fetchResult(uri.toString(), bpaRequestInfo, bpa.getTenantId());
