@@ -64,17 +64,11 @@ env:
   DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
 jobs:
-  build:
+  resolve-config:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service: [ "${{ github.event.inputs.service }}" ]
-
     outputs:
-      docker_image: ${{ steps.save_docker_image.outputs.docker_image }}
-      db_image:     ${{ steps.save_db_image.outputs.db_image }}
-
+      dockerfile_path: ${{ steps.pick_dockerfile.outputs.dockerfile_path }}
+      tag:              ${{ steps.tag.outputs.tag }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -89,36 +83,50 @@ jobs:
       - name: Determine Dockerfile path from build-config.yml
         id: pick_dockerfile
         run: |
-          SERVICE="${{ matrix.service }}"
+          SERVICE="${{ github.event.inputs.service }}"
           DEFAULT_DOCKERFILE="build/maven/Dockerfile"
 
-          # Debug: list all image-name / dockerfile pairs
-          echo "All build entries from build-config.yml:"
-          yq eval '.config[].build[] | "✱ image-name: \(.["image-name"]) → dockerfile: \(.dockerfile // "N/A")"' build/build-config.yml || true
-
-          # Try matching with the SERVICE variable directly (no strenv)
+          echo "Looking for service '$SERVICE' in build-config.yml..."
           DF=$(yq eval ".config[].build[] | select(.\"image-name\" == \"${SERVICE}\") | .dockerfile // \"\"" build/build-config.yml)
 
           if [ -z "$DF" ] || [ "$DF" = "null" ]; then
-            echo "No dockerfile entry found for \"$SERVICE\" in build-config.yml; using default"
+            echo "No entry found; defaulting to $DEFAULT_DOCKERFILE"
             DF="$DEFAULT_DOCKERFILE"
           else
-            echo "Found dockerfile \"$DF\" for service \"$SERVICE\"."
+            echo "Found dockerfile: $DF"
           fi
 
           echo "dockerfile_path=$DF" >> "$GITHUB_OUTPUT"
           echo "DOCKERFILE_PATH=$DF" >> "$GITHUB_ENV"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Generate the Next Tag
+        id: tag
+        run: |
+          set -euxo pipefail
+          BRANCH="${GITHUB_REF##*/}"
+          HASH=$(git rev-parse --short HEAD)
+          TAG="${BRANCH}-${HASH}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "NEXT_TAG=$TAG" >> "$GITHUB_ENV"
 
-      - name: Cache Docker Layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.service }}-${{ github.ref_name }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+  build-matrix:
+    needs: resolve-config
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -126,96 +134,34 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
 
-      - name: Generate the Next Tag
-        id: tag
-        run: |
-          set -euxo pipefail
-
-          BRANCH="${GITHUB_REF##*/}"
-          COMMIT_HASH=$(git rev-parse --short HEAD)
-          SERVICE_NAME="${{ matrix.service }}"
-
-          TOKEN=$(curl -s -X POST "https://hub.docker.com/v2/users/login/" \
-            -H "Content-Type: application/json" \
-            -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" \
-            | jq -r .token)
-
-          if [ -z "$TOKEN" ]; then
-            echo "Failed to authenticate with Docker Hub." >&2
-            exit 1
-          fi
-
-          REPO_CHECK=$(curl -s -o /dev/null -w '%{http_code}' \
-            -H "Authorization: JWT $TOKEN" \
-            "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$SERVICE_NAME/")
-
-          if [ "$REPO_CHECK" -ne 200 ]; then
-            NEXT_TAG="${BRANCH}-${COMMIT_HASH}"
-          else
-            EXISTING_TAGS=$(curl -s -H "Authorization: JWT $TOKEN" \
-              "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$SERVICE_NAME/tags?page_size=100" \
-              | jq -r '.results[].name')
-            LATEST_TAG=$(echo "$EXISTING_TAGS" | grep "^${BRANCH}-${COMMIT_HASH}" || true | sort -V | tail -n 1)
-            NEXT_TAG="${LATEST_TAG:-${BRANCH}-${COMMIT_HASH}}"
-          fi
-
-          echo "tag=$NEXT_TAG" >> "$GITHUB_OUTPUT"
-          echo "NEXT_TAG=$NEXT_TAG" >> "$GITHUB_ENV"
-
-      - name: Build and Push Application Docker Image
-        id: build_push_docker
+      - name: Build & push ${{ matrix.arch }} image
+        id: build_push
         uses: docker/build-push-action@v5
         with:
-          platforms: linux/amd64,linux/arm64
           context: .
-          file: ${{ env.DOCKERFILE_PATH }}
+          file: ${{ needs.resolve-config.outputs.dockerfile_path }}
+          platforms: ${{ matrix.platform }}
           push: true
-          tags: |
-            egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}
+          tags: egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-${{ matrix.arch }}
           build-args: |
-            WORK_DIR=${{ github.event.inputs.service_folder }}/${{ matrix.service }}
+            WORK_DIR=${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}
 
-      - name: Check if DB folder exists
-        id: check-db-folder
-        run: |
-          FOLDER_PATH="${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db"
-          if [ -d "$FOLDER_PATH" ]; then
-            echo "folder_exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "folder_exists=false" >> "$GITHUB_OUTPUT"
-          fi
+  create-manifest:
+    needs: [build-matrix, resolve-config]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build and Push Database Docker Image
-        if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
-        id: build_push_db_docker
-        uses: docker/build-push-action@v5
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          platforms: linux/amd64,linux/arm64
-          context: ${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db
-          file: ${{ github.event.inputs.service_folder }}/${{ matrix.service }}/src/main/resources/db/Dockerfile
-          push: true
-          tags: |
-            egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
-      - name: Save Application Docker Image
-        id: save_docker_image
+      - name: Create & push multi-arch manifest
         run: |
-          IMG="egovio/${{ matrix.service }}:${{ steps.tag.outputs.tag }}"
-          echo "$IMG"
-          echo "docker_image=$IMG" >> "$GITHUB_OUTPUT"
-
-          # Append to GitHub Actions summary
-          echo "### Application Docker Image" >> "$GITHUB_STEP_SUMMARY"
-          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Save Database Docker Image
-        id: save_db_image
-        if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
-        run: |
-          IMG="egovio/${{ matrix.service }}-db:${{ steps.tag.outputs.tag }}"
-          echo "$IMG"
-          echo "db_image=$IMG" >> "$GITHUB_OUTPUT"
-
-          # Append to GitHub Actions summary
-          echo "### Database Docker Image" >> "$GITHUB_STEP_SUMMARY"
-          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
+          docker buildx imagetools create \
+            --tag egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }} \
+            egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-amd64 \
+            egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-arm64
