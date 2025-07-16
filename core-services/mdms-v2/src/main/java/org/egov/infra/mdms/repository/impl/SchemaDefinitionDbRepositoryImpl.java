@@ -5,7 +5,6 @@ import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.SchemaDefCriteria;
 import org.egov.infra.mdms.model.SchemaDefinition;
 import org.egov.infra.mdms.model.SchemaDefinitionRequest;
-import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
 import org.egov.infra.mdms.repository.querybuilder.SchemaDefinitionQueryBuilder;
 import org.egov.infra.mdms.repository.rowmapper.SchemaDefinitionRowMapper;
@@ -19,8 +18,6 @@ import java.util.List;
 @Slf4j
 public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionRepository {
 
-    private Producer producer;
-
     private JdbcTemplate jdbcTemplate;
 
     private ApplicationConfig applicationConfig;
@@ -30,23 +27,34 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
     private SchemaDefinitionRowMapper rowMapper;
 
     @Autowired
-    public SchemaDefinitionDbRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
+    public SchemaDefinitionDbRepositoryImpl(JdbcTemplate jdbcTemplate,
                                             ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper, SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder){
-        this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
         this.rowMapper = rowMapper;
         this.schemaDefinitionQueryBuilder = schemaDefinitionQueryBuilder;
     }
 
-
     /**
-     * This method emits schema definition create request on kafka for async persistence
+     * This method persists schema definition create request directly in the database
      * @param schemaDefinitionRequest
      */
     @Override
     public void create(SchemaDefinitionRequest schemaDefinitionRequest) {
-        producer.push(applicationConfig.getSaveSchemaDefinitionTopicName(), schemaDefinitionRequest);
+        // Direct JDBC insert logic
+        String insertQuery = "INSERT INTO eg_mdms_schema_definition (id, tenantid, code, definition, isactive, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?)";
+        SchemaDefinition schema = schemaDefinitionRequest.getSchemaDefinition();
+        jdbcTemplate.update(insertQuery,
+            schema.getId(),
+            schema.getTenantId(),
+            schema.getCode(),
+            schema.getDefinition().toString(),
+            schema.getIsActive(),
+            schema.getAuditDetails().getCreatedBy(),
+            schema.getAuditDetails().getCreatedTime(),
+            schema.getAuditDetails().getLastModifiedBy(),
+            schema.getAuditDetails().getLastModifiedTime()
+        );
     }
 
     /**

@@ -69,7 +69,7 @@ public class MDMSService {
 		// Emit mdms creation request event
 		mdmsDataRepository.create(mdmsRequest);
 
-		return Arrays.asList(mdmsRequest.getMdms());
+		return List.of(mdmsRequest.getMdms().get(0));
 	}
 
 	/**

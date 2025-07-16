@@ -23,7 +23,7 @@ public class CompositeUniqueIdentifierGenerationUtil {
     public static String getUniqueIdentifier(JSONObject schemaObject, MdmsRequest mdmsRequest) {
         org.json.JSONArray uniqueFieldPaths = (org.json.JSONArray) schemaObject.get(X_UNIQUE_KEY);
 
-        JsonNode data = mdmsRequest.getMdms().getData();
+        JsonNode data = mdmsRequest.getMdms().get(0).getData();
         StringBuilder compositeUniqueIdentifier = new StringBuilder();
 
         // Build composite unique identifier

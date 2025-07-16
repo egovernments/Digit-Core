@@ -16,7 +16,7 @@ import org.springframework.util.ObjectUtils;
 public class MdmsDataEnricher {
 
     public void enrichCreateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject) {
-        Mdms mdms = mdmsRequest.getMdms();
+        Mdms mdms = mdmsRequest.getMdms().get(0);
         UUIDEnrichmentUtil.enrichRandomUuid(mdms, "id");
         mdms.setAuditDetails(AuditDetailsEnrichmentUtil.prepareAuditDetails(mdms.getAuditDetails(), mdmsRequest.getRequestInfo(), Boolean.TRUE));
         mdms.setUniqueIdentifier(CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
@@ -40,7 +40,7 @@ public class MdmsDataEnricher {
     }
 
     public void enrichUpdateRequest(MdmsRequest mdmsRequest) {
-        Mdms mdms = mdmsRequest.getMdms();
+        Mdms mdms = mdmsRequest.getMdms().get(0);
 
         if(ObjectUtils.isEmpty(mdms.getAuditDetails()))
             throw new CustomException("AUDIT_DETAILS_ABSENT_ERR", "Audit details cannot be absent for update request");

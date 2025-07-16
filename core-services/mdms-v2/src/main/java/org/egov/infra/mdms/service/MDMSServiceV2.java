@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,21 +61,24 @@ public class MDMSServiceV2 {
      * @param mdmsRequest
      * @return
      */
+    @Transactional
     public List<Mdms> create(MdmsRequest mdmsRequest) {
-
-        // Fetch schema against which data is getting created
+        List<Mdms> mdmsList = mdmsRequest.getMdms();
+        if (mdmsList == null || mdmsList.isEmpty()) {
+            throw new RuntimeException("Mdms list cannot be empty");
+        }
         JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
-
-        // Perform validations on incoming request
-        mdmsDataValidator.validateCreateRequest(mdmsRequest, schemaObject);
-
-        // Enrich incoming master data
-        mdmsDataEnricher.enrichCreateRequest(mdmsRequest, schemaObject);
-
-        // Emit MDMS create event to be listened by persister
+        // Validate and enrich each Mdms
+        for (Mdms mdms : mdmsList) {
+            MdmsRequest singleReq = new MdmsRequest();
+            singleReq.setRequestInfo(mdmsRequest.getRequestInfo());
+            singleReq.setMdms(List.of(mdms));
+            mdmsDataValidator.validateCreateRequest(singleReq, schemaObject);
+            mdmsDataEnricher.enrichCreateRequest(singleReq, schemaObject);
+        }
+        // All passed validation, insert all
         mdmsDataRepository.create(mdmsRequest);
-
-        return Arrays.asList(mdmsRequest.getMdms());
+        return mdmsList;
     }
 
     /**
@@ -134,18 +138,19 @@ public class MDMSServiceV2 {
         // Enrich master data update request
         mdmsDataEnricher.enrichUpdateRequest(mdmsRequest);
 
-        // Emit MDMS update event to be listened by persister
+        // Persist master data update directly
         mdmsDataRepository.update(mdmsRequest);
 
 //        cacheUtil.invalidateMdmsCache(mdmsRequest.getMdms().getTenantId(),mdmsRequest.getMdms().getSchemaCode());
-        String tenantId = mdmsRequest.getMdms().getTenantId();
-        String[] parts = mdmsRequest.getMdms().getSchemaCode().split("\\.", 2);
+        Mdms first = mdmsRequest.getMdms().get(0);
+        String tenantId = first.getTenantId();
+        String[] parts = first.getSchemaCode().split("\\.", 2);
         String moduleName = parts.length > 0 ? parts[0] : null;
         String masterName = parts.length > 1 ? parts[1] : null;
 
         cacheUtil.invalidateAllByMaster(tenantId,moduleName,masterName);
 
-        return Arrays.asList(mdmsRequest.getMdms());
+        return List.of(first);
     }
 
 }

@@ -7,7 +7,6 @@ import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsCriteria;
 import org.egov.infra.mdms.model.MdmsCriteriaV2;
 import org.egov.infra.mdms.model.MdmsRequest;
-import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilder;
 import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilderV2;
@@ -25,7 +24,6 @@ import java.util.Map;
 @Slf4j
 public class MdmsDataRepositoryImpl implements MdmsDataRepository {
 
-    private Producer producer;
     private JdbcTemplate jdbcTemplate;
     private ApplicationConfig applicationConfig;
     private MdmsDataQueryBuilder mdmsDataQueryBuilder;
@@ -34,12 +32,11 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     private MdmsDataRowMapper mdmsDataRowMapper;
 
     @Autowired
-    public MdmsDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
+    public MdmsDataRepositoryImpl(JdbcTemplate jdbcTemplate,
                                   ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
                                   MdmsDataRowMapperV2 mdmsDataRowMapperV2,
                                   MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2,
                                   MdmsDataRowMapper mdmsDataRowMapper) {
-        this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
         this.mdmsDataQueryBuilder = mdmsDataQueryBuilder;
@@ -53,7 +50,22 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      */
     @Override
     public void create(MdmsRequest mdmsRequest) {
-        producer.push(applicationConfig.getSaveMdmsDataTopicName(), mdmsRequest);
+        String insertQuery = "INSERT INTO eg_mdms_data (id, tenantid, schemacode, uniqueidentifier, data, isactive, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?)";
+        List<Mdms> mdmsList = mdmsRequest.getMdms();
+        for (Mdms mdms : mdmsList) {
+            jdbcTemplate.update(insertQuery,
+                mdms.getId(),
+                mdms.getTenantId(),
+                mdms.getSchemaCode(),
+                mdms.getUniqueIdentifier(),
+                mdms.getData().toString(),
+                mdms.getIsActive(),
+                mdms.getAuditDetails().getCreatedBy(),
+                mdms.getAuditDetails().getCreatedTime(),
+                mdms.getAuditDetails().getLastModifiedBy(),
+                mdms.getAuditDetails().getLastModifiedTime()
+            );
+        }
     }
 
     /**
@@ -61,7 +73,16 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
      */
     @Override
     public void update(MdmsRequest mdmsRequest) {
-        producer.push(applicationConfig.getUpdateMdmsDataTopicName(), mdmsRequest);
+        // Direct JDBC update logic
+        String updateQuery = "UPDATE eg_mdms_data SET data = ?::jsonb, isactive = ?, lastmodifiedby = ?, lastmodifiedtime = ? WHERE id = ?";
+        Mdms mdms = mdmsRequest.getMdms().get(0);
+        jdbcTemplate.update(updateQuery,
+            mdms.getData().toString(),
+            mdms.getIsActive(),
+            mdms.getAuditDetails().getLastModifiedBy(),
+            mdms.getAuditDetails().getLastModifiedTime(),
+            mdms.getId()
+        );
     }
 
     /**

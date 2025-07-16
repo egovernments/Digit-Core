@@ -52,7 +52,7 @@ public class MdmsDataValidator {
         // Validations are performed here on the incoming data
         validateDataWithSchemaDefinition(mdmsRequest, schemaObject, errors);
         checkDuplicate(schemaObject, mdmsRequest);
-        validateReference(schemaObject, mdmsRequest.getMdms());
+        validateReference(schemaObject, mdmsRequest.getMdms().get(0));
 
         // Throw validation errors
         ErrorUtil.throwCustomExceptions(errors);
@@ -68,7 +68,7 @@ public class MdmsDataValidator {
     private void validateDataWithSchemaDefinition(MdmsRequest mdmsRequest, JSONObject schemaObject,Map<String, String> errors) {
         try {
             // Load incoming master data as a json object
-            JSONObject dataObject = new JSONObject(mdmsRequest.getMdms().getData().toString());
+            JSONObject dataObject = new JSONObject(mdmsRequest.getMdms().get(0).getData().toString());
 
             // Load schema
             Schema schema = SchemaLoader.load(schemaObject);
@@ -103,9 +103,9 @@ public class MdmsDataValidator {
 
         // Fetch master data
         List<Mdms> masterData = fetchMasterData(MdmsCriteriaV2.builder()
-                .tenantId(mdmsRequest.getMdms().getTenantId())
+                .tenantId(mdmsRequest.getMdms().get(0).getTenantId())
                 .uniqueIdentifiers(Collections.singleton(uniqueIdentifier))
-                .schemaCode(mdmsRequest.getMdms().getSchemaCode())
+                .schemaCode(mdmsRequest.getMdms().get(0).getSchemaCode())
                 .isActive(Boolean.TRUE)
                 .build());
 
@@ -210,7 +210,7 @@ public class MdmsDataValidator {
         String uniqueIdentifierOfExistingRecord = fetchUniqueIdentifier(mdmsRequest);
         validateIfUniqueFieldsAreNotBeingUpdated(uniqueIdentifierOfExistingRecord, CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
         validateDataWithSchemaDefinition(mdmsRequest, schemaObject, errors);
-        validateReference(schemaObject, mdmsRequest.getMdms());
+        validateReference(schemaObject, mdmsRequest.getMdms().get(0));
 
         // Throw validation errors
         ErrorUtil.throwCustomExceptions(errors);
@@ -234,15 +234,15 @@ public class MdmsDataValidator {
      * @return
      */
     private String fetchUniqueIdentifier(MdmsRequest mdmsRequest) {
-        if(ObjectUtils.isEmpty(mdmsRequest.getMdms().getId()))
+        if(ObjectUtils.isEmpty(mdmsRequest.getMdms().get(0).getId()))
             throw new CustomException("MASTER_DATA_ID_ABSENT_ERR", "Providing master data id is mandatory for update operation.");
 
         Set<String> idForSearch = new HashSet<>();
-        idForSearch.add(mdmsRequest.getMdms().getId());
+        idForSearch.add(mdmsRequest.getMdms().get(0).getId());
 
         // Fetch master data from database
         List<Mdms> masterData = fetchMasterData(MdmsCriteriaV2.builder()
-                .tenantId(mdmsRequest.getMdms().getTenantId())
+                .tenantId(mdmsRequest.getMdms().get(0).getTenantId())
                 .ids(idForSearch)
                 .build());
 

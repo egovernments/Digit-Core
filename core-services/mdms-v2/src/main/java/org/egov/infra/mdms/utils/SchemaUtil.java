@@ -30,7 +30,7 @@ public class SchemaUtil {
      */
     public JSONObject getSchema(MdmsRequest mdmsRequest) {
 
-        Mdms mdms = mdmsRequest.getMdms();
+        Mdms mdms = mdmsRequest.getMdms().get(0);
 
         SchemaDefCriteria schemaDefCriteria = SchemaDefCriteria.builder()
                 .tenantId(mdms.getTenantId())

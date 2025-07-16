@@ -52,7 +52,7 @@ public class SchemaDefinitionService {
         // Enrich schema create request
         schemaDefinitionEnricher.enrichCreateRequest(schemaDefinitionRequest);
 
-        // Invoke repository method to emit schema creation event
+        // Persist schema definition directly
         schemaDefinitionRepository.create(schemaDefinitionRequest);
 
         return Arrays.asList(schemaDefinitionRequest.getSchemaDefinition());

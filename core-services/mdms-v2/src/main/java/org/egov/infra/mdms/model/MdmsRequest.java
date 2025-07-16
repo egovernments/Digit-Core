@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,7 +30,7 @@ public class MdmsRequest {
     @JsonProperty("Mdms")
     @Valid
     @NotNull
-    private Mdms mdms = null;
+    private List<Mdms> mdms = null;
 
     /*@JsonProperty("Workflow")
 
