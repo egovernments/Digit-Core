@@ -46,4 +46,13 @@ public class MDMSController {
         return ResponseEntity.ok(mdmsResponse);
     }
 
+    /**
+     * Standard search: POST /v1/_search
+     */
+    @PostMapping("/_search")
+    public ResponseEntity<MdmsResponse> searchV1Post(@Valid @RequestBody MdmsCriteriaReq mdmsCriteriaReq) {
+        MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(mdmsCriteriaReq);
+        return ResponseEntity.ok(mdmsResponse);
+    }
+
 }
