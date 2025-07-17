@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @Slf4j
@@ -25,37 +26,44 @@ public class MDMSControllerV2 {
     }
 
     /**
-     * Request handler for serving create requests
-     * @param mdmsRequest
-     * @param schemaCode
-     * @return
+     * REST-compliant create: POST /v2/mdms
      */
-    @RequestMapping(value="_create/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
+    @PostMapping("/mdms")
+    public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest) {
         List<Mdms> masterDataList = mdmsServiceV2.create(mdmsRequest);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
     }
 
     /**
-     * Request handler for serving search requests
-     * @param masterDataSearchCriteria
-     * @return
+     * REST-compliant update: PUT /v2/mdms/{id}
      */
-    @RequestMapping(value="_search", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> search(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
-        List<Mdms> masterDataList = mdmsServiceV2.search(masterDataSearchCriteria);
-        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(RequestInfo.builder().build(), masterDataList), HttpStatus.OK);
+    @PutMapping("/mdms/{id}")
+    public ResponseEntity<MdmsResponseV2> update(@PathVariable("id") String id, @Valid @RequestBody MdmsRequest mdmsRequest) {
+        // Optionally set the id in the request body if needed
+        if (mdmsRequest.getMdms() != null && !mdmsRequest.getMdms().isEmpty()) {
+            mdmsRequest.getMdms().get(0).setId(id);
+        }
+        List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest);
+        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
     }
 
     /**
-     * Request handler for serving update requests
-     * @param mdmsRequest
-     * @param schemaCode
-     * @return
+     * REST-compliant search: GET /v2/mdms?tenantId=...&schemaCode=...&uniqueIdentifier=...
      */
-    @RequestMapping(value="_update/{schemaCode}", method = RequestMethod.POST)
-    public ResponseEntity<MdmsResponseV2> update(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
-        List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest);
-        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
+    @GetMapping("/mdms")
+    public ResponseEntity<MdmsResponseV2> search(@RequestParam(required = false) String tenantId,
+                                                 @RequestParam(required = false) String schemaCode,
+                                                 @RequestParam(required = false) String uniqueIdentifier) {
+        // Build MdmsCriteriaReqV2 from query params
+        MdmsCriteriaReqV2 criteria = new MdmsCriteriaReqV2();
+        MdmsCriteriaV2 mdmsCriteria = new MdmsCriteriaV2();
+        mdmsCriteria.setTenantId(tenantId);
+        mdmsCriteria.setSchemaCode(schemaCode);
+        if (uniqueIdentifier != null) {
+            mdmsCriteria.setUniqueIdentifiers(Set.of(uniqueIdentifier));
+        }
+        criteria.setMdmsCriteria(mdmsCriteria);
+        List<Mdms> masterDataList = mdmsServiceV2.search(criteria);
+        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(null, masterDataList), HttpStatus.OK);
     }
 }

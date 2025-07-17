@@ -9,9 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import jakarta.validation.Valid;
 import java.util.List;
 
@@ -29,35 +34,37 @@ public class SchemaDefinitionController {
     }
 
     /**
-     * Request handler for serving schema create requests.
-     * @param schemaDefinitionRequest
-     * @return
+     * REST-compliant create: POST /schema/v1/schema
      */
-    @RequestMapping(value = "_create", method = RequestMethod.POST)
+    @PostMapping("/schema")
     public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest) {
         List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest);
         return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitionRequest.getRequestInfo(), schemaDefinitions), HttpStatus.ACCEPTED);
     }
 
     /**
-     * Request handler for serving schema search requests.
-     * @param schemaDefinitionSearchRequest
-     * @return
+     * REST-compliant update: PUT /schema/v1/schema/{id}
      */
-    @RequestMapping(value = "_search", method = RequestMethod.POST)
-    public ResponseEntity<SchemaDefinitionResponse> search(@Valid @RequestBody SchemaDefSearchRequest schemaDefinitionSearchRequest) {
-        List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(schemaDefinitionSearchRequest);
-        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitionSearchRequest.getRequestInfo(), schemaDefinitions), HttpStatus.ACCEPTED);
+    @PutMapping("/schema/{id}")
+    public ResponseEntity<SchemaDefinitionResponse> update(@PathVariable("id") String id, @Valid @RequestBody SchemaDefinitionRequest schemaDefinitionUpdateRequest) {
+        // Not implemented, but signature is RESTful
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     /**
-     * Request handler for serving schema update requests - NOT implemented as of now.
-     * @param schemaDefinitionUpdateRequest
-     * @return
+     * REST-compliant search: GET /schema/v1/schema?tenantId=...&code=...
      */
-    @RequestMapping(value = "_update", method = RequestMethod.POST)
-    public ResponseEntity<SchemaDefinitionResponse> update(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionUpdateRequest) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    @GetMapping("/schema")
+    public ResponseEntity<SchemaDefinitionResponse> search(@RequestParam(required = false) String tenantId,
+                                                          @RequestParam(required = false) String code) {
+        // Build SchemaDefSearchRequest from query params
+        SchemaDefSearchRequest searchRequest = new SchemaDefSearchRequest();
+        SchemaDefCriteria criteria = new SchemaDefCriteria();
+        criteria.setTenantId(tenantId);
+        criteria.setCodes(code != null ? List.of(code) : null);
+        searchRequest.setSchemaDefCriteria(criteria);
+        List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(searchRequest);
+        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(null, schemaDefinitions), HttpStatus.ACCEPTED);
     }
 
 }

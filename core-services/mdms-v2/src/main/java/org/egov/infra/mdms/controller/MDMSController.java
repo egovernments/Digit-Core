@@ -29,25 +29,20 @@ public class MDMSController {
     }
 
     /**
-     * Request handler for serving v1 search requests.
-     * @param body
-     * @return
+     * REST-compliant search: GET /v1/mdms?tenantId=...&schemaCode=...&uniqueIdentifier=...
      */
-//    @RequestMapping(value="_search", method = RequestMethod.POST)
-//    public ResponseEntity<?> search(@Valid @RequestBody MdmsCriteriaReq body) {
-//        Map<String,Map<String,JSONArray>>  moduleMasterMap = mdmsService.search(body);
-//        MdmsResponse mdmsResponse = MdmsResponse.builder()
-//                .mdmsRes(moduleMasterMap)
-//                .build();
-//        return new ResponseEntity<>(mdmsResponse, HttpStatus.OK);
-//    }
-
-    @RequestMapping(value="_search", method = RequestMethod.POST)
-    public ResponseEntity<?> search(@Valid @RequestBody MdmsCriteriaReq body) {
-
-        //  Fallback to service
-        MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(body);
-
+    @GetMapping("/mdms")
+    public ResponseEntity<?> search(@RequestParam(required = false) String tenantId,
+                                    @RequestParam(required = false) String schemaCode,
+                                    @RequestParam(required = false) String uniqueIdentifier) {
+        // Build MdmsCriteriaReq from query params
+        MdmsCriteriaReq criteriaReq = new MdmsCriteriaReq();
+        MdmsCriteria criteria = new MdmsCriteria();
+        criteria.setTenantId(tenantId);
+        criteria.setUniqueIdentifier(uniqueIdentifier);
+        // schemaCode is not a direct field, so may need to set in moduleDetails if needed
+        criteriaReq.setMdmsCriteria(criteria);
+        MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(criteriaReq);
         return ResponseEntity.ok(mdmsResponse);
     }
 
