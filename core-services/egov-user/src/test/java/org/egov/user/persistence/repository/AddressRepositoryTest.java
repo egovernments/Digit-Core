@@ -2,6 +2,7 @@ package org.egov.user.persistence.repository;
 
 import org.egov.user.domain.model.Address;
 import org.egov.user.domain.model.enums.AddressType;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,12 +33,15 @@ public class AddressRepositoryTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private DatabaseSchemaUtils databaseSchemaUtils;
+
     @InjectMocks
     private AddressRepository addressRepository;
 
     @Before
     public void before() {
-        addressRepository = new AddressRepository(namedParameterJdbcTemplate, jdbcTemplate);
+        addressRepository = new AddressRepository(namedParameterJdbcTemplate, jdbcTemplate, databaseSchemaUtils);
     }
 
     @Test
