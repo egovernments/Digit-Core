@@ -223,6 +223,14 @@ public class MinioRepository implements CloudFilesManager {
 					fileLocation.getFileName().length());
 
 			try {
+
+				if (f.exists()) {
+					boolean deleted = f.delete();
+					if (!deleted) {
+						log.warn("Failed to delete existing destination file: {}", f.getAbsolutePath());
+					}
+				}
+
 				minioClient.getObject(minioConfig.getBucketName(), fileName, f.getName());
 			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException |
                      InsufficientDataException | InternalException | InvalidBucketNameException |
@@ -237,7 +245,6 @@ public class MinioRepository implements CloudFilesManager {
 			}
 
 			resource = new FileSystemResource(Paths.get(f.getPath()).toFile());
-
 		}
 		return resource;
 	}
