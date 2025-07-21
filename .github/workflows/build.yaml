@@ -169,24 +169,6 @@ jobs:
           push: true
           tags: egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-${{ matrix.arch }}
 
-      - name: Save Application Docker Image
-        id: save_app_image
-        run: |
-          IMG="egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-${{ matrix.arch }}"
-          echo "docker_image=$IMG" >> "$GITHUB_OUTPUT"
-
-          echo "### Application Docker Image (arch=${{ matrix.arch }})" >> "$GITHUB_STEP_SUMMARY"
-          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Save Database Docker Image
-        if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
-        id: save_db_image
-        run: |
-          IMG="egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-${{ matrix.arch }}"
-          echo "db_image=$IMG" >> "$GITHUB_OUTPUT"
-
-          echo "### Database Docker Image (arch=${{ matrix.arch }})" >> "$GITHUB_STEP_SUMMARY"
-          echo "$IMG" >> "$GITHUB_STEP_SUMMARY"
 
   create-manifest:
     needs: [build-matrix, resolve-config]
