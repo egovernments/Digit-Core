@@ -10,12 +10,14 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            max-width: 900px;
         }
 
         body {
             font-family: 'Roboto', sans-serif;
             font-weight: 300;
             background-color: #f5f5f5;
+            max-width: 900px;
         }
 
         .header {
@@ -38,6 +40,8 @@
             gap: 8px;
             justify-content: center;
             flex-wrap: nowrap;
+            width: 100%;
+            text-align: center;
         }
 
         .logo-dots {
@@ -203,16 +207,16 @@
         }
 
         .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr) !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: stretch;
             gap: 20px;
             margin-bottom: 30px;
             padding: 0;
             border-radius: 0;
             background-color: transparent;
-            width: 100%;
+            width: 95%;
             box-sizing: border-box;
-            min-width: 0; /* Allows grid items to shrink below their content size */
         }
 
         .feature-item {
@@ -228,8 +232,9 @@
             min-height: 180px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             transition: box-shadow 0.3s ease;
-            min-width: 0; /* Allows flex items to shrink */
-            overflow: hidden; /* Prevents content overflow */
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .feature-item:hover {
@@ -301,6 +306,7 @@
             background-color: #3c4a5c;
             color: white;
             text-align: center;
+            margin-top: -50px;
             padding: 20px;
         }
 
@@ -350,17 +356,18 @@
             color: white;
         }
 
-        /* Responsive design - FORCE horizontal layout at all times */
+        /* FORCE HORIZONTAL LAYOUT - Using flexbox instead of grid */
         @media (max-width: 900px) {
             .features-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
+                display: flex !important;
+                flex-direction: row !important;
                 gap: 15px;
             }
             
-            /* Adjust feature items for smaller screens */
             .feature-item {
                 padding: 12px;
                 min-height: 140px;
+                flex: 1;
             }
             
             .feature-title {
@@ -380,13 +387,15 @@
 
         @media (max-width: 600px) {
             .features-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
+                display: flex !important;
+                flex-direction: row !important;
                 gap: 10px;
             }
             
             .feature-item {
                 padding: 8px;
                 min-height: 120px;
+                flex: 1;
             }
             
             .feature-icon {
@@ -397,13 +406,13 @@
             }
             
             .feature-title {
-                font-size: 11px;
+                font-size: 10px;
                 margin-bottom: 6px;
                 line-height: 1.2;
             }
             
             .feature-description {
-                font-size: 9px;
+                font-size: 8px;
                 line-height: 1.2;
             }
 
@@ -412,7 +421,7 @@
             }
 
             .brand-text, .sandbox-text, .divider {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             .content {
@@ -430,16 +439,17 @@
             }
         }
         
-        /* For very small screens, make items even more compact but KEEP HORIZONTAL */
         @media (max-width: 400px) {
             .features-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
+                display: flex !important;
+                flex-direction: row !important;
                 gap: 8px;
             }
             
             .feature-item {
                 padding: 6px;
                 min-height: 100px;
+                flex: 1;
             }
             
             .feature-icon {
@@ -450,30 +460,36 @@
             }
             
             .feature-title {
-                font-size: 10px;
+                font-size: 9px;
                 margin-bottom: 4px;
                 line-height: 1.1;
             }
             
             .feature-description {
-                font-size: 8px;
+                font-size: 7px;
                 line-height: 1.1;
             }
             
             .content {
                 padding: 10px;
             }
+            
+            .brand-text, .sandbox-text, .divider {
+                font-size: 18px;
+            }
         }
         
         @media (max-width: 320px) {
             .features-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
+                display: flex !important;
+                flex-direction: row !important;
                 gap: 5px;
             }
             
             .feature-item {
                 padding: 4px;
                 min-height: 80px;
+                flex: 1;
             }
             
             .feature-icon {
@@ -484,12 +500,18 @@
             }
             
             .feature-title {
-                font-size: 9px;
+                font-size: 8px;
                 margin-bottom: 3px;
+                line-height: 1;
             }
             
             .feature-description {
-                font-size: 7px;
+                font-size: 6px;
+                line-height: 1;
+            }
+            
+            .brand-text, .sandbox-text, .divider {
+                font-size: 16px;
             }
         }
     </style>
