@@ -293,10 +293,15 @@ public class DataHandlerService {
 
     public void triggerWelcomeEmail(TenantRequest tenantRequest) {
 
-        Resource resource = resourceLoader.getResource(WELCOME_MAIL_CLASSPATH);
+        Resource resource = resourceLoader.getResource(WELCOME_MAIL_SANDBOX_CLASSPATH);
         String emailBody = "";
         try {
             emailBody = resource.getContentAsString(Charset.defaultCharset());
+
+            // Inject values into HTML template
+            emailBody = emailBody.replace("{{logInURL}}", serviceConfig.getLoginUrl());
+            emailBody = emailBody.replace("{{email}}", tenantRequest.getTenant().getEmail());
+            emailBody = emailBody.replace("{{orgName}}", tenantRequest.getTenant().getCode());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
