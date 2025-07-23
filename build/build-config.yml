@@ -341,6 +341,7 @@ config:
     build:
       - work-dir: "core-services/pdf-service"
         image-name: "pdf-service"
+        dockerfile: "core-services/pdf-service/Dockerfile"
       - work-dir: "core-services/pdf-service/migration"
         image-name: "pdf-service-db"
         
