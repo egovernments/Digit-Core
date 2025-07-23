@@ -7,11 +7,24 @@ ARG WORK_DIR=.
 FROM node:10 AS builder
 WORKDIR /app
 
+# Debug: List the contents of the build context
+RUN ls -la /
+
 # cache npm downloads in /tmp
 ENV npm_config_cache=/tmp
 
-# copy your source
-COPY ${WORK_DIR} .
+# Debug: Show the value of WORK_DIR
+ARG WORK_DIR
+RUN echo "WORK_DIR is set to: ${WORK_DIR}"
+
+# Debug: Check if the directory exists
+RUN ls -la /${WORK_DIR} || echo "Directory not found"
+
+# Try different copy approaches
+COPY ${WORK_DIR}/package.json ./
+COPY ${WORK_DIR}/package-lock.json ./
+COPY ${WORK_DIR}/src ./src
+COPY ${WORK_DIR}/.babelrc ./
 
 # install dependencies
 RUN npm install
