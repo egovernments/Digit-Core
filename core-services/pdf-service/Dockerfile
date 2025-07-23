@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1.4
+ARG WORK_DIR=.
 
 ################################
 # 1) Build stage
@@ -10,7 +11,7 @@ WORKDIR /app
 ENV npm_config_cache=/tmp
 
 # copy your source
-COPY . .
+COPY ${WORK_DIR} .
 
 # install dependencies
 RUN npm install
