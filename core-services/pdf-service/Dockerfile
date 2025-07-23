@@ -1,32 +1,35 @@
 # syntax=docker/dockerfile:1.4
-
 ARG WORK_DIR
-ENV npm_config_cache=/tmp
 
 ################################
 # 1) Build stage
 ################################
-FROM node:10-alpine AS builder
+FROM node:10 AS builder
 WORKDIR /app
 
-# copy your app’s source
+# cache npm downloads in /tmp
+ENV npm_config_cache=/tmp
+
+# copy your source
 COPY ${WORK_DIR} .
 
-# install deps (uses npm as before)
+# install dependencies
 RUN npm install
 
 ################################
 # 2) Runtime stage
 ################################
-FROM node:10-alpine
+FROM node:10
 WORKDIR /app
 
-# pull in compiled app + deps
+# preserve npm cache (if you ever run installs at runtime)
+ENV npm_config_cache=/tmp
+
+# grab built app + deps
 COPY --from=builder /app /app
 
-# runtime env
+# runtime settings
 ENV PORT=8080
 EXPOSE 8080
 
-# same start command
 CMD ["npm", "start"]
