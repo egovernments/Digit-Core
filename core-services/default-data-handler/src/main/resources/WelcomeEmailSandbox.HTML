@@ -20,7 +20,7 @@
             max-width: 900px;
         }
 
-        .header {
+        /* .header {
             background-color: #3c4a5c;
             color: white;
             padding: 15px 20px;
@@ -32,7 +32,7 @@
             width: 100%;
             box-sizing: border-box;
             max-width: 800px;
-        }
+        } */
 
         .logo {
             display: flex !important;
@@ -419,9 +419,9 @@
                 line-height: 1.2;
             }
 
-            .header {
+            /* .header {
                 padding: 12px 15px;
-            }
+            } */
 
             .brand-text, .sandbox-text, .divider {
                 font-size: 20px;
@@ -525,24 +525,53 @@
     </style>
 </head>
 <body>
-<div class="header">
-    <div class="logo">
-        <div class="logo-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-        </div>
-        <div class="brand-text">DIGIT</div>
-        <span class="divider">|</span>
-        <span class="sandbox-text">Sandbox</span>
-    </div>
-</div>
+
+<!-- EMAIL-COMPATIBLE HEADER -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #3c4a5c; max-width: 800px; margin: 0 auto;">
+  <tr>
+    <td align="center" style="padding: 15px 20px;">
+      <!-- SIMPLIFIED LOGO STRUCTURE -->
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <!-- DOTS CONTAINER - NOW USING TABLES FOR COMPATIBILITY -->
+          <td valign="middle" style="padding-right: 8px;">
+            <table border="0" cellspacing="0" cellpadding="0" style="display: inline-block; width: 24px; height: 20px; position: relative;">
+              <!-- Top row dots -->
+              <tr>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+                <td width="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+                <td width="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+              </tr>
+              <!-- Middle row dots -->
+              <tr height="4"></tr>
+              <tr>
+                <td colspan="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+                <td width="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+              </tr>
+              <!-- Bottom row dot -->
+              <tr height="4"></tr>
+              <tr>
+                <td colspan="4"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+              </tr>
+            </table>
+          </td>
+          
+          <!-- TEXT PART - SIMPLIFIED STRUCTURE -->
+          <td valign="middle">
+            <span style="font-size: 24px; font-weight: 700; color: white; display: inline-block; vertical-align: middle; line-height: 1.2;">DIGIT</span>
+            <span style="color: #8a9ba8; font-size: 24px; font-weight: 300; margin: 0 8px; display: inline-block; vertical-align: middle; line-height: 1.2;">|</span>
+            <span style="font-size: 24px; color: white; font-weight: 300; display: inline-block; vertical-align: middle; line-height: 1.2;">Sandbox</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
 <div class="container">
     <div class="content">
@@ -574,42 +603,133 @@
 
             <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/welcome.png" alt="DIGIT Platform Devices" class="devices-image" />
 
-            <div class="features-grid">
-                <div class="feature-item">
-                    <div class="feature-icon icon-purple">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-                        </svg>
-                    </div>
-                    <div class="feature-title">Explore products on DIGIT</div>
-                    <div class="feature-description">
-                        Drive partner confidence and speed up decision-making
-                    </div>
-                </div>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 800px; margin: 0 auto 30px;" class="desktop-version">
+<!-- SINGLE VERSION THAT WORKS FOR BOTH DESKTOP AND MOBILE -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 800px; margin: 0 auto 30px;">
+  <tr>
+    <!-- FEATURE 1 -->
+    <td width="33%" valign="top" style="padding: 10px; display: inline-block; width: 100%; max-width: 240px;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; min-height: 220px;">
+        <tr>
+          <td style="padding: 20px;">
+            <!-- SVG ICON - PNG FALLBACK FOR OUTLOOK -->
+            <!--[if mso]>
+              <img src="https://example.com/path-to-icon1.png" width="40" height="40" style="display: block; margin-bottom: 15px;" alt="Icon">
+            <![endif]-->
+            <!--[if !mso]><!-- -->
+            <div style="width: 40px; height: 40px; background-color: #e8d5ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+             <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/action_key.png" alt="Action key icon"   style="display: block;margin:10px;">
+            </div>
+            <!--<![endif]-->
+            <!-- TITLE -->
+            <div style="color: #002147; font-size: 14px; font-weight: bold; margin-bottom: 8px; line-height: 1.3; text-align: left; width: 100%; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">
+              Explore products on DIGIT
+            </div>
+            <!-- DESCRIPTION -->
+            <div style="color: #666666; font-size: 12px; line-height: 1.4; text-align: left; margin-top: 8px;">
+              Drive partner confidence and speed up decision-making
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+    
+    <!-- FEATURE 2 -->
+    <td width="33%" valign="top" style="padding: 10px; display: inline-block; width: 100%; max-width: 240px;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; min-height: 220px;">
+        <tr>
+          <td style="padding: 20px;">
+            <!-- SVG ICON - PNG FALLBACK FOR OUTLOOK -->
+            <!--[if mso]>
+              <img src="https://example.com/path-to-icon2.png" width="40" height="40" style="display: block; margin-bottom: 15px;" alt="Icon">
+            <![endif]-->
+            <!--[if !mso]><!-- -->
+            <div style="width: 40px; height: 40px; background-color: #fed7aa; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+             <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/interactive_space.png" alt="Interactive space icon" " style="display: block;margin:10px;">
+            </div>
+            <!--<![endif]-->
+            <!-- TITLE -->
+            <div style="color: #002147; font-size: 14px; font-weight: bold; margin-bottom: 8px; line-height: 1.3; text-align: left; width: 100%; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">
+              Experience service delivery in action
+            </div>
+            <!-- DESCRIPTION -->
+            <div style="color: #666666; font-size: 12px; line-height: 1.4; text-align: left; margin-top: 8px;">
+              Take a pick from our globally deployed solutions
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+    
+    <!-- FEATURE 3 -->
+    <td width="33%" valign="top" style="padding: 10px; display: inline-block; width: 100%; max-width: 240px;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; min-height: 220px;">
+        <tr>
+          <td style="padding: 20px;">
+            <!-- SVG ICON - PNG FALLBACK FOR OUTLOOK -->
+            <!--[if mso]>
+              <img src="https://example.com/path-to-icon3.png" width="40" height="40" style="display: block; margin-bottom: 15px;" alt="Icon">
+            <![endif]-->
+            <!--[if !mso]><!-- -->
+            <div style="width: 40px; height: 40px; background-color: #ccfbf1; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+             <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/checklist.png" alt="Checklist icon"  style="display: block;margin:10px;">
+            </div>
+            <!--<![endif]-->
+            <!-- TITLE -->
+            <div style="color: #002147; font-size: 14px; font-weight: bold; margin-bottom: 8px; line-height: 1.3; text-align: left; width: 100%; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">
+              Assess real world fit instantly
+            </div>
+            <!-- DESCRIPTION -->
+            <div style="color: #666666; font-size: 12px; line-height: 1.4; text-align: left; margin-top: 8px;">
+              Start experiencing products immediately with pre-configured data
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
-                <div class="feature-item">
-                    <div class="feature-icon icon-orange">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </div>
-                    <div class="feature-title">Experience service delivery in action</div>
-                    <div class="feature-description">
-                        Take a pick from our globally deployed solutions
-                    </div>
-                </div>
-
-                <div class="feature-item">
-                    <div class="feature-icon icon-teal">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-                        </svg>
-                    </div>
-                    <div class="feature-title">Assess real world fit instantly</div>
-                    <div class="feature-description">
-                        Start experiencing products immediately with pre-configured data
-                    </div>
-                </div>
+<!-- RESPONSIVE STYLES -->
+<style type="text/css">
+  /* Mobile styles */
+  @media screen and (max-width: 600px) {
+    /* Stack cards vertically */
+    td[width="33%"] {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 10px 0 !important;
+    }
+    
+    /* Center align cards on mobile */
+    table[width="100%"] {
+      text-align: center !important;
+    }
+    
+    /* Card container adjustments */
+    table[width="100%"] > tr > td > table {
+      margin: 0 auto !important;
+      max-width: 280px !important;
+    }
+    
+    /* Content alignment */
+    table[width="100%"] > tr > td > table > tr > td {
+      text-align: center !important;
+    }
+    
+    /* Center text elements */
+    .feature-title, .feature-description {
+      text-align: center !important;
+    }
+  }
+  
+  /* Outlook-specific fixes */
+  .feature-icon {
+    mso-table-lspace: 0pt;
+    mso-table-rspace: 0pt;
+  }
+</style>
             </div>
         </div>
 
@@ -628,11 +748,21 @@
         <div class="footer-logo">
             <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/Reverse+Orange+%26+White.png" alt="eGov" class="egov-logo"/>
         </div>
-        <div class="footer-links">
-            <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-r/">Website</a>
-            <span class="separator">|</span>
-            <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-y/">LinkedIn</a>
-        </div>
+       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
+  <tr>
+    <td align="center" style="font-family: 'Roboto', sans-serif;">
+      <span style="color: white; text-decoration: none; font-size: 12px; font-weight: 300; display: inline-block; padding: 0 5px;">
+        <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-r/" style="color: white; text-decoration: none; font-size: 12px; font-weight: 300;">Website</a>
+      </span>
+      <span style="color: #8a9ba8; font-size: 12px; display: inline-block; padding: 0 5px;">|</span>
+      
+      <span style="color: white; text-decoration: none; font-size: 12px; font-weight: 300; display: inline-block; padding: 0 5px;">
+        <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-y/" style="color: white; text-decoration: none; font-size: 12px; font-weight: 300;">LinkedIn</a>
+      </span>
+    </td>
+  </tr>
+</table>
+
         <div class="footer-text">© 2025 eGov Foundation. All rights reserved.</div>
     </div>
 </div>
