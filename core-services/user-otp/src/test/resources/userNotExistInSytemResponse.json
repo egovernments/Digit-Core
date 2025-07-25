@@ -2,7 +2,7 @@
     "responseInfo": null,
     "error": {
         "code": 400,
-        "message": "OTP request for login failed",
+        "message": "Account does not exist with the given Organisation name. Kindly register and try.",
         "description": null,
         "fields": [
             {

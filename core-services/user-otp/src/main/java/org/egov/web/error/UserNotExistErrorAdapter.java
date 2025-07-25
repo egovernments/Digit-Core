@@ -13,7 +13,7 @@ public class UserNotExistErrorAdapter implements ErrorAdapter<Void> {
 	private static final String UNKNOWN_MOBILE_NUMBER_CODE = "OTP.UNKNOWN_CREDENTIAL";
 	private static final String UNKNOWN_MOBILE_NUMBER_MESSAGE = "No such username or password";
 	private static final String UNKNOWN_MOBILE_NUMBER_FIELD = "otp.mobileNumber";
-	private static final String MESSAGE = "OTP request for login failed";
+	private static final String MESSAGE = "Account does not exist with the given Organisation name. Kindly register and try.";
 
 	@Override
 	public ErrorResponse adapt(Void model) {
