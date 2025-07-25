@@ -102,8 +102,6 @@ public class OtpEmailRepository {
 				localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear User,<br><br>"
 						+ "To complete creation of your Sandbox Account, please enter the below OTP:<br><br>"
 						+ "<b style='font-size: 24px; color: #000;'>%s</b><br><br>"
-						+ "Your exclusive login URL is <a href='%s/sandbox-ui/%s/employee'>%s/sandbox-ui/%s/employee</a><br><br>"
-						+ "Please bookmark and use this URL for future access to Sandbox.<br><br>"
 						+ "If you did not initiate this action, please contact <a href='mailto:digit.sandbox@egovernments.org'>digit.sandbox@egovernments.org</a><br><br>"
 						+ "Regards,<br>Sandbox Team");
 			} else {
