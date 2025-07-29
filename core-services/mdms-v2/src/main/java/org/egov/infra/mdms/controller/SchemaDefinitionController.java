@@ -22,7 +22,7 @@ import java.util.List;
 
 @jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
 @Controller
-@RequestMapping("schema/v1")
+@RequestMapping("/v1/schema")
 @Slf4j
 public class SchemaDefinitionController {
 
@@ -36,25 +36,16 @@ public class SchemaDefinitionController {
     /**
      * REST-compliant create: POST /schema/v1/schema
      */
-    @PostMapping("/schema")
+    @PostMapping
     public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest) {
         List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest);
         return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitionRequest.getRequestInfo(), schemaDefinitions), HttpStatus.ACCEPTED);
     }
 
     /**
-     * REST-compliant update: PUT /schema/v1/schema/{id}
-     */
-    @PutMapping("/schema/{id}")
-    public ResponseEntity<SchemaDefinitionResponse> update(@PathVariable("id") String id, @Valid @RequestBody SchemaDefinitionRequest schemaDefinitionUpdateRequest) {
-        // Not implemented, but signature is RESTful
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-    }
-
-    /**
      * REST-compliant search: GET /schema/v1/schema?tenantId=...&code=...
      */
-    @GetMapping("/schema")
+    @GetMapping
     public ResponseEntity<SchemaDefinitionResponse> search(@RequestParam(required = false) String tenantId,
                                                           @RequestParam(required = false) String code) {
         // Build SchemaDefSearchRequest from query params

@@ -1,5 +1,7 @@
 package org.egov.infra.mdms.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.validation.Valid;
@@ -15,7 +17,7 @@ import net.minidev.json.JSONArray;
 
 @RestController
 @Slf4j
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/v1/mdms")
 public class MDMSController {
 
     private MDMSService mdmsService;
@@ -31,16 +33,37 @@ public class MDMSController {
     /**
      * REST-compliant search: GET /v1/mdms?tenantId=...&schemaCode=...&uniqueIdentifier=...
      */
-    @GetMapping("/mdms")
-    public ResponseEntity<?> search(@RequestParam(required = false) String tenantId,
-                                    @RequestParam(required = false) String schemaCode,
-                                    @RequestParam(required = false) String uniqueIdentifier) {
-        // Build MdmsCriteriaReq from query params
+    @GetMapping
+    public ResponseEntity<?> search(
+            @RequestParam String tenantId,
+            @RequestParam(required = false) String uniqueIdentifier,
+            @RequestParam(required = false) List<String> moduleName,
+            @RequestParam(required = false) List<String> masterName,
+            @RequestParam(required = false) List<String> masterFilter
+    ) {
         MdmsCriteriaReq criteriaReq = new MdmsCriteriaReq();
         MdmsCriteria criteria = new MdmsCriteria();
         criteria.setTenantId(tenantId);
         criteria.setUniqueIdentifier(uniqueIdentifier);
-        // schemaCode is not a direct field, so may need to set in moduleDetails if needed
+        if (moduleName != null && masterName != null) {
+            List<ModuleDetail> moduleDetails = new ArrayList<>();
+            for (int i = 0; i < moduleName.size(); i++) {
+                ModuleDetail moduleDetail = new ModuleDetail();
+                moduleDetail.setModuleName(moduleName.get(i));
+                List<MasterDetail> masterDetails = new ArrayList<>();
+                if (masterName.size() > i) {
+                    MasterDetail masterDetail = new MasterDetail();
+                    masterDetail.setName(masterName.get(i));
+                    if (masterFilter != null && masterFilter.size() > i) {
+                        masterDetail.setFilter(masterFilter.get(i));
+                    }
+                    masterDetails.add(masterDetail);
+                }
+                moduleDetail.setMasterDetails(masterDetails);
+                moduleDetails.add(moduleDetail);
+            }
+            criteria.setModuleDetails(moduleDetails);
+        }
         criteriaReq.setMdmsCriteria(criteria);
         MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(criteriaReq);
         return ResponseEntity.ok(mdmsResponse);
@@ -49,10 +72,10 @@ public class MDMSController {
     /**
      * Standard search: POST /v1/_search
      */
-    @PostMapping("/_search")
-    public ResponseEntity<MdmsResponse> searchV1Post(@Valid @RequestBody MdmsCriteriaReq mdmsCriteriaReq) {
-        MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(mdmsCriteriaReq);
-        return ResponseEntity.ok(mdmsResponse);
-    }
+    // @PostMapping
+    // public ResponseEntity<MdmsResponse> searchV1Post(@Valid @RequestBody MdmsCriteriaReq mdmsCriteriaReq) {
+    //     MdmsResponse mdmsResponse = mdmsService.searchWithCacheSupport(mdmsCriteriaReq);
+    //     return ResponseEntity.ok(mdmsResponse);
+    // }
 
 }

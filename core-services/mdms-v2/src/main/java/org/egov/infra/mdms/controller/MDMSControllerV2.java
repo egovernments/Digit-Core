@@ -28,7 +28,7 @@ public class MDMSControllerV2 {
     /**
      * REST-compliant create: POST /v2/mdms
      */
-    @PostMapping("/mdms")
+    @PostMapping
     public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest) {
         List<Mdms> masterDataList = mdmsServiceV2.create(mdmsRequest);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
@@ -37,12 +37,9 @@ public class MDMSControllerV2 {
     /**
      * REST-compliant update: PUT /v2/mdms/{id}
      */
-    @PutMapping("/mdms/{id}")
-    public ResponseEntity<MdmsResponseV2> update(@PathVariable("id") String id, @Valid @RequestBody MdmsRequest mdmsRequest) {
+    @PutMapping
+    public ResponseEntity<MdmsResponseV2> update(@Valid @RequestBody MdmsRequest mdmsRequest) {
         // Optionally set the id in the request body if needed
-        if (mdmsRequest.getMdms() != null && !mdmsRequest.getMdms().isEmpty()) {
-            mdmsRequest.getMdms().get(0).setId(id);
-        }
         List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
     }
@@ -50,7 +47,7 @@ public class MDMSControllerV2 {
     /**
      * REST-compliant search: GET /v2/mdms?tenantId=...&schemaCode=...&uniqueIdentifier=...
      */
-    @GetMapping("/mdms")
+    @GetMapping
     public ResponseEntity<MdmsResponseV2> search(@RequestParam(required = false) String tenantId,
                                                  @RequestParam(required = false) String schemaCode,
                                                  @RequestParam(required = false) String uniqueIdentifier) {
