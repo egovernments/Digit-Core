@@ -1,23 +1,21 @@
 package org.egov.persistence.repository;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.egov.domain.model.AuthenticatedUser;
 import org.egov.domain.model.Message;
 import org.egov.domain.model.Tenant;
 import org.egov.tracer.model.CustomException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class MessageRepository {
 
 	private MessageJpaRepository messageJpaRepository;
@@ -26,9 +24,10 @@ public class MessageRepository {
 		this.messageJpaRepository = messageJpaRepository;
 	}
 
+	@Transactional(readOnly = true)
 	public List<Message> findByTenantIdAndLocale(Tenant tenant, String locale) {
-		return messageJpaRepository.find(tenant.getTenantId(), locale).stream()
-				.map(org.egov.persistence.entity.Message::toDomain).collect(Collectors.toList());
+		return messageJpaRepository.find(tenant.getTenantId(), locale).map(org.egov.persistence.entity.Message::toDomain)
+				.collect(Collectors.toList());
 	}
 
 	public List<Message> findAllMessage(Tenant tenant, String locale, String module, String code) {
@@ -49,7 +48,6 @@ public class MessageRepository {
 		setAuditFieldsForCreate(authenticatedUser, entityMessages);
 		//Setting ID in UUID
 		setUUID(entityMessages);
-		log.info("entityMessages: "+entityMessages);
 		try {
 			messageJpaRepository.saveAll(entityMessages);
 		} catch (DataIntegrityViolationException ex) {
