@@ -36,4 +36,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=egovernments_Digit-Core_eabd9e0b-981d-4368-b888-b6c3350164f5 -Dsonar.projectName='Digit-Core'
+        run: |
+          cd core-services
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=egovernments_Digit-Core_eabd9e0b-981d-4368-b888-b6c3350164f5 -Dsonar.projectName='Digit-Core'
