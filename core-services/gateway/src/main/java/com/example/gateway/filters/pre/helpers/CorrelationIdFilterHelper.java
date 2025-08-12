@@ -17,6 +17,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import java.util.*;
@@ -74,6 +75,9 @@ public class CorrelationIdFilterHelper implements RewriteFunction<Map, Map> {
         exchange.getAttributes().put(CORRELATION_ID_KEY, correlationId);
         log.debug(RECEIVED_REQUEST_MESSAGE, requestURI);
 
+        if(ObjectUtils.isEmpty(body)){
+            body = new HashMap<>();
+        }
         return Mono.just(body);
     }
 
