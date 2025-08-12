@@ -1,0 +1,1048 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "4180f913-7161-4908-8045-8edad61e43d3",
+        "name": "FileStore",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-04-22T09:58:32.000Z",
+        "createdAt": "2024-02-28T08:26:23.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-4180f913-7161-4908-8045-8edad61e43d3"
+      },
+      "item": [
+        {
+          "name": "FileSt_textFile_001",
+          "id": "5f77bd18-0731-40d5-963b-88443082ed94",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Documents/PostMan Cred  s1615691S@.txt"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "gotcha",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-5f77bd18-0731-40d5-963b-88443082ed94"
+        },
+        {
+          "name": "FileSt_jpg_002",
+          "id": "d6ea651f-c04d-49ec-838b-8d9163975ac8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/Sample-jpg-image-500kb.jpg"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-d6ea651f-c04d-49ec-838b-8d9163975ac8"
+        },
+        {
+          "name": "FileSt_pngFile_003",
+          "id": "5887078e-df91-4c6d-afa7-c9141a64336e",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Pictures/Screenshots/Screenshot (15).png"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-5887078e-df91-4c6d-afa7-c9141a64336e"
+        },
+        {
+          "name": "FileSt_jpegFile_004",
+          "id": "f34f9210-c5a9-40f0-b348-330286996c19",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/lion.jpg"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-f34f9210-c5a9-40f0-b348-330286996c19"
+        },
+        {
+          "name": "FileSt_doc_007",
+          "id": "282b3d24-d8bd-4709-9145-af6695727610",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Documents/mnk.doc"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-282b3d24-d8bd-4709-9145-af6695727610"
+        },
+        {
+          "name": "FileSt_xls_009",
+          "id": "b67a8e66-48fb-4947-8d9d-8f9f9cd3512a",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Documents/mustakimsxls.xls"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-b67a8e66-48fb-4947-8d9d-8f9f9cd3512a"
+        },
+        {
+          "name": "FileSt_ods_010",
+          "id": "37533887-8c69-4ae2-a5c4-e60dc1619f60",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Documents/nustakimODS.ods"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-37533887-8c69-4ae2-a5c4-e60dc1619f60"
+        },
+        {
+          "name": "FileSt_odt_011",
+          "id": "222d7f17-77f9-4040-aa7a-1a896e265155",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/file-sample_100kB.odt"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8082/filestore/v1/files",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-222d7f17-77f9-4040-aa7a-1a896e265155"
+        },
+        {
+          "name": "FileSt_dxf_File_012",
+          "id": "68b38d52-d407-402b-84dc-354829ae55ed",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/1.dxf"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-68b38d52-d407-402b-84dc-354829ae55ed"
+        },
+        {
+          "name": "FileSt_pdf_File_013",
+          "id": "b506695e-4093-4af9-9ea5-ee7c954e7b8e",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/id_Card.pdf"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "fileStoreId",
+                  "value": "c5fcb14a-020b-4359-b41c-558dd5a1327e",
+                  "disabled": true
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-b506695e-4093-4af9-9ea5-ee7c954e7b8e"
+        },
+        {
+          "name": "FileSt_xlsx_File_005",
+          "id": "e5e2f364-8e07-4be2-a9e3-30b91d423c98",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/User_OTP.xlsx"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "fileStoreId",
+                  "value": "c5fcb14a-020b-4359-b41c-558dd5a1327e",
+                  "disabled": true
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-e5e2f364-8e07-4be2-a9e3-30b91d423c98"
+        },
+        {
+          "name": "FileSt_docx_006",
+          "id": "b8dfb37a-8e4b-472c-a60f-99924147a8e6",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Documents/mustakimsDocs.docx"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8081/filestore/v1/files",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-b8dfb37a-8e4b-472c-a60f-99924147a8e6"
+        },
+        {
+          "name": "FileSt_csv_006",
+          "id": "f3e3ac3b-6b72-4444-a27a-bc36a275eee8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Documents/mustakimsDocs.docx"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-f3e3ac3b-6b72-4444-a27a-bc36a275eee8"
+        },
+        {
+          "name": "FileSt_csv_006 Copy",
+          "id": "1fe4cd7b-f099-4645-b374-53fad9c1ffd2",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Documents/mustakimsDocs.docx"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8081/filestore/v1/files",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-1fe4cd7b-f099-4645-b374-53fad9c1ffd2"
+        },
+        {
+          "name": "FileSt_zip_008",
+          "id": "5edbe9e0-2017-41c7-8286-f662c34b7b27",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/bird.zip"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "fileStoreId",
+                  "value": "c5fcb14a-020b-4359-b41c-558dd5a1327e",
+                  "disabled": true
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-5edbe9e0-2017-41c7-8286-f662c34b7b27"
+        },
+        {
+          "name": "FileSt_json_008",
+          "id": "63ae0668-faaf-475b-9116-345eb274cd77",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/Naveen_gloify/Downloads/bird.zip"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg",
+                  "type": "text"
+                },
+                {
+                  "key": "module",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "tag",
+                  "value": "first tag1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8082/filestore/v1/files",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "filestore",
+                "v1",
+                "files"
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-63ae0668-faaf-475b-9116-345eb274cd77"
+        },
+        {
+          "name": "search_BY_ID_001",
+          "id": "d16067a7-a69f-4fdd-8065-7c827b4acfe0",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files/id?fileStoreId=c5fcb14a-020b-4359-b41c-558dd5a1327e&tenantId=pg",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files",
+                "id"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "first tag",
+                  "disabled": true
+                },
+                {
+                  "key": "fileStoreId",
+                  "value": "c5fcb14a-020b-4359-b41c-558dd5a1327e"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-d16067a7-a69f-4fdd-8065-7c827b4acfe0"
+        },
+        {
+          "name": "search_BY_MataData_001",
+          "id": "cfae54ee-3f1a-4de6-a19a-8ca347363501",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files/metadata?fileStoreId=37282926-7d86-4bfa-900c-1aa1c38ad3ad&tenantId=pg",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files",
+                "metadata"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "first tag",
+                  "disabled": true
+                },
+                {
+                  "key": "fileStoreId",
+                  "value": "37282926-7d86-4bfa-900c-1aa1c38ad3ad"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-cfae54ee-3f1a-4de6-a19a-8ca347363501"
+        },
+        {
+          "name": "search_BY_tag_001 Copy 2",
+          "id": "34baa6e0-bb20-4228-afcf-b329640f5650",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files/tag?tag=gotcha&fileStoreId=37282926-7d86-4bfa-900c-1aa1c38ad3ad&tenantId=pg",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files",
+                "tag"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "gotcha"
+                },
+                {
+                  "key": "fileStoreId",
+                  "value": "37282926-7d86-4bfa-900c-1aa1c38ad3ad"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-34baa6e0-bb20-4228-afcf-b329640f5650"
+        },
+        {
+          "name": "search_BY_Url _001",
+          "id": "360cdf85-8150-485e-9f81-444dd217c913",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/filestore/v1/files/url?fileStoreIds=004cf2f7-07e3-4e1c-9b6a-f72187ba436b&tenantId=pg",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "filestore",
+                "v1",
+                "files",
+                "url"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "first tag2",
+                  "disabled": true
+                },
+                {
+                  "key": "fileStoreIds",
+                  "value": "004cf2f7-07e3-4e1c-9b6a-f72187ba436b"
+                },
+                {
+                  "key": "tenantId",
+                  "value": "pg"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "uid": "32355655-360cdf85-8150-485e-9f81-444dd217c913"
+        }
+      ],
+      "variable": [
+        {
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": ""
+        }
+      ]
+    }
+  }

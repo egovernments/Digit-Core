@@ -1,0 +1,524 @@
+{
+    "collection": {
+      "info": {
+        "_postman_id": "112fd225-b61b-4276-ae9f-4fec622c6337",
+        "name": "UserAcessControl",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "updatedAt": "2024-05-23T08:37:12.000Z",
+        "createdAt": "2024-01-30T05:10:40.000Z",
+        "lastUpdatedBy": "32355655",
+        "uid": "32355655-112fd225-b61b-4276-ae9f-4fec622c6337"
+      },
+      "item": [
+        {
+          "name": "search_role",
+          "item": [
+            {
+              "name": "Tc_serRole_001",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "00cee402-f0ee-4abb-8556-ff3a686ec2d2",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"Super User\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "5ca412e6-be20-4262-b7e0-48a3cd80081e",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token13}}\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/access/v1/roles/_search?tenantId=pg&code=SUPERUSER",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "access",
+                    "v1",
+                    "roles",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "tenantId",
+                      "value": "pg"
+                    },
+                    {
+                      "key": "code",
+                      "value": "SUPERUSER"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-5ca412e6-be20-4262-b7e0-48a3cd80081e"
+            },
+            {
+              "name": "Tc_serRole_002",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "0f1b9c46-549c-4f71-8ade-d3bf5db2a08b",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"GRO\");\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"TL Admin\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"System Integrator W&S\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "66a20eb5-c9c8-46c3-b59b-326498dbf055",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/access/v1/roles/_search?tenantId=pg",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "access",
+                    "v1",
+                    "roles",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "tenantId",
+                      "value": "pg"
+                    },
+                    {
+                      "key": "code",
+                      "value": "SUPERUSER",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-66a20eb5-c9c8-46c3-b59b-326498dbf055"
+            },
+            {
+              "name": "Tc_serRole_003",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "74fda375-1b62-44be-9d48-572a3f164377",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"GRO\");\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"TL Admin\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"System Integrator W&S\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"FIRENOC_REPORT_VIEWER\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "9a6b3edf-b100-4def-aa5b-a1f30eb5a52b",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/access/v1/roles/_search?tenantId=pg.citya",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "access",
+                    "v1",
+                    "roles",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "code",
+                      "value": "SUPERUSER",
+                      "disabled": true
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "pg.citya"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-9a6b3edf-b100-4def-aa5b-a1f30eb5a52b"
+            },
+            {
+              "name": "Tc_serRole_004",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "ad3ebc68-506b-4845-b207-20fe6105d7a3",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"CITIZEN\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "5ced174c-8bb2-40f4-b97c-b84856205fff",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n   \r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/access/v1/roles/_search?tenantId=pg&code=CITIZEN",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "access",
+                    "v1",
+                    "roles",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "tenantId",
+                      "value": "pg"
+                    },
+                    {
+                      "key": "code",
+                      "value": "SUPERUSER",
+                      "disabled": true
+                    },
+                    {
+                      "key": "code",
+                      "value": "CITIZEN"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-5ced174c-8bb2-40f4-b97c-b84856205fff"
+            },
+            {
+              "name": "Tc_serRole_005",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "971d329c-d847-4561-bc41-9d3c412eff89",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"CITIZEN\");\r",
+                      "});\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"EMPLOYEE\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "3af2f2d4-15ca-450a-a2f5-c3d71d536984",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n   \r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/access/v1/roles/_search?code=EMPLOYEE&tenantId=pg.citya&code=CITIZEN&tenantId=pg",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "access",
+                    "v1",
+                    "roles",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "code",
+                      "value": "EMPLOYEE"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "pg.citya"
+                    },
+                    {
+                      "key": "code",
+                      "value": "CITIZEN"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "pg"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-3af2f2d4-15ca-450a-a2f5-c3d71d536984"
+            },
+            {
+              "name": "Tc_serRole_006",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "f4b0ef20-a0d6-49c7-9a69-8fd21554cb05",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Body matches string\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(\"SW_CEMP\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "id": "1b86e9b3-fbb3-478e-9794-2b113442f8ed",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n   \r\n    \"RequestInfo\": {\r\n        \"apiId\": null,\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"5bfa85e7-dfa1-47c8-98b2-747bf552be86\",\r\n        \"userInfo\": {\r\n            \"id\": 181,\r\n            \"userName\": \"TestEggMUSTAKIMNK\",\r\n            \"uuid\": \"4f6cf5fa-bcb2-4a3a-9dff-9740c04e3a92\",\r\n            \"locale\": \"string\",\r\n            \"type\": \"EMPLOYEE\",\r\n            \"name\": \"mustak\",\r\n            \"mobileNumber\": \"1234567890\",\r\n            \"alternatemobilenumber\": null,\r\n            \"emailId\": \"xyz@egovernments.org\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"System user\",\r\n                    \"code\": \"SYSTEM\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Super User\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": \"Kaikoo\"\r\n        },\r\n        \"authToken\": \"{{Token1}}\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/access/v1/roles/_search?code=SW_CEMP&tenantId=pg",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "access",
+                    "v1",
+                    "roles",
+                    "_search"
+                  ],
+                  "query": [
+                    {
+                      "key": "code",
+                      "value": "SW_CEMP"
+                    },
+                    {
+                      "key": "tenantId",
+                      "value": "pg"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-1b86e9b3-fbb3-478e-9794-2b113442f8ed"
+            }
+          ],
+          "id": "88f0ad49-3dfe-4b71-a881-3a76f5815234",
+          "uid": "32355655-88f0ad49-3dfe-4b71-a881-3a76f5815234"
+        },
+        {
+          "name": "CreateAction",
+          "item": [
+            {
+              "name": "New Request",
+              "id": "db35882d-baba-4b6b-8e3b-4e4abe8f8e11",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"null\",\r\n        \"ver\": \"null\",\r\n        \"ts\": null,\r\n        \"action\": \"POST\",\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"8c11c5ca-03bd-11e7-93ae-92361f002671\",\r\n        \"userInfo\": {\r\n            \"type\": \"SYSTEM\",\r\n            \"name\": \"kiran\",\r\n            \"id\": 32\r\n        },\r\n        \"authToken\": \"f66eb0c5-7d34-4952-8ddc-21e7876978a5\"\r\n    },\r\n  \"actions\": [\r\n    {\r\n      \"id\": 6,\r\n      \"name\": \"Get location by LocationName\",\r\n      \"url\": \"/v1/location/boundarys/getLocationByLocationName\",\r\n      \"displayName\": \"Get location by LocationName\",\r\n      \"orderNumber\": 0,\r\n      \"queryParams\": \"locationName=\",\r\n      \"parentModule\": \"BNDRY\",\r\n      \"enabled\": false,\r\n      \"serviceCode\": \"BNDRY\",\r\n      \"code\": \"null\",\r\n      \"path\": \"Boundary Module.Get location by LocationName\"\r\n    }\r\n  ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8081/access/v1/actions/_create",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8081",
+                  "path": [
+                    "access",
+                    "v1",
+                    "actions",
+                    "_create"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-db35882d-baba-4b6b-8e3b-4e4abe8f8e11"
+            }
+          ],
+          "id": "8f6dc483-3af9-4b00-821a-8676a59192cc",
+          "uid": "32355655-8f6dc483-3af9-4b00-821a-8676a59192cc"
+        },
+        {
+          "name": "CreateRole",
+          "item": [
+            {
+              "name": "Tc_CR_001",
+              "id": "7c98b8f0-ed7a-4444-abfd-1a1de996ecf2",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"Rainmaker\",\r\n        \"authToken\": \"2a57ee8c-410c-4023-a9d3-5111b4f6e304\",\r\n        \"userInfo\": {\r\n            \"id\": 595,\r\n            \"uuid\": \"1fda5623-448a-4a59-ad17-657986742d67\",\r\n            \"userName\": \"UNIFIED_DEV_USERR\",\r\n            \"name\": \"Unified dev user\",\r\n            \"mobileNumber\": \"8788788851\",\r\n            \"emailId\": \"\",\r\n            \"locale\": null,\r\n            \"type\": \"EMPLOYEE\",\r\n            \"roles\": [\r\n                {\r\n                    \"name\": \"Localisation admin\",\r\n                    \"code\": \"LOC_ADMIN\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"Employee\",\r\n                    \"code\": \"EMPLOYEE\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"MDMS Admin\",\r\n                    \"code\": \"MDMS_ADMIN\",\r\n                    \"tenantId\": \"pg\"\r\n                },\r\n                {\r\n                    \"name\": \"SUPER USER\",\r\n                    \"code\": \"SUPERUSER\",\r\n                    \"tenantId\": \"pg\"\r\n                }\r\n            ],\r\n            \"active\": true,\r\n            \"tenantId\": \"pg\",\r\n            \"permanentCity\": null\r\n        },\r\n        \"msgId\": \"1695889012604|en_IN\",\r\n        \"plainAccessRequest\": {}\r\n    },\r\n    \"roles\": [\r\n        {\r\n            \"name\": \"Redressal Officer\",\r\n            \"description\": \"Employees that address citizens grievances.\"\r\n        }\r\n    ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8081/access/v1/roles/_create",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8081",
+                  "path": [
+                    "access",
+                    "v1",
+                    "roles",
+                    "_create"
+                  ]
+                }
+              },
+              "response": [],
+              "uid": "32355655-7c98b8f0-ed7a-4444-abfd-1a1de996ecf2"
+            }
+          ],
+          "id": "a6358cf3-9182-4b0e-b760-5119fb990b30",
+          "uid": "32355655-a6358cf3-9182-4b0e-b760-5119fb990b30"
+        }
+      ]
+    }
+  }
