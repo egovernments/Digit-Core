@@ -190,6 +190,7 @@ public class UpdateRequest {
                 .city(permanentCity)
                 .pinCode(permanentPinCode)
                 .address(permanentAddress)
+                .tenantId(tenantId)
                 .build();
     }
 
@@ -199,6 +200,7 @@ public class UpdateRequest {
                 .city(correspondenceCity)
                 .pinCode(correspondencePinCode)
                 .address(correspondenceAddress)
+                .tenantId(tenantId)
                 .build();
     }
 
