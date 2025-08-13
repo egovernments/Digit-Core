@@ -2,7 +2,7 @@
     "responseInfo": null,
     "error": {
         "code": 400,
-        "message": "Account does not exist with the given Organisation name. Kindly register and try.",
+        "message": "Organization name not registered. Please try again or sign up.",
         "description": null,
         "fields": [
             {
