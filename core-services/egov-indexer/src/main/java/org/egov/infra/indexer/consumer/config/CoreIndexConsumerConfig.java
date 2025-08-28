@@ -142,7 +142,7 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-		factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
+        // Remove error handler from factory - let tracer handle at container level
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         
@@ -161,7 +161,8 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
     	 
          log.info("Custom KafkaListenerContainer built...");
 
-         return new KafkaMessageListenerContainer<>(consumerFactory(), properties); 
+         KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+         return container; 
     }
         
     public boolean initializeContainer(){
