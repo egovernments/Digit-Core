@@ -13,6 +13,7 @@ import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.repository.builder.UserTypeQueryBuilder;
 import org.egov.user.repository.rowmapper.UserResultSetExtractor;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -67,6 +68,9 @@ public class UserRepositoryTest {
     @Autowired
     private UserResultSetExtractor userResultSetExtractor;
 
+    @Autowired
+    private DatabaseSchemaUtils databaseSchemaUtils;
+
     private UserRepository userRepository;
 
     private MockRestServiceServer server;
@@ -84,7 +88,7 @@ public class UserRepositoryTest {
                 .andRespond(withSuccess(new Resources().getFileContents("roleSearchValidatedResponse.json"),
                         MediaType.APPLICATION_JSON_UTF8));
 
-        userRepository = new UserRepository(roleRepository, userTypeQueryBuilder, addressRepository,
+        userRepository = new UserRepository(databaseSchemaUtils, roleRepository, userTypeQueryBuilder, addressRepository,
                 userResultSetExtractor,
                 jdbcTemplate, namedParameterJdbcTemplate,auditRepository);
     }
