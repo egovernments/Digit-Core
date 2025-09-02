@@ -115,7 +115,7 @@ public class BulkIndexer {
 		} else {
 			try {
 				final HttpHeaders headers = new HttpHeaders();
-				headers.add("Authorization", indexerUtils.getESEncodedCredentials()); // Enabled for security testing
+				headers.add("Authorization", indexerUtils.getESEncodedCredentials());
 				final HttpEntity entity = new HttpEntity(headers);
 				response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
 			} catch (Exception e) {
