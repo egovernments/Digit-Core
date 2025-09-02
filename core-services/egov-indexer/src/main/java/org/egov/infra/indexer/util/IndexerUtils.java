@@ -125,7 +125,7 @@ public class IndexerUtils {
 						StringBuilder url = new StringBuilder();
 						url.append(esHostUrl).append("/_search");
 						final HttpHeaders headers = new HttpHeaders();
-//						 headers.add("Authorization", getESEncodedCredentials()); // Disabled for testing with security-disabled ES
+						 headers.add("Authorization", getESEncodedCredentials());
 						final HttpEntity entity = new HttpEntity( headers);
 						response = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, Map.class);
 					} catch (Exception e) {

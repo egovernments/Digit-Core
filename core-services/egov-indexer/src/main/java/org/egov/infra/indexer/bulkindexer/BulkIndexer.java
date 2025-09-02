@@ -43,7 +43,7 @@ public class BulkIndexer {
 			log.debug("Record being indexed: " + indexJson);
 			final HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-//			headers.add("Authorization", indexerUtils.getESEncodedCredentials()); // Enabled for security testing
+			headers.add("Authorization", indexerUtils.getESEncodedCredentials());
 			final HttpEntity<String> entity = new HttpEntity<>(indexJson, headers);
 			Object response = restTemplate.postForObject(url.toString(), entity, Map.class);
 			if (url.contains("_bulk")) {
@@ -96,7 +96,7 @@ public class BulkIndexer {
 		Object response = null;
 		if (null != body) {
 			final HttpHeaders headers = new HttpHeaders();
-//			headers.add("Authorization", indexerUtils.getESEncodedCredentials()); // Enabled for security testing
+			headers.add("Authorization", indexerUtils.getESEncodedCredentials());
 			final HttpEntity<Object> entity = new HttpEntity<>(body, headers);
 			if (httpMethod.equals("POST")) {
 				try {
@@ -115,7 +115,7 @@ public class BulkIndexer {
 		} else {
 			try {
 				final HttpHeaders headers = new HttpHeaders();
-//				headers.add("Authorization", indexerUtils.getESEncodedCredentials()); // Enabled for security testing
+				headers.add("Authorization", indexerUtils.getESEncodedCredentials()); // Enabled for security testing
 				final HttpEntity entity = new HttpEntity(headers);
 				response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
 			} catch (Exception e) {
