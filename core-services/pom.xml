@@ -30,7 +30,6 @@
         <module>egov-persister</module>
         <module>egov-pg-service</module>
         <module>egov-url-shortening</module>
-        <module>egov-user</module>
         <module>egov-workflow-v2</module>
         <module>gateway</module>
         <module>internal-gateway-scg</module>
