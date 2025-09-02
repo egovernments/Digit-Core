@@ -17,9 +17,6 @@
         <module>audit-service</module>
         <module>boundary-service</module>
         <module>egov-accesscontrol</module>
-        <module>egov-common-masters</module>
-        <module>egov-data-uploader</module>
-        <module>egov-document-uploader</module>
         <module>egov-enc-service</module>
         <module>egov-filestore</module>
         <module>egov-idgen</module>
@@ -32,22 +29,14 @@
         <module>egov-otp</module>
         <module>egov-persister</module>
         <module>egov-pg-service</module>
-        <module>egov-searcher</module>
         <module>egov-url-shortening</module>
-        <module>egov-user-event</module>
         <module>egov-user</module>
         <module>egov-workflow-v2</module>
         <module>gateway</module>
         <module>internal-gateway-scg</module>
-        <module>internal-gateway</module>
         <module>mdms-v2</module>
-        <module>national-dashboard-ingest</module>
-        <module>national-dashboard-kafka-pipeline</module>
-        <module>report</module>
         <module>service-request</module>
-        <module>tenant</module>
         <module>user-otp</module>
-        <module>zuul</module>
     </modules>
 
 </project>
