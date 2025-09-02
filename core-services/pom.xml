@@ -16,7 +16,6 @@
     <modules>
         <module>audit-service</module>
         <module>boundary-service</module>
-        <module>chatbot</module>
         <module>egov-accesscontrol</module>
         <module>egov-common-masters</module>
         <module>egov-data-uploader</module>
