@@ -23,7 +23,6 @@
         <module>egov-indexer</module>
         <module>egov-localization</module>
         <module>egov-location</module>
-        <module>egov-mdms-service</module>
         <module>egov-notification-mail</module>
         <module>egov-notification-sms</module>
         <module>egov-otp</module>
