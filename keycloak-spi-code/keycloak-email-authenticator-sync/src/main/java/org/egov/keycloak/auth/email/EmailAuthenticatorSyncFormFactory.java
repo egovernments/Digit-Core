@@ -48,7 +48,7 @@ public class EmailAuthenticatorSyncFormFactory implements AuthenticatorFactory {
 
     @Override
     public String getHelpText() {
-        return "Email otp authenticator sync.";
+        return "Email otp authenticator sync. Works with both browser and direct grant flows.";
     }
 
     @Override

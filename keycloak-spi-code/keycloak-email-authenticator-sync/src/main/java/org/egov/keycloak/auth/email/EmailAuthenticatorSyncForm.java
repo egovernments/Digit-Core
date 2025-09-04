@@ -23,7 +23,105 @@ public class EmailAuthenticatorSyncForm extends AbstractUsernameFormAuthenticato
 
 	@Override
 	public void authenticate(AuthenticationFlowContext context) {
-		challenge(context, null);
+		// Log flow information
+		AuthenticationFlowModel topLevelFlow = context.getTopLevelFlow();
+		AuthenticationExecutionModel execution = context.getExecution();
+
+		log.infof("Email authenticator - Top level flow: %s, Execution: %s (requirement: %s)",
+				topLevelFlow != null ? topLevelFlow.getAlias() : "unknown",
+				execution != null ? execution.getAuthenticator() : "unknown",
+				execution != null ? execution.getRequirement() : "unknown");
+
+		// Check if this is a direct grant flow
+		if (isDirectGrantFlow(context)) {
+			log.info("Processing direct grant flow authentication");
+			authenticateDirectGrant(context);
+		} else {
+			log.info("Processing browser flow authentication");
+			// Browser flow
+			challenge(context, null);
+		}
+	}
+
+	private boolean isDirectGrantFlow(AuthenticationFlowContext context) {
+		// Check if this is a direct grant flow by examining the execution model
+		AuthenticationFlowModel flow = context.getTopLevelFlow();
+		return flow != null && "direct grant".equalsIgnoreCase(flow.getAlias()) ||
+				context.getHttpRequest().getHttpMethod().equals("POST") &&
+						context.getHttpRequest().getUri().getPath().contains("/token");
+	}
+
+	private void authenticateDirectGrant(AuthenticationFlowContext context) {
+		MultivaluedMap<String, String> inputData = context.getHttpRequest().getDecodedFormParameters();
+		String emailCode = inputData.getFirst(EmailSyncConstants.CODE);
+
+		if (emailCode == null || emailCode.trim().isEmpty()) {
+			// First request - generate and send code, then challenge for code input
+			generateAndSendEmailCodeDirectGrant(context);
+
+			// For direct grant, we need to return an error that indicates the client
+			// should prompt for the email code
+			context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
+			Response response = Response.status(400)
+					.entity("{\"error\":\"email_code_required\",\"error_description\":\"Email verification code has been sent. Please provide email_code parameter.\"}")
+					.type("application/json")
+					.build();
+			context.failure(AuthenticationFlowError.INVALID_CREDENTIALS, response);
+			return;
+		}
+
+		// Code provided - validate it
+		validateEmailCodeDirectGrant(context, emailCode);
+	}
+
+	private void validateEmailCodeDirectGrant(AuthenticationFlowContext context, String enteredCode) {
+		UserModel user = context.getUser();
+		String storedCode = user.getFirstAttribute(EmailSyncConstants.CODE_ATTR);
+		String ttlStr = user.getFirstAttribute(EmailSyncConstants.CODE_TTL_ATTR);
+
+		if (storedCode == null || ttlStr == null) {
+			// No code was generated - this shouldn't happen
+			context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
+			Response response = Response.status(400)
+					.entity("{\"error\":\"invalid_request\",\"error_description\":\"No email code was generated. Please retry authentication.\"}")
+					.type("application/json")
+					.build();
+			context.failure(AuthenticationFlowError.INVALID_CREDENTIALS, response);
+			return;
+		}
+
+		long ttl = Long.parseLong(ttlStr);
+
+		if (enteredCode.equals(storedCode)) {
+			if (ttl < System.currentTimeMillis()) {
+				// Expired code
+				cleanupUserAttributes(user);
+				context.getEvent().error(Errors.EXPIRED_CODE);
+				Response response = Response.status(400)
+						.entity("{\"error\":\"expired_code\",\"error_description\":\"The email verification code has expired. Please retry authentication.\"}")
+						.type("application/json")
+						.build();
+				context.failure(AuthenticationFlowError.EXPIRED_CODE, response);
+			} else {
+				// Valid code
+				cleanupUserAttributes(user);
+				context.success();
+			}
+		} else {
+			// Invalid code
+			context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
+			Response response = Response.status(400)
+					.entity("{\"error\":\"invalid_code\",\"error_description\":\"Invalid email verification code.\"}")
+					.type("application/json")
+					.build();
+			context.failure(AuthenticationFlowError.INVALID_CREDENTIALS, response);
+		}
+	}
+
+	private void cleanupUserAttributes(UserModel user) {
+		user.removeAttribute(EmailSyncConstants.CODE_ATTR);
+		user.removeAttribute(EmailSyncConstants.CODE_TTL_ATTR);
+		log.infof("Cleaned up email code attributes for user %s", user.getUsername());
 	}
 
 	@Override
@@ -43,13 +141,54 @@ public class EmailAuthenticatorSyncForm extends AbstractUsernameFormAuthenticato
 		return response;
 	}
 
+	private void generateAndSendEmailCodeDirectGrant(AuthenticationFlowContext context) {
+		UserModel user = context.getUser();
+		AuthenticatorConfigModel config = context.getAuthenticatorConfig();
+
+		// Check if code already exists and is not expired
+		String existingCode = user.getFirstAttribute(EmailSyncConstants.CODE_ATTR);
+		String existingTtl = user.getFirstAttribute(EmailSyncConstants.CODE_TTL_ATTR);
+
+		if (existingCode != null && existingTtl != null) {
+			long ttl = Long.parseLong(existingTtl);
+			if (ttl > System.currentTimeMillis()) {
+				// Code still valid, don't generate new one
+				log.info("Existing valid email code found, skipping generation");
+				return;
+			}
+		}
+
+		int length = EmailSyncConstants.DEFAULT_LENGTH;
+		int ttl = EmailSyncConstants.DEFAULT_TTL;
+		if (config != null) {
+			// get config values
+			String lengthStr = config.getConfig().get(EmailSyncConstants.CODE_LENGTH);
+			String ttlStr = config.getConfig().get(EmailSyncConstants.CODE_TTL);
+			if (lengthStr != null) length = Integer.parseInt(lengthStr);
+			if (ttlStr != null) ttl = Integer.parseInt(ttlStr);
+		}
+
+		String code = SecretGenerator.getInstance().randomString(length, SecretGenerator.DIGITS);
+		long expiryTime = System.currentTimeMillis() + (ttl * 1000L);
+
+		// Store in user attributes for direct grant flows
+		user.setSingleAttribute(EmailSyncConstants.CODE_ATTR, code);
+		user.setSingleAttribute(EmailSyncConstants.CODE_TTL_ATTR, String.valueOf(expiryTime));
+
+		sendEmailWithCode(context.getSession(), context.getRealm(), user, code, ttl);
+		log.infof("Email code generated and stored for user %s in direct grant flow", user.getUsername());
+	}
+
 	private void generateAndSendEmailCode(AuthenticationFlowContext context) {
 		AuthenticatorConfigModel config = context.getAuthenticatorConfig();
 		AuthenticationSessionModel session = context.getAuthenticationSession();
 
 		if (session.getAuthNote(EmailSyncConstants.CODE) != null) {
-			// skip sending email code
-			return;
+			// skip sending email code if already exists and not expired
+			String ttl = session.getAuthNote(EmailSyncConstants.CODE_TTL);
+			if (ttl != null && Long.parseLong(ttl) > System.currentTimeMillis()) {
+				return;
+			}
 		}
 
 		int length = EmailSyncConstants.DEFAULT_LENGTH;
