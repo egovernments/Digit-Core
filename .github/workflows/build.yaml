@@ -57,6 +57,7 @@ on:
           - "user-otp"
           - "xstate-chatbot"
           - "zuul"
+          - "keycloak-spi"
         default: "audit-service"
 
 env:
