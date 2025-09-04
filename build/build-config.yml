@@ -478,7 +478,7 @@ config:
   - name: "builds/Digit-Core/core-services/keycloak-spi"
     build:
       - work-dir: "core-services/keycloak-spi"
-        image-name: "keycloak"
+        image-name: "keycloak-spi"
         dockerfile: "core-services/keycloak-spi/Dockerfile"
   
   # PGR AI chatbot
