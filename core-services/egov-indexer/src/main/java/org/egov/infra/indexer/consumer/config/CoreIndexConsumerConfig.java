@@ -162,6 +162,7 @@ public class CoreIndexConsumerConfig implements ApplicationRunner {
          log.info("Custom KafkaListenerContainer built...");
 
          KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+         container.setCommonErrorHandler(kafkaConsumerErrorHandler);
          return container; 
     }
         

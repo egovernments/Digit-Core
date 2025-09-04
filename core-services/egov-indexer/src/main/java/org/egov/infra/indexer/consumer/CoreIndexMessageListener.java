@@ -69,15 +69,15 @@ public class CoreIndexMessageListener implements MessageListener<String, String>
 				try {
 					sendToDLQ(data.value(), e, correlationId, stateLevelTenantId);
 					log.info("Successfully sent failed message to DLQ topic: {}", errorTopic);
-					// Don't re-throw - message has been handled and sent to DLQ
-					return;
 				} catch (Exception dlqException) {
 					log.error("Failed to send message to DLQ: ", dlqException);
-					// Fall back to re-throwing if DLQ fails
+                    // Log both the original exception and DLQ failure
+                    log.error("Original indexing error: ", e);
 				}
 			}
-			
-			throw new RuntimeException("Failed to index message - routing to DLQ", e); // Re-throw as fallback
+            // Always re-throw to maintain consistent error handling behavior
+            // The tracer at container level will handle retry/DLQ based on configuration
+            throw new RuntimeException("Failed to index message", e);
 		}
 	}
 	
