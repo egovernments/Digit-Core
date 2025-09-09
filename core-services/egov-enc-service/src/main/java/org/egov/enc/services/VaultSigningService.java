@@ -14,7 +14,7 @@ import java.util.Map;
 public class VaultSigningService {
 
     private static final String VAULT_ADDR = "http://127.0.0.1:8200"; // Local Vault
-    private static final String VAULT_TOKEN = "hvs.aMU0nimyrQEn2pcnR0k33QXC"; // Local Vault
+    private static final String VAULT_TOKEN = "abcd"; // Local Vault
 
     public SignResponse signData(SignRequest signRequest) {
         RestTemplate restTemplate = new RestTemplate();
