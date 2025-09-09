@@ -80,7 +80,7 @@ public class BusinessServiceControllerV2 {
 
         BusinessServiceResponse response = BusinessServiceResponse.builder()
                 .businessServices(deletedServices)
-                .responseInfo(createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo()))
+                .responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo()))
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
