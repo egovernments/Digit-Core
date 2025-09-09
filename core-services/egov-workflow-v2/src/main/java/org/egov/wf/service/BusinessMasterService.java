@@ -91,7 +91,7 @@ public class BusinessMasterService {
     private void evictAllCacheValues(String cacheName) {
         cacheManager.getCache(cacheName).clear();
     }
-    
+
     public Long getMaxBusinessServiceSla(ProcessInstanceSearchCriteria criteria) {
         BusinessServiceSearchCriteria searchCriteria = new BusinessServiceSearchCriteria();
         String tenantId = criteria.getTenantId();
@@ -122,7 +122,7 @@ public class BusinessMasterService {
                     .build();
 
             // Push to Kafka topic for async deletion
-            producer.push(tenantId, config.getDeleteBusinessServiceTopic(), deleteRequest);
+            producer.push(tenantId, "delete-wf-businessservice", deleteRequest);
         }
 
         return businessServices;

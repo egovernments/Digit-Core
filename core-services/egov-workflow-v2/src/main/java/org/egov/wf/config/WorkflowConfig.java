@@ -19,7 +19,9 @@ import java.util.TimeZone;
 @Import({TracerConfiguration.class, MultiStateInstanceUtil.class})
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Component
 public class WorkflowConfig {
 
@@ -60,9 +62,6 @@ public class WorkflowConfig {
     @Value("${persister.update.businessservice.wf.topic}")
     private String updateBusinessServiceTopic;
 
-    @Value("${persister.delete.businessservice.wf.topic}")
-    private String deleteBusinessServiceTopic;
-
 
 
     //MDMS
@@ -97,8 +96,5 @@ public class WorkflowConfig {
 
     @Value("${is.environment.central.instance}")
     private Boolean isEnvironmentCentralInstance;
-
-
-
 
 }
