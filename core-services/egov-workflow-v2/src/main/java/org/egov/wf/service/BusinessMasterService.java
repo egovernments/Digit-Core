@@ -113,10 +113,15 @@ public class BusinessMasterService {
         List<BusinessService> businessServices = repository.getBusinessServices(criteria);
 
         if (businessServices != null && businessServices.size() > 0) {
-            // Create the delete request object
+            // Null check and empty check for businessServices list
+            if (criteria.getBusinessServices() == null || criteria.getBusinessServices().isEmpty()) {
+                throw new CustomException("INVALID_REQUEST", "BusinessServices list cannot be null or empty");
+            }
+
+            String businessServiceName = criteria.getBusinessServices().get(0);
             BusinessServiceDeleteRequest deleteRequest = BusinessServiceDeleteRequest.builder()
                     .tenantId(tenantId)
-                    .businessServices(businessServices)
+                    .businessServices(businessServiceName)
                     .build();
 
             // Push to Kafka topic for async deletion
