@@ -5,10 +5,7 @@ import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.producer.Producer;
 import org.egov.wf.repository.BusinessServiceRepository;
 import org.egov.wf.validator.BusinessServiceValidator;
-import org.egov.wf.web.models.BusinessService;
-import org.egov.wf.web.models.BusinessServiceRequest;
-import org.egov.wf.web.models.BusinessServiceSearchCriteria;
-import org.egov.wf.web.models.ProcessInstanceSearchCriteria;
+import org.egov.wf.web.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -109,6 +106,26 @@ public class BusinessMasterService {
         Long maxSla = businessServices.get(0).getBusinessServiceSla();
         return maxSla;
     }
+
+
+    public List<BusinessService> delete(BusinessServiceSearchCriteria criteria) {
+        String tenantId = criteria.getTenantId();
+        List<BusinessService> businessServices = repository.getBusinessServices(criteria);
+
+        if (businessServices != null && businessServices.size() > 0) {
+            // Create the delete request object
+            BusinessServiceDeleteRequest deleteRequest = BusinessServiceDeleteRequest.builder()
+                    .tenantId(tenantId)
+                    .businessServices(businessServices)
+                    .build();
+
+            // Push to Kafka topic for async deletion
+            producer.push(tenantId, config.getDeleteBusinessServiceTopic(), deleteRequest);
+        }
+
+        return businessServices;
+    }
+
 
 
 

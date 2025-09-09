@@ -72,7 +72,19 @@ public class BusinessServiceControllerV2 {
                 .build();
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+    @RequestMapping(value="/businessservice/v2/_delete", method = RequestMethod.POST)
+    public ResponseEntity<BusinessServiceResponse> delete(@Valid @ModelAttribute BusinessServiceSearchCriteria searchCriteria,
+                                                          @Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 
+        List<BusinessService> deletedServices = businessMasterService.delete(searchCriteria);
+
+        BusinessServiceResponse response = BusinessServiceResponse.builder()
+                .businessServices(deletedServices)
+                .responseInfo(createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo()))
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 
 
