@@ -30,20 +30,6 @@ Please ensure the vulnerability lies within the **DIGIT LTS Core services** only
 
 ---
 
-## Severity and Response SLAs
-
-We follow the following response timelines during our support hours (Monday–Friday, 9am–6pm IST, excluding holidays):
-
-| Severity                  | Description                                                                                                          | First Response SLA |
-|---------------------------|----------------------------------------------------------------------------------------------------------------------|--------------------|
-| P1: Production Halted     | Critical issue, possibly security-related, affecting live services without workaround                                | 1 working day      |
-| P2: Production Degraded   | Major component impacted, possibly exploitable but with mitigations or workarounds                                   | 2 working days     |
-| P3: Business Unaffected   | Low-severity security concern or non-critical issue                                                                  | 4 working days     |
-
- *Security vulnerabilities are always treated with priority and discretion.*
-
----
-
 ## Scope of Supported Services
 
 Security reporting and support applies **only to DIGIT LTS Core services**. You can find the list of supported core services here:  
