@@ -12,8 +12,8 @@ If you discover a security vulnerability in the DIGIT LTS (Long-Term Support) co
    Use the "Report a Vulnerability" button under the Security tab of this repository to privately disclose the issue.  
     [Click here to file a private security advisory](../../security/advisories/new)
 
-2. **Email (if enabled)**  
-   Contact our team directly at: `security@egovernments.org` *(if available)*
+2. **Email**  
+   Contact our team directly at: `security@egovernments.org` 
 
 ---
 
