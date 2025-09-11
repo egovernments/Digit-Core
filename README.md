@@ -1,6 +1,6 @@
 ## What Is DIGIT?
 
-DIGIT-Core is a modular, multi-tenant, microservices API platform designed to accelerate the development and deployment of government-facing services and workflows. It provides reusable, secure, and scalable core building blocks that mission-specific services like Urban, Health, Sanitation, or Public Finance Platforms can leverage and extend.
+DIGIT is a modular, multi-tenant, microservices API platform designed to accelerate the development and deployment of government-facing services and workflows. It provides reusable, secure, and scalable core building blocks that mission-specific services like Urban, Health, Sanitation, or Public Finance Platforms can leverage and extend.
 
 Built for inclusive governance, DIGIT-Core enables seamless collaboration among citizens, employees, vendors, administrators, and policymakers.
 
