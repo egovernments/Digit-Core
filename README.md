@@ -1,6 +1,6 @@
 ## What Is DIGIT?
 
-DIGIT-Core is a modular, multi-tenant, microservices API platform designed to accelerate the development and deployment of government-facing services and workflows. It provides reusable, secure, and scalable core building blocks that mission-specific services—like Urban, Health, Sanitation, or Public Finance Platforms—can leverage and extend.
+DIGIT-Core is a modular, multi-tenant, microservices API platform designed to accelerate the development and deployment of government-facing services and workflows. It provides reusable, secure, and scalable core building blocks that mission-specific services like Urban, Health, Sanitation, or Public Finance Platforms can leverage and extend.
 
 Built for inclusive governance, DIGIT-Core enables seamless collaboration among citizens, employees, vendors, administrators, and policymakers.
 
@@ -21,7 +21,7 @@ Built for inclusive governance, DIGIT-Core enables seamless collaboration among 
 
 1. **Unified Services**: Prevents duplication by centralizing shared logic and registries, promoting a single source of truth.  
 2. **Loose Coupling**: Architectural design encourages independent evolution of components, maximizing reusability and minimizing inter-dependency friction.  
-3. **Developer-Friendly**: Comprehensive documentation, low-code tooling, API playground, sandbox environments, and community support facilitate faster onboarding.  
+3. **Developer-Friendly**: Comprehensive documentation, API playground, sandbox environments, and community support facilitate faster onboarding.  
 4. **Analytics & Monitoring Ready**: Emits transactional data for auditing, performance insights, and continuous improvement.  
 5. **Trusted by Governments**: DFIs like UNICEF and institutions such as the eGovernments Foundation back it, and it’s widely adopted by local governments across India.  
 
@@ -31,7 +31,7 @@ Built for inclusive governance, DIGIT-Core enables seamless collaboration among 
 
 1. **Explore the Repo**: Find essential folders such as `core-services`, `accelerators`, `utilities`, `build`, and `tutorials`.  
 2. **Set Up DIGIT**: Review the Installation and Developer Guides on the [documentation portal](https://core.digit.org/) to get DIGIT running locally or in your environment.  
-3. **Start Developing**: Use the modular services to compose new mission platforms—Urban, Health, Public Finance, etc.—by leveraging DIGIT’s accelerators and shared components.  
+3. **Start Developing**: Use the modular services to compose new mission platforms such as Urban, Health, Public Finance, etc. by leveraging DIGIT’s accelerators and shared components.
 4. **Community & Support**: Join the DIGIT community via the discussion boards, ecosystem partners, academy programs, and more.  
 
 ---
