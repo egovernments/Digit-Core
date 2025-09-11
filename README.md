@@ -23,7 +23,7 @@ Built for inclusive governance, DIGIT-Core enables seamless collaboration among 
 2. **Loose Coupling**: Architectural design encourages independent evolution of components, maximizing reusability and minimizing inter-dependency friction.  
 3. **Developer-Friendly**: Comprehensive documentation, API playground, sandbox environments, and community support facilitate faster onboarding.  
 4. **Analytics & Monitoring Ready**: Emits transactional data for auditing, performance insights, and continuous improvement.  
-5. **Trusted by Governments**: DFIs like UNICEF and institutions such as the eGovernments Foundation back it, and it’s widely adopted by local governments across India.  
+5. **Trusted by Governments**: Non-profits such as the eGovernments Foundation support it and it has been widely adopted by states across India as well as in health campaigns in several African countries.  
 
 ---
 
