@@ -50,8 +50,6 @@ public class TokenService {
         /*
          * using only IN in central instance since OTP is for only citizen
          */
-        if(tenantId.contains("."))
-        	tenantId = tenantId.split("\\.")[0];
         
         Token token = Token.builder().uuid(UUID.randomUUID().toString()).tenantId(tenantId)
                 .identity(tokenRequest.getIdentity()).number(encryptedOtp)
