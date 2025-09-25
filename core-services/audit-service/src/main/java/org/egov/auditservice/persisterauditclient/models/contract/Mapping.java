@@ -42,6 +42,9 @@ public class Mapping   {
   @JsonProperty("tenantIdJsonPath")
   private String tenantIdJsonPath = null;
 
+  @JsonProperty("userUuidJsonPath")
+  private String userUuidJsonPath = null;
+
   @JsonProperty("transactionCodeJsonPath")
   private String transactionCodeJsonPath = null;
 

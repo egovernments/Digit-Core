@@ -237,7 +237,7 @@ public class PersisterAuditClientService {
      */
     private Map<AuditAttributes, List<LinkedHashMap<String, Object>>> extractData(String baseJsonPath, Mapping mapping, Object document) {
         String auditAttributeBasePath = mapping.getAuditAttributeBasePath();
-        String userUUID = getValueFromJsonPath(userJsonPath, document);
+        String userUUID = getValueFromJsonPath(mapping.getUserUuidJsonPath(), document);
         Map<AuditAttributes, List<LinkedHashMap<String, Object>>> data = new LinkedHashMap<>();
         try {
             String relativeJsonPath = null;
