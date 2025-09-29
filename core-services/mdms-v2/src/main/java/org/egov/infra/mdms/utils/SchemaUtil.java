@@ -26,9 +26,10 @@ public class SchemaUtil {
     /**
      * This method fetches the schema definition object for the master data being created.
      * @param mdmsRequest
+     * @param clientId
      * @return
      */
-    public JSONObject getSchema(MdmsRequest mdmsRequest) {
+    public JSONObject getSchema(MdmsRequest mdmsRequest, String clientId) {
 
         Mdms mdms = mdmsRequest.getMdms().get(0);
 
@@ -38,7 +39,6 @@ public class SchemaUtil {
                 .build();
 
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(SchemaDefSearchRequest.builder()
-                .requestInfo(mdmsRequest.getRequestInfo())
                 .schemaDefCriteria(schemaDefCriteria).build());
 
         if(CollectionUtils.isEmpty(schemaDefinitions))

@@ -38,9 +38,10 @@ public class SchemaDefinitionService {
     /**
      * This method processes requests for schema definition creation.
      * @param schemaDefinitionRequest
+     * @param clientId
      * @return
      */
-    public List<SchemaDefinition> create(SchemaDefinitionRequest schemaDefinitionRequest) {
+    public List<SchemaDefinition> create(SchemaDefinitionRequest schemaDefinitionRequest, String clientId) {
 
         // Set incoming tenantId as state level tenantId as schema is always created at state level
         String tenantId = schemaDefinitionRequest.getSchemaDefinition().getTenantId();
@@ -50,7 +51,7 @@ public class SchemaDefinitionService {
         schemaDefinitionValidator.validateCreateRequest(schemaDefinitionRequest);
 
         // Enrich schema create request
-        schemaDefinitionEnricher.enrichCreateRequest(schemaDefinitionRequest);
+        schemaDefinitionEnricher.enrichCreateRequest(schemaDefinitionRequest, clientId);
 
         // Persist schema definition directly
         schemaDefinitionRepository.create(schemaDefinitionRequest);

@@ -59,22 +59,22 @@ public class MDMSServiceV2 {
     /**
      * This method processes the requests that come for master data creation.
      * @param mdmsRequest
+     * @param clientId
      * @return
      */
     @Transactional
-    public List<Mdms> create(MdmsRequest mdmsRequest) {
+    public List<Mdms> create(MdmsRequest mdmsRequest, String clientId) {
         List<Mdms> mdmsList = mdmsRequest.getMdms();
         if (mdmsList == null || mdmsList.isEmpty()) {
             throw new RuntimeException("Mdms list cannot be empty");
         }
-        JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
+        JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest, clientId);
         // Validate and enrich each Mdms
         for (Mdms mdms : mdmsList) {
             MdmsRequest singleReq = new MdmsRequest();
-            singleReq.setRequestInfo(mdmsRequest.getRequestInfo());
             singleReq.setMdms(List.of(mdms));
             mdmsDataValidator.validateCreateRequest(singleReq, schemaObject);
-            mdmsDataEnricher.enrichCreateRequest(singleReq, schemaObject);
+            mdmsDataEnricher.enrichCreateRequest(singleReq, schemaObject, clientId);
         }
         // All passed validation, insert all
         mdmsDataRepository.create(mdmsRequest);
@@ -125,18 +125,19 @@ public class MDMSServiceV2 {
     /**
      * This method processes the requests that come for master data update.
      * @param mdmsRequest
+     * @param clientId
      * @return
      */
-    public List<Mdms> update(MdmsRequest mdmsRequest) {
+    public List<Mdms> update(MdmsRequest mdmsRequest, String clientId) {
 
         // Fetch schema against which data is getting created
-        JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
+        JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest, clientId);
 
         // Validate master data update request
         mdmsDataValidator.validateUpdateRequest(mdmsRequest, schemaObject);
 
         // Enrich master data update request
-        mdmsDataEnricher.enrichUpdateRequest(mdmsRequest);
+        mdmsDataEnricher.enrichUpdateRequest(mdmsRequest, clientId);
 
         // Persist master data update directly
         mdmsDataRepository.update(mdmsRequest);

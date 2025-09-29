@@ -15,9 +15,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
- * Bind the request meta data(RequestInfo) and Schema defination
+ * Bind the Schema defination
  */
-@Schema(description = "Bind the request meta data(RequestInfo) and Schema defination")
+@Schema(description = "Bind the Schema defination")
 @Validated
 @jakarta.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2023-05-30T09:26:57.838+05:30[Asia/Kolkata]")
 @Data

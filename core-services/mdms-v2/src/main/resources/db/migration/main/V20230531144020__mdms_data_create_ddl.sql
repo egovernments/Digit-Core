@@ -1,4 +1,4 @@
-CREATE TABLE eg_mdms_data (
+CREATE TABLE IF NOT EXISTS eg_mdms_data (
     id VARCHAR(64) NOT NULL,
     tenantid VARCHAR(255) NOT NULL,
     uniqueidentifier VARCHAR(255),

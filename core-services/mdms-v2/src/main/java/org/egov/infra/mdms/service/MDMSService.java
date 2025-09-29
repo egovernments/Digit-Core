@@ -53,18 +53,19 @@ public class MDMSService {
 	/**
 	 * This method processes the requests that come for master data creation.
 	 * @param mdmsRequest
+	 * @param clientId
 	 * @return
 	 */
-	public List<Mdms> create(MdmsRequest mdmsRequest) {
+	public List<Mdms> create(MdmsRequest mdmsRequest, String clientId) {
 
 		// Fetch schema against which data is getting created
-		JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest);
+		JSONObject schemaObject = schemaUtil.getSchema(mdmsRequest, clientId);
 
 		// Validate incoming request
 		mdmsDataValidator.validateCreateRequest(mdmsRequest, schemaObject);
 
 		// Enrich incoming request
-		mdmsDataEnricher.enrichCreateRequest(mdmsRequest, schemaObject);
+		mdmsDataEnricher.enrichCreateRequest(mdmsRequest, schemaObject, clientId);
 
 		// Emit mdms creation request event
 		mdmsDataRepository.create(mdmsRequest);
