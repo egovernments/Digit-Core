@@ -1,10 +1,8 @@
-# Security Policy for DIGIT LTS
+# Security Policy for DIGIT 
 
 ##  Reporting a Vulnerability
 
-We take the security of the DIGIT Core platform seriously.
-
-If you discover a security vulnerability in the DIGIT LTS (Long-Term Support) core services, **please do not create a public GitHub issue or discussion**.
+If you discover a security vulnerability in the DIGIT LTS (Long-Term Support tag) core services, **please do not create a public GitHub issue or discussion**.
 
 ### Instead, follow one of the two private channels:
 
