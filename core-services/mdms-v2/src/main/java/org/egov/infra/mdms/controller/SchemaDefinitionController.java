@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +39,12 @@ public class SchemaDefinitionController {
      * REST-compliant create: POST /schema/v1/schema
      */
     @PostMapping
-    public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest) {
-        List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest);
-        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitionRequest.getRequestInfo(), schemaDefinitions), HttpStatus.ACCEPTED);
+    public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest,
+                                                          @RequestHeader("X-Tenant-ID") String tenantId,
+                                                          @RequestHeader("X-Client-Id") String clientId) {
+        validateHeaders(tenantId, clientId);
+        List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest, clientId);
+        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.ACCEPTED);
     }
 
     /**
@@ -47,15 +52,27 @@ public class SchemaDefinitionController {
      */
     @GetMapping
     public ResponseEntity<SchemaDefinitionResponse> search(@RequestParam(required = false) String tenantId,
-                                                          @RequestParam(required = false) String code) {
+                                                          @RequestParam(required = false) String code,
+                                                          @RequestHeader("X-Tenant-ID") String headerTenantId,
+                                                          @RequestHeader("X-Client-Id") String clientId) {
+        validateHeaders(headerTenantId, clientId);
         // Build SchemaDefSearchRequest from query params
         SchemaDefSearchRequest searchRequest = new SchemaDefSearchRequest();
         SchemaDefCriteria criteria = new SchemaDefCriteria();
-        criteria.setTenantId(tenantId);
+        criteria.setTenantId(tenantId != null ? tenantId : headerTenantId);
         criteria.setCodes(code != null ? List.of(code) : null);
         searchRequest.setSchemaDefCriteria(criteria);
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(searchRequest);
-        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(null, schemaDefinitions), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.ACCEPTED);
+    }
+
+    private void validateHeaders(String tenantId, String clientId) {
+        if (!StringUtils.hasText(tenantId)) {
+            throw new IllegalArgumentException("X-Tenant-ID header is required");
+        }
+        if (!StringUtils.hasText(clientId)) {
+            throw new IllegalArgumentException("X-Client-Id header is required");
+        }
     }
 
 }

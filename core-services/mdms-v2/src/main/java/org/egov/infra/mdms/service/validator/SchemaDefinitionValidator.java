@@ -1,7 +1,6 @@
 package org.egov.infra.mdms.service.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.egov.common.contract.request.RequestInfo;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
 import static org.egov.infra.mdms.errors.ErrorCodes.*;

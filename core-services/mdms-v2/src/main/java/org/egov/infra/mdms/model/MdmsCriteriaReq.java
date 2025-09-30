@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.egov.common.contract.request.RequestInfo;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
@@ -20,11 +19,6 @@ import jakarta.validation.Valid;
 @NoArgsConstructor
 @Builder
 public class MdmsCriteriaReq {
-    @JsonProperty("RequestInfo")
-
-    @Valid
-    private RequestInfo requestInfo = null;
-
     @JsonProperty("MdmsCriteria")
 
     @Valid

@@ -1,4 +1,4 @@
-CREATE TABLE eg_mdms_schema_definition (
+CREATE TABLE IF NOT EXISTS eg_mdms_schema_definition (
     id VARCHAR(64) NOT NULL,
     tenantid VARCHAR(255) NOT NULL,
     code VARCHAR(255) NOT NULL,
