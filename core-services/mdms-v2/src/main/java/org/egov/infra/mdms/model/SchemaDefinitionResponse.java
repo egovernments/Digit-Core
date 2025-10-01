@@ -24,10 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class SchemaDefinitionResponse {
-    @JsonProperty("ResponseInfo")
 
-    @Valid
-    private ResponseInfo responseInfo = null;
 
     @JsonProperty("SchemaDefinitions")
     @Valid

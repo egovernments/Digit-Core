@@ -16,10 +16,6 @@ import java.util.List;
 @Builder
 public class MdmsResponseV2 {
 
-    @JsonProperty("ResponseInfo")
-    @Valid
-    private ResponseInfo responseInfo = null;
-
     @JsonProperty("mdms")
     private List<Mdms> mdms = null;
 }

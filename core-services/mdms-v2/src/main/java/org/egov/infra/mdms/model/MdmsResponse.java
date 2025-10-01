@@ -23,10 +23,6 @@ import java.util.Map;
 @Builder
 public class MdmsResponse {
 
-    @JsonProperty("ResponseInfo")
-    @Valid
-    private ResponseInfo responseInfo = null;
-
     @JsonProperty("MdmsRes")
     private Map<String, Map<String, JSONArray>> mdmsRes = null;
 

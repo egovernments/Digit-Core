@@ -13,14 +13,12 @@ public class ResponseUtil {
     private ResponseUtil(){}
 
     public static SchemaDefinitionResponse getSchemaDefinitionResponse(List<SchemaDefinition> schemaDefinitions){
-        ResponseInfo responseInfo = ResponseInfo.builder().status("SUCCESS").build();
-        SchemaDefinitionResponse schemaDefinitionResponse = SchemaDefinitionResponse.builder().schemaDefinitions(schemaDefinitions).responseInfo(responseInfo).build();
+        SchemaDefinitionResponse schemaDefinitionResponse = SchemaDefinitionResponse.builder().schemaDefinitions(schemaDefinitions).build();
         return schemaDefinitionResponse;
     }
 
     public static MdmsResponseV2 getMasterDataV2Response(List<Mdms> masterDataList){
-        ResponseInfo responseInfo = ResponseInfo.builder().status("SUCCESS").build();
-        MdmsResponseV2 response = MdmsResponseV2.builder().mdms(masterDataList).responseInfo(responseInfo).build();
+        MdmsResponseV2 response = MdmsResponseV2.builder().mdms(masterDataList).build();
         return response;
     }
 
