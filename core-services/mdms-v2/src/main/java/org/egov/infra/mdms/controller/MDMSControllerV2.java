@@ -31,10 +31,10 @@ public class MDMSControllerV2 {
     @PostMapping
     public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest,
                                                 @RequestHeader("X-Tenant-ID") String tenantId,
-                                                @RequestHeader("X-Client-Id") String clientId) {
+                                                @RequestHeader("X-Client-ID") String clientId) {
         validateHeaders(tenantId, clientId);
         List<Mdms> masterDataList = mdmsServiceV2.create(mdmsRequest, clientId);
-        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(masterDataList), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(masterDataList), HttpStatus.CREATED);
     }
 
     /**
@@ -43,10 +43,10 @@ public class MDMSControllerV2 {
     @PutMapping
     public ResponseEntity<MdmsResponseV2> update(@Valid @RequestBody MdmsRequest mdmsRequest,
                                                 @RequestHeader("X-Tenant-ID") String tenantId,
-                                                @RequestHeader("X-Client-Id") String clientId) {
+                                                @RequestHeader("X-Client-ID") String clientId) {
         validateHeaders(tenantId, clientId);
         List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest, clientId);
-        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(masterDataList), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(masterDataList), HttpStatus.OK);
     }
 
     /**
@@ -57,7 +57,7 @@ public class MDMSControllerV2 {
                                                  @RequestParam(required = false) String schemaCode,
                                                  @RequestParam(required = false) String uniqueIdentifier,
                                                  @RequestHeader("X-Tenant-ID") String headerTenantId,
-                                                 @RequestHeader("X-Client-Id") String clientId) {
+                                                 @RequestHeader("X-Client-ID") String clientId) {
         validateHeaders(headerTenantId, clientId);
         // Build MdmsCriteriaReqV2 from query params
         MdmsCriteriaReqV2 criteria = new MdmsCriteriaReqV2();
@@ -77,7 +77,7 @@ public class MDMSControllerV2 {
             throw new IllegalArgumentException("X-Tenant-ID header is required");
         }
         if (!StringUtils.hasText(clientId)) {
-            throw new IllegalArgumentException("X-Client-Id header is required");
+            throw new IllegalArgumentException("X-Client-ID header is required");
         }
     }
 }

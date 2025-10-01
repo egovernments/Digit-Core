@@ -41,10 +41,10 @@ public class SchemaDefinitionController {
     @PostMapping
     public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest,
                                                           @RequestHeader("X-Tenant-ID") String tenantId,
-                                                          @RequestHeader("X-Client-Id") String clientId) {
+                                                          @RequestHeader("X-Client-ID") String clientId) {
         validateHeaders(tenantId, clientId);
         List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest, clientId);
-        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.CREATED);
     }
 
     /**
@@ -54,7 +54,7 @@ public class SchemaDefinitionController {
     public ResponseEntity<SchemaDefinitionResponse> search(@RequestParam(required = false) String tenantId,
                                                           @RequestParam(required = false) String code,
                                                           @RequestHeader("X-Tenant-ID") String headerTenantId,
-                                                          @RequestHeader("X-Client-Id") String clientId) {
+                                                          @RequestHeader("X-Client-ID") String clientId) {
         validateHeaders(headerTenantId, clientId);
         // Build SchemaDefSearchRequest from query params
         SchemaDefSearchRequest searchRequest = new SchemaDefSearchRequest();
@@ -63,7 +63,7 @@ public class SchemaDefinitionController {
         criteria.setCodes(code != null ? List.of(code) : null);
         searchRequest.setSchemaDefCriteria(criteria);
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(searchRequest);
-        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.OK);
     }
 
     private void validateHeaders(String tenantId, String clientId) {
@@ -71,7 +71,7 @@ public class SchemaDefinitionController {
             throw new IllegalArgumentException("X-Tenant-ID header is required");
         }
         if (!StringUtils.hasText(clientId)) {
-            throw new IllegalArgumentException("X-Client-Id header is required");
+            throw new IllegalArgumentException("X-Client-ID header is required");
         }
     }
 
