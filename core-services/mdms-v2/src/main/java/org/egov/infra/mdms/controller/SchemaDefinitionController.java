@@ -4,12 +4,12 @@ package org.egov.infra.mdms.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
+import org.egov.infra.mdms.service.validator.HeaderValidator;
 import org.egov.infra.mdms.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +28,13 @@ import java.util.List;
 @Slf4j
 public class SchemaDefinitionController {
 
-    private SchemaDefinitionService schemaDefinitionService;
+    private final SchemaDefinitionService schemaDefinitionService;
+    private final HeaderValidator headerValidator;
 
     @Autowired
-    public SchemaDefinitionController(SchemaDefinitionService schemaDefinitionService) {
+    public SchemaDefinitionController(SchemaDefinitionService schemaDefinitionService, HeaderValidator headerValidator) {
         this.schemaDefinitionService = schemaDefinitionService;
+        this.headerValidator = headerValidator;
     }
 
     /**
@@ -42,37 +44,31 @@ public class SchemaDefinitionController {
     public ResponseEntity<SchemaDefinitionResponse> create(@Valid @RequestBody SchemaDefinitionRequest schemaDefinitionRequest,
                                                           @RequestHeader("X-Tenant-ID") String tenantId,
                                                           @RequestHeader("X-Client-ID") String clientId) {
-        validateHeaders(tenantId, clientId);
+        headerValidator.validateRequiredHeaders(tenantId, clientId);
+        // Override tenantId from header in SchemaDefinition object
+        if (schemaDefinitionRequest.getSchemaDefinition() != null) {
+            schemaDefinitionRequest.getSchemaDefinition().setTenantId(tenantId);
+        }
         List<SchemaDefinition> schemaDefinitions =  schemaDefinitionService.create(schemaDefinitionRequest, clientId);
         return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.CREATED);
     }
 
     /**
-     * REST-compliant search: GET /schema/v1/schema?tenantId=...&code=...
+     * REST-compliant search: GET /schema/v1/schema?code=...
      */
     @GetMapping
-    public ResponseEntity<SchemaDefinitionResponse> search(@RequestParam(required = false) String tenantId,
-                                                          @RequestParam(required = false) String code,
-                                                          @RequestHeader("X-Tenant-ID") String headerTenantId,
+    public ResponseEntity<SchemaDefinitionResponse> search(@RequestParam(required = false) String code,
+                                                          @RequestHeader("X-Tenant-ID") String tenantId,
                                                           @RequestHeader("X-Client-ID") String clientId) {
-        validateHeaders(headerTenantId, clientId);
+        headerValidator.validateRequiredHeaders(tenantId, clientId);
         // Build SchemaDefSearchRequest from query params
         SchemaDefSearchRequest searchRequest = new SchemaDefSearchRequest();
         SchemaDefCriteria criteria = new SchemaDefCriteria();
-        criteria.setTenantId(tenantId != null ? tenantId : headerTenantId);
+        criteria.setTenantId(tenantId);
         criteria.setCodes(code != null ? List.of(code) : null);
         searchRequest.setSchemaDefCriteria(criteria);
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(searchRequest);
         return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.OK);
-    }
-
-    private void validateHeaders(String tenantId, String clientId) {
-        if (!StringUtils.hasText(tenantId)) {
-            throw new IllegalArgumentException("X-Tenant-ID header is required");
-        }
-        if (!StringUtils.hasText(clientId)) {
-            throw new IllegalArgumentException("X-Client-ID header is required");
-        }
     }
 
 }
