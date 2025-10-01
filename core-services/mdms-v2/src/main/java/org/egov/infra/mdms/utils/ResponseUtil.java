@@ -1,6 +1,5 @@
 package org.egov.infra.mdms.utils;
 
-import org.egov.common.contract.response.ResponseInfo;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsResponseV2;
 import org.egov.infra.mdms.model.SchemaDefinition;
