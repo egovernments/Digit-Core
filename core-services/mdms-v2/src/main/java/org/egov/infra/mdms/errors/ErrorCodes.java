@@ -25,6 +25,12 @@ public class ErrorCodes {
 
     public static final String UNIQUE_ATTRIBUTE_LIST_INVALID_MSG = "Fields provided under unique fields must be a subset of required attributes list";
 
+    public static final String TENANT_ID_HEADER = "X-Tenant-ID";
+    public static final String CLIENT_ID_HEADER = "X-Client-ID";
+    public static final String TENANT_ID_MISSING_ERROR_CODE = "TENANT_ID_MISSING";
+    public static final String CLIENT_ID_MISSING_ERROR_CODE = "CLIENT_ID_MISSING";
+    public static final String TENANT_ID_MISSING_ERROR_MESSAGE = "X-Tenant-ID header is required and cannot be empty";
+    public static final String CLIENT_ID_MISSING_ERROR_MESSAGE = "X-Client-ID header is required and cannot be empty";
 
 
 }

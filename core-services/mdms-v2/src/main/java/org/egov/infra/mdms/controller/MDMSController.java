@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.validation.Valid;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.MDMSService;
+import org.egov.infra.mdms.service.validator.HeaderValidator;
 import org.egov.infra.mdms.utils.CacheUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,27 +20,30 @@ import net.minidev.json.JSONArray;
 @RequestMapping(value = "/v1/mdms")
 public class MDMSController {
 
-    private MDMSService mdmsService;
-
+    private final MDMSService mdmsService;
     private final CacheUtil cacheUtil;
+    private final HeaderValidator headerValidator;
 
     @Autowired
-    public MDMSController(MDMSService mdmsService, CacheUtil cacheUtil) {
+    public MDMSController(MDMSService mdmsService, CacheUtil cacheUtil, HeaderValidator headerValidator) {
         this.mdmsService = mdmsService;
         this.cacheUtil = cacheUtil;
+        this.headerValidator = headerValidator;
     }
 
     /**
-     * REST-compliant search: GET /v1/mdms?tenantId=...&schemaCode=...&uniqueIdentifier=...
+     * REST-compliant search: GET /v1/mdms?uniqueIdentifier=...&moduleName=...&masterName=...
      */
     @GetMapping
     public ResponseEntity<?> search(
-            @RequestParam String tenantId,
+            @RequestHeader("X-Tenant-ID") String tenantId,
+            @RequestHeader("X-Client-ID") String clientId,
             @RequestParam(required = false) String uniqueIdentifier,
             @RequestParam(required = false) List<String> moduleName,
             @RequestParam(required = false) List<String> masterName,
             @RequestParam(required = false) List<String> masterFilter
     ) {
+        headerValidator.validateRequiredHeaders(tenantId, clientId);
         MdmsCriteriaReq criteriaReq = new MdmsCriteriaReq();
         MdmsCriteria criteria = new MdmsCriteria();
         criteria.setTenantId(tenantId);
