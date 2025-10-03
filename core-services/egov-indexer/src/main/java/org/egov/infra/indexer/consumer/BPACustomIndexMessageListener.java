@@ -11,6 +11,7 @@ import org.egov.infra.indexer.custom.pt.PropertyRequest;
 import org.egov.infra.indexer.producer.IndexerProducer;
 import org.egov.infra.indexer.service.IndexerService;
 import org.egov.infra.indexer.util.IndexerUtils;
+import org.egov.infra.indexer.util.DLQHandler;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,9 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
     @Autowired
     private IndexerProducer  indexerProducer;
 
+    @Autowired
+    private DLQHandler dlqHandler;
+
 
     @Override
     /**
@@ -44,17 +48,27 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
      * index 5. Core indexing
      */
     public void onMessage(ConsumerRecord<String, String> data) {
-
+        log.info("Topic from BPACustomIndexMessageListener: " + data.topic());
+        
         ObjectMapper mapper = indexerUtils.getObjectMapperWithNull();
+        String tenantId = null;
+        
         try {
             BPARequest bpaRequest = mapper.readValue(data.value(), BPARequest.class);
+            tenantId = bpaRequest.getBPA().getTenantId();
+            
             // Adding in MDC so that tracer can add it in header
-            MDC.put(TENANTID_MDC_STRING, bpaRequest.getBPA().getTenantId() );
+            MDC.put(TENANTID_MDC_STRING, tenantId);
 
             EnrichedBPARequest enrichedBPARequest = bpaCustomDecorator.transformData(bpaRequest);
             indexerService.esIndexer(data.topic(), mapper.writeValueAsString(enrichedBPARequest));
         } catch (Exception e) {
-            log.error("Couldn't parse bpaindex request: ", e);
+            dlqHandler.handleError(data.value(), e, "BPACustomIndexMessageListener");
+        } finally {
+            // Always clear MDC to prevent data leakage across thread reuse
+            if (tenantId != null) {
+                MDC.remove(TENANTID_MDC_STRING);
+            }
         }
     }
 }
