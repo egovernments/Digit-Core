@@ -55,15 +55,23 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
         
         try {
             BPARequest bpaRequest = mapper.readValue(data.value(), BPARequest.class);
-            tenantId = bpaRequest.getBPA().getTenantId();
+            if (bpaRequest.getBPA() != null) {
+                tenantId = bpaRequest.getBPA().getTenantId();
+            }
             
             // Adding in MDC so that tracer can add it in header
-            MDC.put(TENANTID_MDC_STRING, tenantId);
+            if (tenantId != null) {
+                MDC.put(TENANTID_MDC_STRING, tenantId);
+            }
 
             EnrichedBPARequest enrichedBPARequest = bpaCustomDecorator.transformData(bpaRequest);
             indexerService.esIndexer(data.topic(), mapper.writeValueAsString(enrichedBPARequest));
         } catch (Exception e) {
-            dlqHandler.handleError(data.value(), e, "BPACustomIndexMessageListener");
+            try {
+                dlqHandler.handleError(data.value(), e, "BPACustomIndexMessageListener");
+            } catch (RuntimeException dlqException) {
+                log.error("Failed to handle error in DLQ for BPACustomIndexMessageListener", dlqException);
+            }
         } finally {
             // Always clear MDC to prevent data leakage across thread reuse
             if (tenantId != null) {
