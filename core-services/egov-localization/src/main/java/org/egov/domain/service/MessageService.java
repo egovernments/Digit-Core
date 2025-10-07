@@ -80,6 +80,13 @@ public class MessageService {
 	public List<Message> getFilteredMessages(MessageSearchCriteria searchCriteria) {
 		List<Message> messages = getMessages(searchCriteria);
 
+		try {
+            Thread.sleep(600);
+        }
+        catch (InterruptedException e){
+            e.printStackTrace();
+        }
+
 		Tenant tenant = searchCriteria.getTenantId();
 
 		List<Tenant> tenants = tenant.getTenantHierarchy();
