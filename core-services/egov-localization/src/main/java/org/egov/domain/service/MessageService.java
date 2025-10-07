@@ -81,6 +81,7 @@ public class MessageService {
 		List<Message> messages = getMessages(searchCriteria);
 
 		try {
+			System.out.println("Thread waiting");
             Thread.sleep(600);
         }
         catch (InterruptedException e){
