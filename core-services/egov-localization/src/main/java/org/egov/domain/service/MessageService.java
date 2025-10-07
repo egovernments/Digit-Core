@@ -78,8 +78,7 @@ public class MessageService {
 	}
 
 	public List<Message> getFilteredMessages(MessageSearchCriteria searchCriteria) {
-		List<Message> messages = getMessages(searchCriteria);
-
+		
 		try {
 			System.out.println("Thread waiting");
             Thread.sleep(600);
@@ -87,6 +86,8 @@ public class MessageService {
         catch (InterruptedException e){
             e.printStackTrace();
         }
+		
+		List<Message> messages = getMessages(searchCriteria);
 
 		Tenant tenant = searchCriteria.getTenantId();
 
