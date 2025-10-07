@@ -83,7 +83,9 @@ public class EncryptionDecryptionUtil {
 
             if(key == null)
                 key = keyPurposeMap.get("key");
-
+            log.info("Key:"+key);
+            log.info("Purpose:"+purpose);
+            log.info("keyPurposeMap:"+keyPurposeMap);
             P decryptedObject = (P) encryptionService.decryptJson(requestInfo,objectToDecrypt, key, purpose, classType);
             if (decryptedObject == null) {
                 throw new CustomException("DECRYPTION_NULL_ERROR", "Null object found on performing decryption");

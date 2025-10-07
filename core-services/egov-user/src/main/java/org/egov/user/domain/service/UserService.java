@@ -202,7 +202,7 @@ public class UserService {
         if(searchCriteria.getMobileNumber()!=null) {
         	altmobnumber = searchCriteria.getMobileNumber();
         }
-
+        log.info("searchCriteria:"+searchCriteria);
         searchCriteria = encryptionDecryptionUtil.encryptObject(searchCriteria, "User", UserSearchCriteria.class);
         
         if(altmobnumber!=null) {
@@ -212,6 +212,7 @@ public class UserService {
         List<org.egov.user.domain.model.User> list = userRepository.findAll(searchCriteria);
 
         /* decrypt here / final reponse decrypted*/
+        log.info("list:"+list);
 
         list = encryptionDecryptionUtil.decryptObject(list, null, User.class, requestInfo);
 
