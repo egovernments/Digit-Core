@@ -8,6 +8,8 @@ import org.egov.domain.model.Tenant;
 import org.egov.domain.service.MessageService;
 import org.egov.web.contract.*;
 import org.egov.web.exception.InvalidMessageRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,9 @@ import java.util.stream.Collectors;
 public class MessageController {
 
 	private MessageService messageService;
+
+	@Autowired
+    private JdbcTemplate jdbcTemplate;
 
 	public MessageController(MessageService messageService) {
 		this.messageService = messageService;
@@ -50,6 +55,18 @@ public class MessageController {
 		List<org.egov.domain.model.Message> domainMessages = messageService.getFilteredMessages(messageRequest.getMessageSearchCriteria());
 		return createResponse(domainMessages);
 	}
+
+	@PostMapping("/test/_search")
+    public String loadTesting(@RequestBody MessageRequest messageRequest) {
+
+        int ms = 200;
+        if (jdbcTemplate == null) return "jdbcTemplate missing";
+        // ms -> seconds with millisecond precision
+        double seconds = ms / 1000.0;
+        System.out.println("Starting I/O Operation");
+        jdbcTemplate.query("select pg_sleep(?)", ps -> ps.setDouble(1, seconds), rs -> {});
+        return "db slept " + ms + "ms";
+    }
 
 	@PostMapping("/v1/_upsert")
 	public MessagesResponse upsertMessages(@Valid @RequestBody CreateMessagesRequest messageRequest,
