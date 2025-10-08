@@ -111,7 +111,6 @@ public class User {
     public void validateNewUser(boolean createUserValidateName) {
         if (isUsernameAbsent()
                 || (createUserValidateName && isNameAbsent())
-                || isMobileNumberAbsent()
                 || isActiveIndicatorAbsent()
                 || isTypeAbsent()
                 || isPermanentAddressInvalid()
