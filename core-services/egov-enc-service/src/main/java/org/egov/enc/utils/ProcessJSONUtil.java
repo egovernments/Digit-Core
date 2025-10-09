@@ -102,6 +102,7 @@ public class ProcessJSONUtil {
         else {
             Plaintext plaintext;
             Ciphertext ciphertext = new Ciphertext(value.toString());
+            log.info("ciphertext.getKeyId():"+ ciphertext.getKeyId());
             if(!keyStore.checkIfKeyExists(ciphertext.getKeyId())) {
                 keyStore.refreshKeys();
                 if(!keyStore.checkIfKeyExists(ciphertext.getKeyId()))

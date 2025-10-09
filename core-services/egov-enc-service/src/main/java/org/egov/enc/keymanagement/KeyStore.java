@@ -1,6 +1,7 @@
 package org.egov.enc.keymanagement;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.egov.enc.config.AppProperties;
 import org.egov.enc.keymanagement.masterkey.MasterKeyProvider;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 
 @Component
 @Order(2)
+@Slf4j
 public class KeyStore implements ApplicationRunner {
 
     @Autowired
@@ -144,6 +146,8 @@ public class KeyStore implements ApplicationRunner {
     }
 
     public boolean checkIfKeyExists(int keyId) {
+        log.info("Checking if keyId [{}] exists. symmetricKeyHashMap: {}, asymmetricKeyHashMap: {}",
+                keyId, symmetricKeyHashMap, asymmetricKeyHashMap);
         return symmetricKeyHashMap.containsKey(keyId) || asymmetricKeyHashMap.containsKey(keyId);
     }
 
