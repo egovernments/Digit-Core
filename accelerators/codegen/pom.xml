@@ -18,7 +18,7 @@
         <dependency>
             <groupId>io.swagger.codegen.v3</groupId>
             <artifactId>swagger-codegen-generators</artifactId>
-            <version>1.0.36</version>
+            <version>1.0.58</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.codegen.v3</groupId>
