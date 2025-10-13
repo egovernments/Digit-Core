@@ -36,7 +36,6 @@ public class UserSearchRequest {
     @JsonProperty("name")
     private String name;
 
-    @Pattern(regexp = UserServiceConstants.PATTERN_MOBILE)
     @JsonProperty("mobileNumber")
     private String mobileNumber;
 
