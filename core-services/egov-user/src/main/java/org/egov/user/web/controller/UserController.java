@@ -83,6 +83,7 @@ public class UserController {
 
         // Validate mobile number using MDMS-v2
         mobileNumberValidator.validateMobileNumber(user.getMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
+        mobileNumberValidator.validateMobileNumber(user.getAlternateMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
 
         user.setOtpValidationMandatory(IsValidationMandatory);
         if (isRegWithLoginEnabled) {
@@ -108,6 +109,7 @@ public class UserController {
 
         // Validate mobile number using MDMS-v2
         mobileNumberValidator.validateMobileNumber(user.getMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
+        mobileNumberValidator.validateMobileNumber(user.getAlternateMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
 
         user.setMobileValidationMandatory(isMobileValidationRequired(headers));
         user.setOtpValidationMandatory(false);
@@ -172,6 +174,7 @@ public class UserController {
 
         // Validate mobile number using MDMS-v2
         mobileNumberValidator.validateMobileNumber(user.getMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
+        mobileNumberValidator.validateMobileNumber(user.getAlternateMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
 
         user.setMobileValidationMandatory(isMobileValidationRequired(headers));
         final User updatedUser = userService.updateWithoutOtpValidation(user, createUserRequest.getRequestInfo());
@@ -191,6 +194,7 @@ public class UserController {
 
         // Validate mobile number using MDMS-v2
         mobileNumberValidator.validateMobileNumber(user.getMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
+        mobileNumberValidator.validateMobileNumber(user.getAlternateMobileNumber(), user.getTenantId(), createUserRequest.getRequestInfo());
 
         final User updatedUser = userService.partialUpdate(user, createUserRequest.getRequestInfo());
         return createResponseforUpdate(updatedUser);
