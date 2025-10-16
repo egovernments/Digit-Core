@@ -52,4 +52,80 @@ public class TenantConfigRepositoryImpl implements TenantConfigRepository {
         return jdbcTemplate.query(query, preparedStmtList.toArray(),tenantConfigRowMapper);
     }
 
+  @Override
+  public void updateLastLoginTime(String code, Long loginTime) {
+    String query = "UPDATE tenant_config SET lastLoginTime = ? WHERE code = ?";
+    jdbcTemplate.update(query, loginTime, code);
+    log.info("Updated lastLoginTime for tenant config with code: {}", code);
+  }
+
+  @Override
+  public List<TenantConfig> findLeastActiveAccounts(Integer limit, Long inactiveSinceTimestamp, Integer inactiveSinceDays) {
+    StringBuilder queryBuilder = new StringBuilder();
+    queryBuilder.append("SELECT ")
+        .append("tc.id AS tenantConfigId, ")
+        .append("tc.code, ")
+        .append("tc.name, ")
+        .append("tc.defaultLoginType, ")
+        .append("tc.otpLength, ")
+        .append("tc.languages, ")
+        .append("tc.enableUserBasedLogin, ")
+        .append("tc.additionalAttributes, ")
+        .append("tc.isActive AS isActive, ")
+        .append("tc.lastLoginTime, ")
+        .append("tc.createdBy AS CreatedBy, ")
+        .append("tc.lastModifiedBy AS LastModifiedBy, ")
+        .append("tc.createdTime AS CreatedTime, ")
+        .append("tc.lastModifiedTime AS LastModifiedTime, ")
+        .append("td.id AS documentId, ")
+        .append("td.tenantId, ")
+        .append("td.type, ")
+        .append("td.fileStoreId, ")
+        .append("td.url, ")
+        .append("td.isActive AS documentIsActive, ")
+        .append("td.createdBy AS documentCreatedBy, ")
+        .append("td.lastModifiedBy AS documentLastModifiedBy, ")
+        .append("td.createdTime AS documentCreatedTime, ")
+        .append("td.lastModifiedTime AS documentLastModifiedTime ")
+        .append("FROM tenant_config tc ")
+        .append("LEFT JOIN tenant_documents td ON tc.id = td.tenantConfigId ")
+        .append("WHERE tc.isActive = true ");
+
+    List<Object> params = new ArrayList<>();
+
+    // Calculate threshold timestamp
+    Long thresholdTimestamp = null;
+    if (inactiveSinceTimestamp != null) {
+      thresholdTimestamp = inactiveSinceTimestamp;
+    } else if (inactiveSinceDays != null && inactiveSinceDays > 0) {
+      // Convert days to milliseconds and subtract from current time
+      thresholdTimestamp = System.currentTimeMillis() - (inactiveSinceDays * 24L * 60L * 60L * 1000L);
+    }
+
+    // Add time-based filter if threshold is set
+    if (thresholdTimestamp != null) {
+      // Include accounts where:
+      // 1. They logged in but lastLoginTime is older than threshold
+      // 2. They NEVER logged in (IS NULL) AND were created before threshold
+      queryBuilder.append("AND (")
+          .append("(tc.lastLoginTime IS NOT NULL AND tc.lastLoginTime < ?) ")
+          .append("OR ")
+          .append("(tc.lastLoginTime IS NULL AND tc.createdTime < ?)")
+          .append(") ");
+      params.add(thresholdTimestamp);
+      params.add(thresholdTimestamp);
+      log.info("Filtering accounts inactive since timestamp: {} ({})", thresholdTimestamp,
+          new java.util.Date(thresholdTimestamp));
+    }
+
+    queryBuilder.append("ORDER BY COALESCE(tc.lastLoginTime, tc.createdTime) ASC ");
+    queryBuilder.append("LIMIT ?");
+    params.add(limit);
+
+    log.info("Fetching {} least active accounts with filters - inactiveSinceTimestamp: {}, inactiveSinceDays: {}",
+        limit, inactiveSinceTimestamp, inactiveSinceDays);
+
+    return jdbcTemplate.query(queryBuilder.toString(), params.toArray(), tenantConfigRowMapper);
+  }
+
 }
