@@ -19,16 +19,30 @@ public class OtpRequest {
     private String tenantId;
     private OtpRequestType type;
     private String userType;
+	private String userName;
 
     public void validate() {
         if(isTenantIdAbsent()
-				|| isMobileNumberAbsent()
-				|| isInvalidType()
-				|| isMobileNumberNumeric()
-				|| isMobileNumberValidLength()) {
+				|| !isUserNameOrMobileNumberValid()
+		        || isInvalidType()) {
             throw new InvalidOtpRequestException(this);
         }
     }
+
+	public boolean isUserNameOrMobileNumberValid(){
+		if(!isMobileNumberAbsent()){
+			if(isMobileNumberNumeric()
+					|| isMobileNumberValidLength()){
+				return false;
+			}
+		}
+		else {
+			if(isUserNameAbsent()){
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public boolean isMobileNumberNumeric() {
 		// TODO Auto-generated method stub
@@ -64,4 +78,12 @@ public class OtpRequest {
     public boolean isMobileNumberAbsent() {
         return isEmpty(mobileNumber);
     }
+
+	public boolean isUserNameAbsent() {
+		return isEmpty(userName);
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 }

@@ -1,0 +1,2 @@
+ALTER TABLE tenant
+ADD COLUMN tenantId VARCHAR(64);

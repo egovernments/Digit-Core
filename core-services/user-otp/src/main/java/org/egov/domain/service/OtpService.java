@@ -1,6 +1,7 @@
 package org.egov.domain.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.egov.domain.exception.UserAlreadyExistInSystemException;
 import org.egov.domain.exception.UserMobileNumberNotFoundException;
 import org.egov.domain.exception.UserNotExistingInSystemException;
@@ -34,6 +35,7 @@ public class OtpService {
 
     public void sendOtp(OtpRequest otpRequest) {
         otpRequest.validate();
+        setUserNameIfNotPresent(otpRequest);
         if (otpRequest.isRegistrationRequestType() || otpRequest.isLoginRequestType()) {
             sendOtpForUserRegistration(otpRequest);
         } else {
@@ -42,7 +44,7 @@ public class OtpService {
     }
 
     private void sendOtpForUserRegistration(OtpRequest otpRequest) {
-        final User matchingUser = userRepository.fetchUser(otpRequest.getMobileNumber(), otpRequest.getTenantId(),
+        final User matchingUser = userRepository.fetchUser(otpRequest.getUserName(), otpRequest.getTenantId(),
                 otpRequest.getUserType());
 
         if (otpRequest.isRegistrationRequestType() && null != matchingUser)
@@ -51,6 +53,11 @@ public class OtpService {
             throw new UserNotExistingInSystemException();
 
         final String otpNumber = otpRepository.fetchOtp(otpRequest);
+
+        // TEMPORARILY ADDED FOR TESTING
+        // REMOVE IT !!!!!!!!!!!!!!!!!!!!!!
+        System.out.println("OTP: "+otpNumber);
+
         otpSMSSender.send(otpRequest, otpNumber);
         if(!otpRequest.isRegistrationRequestType()) // Because new user doesn't have any email configured
             try{
@@ -62,7 +69,7 @@ public class OtpService {
     }
 
     private void sendOtpForPasswordReset(OtpRequest otpRequest) {
-        final User matchingUser = userRepository.fetchUser(otpRequest.getMobileNumber(), otpRequest.getTenantId(),
+        final User matchingUser = userRepository.fetchUser(otpRequest.getUserName(), otpRequest.getTenantId(),
                 otpRequest.getUserType());
         if (null == matchingUser) {
             throw new UserNotFoundException();
@@ -80,6 +87,12 @@ public class OtpService {
             }
         } catch (Exception e) {
             log.error("Exception while fetching otp: ", e);
+        }
+    }
+
+    private void setUserNameIfNotPresent(OtpRequest otpRequest){
+        if (StringUtils.isEmpty(otpRequest.getUserName())){
+            otpRequest.setUserName(otpRequest.getMobileNumber());
         }
     }
 

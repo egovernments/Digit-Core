@@ -170,6 +170,14 @@ config:
       - work-dir: "core-services/boundary-service/src/main/resources/db"
         image-name: "boundary-service-db"
 
+  - name: "builds/Digit-Core/core-services/TenantManagement"
+    build:
+      - work-dir: "core-services/TenantManagement"
+        image-name: "tenant-management"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "core-services/TenantManagement/src/main/resources/db"
+        image-name: "tenant-management-db"
+
   - name: "builds/Digit-Core/core-services/egov-mdms-service"
     build:
       - work-dir: "core-services/egov-mdms-service"
@@ -178,10 +186,10 @@ config:
 
   - name: "builds/Digit-Core/core-services/mdms-v2"
     build:
-      - work-dir: "core-services/egov-mdms-service"
+      - work-dir: "core-services/mdms-v2"
         image-name: "mdms-v2"
         dockerfile: "build/maven/Dockerfile"
-      - work-dir: "core-services/egov-mdms-service/src/main/resources/db"
+      - work-dir: "core-services/mdms-v2/src/main/resources/db"
         image-name: "mdms-v2-db"
 
   - name: "builds/Digit-Core/core-services/egov-notification-mail"
@@ -443,7 +451,14 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
-
+        
+  - name: "builds/Digit-Core/accelerators/pgr-services"
+    build:
+      - work-dir: "accelerators/pgr-services"
+        image-name: "pgr-services"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "accelerators/pgr-services/src/main/resources/db"
+        image-name: "pgr-services-db"
 
 # frontend
   - name: builds/Digit-Core/accelerators/workbench-ui
@@ -469,4 +484,9 @@ config:
       - work-dir: frontend/micro-ui/
         dockerfile: frontend/micro-ui/web/docker/Dockerfile
         image-name: digit-ui
-
+        
+  - name: "builds/Digit-Core/core-services/default-data-handler"
+    build:
+      - work-dir: "core-services/default-data-handler"
+        image-name: "default-data-handler"
+        dockerfile: "build/maven/Dockerfile"

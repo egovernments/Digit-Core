@@ -2,7 +2,7 @@
     "responseInfo": null,
     "error": {
         "code": 400,
-        "message": "OTP request for login failed",
+        "message": "Organization name not registered. Please try again or sign up.",
         "description": null,
         "fields": [
             {

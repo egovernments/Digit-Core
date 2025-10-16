@@ -1,0 +1,177 @@
+serviceMaps:
+  serviceName: tenant-Service
+  mappings:
+    - version: 1.0
+      description: Persists the tenant entity data
+      fromTopic: create-tenant
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO tenant (id, tenantId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenant
+          jsonMaps:
+
+            - jsonPath: $.tenant.id
+
+            - jsonPath: $.tenant.code
+
+            - jsonPath: $.tenant.code
+
+            - jsonPath: $.tenant.name
+
+            - jsonPath: $.tenant.email
+
+            - jsonPath: $.tenant.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenant.isActive
+
+            - jsonPath: $.tenant.auditDetails.createdBy
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenant.auditDetails.createdTime
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Persists the create sub tenant entity data
+      fromTopic: create-sub-tenant
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO tenant (id, tenantId, code, name, email, additionalAttributes, isactive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenant
+          jsonMaps:
+            - jsonPath: $.tenant.id
+
+            - jsonPath: $.tenant.tenantId
+
+            - jsonPath: $.tenant.code
+
+            - jsonPath: $.tenant.name
+
+            - jsonPath: $.tenant.email
+
+            - jsonPath: $.tenant.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenant.isActive
+
+            - jsonPath: $.tenant.auditDetails.createdBy
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenant.auditDetails.createdTime
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Update the tenant entity data
+      fromTopic: update-tenant
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE tenant SET additionalAttributes = ? , isActive = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE code = ?;
+          basePath: $.tenant
+          jsonMaps:
+            - jsonPath: $.tenant.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenant.isActive
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenant.auditDetails.lastModifiedTime
+
+            - jsonPath: $.tenant.code
+
+    - version: 1.0
+      description: Persists the create tenant config data
+      fromTopic: create-tenant-config
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO tenant_config (id, code, otpLength, name, languages, defaultLoginType, enableUserBasedLogin, additionalAttributes, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenantConfig
+          jsonMaps:
+            - jsonPath: $.tenantConfig.id
+
+            - jsonPath: $.tenantConfig.code
+
+            - jsonPath: $.tenantConfig.otpLength
+
+            - jsonPath: $.tenantConfig.name
+
+            - jsonPath: $.tenantConfig.languages
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenantConfig.defaultLoginType
+
+            - jsonPath: $.tenantConfig.enableUserBasedLogin
+
+            - jsonPath: $.tenantConfig.additionalAttributes
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.tenantConfig.isActive
+
+            - jsonPath: $.tenantConfig.auditDetails.createdBy
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.auditDetails.createdTime
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedTime
+        - query: INSERT INTO tenant_documents (id, tenantConfigId, tenantId, type, fileStoreId, url, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tenantConfig.documents.*
+          jsonMaps:
+            - jsonPath: $.tenantConfig.documents.*.id
+
+            - jsonPath: $.tenantConfig.documents.*.tenantConfigId
+
+            - jsonPath: $.tenantConfig.documents.*.tenantId
+
+            - jsonPath: $.tenantConfig.documents.*.type
+
+            - jsonPath: $.tenantConfig.documents.*.fileStoreId
+
+            - jsonPath: $.tenantConfig.documents.*.url
+
+            - jsonPath: $.tenantConfig.documents.*.isActive
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.createdBy
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.createdTime
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Update the tenant config
+      fromTopic: update-tenant-config
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE tenant_config SET isActive  = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE code = ?;
+          basePath: $.tenantConfig
+          jsonMaps:
+            - jsonPath: $.tenantConfig.isActive
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.auditDetails.lastModifiedTime
+
+            - jsonPath: $.tenantConfig.code
+        - query: UPDATE tenant_documents SET fileStoreId  = ? , url = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE id = ?;
+          basePath: $.tenantConfig.documents.*
+          jsonMaps:
+            - jsonPath: $.tenantConfig.documents.*.fileStoreId
+
+            - jsonPath: $.tenantConfig.documents.*.url
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.tenantConfig.documents.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.tenantConfig.documents.*.id
