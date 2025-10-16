@@ -22,6 +22,7 @@ public class TenantConfigQueryBuilder {
             "    tc.enableUserBasedLogin," +
             "    tc.additionalAttributes," +
             "    tc.isActive AS isActive," +
+            "    tc.lastLoginTime," +
             "    tc.createdBy AS CreatedBy," +
             "    tc.lastModifiedBy AS LastModifiedBy," +
             "    tc.createdTime AS CreatedTime," +
