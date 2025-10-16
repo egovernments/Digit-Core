@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -35,7 +35,19 @@ class EncryptionServiceRestConnection {
         encryptionRequest.setEncryptionRequests(new ArrayList<>(Collections.singleton(encReqObject)));
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(encProperties.getEgovEncHost() + encProperties.getEgovEncEncryptPath(),
+            Map<String, String> tenantNamespaceMap = Arrays.stream(encProperties.getEncSeparateTenantsNamespace().split(","))
+                    .map(entry -> entry.split(":"))
+                    .collect(Collectors.toMap(e -> e[0].trim(), e -> e[1].trim()));
+
+            List<String> separateTenants = Arrays.asList(encProperties.getEncSeparateTenants().split(","));
+            String encServiceUrl;
+            if (separateTenants.contains(tenantId) && tenantNamespaceMap.containsKey(tenantId)) {
+                String namespace = tenantNamespaceMap.get(tenantId);
+                encServiceUrl = encProperties.getEncServiceUrlPattern().replace("{namespace}", namespace);
+            } else {
+                encServiceUrl = encProperties.getEgovEncHost();
+            }
+            ResponseEntity<String> response = restTemplate.postForEntity(encServiceUrl + encProperties.getEgovEncEncryptPath(),
                     encryptionRequest, String.class);
             return objectMapper.readTree(response.getBody()).get(0);
         } catch (Exception e) {
@@ -44,10 +56,22 @@ class EncryptionServiceRestConnection {
         }
     }
 
-    JsonNode callDecrypt(Object ciphertext) {
+    JsonNode callDecrypt(Object ciphertext, String tenantId) {
         try {
+            Map<String, String> tenantNamespaceMap = Arrays.stream(encProperties.getEncSeparateTenantsNamespace().split(","))
+                    .map(entry -> entry.split(":"))
+                    .collect(Collectors.toMap(e -> e[0].trim(), e -> e[1].trim()));
+
+            List<String> separateTenants = Arrays.asList(encProperties.getEncSeparateTenants().split(","));
+            String encServiceUrl;
+            if (separateTenants.contains(tenantId) && tenantNamespaceMap.containsKey(tenantId)) {
+                String namespace = tenantNamespaceMap.get(tenantId);
+                encServiceUrl = encProperties.getEncServiceUrlPattern().replace("{namespace}", namespace);
+            } else {
+                encServiceUrl = encProperties.getEgovEncHost();
+            }
             ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-                    encProperties.getEgovEncHost() + encProperties.getEgovEncDecryptPath(), ciphertext, JsonNode.class);
+                    encServiceUrl + encProperties.getEgovEncDecryptPath(), ciphertext, JsonNode.class);
             return response.getBody();
         } catch (Exception e) {
             throw new CustomException(ErrorConstants.ENCRYPTION_SERVICE_ERROR, ErrorConstants.ENCRYPTION_SERVICE_ERROR_MESSAGE);

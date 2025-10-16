@@ -34,4 +34,13 @@ public class EncProperties {
     
     @Value("${egov.enc.decrypt.endpoint}")
     private String egovEncDecryptPath;
+
+    @Value("${enc.separate.tenants}")
+    private String encSeparateTenants;
+
+    @Value("${enc.separate.tenants.namespace}")
+    private String encSeparateTenantsNamespace;
+
+    @Value("${enc.service.url.pattern}")
+    private String encServiceUrlPattern;
 }

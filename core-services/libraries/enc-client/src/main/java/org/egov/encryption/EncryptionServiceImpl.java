@@ -88,7 +88,8 @@ public class EncryptionServiceImpl implements EncryptionService {
 
     private JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson,
                                  Map<Attribute, Visibility> attributesVisibilityMap,
-                                 String model, String purpose, UniqueIdentifier uniqueIdentifier) throws IOException {
+                                 String model, String purpose, UniqueIdentifier uniqueIdentifier,
+                                 String tenantId) throws IOException {
         JsonNode ciphertextNode = createJsonNode(ciphertextJson);
         JsonNode decryptNode = ciphertextNode.deepCopy();
 
@@ -116,7 +117,7 @@ public class EncryptionServiceImpl implements EncryptionService {
         JsonNode jsonNode = JacksonUtils.filterJsonNodeForPaths(ciphertextNode, pathsToBeDecrypted);
 
         if (!jsonNode.isEmpty(objectMapper.getSerializerProvider())) {
-            JsonNode returnedDecryptedNode = encryptionServiceRestConnection.callDecrypt(jsonNode);
+            JsonNode returnedDecryptedNode = encryptionServiceRestConnection.callDecrypt(jsonNode, tenantId);
             decryptNode = JacksonUtils.merge(returnedDecryptedNode, decryptNode);
         }
 
@@ -132,19 +133,19 @@ public class EncryptionServiceImpl implements EncryptionService {
     }
 
     @Override
-    public JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose) throws IOException {
+    public JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose, String tenantId) throws IOException {
         List<String> roles = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
         Map<Attribute, Visibility> attributesVisibilityMap = decryptionPolicyConfiguration.getRoleAttributeAccessListForModel(requestInfo, model, roles);
 
         UniqueIdentifier uniqueIdentifier = decryptionPolicyConfiguration.getSecurityPolicyUniqueIdentifier(model);
-        JsonNode decryptedNode = decryptJson(requestInfo, ciphertextJson, attributesVisibilityMap, model, purpose, uniqueIdentifier);
+        JsonNode decryptedNode = decryptJson(requestInfo, ciphertextJson, attributesVisibilityMap, model, purpose, uniqueIdentifier, tenantId);
 
         return decryptedNode;
     }
 
     public <E, P> P decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose
-            , Class<E> valueType) throws IOException {
-        return ConvertClass.convertTo(decryptJson(requestInfo, ciphertextJson, model, purpose), valueType);
+            , Class<E> valueType, String tenantId) throws IOException {
+        return ConvertClass.convertTo(decryptJson(requestInfo, ciphertextJson, model, purpose, tenantId), valueType);
     }
 
 
