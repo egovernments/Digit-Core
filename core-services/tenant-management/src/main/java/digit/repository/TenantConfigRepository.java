@@ -13,4 +13,8 @@ public interface TenantConfigRepository {
     public void update(TenantConfigRequest tenantConfigRequest);
 
     List<TenantConfig> search(TenantConfigSearchCriteria searchCriteria);
+
+    void updateLastLoginTime(String code, Long loginTime);
+
+    List<TenantConfig> findLeastActiveAccounts(Integer limit, Long inactiveSinceTimestamp, Integer inactiveSinceDays);
 }

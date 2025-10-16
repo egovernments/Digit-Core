@@ -97,4 +97,15 @@ public class TenantApiController {
         return new ResponseEntity<TenantResponse>(tenantResponse, HttpStatus.ACCEPTED);
     }
 
+  @RequestMapping(value = "/tenant/config/_inactive", method = RequestMethod.POST)
+  public ResponseEntity<TenantConfigResponse> tenantConfigInactivePost(
+      @Valid @RequestBody RequestInfo requestInfo,
+      @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit,
+      @RequestParam(value = "inactiveSinceTimestamp", required = false) Long inactiveSinceTimestamp,
+      @RequestParam(value = "inactiveSinceDays", required = false) Integer inactiveSinceDays) {
+    TenantConfigResponse tenantConfigResponse = tenantConfigService.findLeastActiveAccounts(
+        limit, inactiveSinceTimestamp, inactiveSinceDays, requestInfo);
+    return new ResponseEntity<>(tenantConfigResponse, HttpStatus.OK);
+  }
+
 }

@@ -45,7 +45,8 @@ public class TenantConfigRowMapper implements RowMapper<TenantConfig> {
             tenantConfig.setIsActive(rs.getBoolean("isActive"));
             tenantConfig.setName(rs.getString("name"));
             tenantConfig.setOtpLength(rs.getString("otpLength"));
-            String languagesJson = rs.getString("languages");
+            tenantConfig.setLastLoginTime(rs.getLong("lastLoginTime"));
+          String languagesJson = rs.getString("languages");
             if (languagesJson != null && !languagesJson.isEmpty()) {
                 tenantConfig.setLanguages(new ObjectMapper().readValue(languagesJson, new TypeReference<List<String>>() {
                 }));

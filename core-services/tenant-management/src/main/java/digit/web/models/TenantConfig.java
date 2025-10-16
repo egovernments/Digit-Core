@@ -57,6 +57,9 @@ public class TenantConfig {
     @JsonProperty("languages")
     private List<String> languages = null;
 
+    @JsonProperty("lastLoginTime")
+    private Long lastLoginTime = null;
+
     @JsonProperty("auditDetails")
     @Valid
     private AuditDetails auditDetails = null;
