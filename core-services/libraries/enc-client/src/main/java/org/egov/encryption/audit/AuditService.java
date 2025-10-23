@@ -6,6 +6,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.encryption.config.DecryptionPolicyConfiguration;
 import org.egov.encryption.config.EncProperties;
+import org.egov.encryption.config.EncTenantSpecificProperties;
 import org.egov.encryption.models.AuditObject;
 import org.egov.encryption.models.UniqueIdentifier;
 import org.egov.encryption.producer.Producer;
@@ -24,11 +25,13 @@ public class AuditService {
     @Autowired
     private EncProperties encProperties;
     @Autowired
+    private EncTenantSpecificProperties encTenantSpecificProperties;
+    @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private DecryptionPolicyConfiguration decryptionPolicyConfiguration;
 
-    public void audit(JsonNode json, String model, String purpose, RequestInfo requestInfo) {
+    public void audit(JsonNode json, String tenantId, String model, String purpose, RequestInfo requestInfo) {
         User user = requestInfo.getUserInfo();
 
         AuditObject auditObject = AuditObject.builder().build();
@@ -43,7 +46,7 @@ public class AuditService {
         }
 
         UniqueIdentifier uniqueIdentifier =
-                decryptionPolicyConfiguration.getUniqueIdentifierForModel(model);
+                decryptionPolicyConfiguration.getUniqueIdentifierForModel(tenantId, model);
         List<String> entityIds = new ArrayList<>();
         for (JsonNode node : json) {
             String nodeUuid = node.at(uniqueIdentifier.getJsonPath()).asText();
@@ -51,7 +54,9 @@ public class AuditService {
         }
         auditObject.setEntityIds(entityIds);
 
-        producer.push(encProperties.getAuditTopicName(), auditObject.getId(), auditObject);
+        String auditTopicName = encTenantSpecificProperties.getAuditTopicName(tenantId, encProperties.getAuditTopicName());
+
+        producer.push(auditTopicName, auditObject.getId(), auditObject);
     }
 
 }

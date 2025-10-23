@@ -6,6 +6,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.encryption.config.EncClientConstants;
 import org.egov.encryption.config.EncProperties;
+import org.egov.encryption.config.EncTenantSpecificProperties;
 import org.egov.encryption.config.ErrorConstants;
 import org.egov.mdms.model.*;
 import org.egov.tracer.model.CustomException;
@@ -23,6 +24,8 @@ public class MdmsFetcher {
     @Autowired
     private EncProperties encProperties;
     @Autowired
+    private EncTenantSpecificProperties encTenantSpecificProperties;
+    @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
@@ -30,31 +33,34 @@ public class MdmsFetcher {
 
     public static final String TENANTID_MDC_STRING = "TENANTID";
 
-    public JSONArray getSecurityMdmsForFilter(String filter) {
-        return getMdmsForFilter(filter, EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME);
+    public JSONArray getSecurityMdmsForFilter(String tenantId, String filter) {
+        return getMdmsForFilter(tenantId, filter, EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME);
     }
 
-    public JSONArray getMaskingMdmsForFilter(String filter) {
-        return getMdmsForFilter(filter, EncClientConstants.MDMS_MASKING_PATTERN_MASTER_NAME);
+    public JSONArray getMaskingMdmsForFilter(String tenantId, String filter) {
+        return getMdmsForFilter(tenantId, filter, EncClientConstants.MDMS_MASKING_PATTERN_MASTER_NAME);
     }
 
-    public JSONArray getMdmsForFilter(String filter, String masterName) {
+    public JSONArray getMdmsForFilter(String tenantId, String filter, String masterName) {
         MasterDetail masterDetail = MasterDetail.builder().name(masterName)
                 .filter(filter).build();
         ModuleDetail moduleDetail = ModuleDetail.builder().moduleName(EncClientConstants.MDMS_MODULE_NAME)
                 .masterDetails(Arrays.asList(masterDetail)).build();
-        MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(encProperties.getStateLevelTenantId())
+        MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(tenantId)
                 .moduleDetails(Arrays.asList(moduleDetail)).build();
 
         MdmsCriteriaReq mdmsCriteriaReq = MdmsCriteriaReq.builder().requestInfo(RequestInfo.builder().build())
                 .mdmsCriteria(mdmsCriteria).build();
         if(multiStateInstanceUtil.getIsEnvironmentCentralInstance()){
-            MDC.put(TENANTID_MDC_STRING, encProperties.getStateLevelTenantId());
+            MDC.put(TENANTID_MDC_STRING, tenantId);
         }
+
+        String mdmsHost = encTenantSpecificProperties.getMdmsHost(tenantId, encProperties.getEgovMdmsHost());
+        String mdmsSearchEndpoint = encTenantSpecificProperties.getMdmsSearchEndpoint(tenantId, encProperties.getEgovMdmsSearchEndpoint());
 
         try {
             ResponseEntity<MdmsResponse> response =
-                    restTemplate.postForEntity(encProperties.getEgovMdmsHost() + encProperties.getEgovMdmsSearchEndpoint(),
+                    restTemplate.postForEntity(mdmsHost + mdmsSearchEndpoint,
                             mdmsCriteriaReq, MdmsResponse.class);
             return response.getBody().getMdmsRes().get(EncClientConstants.MDMS_MODULE_NAME)
                     .get(masterName);

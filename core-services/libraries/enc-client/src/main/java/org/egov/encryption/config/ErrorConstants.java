@@ -5,6 +5,10 @@ public class ErrorConstants {
     public static final String MDMS_FETCH_ERROR = "MDMS_FETCH_ERROR";
     public static final String MDMS_FETCH_ERROR_MESSAGE = "Error occurred while fetching MDMS Configs";
 
+    public static final String ENCRYPTION_SERVICE_HOST_ERROR = "ENCRYPTION_SERVICE_HOST_ERROR";
+    public static final String ENCRYPTION_SERVICE_HOST_ERROR_MESSAGE
+            = "Empty host for Encryption Service";
+
     public static final String ENCRYPTION_SERVICE_ERROR = "ENCRYPTION_SERVICE_ERROR";
     public static final String ENCRYPTION_SERVICE_ERROR_MESSAGE
             = "Error occurred while calling Encryption Service";

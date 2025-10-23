@@ -17,6 +17,7 @@ import org.egov.encryption.util.MdmsFetcher;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
@@ -39,10 +40,14 @@ public class MaskingService {
     @PostConstruct
     private void initMaskingPatternMap() {
         try {
-            JSONArray maskingPatternListJSON = mdmsFetcher.getMaskingMdmsForFilter(null);
-            for (int i = 0; i < maskingPatternListJSON.size(); i++) {
-                Map<String, String> obj = objectMapper.convertValue(maskingPatternListJSON.get(i), Map.class);
-                maskingPatternMap.put(obj.get("patternId"), obj.get("pattern"));
+            if(!CollectionUtils.isEmpty(encProperties.getStateLevelTenantIds())) {
+                for (String tenantId : encProperties.getStateLevelTenantIds()) {
+                    JSONArray maskingPatternListJSON = mdmsFetcher.getMaskingMdmsForFilter(tenantId, null);
+                    for (Object maskingPattern : maskingPatternListJSON) {
+                        Map<String, String> obj = objectMapper.convertValue(maskingPattern, Map.class);
+                        maskingPatternMap.put(maskingPatternKey(tenantId, obj.get("patternId")), obj.get("pattern"));
+                    }
+                }
             }
         } catch (Exception e) {
             log.error(ErrorConstants.MASKING_PATTER_READING_ERROR_MESSAGE, e);
@@ -50,21 +55,21 @@ public class MaskingService {
         }
     }
 
-    public <T> T maskData(T data, Attribute attribute) {
+    public <T> T maskData(String tenantId, T data, Attribute attribute) {
         String value = String.valueOf(data);
         String patternId = attribute.getPatternId();
-        String maskingRegex = maskingPatternMap.get(patternId);
+        String maskingRegex = maskingPatternMap.get(maskingPatternKey(tenantId, patternId));
         value = value.replaceAll(maskingRegex, "*");
 
         return (T) value;
     }
 
-    public JsonNode maskData(JsonNode decryptedNode, List<Attribute> attributes, UniqueIdentifier uniqueIdentifier, RequestInfo requestInfo) {
+    public JsonNode maskData(String tenantId, JsonNode decryptedNode, List<Attribute> attributes, UniqueIdentifier uniqueIdentifier, RequestInfo requestInfo) {
         JsonNode maskedNode = decryptedNode.deepCopy();
         for (Attribute attribute : attributes) {
             JsonNode jsonNode = JacksonUtils.filterJsonNodeForPaths(maskedNode,
                     JsonPathConverter.convertToArrayJsonPaths(Arrays.asList(attribute.getJsonPath())));
-            jsonNode = JSONBrowseUtil.mapValues(jsonNode, value -> maskData(value, attribute));
+            jsonNode = JSONBrowseUtil.mapValues(jsonNode, value -> maskData(tenantId, value, attribute));
             maskedNode = JacksonUtils.merge(jsonNode, maskedNode);
         }
         if (requestInfo.getPlainAccessRequest() != null && requestInfo.getPlainAccessRequest().getRecordId() != null) {
@@ -104,6 +109,10 @@ public class MaskingService {
         }
         plainNode = JacksonUtils.filterJsonNodeForPaths(plainNode, plainPaths);
         return plainNode;
+    }
+
+    private String maskingPatternKey(String tenantId, String patternId) {
+        return tenantId + "_" + patternId;
     }
 
 }
