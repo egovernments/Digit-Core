@@ -3,6 +3,7 @@ package org.egov.encryption;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.encryption.config.EncTenantSpecificProperties;
 import org.egov.encryption.config.EncProperties;
 import org.egov.encryption.config.ErrorConstants;
 import org.egov.encryption.web.contract.EncReqObject;
@@ -24,6 +25,8 @@ class EncryptionServiceRestConnection {
     @Autowired
     private EncProperties encProperties;
     @Autowired
+    private EncTenantSpecificProperties encTenantSpecificProperties;
+    @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private ObjectMapper objectMapper;
@@ -34,8 +37,12 @@ class EncryptionServiceRestConnection {
         EncryptionRequest encryptionRequest = new EncryptionRequest();
         encryptionRequest.setEncryptionRequests(new ArrayList<>(Collections.singleton(encReqObject)));
 
+        String encryptionHost = encTenantSpecificProperties.getHost(tenantId, encProperties.getEgovEncHost());
+        String encryptEndpoint = encTenantSpecificProperties.getEncryptEndpoint(tenantId, encProperties.getEgovEncEncryptPath());
+        log.info("Using encryption host for tenantId: {} is {} with endpoint {}", tenantId, encryptionHost, encryptEndpoint);
+
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(encProperties.getEgovEncHost() + encProperties.getEgovEncEncryptPath(),
+            ResponseEntity<String> response = restTemplate.postForEntity(encryptionHost + encryptEndpoint,
                     encryptionRequest, String.class);
             return objectMapper.readTree(response.getBody()).get(0);
         } catch (Exception e) {
@@ -44,10 +51,13 @@ class EncryptionServiceRestConnection {
         }
     }
 
-    JsonNode callDecrypt(Object ciphertext) {
+    JsonNode callDecrypt(String tenantId, Object ciphertext) {
+        String encryptionHost = encTenantSpecificProperties.getHost(tenantId, encProperties.getEgovEncHost());
+        String decryptEndpoint = encTenantSpecificProperties.getDecryptEndpoint(tenantId, encProperties.getEgovEncDecryptPath());
+        log.info("Using encryption host for tenantId: {} is {} with endpoint {}", tenantId, encryptionHost, decryptEndpoint);
         try {
             ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-                    encProperties.getEgovEncHost() + encProperties.getEgovEncDecryptPath(), ciphertext, JsonNode.class);
+                    encryptionHost + decryptEndpoint, ciphertext, JsonNode.class);
             return response.getBody();
         } catch (Exception e) {
             throw new CustomException(ErrorConstants.ENCRYPTION_SERVICE_ERROR, ErrorConstants.ENCRYPTION_SERVICE_ERROR_MESSAGE);

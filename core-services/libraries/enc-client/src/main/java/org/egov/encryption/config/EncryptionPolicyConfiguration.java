@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import java.util.stream.Collectors;
 public class EncryptionPolicyConfiguration {
 
     @Autowired
+    private EncProperties encProperties;
+    @Autowired
     private MdmsFetcher mdmsFetcher;
     @Autowired
     private ObjectMapper objectMapper;
@@ -32,25 +35,33 @@ public class EncryptionPolicyConfiguration {
     @PostConstruct
     void initializeEncryptionPolicyAttributesMapFromMdms() throws JsonProcessingException {
         try {
-            JSONArray attributesDetailsJSON = mdmsFetcher.getSecurityMdmsForFilter(null);
-            ObjectReader reader = objectMapper.readerFor(objectMapper.getTypeFactory().constructCollectionType(List.class,
-                    SecurityPolicy.class));
-            List<SecurityPolicy> securityPolicies = reader.readValue(attributesDetailsJSON.toString());
-            encryptionPolicyAttributesMap = securityPolicies.stream()
-                    .collect(Collectors.toMap(SecurityPolicy::getModel, SecurityPolicy::getAttributes));
+            if(!CollectionUtils.isEmpty(encProperties.getStateLevelTenantIds())) {
+                for(String tenantId : encProperties.getStateLevelTenantIds()) {
+                    JSONArray attributesDetailsJSON = mdmsFetcher.getSecurityMdmsForFilter(tenantId,null);
+                    ObjectReader reader = objectMapper.readerFor(objectMapper.getTypeFactory().constructCollectionType(List.class,
+                            SecurityPolicy.class));
+                    List<SecurityPolicy> securityPolicies = reader.readValue(attributesDetailsJSON.toString());
+                    encryptionPolicyAttributesMap = securityPolicies.stream()
+                            .collect(Collectors.toMap(securityPolicy -> tenantModelKey(tenantId, securityPolicy.getModel()), SecurityPolicy::getAttributes));
+                }
+            }
         } catch (IOException e) {
             log.error(ErrorConstants.SECURITY_POLICY_READING_ERROR_MESSAGE, e);
             throw new CustomException(ErrorConstants.SECURITY_POLICY_READING_ERROR, ErrorConstants.SECURITY_POLICY_READING_ERROR_MESSAGE);
         }
     }
 
-    public List<Attribute> getAttributeDetailsForModel(String modelName) {
+    public List<Attribute> getAttributeDetailsForModel(String tenantId, String modelName) {
         try {
-            return encryptionPolicyAttributesMap.get(modelName);
+            return encryptionPolicyAttributesMap.get(tenantModelKey(tenantId, modelName));
         } catch (Exception e) {
             throw new CustomException("DECRYPTION_ERROR", "Error in retrieving MDMS data");
         }
 
+    }
+
+    private String tenantModelKey(String tenantId, String model) {
+        return tenantId + "_" + model;
     }
 
 }

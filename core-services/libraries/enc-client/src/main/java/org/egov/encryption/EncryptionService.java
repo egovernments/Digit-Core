@@ -12,10 +12,10 @@ public interface EncryptionService {
 
     public <E, P> P encryptJson(Object plaintextJson, String model, String tenantId, Class<E> valueType) throws IOException;
 
-    public JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model,
+    public JsonNode decryptJson(RequestInfo requestInfo, String tenantId, Object ciphertextJson, String model,
                                 String purpose) throws IOException;
 
-    public <E, P> P decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose,
+    public <E, P> P decryptJson(RequestInfo requestInfo, String tenantId,Object ciphertextJson, String model, String purpose,
                                 Class<E> valueType) throws IOException;
 
     public String encryptValue(Object plaintext, String tenantId) throws IOException;
