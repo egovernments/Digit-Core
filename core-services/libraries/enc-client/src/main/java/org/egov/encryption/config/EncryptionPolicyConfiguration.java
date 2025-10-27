@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 import org.springframework.util.CollectionUtils;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ public class EncryptionPolicyConfiguration {
 
     @PostConstruct
     void initializeEncryptionPolicyAttributesMapFromMdms() throws JsonProcessingException {
+        encryptionPolicyAttributesMap = new HashMap<>();
         try {
             if(!CollectionUtils.isEmpty(encProperties.getStateLevelTenantIds())) {
                 for(String tenantId : encProperties.getStateLevelTenantIds()) {
@@ -41,8 +43,8 @@ public class EncryptionPolicyConfiguration {
                     ObjectReader reader = objectMapper.readerFor(objectMapper.getTypeFactory().constructCollectionType(List.class,
                             SecurityPolicy.class));
                     List<SecurityPolicy> securityPolicies = reader.readValue(attributesDetailsJSON.toString());
-                    encryptionPolicyAttributesMap = securityPolicies.stream()
-                            .collect(Collectors.toMap(securityPolicy -> tenantModelKey(tenantId, securityPolicy.getModel()), SecurityPolicy::getAttributes));
+                    encryptionPolicyAttributesMap.putAll(securityPolicies.stream()
+                            .collect(Collectors.toMap(securityPolicy -> tenantModelKey(tenantId, securityPolicy.getModel()), SecurityPolicy::getAttributes)));
                 }
             }
         } catch (IOException e) {
