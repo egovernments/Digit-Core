@@ -11,6 +11,7 @@ import org.egov.common.contract.request.User;
 import org.egov.encryption.EncryptionService;
 import org.egov.encryption.audit.AuditService;
 import org.egov.tracer.model.CustomException;
+import org.egov.user.config.TenantProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,12 +29,14 @@ public class EncryptionDecryptionUtil {
     private EncryptionService encryptionService;
     @Autowired
     private AuditService auditService;
+    @Autowired
+    private TenantProperties  tenantProperties;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Value(("${state.level.tenant.id}"))
-    private String stateLevelTenantId;
+    private String stateLevelTenantIdDefault;
 
     @Value(("${decryption.abac.enabled}"))
     private boolean abacEnabled;
@@ -42,11 +45,12 @@ public class EncryptionDecryptionUtil {
         this.encryptionService = encryptionService;
     }
 
-    public <T> T encryptObject(Object objectToEncrypt, String key, Class<T> classType) {
+    public <T> T encryptObject(String tenantId, Object objectToEncrypt, String key, Class<T> classType) {
         try {
             if (objectToEncrypt == null) {
                 return null;
             }
+            String stateLevelTenantId = tenantProperties.getStateLevelTenant(tenantId, stateLevelTenantIdDefault);
             T encryptedObject = encryptionService.encryptJson(objectToEncrypt, key, stateLevelTenantId, classType);
             if (encryptedObject == null) {
                 throw new CustomException("ENCRYPTION_NULL_ERROR", "Null object found on performing encryption");
@@ -61,7 +65,7 @@ public class EncryptionDecryptionUtil {
         }
     }
 
-    public <E, P> P decryptObject(Object objectToDecrypt, String key, Class<E> classType, RequestInfo requestInfo) {
+    public <E, P> P decryptObject(String tenantId, Object objectToDecrypt, String key, Class<E> classType, RequestInfo requestInfo) {
 
         try {
             boolean objectToDecryptNotList = false;
@@ -84,7 +88,9 @@ public class EncryptionDecryptionUtil {
             if(key == null)
                 key = keyPurposeMap.get("key");
 
-            P decryptedObject = (P) encryptionService.decryptJson(requestInfo,objectToDecrypt, key, purpose, classType);
+            String stateLevelTenantId = tenantProperties.getStateLevelTenant(tenantId, stateLevelTenantIdDefault);
+
+            P decryptedObject = (P) encryptionService.decryptJson(requestInfo, stateLevelTenantId, objectToDecrypt, key, purpose, classType);
             if (decryptedObject == null) {
                 throw new CustomException("DECRYPTION_NULL_ERROR", "Null object found on performing decryption");
             }

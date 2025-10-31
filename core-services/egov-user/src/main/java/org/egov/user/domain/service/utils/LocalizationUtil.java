@@ -25,8 +25,6 @@ public class LocalizationUtil {
     private String localizationServiceHost;
     @Value("${egov.localization.search.endpoint}")
     private String localizationServiceSearchPath;
-    @Value("${state.level.tenant.id}")
-    private String tenantId;
     @Value("${egov.localization.module}")
     private String module;
     @Value("${egov.localization.default.locale}")
@@ -34,10 +32,10 @@ public class LocalizationUtil {
     @Autowired
     private RestTemplate restTemplate;
 
-    public String getLocalizedMessage(String code, String locale, RequestInfo requestInfo) {
+    public String getLocalizedMessage(String tenantId, String code, String locale, RequestInfo requestInfo) {
         if(locale == null)
             locale = defaultLocale;
-        String uri = getUri(locale);
+        String uri = getUri(tenantId, locale);
         Object responseobj = restTemplate.postForObject(uri, requestInfo, Map.class);
         Object object = JsonPath.read(responseobj,
                 "$.messages[?(@.code==\"" + code + "\")].message");
@@ -50,7 +48,7 @@ public class LocalizationUtil {
         return message;
     }
 
-    String getUri(String locale) {
+    String getUri(String tenantId, String locale) {
         return localizationServiceHost + localizationServiceSearchPath + "?locale=" + locale + "&tenantId=" + tenantId + "&module=" + module;
     }
 
