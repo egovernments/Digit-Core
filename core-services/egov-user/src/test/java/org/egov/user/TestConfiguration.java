@@ -24,10 +24,10 @@ public class TestConfiguration {
     public MdmsFetcher mdmsFetcher() {
         MdmsFetcher mock = mock(MdmsFetcher.class);
 
-        when(mock.getSecurityMdmsForFilter(anyString()))
+        when(mock.getSecurityMdmsForFilter(anyString(), anyString()))
                 .thenReturn(Resources.getFileJSONArrayContents("getSecurityMdmsForFilterResponse.json"));
 
-        when(mock.getMaskingMdmsForFilter(anyString()))
+        when(mock.getMaskingMdmsForFilter(anyString(), anyString()))
                 .thenReturn(Resources.getFileJSONArrayContents("getMaskingMdmsForFilterResponse.json"));
 
         return mock;

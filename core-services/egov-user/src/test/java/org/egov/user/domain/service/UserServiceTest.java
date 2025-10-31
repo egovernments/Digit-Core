@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -99,8 +100,9 @@ public class UserServiceTest {
         UserSearchCriteria userSearch = mock(UserSearchCriteria.class);
         List<org.egov.user.domain.model.User> expectedListOfUsers = new ArrayList<org.egov.user.domain.model.User>();
         when(userRepository.findAll(userSearch)).thenReturn(expectedListOfUsers);
-        when(encryptionDecryptionUtil.encryptObject(userSearch, "User", UserSearchCriteria.class)).thenReturn(userSearch);
-        when(encryptionDecryptionUtil.decryptObject(expectedListOfUsers, null, User.class, getValidRequestInfo())).thenReturn(expectedListOfUsers);
+        when(userSearch.getTenantId()).thenReturn(TENANT_ID);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, userSearch, "User", UserSearchCriteria.class)).thenReturn(userSearch);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, expectedListOfUsers, null, User.class, getValidRequestInfo())).thenReturn(expectedListOfUsers);
         List<org.egov.user.domain.model.User> actualResult = userService.searchUsers(userSearch, true, getValidRequestInfo());
 
         assertThat(expectedListOfUsers).isEqualTo(actualResult);
@@ -110,8 +112,9 @@ public class UserServiceTest {
     public void test_should_validate_search_critieria() {
         UserSearchCriteria userSearch = mock(UserSearchCriteria.class);
         List<org.egov.user.domain.model.User> expectedListOfUsers = new ArrayList<org.egov.user.domain.model.User>();
+        when(userSearch.getTenantId()).thenReturn(TENANT_ID);
         when(userRepository.findAll(userSearch)).thenReturn(expectedListOfUsers);
-        when(encryptionDecryptionUtil.decryptObject(expectedListOfUsers, null, User.class, getValidRequestInfo())).thenReturn(expectedListOfUsers);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, expectedListOfUsers, null, User.class, getValidRequestInfo())).thenReturn(expectedListOfUsers);
         userService.searchUsers(userSearch, true, getValidRequestInfo());
 
         verify(userSearch).validate(true);
@@ -124,8 +127,8 @@ public class UserServiceTest {
         final User expectedEntityUser = User.builder().build();
         when(userRepository.create(domainUser)).thenReturn(expectedEntityUser);
 
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        when(encryptionDecryptionUtil.decryptObject(expectedEntityUser, "UserSelf", User.class,
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, expectedEntityUser, "UserSelf", User.class,
                 getValidRequestInfo())).thenReturn(expectedEntityUser);
         User returnedUser = userService.createUser(domainUser, getValidRequestInfo());
 
@@ -136,10 +139,12 @@ public class UserServiceTest {
     public void test_should_set_pre_defined_expiry_on_creating_user() {
         org.egov.user.domain.model.User domainUser = mock(User.class);
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
-        final User expectedEntityUser = User.builder().build();
+        final User expectedEntityUser = User.builder().tenantId(TENANT_ID).build();
+        when(domainUser.getTenantId()).thenReturn(TENANT_ID);
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID,UserType.CITIZEN)).thenReturn(TENANT_ID);
         when(userRepository.create(domainUser)).thenReturn(expectedEntityUser);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        userService.createUser(domainUser, any());
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
+        userService.createUser(domainUser, new RequestInfo());
 
         verify(domainUser).setDefaultPasswordExpiry(DEFAULT_PASSWORD_EXPIRY_IN_DAYS);
     }
@@ -150,11 +155,11 @@ public class UserServiceTest {
         when((domainUser.getOtpValidationRequest())).thenReturn(getExpectedRequest());
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
         final User expectedUser = User.builder().build();
-        when(domainUser.getTenantId()).thenReturn("default");
+        when(domainUser.getTenantId()).thenReturn(TENANT_ID);
         when(domainUser.getPassword()).thenReturn("P@assw0rd");
         when(userRepository.create(domainUser)).thenReturn(expectedUser);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        when(encryptionDecryptionUtil.decryptObject(expectedUser, "UserSelf", User.class, getValidRequestInfo())).thenReturn(expectedUser);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, expectedUser, "UserSelf", User.class, getValidRequestInfo())).thenReturn(expectedUser);
         User returnedUser = userService.createCitizen(domainUser, getValidRequestInfo());
 
         assertEquals(expectedUser, returnedUser);
@@ -198,15 +203,15 @@ public class UserServiceTest {
     @Test
     public void test_should_set_pre_defined_expiry_on_creating_citizen() {
         org.egov.user.domain.model.User domainUser = mock(User.class);
-        when(domainUser.getTenantId()).thenReturn("default");
+        when(domainUser.getTenantId()).thenReturn(TENANT_ID);
         when(domainUser.getPassword()).thenReturn("P@assw0rd");
         when((domainUser.getOtpValidationRequest())).thenReturn(getExpectedRequest());
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
         final User expectedUser = User.builder().build();
         when(userRepository.create(domainUser)).thenReturn(expectedUser);
-
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        when(encryptionDecryptionUtil.decryptObject(expectedUser, "User", User.class, getValidRequestInfo())).thenReturn(expectedUser);
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.SYSTEM)).thenReturn(TENANT_ID);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, expectedUser, "User", User.class, getValidRequestInfo())).thenReturn(expectedUser);
         userService.createCitizen(domainUser, getValidRequestInfo());
 
         verify(domainUser).setDefaultPasswordExpiry(DEFAULT_PASSWORD_EXPIRY_IN_DAYS);
@@ -215,13 +220,14 @@ public class UserServiceTest {
     @Test
     public void test_should_set_role_to_citizen_when_creating_a_citizen() {
         org.egov.user.domain.model.User domainUser = mock(User.class);
-        when(domainUser.getTenantId()).thenReturn("default");
+        when(domainUser.getTenantId()).thenReturn(TENANT_ID);
         when(domainUser.getPassword()).thenReturn("P@assw0rd");
         when(domainUser.getOtpValidationRequest()).thenReturn(getExpectedRequest());
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
         final User expectedEntityUser = User.builder().build();
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.CITIZEN)).thenReturn(TENANT_ID);
         when(userRepository.create(domainUser)).thenReturn(expectedEntityUser);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
         userService.createCitizen(domainUser, getValidRequestInfo());
 
         verify(domainUser).setRoleToCitizen();
@@ -231,9 +237,9 @@ public class UserServiceTest {
     public void test_should_raise_exception_when_duplicate_user_name_exists() throws Exception {
         org.egov.user.domain.model.User domainUser = validDomainUser(false);
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
-        when(userRepository.isUserPresent("supandi_rocks", "tenantId", UserType.CITIZEN)).thenReturn(true);
-        when(userUtils.getStateLevelTenantForCitizen("tenantId", UserType.CITIZEN)).thenReturn("tenantId");
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(userRepository.isUserPresent("supandi_rocks", TENANT_ID, UserType.CITIZEN)).thenReturn(true);
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.CITIZEN)).thenReturn(TENANT_ID);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
         userService.createUser(domainUser, getValidRequestInfo());
     }
 
@@ -250,7 +256,7 @@ public class UserServiceTest {
     public void test_otp_is_not_validated_when_validation_flag_is_false() throws Exception {
         org.egov.user.domain.model.User domainUser = validDomainUser(false);
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(false);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
         userService.createUser(domainUser, getValidRequestInfo());
 
         verify(otpRepository, never()).isOtpValidationComplete(getExpectedRequest());
@@ -282,14 +288,15 @@ public class UserServiceTest {
 
     @Test(expected = AtleastOneRoleCodeException.class)
     public void test_should_validate_user_on_update() {
-        org.egov.user.domain.model.User domainUser = User.builder().uuid("xyz").build();
-        User user = User.builder().build();
+        org.egov.user.domain.model.User domainUser = User.builder().uuid("xyz").tenantId(TENANT_ID).build();
+        User user = User.builder().tenantId(TENANT_ID).build();
         Mockito.doNothing().when(userRepository).update(any(org.egov.user.domain.model.User.class), any(org.egov.user
                 .domain
                 .model.User
                 .class),any(Long.class) , any(String.class));
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(user));
-        userService.updateWithoutOtpValidation(domainUser, any());
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID,  UserType.CITIZEN)).thenReturn(TENANT_ID);
+        userService.updateWithoutOtpValidation(domainUser, new RequestInfo());
         verify(domainUser).validateUserModification();
     }
 
@@ -312,8 +319,9 @@ public class UserServiceTest {
 
     @Test(expected = UserNotFoundException.class)
     public void test_should_throw_exception_on_partial_update_when_id_is_not_present() {
-        final User user = User.builder().uuid(null).build();
-        when(encryptionDecryptionUtil.encryptObject(user, "User", User.class)).thenReturn(user);
+        final User user = User.builder().uuid(null).tenantId(TENANT_ID).build();
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, null)).thenReturn(TENANT_ID);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, user, "User", User.class)).thenReturn(user);
         userService.partialUpdate(user, getValidRequestInfo());
     }
 
@@ -343,11 +351,12 @@ public class UserServiceTest {
     public void test_should_throw_exception_when_logged_in_user_is_different_from_user_being_updated() {
         final User user = User.builder().id(12L).username("xyz").uuid("zyz").type(UserType.CITIZEN).loggedInUserId(11L)
                 .tenantId
-                        ("default").build();
-        when(encryptionDecryptionUtil.encryptObject(user, "User", User.class)).thenReturn(user);
+                        (TENANT_ID).build();
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID,  UserType.CITIZEN)).thenReturn(TENANT_ID);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, user, "User", User.class)).thenReturn(user);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(user));
-        when(encryptionDecryptionUtil.encryptObject(user, "User", User.class)).thenReturn(user);
-        when(encryptionDecryptionUtil.decryptObject(user, "User", User.class, getValidRequestInfo())).thenReturn(user);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, user, "User", User.class)).thenReturn(user);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, user, "User", User.class, getValidRequestInfo())).thenReturn(user);
         userService.partialUpdate(user, getValidRequestInfo());
     }
 
@@ -455,16 +464,17 @@ public class UserServiceTest {
     public void test_should_validate_request_when_updating_password_for_non_logged_in_user() {
         final NonLoggedInUserUpdatePasswordRequest request = NonLoggedInUserUpdatePasswordRequest.builder()
                 .userName("xyz")
-                .tenantId("default")
+                .tenantId(TENANT_ID)
                 .type(UserType.SYSTEM)
                 .newPassword("P@ssw0rd")
                 .otpReference("123456")
                 .build();
         when(otpRepository.isOtpValidationComplete(any())).thenReturn(true);
-        final User domainUser = User.builder().type(UserType.SYSTEM).id(1L).uuid("uuid").build();
+        final User domainUser = User.builder().type(UserType.SYSTEM).id(1L).uuid("uuid").tenantId(TENANT_ID).build();
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        when(encryptionDecryptionUtil.decryptObject(domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.SYSTEM)).thenReturn(TENANT_ID);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
         userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo());
 
     }
@@ -482,7 +492,7 @@ public class UserServiceTest {
     public void test_should_update_existing_password_for_non_logged_in_user() throws Exception {
         final NonLoggedInUserUpdatePasswordRequest request = NonLoggedInUserUpdatePasswordRequest.builder()
                 .userName("xyz")
-                .tenantId("default")
+                .tenantId(TENANT_ID)
                 .type(UserType.SYSTEM)
                 .otpReference("123456")
                 .newPassword("P@ssw0rd")
@@ -491,10 +501,12 @@ public class UserServiceTest {
         final User domainUser = mock(User.class);
         when(domainUser.getPassword()).thenReturn("P@ssw0rd");
         when(domainUser.getType()).thenReturn(UserType.SYSTEM);
+        when(domainUser.getTenantId()).thenReturn(TENANT_ID);
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.SYSTEM)).thenReturn(TENANT_ID);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
-        when(encryptionDecryptionUtil.decryptObject(domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
         when(userService.encryptPwd(anyString())).thenReturn("P@ssw0rd");
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
         userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo());
 
         verify(domainUser).updatePassword("P@ssw0rd");
@@ -586,17 +598,18 @@ public class UserServiceTest {
     @Test
     public void test_should_persist_changes_on_updating_password_for_non_logged_in_user() {
         final NonLoggedInUserUpdatePasswordRequest request = NonLoggedInUserUpdatePasswordRequest.builder()
-                .userName("mobileNumber").tenantId("tenant").type(UserType.CITIZEN).otpReference("otpReference")
+                .userName("mobileNumber").tenantId(TENANT_ID).type(UserType.CITIZEN).otpReference("otpReference")
                 .newPassword
                         ("nEwP@ssw0rd")
                 .build();
         final OtpValidationRequest expectedRequest = OtpValidationRequest.builder().otpReference("otpReference")
-                .mobileNumber("mobileNumber").tenantId("tenant").build();
+                .mobileNumber("mobileNumber").tenantId(TENANT_ID).build();
         when(otpRepository.isOtpValidationComplete(expectedRequest)).thenReturn(true);
         final User domainUser = User.builder().type(UserType.SYSTEM).id((long)123).build();
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
-        when(encryptionDecryptionUtil.decryptObject(domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.CITIZEN)).thenReturn(TENANT_ID);
+        when(encryptionDecryptionUtil.decryptObject(TENANT_ID, domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, domainUser, "User", User.class)).thenReturn(domainUser);
         userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo());
 
         verify(userRepository).update(domainUser, domainUser,domainUser.getId(), domainUser.getUuid() );
