@@ -11,18 +11,19 @@ import java.util.Locale;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "state.level.tenant")
+@ConfigurationProperties(prefix = "state.level.tenant.tenant.ids")
 public class TenantProperties {
 
-    private Map<String, String> ids = new HashMap<>();
+    private Map<String, String> mappings = new HashMap<>();
 
-    public void setIds(Map<String, List<String>> ids) {
-        if (ids != null) {
-            for (Map.Entry<String, List<String>> entry : ids.entrySet()) {
+    public void setMappings(Map<String, List<String>> mappings) {
+        this.mappings = new HashMap<>();
+        if (mappings != null) {
+            for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
                 String stateKey = entry.getKey().toLowerCase(Locale.ROOT);
                 for (String value : entry.getValue()) {
                     if (value != null) {
-                        this.ids.put(value.toLowerCase(Locale.ROOT), stateKey);
+                        this.mappings.put(value.toLowerCase(Locale.ROOT), stateKey);
                     }
                 }
             }
@@ -33,6 +34,6 @@ public class TenantProperties {
         if (tenantId == null) {
             return defaultTenantId;
         }
-        return ids.getOrDefault(tenantId.toLowerCase(Locale.ROOT), defaultTenantId);
+        return mappings.getOrDefault(tenantId.toLowerCase(Locale.ROOT), defaultTenantId);
     }
 }
