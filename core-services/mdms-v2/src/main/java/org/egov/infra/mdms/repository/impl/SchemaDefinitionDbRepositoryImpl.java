@@ -1,6 +1,8 @@
 package org.egov.infra.mdms.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.exception.InvalidTenantIdException;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.SchemaDefCriteria;
 import org.egov.infra.mdms.model.SchemaDefinition;
@@ -9,34 +11,50 @@ import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
 import org.egov.infra.mdms.repository.querybuilder.SchemaDefinitionQueryBuilder;
 import org.egov.infra.mdms.repository.rowmapper.SchemaDefinitionRowMapper;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.egov.infra.mdms.errors.ErrorCodes.INVALID_TENANT_ID_ERR_CODE;
+
 @Repository
 @Slf4j
 public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionRepository {
 
-    private Producer producer;
+    private final Producer producer;
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-    private ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
-    private SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder;
+    private final SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder;
 
-    private SchemaDefinitionRowMapper rowMapper;
+    private final SchemaDefinitionRowMapper rowMapper;
 
+    private final MultiStateInstanceUtil multiStateInstanceUtil;
+
+    /**
+     * Constructs a new instance of SchemaDefinitionDbRepositoryImpl.
+     *
+     * @param producer The Producer instance used to emit messages to Kafka topics.
+     * @param jdbcTemplate The JdbcTemplate instance for database interactions.
+     * @param applicationConfig The ApplicationConfig instance for accessing application-level configurations.
+     * @param rowMapper The SchemaDefinitionRowMapper instance for mapping ResultSet rows to SchemaDefinition objects.
+     * @param schemaDefinitionQueryBuilder The SchemaDefinitionQueryBuilder instance to build database queries for schema definitions.
+     * @param multiStateInstanceUtil The MultiStateInstanceUtil instance to handle tenant-specific operations.
+     */
     @Autowired
     public SchemaDefinitionDbRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
-                                            ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper, SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder){
+                                            ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper, SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder, MultiStateInstanceUtil multiStateInstanceUtil){
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
         this.rowMapper = rowMapper;
         this.schemaDefinitionQueryBuilder = schemaDefinitionQueryBuilder;
+        this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
 
@@ -46,7 +64,7 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
      */
     @Override
     public void create(SchemaDefinitionRequest schemaDefinitionRequest) {
-        producer.push(applicationConfig.getSaveSchemaDefinitionTopicName(), schemaDefinitionRequest);
+        producer.push(schemaDefinitionRequest.getSchemaDefinition().getTenantId(), applicationConfig.getSaveSchemaDefinitionTopicName(), schemaDefinitionRequest);
     }
 
     /**
@@ -60,7 +78,13 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
 
         // Invoke query builder to generate query based on the provided criteria
         String query = schemaDefinitionQueryBuilder.getSchemaSearchQuery(schemaDefCriteria, preparedStatementList);
-        log.info("Schema definition search query: " + query);
+        try {
+            // Replaced schema placeholder in the query with tenant specific schema name
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, schemaDefCriteria.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
+        }
+        log.info("Schema definition search query: {}", query);
 
         // Query the database to fetch schema definitions
         return jdbcTemplate.query(query, preparedStatementList.toArray(), rowMapper);

@@ -65,3 +65,27 @@ NA
 
 ### Kafka Producers
 NA
+
+## ⚠️ Flyway Migration Note
+
+Starting from version 2.10.0, Flyway migration scripts for `egov_enc_service` no longer assume the default `public` schema.
+
+### Migration Fix (Manual Step Required)
+
+If you are upgrading from an earlier version, follow these steps to avoid migration failure:
+
+1. Check for the **flyway migration history table** for `egov_enc_service` using devops environment variable `SCHEMA_TABLE` for the service. ie. `egov_enc_service_schema`
+2. Check the migration history table to ensure only one row exists.
+   ```sql
+   SELECT * FROM public.egov_enc_service_schema;
+   ```
+3. Delete the migration history row:
+   ```sql
+   DELETE FROM public.egov_enc_service_schema;
+   ```
+4. Deploy the build or restart
+
+### Why?
+The migration schema was previously hardcoded to `public`. This change removes that assumption, enabling support for schema-based deployment (e.g., via the `SCHEMA_TABLE` environment variable).
+- For deployments with earlier versions, while upgrading to **2.10.0** without this fix, you may encounter deployment issues such as Migration mismatch causing `CrashLoopBackOff`.
+- Fresh deployments are not affected.

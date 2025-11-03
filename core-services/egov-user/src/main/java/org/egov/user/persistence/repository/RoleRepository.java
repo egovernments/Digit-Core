@@ -22,6 +22,7 @@ import org.egov.user.domain.model.Role;
 import org.egov.user.repository.builder.RoleQueryBuilder;
 import org.egov.user.repository.rowmapper.RoleRowMapper;
 import org.egov.user.repository.rowmapper.UserRoleRowMapper;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +45,7 @@ public class RoleRepository {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private RestTemplate restTemplate;
     private ObjectMapper objectMapper;
+    private DatabaseSchemaUtils databaseSchemaUtils;
 
     @Value("${mdms.roles.filter}")
     private String roleFilter;
@@ -60,11 +62,20 @@ public class RoleRepository {
     @Value("${mdms.path}")
     private String path;
 
+    /**
+     * Constructs an instance of RoleRepository with the specified dependencies.
+     *
+     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate instance used for database operations
+     * @param restTemplate the RestTemplate instance used for making REST calls
+     * @param objectMapper the ObjectMapper instance used for JSON processing
+     * @param databaseSchemaUtils the DatabaseSchemaUtils instance used for database schema utilities
+     */
     public RoleRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, RestTemplate restTemplate,
-                          ObjectMapper objectMapper) {
+                          ObjectMapper objectMapper, DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.databaseSchemaUtils = databaseSchemaUtils;
     }
 
     /**
@@ -79,7 +90,10 @@ public class RoleRepository {
         final Map<String, Object> parametersMap = new HashMap<String, Object>();
         parametersMap.put("userId", userId);
         parametersMap.put("tenantId", tenantId);
-        List<Role> roleList = namedParameterJdbcTemplate.query(RoleQueryBuilder.GET_ROLES_BY_ID_TENANTID, parametersMap,
+        String query = RoleQueryBuilder.GET_ROLES_BY_ID_TENANTID;
+        // replaced schema placeholder with tenant specific schema name
+        query = databaseSchemaUtils.replaceSchemaPlaceholder(query, tenantId);
+        List<Role> roleList = namedParameterJdbcTemplate.query(query, parametersMap,
                 new UserRoleRowMapper());
         List<Long> roleIdList = new ArrayList<Long>();
         String tenantid = null;
@@ -94,8 +108,9 @@ public class RoleRepository {
             final Map<String, Object> Map = new HashMap<String, Object>();
             Map.put("id", roleIdList);
             Map.put("tenantId", tenantid);
-
-            roles = namedParameterJdbcTemplate.query(RoleQueryBuilder.GET_ROLES_BY_ROLEIDS, Map, new RoleRowMapper());
+            // replaced schema placeholder with tenant specific schema name
+            query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.GET_ROLES_BY_ROLEIDS, tenantId);
+            roles = namedParameterJdbcTemplate.query(query, Map, new RoleRowMapper());
         }
 
         return roles;
@@ -114,8 +129,10 @@ public class RoleRepository {
         parametersMap.put("code", code);
         parametersMap.put("tenantId", tenantId);
         Role role = null;
+        // replaced schema placeholder with tenant specific schema name
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.GET_ROLE_BYTENANT_ANDCODE, tenantId);
         List<Role> roleList = namedParameterJdbcTemplate
-                .query(RoleQueryBuilder.GET_ROLE_BYTENANT_ANDCODE, parametersMap, new RoleRowMapper());
+                .query(query, parametersMap, new RoleRowMapper());
 
         if (!roleList.isEmpty()) {
             role = roleList.get(0);
