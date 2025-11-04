@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Service
 @Slf4j
@@ -42,10 +43,11 @@ public class MobileNumberValidator {
      */
     public void validateMobileNumber(String mobileNumber, String tenantId, RequestInfo requestInfo) {
 
-        // Skip validation if mobile number is null or empty (mobile number is optional)
-        if (StringUtils.isEmpty(mobileNumber)) {
+        // Skip validation if mobile number is null/blank (mobile is optional)
+        if (!StringUtils.hasText(mobileNumber)) {
             return;
         }
+        mobileNumber = mobileNumber.trim();
 
         log.info("Validating mobile number for tenantId: {}", tenantId);
 
@@ -79,13 +81,24 @@ public class MobileNumberValidator {
         }
 
         // Check pattern
-        if (!StringUtils.isEmpty(validationRules.getPattern())) {
-            Pattern pattern = Pattern.compile(validationRules.getPattern());
-            if (!pattern.matcher(mobileNumber).matches()) {
-                String errorMessage = !StringUtils.isEmpty(validationRules.getErrorMessage())
-                        ? validationRules.getErrorMessage()
-                        : "Invalid mobile number format";
-                errorMap.put("INVALID_MOBILE_FORMAT", errorMessage);
+        if (StringUtils.hasText(validationRules.getPattern())) {
+            try {
+                Pattern pattern = Pattern.compile(validationRules.getPattern());
+                if (!pattern.matcher(mobileNumber).matches()) {
+                    String errorMessage = StringUtils.hasText(validationRules.getErrorMessage())
+                            ? validationRules.getErrorMessage()
+                            : "Invalid mobile number format";
+                    errorMap.put("INVALID_MOBILE_FORMAT", errorMessage);
+                }
+            } catch (PatternSyntaxException ex) {
+                log.warn("Invalid MDMS regex '{}'. Falling back to default pattern.", validationRules.getPattern(), ex);
+                Pattern fallback = Pattern.compile(UserServiceConstants.PATTERN_MOBILE);
+                if (!fallback.matcher(mobileNumber).matches()) {
+                    String errorMessage = StringUtils.hasText(validationRules.getErrorMessage())
+                            ? validationRules.getErrorMessage()
+                            : "Invalid mobile number format";
+                    errorMap.put("INVALID_MOBILE_FORMAT", errorMessage);
+                }
             }
         }
 
@@ -148,7 +161,7 @@ public class MobileNumberValidator {
                 for (MdmsV2Data mdmsData : response.getMdms()) {
                     if (mdmsData.getData() != null
                         && Boolean.TRUE.equals(mdmsData.getIsActive())
-                        && "defaultMobileValidation".equals(mdmsData.getData().getValidationName())) {
+                        && UserServiceConstants.DEFAULT_MOBILE_VALIDATION_NAME.equals(mdmsData.getData().getValidationName())) {
                         log.info("Found defaultMobileValidation configuration for tenant: {}", tenantId);
                         return mdmsData.getData().getRules();
                     }
