@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.egov</groupId>
   <artifactId>enc-client</artifactId>
-  <version>2.0.4-enc-central-impl-SNAPSHOT</version>
+  <version>2.0.4-central-impl-SNAPSHOT</version>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
