@@ -5,6 +5,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.model.mdmsv2.*;
+import org.egov.user.repository.ValidationRulesCacheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,9 @@ public class MobileNumberValidator {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private ValidationRulesCacheRepository cacheRepository;
 
     @Value("${egov.mdms.v2.host}")
     private String mdmsHost;
@@ -120,26 +124,34 @@ public class MobileNumberValidator {
         defaultRules.setIsActive(true);
         defaultRules.setMinLength(10);
         defaultRules.setMaxLength(10);
-        defaultRules.setErrorMessage("Mobile number must be exactly 10 digits");
+        defaultRules.setErrorMessage("Invalid mobile number format or length");
         return defaultRules;
     }
 
     /**
-     * Fetches validation rules from MDMS-v2
+     * Fetches validation rules from cache or MDMS-v2
+     * Implements cache-aside pattern: check cache first, fetch from MDMS on miss, then cache
      *
      * @param tenantId    Tenant ID
      * @param requestInfo Request Info
      * @return ValidationRules or null if not found
      */
     private ValidationRules fetchValidationRules(String tenantId, RequestInfo requestInfo) {
+        // Extract state level tenant (prefix before first dot)
+        String stateLevelTenantId = tenantId;
+        if (tenantId != null && tenantId.contains(".")) {
+            stateLevelTenantId = tenantId.split("\\.")[0];
+        }
+
+        // Check cache first
+        ValidationRules cachedRules = cacheRepository.getValidationRules(stateLevelTenantId);
+        if (cachedRules != null) {
+            return cachedRules;
+        }
+
+        // Cache miss - fetch from MDMS-v2
         try {
             String url = mdmsHost + mdmsV2SearchEndpoint;
-
-            // Extract state level tenant (first 2 characters)
-            String stateLevelTenantId = tenantId;
-            if (tenantId != null && tenantId.contains(".")) {
-                stateLevelTenantId = tenantId.split("\\.")[0];
-            }
 
             MdmsV2SearchCriteria searchCriteria = MdmsV2SearchCriteria.builder()
                     .tenantId(stateLevelTenantId)
@@ -153,7 +165,7 @@ public class MobileNumberValidator {
                     .requestInfo(requestInfo)
                     .build();
 
-            log.info("Calling MDMS-v2 at: {}", url);
+            log.info("Calling MDMS-v2 at: {} for tenant: {}", url, stateLevelTenantId);
             MdmsV2Response response = restTemplate.postForObject(url, searchRequest, MdmsV2Response.class);
 
             if (response != null && !CollectionUtils.isEmpty(response.getMdms())) {
@@ -162,18 +174,23 @@ public class MobileNumberValidator {
                     if (mdmsData.getData() != null
                         && Boolean.TRUE.equals(mdmsData.getIsActive())
                         && UserServiceConstants.DEFAULT_MOBILE_VALIDATION_NAME.equals(mdmsData.getData().getValidationName())) {
-                        log.info("Found defaultMobileValidation configuration for tenant: {}", tenantId);
-                        return mdmsData.getData().getRules();
+                        log.info("Found defaultMobileValidation configuration for tenant: {}", stateLevelTenantId);
+                        ValidationRules rules = mdmsData.getData().getRules();
+
+                        // Cache the fetched rules
+                        cacheRepository.cacheValidationRules(stateLevelTenantId, rules);
+
+                        return rules;
                     }
                 }
-                log.warn("No active defaultMobileValidation configuration found for tenant: {}", tenantId);
+                log.warn("No active defaultMobileValidation configuration found for tenant: {}", stateLevelTenantId);
             }
 
-            log.warn("No validation rules found in MDMS-v2 for tenant: {}", tenantId);
+            log.warn("No validation rules found in MDMS-v2 for tenant: {}", stateLevelTenantId);
             return null;
 
         } catch (Exception e) {
-            log.error("Error fetching validation rules from MDMS-v2", e);
+            log.error("Error fetching validation rules from MDMS-v2 for tenant: {}", stateLevelTenantId, e);
             // Don't fail user creation if MDMS is down, just log the error
             return null;
         }
