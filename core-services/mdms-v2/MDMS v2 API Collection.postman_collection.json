@@ -3,7 +3,7 @@
 		"_postman_id": "e4d36461-e678-4fba-bd56-be670e94636d",
 		"name": "MDMS v2 API Collection",
 		"description": "Postman collection for MDMS v2 endpoints (Create, Update, Search)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "35025473",
 		"_collection_link": "https://orange-crescent-418337.postman.co/workspace/digit3.0~8b9c2224-29cd-4eee-a007-89e233ffe6b4/collection/35025473-e4d36461-e678-4fba-bd56-be670e94636d?action=share&source=collection_link&creator=35025473"
 	},
@@ -63,7 +63,18 @@
 					"mode": "raw",
 					"raw": "{\n    \"Mdms\": [\n        {\n            \"schemaCode\": \"{{schemaCode}}\",\n            \"uniqueIdentifier\": \"Alice3\",\n            \"data\": {\n                \"ownerName\": \"Alice3\",\n                \"RTO\": 123,\n                \"car\": {\n                    \"moduleName\": \"mod1\",\n                    \"carNumber\": 456,\n                    \"color\": \"red\",\n                    \"engine\": {\n                        \"Ename\": \"V8\",\n                        \"power\": \"400hp\",\n                        \"average\": \"15mpg\",\n                        \"capacity\": \"4.0L\"\n                    }\n                },\n                \"contectNumber\": [\n                    9876543210,\n                    1234567890\n                ],\n                \"address\": \"Metropolis\",\n                \"state\": \"Punjab\"\n            },\n            \"isActive\": true,\n            \"auditDetails\": {\n                \"createdBy\": \"admin\",\n                \"createdTime\": 1720700000000\n            }\n        },\n         {\n            \"schemaCode\": \"{{schemaCode}}\",\n            \"uniqueIdentifier\": \"Alice1\",\n            \"data\": {\n                \"ownerName\": \"Alice1\",\n                \"RTO\": 123,\n                \"car\": {\n                    \"moduleName\": \"mod1\",\n                    \"carNumber\": 456,\n                    \"color\": \"red\",\n                    \"engine\": {\n                        \"Ename\": \"V8\",\n                        \"power\": \"400hp\",\n                        \"average\": \"15mpg\",\n                        \"capacity\": \"4.0L\"\n                    }\n                },\n                \"contectNumber\": [\n                    9876543210,\n                    1234567890\n                ],\n                \"address\": \"Metropolis\",\n                \"state\": \"Punjab\"\n            },\n            \"isActive\": true,\n            \"auditDetails\": {\n                \"createdBy\": \"admin\",\n                \"createdTime\": 1720700000000\n            }\n        }\n    ]\n}"
 				},
-				"url": "http://localhost:8099/mdms-v2/v2"
+				"url": {
+					"raw": "http://localhost:8099/mdms-v2/v2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8099",
+					"path": [
+						"mdms-v2",
+						"v2"
+					]
+				}
 			},
 			"response": []
 		},
@@ -91,7 +102,18 @@
 					"mode": "raw",
 					"raw": "{\n\n    \"Mdms\": [\n{\n            \"id\": \"6a5d8fe1-0964-49f2-90eb-ec65244e0e32\",\n            \"tenantId\": \"pg\",\n            \"schemaCode\": \"common-masters_ek6cz4z3\",\n            \"uniqueIdentifier\": \"Alice3\",\n            \"data\": {\n                \"ownerName\": \"Alice3\",\n                \"RTO\": 123,\n                \"car\": {\n                    \"moduleName\": \"mod1\",\n                    \"carNumber\": 456,\n                    \"color\": \"red\",\n                    \"engine\": {\n                        \"Ename\": \"V8\",\n                        \"power\": \"400hp\",\n                        \"average\": \"15mpg\",\n                        \"capacity\": \"4.0L\"\n                    }\n                },\n                \"contectNumber\": [\n                    9876543210,\n                    1234567890\n                ],\n                \"address\": \"Metropolis\",\n                \"state\": \"Punjab\"\n            },\n            \"isActive\": true,\n            \"auditDetails\": {\n                \"createdBy\": \"test-tenant\",\n                \"lastModifiedBy\": \"test-tenant\",\n                \"createdTime\": 1759307580982,\n                \"lastModifiedTime\": 1759307580982\n            }\n        },\n        {\n            \"id\": \"918d4e10-2585-42dc-9ab8-f2ed4c681ade\",\n            \"tenantId\": \"pg\",\n            \"schemaCode\": \"common-masters_ek6cz4z3\",\n            \"uniqueIdentifier\": \"Alice1\",\n            \"data\": {\n                \"ownerName\": \"Alice1\",\n                \"RTO\": 123,\n                \"car\": {\n                    \"moduleName\": \"mod1\",\n                    \"carNumber\": 456,\n                    \"color\": \"red\",\n                    \"engine\": {\n                        \"Ename\": \"V8\",\n                        \"power\": \"400hp\",\n                        \"average\": \"15mpg\",\n                        \"capacity\": \"4.0L\"\n                    }\n                },\n                \"contectNumber\": [\n                    9876543210,\n                    1234567890\n                ],\n                \"address\": \"Metropolis\",\n                \"state\": \"Punjab\"\n            },\n            \"isActive\": true,\n            \"auditDetails\": {\n                \"createdBy\": \"test-tenant\",\n                \"lastModifiedBy\": \"test-tenant\",\n                \"createdTime\": 1759307580984,\n                \"lastModifiedTime\": 1759307580984\n            }\n        }\n    ]\n}"
 				},
-				"url": "http://localhost:8099/mdms-v2/v2"
+				"url": {
+					"raw": "http://localhost:8099/mdms-v2/v2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8099",
+					"path": [
+						"mdms-v2",
+						"v2"
+					]
+				}
 			},
 			"response": []
 		},
@@ -242,7 +264,19 @@
 					"mode": "raw",
 					"raw": "{\n \n  \"SchemaDefinition\": {\n        \"code\": \"{{schema_code}}\",\n        \"description\": \"ChargeSlabs \",\n        \"definition\": {\n            \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n            \"type\": \"object\",\n            \"title\": \"Root Schema\",\n            \"required\": [\n                \"ownerName\",\n                \"RTO\",\n                \"car\"\n            ],\n            \"x-unique\": [\n                \"ownerName\"\n            ],\n            \"properties\": {\n                \"ownerName\": {\n                    \"type\": \"string\",\n                    \"title\": \"The ownerName Schema\"\n                },\n                \"contectNumber\": {\n                    \"type\": \"array\",\n                    \"title\": \"The contectNumber Schema\",\n                    \"items\": {\n                        \"type\": \"number\"\n                    }\n                },\n                \"address\": {\n                    \"type\": \"string\",\n                    \"title\": \"The address Schema\"\n                },\n                \"state\": {\n                    \"type\": \"string\"\n                },\n                \"RTO\": {\n                    \"type\": \"integer\",\n                    \"default\": 0\n                },\n                \"car\": {\n                    \"type\": \"object\",\n                    \"default\": {},\n                    \"title\": \"The car Schema\",\n                    \"required\": [\n                        \"moduleName\",\n                        \"carNumber\"\n                    ],\n                    \"properties\": {\n                        \"moduleName\": {\n                            \"type\": \"string\",\n                            \"default\": \"\",\n                            \"title\": \"The moduleName Schema\"\n                        },\n                        \"color\": {\n                            \"type\": \"string\",\n                            \"default\": \"\",\n                            \"title\": \"The color Schema\"\n                        },\n                        \"carNumber\": {\n                            \"type\": \"integer\",\n                            \"default\": 0,\n                            \"title\": \"The carNumber Schema\"\n                        },\n                        \"engine\": {\n                            \"type\": \"object\",\n                            \"default\": {},\n                            \"title\": \"The engine Schema\",\n                            \"properties\": {\n                                \"Ename\": {\n                                    \"type\": \"string\",\n                                    \"default\": \"\",\n                                    \"title\": \"The Ename Schema\"\n                                },\n                                \"capacity\": {\n                                    \"type\": \"string\",\n                                    \"default\": \"\",\n                                    \"title\": \"The capacity Schema\",\n                                    \"examples\": [\n                                        \"\"\n                                    ]\n                                },\n                                \"power\": {\n                                    \"type\": \"string\",\n                                    \"default\": \"\",\n                                    \"title\": \"The power Schema\"\n                                },\n                                \"average\": {\n                                    \"type\": \"string\",\n                                    \"default\": \"\",\n                                    \"title\": \"The average Schema\"\n                                }\n                            }\n                        }\n                    }\n                }\n            }\n        }\n    }\n    }"
 				},
-				"url": "http://localhost:8099/mdms-v2/v1/schema"
+				"url": {
+					"raw": "http://localhost:8099/mdms-v2/v1/schema",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8099",
+					"path": [
+						"mdms-v2",
+						"v1",
+						"schema"
+					]
+				}
 			},
 			"response": []
 		},
@@ -270,7 +304,19 @@
 					"mode": "raw",
 					"raw": "{\n  \"SchemaDefinition\": {\n    \"id\": \"common-masters\",\n    \"tenantId\": \"pb\",\n    \"code\": \"common-masters\",\n    \"description\": \"Sample schema updated\",\n    \"definition\": { \"type\": \"object\", \"properties\": { \"code\": { \"type\": \"string\" } } },\n    \"isActive\": false\n  }\n}"
 				},
-				"url": "http://localhost:8099/mdms-v2/v1/schema"
+				"url": {
+					"raw": "http://localhost:8099/mdms-v2/v1/schema",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8099",
+					"path": [
+						"mdms-v2",
+						"v1",
+						"schema"
+					]
+				}
 			},
 			"response": []
 		},
