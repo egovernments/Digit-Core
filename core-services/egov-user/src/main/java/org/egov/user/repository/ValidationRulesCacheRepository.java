@@ -70,9 +70,13 @@ public class ValidationRulesCacheRepository {
             stringRedisTemplate.opsForHash().put(VALIDATION_RULES_HASH_KEY, cacheKey, cacheValue);
 
             // Set expiration on the entire hash (all tenants share same expiration)
-            stringRedisTemplate.expire(VALIDATION_RULES_HASH_KEY, cacheTtlSeconds, TimeUnit.SECONDS);
-
-            log.info("Cached validation rules for tenant: {} with TTL: {} seconds", tenantId, cacheTtlSeconds);
+            // Skip expire if TTL is 0 (no expiry) or negative (misconfiguration)
+            if (cacheTtlSeconds > 0) {
+                stringRedisTemplate.expire(VALIDATION_RULES_HASH_KEY, cacheTtlSeconds, TimeUnit.SECONDS);
+                log.info("Cached validation rules for tenant: {} with TTL: {} seconds", tenantId, cacheTtlSeconds);
+            } else {
+                log.info("Cached validation rules for tenant: {} with no expiration (TTL: {})", tenantId, cacheTtlSeconds);
+            }
 
         } catch (JsonProcessingException e) {
             log.error("Error writing validation rules to cache for tenant: {}", tenantId, e);
