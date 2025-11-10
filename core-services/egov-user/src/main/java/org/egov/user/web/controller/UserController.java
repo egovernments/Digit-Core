@@ -1,13 +1,10 @@
 package org.egov.user.web.controller;
-
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.algorithms.Algorithm;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.user.domain.model.*;
-
-import org.apache.commons.lang3.StringUtils;
-import org.egov.common.contract.response.ResponseInfo;
-import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserDetail;
 import org.egov.user.domain.model.UserSearchCriteria;
@@ -20,19 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -46,7 +33,9 @@ public class UserController {
 
     private UserService userService;
     private TokenService tokenService;
-
+    private final String secretKey = "B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF";
+    private final String private_key = "B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B58CCF";
+    private final String issuer = "your_issuer";
     @Value("${mobile.number.validation.workaround.enabled}")
     private String mobileValidationWorkaroundEnabled;
 
@@ -63,6 +52,7 @@ public class UserController {
     @Autowired
     public UserController(UserService userService, TokenService tokenService) {
         this.userService = userService;
+
         this.tokenService = tokenService;
     }
 
@@ -86,6 +76,8 @@ public class UserController {
         return createResponse(createdUser);
     }
 
+
+
     /**
      * end-point to create the user without otp validation.
      *
@@ -103,6 +95,31 @@ public class UserController {
         final User newUser = userService.createUser(user, createUserRequest.getRequestInfo());
         return createResponse(newUser);
     }
+    @PostMapping("/_jwt")
+    public Map<String,String> generateJwtToken(@RequestBody User user){
+        String username= user.getUsername();
+        String password= user.getPassword();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
+        claims.put("roles", "user");
+
+        // Generate JWT Token using java-jwt library
+        JWTCreator.Builder builder = JWT.create();
+        builder.withSubject(username);
+        builder.withClaim("username", username);
+        builder.withClaim("roles", "user");
+        builder.withIssuedAt(new Date());
+        builder.withExpiresAt(new Date(System.currentTimeMillis() + 86400000));
+        String token = builder
+                .sign(Algorithm.HMAC256(secretKey));
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        return response;
+    }
+
+
+
 
     /**
      * end-point to search the users by providing userSearchRequest. In Request
@@ -134,12 +151,15 @@ public class UserController {
         return searchUsers(request, headers);
     }
 
+
     /**
      * end-point to fetch the user details by access-token
      *
      * @param accessToken
      * @return
      */
+
+
     @PostMapping("/_details")
     public CustomUserDetails getUser(@RequestParam(value = "access_token") String accessToken) {
         final UserDetail userDetail = tokenService.getUser(accessToken);
