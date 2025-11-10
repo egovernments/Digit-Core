@@ -80,7 +80,9 @@ public class EncryptionDecryptionUtil {
 
             Map<String,String> keyPurposeMap = getKeyToDecrypt(objectToDecrypt, encrichedUserInfo);
             String purpose = keyPurposeMap.get("purpose");
-
+            log.info("Key:"+key);
+            log.info("Purpose:"+purpose);
+            log.info("keyPurposeMap:"+keyPurposeMap);
             if(key == null)
                 key = keyPurposeMap.get("key");
 

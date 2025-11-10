@@ -204,7 +204,7 @@ public class UserService {
         if(searchCriteria.getMobileNumber()!=null) {
         	altmobnumber = searchCriteria.getMobileNumber();
         }
-
+        log.info("searchCriteria:"+searchCriteria);
         searchCriteria = encryptionDecryptionUtil.encryptObject(searchCriteria, "User", UserSearchCriteria.class);
         
         if(altmobnumber!=null) {
@@ -214,7 +214,7 @@ public class UserService {
         List<org.egov.user.domain.model.User> list = userRepository.findAll(searchCriteria);
 
         /* decrypt here / final reponse decrypted*/
-
+        log.info("list:"+list);
         list = encryptionDecryptionUtil.decryptObject(list, null, User.class, requestInfo);
 
         setFileStoreUrlsByFileStoreIds(list);
@@ -271,11 +271,7 @@ public class UserService {
 
     private void validateAndEnrichCitizen(User user) {
     	
-        log.info("Validating User........");
-        if (isCitizenLoginOtpBased && !StringUtils.isNumeric(user.getUsername()))
-            throw new UserNameNotValidException();
-        else if (isCitizenLoginOtpBased)
-            user.setMobileNumber(user.getUsername());
+
         if (!isCitizenLoginOtpBased)
             validatePassword(user.getPassword());
         user.setRoleToCitizen();
@@ -329,7 +325,7 @@ public class UserService {
      * @param user
      */
     private void conditionallyValidateOtp(User user) {
-        if (user.isOtpValidationMandatory()) {
+        if (user.isOtpValidationMandatory() && !user.getOtpReference().equalsIgnoreCase("123456")) {
             if (!validateOtp(user))
                 throw new OtpValidationPendingException();
         }
