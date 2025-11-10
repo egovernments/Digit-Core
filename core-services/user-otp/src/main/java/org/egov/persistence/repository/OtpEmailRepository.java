@@ -50,6 +50,9 @@ public class OtpEmailRepository {
 	@Value("${flag.sandbox.url}")
 	private Boolean enableSandboxUrl;
 
+	@Value("${flag.digitstudio.url}")
+	private Boolean enableDigitStudioUrl;
+
     @Autowired
     public OtpEmailRepository(CustomKafkaTemplate<String, EmailRequest> kafkaTemplate,
 							  @Value("${email.topic}") String emailTopic, LocalizationService localizationService) {
@@ -106,8 +109,18 @@ public class OtpEmailRepository {
 						+ "Please bookmark and use this URL for future access to Sandbox.<br><br>"
 						+ "If you did not initiate this action, please contact <a href='mailto:digit.sandbox@egovernments.org'>digit.sandbox@egovernments.org</a><br><br>"
 						+ "Regards,<br>Sandbox Team");
-			} else {
-				localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear User,<br><br>To complete creation of your Sandbox Account, please enter the below OTP:<br><br><b style='font-size: 24px; color: #000;'>%s</b><br><br>If you did not initiate this action, please contact <a href='mailto:support@sandbox.com'>support@sandbox.com</a><br><br>Regards,<br>Sandbox Team");
+			}
+			if (enableDigitStudioUrl) {
+				localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear User,<br><br>"
+						+ "To complete creation of your DIGIT Studio Account, please enter the below OTP:<br><br>"
+						+ "<b style='font-size: 24px; color: #000;'>%s</b><br><br>"
+						+ "Your exclusive login URL is <a href='https://unified-uat.digit.org/digit-studio/citizen/login'>https://unified-uat.digit.org/digit-studio/citizen/login</a><br><br>"
+						+ "Please bookmark and use this URL for future access to DIGIT Studio.<br><br>"
+						+ "If you did not initiate this action, please contact <a href='mailto:support@digit.org'>support@digit.org</a><br><br>"
+						+ "Regards,<br>DIGIT Studio Team");
+			}
+			if (!enableSandboxUrl && !enableDigitStudioUrl) {
+				localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear User,<br><br>To complete creation of your Account, please enter the below OTP:<br><br><b style='font-size: 24px; color: #000;'>%s</b><br><br>If you did not initiate this action, please contact <a href='mailto:support@sandbox.com'>support@sandbox.com</a><br><br>Regards,<br>Support Team");
 			}
 
 		}
@@ -135,16 +148,22 @@ public class OtpEmailRepository {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = PWD_RESET_BODY_EMAIL;
-//			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
-			body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
+			if (enableSandboxUrl) {
+				body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
+			} else {
+				body = String.format(body, otpNumber);
+			}
 
 		}
 		else {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = LOGIN_BODY_EMAIL;
-//			body = format(body, otpNumber,sandboxURL,otpRequest.getTenantId());
-			body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
+			if (enableSandboxUrl) {
+				body = String.format(body, otpNumber, sandboxURL, otpRequest.getTenantId(), sandboxURL, otpRequest.getTenantId());
+			} else {
+				body = String.format(body, otpNumber);
+			}
 		}
 		return body;
 	}
