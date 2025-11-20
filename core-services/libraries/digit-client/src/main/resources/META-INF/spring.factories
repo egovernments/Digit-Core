@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.digit.config.HeaderPropagationAutoConfiguration,\
+com.digit.config.OpenTelemetryAutoConfiguration
