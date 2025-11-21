@@ -71,7 +71,8 @@ public class MessageController {
 			throw new InvalidMessageRequest(bindingResult.getFieldErrors());
 
 		final List<org.egov.domain.model.Message> messages = messageRequest.toDomainMessages();
-		messageService.create(messageRequest.getTenant(), messages, messageRequest.getAuthenticatedUser());
+        final String module  = messageRequest.getTenantId();
+		messageService.create(messageRequest.getTenant(), messages, module,  messageRequest.getAuthenticatedUser());
 		return createResponse(messages);
 	}
 

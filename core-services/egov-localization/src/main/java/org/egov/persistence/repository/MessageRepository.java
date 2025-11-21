@@ -18,17 +18,25 @@ import java.util.stream.Collectors;
 @Service
 public class MessageRepository {
 
-	private MessageJpaRepository messageJpaRepository;
+	private final MessageJpaRepository messageJpaRepository;
 
 	public MessageRepository(MessageJpaRepository messageJpaRepository) {
 		this.messageJpaRepository = messageJpaRepository;
 	}
 
-	@Transactional(readOnly = true)
-	public List<Message> findByTenantIdAndLocale(Tenant tenant, String locale) {
-		return messageJpaRepository.find(tenant.getTenantId(), locale).map(org.egov.persistence.entity.Message::toDomain)
-				.collect(Collectors.toList());
-	}
+    @Transactional(readOnly = true)
+    public List<Message> findByTenantIdAndLocaleAndModule(Tenant tenant, String locale, String module) {
+        if (module == null || module.trim().isEmpty()) {
+            return messageJpaRepository.find(tenant.getTenantId(), locale).map(org.egov.persistence.entity.Message::toDomain)
+                .collect(Collectors.toList());
+        }else {
+            return messageJpaRepository.find(tenant.getTenantId(), locale, module)
+                .stream()
+                .map(org.egov.persistence.entity.Message::toDomain)
+                .collect(Collectors.toList());
+
+        }
+    }
 
 	public List<Message> findAllMessage(Tenant tenant, String locale, String module, String code) {
 		return messageJpaRepository.find(tenant.getTenantId(), locale, module, code).stream()

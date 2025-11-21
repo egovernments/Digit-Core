@@ -44,6 +44,7 @@ import org.springframework.util.CollectionUtils;
 //@Slf4j
 public class MessageService {
 	private static final String ENGLISH_INDIA = "en_IN";
+    private  static final String MOUDLE = "default";
 	private MessageRepository messageRepository;
 	private MessageCacheRepository messageCacheRepository;
 
@@ -56,12 +57,12 @@ public class MessageService {
 
 		Message message = messages.get(0);
 		messageRepository.upsert(message.getTenant(), message.getLocale(), message.getModule(), messages, user);
-		bustCacheEntriesForMessages(tenant, messages);
+		bustCacheEntriesForMessages(tenant, messages, message.getModule());
 	}
 
-	public void create(Tenant tenant, List<Message> messages, AuthenticatedUser user) {
+	public void create(Tenant tenant, List<Message> messages, String module, AuthenticatedUser user) {
 		messageRepository.save(messages, user);
-		bustCacheEntriesForMessages(tenant, messages);
+		bustCacheEntriesForMessages(tenant, messages, module );
 	}
 
 	public void updateMessagesForModule(Tenant tenant, List<Message> messages, AuthenticatedUser user) {
@@ -70,7 +71,7 @@ public class MessageService {
 		}
 		final Message message = messages.get(0);
 		messageRepository.update(message.getTenant(), message.getLocale(), message.getModule(), messages, user);
-		bustCacheEntriesForMessages(tenant, messages);
+		bustCacheEntriesForMessages(tenant, messages, message.getModule());
 	}
 
 	public void bustCache() {
@@ -131,7 +132,6 @@ public class MessageService {
                         && message.getTenant().equals(tenantId))
                     .collect(Collectors.toList());
             }
-
         }
         return messages;
 
@@ -143,45 +143,49 @@ public class MessageService {
 		final Map<Tenant, List<MessageIdentity>> tenantToMessageIdentitiesMap = messageIdentities.stream()
 				.collect(Collectors.groupingBy(MessageIdentity::getTenant));
 		tenantToMessageIdentitiesMap.keySet()
-				.forEach(tenant -> deleteMessagesForGivenTenant(tenantToMessageIdentitiesMap, tenant));
+				.forEach(tenant -> {
+                    String module = tenantToMessageIdentitiesMap.get(tenant).get(0).getModule();
+                    deleteMessagesForGivenTenant(tenantToMessageIdentitiesMap, tenant, module);
+                });
 	}
 
-	private void bustCacheEntriesForMessages(Tenant tenant, List<Message> messages) {
+	private void bustCacheEntriesForMessages(Tenant tenant, List<Message> messages, String module) {
 		final List<MessageIdentity> messageIdentities = messages.stream().map(Message::getMessageIdentity)
 				.collect(Collectors.toList());
-		bustCacheEntriesForMessageIdentities(tenant, messageIdentities);
+		bustCacheEntriesForMessageIdentities(tenant, messageIdentities, module);
 	}
 
-	private void bustCacheEntriesForMessageIdentities(Tenant tenant, List<MessageIdentity> messageIdentities) {
+	private void bustCacheEntriesForMessageIdentities(Tenant tenant, List<MessageIdentity> messageIdentities, String module) {
 		messageIdentities.stream().map(MessageIdentity::getLocale).distinct()
-				.forEach(locale -> bustCacheEntry(tenant, locale));
+				.forEach(locale -> bustCacheEntry(tenant, locale, module));
 	}
 
-	private void bustCacheEntry(Tenant tenant, String locale) {
-		messageCacheRepository.bustCacheEntry(locale, tenant);
+	private void bustCacheEntry(Tenant tenant, String locale, String module) {
+		messageCacheRepository.bustCacheEntry(locale, tenant, module);
 	}
 
 	private List<Message> getMessages(MessageSearchCriteria searchCriteria) {
 		final List<Message> cachedMessages = messageCacheRepository.getComputedMessages(searchCriteria.getLocale(),
-				searchCriteria.getTenantId());
+				searchCriteria.getTenantId(),searchCriteria.getModule()
+            );
 		if (cachedMessages != null) {
 			return cachedMessages;
 		}
 		final List<Message> computedMessages = computeMessageList(searchCriteria.getLocale(),
-				searchCriteria.getTenantId());
+				searchCriteria.getTenantId(), searchCriteria.getModule());
 		messageCacheRepository.cacheComputedMessages(searchCriteria.getLocale(), searchCriteria.getTenantId(),
-				computedMessages);
+				computedMessages, searchCriteria.getModule());
 		return computedMessages;
 	}
 
 	private void deleteMessagesForGivenTenant(Map<Tenant, List<MessageIdentity>> tenantToMessageIdentitiesMap,
-			Tenant tenant) {
+			Tenant tenant, String module) {
 		final List<MessageIdentity> messageIdentitiesForGivenTenant = tenantToMessageIdentitiesMap.get(tenant);
 		final Map<String, List<MessageIdentity>> localeToMessageIdentitiesMap = messageIdentitiesForGivenTenant.stream()
 				.collect(Collectors.groupingBy(MessageIdentity::getLocale));
 		localeToMessageIdentitiesMap.keySet()
 				.forEach(locale -> deleteMessagesForGivenLocale(tenant, localeToMessageIdentitiesMap, locale));
-		bustCacheEntriesForMessageIdentities(tenant, messageIdentitiesForGivenTenant);
+		bustCacheEntriesForMessageIdentities(tenant, messageIdentitiesForGivenTenant, module);
 	}
 
 	private void deleteMessagesForGivenLocale(Tenant tenant,
@@ -204,8 +208,8 @@ public class MessageService {
 		return messageIdentitiesForGivenModule.stream().map(MessageIdentity::getCode).collect(Collectors.toList());
 	}
 
-	private List<Message> computeMessageList(String locale, Tenant tenant) {
-		final Collection<Message> messagesForGivenLocale = getMessagesForGivenLocale(locale, tenant);
+	private List<Message> computeMessageList(String locale, Tenant tenant, String module) {
+		final Collection<Message> messagesForGivenLocale = getMessagesForGivenLocale(locale, tenant, module);
 		List<Message> defaultMessages = getDefaultMessagesForMissingCodes(messagesForGivenLocale);
 		return Stream.concat(messagesForGivenLocale.stream(), defaultMessages.stream())
 				.sorted(Comparator.comparing(Message::getCode)).collect(Collectors.toList());
@@ -213,7 +217,7 @@ public class MessageService {
 
 	private List<Message> getDefaultMessagesForMissingCodes(Collection<Message> messagesForGivenLocale) {
 		final List<Message> messagesInEnglishForDefaultTenant = fetchMessageFromRepository(ENGLISH_INDIA,
-				new Tenant(Tenant.DEFAULT_TENANT));
+				new Tenant(Tenant.DEFAULT_TENANT), MOUDLE);
 
         Set<String> messageCodesInGivenLanguage = new HashSet<>();
 
@@ -225,10 +229,10 @@ public class MessageService {
 				messagesInEnglishForDefaultTenant);
 	}
 
-	private Collection<Message> getMessagesForGivenLocale(String locale, Tenant tenant) {
+	private Collection<Message> getMessagesForGivenLocale(String locale, Tenant tenant, String module) {
 		final Map<String, Message> codeToMessageMap = new HashMap<>();
 		final List<Message> messages = tenant.getTenantHierarchy().stream()
-				.map(tenantItem -> fetchMessageFromRepository(locale, tenantItem)).flatMap(List::stream)
+				.map(tenantItem -> fetchMessageFromRepository(locale, tenantItem, module)).flatMap(List::stream)
 				.collect(Collectors.toList());
 
 		messages.forEach(message -> {
@@ -251,13 +255,13 @@ public class MessageService {
 				.collect(Collectors.toList());
 	}
 
-	private List<Message> fetchMessageFromRepository(String locale, Tenant tenant) {
-		final List<Message> cachedMessages = messageCacheRepository.getMessages(locale, tenant);
+	private List<Message> fetchMessageFromRepository(String locale, Tenant tenant, String module) {
+		final List<Message> cachedMessages = messageCacheRepository.getMessages(locale, tenant, module);
 		if (cachedMessages != null) {
 			return cachedMessages;
 		}
-		final List<Message> messages = messageRepository.findByTenantIdAndLocale(tenant, locale);
-		messageCacheRepository.cacheMessages(locale, tenant, messages);
+		final List<Message> messages = messageRepository.findByTenantIdAndLocaleAndModule(tenant, locale,module);
+		messageCacheRepository.cacheMessages(locale, tenant, messages, module);
 		return messages;
 	}
 

@@ -28,20 +28,20 @@ public class MessageCacheRepository {
 		this.objectMapper = objectMapper;
 	}
 
-	public List<Message> getComputedMessages(String locale, Tenant tenant) {
-		return getMessages(locale, tenant, COMPUTED_MESSAGES_HASH_KEY);
+	public List<Message> getComputedMessages(String locale, Tenant tenant, String module) {
+		return getMessages(locale, tenant, COMPUTED_MESSAGES_HASH_KEY, module);
 	}
 
-	public void cacheComputedMessages(String locale, Tenant tenant, List<Message> messages) {
-		putMessages(locale, tenant, COMPUTED_MESSAGES_HASH_KEY, messages);
+	public void cacheComputedMessages(String locale, Tenant tenant, List<Message> messages, String module) {
+		putMessages(locale, tenant, COMPUTED_MESSAGES_HASH_KEY, messages, module);
 	}
 
-	public List<Message> getMessages(String locale, Tenant tenant) {
-		return getMessages(locale, tenant, MESSAGES_HASH_KEY);
+	public List<Message> getMessages(String locale, Tenant tenant, String module) {
+		return getMessages(locale, tenant, MESSAGES_HASH_KEY, module);
 	}
 
-	public void cacheMessages(String locale, Tenant tenant, List<Message> messages) {
-		putMessages(locale, tenant, MESSAGES_HASH_KEY, messages);
+	public void cacheMessages(String locale, Tenant tenant, List<Message> messages, String module) {
+		putMessages(locale, tenant, MESSAGES_HASH_KEY, messages, module);
 	}
 
 	public void bustCache() {
@@ -49,21 +49,21 @@ public class MessageCacheRepository {
 		bustAllComputedMessagesCache();
 	}
 
-	public void bustCacheEntry(String locale, Tenant tenant) {
-		bustRawMessagesCacheEntry(locale, tenant);
-		bustComputedMessagesCache(locale, tenant);
+	public void bustCacheEntry(String locale, Tenant tenant, String module) {
+		bustRawMessagesCacheEntry(locale, tenant, module);
+		bustComputedMessagesCache(locale, tenant, module);
 	}
 
-	private void bustRawMessagesCacheEntry(String locale, Tenant tenant) {
-		String messageKey = getKey(locale, tenant.getTenantId());
+	private void bustRawMessagesCacheEntry(String locale, Tenant tenant, String  module) {
+		String messageKey = getKey(locale, tenant.getTenantId(), module);
 		stringRedisTemplate.opsForHash().delete(MESSAGES_HASH_KEY, messageKey);
 	}
 
-	private void bustComputedMessagesCache(String locale, Tenant tenant) {
+	private void bustComputedMessagesCache(String locale, Tenant tenant,String module) {
 		if (tenant.isDefaultTenant()) {
 			bustAllComputedMessagesCache();
 		} else {
-			deleteMatchingSubTenantCacheKeys(locale, tenant);
+			deleteMatchingSubTenantCacheKeys(locale, tenant, module);
 		}
 	}
 
@@ -71,25 +71,25 @@ public class MessageCacheRepository {
 		stringRedisTemplate.delete(COMPUTED_MESSAGES_HASH_KEY);
 	}
 
-	private void deleteMatchingSubTenantCacheKeys(String locale, Tenant tenant) {
-		getMatchingSubTenantCacheKeys(locale, tenant).forEach(this::deleteComputedMessageCacheEntry);
+	private void deleteMatchingSubTenantCacheKeys(String locale, Tenant tenant, String module) {
+		getMatchingSubTenantCacheKeys(locale, tenant, module).forEach(this::deleteComputedMessageCacheEntry);
 	}
 
 	private Long deleteComputedMessageCacheEntry(String cacheKey) {
 		return stringRedisTemplate.opsForHash().delete(COMPUTED_MESSAGES_HASH_KEY, cacheKey);
 	}
 
-	private Stream<String> getMatchingSubTenantCacheKeys(String locale, Tenant tenant) {
-		String parentCacheKey = getKey(locale, tenant.getTenantId());
-		return getAllComputedMessageCacheKeys().filter(key -> key.contains(parentCacheKey));
+	private Stream<String> getMatchingSubTenantCacheKeys(String locale, Tenant tenant, String module) {
+		String parentCacheKey = getKey(locale, tenant.getTenantId(),module);
+		return getAllComputedMessageCacheKeys().filter(key -> key.contains(parentCacheKey)|| key.startsWith(locale + ":" + tenant.getTenantId()));
 	}
 
 	private Stream<String> getAllComputedMessageCacheKeys() {
 		return stringRedisTemplate.opsForHash().keys(COMPUTED_MESSAGES_HASH_KEY).stream().map(key -> (String) key);
 	}
 
-	private List<Message> getMessages(String locale, Tenant tenant, String hashKey) {
-		String messageKey = getKey(locale, tenant.getTenantId());
+	private List<Message> getMessages(String locale, Tenant tenant, String hashKey, String module) {
+		String messageKey = getKey(locale, tenant.getTenantId(), module);
 		final String entry = (String) stringRedisTemplate.opsForHash().get(hashKey, messageKey);
 		if (entry != null) {
 			final MessageCacheEntry messageCacheEntry;
@@ -103,8 +103,8 @@ public class MessageCacheRepository {
 		return null;
 	}
 
-	private void putMessages(String locale, Tenant tenant, String hashKey, List<Message> messages) {
-		String messageKey = getKey(locale, tenant.getTenantId());
+	private void putMessages(String locale, Tenant tenant, String hashKey, List<Message> messages, String module) {
+		String messageKey = getKey(locale, tenant.getTenantId(), module);
 		final MessageCacheEntry messageCacheEntry = new MessageCacheEntry(messages);
 		try {
 			final String cacheEntry = objectMapper.writeValueAsString(messageCacheEntry);
@@ -114,8 +114,12 @@ public class MessageCacheRepository {
 		}
 	}
 
-	private String getKey(String locale, String tenant) {
-		return String.format("%s:%s", locale, tenant);
+	private String getKey(String locale, String tenant, String module) {
+        if (module == null || module.isBlank()) {
+            return String.format("%s:%s", locale, tenant);  // fallback without module
+        }
+        return String.format("%s:%s:%s", locale, tenant, module);
 	}
 
 }
+
