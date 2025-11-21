@@ -41,8 +41,9 @@ public class MessageCacheRepositoryTest {
     public void test_should_delete_messages_cached_from_db_for_a_given_tenant_and_locale() {
         final Tenant tenant = new Tenant("a.b.c");
         final String locale = "en_IN";
+        final String module = "default";
 
-        cacheRepository.bustCacheEntry(locale, tenant);
+        cacheRepository.bustCacheEntry(locale, tenant, module);
 
         final String messageCacheKey = "en_IN:a.b.c";
         verify(hashOperations).delete(MESSAGE_HASH_KEY, messageCacheKey);
@@ -52,11 +53,12 @@ public class MessageCacheRepositoryTest {
     public void test_should_delete_computed_messages_cached_from_db_for_a_given_locale_tenant_and_its_derived_tenants() {
         final Tenant tenant = new Tenant("a.b");
         final String locale = "en_IN";
+        final String module = "default";
         final List<Object> cacheKeys =
             Arrays.asList("mr_IN:a.b", "en_IN:a.b", "mr_IN:a.b.c", "en_IN:a.b.c", "mr_IN:a.b.d", "en_IN:a.b.d", "en_IN:d.e");
         when(hashOperations.keys(COMPUTED_MESSAGE_HASH_KEY)).thenReturn(new HashSet<>(cacheKeys));
 
-        cacheRepository.bustCacheEntry(locale, tenant);
+        cacheRepository.bustCacheEntry(locale, tenant,module);
 
         verify(hashOperations).delete(COMPUTED_MESSAGE_HASH_KEY, "en_IN:a.b");
         verify(hashOperations).delete(COMPUTED_MESSAGE_HASH_KEY, "en_IN:a.b.c");
@@ -67,8 +69,9 @@ public class MessageCacheRepositoryTest {
     public void test_should_delete_all_computed_messages_cached_from_db_when_tenant_is_default() {
         final Tenant tenant = new Tenant("default");
         final String locale = "en_IN";
+        final String module = "default";
 
-        cacheRepository.bustCacheEntry(locale, tenant);
+        cacheRepository.bustCacheEntry(locale, tenant,module);
 
         verify(stringRedisTemplate).delete(COMPUTED_MESSAGE_HASH_KEY);
     }

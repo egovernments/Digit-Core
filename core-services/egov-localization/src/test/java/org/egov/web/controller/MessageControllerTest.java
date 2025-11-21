@@ -19,8 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -108,7 +107,7 @@ public class MessageControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(content().json(getFileContents("messagesResponse.json")));
 
-        verify(messageService).create(eq(defaultTenant), anyList(), eq(new AuthenticatedUser(1L)));
+        verify(messageService).create(eq(defaultTenant), anyList(), anyString(), eq(new AuthenticatedUser(1L)));
     }
 
     @Test
