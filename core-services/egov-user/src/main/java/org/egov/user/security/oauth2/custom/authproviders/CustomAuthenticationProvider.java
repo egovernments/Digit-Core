@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.MDC;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.ServiceCallException;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.DuplicateUserNameException;
@@ -25,6 +24,7 @@ import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.egov.user.web.contract.auth.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +53,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     private UserService userService;
     
     @Autowired
-    private MultiStateInstanceUtil centraInstanceUtil;
+    private DatabaseSchemaUtils centraInstanceUtil;
     
     @Autowired
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
