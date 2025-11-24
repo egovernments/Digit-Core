@@ -54,10 +54,24 @@ public class MessageCacheRepository {
 		bustComputedMessagesCache(locale, tenant, module);
 	}
 
-	private void bustRawMessagesCacheEntry(String locale, Tenant tenant, String  module) {
-		String messageKey = getKey(locale, tenant.getTenantId(), module);
-		stringRedisTemplate.opsForHash().delete(MESSAGES_HASH_KEY, messageKey);
-	}
+    private void bustRawMessagesCacheEntry(String locale, Tenant tenant, String updatedModule) {
+
+        // Fetch all keys inside "messages" hash
+        var allKeys = stringRedisTemplate.opsForHash().keys(MESSAGES_HASH_KEY);
+
+        if (allKeys == null) return;
+
+        for (Object keyObj : allKeys) {
+            String key = keyObj.toString();
+
+            // key format: <locale>:<tenant>:<module or modules>
+            // we clear any key where modules contain updatedModule
+            if (key.contains(updatedModule)) {
+                stringRedisTemplate.opsForHash().delete(MESSAGES_HASH_KEY, key);
+            }
+        }
+    }
+
 
 	private void bustComputedMessagesCache(String locale, Tenant tenant,String module) {
 		if (tenant.isDefaultTenant()) {
