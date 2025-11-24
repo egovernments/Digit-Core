@@ -26,17 +26,24 @@ public class MessageRepository {
 
     @Transactional(readOnly = true)
     public List<Message> findByTenantIdAndLocaleAndModule(Tenant tenant, String locale, String module) {
+
+        // If no module given → fallback to old logic
         if (module == null || module.trim().isEmpty()) {
-            return messageJpaRepository.find(tenant.getTenantId(), locale).map(org.egov.persistence.entity.Message::toDomain)
-                .collect(Collectors.toList());
-        }else {
-            return messageJpaRepository.find(tenant.getTenantId(), locale, module)
-                .stream()
+            return messageJpaRepository.find(tenant.getTenantId(), locale)
                 .map(org.egov.persistence.entity.Message::toDomain)
                 .collect(Collectors.toList());
-
         }
+
+        // Support multiple modules
+        List<String> modules = List.of(module.split(","));
+
+        return modules.stream()
+            .flatMap(m -> messageJpaRepository.find(tenant.getTenantId(), locale, m)
+                .stream()
+                .map(org.egov.persistence.entity.Message::toDomain))
+            .collect(Collectors.toList());
     }
+
 
 	public List<Message> findAllMessage(Tenant tenant, String locale, String module, String code) {
 		return messageJpaRepository.find(tenant.getTenantId(), locale, module, code).stream()

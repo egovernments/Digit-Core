@@ -25,6 +25,13 @@ public interface MessageJpaRepository extends JpaRepository<Message, String> {
     @Transactional(readOnly = true)
     Stream<Message> find(@Param("tenantId") String tenantId, @Param("locale") String locale);
 
+
+    @Query("select m from Message m where m.tenantId = :tenantId and m.locale = :locale and m.module in :modules")
+    List<Message> findByModules(
+        @Param("tenantId") String tenantId,
+        @Param("locale") String locale,
+        @Param("modules") List<String> modules);
+
 	@Query("select m from Message m where m.tenantId = :tenantId and m.locale = :locale and m.module = :module")
 	List<Message> find(@Param("tenantId") String tenantId, @Param("locale") String locale,
 			@Param("module") String module);
