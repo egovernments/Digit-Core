@@ -81,13 +81,14 @@ public class MinioRepository implements CloudFilesManager {
 	private void push(MultipartFile multipartFile, String fileNameWithPath) {
 		try {
 			InputStream is = multipartFile.getInputStream();
-			long contentLength = multipartFile.getSize();
+//			long contentLength = multipartFile.getSize();
 
 			/*PutObjectOptions putObjectOptions = new PutObjectOptions(contentLength, PutObjectOptions.MAX_PART_SIZE);
 			putObjectOptions.setContentType(multipartFile.getContentType());
 			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);*/
 
-			long fileSize = is.available();
+//			long fileSize = is.available();
+			long fileSize = multipartFile.getSize();   // fetching correct size of file
 			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
 					.bucket(minioConfig.getBucketName())
 					.object(fileNameWithPath)
@@ -102,12 +103,13 @@ public class MinioRepository implements CloudFilesManager {
 			minioClient.putObject(putObjectArgsBuilder.build());
 
 
+			log.info("[UPLOAD SUCCESS] File: {}, Size: {}", fileNameWithPath, fileSize);
 
 			log.debug("Upload Successful");
 
 		} catch (MinioException | InvalidKeyException | IllegalArgumentException | NoSuchAlgorithmException
 				| IOException e) {
-			log.error("Error occurred: ", e);
+			log.error("[UPLOAD FAILED] File: {}, Error: {}", fileNameWithPath, e.getMessage(), e);
 			throw new RuntimeException(ERROR_IN_CONFIGURATION);
 		}
 
@@ -119,17 +121,18 @@ public class MinioRepository implements CloudFilesManager {
 			putObjectOptions.setContentType(contentType);
 			minioClient.putObject(minioConfig.getBucketName(), fileNameWithPath, is, putObjectOptions);*/
 
-			long fileSize = is.available();
+//			long fileSize = is.available();
 			PutObjectArgs.Builder putObjectArgsBuilder = PutObjectArgs.builder()
 					.bucket(minioConfig.getBucketName())
 					.object(fileNameWithPath)
-					.stream(is, fileSize, -1) // Set part size to -1 for auto detection
+					.stream(is, contentLength, -1) // Set part size to -1 for auto detection
 					.contentType(contentType); // Change this as per your file's content type
 			minioClient.putObject(putObjectArgsBuilder.build());
+			log.info("[THUMBNAIL UPLOAD SUCCESS] {}", fileNameWithPath);
 
 		} catch (MinioException | InvalidKeyException | IllegalArgumentException | NoSuchAlgorithmException
 				| IOException e) {
-			log.error("Error occurred: " + e);
+			log.error("[THUMBNAIL UPLOAD FAILED] File: {}, Error: {}", fileNameWithPath, e.getMessage(), e);
 			throw new RuntimeException(ERROR_IN_CONFIGURATION);
 		}
 
