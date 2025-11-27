@@ -2,6 +2,7 @@ package org.egov.infra.indexer.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.egov.infra.indexer.service.IndexerService;
+import org.egov.infra.indexer.util.DLQHandler;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,9 @@ public class CoreIndexMessageListener implements MessageListener<String, String>
 
 	@Autowired
 	private IndexerService indexerService;
+	
+	@Autowired
+	private DLQHandler dlqHandler;
 
 	@Value("${egov.statelevel.tenantId}")
 	private  String stateLevelTenantId ;
@@ -31,13 +35,19 @@ public class CoreIndexMessageListener implements MessageListener<String, String>
 	 */
 	public void onMessage(ConsumerRecord<String, String> data) {
 		log.info("Topic from CoreIndexMessageListener: " + data.topic());
+		
 		// Adding in MDC so that tracer can add it in header
-		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
-	try {
+		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
+		
+		try {
 			indexerService.esIndexer(data.topic(), data.value());
 		} catch (Exception e) {
-			log.error("error while indexing: ", e);
+			dlqHandler.handleError(data.value(), e, "CoreIndexMessageListener");
+		} finally {
+			// Always clear MDC to prevent data leakage across thread reuse
+			MDC.remove(TENANTID_MDC_STRING);
 		}
 	}
+	
 
 }

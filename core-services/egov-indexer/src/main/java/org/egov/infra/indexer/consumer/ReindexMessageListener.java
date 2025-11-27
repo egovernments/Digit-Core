@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.egov.infra.indexer.service.IndexerService;
 import org.egov.infra.indexer.service.ReindexService;
 import org.egov.infra.indexer.util.IndexerUtils;
+import org.egov.infra.indexer.util.DLQHandler;
 import org.egov.infra.indexer.web.contract.ReindexRequest;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ReindexMessageListener implements MessageListener<String, String> {
 	
 	@Autowired
 	private IndexerService indexerService;
+	
+	@Autowired
+	private DLQHandler dlqHandler;
 	
 	@Value("${egov.core.reindex.topic.name}")
 	private String reindexTopic;
@@ -57,13 +61,13 @@ public class ReindexMessageListener implements MessageListener<String, String> {
 				ReindexRequest reindexRequest = mapper.readValue(data.value(), ReindexRequest.class);
 				reindexService.beginReindex(reindexRequest);
 			} catch (Exception e) {
-				log.error("Couldn't parse reindex request: ", e);
+				dlqHandler.handleError(data.value(), e, "ReindexMessageListener");
 			}	
 		}else {
 			try {
 				indexerService.esIndexer(data.topic(), data.value());
 			} catch (Exception e) {
-				log.error("error while indexing: ", e);
+				dlqHandler.handleError(data.value(), e, "ReindexMessageListener");
 			}
 		}
 	}

@@ -8,6 +8,7 @@ import org.egov.infra.indexer.service.DataTransformationService;
 import org.egov.infra.indexer.service.IndexerService;
 import org.egov.infra.indexer.util.IndexerConstants;
 import org.egov.infra.indexer.util.IndexerUtils;
+import org.egov.infra.indexer.util.DLQHandler;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,9 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 
 	@Autowired
 	private PGRCustomDecorator pgrCustomDecorator;
+
+	@Autowired
+	private DLQHandler dlqHandler;
 
 	@Value("${pgr.create.topic.name}")
 	private String pgrCreateTopic;
@@ -66,7 +70,7 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 				 serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
 			}catch (Exception e)
 			{
-				log.error("Couldn't parse pgrindex request: ", e);
+				dlqHandler.handleError(data.value(), e, "PGRCustomIndexMessageListener");
 			}
 
 			//Extracting tenantId
@@ -85,7 +89,7 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 
 				indexerService.esIndexer(data.topic(), kafkaJson);
 			}catch(Exception e){
-				log.error("Error while indexing pgr-request: " + e);
+				dlqHandler.handleError(kafkaJson, e, "PGRCustomIndexMessageListener");
 			}
 		}else {
 			ObjectMapper mapper = indexerUtils.getObjectMapper();
@@ -94,7 +98,7 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 				PGRIndexObject indexObject = pgrCustomDecorator.dataTransformationForPGR(serviceResponse);
 				indexerService.esIndexer(data.topic(), mapper.writeValueAsString(indexObject));
 			} catch (Exception e) {
-				log.error("Couldn't parse pgrindex request: ", e);
+				dlqHandler.handleError(data.value(), e, "PGRCustomIndexMessageListener");
 			}
 		}
 	}
