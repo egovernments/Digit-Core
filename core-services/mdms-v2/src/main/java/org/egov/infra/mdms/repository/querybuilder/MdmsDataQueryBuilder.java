@@ -37,8 +37,10 @@ public class MdmsDataQueryBuilder {
         Map<String, String> schemaCodeFilterMap = mdmsCriteria.getSchemaCodeFilterMap();
         if (!Objects.isNull(mdmsCriteria.getTenantId())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.tenantid LIKE ? ");
-            preparedStmtList.add(mdmsCriteria.getTenantId() + "%");
+            builder.append(" data.tenantid LIKE ? ESCAPE '\\' ");
+            // Escape SQL LIKE wildcards to prevent wildcard injection attacks
+            String escapedTenantId = escapeLikeWildcards(mdmsCriteria.getTenantId());
+            preparedStmtList.add(escapedTenantId + "%");
         }
         if (!Objects.isNull(mdmsCriteria.getIds())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
@@ -61,6 +63,21 @@ public class MdmsDataQueryBuilder {
             preparedStmtList.add(mdmsCriteria.getIsActive());
         }
         return builder.toString();
+    }
+
+    /**
+     * Escapes SQL LIKE special characters (%, _) to prevent wildcard injection
+     * @param input The input string to escape
+     * @return The escaped string safe for use in LIKE patterns
+     */
+    private String escapeLikeWildcards(String input) {
+        if (input == null) {
+            return null;
+        }
+        // Escape backslash first, then % and _
+        return input.replace("\\", "\\\\")
+                    .replace("%", "\\%")
+                    .replace("_", "\\_");
     }
 
 }
