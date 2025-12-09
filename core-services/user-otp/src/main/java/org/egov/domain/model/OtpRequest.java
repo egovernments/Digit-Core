@@ -31,7 +31,8 @@ public class OtpRequest {
 
     public void validate() {
         if(isTenantIdAbsent()
-				|| !isUserNameOrMobileNumberValid()
+				|| isMobileNumberAbsent()
+                || !isUserNameOrMobileNumberValid()
 		        || isInvalidType()) {
             throw new InvalidOtpRequestException(this);
         }

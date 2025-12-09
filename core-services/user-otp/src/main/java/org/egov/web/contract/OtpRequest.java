@@ -37,7 +37,6 @@ public class OtpRequest {
     private String getTenantId() {
         return otp != null ? otp.getTenantId() : null;
     }
-
 }
 
 
