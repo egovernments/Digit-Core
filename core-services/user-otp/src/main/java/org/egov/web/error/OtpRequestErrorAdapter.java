@@ -51,10 +51,10 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
     private List<ErrorField> getErrorFields(OtpRequest model) {
         List<ErrorField> errorFields = new ArrayList<>();
         addTenantIdValidationErrors(model, errorFields);
-        addMobileNumberValidationErrors(model, errorFields);
+        //addMobileNumberValidationErrors(model, errorFields);
         addRequestTypeValidationErrors(model, errorFields);
-        addMobileNumberInvalidValidationErrors(model, errorFields);
-		addMobileNumberValidLengthValidationError(model, errorFields);
+        //addMobileNumberInvalidValidationErrors(model, errorFields);
+		//addMobileNumberValidLengthValidationError(model, errorFields);
         return errorFields;
     }
 
