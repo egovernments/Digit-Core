@@ -79,7 +79,7 @@ public class OtpEmailRepository {
 		return locale;
 	}
 
-	private String getMessages(OtpRequest otpRequest, String localizationKey) {
+	private String getMessages(OtpRequest otpRequest, String localizationKey){
 		String tenantId = getRequiredTenantId(otpRequest.getTenantId());
 		String locale = getLocale(otpRequest);
 		Map<String, String> localisedMessages = localizationService.getLocalisedMessages(tenantId, locale, "egov-user");
@@ -89,7 +89,6 @@ public class OtpEmailRepository {
 			localisedMessages.put(LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL, "Your OTP for recovering password is %s.");
 			localisedMessages.put(LOCALIZATION_KEY_LOGIN_SUBJECT_EMAIL, "Login OTP");
             localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear Citizen, Your Login OTP is %s.");
-
 		}
 		return localisedMessages.get(localizationKey);
 	}
@@ -116,7 +115,6 @@ public class OtpEmailRepository {
 			if(ObjectUtils.isEmpty(body))
 				body = PWD_RESET_BODY_EMAIL;
             body = format(body, otpNumber);
-
 		}
 		else {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL);
