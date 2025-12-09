@@ -19,7 +19,6 @@ public class OtpRequest {
     private String tenantId;
     private OtpRequestType type;
     private String userType;
-	private String userName;
 
 	@Setter
 	private MobileValidationConfig mdmsValidationConfig;
@@ -47,11 +46,6 @@ public class OtpRequest {
 			}
 			// Fallback to default validation
 			if(isMobileNumberNumeric() || isMobileNumberValidLength()){
-				return false;
-			}
-		}
-		else {
-			if(isUserNameAbsent()){
 				return false;
 			}
 		}
@@ -129,12 +123,4 @@ public class OtpRequest {
     public boolean isMobileNumberAbsent() {
         return isEmpty(mobileNumber);
     }
-
-	public boolean isUserNameAbsent() {
-		return isEmpty(userName);
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
 }
