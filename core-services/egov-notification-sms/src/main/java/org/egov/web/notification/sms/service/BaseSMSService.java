@@ -32,6 +32,9 @@ import java.net.*;
 import java.security.*;
 import java.util.*;
 
+import java.util.regex.Pattern;
+
+
 @Slf4j
 abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
 
@@ -66,6 +69,11 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
     public void sendSMS(Sms sms) {
         if (!sms.isValid()) {
             log.error(String.format("Sms %s is not valid", sms));
+            return;
+        }
+
+        if (!Pattern.matches(smsProperties.getMobileValidationPattern(), sms.getMobileNumber())) {
+            log.error(String.format("Sms to %s failed validation: %s", sms.getMobileNumber(), smsProperties.getMobileValidationErrorMessage()));
             return;
         }
 
