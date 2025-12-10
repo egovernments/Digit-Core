@@ -45,7 +45,7 @@ public class UserRepository {
     	String tenantIdForHeader = tenantId;
         UserSearchRequest request = null;
         if (userType !=null && userType.equals("EMPLOYEE")) {
-            request = new UserSearchRequest(null, tenantId, userType, mobileNumber);
+            request = new UserSearchRequest(mobileNumber, tenantId, userType, null);
         } else {
         	tenantIdForHeader = tenantId.split("\\.")[0];
             request = new UserSearchRequest(mobileNumber, tenantIdForHeader, userType, null);

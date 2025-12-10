@@ -20,28 +20,88 @@ public class OtpRequest {
     private OtpRequestType type;
     private String userType;
 
+	@Setter
+	private MobileValidationConfig mdmsValidationConfig;
+
+	@Setter
+	private String defaultNumericPattern;
+
+	@Setter
+	private String defaultLengthPattern;
+
     public void validate() {
         if(isTenantIdAbsent()
 				|| isMobileNumberAbsent()
-				|| isInvalidType()
-				|| isMobileNumberNumeric()
-				|| isMobileNumberValidLength()) {
+                || !isUserNameOrMobileNumberValid()
+		        || isInvalidType()) {
             throw new InvalidOtpRequestException(this);
         }
     }
 
+	public boolean isUserNameOrMobileNumberValid(){
+		if(!isMobileNumberAbsent()){
+			// First try MDMS validation if config is available
+			if(mdmsValidationConfig != null && mdmsValidationConfig.getRules() != null
+					&& Boolean.TRUE.equals(mdmsValidationConfig.getRules().getIsActive())) {
+				return validateWithMdmsConfig();
+			}
+			// Fallback to default validation
+			if(isMobileNumberNumeric() || isMobileNumberValidLength()){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean validateWithMdmsConfig() {
+		MobileValidationRules rules = mdmsValidationConfig.getRules();
+
+		// Skip validation for PASSWORD_RESET type
+		if(type != null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString())) {
+			return true;
+		}
+
+		// Validate length
+		if(rules.getMinLength() != null && mobileNumber.length() < rules.getMinLength()) {
+			return false;
+		}
+		if(rules.getMaxLength() != null && mobileNumber.length() > rules.getMaxLength()) {
+			return false;
+		}
+
+		// Validate pattern
+		if(rules.getPattern() != null && !rules.getPattern().isEmpty()) {
+			if(!mobileNumber.matches(rules.getPattern())) {
+				return false;
+			}
+		}
+
+		// Validate allowed starting digits
+		if(rules.getAllowedStartingDigits() != null && !rules.getAllowedStartingDigits().isEmpty()) {
+			String firstDigit = mobileNumber.substring(0, 1);
+			if(!rules.getAllowedStartingDigits().contains(firstDigit)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public boolean isMobileNumberNumeric() {
-		// TODO Auto-generated method stub
-		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString())))
-		//return !StringUtils.isNumeric(mobileNumber);
-		return !(mobileNumber != null && mobileNumber.matches("\\d+"));
+		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString()))) {
+			String pattern = (defaultNumericPattern != null && !defaultNumericPattern.isEmpty())
+					? defaultNumericPattern : "\\d+";
+			return !(mobileNumber != null && mobileNumber.matches(pattern));
+		}
 		return false;
 	}
 
 	public boolean isMobileNumberValidLength() {
-		// TODO Auto-generated method stub
-		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString())))
-		return !(mobileNumber != null && mobileNumber.matches("^[0-9]{10,13}$"));
+		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString()))) {
+			String pattern = (defaultLengthPattern != null && !defaultLengthPattern.isEmpty())
+					? defaultLengthPattern : "^[0-9]{10,13}$";
+			return !(mobileNumber != null && mobileNumber.matches(pattern));
+		}
 		return false;
 	}
     

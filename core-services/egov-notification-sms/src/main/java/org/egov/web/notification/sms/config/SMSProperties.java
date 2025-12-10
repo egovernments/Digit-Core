@@ -69,6 +69,12 @@ public class SMSProperties {
     @Value("${sms.whitelist.numbers}")
     private List<String> whitelistNumbers;
 
+    @Value("${sms.mobile.validation.pattern}")
+    private String mobileValidationPattern;
+
+    @Value("${sms.mobile.validation.error.message}")
+    private String mobileValidationErrorMessage;
+
     @Setter(AccessLevel.PROTECTED) private List<Pattern> whitelistPatterns;
     @Setter(AccessLevel.PROTECTED) private List<Pattern> blacklistPatterns;
 
