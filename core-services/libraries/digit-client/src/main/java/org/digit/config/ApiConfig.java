@@ -1,7 +1,6 @@
 package org.digit.config;
 
 import org.digit.exception.DigitClientErrorHandler;
-import org.digit.interceptor.OpenTelemetryRestTemplateInterceptor;
 import org.digit.util.HeaderStore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -32,8 +31,7 @@ public class ApiConfig {
 
     private final ApiProperties apiProperties;
 
-    @Autowired(required = false)
-    private OpenTelemetryRestTemplateInterceptor openTelemetryInterceptor;
+    // OpenTelemetry interceptor removed
 
     @Bean
     public RestTemplate restTemplate() {
@@ -50,19 +48,8 @@ public class ApiConfig {
         converter.setObjectMapper(objectMapper());
         restTemplate.getMessageConverters().add(0, converter);
         
-        // Add OpenTelemetry interceptor if available
-        if (openTelemetryInterceptor != null) {
-            try {
-                List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(restTemplate.getInterceptors());
-                interceptors.add(openTelemetryInterceptor);
-                restTemplate.setInterceptors(interceptors);
-                log.info("✅ OpenTelemetry tracing enabled for RestTemplate");
-            } catch (Exception e) {
-                log.warn("⚠️ Failed to enable OpenTelemetry tracing: {}", e.getMessage());
-            }
-        } else {
-            log.info("ℹ️ OpenTelemetry tracing disabled (digit.opentelemetry.enabled=false or not configured)");
-        }
+        // OpenTelemetry tracing removed from digit-client
+        log.info("ℹ️ OpenTelemetry tracing not available (dependencies removed from digit-client)");
         
         log.info("✅ RestTemplate created - interceptors will be added by auto-configuration");
         
