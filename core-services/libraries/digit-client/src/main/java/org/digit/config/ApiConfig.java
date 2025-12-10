@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Slf4j
 @Configuration
-@ComponentScan(basePackages = "com.digit")
+@ComponentScan(basePackages = "org.digit")
 @RequiredArgsConstructor
 public class ApiConfig {
 

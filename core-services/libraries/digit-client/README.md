@@ -115,7 +115,7 @@ Create a simple configuration class in your project:
 ```java
 package com.yourproject.config;
 
-import com.digit.config.ApiConfig;
+import org.digit.config.ApiConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -166,15 +166,15 @@ public class YourService {
 #### Option B: Manual Context Setup
 
 ```java
-import com.digit.config.ApiConfig;
-import com.digit.services.account.AccountClient;
-import com.digit.services.boundary.BoundaryClient;
-import com.digit.services.workflow.WorkflowClient;
-import com.digit.services.individual.IndividualClient;
-import com.digit.services.filestore.FilestoreClient;
-import com.digit.services.idgen.IdGenClient;
-import com.digit.services.mdms.MdmsClient;
-import com.digit.services.notification.NotificationClient;
+import org.digit.config.ApiConfig;
+import org.digit.services.account.AccountClient;
+import org.digit.services.boundary.BoundaryClient;
+import org.digit.services.workflow.WorkflowClient;
+import org.digit.services.individual.IndividualClient;
+import org.digit.services.filestore.FilestoreClient;
+import org.digit.services.idgen.IdGenClient;
+import org.digit.services.mdms.MdmsClient;
+import org.digit.services.notification.NotificationClient;
 
 // Initialize Spring context with configuration
 ApplicationContext context = new AnnotationConfigApplicationContext(ApiConfig.class);
@@ -859,14 +859,14 @@ mvn clean compile
 ## Running Examples
 
 ```bash
-mvn exec:java -Dexec.mainClass="com.digit.example.DigitClientExample"
+mvn exec:java -Dexec.mainClass="org.digit.example.DigitClientExample"
 ```
 
 ## Adding New Service Clients
 
 To add a new service client:
 
-1. Create a new package under `com.digit.services`
+1. Create a new package under `org.digit.services`
 2. Add model classes in the `model` subpackage
 3. Create a client class following the pattern of existing clients
 4. Add service URL configuration to `ApiProperties`
