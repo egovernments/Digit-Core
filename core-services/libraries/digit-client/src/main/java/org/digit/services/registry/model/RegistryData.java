@@ -1,6 +1,5 @@
 package org.digit.services.registry.model;
 
-import org.digit.services.common.model.AuditDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,11 +9,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
 
 /**
- * Registry data model representing registry data from Registry service.
+ * Registry data request model matching Go DataRequest struct.
  */
 @Data
 @Builder
@@ -23,48 +21,16 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegistryData {
 
-    @JsonProperty("id")
-    private UUID id;
-
-    @JsonProperty("registryId")
-    private String registryId;
-
     @JsonIgnore
     private String tenantId;
 
-    @JsonProperty("schemaCode")
+    @JsonIgnore
     private String schemaCode;
-
-    @JsonProperty("schemaVersion")
-    private Integer schemaVersion;
 
     @JsonProperty("version")
     private Integer version;
 
     @JsonProperty("data")
+    @NotNull
     private JsonNode data;
-
-    @JsonProperty("isActive")
-    private Boolean isActive;
-
-    @JsonProperty("effectiveFrom")
-    private LocalDateTime effectiveFrom;
-
-    @JsonProperty("effectiveTo")
-    private LocalDateTime effectiveTo;
-
-    @JsonProperty("auditDetails")
-    private AuditDetails auditDetails;
-
-    @JsonIgnore
-    private LocalDateTime createdAt;
-
-    @JsonIgnore
-    private LocalDateTime updatedAt;
-
-    @JsonIgnore
-    private String createdBy;
-
-    @JsonIgnore
-    private String updatedBy;
 }

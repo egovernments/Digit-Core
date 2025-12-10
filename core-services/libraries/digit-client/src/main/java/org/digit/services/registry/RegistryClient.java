@@ -43,15 +43,16 @@ public class RegistryClient {
     /**
      * Creates registry data with the specified registry data object.
      *
+     * @param schemaCode the schema code (used as path parameter)
      * @param registryData the RegistryData object to be created
-     * @return the created RegistryData object
+     * @return the response from registry service
      * @throws DigitClientException if creation fails
      */
-    public RegistryData createRegistryData(RegistryData registryData) {
+    public RegistryDataResponse createRegistryData(String schemaCode, RegistryData registryData) {
         if (registryData == null) {
             throw new DigitClientException("Registry data cannot be null");
         }
-        if (registryData.getSchemaCode() == null || registryData.getSchemaCode().trim().isEmpty()) {
+        if (schemaCode == null || schemaCode.trim().isEmpty()) {
             throw new DigitClientException("Schema code cannot be null or empty");
         }
         if (registryData.getData() == null) {
@@ -59,8 +60,8 @@ public class RegistryClient {
         }
 
         try {
-            log.debug("Creating registry data with schema code: {}", registryData.getSchemaCode());
-            String url = apiProperties.getRegistryServiceUrl() + "/registry/v1/schema/" + registryData.getSchemaCode() + "/data";
+            log.debug("Creating registry data with schema code: {}", schemaCode);
+            String url = apiProperties.getRegistryServiceUrl() + "/registry/v1/schema/" + schemaCode + "/data";
             
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
@@ -68,16 +69,12 @@ public class RegistryClient {
             HttpEntity<RegistryData> entity = new HttpEntity<>(registryData, headers);
             
             ResponseEntity<RegistryDataResponse> response = restTemplate.postForEntity(url, entity, RegistryDataResponse.class);
-            RegistryData createdData = null;
-            if (response.getBody() != null && response.getBody().getRegistryData() != null && !response.getBody().getRegistryData().isEmpty()) {
-                createdData = response.getBody().getRegistryData().get(0);
-            }
             
-            log.debug("Successfully created registry data with schema code: {}", registryData.getSchemaCode());
-            return createdData;
+            log.debug("Successfully created registry data with schema code: {}", schemaCode);
+            return response.getBody();
             
         } catch (Exception e) {
-            log.error("Failed to create registry data with schema code: {}", registryData.getSchemaCode(), e);
+            log.error("Failed to create registry data with schema code: {}", schemaCode, e);
             if (e instanceof DigitClientException) {
                 throw e;
             }
@@ -90,10 +87,10 @@ public class RegistryClient {
      *
      * @param schemaCode the schema code for the registry
      * @param registryId the registry ID to search for
-     * @return the RegistryData object if found
+     * @return the response from registry service
      * @throws DigitClientException if the data is not found or an error occurs
      */
-    public RegistryData searchRegistryData(String schemaCode, String registryId) {
+    public RegistryDataResponse searchRegistryData(String schemaCode, String registryId) {
         if (schemaCode == null || schemaCode.trim().isEmpty()) {
             throw new DigitClientException("Schema code cannot be null or empty");
         }
@@ -110,13 +107,9 @@ public class RegistryClient {
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             
             ResponseEntity<RegistryDataResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, RegistryDataResponse.class);
-            RegistryData registryData = null;
-            if (response.getBody() != null && response.getBody().getRegistryData() != null && !response.getBody().getRegistryData().isEmpty()) {
-                registryData = response.getBody().getRegistryData().get(0);
-            }
             
             log.debug("Successfully retrieved registry data with schema code: {} and registry ID: {}", schemaCode, registryId);
-            return registryData;
+            return response.getBody();
             
         } catch (Exception e) {
             log.error("Failed to retrieve registry data with schema code: {} and registry ID: {}", schemaCode, registryId, e);

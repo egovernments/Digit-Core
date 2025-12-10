@@ -7,10 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
- * Response wrapper for Registry data operations.
+ * Registry response model matching Go Response struct.
  */
 @Data
 @Builder
@@ -19,11 +17,14 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegistryDataResponse {
 
-    @JsonProperty("registryData")
-    private List<RegistryData> registryData;
-
     @JsonProperty("success")
     private Boolean success;
+
+    @JsonProperty("data")
+    private Object data;
+
+    @JsonProperty("error")
+    private String error;
 
     @JsonProperty("message")
     private String message;

@@ -3,10 +3,10 @@ package org.digit.example;
 import org.digit.factory.DigitClientFactory;
 import org.digit.services.registry.RegistryClient;
 import org.digit.services.registry.model.RegistryData;
+import org.digit.services.registry.model.RegistryDataResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,40 +37,39 @@ public class RegistryClientExample {
             JsonNode dataNode = objectMapper.valueToTree(licenseData);
             
             RegistryData registryData = RegistryData.builder()
-                    .schemaCode("tradelicense")
-                    .schemaVersion(1)
                     .version(1)
                     .data(dataNode)
-                    .isActive(true)
-                    .effectiveFrom(LocalDateTime.now())
                     .build();
 
             System.out.println("Creating registry data...");
-            RegistryData createdData = registryClient.createRegistryData(registryData);
+            RegistryDataResponse createResponse = registryClient.createRegistryData("tradelicense", registryData);
             
-            if (createdData != null) {
+            if (createResponse != null && createResponse.getSuccess()) {
                 System.out.println("Successfully created registry data:");
-                System.out.println("Registry ID: " + createdData.getRegistryId());
-                System.out.println("Schema Code: " + createdData.getSchemaCode());
-                System.out.println("Is Active: " + createdData.getIsActive());
+                System.out.println("Success: " + createResponse.getSuccess());
+                System.out.println("Data: " + createResponse.getData());
+                System.out.println("Message: " + createResponse.getMessage());
                 
                 // Example 2: Search registry data
-                String registryId = createdData.getRegistryId();
-                if (registryId != null) {
-                    System.out.println("\nSearching for registry data...");
-                    RegistryData foundData = registryClient.searchRegistryData(createdData.getSchemaCode(), registryId);
-                    
-                    if (foundData != null) {
-                        System.out.println("Successfully found registry data:");
-                        System.out.println("Registry ID: " + foundData.getRegistryId());
-                        System.out.println("Schema Code: " + foundData.getSchemaCode());
-                        System.out.println("Data: " + foundData.getData());
-                    } else {
-                        System.out.println("Registry data not found");
+                System.out.println("\nSearching for registry data...");
+                RegistryDataResponse searchResponse = registryClient.searchRegistryData("tradelicense", "some-registry-id");
+                
+                if (searchResponse != null && searchResponse.getSuccess()) {
+                    System.out.println("Successfully found registry data:");
+                    System.out.println("Success: " + searchResponse.getSuccess());
+                    System.out.println("Data: " + searchResponse.getData());
+                    System.out.println("Message: " + searchResponse.getMessage());
+                } else {
+                    System.out.println("Registry data not found or error occurred:");
+                    if (searchResponse != null) {
+                        System.out.println("Error: " + searchResponse.getError());
                     }
                 }
             } else {
-                System.out.println("Failed to create registry data");
+                System.out.println("Failed to create registry data:");
+                if (createResponse != null) {
+                    System.out.println("Error: " + createResponse.getError());
+                }
             }
 
         } catch (Exception e) {
