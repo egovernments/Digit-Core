@@ -1,0 +1,83 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "a01e5988-223a-4ca3-98df-45dc9aeefef7",
+            "tenantId": "pg",
+            "code": "common-masters.CommonInboxConfig",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "moduleName",
+                    "BusinessService",
+                    "roles",
+                    "active",
+                    "locality",
+                    "localityModule",
+                    "redirectConfig"
+                ],
+                "x-unique": [
+                    "BusinessService"
+                ],
+                "properties": {
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "locality": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "moduleName": {
+                        "type": "string"
+                    },
+                    "localityModule": {
+                        "type": "string"
+                    },
+                    "redirectConfig": {
+                        "type": "object",
+                        "required": [
+                            "INITIATED",
+                            "DEFAULT"
+                        ],
+                        "properties": {
+                            "DEFAULT": {
+                                "type": "string"
+                            },
+                            "INITIATED": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "BusinessService": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "lastModifiedBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "createdTime": 1701688795229,
+                "lastModifiedTime": 1701688795229
+            }
+        }
+    ]
+}

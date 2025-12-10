@@ -1,0 +1,79 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "4dd4d4cb-b538-4fa1-b84e-9abb0bb3eff8",
+            "tenantId": "pg",
+            "code": "common-masters.CronJobAPIConfig",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "jobName",
+                    "active",
+                    "method",
+                    "url",
+                    "payload",
+                    "header"
+                ],
+                "x-unique": [
+                    "url"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "string"
+                    },
+                    "header": {
+                        "type": "object",
+                        "required": [
+                            "Content-Type"
+                        ],
+                        "properties": {
+                            "Content-Type": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "method": {
+                        "type": "string"
+                    },
+                    "jobName": {
+                        "type": "string"
+                    },
+                    "payload": {
+                        "type": "object",
+                        "required": [
+                            "RequestInfo"
+                        ],
+                        "properties": {
+                            "RequestInfo": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "lastModifiedBy": "a02659b8-78a7-4f22-984d-050107432f22",
+                "createdTime": 1701688796119,
+                "lastModifiedTime": 1701688796119
+            }
+        }
+    ]
+}

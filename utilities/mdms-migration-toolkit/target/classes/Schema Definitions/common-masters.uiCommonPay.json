@@ -1,0 +1,95 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "26212c7a-382b-495c-9737-046015ab8c9f",
+            "tenantId": "pg",
+            "code": "common-masters.uiCommonPay",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "code",
+                    "headerBandLabel",
+                    "receiptKey",
+                    "billKey",
+                    "cancelReceipt",
+                    "cancelBill",
+                    "arrears",
+                    "buttons"
+                ],
+                "x-unique": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "arrears": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "billKey": {
+                        "type": "string"
+                    },
+                    "buttons": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "label",
+                                "citizenUrl",
+                                "employeeUrl"
+                            ],
+                            "properties": {
+                                "label": {
+                                    "type": "string"
+                                },
+                                "citizenUrl": {
+                                    "type": "string"
+                                },
+                                "employeeUrl": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "pdfModule": {
+                        "type": "string"
+                    },
+                    "cancelBill": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "receiptKey": {
+                        "type": "string"
+                    },
+                    "cancelReceipt": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "headerBandLabel": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "lastModifiedBy": "2e17a032-b113-4911-9449-fb53ba7a385a",
+                "createdTime": 1701689641898,
+                "lastModifiedTime": 1701689641898
+            }
+        }
+    ]
+}

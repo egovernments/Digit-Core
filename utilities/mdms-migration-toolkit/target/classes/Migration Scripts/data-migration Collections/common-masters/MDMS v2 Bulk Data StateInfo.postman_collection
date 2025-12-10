@@ -1,0 +1,202 @@
+{
+	"info": {
+		"_postman_id": "fdf4d562-b56b-4752-a14e-86cfc983dad6",
+		"name": "MDMS v2 Bulk Data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25737272"
+	},
+	"item": [
+		{
+			"name": "MDMS v2 CreateData",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var data=[",
+							"     {",
+							"      \"name\": \"Demo\",",
+							"      \"code\": \"pg\",",
+							"      \"qrCodeURL\":\"https://lh3.googleusercontent.com/-311gz2-xcHw/X6KRNSQTkWI/AAAAAAAAAKU/JmHSj-6rKPMVFbo6oL5x4JhYTTg8-UHmwCK8BGAsYHg/s0/2020-11-04.png\",",
+							"      \"bannerUrl\": \"https://upyog-assets.s3.ap-south-1.amazonaws.com/bannerImage.png\",",
+							"      \"logoUrl\": \"https://in-egov-assets.s3.ap-south-1.amazonaws.com/nugp.png\",",
+							"      \"logoUrlWhite\": \"https://in-egov-assets.s3.ap-south-1.amazonaws.com/nugp.png\",",
+							"      \"statelogo\":\"https://s3.ap-south-1.amazonaws.com/pg-egov-assets/pg.citya/logo.png\",",
+							"      \"hasLocalisation\": true,",
+							"      \"defaultUrl\": {",
+							"        \"citizen\": \"/user/register\",",
+							"        \"employee\": \"/user/login\"",
+							"      },",
+							"      \"languages\": [",
+							"        {",
+							"          \"label\": \"ENGLISH\",",
+							"          \"value\": \"en_IN\"",
+							"        },",
+							"        {",
+							"          \"label\": \"हिंदी\",",
+							"          \"value\": \"hi_IN\"",
+							"        }",
+							"      ],",
+							"      \"localizationModules\": [",
+							"        {",
+							"          \"label\": \"rainmaker-abg\",",
+							"          \"value\": \"rainmaker-abg\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-common\",",
+							"          \"value\": \"rainmaker-common\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-noc\",",
+							"          \"value\": \"rainmaker-noc\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-pt\",",
+							"          \"value\": \"rainmaker-pt\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-uc\",",
+							"          \"value\": \"rainmaker-uc\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-pgr\",",
+							"          \"value\": \"rainmaker-pgr\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-tl\",",
+							"          \"value\": \"rainmaker-tl\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-hr\",",
+							"          \"value\": \"rainmaker-hr\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-test\",",
+							"          \"value\": \"rainmaker-test\"",
+							"        },",
+							"        {",
+							"          \"label\": \"finance-erp\",",
+							"          \"value\": \"finance-erp\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-receipt\",",
+							"          \"value\": \"rainmaker-receipt\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-dss\",",
+							"          \"value\": \"rainmaker-dss\"",
+							"        },",
+							"        {",
+							"          \"label\": \"rainmaker-fsm\",",
+							"          \"value\": \"rainmaker-fsm\"",
+							"        }",
+							"      ]",
+							"    }",
+							"]",
+							"",
+							"pm.collectionVariables.set(\"raw\", data);",
+							"",
+							"var obj = pm.collectionVariables.get(\"raw\");",
+							"",
+							"pm.collectionVariables.set(\"req\", JSON.stringify(obj[pm.globals.get(\"i\")]))",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.collectionVariables.get(\"raw\");\r",
+							"\r",
+							"var items = pm.globals.get(\"i\");\r",
+							"\r",
+							"\r",
+							"if (items < data.length){\r",
+							"\r",
+							"    pm.globals.set(\"i\", Number(items) + 1);\r",
+							"\r",
+							"    postman.setNextRequest(\"MDMS v2 CreateData\");\r",
+							"}else{\r",
+							"    pm.globals.set(\"i\", 0);\r",
+							"    postman.setNextRequest(null)\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"asset-services\",\r\n        \"ver\": null,\r\n        \"ts\": null,\r\n        \"action\": null,\r\n        \"did\": null,\r\n        \"key\": null,\r\n        \"msgId\": \"search with from and to values\",\r\n        \"authToken\": \"{{authToken}}\",\r\n        \"correlationId\": null,\r\n        \"userInfo\": {\r\n            \"id\": \"1\",\r\n            \"userName\": null,\r\n            \"name\": null,\r\n            \"type\": null,\r\n            \"mobileNumber\": null,\r\n            \"emailId\": null,\r\n            \"roles\": null,\r\n            \"uuid\": \"40dceade-992d-4a8f-8243-19dda76a4171\"\r\n        }\r\n    },\r\n    \"Mdms\": {\r\n        \"tenantId\": \"pg\",\r\n        \"schemaCode\": \"common-masters.StateInfo\",\r\n        \"data\": {{req}},\r\n        \"isActive\": true\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8094/mdms-v2/v2/_create/common-masters.StateInfo",
+					"host": [
+						"localhost"
+					],
+					"port": "8094",
+					"path": [
+						"mdms-v2",
+						"v2",
+						"_create",
+						"common-masters.StateInfo"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "raw",
+			"value": ""
+		},
+		{
+			"key": "req",
+			"value": ""
+		}
+	]
+}

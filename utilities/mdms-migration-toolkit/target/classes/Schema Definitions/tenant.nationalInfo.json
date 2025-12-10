@@ -1,0 +1,61 @@
+{
+    "ResponseInfo": {
+        "apiId": "asset-services",
+        "ver": null,
+        "ts": null,
+        "resMsgId": "uief87324",
+        "msgId": "search with from and to values",
+        "status": "successful"
+    },
+    "SchemaDefinitions": [
+        {
+            "id": "cd042e65-7017-467f-b210-3cb09fab09ef",
+            "tenantId": "pg",
+            "code": "tenant.nationalInfo",
+            "description": null,
+            "definition": {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                    "stateCode",
+                    "stateName",
+                    "code",
+                    "name",
+                    "active",
+                    "module"
+                ],
+                "x-unique": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "module": {
+                        "type": "string"
+                    },
+                    "stateCode": {
+                        "type": "string"
+                    },
+                    "stateName": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "isActive": true,
+            "auditDetails": {
+                "createdBy": "11b0e02b-0145-4de2-bc42-c97b96264807",
+                "lastModifiedBy": "11b0e02b-0145-4de2-bc42-c97b96264807",
+                "createdTime": 1701255396070,
+                "lastModifiedTime": 1701255396070
+            }
+        }
+    ]
+}
