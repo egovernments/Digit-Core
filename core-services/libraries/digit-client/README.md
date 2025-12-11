@@ -4,7 +4,7 @@ A comprehensive Java Spring client library for Digit services. This library prov
 
 ## Features
 
-- **8 Service Clients**: Account, Boundary, Workflow, Individual, Filestore, IdGen, MDMS, Notification
+- **9 Service Clients**: Account, Boundary, Workflow, Individual, Filestore, IdGen, MDMS, Notification, Registry
 - **Type-Safe APIs**: Strongly typed request/response models with proper validation
 - **Spring Framework 6+**: Modern Spring features with Java 17 support
 - **Comprehensive Error Handling**: Custom exceptions with detailed error information
@@ -80,6 +80,7 @@ digit.services.filestore.base-url=http://localhost:8080/filestore
 digit.services.idgen.base-url=http://localhost:8080/idgen
 digit.services.mdms.base-url=http://localhost:8080/mdms
 digit.services.notification.base-url=http://localhost:8080/notification
+digit.services.registry.base-url=http://localhost:8080/registry
 
 # Timeout settings
 digit.services.timeout.connect=5000
@@ -136,6 +137,7 @@ public class DigitClientConfig {
     // - IdGenClient (with RestTemplate + ApiProperties)
     // - MdmsClient (with RestTemplate + ApiProperties)
     // - NotificationClient (with RestTemplate + ApiProperties)
+    // - RegistryClient (with RestTemplate + ApiProperties)
     // - HeaderPropagationInterceptor (automatic header propagation)
 }
 ```
@@ -188,6 +190,7 @@ FilestoreClient filestoreClient = context.getBean(FilestoreClient.class);
 IdGenClient idGenClient = context.getBean(IdGenClient.class);
 MdmsClient mdmsClient = context.getBean(MdmsClient.class);
 NotificationClient notificationClient = context.getBean(NotificationClient.class);
+RegistryClient registryClient = context.getBean(RegistryClient.class);
 ```
 
 ### 3. Configure Service URLs
@@ -204,6 +207,7 @@ digit.services.filestore.base-url=http://localhost:8080/filestore
 digit.services.idgen.base-url=http://localhost:8080/idgen
 digit.services.mdms.base-url=http://localhost:8080/mdms
 digit.services.notification.base-url=http://localhost:8080/notification
+digit.services.registry.base-url=http://localhost:8080/registry
 ```
 
 ## Service Client APIs
@@ -789,6 +793,53 @@ SendSMSResponse simpleSmsResponse = notificationClient.sendSMS(
 - **Returns**: SendSMSResponse - The SMS send response
 - **Throws**: DigitClientException if SMS sending fails
 
+### Registry Service Operations
+
+```java
+// Create registry data
+RegistryData registryData = RegistryData.builder()
+    .data(Map.of("name", "John Doe", "age", 30))
+    .build();
+RegistryDataResponse createResponse = registryClient.createRegistryData("CITIZEN_SCHEMA", registryData);
+
+// Search registry data with history enabled (default)
+RegistryDataResponse searchResponse = registryClient.searchRegistryData("CITIZEN_SCHEMA", "registry-123");
+
+// Search registry data with history disabled
+RegistryDataResponse searchResponseNoHistory = registryClient.searchRegistryData("CITIZEN_SCHEMA", "registry-123", false);
+
+// Search registry data with history enabled explicitly
+RegistryDataResponse searchResponseWithHistory = registryClient.searchRegistryData("CITIZEN_SCHEMA", "registry-123", true);
+```
+
+#### Registry Service Functions
+
+**1. createRegistryData(String schemaCode, RegistryData registryData)**
+- **Purpose**: Creates registry data with the specified schema code and registry data object
+- **Parameters**: 
+  - `schemaCode` (String) - The schema code used as path parameter (cannot be null or empty)
+  - `registryData` (RegistryData) - The RegistryData object to be created (cannot be null, data field cannot be null)
+- **Returns**: RegistryDataResponse - The response from registry service
+- **Throws**: DigitClientException if creation fails or validation errors occur
+
+**2. searchRegistryData(String schemaCode, String registryId)**
+- **Purpose**: Searches for registry data by schema code and registry ID with history enabled by default
+- **Parameters**: 
+  - `schemaCode` (String) - The schema code for the registry (cannot be null or empty)
+  - `registryId` (String) - The registry ID to search for (cannot be null or empty)
+- **Returns**: RegistryDataResponse - The response from registry service
+- **Throws**: DigitClientException if the data is not found or an error occurs
+- **Note**: This method calls the overloaded version with history=true for backward compatibility
+
+**3. searchRegistryData(String schemaCode, String registryId, boolean history)**
+- **Purpose**: Searches for registry data by schema code and registry ID with configurable history parameter
+- **Parameters**: 
+  - `schemaCode` (String) - The schema code for the registry (cannot be null or empty)
+  - `registryId` (String) - The registry ID to search for (cannot be null or empty)
+  - `history` (boolean) - Whether to include history in the search
+- **Returns**: RegistryDataResponse - The response from registry service
+- **Throws**: DigitClientException if the data is not found or an error occurs
+
 #### Additional Service Models
 
 **IdGenGenerateRequest Model:**
@@ -834,6 +885,22 @@ SendSMSRequest smsRequest = SendSMSRequest.builder()
     .category(SMSCategory.TRANSACTIONAL)  // SMS category
     .enrich(false)                        // Enrichment flag
     .build();
+```
+
+**Registry Request/Response Models:**
+```java
+// Registry data request
+RegistryData registryData = RegistryData.builder()
+    .data(Map.of(                         // Registry data object (required)
+        "name", "John Doe",
+        "age", 30,
+        "email", "john@example.com"
+    ))
+    .build();
+
+// Registry data response contains:
+response.getRegistryData()                // List of RegistryData objects
+response.getResponseInfo()                // Response metadata
 ```
 
 ### Error Handling

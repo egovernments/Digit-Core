@@ -87,10 +87,11 @@ public class RegistryClient {
      *
      * @param schemaCode the schema code for the registry
      * @param registryId the registry ID to search for
+     * @param history whether to include history in the search
      * @return the response from registry service
      * @throws DigitClientException if the data is not found or an error occurs
      */
-    public RegistryDataResponse searchRegistryData(String schemaCode, String registryId) {
+    public RegistryDataResponse searchRegistryData(String schemaCode, String registryId, boolean history) {
         if (schemaCode == null || schemaCode.trim().isEmpty()) {
             throw new DigitClientException("Schema code cannot be null or empty");
         }
@@ -99,8 +100,8 @@ public class RegistryClient {
         }
 
         try {
-            log.debug("Searching registry data with schema code: {} and registry ID: {}", schemaCode, registryId);
-            String url = apiProperties.getRegistryServiceUrl() + "/registry/v1/schema/" + schemaCode + "/data/_registry?registryId=" + registryId + "&history=true";
+            log.debug("Searching registry data with schema code: {}, registry ID: {}, and history: {}", schemaCode, registryId, history);
+            String url = apiProperties.getRegistryServiceUrl() + "/registry/v1/schema/" + schemaCode + "/data/_registry?registryId=" + registryId + "&history=" + history;
             
             HttpHeaders headers = new HttpHeaders();
             
@@ -108,15 +109,27 @@ public class RegistryClient {
             
             ResponseEntity<RegistryDataResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, RegistryDataResponse.class);
             
-            log.debug("Successfully retrieved registry data with schema code: {} and registry ID: {}", schemaCode, registryId);
+            log.debug("Successfully retrieved registry data with schema code: {}, registry ID: {}, and history: {}", schemaCode, registryId, history);
             return response.getBody();
             
         } catch (Exception e) {
-            log.error("Failed to retrieve registry data with schema code: {} and registry ID: {}", schemaCode, registryId, e);
+            log.error("Failed to retrieve registry data with schema code: {}, registry ID: {}, and history: {}", schemaCode, registryId, history, e);
             if (e instanceof DigitClientException) {
                 throw e;
             }
             throw new DigitClientException("Failed to retrieve registry data: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Searches for registry data by schema code and registry ID with history enabled by default.
+     *
+     * @param schemaCode the schema code for the registry
+     * @param registryId the registry ID to search for
+     * @return the response from registry service
+     * @throws DigitClientException if the data is not found or an error occurs
+     */
+    public RegistryDataResponse searchRegistryData(String schemaCode, String registryId) {
+        return searchRegistryData(schemaCode, registryId, true);
     }
 }
