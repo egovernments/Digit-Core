@@ -810,6 +810,12 @@ RegistryDataResponse searchResponseNoHistory = registryClient.searchRegistryData
 
 // Search registry data with history enabled explicitly
 RegistryDataResponse searchResponseWithHistory = registryClient.searchRegistryData("CITIZEN_SCHEMA", "registry-123", true);
+
+// Update registry data (automatically handles version increment)
+RegistryData updateData = RegistryData.builder()
+    .data(Map.of("name", "Jane Doe", "age", 25))
+    .build();
+RegistryDataResponse updateResponse = registryClient.updateRegistryData("CITIZEN_SCHEMA", updateData, "registry-123");
 ```
 
 #### Registry Service Functions
@@ -839,6 +845,16 @@ RegistryDataResponse searchResponseWithHistory = registryClient.searchRegistryDa
   - `history` (boolean) - Whether to include history in the search
 - **Returns**: RegistryDataResponse - The response from registry service
 - **Throws**: DigitClientException if the data is not found or an error occurs
+
+**4. updateRegistryData(String schemaCode, RegistryData registryData, String registryId)**
+- **Purpose**: Updates registry data by first fetching current version and incrementing it automatically
+- **Parameters**: 
+  - `schemaCode` (String) - The schema code for the registry (cannot be null or empty)
+  - `registryData` (RegistryData) - The RegistryData object with updated data (cannot be null, data field cannot be null)
+  - `registryId` (String) - The registry ID to update (cannot be null or empty)
+- **Returns**: RegistryDataResponse - The response from registry service
+- **Throws**: DigitClientException if update fails, data is not found, or validation errors occur
+- **Note**: This method automatically fetches the current version, increments it, and includes it in the update request
 
 #### Additional Service Models
 
