@@ -267,14 +267,27 @@ public class RegistryClient {
     }
 
     /**
-     * Extracts version from the search response data array.
+     * Extracts version from the search response data object.
      *
-     * @param response the search response containing data array
-     * @return the version number from the first data item
+     * @param response the search response containing data object
+     * @return the version number from the data object
      */
     private Integer extractVersionFromResponse(RegistryDataResponse response) {
         try {
-            if (response.getData() instanceof java.util.List) {
+            // Handle both single object and array responses
+            if (response.getData() instanceof java.util.Map) {
+                // Single object response
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> dataMap = (java.util.Map<String, Object>) response.getData();
+                Object versionObj = dataMap.get("version");
+                
+                if (versionObj instanceof Integer) {
+                    return (Integer) versionObj;
+                } else if (versionObj instanceof Number) {
+                    return ((Number) versionObj).intValue();
+                }
+            } else if (response.getData() instanceof java.util.List) {
+                // Array response (for backward compatibility)
                 @SuppressWarnings("unchecked")
                 java.util.List<java.util.Map<String, Object>> dataList = (java.util.List<java.util.Map<String, Object>>) response.getData();
                 
