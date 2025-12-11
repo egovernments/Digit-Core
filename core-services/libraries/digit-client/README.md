@@ -816,6 +816,15 @@ RegistryData updateData = RegistryData.builder()
     .data(Map.of("name", "Jane Doe", "age", 25))
     .build();
 RegistryDataResponse updateResponse = registryClient.updateRegistryData("CITIZEN_SCHEMA", updateData, "registry-123");
+
+// Search registry data using contains criteria with default pagination (limit=5, offset=0)
+RegistryDataResponse searchByField = registryClient.searchRegistryData("CITIZEN_SCHEMA", "holderName", "Jane Citizen");
+
+// Search registry data using contains criteria with custom pagination
+RegistryDataResponse searchByFieldPaginated = registryClient.searchRegistryData("CITIZEN_SCHEMA", "status", "ACTIVE", 10, 0);
+
+// Search with only custom limit (offset defaults to 0)
+RegistryDataResponse searchWithLimit = registryClient.searchRegistryData("CITIZEN_SCHEMA", "status", "ACTIVE", 20, null);
 ```
 
 #### Registry Service Functions
@@ -855,6 +864,28 @@ RegistryDataResponse updateResponse = registryClient.updateRegistryData("CITIZEN
 - **Returns**: RegistryDataResponse - The response from registry service
 - **Throws**: DigitClientException if update fails, data is not found, or validation errors occur
 - **Note**: This method automatically fetches the current version, increments it, and includes it in the update request
+
+**5. searchRegistryData(String schemaCode, String key, String value)**
+- **Purpose**: Searches for registry data using contains criteria with default pagination (limit=5, offset=0)
+- **Parameters**: 
+  - `schemaCode` (String) - The schema code for the registry (cannot be null or empty)
+  - `key` (String) - The field name to search in (cannot be null or empty)
+  - `value` (String) - The value to search for (cannot be null or empty)
+- **Returns**: RegistryDataResponse - The response from registry service
+- **Throws**: DigitClientException if search fails or validation errors occur
+- **Note**: Uses POST method with contains criteria in request body
+
+**6. searchRegistryData(String schemaCode, String key, String value, Integer limit, Integer offset)**
+- **Purpose**: Searches for registry data using contains criteria with optional pagination
+- **Parameters**: 
+  - `schemaCode` (String) - The schema code for the registry (cannot be null or empty)
+  - `key` (String) - The field name to search in (cannot be null or empty)
+  - `value` (String) - The value to search for (cannot be null or empty)
+  - `limit` (Integer) - Maximum number of results to return (optional, defaults to 5 if null)
+  - `offset` (Integer) - Number of results to skip (optional, defaults to 0 if null)
+- **Returns**: RegistryDataResponse - The response from registry service
+- **Throws**: DigitClientException if search fails or validation errors occur
+- **Note**: Uses POST method with contains criteria. Limit and offset are optional - pass null to use defaults
 
 #### Additional Service Models
 

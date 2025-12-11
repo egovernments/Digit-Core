@@ -134,6 +134,75 @@ public class RegistryClient {
     }
 
     /**
+     * Searches for registry data using contains criteria with default pagination.
+     *
+     * @param schemaCode the schema code for the registry
+     * @param key the field name to search in
+     * @param value the value to search for
+     * @return the response from registry service
+     * @throws DigitClientException if search fails or validation errors occur
+     */
+    public RegistryDataResponse searchRegistryData(String schemaCode, String key, String value) {
+        return searchRegistryData(schemaCode, key, value, null, null);
+    }
+
+    /**
+     * Searches for registry data using contains criteria with optional pagination.
+     *
+     * @param schemaCode the schema code for the registry
+     * @param key the field name to search in
+     * @param value the value to search for
+     * @param limit maximum number of results to return (optional, defaults to 5 if null)
+     * @param offset number of results to skip (optional, defaults to 0 if null)
+     * @return the response from registry service
+     * @throws DigitClientException if search fails or validation errors occur
+     */
+    public RegistryDataResponse searchRegistryData(String schemaCode, String key, String value, Integer limit, Integer offset) {
+        if (schemaCode == null || schemaCode.trim().isEmpty()) {
+            throw new DigitClientException("Schema code cannot be null or empty");
+        }
+        if (key == null || key.trim().isEmpty()) {
+            throw new DigitClientException("Search key cannot be null or empty");
+        }
+        if (value == null || value.trim().isEmpty()) {
+            throw new DigitClientException("Search value cannot be null or empty");
+        }
+
+        try {
+            // Use default values if limit or offset are null
+            int actualLimit = (limit != null) ? limit : 5;
+            int actualOffset = (offset != null) ? offset : 0;
+            
+            log.debug("Searching registry data with schema code: {}, key: {}, value: {}, limit: {}, offset: {}", 
+                     schemaCode, key, value, actualLimit, actualOffset);
+            
+            String url = apiProperties.getRegistryServiceUrl() + "/registry/v1/schema/" + schemaCode + "/data/_search?limit=" + actualLimit + "&offset=" + actualOffset;
+            
+            // Create search request body with contains criteria
+            Map<String, Object> searchRequest = Map.of(
+                "contains", Map.of(key, value)
+            );
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(searchRequest, headers);
+            
+            ResponseEntity<RegistryDataResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, RegistryDataResponse.class);
+            
+            log.debug("Successfully searched registry data with schema code: {}, key: {}, value: {}", schemaCode, key, value);
+            return response.getBody();
+            
+        } catch (Exception e) {
+            log.error("Failed to search registry data with schema code: {}, key: {}, value: {}", schemaCode, key, value, e);
+            if (e instanceof DigitClientException) {
+                throw e;
+            }
+            throw new DigitClientException("Failed to search registry data: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Updates registry data by first fetching current version and incrementing it.
      *
      * @param schemaCode the schema code for the registry
