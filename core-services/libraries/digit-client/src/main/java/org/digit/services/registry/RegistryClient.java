@@ -130,6 +130,6 @@ public class RegistryClient {
      * @throws DigitClientException if the data is not found or an error occurs
      */
     public RegistryDataResponse searchRegistryData(String schemaCode, String registryId) {
-        return searchRegistryData(schemaCode, registryId, true);
+        return searchRegistryData(schemaCode, registryId, false);
     }
 }
