@@ -203,36 +203,40 @@ public class RegistryClient {
     }
 
     /**
-     * Updates registry data by first fetching current version and incrementing it.
+     * Updates registry data by first searching with key-value pair to get current version and registry ID.
      *
      * @param schemaCode the schema code for the registry
      * @param registryData the RegistryData object to be updated
-     * @param registryId the registry ID to update
+     * @param key the field name to search for existing data
+     * @param value the value to search for existing data
      * @return the response from registry service
      * @throws DigitClientException if update fails or data is not found
      */
-    public RegistryDataResponse updateRegistryData(String schemaCode, RegistryData registryData, String registryId) {
+    public RegistryDataResponse updateRegistryData(String schemaCode, RegistryData registryData, String key, String value) {
         if (schemaCode == null || schemaCode.trim().isEmpty()) {
             throw new DigitClientException("Schema code cannot be null or empty");
         }
         if (registryData == null) {
             throw new DigitClientException("Registry data cannot be null");
         }
-        if (registryId == null || registryId.trim().isEmpty()) {
-            throw new DigitClientException("Registry ID cannot be null or empty");
+        if (key == null || key.trim().isEmpty()) {
+            throw new DigitClientException("Search key cannot be null or empty");
+        }
+        if (value == null || value.trim().isEmpty()) {
+            throw new DigitClientException("Search value cannot be null or empty");
         }
         if (registryData.getData() == null) {
             throw new DigitClientException("Data cannot be null");
         }
 
         try {
-            log.debug("Updating registry data with schema code: {} and registry ID: {}", schemaCode, registryId);
+            log.debug("Updating registry data with schema code: {}, key: {}, and value: {}", schemaCode, key, value);
             
-            // First, search for existing data to get current version
-            RegistryDataResponse searchResponse = searchRegistryData(schemaCode, registryId, false);
+            // First, search for existing data using key-value pair to get current version and registry ID
+            RegistryDataResponse searchResponse = searchRegistryData(schemaCode, key, value);
             
             if (searchResponse == null || searchResponse.getData() == null) {
-                throw new DigitClientException("Registry data not found for registryId: " + registryId);
+                throw new DigitClientException("Registry data not found for key: " + key + " and value: " + value);
             }
 
             // Extract version from search response
@@ -241,10 +245,16 @@ public class RegistryClient {
                 throw new DigitClientException("Could not extract version from existing registry data");
             }
 
+            // Extract registry ID from search response
+            String registryId = extractRegistryIdFromResponse(searchResponse);
+            if (registryId == null || registryId.trim().isEmpty()) {
+                throw new DigitClientException("Could not extract registry ID from existing registry data");
+            }
+
             // Set incremented version in the update data
             registryData.setVersion(currentVersion);
             
-            // Construct update URL
+            // Construct update URL using extracted registry ID
             String url = apiProperties.getRegistryServiceUrl() + "/registry/v1/schema/" + schemaCode + "/data?id=" + registryId;
             
             HttpHeaders headers = new HttpHeaders();
@@ -254,11 +264,11 @@ public class RegistryClient {
             
             ResponseEntity<RegistryDataResponse> response = restTemplate.exchange(url, HttpMethod.PUT, entity, RegistryDataResponse.class);
             
-            log.debug("Successfully updated registry data with schema code: {} and registry ID: {}", schemaCode, registryId);
+            log.debug("Successfully updated registry data with schema code: {}, key: {}, and value: {}", schemaCode, key, value);
             return response.getBody();
             
         } catch (Exception e) {
-            log.error("Failed to update registry data with schema code: {} and registry ID: {}", schemaCode, registryId, e);
+            log.error("Failed to update registry data with schema code: {}, key: {}, and value: {}", schemaCode, key, value, e);
             if (e instanceof DigitClientException) {
                 throw e;
             }
@@ -305,6 +315,49 @@ public class RegistryClient {
             return null;
         } catch (Exception e) {
             log.warn("Error extracting version from response: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Extracts registry ID from the search response data object.
+     *
+     * @param response the search response containing data object
+     * @return the registry ID from the data object
+     */
+    private String extractRegistryIdFromResponse(RegistryDataResponse response) {
+        try {
+            // Handle both single object and array responses
+            if (response.getData() instanceof java.util.Map) {
+                // Single object response
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> dataMap = (java.util.Map<String, Object>) response.getData();
+                Object registryIdObj = dataMap.get("registryId");
+                
+                if (registryIdObj instanceof String) {
+                    return (String) registryIdObj;
+                } else if (registryIdObj != null) {
+                    return registryIdObj.toString();
+                }
+            } else if (response.getData() instanceof java.util.List) {
+                // Array response (for backward compatibility)
+                @SuppressWarnings("unchecked")
+                java.util.List<java.util.Map<String, Object>> dataList = (java.util.List<java.util.Map<String, Object>>) response.getData();
+                
+                if (!dataList.isEmpty()) {
+                    java.util.Map<String, Object> firstItem = dataList.get(0);
+                    Object registryIdObj = firstItem.get("registryId");
+                    
+                    if (registryIdObj instanceof String) {
+                        return (String) registryIdObj;
+                    } else if (registryIdObj != null) {
+                        return registryIdObj.toString();
+                    }
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("Error extracting registry ID from response: {}", e.getMessage());
             return null;
         }
     }
