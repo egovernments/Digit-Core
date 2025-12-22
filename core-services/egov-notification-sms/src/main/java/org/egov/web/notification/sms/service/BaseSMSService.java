@@ -40,6 +40,8 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
 
     private static final String SMS_RESPONSE_NOT_SUCCESSFUL = "Sms response not successful";
 
+    private Pattern mobileValidationPattern;
+
     @Autowired
     protected RestTemplate restTemplate;
 
@@ -65,6 +67,23 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
         });
     }
 
+    @PostConstruct
+    public void initValidationPattern() {
+        try {
+            String pattern = smsProperties.getMobileValidationPattern();
+            if (pattern != null && !pattern.trim().isEmpty()) {
+                this.mobileValidationPattern = Pattern.compile(pattern);
+                log.info("Mobile validation pattern initialized successfully");
+            } else {
+                log.warn("Mobile validation pattern is not configured; validation will be skipped");
+                this.mobileValidationPattern = null;
+            }
+        } catch (Exception e) {
+            log.error("Failed to compile mobile validation pattern; validation will be skipped", e);
+            this.mobileValidationPattern = null;
+        }
+    }
+
     @Override
     public void sendSMS(Sms sms) {
         if (!sms.isValid()) {
@@ -72,18 +91,27 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
             return;
         }
 
-        if (!Pattern.matches(smsProperties.getMobileValidationPattern(), sms.getMobileNumber())) {
-            log.error(String.format("Sms to %s failed validation: %s", sms.getMobileNumber(), smsProperties.getMobileValidationErrorMessage()));
+        try {
+            if (mobileValidationPattern != null && sms.getMobileNumber() != null) {
+                if (!mobileValidationPattern.matcher(sms.getMobileNumber()).matches()) {
+                    log.error("Sms to {} failed validation: {}",
+                            maskMobile(sms.getMobileNumber()),
+                            smsProperties.getMobileValidationErrorMessage());
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Mobile validation error; skipping SMS send", e);
             return;
         }
 
         if (smsProperties.isNumberBlacklisted(sms.getMobileNumber())) {
-            log.error(String.format("Sms to %s is blacklisted", sms.getMobileNumber()));
+            log.error("Sms to {} is blacklisted", maskMobile(sms.getMobileNumber()));
             return;
         }
 
         if (!smsProperties.isNumberWhitelisted(sms.getMobileNumber())) {
-            log.error(String.format("Sms to %s is not in whitelist", sms.getMobileNumber()));
+            log.error("Sms to {} is not in whitelist", maskMobile(sms.getMobileNumber()));
             return;
         }
 
@@ -225,6 +253,12 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
             requestFactory.setHttpClient(httpClient);
             restTemplate.setRequestFactory(requestFactory);
         }
+    }
+
+    private static String maskMobile(String number) {
+        if (number == null) return "null";
+        int n = number.length();
+        return (n <= 4) ? "****" : ("****" + number.substring(n - 4));
     }
 
 }

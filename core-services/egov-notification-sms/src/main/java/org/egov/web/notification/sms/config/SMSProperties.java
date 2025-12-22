@@ -69,10 +69,10 @@ public class SMSProperties {
     @Value("${sms.whitelist.numbers}")
     private List<String> whitelistNumbers;
 
-    @Value("${sms.mobile.validation.pattern}")
+    @Value("${sms.mobile.validation.pattern:^[79][0-9]{8}$}")
     private String mobileValidationPattern;
 
-    @Value("${sms.mobile.validation.error.message}")
+    @Value("${sms.mobile.validation.error.message:Please enter a valid 9-digit mobile number starting with 7 or 9}")
     private String mobileValidationErrorMessage;
 
     @Setter(AccessLevel.PROTECTED) private List<Pattern> whitelistPatterns;

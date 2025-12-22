@@ -3,7 +3,6 @@ package org.egov.web.notification.sms.controller;
 
 import org.egov.hash.HashService;
 import org.egov.web.notification.sms.config.Producer;
-import org.egov.web.notification.sms.config.SMSProperties;
 import org.egov.web.notification.sms.models.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,11 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.regex.*;
 
 @Service
 @Controller
@@ -29,9 +23,6 @@ public class CallbackAPI {
 
     @Autowired
     HashService hashService;
-
-    @Autowired
-    SMSProperties smsProperties;
 
     @Value("${kafka.topics.sms.bounce}")
     private String topic;
@@ -53,11 +44,6 @@ public class CallbackAPI {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Status value should be 0 to 11");
-        }
-        if(!(Pattern.matches(smsProperties.getMobileValidationPattern(), mobilenumber))) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(smsProperties.getMobileValidationErrorMessage());
         }
         Report report = new Report();
         report.setJobno(jobno);
