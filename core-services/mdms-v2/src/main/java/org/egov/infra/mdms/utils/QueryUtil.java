@@ -95,6 +95,70 @@ public class QueryUtil {
     }
 
     /**
+     * Checks if a value contains regex patterns
+     * @param value The value to check
+     * @return true if the value contains regex patterns
+     */
+    public static boolean isRegexPattern(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        
+        // Check for explicit regex: prefix
+        if (value.startsWith("regex:")) {
+            return true;
+        }
+        
+        // Check for common regex patterns
+        return value.contains(".*") || 
+               value.contains(".+") || 
+               value.contains("^") || 
+               value.contains("$") || 
+               value.contains("[") || 
+               value.contains("]") || 
+               value.contains("(") || 
+               value.contains(")") || 
+               value.contains("{") || 
+               value.contains("}") || 
+               value.contains("+") || 
+               value.contains("*") || 
+               value.contains("?") || 
+               value.contains("|") || 
+               value.contains("\\");
+    }
+
+    /**
+     * Adds regex filter conditions to the query
+     * @param builder The query builder
+     * @param regexFilters Map of field names to regex patterns
+     * @param preparedStmtList List to add prepared statement parameters
+     */
+    public static void addRegexFilters(StringBuilder builder, Map<String, String> regexFilters, List<Object> preparedStmtList) {
+        regexFilters.forEach((key, pattern) -> {
+            addClauseIfRequired(builder, preparedStmtList);
+            
+            if (key.contains(DOT_SEPARATOR)) {
+                // Handle nested fields: address.city -> data->'address'->>'city'
+                String[] parts = key.split(DOT_REGEX);
+                builder.append(" data.data");
+                
+                // Build nested JSON path
+                for (int i = 0; i < parts.length - 1; i++) {
+                    builder.append("->'" + parts[i] + "'");
+                }
+                builder.append("->>'").append(parts[parts.length - 1]).append("'");
+            } else {
+                // Handle simple fields: name -> data.data->>'name'
+                builder.append(" data.data->>'").append(key).append("'");
+            }
+            
+            // Use case-insensitive regex operator
+            builder.append(" ~* ? ");
+            preparedStmtList.add(pattern);
+        });
+    }
+
+    /**
      * Tail recursive method to prepare n-level nested partial json for queries on nested data in
      * master data. For e.g. , if the key is in the format a.b.c, it will construct a nested json
      * object of the form - {"a":{"b":{"c": "value"}}}

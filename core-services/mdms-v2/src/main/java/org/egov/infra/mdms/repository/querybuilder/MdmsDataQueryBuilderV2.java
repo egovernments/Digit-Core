@@ -69,10 +69,32 @@ public class MdmsDataQueryBuilderV2 {
             preparedStmtList.add(mdmsCriteriaV2.getSchemaCode());
         }
         if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getFilterMap())){
-            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" data.data @> CAST( ? AS jsonb )");
-            String partialQueryJsonString = QueryUtil.preparePartialJsonStringFromFilterMap(mdmsCriteriaV2.getFilterMap());
-            preparedStmtList.add(partialQueryJsonString);
+            // Separate exact match filters from regex filters
+            Map<String, String> exactFilters = new HashMap<>();
+            Map<String, String> regexFilters = new HashMap<>();
+            
+            mdmsCriteriaV2.getFilterMap().forEach((key, value) -> {
+                if (QueryUtil.isRegexPattern(value)) {
+                    // Remove regex: prefix if present
+                    String regexValue = value.startsWith("regex:") ? value.substring(6) : value;
+                    regexFilters.put(key, regexValue);
+                } else {
+                    exactFilters.put(key, value);
+                }
+            });
+            
+            // Handle exact match filters using JSONB containment
+            if (!exactFilters.isEmpty()) {
+                QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+                builder.append(" data.data @> CAST( ? AS jsonb )");
+                String partialQueryJsonString = QueryUtil.preparePartialJsonStringFromFilterMap(exactFilters);
+                preparedStmtList.add(partialQueryJsonString);
+            }
+            
+            // Handle regex filters using PostgreSQL regex operators
+            if (!regexFilters.isEmpty()) {
+                QueryUtil.addRegexFilters(builder, regexFilters, preparedStmtList);
+            }
         }
         if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getUniqueIdentifiersForRefVerification())){
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
