@@ -1,11 +1,14 @@
 package org.egov.domain.model;
 
 import lombok.*;
-import org.egov.domain.exception.InvalidOtpRequestException;
 import org.egov.web.contract.RequestInfo;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+/**
+ * Domain model representing an OTP request.
+ * This is a pure DTO - validation logic is handled by OtpRequestValidator.
+ */
 @Getter
 @AllArgsConstructor
 @Builder
@@ -14,10 +17,14 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class OtpRequest {
 
 	private RequestInfo requestInfo;
+
 	@Setter
     private String mobileNumber;
+
     private String tenantId;
+
     private OtpRequestType type;
+
     private String userType;
 
 	@Setter
@@ -33,94 +40,10 @@ public class OtpRequest {
 	@Getter
 	private String mdmsValidationErrorMessage;
 
-    public void validate() {
-        if(isTenantIdAbsent()
-				|| isMobileNumberAbsent()
-                || !isUserNameOrMobileNumberValid()
-		        || isInvalidType()) {
-            throw new InvalidOtpRequestException(this);
-        }
-    }
-
-	public boolean isUserNameOrMobileNumberValid(){
-		if(!isMobileNumberAbsent()){
-			// First try MDMS validation if config is available
-			if(mdmsValidationConfig != null && mdmsValidationConfig.getRules() != null
-					&& Boolean.TRUE.equals(mdmsValidationConfig.getRules().getIsActive())) {
-				return validateWithMdmsConfig();
-			}
-			// Fallback to default validation
-			if(isMobileNumberNumeric() || isMobileNumberValidLength()){
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private boolean validateWithMdmsConfig() {
-		MobileValidationRules rules = mdmsValidationConfig.getRules();
-
-		// Skip validation for PASSWORD_RESET type
-		if(type != null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString())) {
-			return true;
-		}
-
-		// Validate length
-		if(rules.getMinLength() != null && mobileNumber.length() < rules.getMinLength()) {
-			setMdmsValidationErrorMessage(rules.getErrorMessage());
-			return false;
-		}
-		if(rules.getMaxLength() != null && mobileNumber.length() > rules.getMaxLength()) {
-			setMdmsValidationErrorMessage(rules.getErrorMessage());
-			return false;
-		}
-
-		// Validate pattern
-		if(rules.getPattern() != null && !rules.getPattern().isEmpty()) {
-			if(!mobileNumber.matches(rules.getPattern())) {
-				setMdmsValidationErrorMessage(rules.getErrorMessage());
-				return false;
-			}
-		}
-
-		// Validate allowed starting digits
-		if(rules.getAllowedStartingDigits() != null && !rules.getAllowedStartingDigits().isEmpty()) {
-			if(mobileNumber.isEmpty()) {
-				setMdmsValidationErrorMessage(rules.getErrorMessage());
-				return false;
-			}
-			String firstDigit = mobileNumber.substring(0, 1);
-			if(!rules.getAllowedStartingDigits().contains(firstDigit)) {
-				setMdmsValidationErrorMessage(rules.getErrorMessage());
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public boolean isMobileNumberNumeric() {
-		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString()))) {
-			String pattern = (defaultNumericPattern != null && !defaultNumericPattern.isEmpty())
-					? defaultNumericPattern : "\\d+";
-			return !(mobileNumber != null && mobileNumber.matches(pattern));
-		}
-		return false;
-	}
-
-	public boolean isMobileNumberValidLength() {
-		if(!(type!=null && type.toString().equalsIgnoreCase(OtpRequestType.PASSWORD_RESET.toString()))) {
-			String pattern = (defaultLengthPattern != null && !defaultLengthPattern.isEmpty())
-					? defaultLengthPattern : "^[0-9]{10,13}$";
-			return !(mobileNumber != null && mobileNumber.matches(pattern));
-		}
-		return false;
-	}
-    
 	public boolean isRegistrationRequestType() {
     	return OtpRequestType.REGISTER.equals(getType());
 	}
-	
+
 	public boolean isLoginRequestType() {
     	return OtpRequestType.LOGIN.equals(getType());
 	}
@@ -139,5 +62,31 @@ public class OtpRequest {
 
 	public boolean hasMdmsValidationError() {
 		return mdmsValidationErrorMessage != null && !mdmsValidationErrorMessage.isEmpty();
+	}
+
+	/**
+	 * Checks if mobile number matches the numeric pattern.
+	 * Used by error adapter for default validation error messages.
+	 */
+	public boolean isMobileNumberNumeric() {
+		if (type != null && OtpRequestType.PASSWORD_RESET.equals(type)) {
+			return false;
+		}
+		String pattern = (defaultNumericPattern != null && !defaultNumericPattern.isEmpty())
+				? defaultNumericPattern : "\\d+";
+		return !(mobileNumber != null && mobileNumber.matches(pattern));
+	}
+
+	/**
+	 * Checks if mobile number matches the length pattern.
+	 * Used by error adapter for default validation error messages.
+	 */
+	public boolean isMobileNumberValidLength() {
+		if (type != null && OtpRequestType.PASSWORD_RESET.equals(type)) {
+			return false;
+		}
+		String pattern = (defaultLengthPattern != null && !defaultLengthPattern.isEmpty())
+				? defaultLengthPattern : "^[0-9]{10,13}$";
+		return !(mobileNumber != null && mobileNumber.matches(pattern));
 	}
 }

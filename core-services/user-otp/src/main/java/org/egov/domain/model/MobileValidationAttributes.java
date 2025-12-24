@@ -12,14 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MobileValidationConfig {
+public class MobileValidationAttributes {
 
-    @JsonProperty("rules")
-    private MobileValidationRules rules;
-
-    @JsonProperty("fieldType")
-    private String fieldType;
-
-    @JsonProperty("attributes")
-    private MobileValidationAttributes attributes;
+    @JsonProperty("prefix")
+    private String prefix;
 }
