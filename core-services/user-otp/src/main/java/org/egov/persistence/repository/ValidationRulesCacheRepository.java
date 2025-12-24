@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import jakarta.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,6 +36,19 @@ public class ValidationRulesCacheRepository {
     }
 
     /**
+     * Clear validation rules cache on service startup to ensure fresh data from MDMS.
+     */
+    @PostConstruct
+    public void clearCacheOnStartup() {
+        try {
+            clearAllCache();
+            log.info("Cleared validation rules cache on service startup");
+        } catch (Exception e) {
+            log.warn("Failed to clear validation rules cache on startup: {}", e.getMessage());
+        }
+    }
+
+    /**
      * Get cached validation rules for a tenant.
      *
      * @param tenantId the tenant ID
@@ -47,7 +61,14 @@ public class ValidationRulesCacheRepository {
 
             if (cachedValue != null) {
                 log.debug("Cache hit for validation rules, tenantId: {}", tenantId);
-                return objectMapper.readValue(cachedValue.toString(), MobileValidationConfig.class);
+                MobileValidationConfig config = objectMapper.readValue(cachedValue.toString(), MobileValidationConfig.class);
+                // Validate cached config has required structure - clear stale cache if not
+                if (config.getRules() == null) {
+                    log.warn("Cached config has null rules (stale/invalid format), clearing cache for tenantId: {}", tenantId);
+                    clearCacheForTenant(tenantId);
+                    return null;  // Return null to trigger fresh MDMS fetch
+                }
+                return config;
             }
 
             log.debug("Cache miss for validation rules, tenantId: {}", tenantId);
