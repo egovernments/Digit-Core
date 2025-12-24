@@ -24,10 +24,10 @@ public class MdmsRepository {
     @Value("${egov.mdms.search.endpoint}")
     private String mdmsSearchEndpoint;
 
-    @Value("${egov.mdms.module.name:ValidationConfigs}")
+    @Value("${egov.mdms.module.name:common-masters}")
     private String moduleName;
 
-    @Value("${egov.mdms.master.name:mobileNumberValidation}")
+    @Value("${egov.mdms.master.name:UserValidation}")
     private String masterName;
 
     @Autowired
@@ -66,12 +66,30 @@ public class MdmsRepository {
             Map<String, Object> response = restTemplate.postForObject(uri, request, Map.class);
 
             if (response != null && response.containsKey("MdmsRes")) {
-                Map<String, Object> mdmsRes = (Map<String, Object>) response.get("MdmsRes");
-                if (mdmsRes != null && mdmsRes.containsKey(moduleName)) {
-                    Map<String, Object> validationConfigs = (Map<String, Object>) mdmsRes.get(moduleName);
-                    if (validationConfigs != null && validationConfigs.containsKey(masterName)) {
-                        List<Object> configList = (List<Object>) validationConfigs.get(masterName);
-                        if (configList != null && !configList.isEmpty()) {
+                Object mdmsResObj = response.get("MdmsRes");
+                if (!(mdmsResObj instanceof Map)) {
+                    log.warn("Unexpected MdmsRes type: {}", mdmsResObj != null ? mdmsResObj.getClass() : "null");
+                    return null;
+                }
+                Map<String, Object> mdmsRes = (Map<String, Object>) mdmsResObj;
+
+                if (mdmsRes.containsKey(moduleName)) {
+                    Object moduleObj = mdmsRes.get(moduleName);
+                    if (!(moduleObj instanceof Map)) {
+                        log.warn("Unexpected module type for {}: {}", moduleName, moduleObj != null ? moduleObj.getClass() : "null");
+                        return null;
+                    }
+                    Map<String, Object> validationConfigs = (Map<String, Object>) moduleObj;
+
+                    if (validationConfigs.containsKey(masterName)) {
+                        Object masterObj = validationConfigs.get(masterName);
+                        if (!(masterObj instanceof List)) {
+                            log.warn("Unexpected master type for {}: {}", masterName, masterObj != null ? masterObj.getClass() : "null");
+                            return null;
+                        }
+                        List<Object> configList = (List<Object>) masterObj;
+
+                        if (!configList.isEmpty()) {
                             MobileValidationConfig config = objectMapper.convertValue(
                                     configList.get(0), MobileValidationConfig.class);
                             log.info("Successfully fetched mobile validation config: {}", config);

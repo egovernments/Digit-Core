@@ -16,14 +16,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MobileValidationRules {
 
-    @JsonProperty("prefix")
-    private String prefix;
-
     @JsonProperty("pattern")
     private String pattern;
-
-    @JsonProperty("isActive")
-    private Boolean isActive;
 
     @JsonProperty("maxLength")
     private Integer maxLength;
@@ -34,6 +28,6 @@ public class MobileValidationRules {
     @JsonProperty("errorMessage")
     private String errorMessage;
 
-    @JsonProperty("allowedStartingDigits")
-    private List<String> allowedStartingDigits;
+    @JsonProperty("allowedStartingCharacters")
+    private List<String> allowedStartingCharacters;
 }
