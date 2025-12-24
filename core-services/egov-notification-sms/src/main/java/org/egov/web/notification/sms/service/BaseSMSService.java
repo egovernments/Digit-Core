@@ -217,6 +217,9 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
     protected HttpHeaders getHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(smsProperties.getContentType()));
+        if (smsProperties.isHeaderAuthorization()) {
+        	headers.setBasicAuth(smsProperties.getUsername(), smsProperties.getPassword());
+        }
         return headers;
     }
 

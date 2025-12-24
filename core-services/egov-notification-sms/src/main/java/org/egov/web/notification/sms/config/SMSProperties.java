@@ -74,6 +74,9 @@ public class SMSProperties {
 
     @Value("${sms.mobile.validation.error.message:Please enter a valid 9-digit mobile number starting with 7 or 9}")
     private String mobileValidationErrorMessage;
+    
+    @Value("${sms.provider.header.authorization}")
+    public boolean isHeaderAuthorization;
 
     @Setter(AccessLevel.PROTECTED) private List<Pattern> whitelistPatterns;
     @Setter(AccessLevel.PROTECTED) private List<Pattern> blacklistPatterns;
