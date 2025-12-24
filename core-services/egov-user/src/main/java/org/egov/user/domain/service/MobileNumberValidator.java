@@ -65,10 +65,6 @@ public class MobileNumberValidator {
             validationRules = getDefaultValidationRules();
         }
 
-        if (!Boolean.TRUE.equals(validationRules.getIsActive())) {
-            log.info("Mobile validation is not active. Skipping validation.");
-            return;
-        }
 
         // Perform validation
         Map<String, String> errorMap = new HashMap<>();
@@ -121,7 +117,6 @@ public class MobileNumberValidator {
     private ValidationRules getDefaultValidationRules() {
         ValidationRules defaultRules = new ValidationRules();
         defaultRules.setPattern(UserServiceConstants.PATTERN_MOBILE);
-        defaultRules.setIsActive(true);
         defaultRules.setMinLength(10);
         defaultRules.setMaxLength(10);
         defaultRules.setErrorMessage("Invalid mobile number format or length");
@@ -169,12 +164,12 @@ public class MobileNumberValidator {
             MdmsV2Response response = restTemplate.postForObject(url, searchRequest, MdmsV2Response.class);
 
             if (response != null && !CollectionUtils.isEmpty(response.getMdms())) {
-                // Filter for entry with validationName = "defaultMobileValidation" and isActive = true
+                // Filter for entry with uniqueIdentifier = "mobile" and isActive = true
                 for (MdmsV2Data mdmsData : response.getMdms()) {
                     if (mdmsData.getData() != null
                         && Boolean.TRUE.equals(mdmsData.getIsActive())
-                        && UserServiceConstants.DEFAULT_MOBILE_VALIDATION_NAME.equals(mdmsData.getData().getValidationName())) {
-                        log.info("Found defaultMobileValidation configuration for tenant: {}", stateLevelTenantId);
+                        && UserServiceConstants.MOBILE_UNIQUE_IDENTIFIER.equals(mdmsData.getUniqueIdentifier())) {
+                        log.info("Found mobile validation configuration for tenant: {}", stateLevelTenantId);
                         ValidationRules rules = mdmsData.getData().getRules();
 
                         // Cache the fetched rules
@@ -183,7 +178,7 @@ public class MobileNumberValidator {
                         return rules;
                     }
                 }
-                log.warn("No active defaultMobileValidation configuration found for tenant: {}", stateLevelTenantId);
+                log.warn("No active mobile validation configuration found for tenant: {}", stateLevelTenantId);
             }
 
             log.warn("No validation rules found in MDMS-v2 for tenant: {}", stateLevelTenantId);

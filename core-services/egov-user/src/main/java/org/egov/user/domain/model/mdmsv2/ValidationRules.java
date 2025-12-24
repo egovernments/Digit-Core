@@ -14,14 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ValidationRules {
 
-    @JsonProperty("prefix")
-    private String prefix;
-
     @JsonProperty("pattern")
     private String pattern;
-
-    @JsonProperty("isActive")
-    private Boolean isActive;
 
     @JsonProperty("maxLength")
     private Integer maxLength;
@@ -32,6 +26,6 @@ public class ValidationRules {
     @JsonProperty("errorMessage")
     private String errorMessage;
 
-    @JsonProperty("allowedStartingDigits")
-    private List<String> allowedStartingDigits;
+    @JsonProperty("allowedStartingCharacters")
+    private List<String> allowedStartingCharacters;
 }
