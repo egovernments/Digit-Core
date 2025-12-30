@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
-import lombok.extern.log4j.Log4j;
-
 @Service
 @Log4j2
 public class MdmsService {
