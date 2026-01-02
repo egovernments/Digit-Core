@@ -46,6 +46,7 @@ on:
           - "gateway"
           - "internal-gateway-scg"
           - "internal-gateway"
+          - "gateway-kubernetes-discovery"
           - "libraries"
           - "national-dashboard-ingest"
           - "national-dashboard-kafka-pipeline"
