@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,35 +19,37 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"text/template"
 	"strings"
+	"text/template"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
- 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/rest"
 )
 
 // Route comprising of attributes to build a zuul route object
 type Route struct {
-	Path       string // Annotation value of zuul/route-path pointing to the context to be filtered
-	ServiceURL string // Service URL to be redirected to
-  	RateLimiter bool
-  	KeyResolver string
-  	ReplenishRate string
-  	BurstCapacity string
+	Host          string
+	Path          string // Annotation value of zuul/route-path pointing to the context to be filtered
+	ServiceURL    string // Service URL to be redirected to
+	RateLimiter   bool
+	KeyResolver   string
+	ReplenishRate string
+	BurstCapacity string
 }
 
 const gatewayKeyResolver = "gateway-keyResolver"
 const gatewayReplenishRate = "gateway-replenishRate"
 const gatewayBurstCapacity = "gateway-burstCapacity"
-const sAnnotation string = "zuul/route-path"
-const routesTemplate string =
-`{{- range $index, $route := . }}
+const sAnnotationPath string = "zuul/route-path"
+const sAnnotationHost string = "zuul/route-host"
+const routesTemplate string = `{{- range $index, $route := . }}
 spring.cloud.gateway.routes[{{ $index }}].id={{ $route.Path }}
 spring.cloud.gateway.routes[{{ $index }}].uri={{ $route.ServiceURL }}
 spring.cloud.gateway.routes[{{ $index }}].predicates[0]=Path=/{{ $route.Path }}/**
+{{ if ne $route.Host "" }}spring.cloud.gateway.routes[{{ $index }}].predicates[1]=Host={{ $route.Host }}{{ end }}
 {{ if $route.RateLimiter }}spring.cloud.gateway.routes[{{ $index }}].filters[0].name=RequestRateLimiter
 {{ if ne $route.KeyResolver "" }}spring.cloud.gateway.routes[{{ $index }}].filters[0].args.redis-rate-limiter.keyResolver="#{{ "{" }}{{ $route.KeyResolver }}{{ "}" }}"{{ end }}
 {{ if ne $route.ReplenishRate "" }}spring.cloud.gateway.routes[{{ $index }}].filters[0].args.redis-rate-limiter.replenishRate={{ $route.ReplenishRate }}{{ end }}
@@ -56,16 +58,16 @@ spring.cloud.gateway.routes[{{ $index }}].predicates[0]=Path=/{{ $route.Path }}/
 
 func getKubeConnection() (clientset *kubernetes.Clientset) {
 
- 	config, err := rest.InClusterConfig()
- 	if err != nil {
- 		panic(err)
- 	}
- 	clientset, err = kubernetes.NewForConfig(config)
- 	if err != nil {
- 		panic(err)
- 	}
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err)
+	}
+	clientset, err = kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
 
- 	return clientset
+	return clientset
 }
 
 func listAllServices(clientset *kubernetes.Clientset, namespace string) (s *v1.ServiceList) {
@@ -84,29 +86,37 @@ func getRoutes(s *v1.ServiceList) (r *[]Route) {
 	for _, s := range s.Items {
 
 		if s.Annotations != nil {
-			if val, ok := s.Annotations[sAnnotation]; ok {
+			if val, ok := s.Annotations[sAnnotationPath]; ok {
 				path := fmt.Sprintf("%s", val)
 				url := fmt.Sprintf("http://%s.%s:%d/", s.Name, s.Namespace, s.Spec.Ports[0].Port)
 				// Initialize variables for rate limiter annotations
-                		rateLimiter := false
+				host := ""
+				rateLimiter := false
 				keyResolver := ""
-                		replenishRate := ""
-                		burstCapacity := ""
+				replenishRate := ""
+				burstCapacity := ""
+				if val, ok := s.Annotations[sAnnotationHost]; ok {
+					host = val
+				}
 				if val, ok := s.Annotations[gatewayKeyResolver]; ok {
-                    			rateLimiter = true
-                    			keyResolver = val
-                		}
-                		if val, ok := s.Annotations[gatewayReplenishRate]; ok {
-                    			rateLimiter = true
-                    			replenishRate = val
-                		}
-                		if val, ok := s.Annotations[gatewayBurstCapacity]; ok {
-                    			rateLimiter = true
-                    			burstCapacity = val
-                		}
+					rateLimiter = true
+					keyResolver = val
+				}
+				if val, ok := s.Annotations[gatewayReplenishRate]; ok {
+					rateLimiter = true
+					replenishRate = val
+				}
+				if val, ok := s.Annotations[gatewayBurstCapacity]; ok {
+					rateLimiter = true
+					burstCapacity = val
+				}
 
-				routes = append(routes, Route{path, url, rateLimiter, keyResolver, replenishRate, burstCapacity})
-				log.Printf("Configuring service %s routing to service URL %s \n", path, url)
+				routes = append(routes, Route{host, path, url, rateLimiter, keyResolver, replenishRate, burstCapacity})
+				if host != "" {
+					log.Printf("Configuring service %s with host %s routing to service URL %s \n", path, host, url)
+				} else {
+					log.Printf("Configuring service %s routing to service URL %s \n", path, url)
+				}
 			}
 		}
 	}
