@@ -8,6 +8,7 @@ import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.entity.Artifact;
 import org.egov.filestore.persistence.repository.ArtifactRepository;
 import org.egov.filestore.persistence.repository.FileStoreJpaRepository;
+import org.egov.filestore.producer.MalwareScanRequestProducer;
 import org.egov.filestore.repository.impl.minio.MinioConfig;
 import org.egov.filestore.validator.StorageValidator;
 import org.junit.jupiter.api.Test;
@@ -33,8 +34,10 @@ class StorageServiceTest {
         FileStoreConfig fileStoreConfig = new FileStoreConfig();
         StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
         FileStoreConfig configs = new FileStoreConfig();
+        MalwareScanRequestProducer malwareScanRequestProducer = mock(MalwareScanRequestProducer.class);
+        when(malwareScanRequestProducer.isMalwareScanEnabled()).thenReturn(false);
         StorageService storageService = new StorageService(artifactRepository, idGeneratorService, fileStoreConfig,
-                storageValidator, configs, new MinioConfig());
+                storageValidator, configs, new MinioConfig(), malwareScanRequestProducer);
         ArrayList<MultipartFile> filesToStore = new ArrayList<>();
         List<String> actualSaveResult = storageService.save(filesToStore, "Module", "Tag", "42", new RequestInfo());
         assertSame(stringList, actualSaveResult);
@@ -64,8 +67,9 @@ class StorageServiceTest {
         FileStoreConfig fileStoreConfig = new FileStoreConfig();
         StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
         FileStoreConfig configs = new FileStoreConfig();
+        MalwareScanRequestProducer malwareScanRequestProducer = mock(MalwareScanRequestProducer.class);
         assertNull((new StorageService(artifactRepository, idGeneratorService, fileStoreConfig, storageValidator, configs,
-                new MinioConfig())).retrieve("foo", "foo"));
+                new MinioConfig(), malwareScanRequestProducer)).retrieve("foo", "foo"));
         verify(fileStoreJpaRepository).findByFileStoreIdAndTenantId((String) any(), (String) any());
     }
 
@@ -107,8 +111,9 @@ class StorageServiceTest {
         FileStoreConfig fileStoreConfig = new FileStoreConfig();
         StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
         FileStoreConfig configs = new FileStoreConfig();
+        MalwareScanRequestProducer malwareScanRequestProducer = mock(MalwareScanRequestProducer.class);
         assertSame(resource, (new StorageService(artifactRepository, idGeneratorService, fileStoreConfig, storageValidator,
-                configs, new MinioConfig())).retrieve("foo", "foo"));
+                configs, new MinioConfig(), malwareScanRequestProducer)).retrieve("foo", "foo"));
         verify(artifact).setContentType((String) any());
         verify(artifact).setCreatedBy((String) any());
         verify(artifact).setCreatedTime((Long) any());
@@ -133,8 +138,9 @@ class StorageServiceTest {
         FileStoreConfig fileStoreConfig = new FileStoreConfig();
         StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
         FileStoreConfig configs = new FileStoreConfig();
+        MalwareScanRequestProducer malwareScanRequestProducer = mock(MalwareScanRequestProducer.class);
         assertTrue((new StorageService(artifactRepository, idGeneratorService, fileStoreConfig, storageValidator, configs,
-                new MinioConfig())).retrieveByTag("foo", "foo").isEmpty());
+                new MinioConfig(), malwareScanRequestProducer)).retrieveByTag("foo", "foo").isEmpty());
         verify(fileStoreJpaRepository).findByTagAndTenantId((String) any(), (String) any());
     }
 
@@ -163,8 +169,9 @@ class StorageServiceTest {
         FileStoreConfig fileStoreConfig = new FileStoreConfig();
         StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
         FileStoreConfig configs = new FileStoreConfig();
+        MalwareScanRequestProducer malwareScanRequestProducer = mock(MalwareScanRequestProducer.class);
         List<FileInfo> actualRetrieveByTagResult = (new StorageService(artifactRepository, idGeneratorService,
-                fileStoreConfig, storageValidator, configs, new MinioConfig())).retrieveByTag("foo", "foo");
+                fileStoreConfig, storageValidator, configs, new MinioConfig(), malwareScanRequestProducer)).retrieveByTag("foo", "foo");
         assertEquals(1, actualRetrieveByTagResult.size());
         FileInfo getResult = actualRetrieveByTagResult.get(0);
         assertEquals("text/plain", getResult.getContentType());
@@ -220,8 +227,10 @@ class StorageServiceTest {
         FileStoreConfig fileStoreConfig = new FileStoreConfig();
         StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
         FileStoreConfig configs = new FileStoreConfig();
+        MalwareScanRequestProducer malwareScanRequestProducer = mock(MalwareScanRequestProducer.class);
+        when(malwareScanRequestProducer.isMalwareScanEnabled()).thenReturn(false);
         List<FileInfo> actualRetrieveByTagResult = (new StorageService(artifactRepository, idGeneratorService,
-                fileStoreConfig, storageValidator, configs, new MinioConfig())).retrieveByTag("foo", "foo");
+                fileStoreConfig, storageValidator, configs, new MinioConfig(), malwareScanRequestProducer)).retrieveByTag("foo", "foo");
         assertEquals(2, actualRetrieveByTagResult.size());
         FileInfo getResult = actualRetrieveByTagResult.get(0);
         assertEquals("42", getResult.getTenantId());
@@ -256,11 +265,12 @@ class StorageServiceTest {
         FileStoreConfig fileStoreConfig = new FileStoreConfig();
         StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
         FileStoreConfig configs = new FileStoreConfig();
+        MalwareScanRequestProducer malwareScanRequestProducer = mock(MalwareScanRequestProducer.class);
+        when(malwareScanRequestProducer.isMalwareScanEnabled()).thenReturn(false);
         List<FileInfo> actualRetrieveByTagResult = (new StorageService(artifactRepository, idGeneratorService,
-                fileStoreConfig, storageValidator, configs, new MinioConfig())).retrieveByTag("foo", "foo");
+                fileStoreConfig, storageValidator, configs, new MinioConfig(), malwareScanRequestProducer)).retrieveByTag("foo", "foo");
         assertSame(fileInfoList, actualRetrieveByTagResult);
         assertTrue(actualRetrieveByTagResult.isEmpty());
         verify(artifactRepository).findByTag((String) any(), (String) any());
     }
 }
-
