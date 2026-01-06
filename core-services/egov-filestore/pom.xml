@@ -130,7 +130,12 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-	</dependencies>
+		<!-- Kafka for malware scanning events -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+    </dependencies>
 	<repositories>
     <repository>
 			<id>repo.egovernments.org</id>
