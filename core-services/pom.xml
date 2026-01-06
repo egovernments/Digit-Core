@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Root Aggregator -->
+    <groupId>org.egov</groupId>
+    <artifactId>core-services</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Core Services Aggregator</name>
+    <description>Aggregator POM for all core-services microservices</description>
+
+    <modules>
+        <module>audit-service</module>
+        <module>boundary-service</module>
+        <module>egov-accesscontrol</module>
+        <module>egov-enc-service</module>
+        <module>egov-filestore</module>
+        <module>egov-idgen</module>
+        <module>egov-indexer</module>
+        <module>egov-localization</module>
+        <module>egov-location</module>
+        <module>egov-notification-mail</module>
+        <module>egov-notification-sms</module>
+        <module>egov-otp</module>
+        <module>egov-persister</module>
+        <module>egov-pg-service</module>
+        <module>egov-url-shortening</module>
+        <module>egov-workflow-v2</module>
+        <module>gateway</module>
+        <module>internal-gateway-scg</module>
+        <module>mdms-v2</module>
+        <module>service-request</module>
+        <module>user-otp</module>
+    </modules>
+
+</project>
