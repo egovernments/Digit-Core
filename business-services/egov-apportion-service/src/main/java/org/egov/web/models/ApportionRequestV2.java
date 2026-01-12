@@ -24,6 +24,8 @@ public class ApportionRequestV2 {
     @JsonProperty("buckets")
     private List<TaxDetail> taxDetails = null;
 
+    // Added for new billing service API approach
+    private String tenantId = null;
 
     public void addTaxDetail(TaxDetail taxDetail){
         if(this.taxDetails==null){
@@ -31,9 +33,6 @@ public class ApportionRequestV2 {
             this.taxDetails.add(taxDetail);
         }
         else this.getTaxDetails().add(taxDetail);
-
     }
-
-
 
 }

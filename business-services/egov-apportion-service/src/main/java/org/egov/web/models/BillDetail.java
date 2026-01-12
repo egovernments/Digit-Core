@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.egov.web.enums.CollectionType;
 import org.egov.web.models.AuditDetails;
 import org.egov.web.models.BillAccountDetail;

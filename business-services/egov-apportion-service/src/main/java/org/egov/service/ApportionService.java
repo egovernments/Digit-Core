@@ -21,16 +21,13 @@ public class ApportionService {
 
     private Producer producer;
     private ApportionConfig config;
-    private MDMSService mdmsService;
-
 
     @Autowired
     public ApportionService(List<Apportion> apportions,  Producer producer,
-                            ApportionConfig config, MDMSService mdmsService) {
+                            ApportionConfig config) {
         this.apportions = Collections.unmodifiableList(apportions);
         this.producer = producer;
         this.config = config;
-        this.mdmsService = mdmsService;
         initialize();
     }
 
@@ -51,17 +48,15 @@ public class ApportionService {
      * Apportions the paid amount for the given list of bills
      *
      * @param request The apportion request
+     * @param tenantId The tenant ID from header
+     * @param clientId The client ID from header
      * @return Apportioned Bills
      */
-    public List<Bill> apportionBills(ApportionRequest request) {
+    public List<Bill> apportionBills(ApportionRequest request, String tenantId, String clientId) {
         List<Bill> bills = request.getBills();
         Apportion apportion;
 
-        //Save the request through persister
-        producer.push(config.getBillRequestTopic(), request);
-
-        //Fetch the required MDMS data
-        Object masterData = mdmsService.mDMSCall(request.getRequestInfo(), request.getTenantId());
+        // No longer using Kafka producer - removed persister calls
 
         for (Bill bill : bills) {
 
@@ -88,14 +83,10 @@ public class ApportionService {
             /*
              * Apportion the paid amount among the given list of billDetail
              */
-            apportion.apportionPaidAmount(bill, masterData);
+            apportion.apportionPaidAmount(bill, tenantId, clientId);
         }
 
-
-
-
-        //Save the response through persister
-        producer.push(config.getBillResponseTopic(), request);
+        // No longer using Kafka producer - removed persister calls
         return bills;
     }
 

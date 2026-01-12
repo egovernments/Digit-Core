@@ -15,7 +15,7 @@ import lombok.ToString;
 import org.egov.web.models.AuditDetails;
 import org.egov.web.models.enums.Purpose;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 @Setter
 @Getter

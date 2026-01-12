@@ -15,8 +15,6 @@ public interface ApportionV2 {
      */
     String getBusinessService();
 
-
-
-    List<TaxDetail> apportionPaidAmount(ApportionRequestV2 apportionRequestV2, Object masterData);
+    List<TaxDetail> apportionPaidAmount(ApportionRequestV2 apportionRequestV2, String clientId);
 
 }

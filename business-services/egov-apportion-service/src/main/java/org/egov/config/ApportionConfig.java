@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.TimeZone;
 
 @Data
@@ -37,6 +38,11 @@ public class ApportionConfig {
         return converter;
     }
 
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
 
 
     //Persister Config
@@ -58,6 +64,16 @@ public class ApportionConfig {
 
     @Value("${egov.mdms.search.endpoint}")
     private String mdmsEndPoint;
+
+    //Billing Service
+    @Value("${egov.billing.host}")
+    private String billingHost;
+
+    @Value("${egov.billing.business.service.endpoint}")
+    private String businessServiceEndpoint;
+
+    @Value("${egov.billing.tax.head.endpoint}")
+    private String taxHeadEndpoint;
 
     //Default implementation switch
     @Value("${egov.apportion.default.value.order}")

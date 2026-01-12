@@ -53,7 +53,7 @@ public class OrderByPriorityApportion implements Apportion {
      * @return
      */
     @Override
-    public List<BillDetail> apportionPaidAmount(Bill bill, Object masterData) {
+    public List<BillDetail> apportionPaidAmount(Bill bill, String tenantId, String clientId) {
         bill.getBillDetails().sort(Comparator.comparing(BillDetail::getFromPeriod));
         List<BillDetail> billDetails = bill.getBillDetails();
         BigDecimal remainingAmount = bill.getAmountPaid();
@@ -125,7 +125,7 @@ public class OrderByPriorityApportion implements Apportion {
 
         //If advance amount is available
         if(remainingAmount.compareTo(BigDecimal.ZERO)>0){
-            addAdvanceBillAccountDetail(remainingAmount,bill,masterData);
+            addAdvanceBillAccountDetail(remainingAmount,bill,tenantId);
         }
 
 
@@ -177,11 +177,11 @@ public class OrderByPriorityApportion implements Apportion {
      * Creates a advance BillAccountDetail and adds it to the latest billDetail
      * @param advanceAmount The advance amount paid
      * @param bill The bill for which apportioning is done
-     * @param masterData The required masterData for the TaxHeads
+     * @param tenantId The tenant ID for billing service calls
      */
-    private void addAdvanceBillAccountDetail(BigDecimal advanceAmount,Bill bill,Object masterData){
+    private void addAdvanceBillAccountDetail(BigDecimal advanceAmount,Bill bill,String tenantId){
         List<BillDetail> billDetails = bill.getBillDetails();
-        String taxHead = taxHeadMasterService.getAdvanceTaxHead(bill.getBusinessService(),masterData);
+        String taxHead = taxHeadMasterService.getAdvanceTaxHead(bill.getBusinessService(),tenantId);
         BillAccountDetail billAccountDetailForAdvance = new BillAccountDetail();
         billAccountDetailForAdvance.setAmount(advanceAmount.negate());
         billAccountDetailForAdvance.setPurpose(Purpose.ADVANCE_AMOUNT);

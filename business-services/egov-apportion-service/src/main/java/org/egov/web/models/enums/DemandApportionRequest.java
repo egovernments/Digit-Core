@@ -6,10 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.egov.common.contract.request.RequestInfo;
 import org.egov.web.models.Demand;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @Data
@@ -18,20 +17,11 @@ import java.util.List;
 @AllArgsConstructor
 public class DemandApportionRequest {
 
-
-    @JsonProperty("RequestInfo")
-    private RequestInfo requestInfo = null;
-
-
     @JsonProperty("tenantId")
     private String tenantId = null;
 
     @JsonProperty("Demands")
     @Valid
     private List<Demand> demands = null;
-
-
-
-
 
 }

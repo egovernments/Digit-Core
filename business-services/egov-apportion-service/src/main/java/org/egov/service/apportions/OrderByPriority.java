@@ -1,5 +1,6 @@
 package org.egov.service.apportions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.egov.config.ApportionConfig;
 import org.egov.service.ApportionV2;
 import org.egov.service.TaxHeadMasterService;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 import static org.egov.util.ApportionConstants.DEFAULT;
 
+@Slf4j
 @Service
 public class OrderByPriority implements ApportionV2 {
 
@@ -41,7 +43,7 @@ public class OrderByPriority implements ApportionV2 {
     }
 
     @Override
-    public List<TaxDetail> apportionPaidAmount(ApportionRequestV2 apportionRequestV2, Object masterData) {
+    public List<TaxDetail> apportionPaidAmount(ApportionRequestV2 apportionRequestV2, String clientId) {
         List<TaxDetail> taxDetails = apportionRequestV2.getTaxDetails();
         taxDetails.sort(Comparator.comparing(TaxDetail::getFromPeriod));
         BigDecimal remainingAmount = apportionRequestV2.getAmountPaid();
@@ -123,7 +125,7 @@ public class OrderByPriority implements ApportionV2 {
 
         //If advance amount is available
         if(remainingAmount.compareTo(BigDecimal.ZERO)>0){
-            addAdvanceBillAccountDetail(remainingAmount,apportionRequestV2,masterData);
+            addAdvanceBillAccountDetail(remainingAmount,apportionRequestV2,clientId);
         }
 
 
@@ -136,15 +138,19 @@ public class OrderByPriority implements ApportionV2 {
      * Creates a advance BillAccountDetail and adds it to the latest billDetail
      * @param advanceAmount The advance amount paid
      * @param apportionRequestV2 The bill for which apportioning is done
-     * @param masterData The required masterData for the TaxHeads
+     * @param clientId The client ID for audit details
      */
-    private void addAdvanceBillAccountDetail(BigDecimal advanceAmount, ApportionRequestV2 apportionRequestV2, Object masterData){
+    private void addAdvanceBillAccountDetail(BigDecimal advanceAmount, ApportionRequestV2 apportionRequestV2, String clientId){
         List<TaxDetail> taxDetails = apportionRequestV2.getTaxDetails();
-        String taxHead = taxHeadMasterService.getAdvanceTaxHead(apportionRequestV2.getBusinessService(),masterData);
+        
+        // Use new billing service API
+        String taxHead = taxHeadMasterService.getAdvanceTaxHead(
+            apportionRequestV2.getBusinessService(), 
+            apportionRequestV2.getTenantId()
+        );
 
         TaxDetail latestTaxDetail = taxDetails.get(taxDetails.size()-1);
         Bucket bucketForAdvance = null;
-
 
         // Search if advance bucket already exist
         for(Bucket bucket : latestTaxDetail.getBuckets()){
@@ -169,7 +175,6 @@ public class OrderByPriority implements ApportionV2 {
         else {
             bucketForAdvance.setAmount(bucketForAdvance.getAmount().add(advanceAmount.negate()));
         }
-
 
         // Updating the amountPaid in the taxDetail
         BigDecimal amountPaid = taxDetails.get(taxDetails.size()-1).getAmountPaid();

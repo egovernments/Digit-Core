@@ -5,6 +5,7 @@ import static org.egov.util.ApportionConstants.DEFAULT;
 import java.math.BigDecimal;
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.egov.config.ApportionConfig;
 import org.egov.producer.Producer;
 import org.egov.web.models.*;
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-
+@Slf4j
 @Service
 public class ApportionServiceV2 {
 
@@ -23,18 +24,15 @@ public class ApportionServiceV2 {
 
     private Producer producer;
     private ApportionConfig config;
-    private MDMSService mdmsService;
     private TranslationService translationService;
 
 
     @Autowired
     public ApportionServiceV2(List<ApportionV2> apportions, Producer producer,
-                              ApportionConfig config, MDMSService mdmsService,
-                              TranslationService translationService) {
+                              ApportionConfig config, TranslationService translationService) {
         this.apportions = Collections.unmodifiableList(apportions);
         this.producer = producer;
         this.config = config;
-        this.mdmsService = mdmsService;
         this.translationService = translationService;
         initialize();
     }
@@ -56,28 +54,20 @@ public class ApportionServiceV2 {
      * Apportions the paid amount for the given list of bills
      *
      * @param request The apportion request
+     * @param tenantId The tenant ID from header
+     * @param clientId The client ID from header
      * @return Apportioned Bills
      */
-    public List<Bill> apportionBills(ApportionRequest request) {
+    public List<Bill> apportionBills(ApportionRequest request, String tenantId, String clientId) {
         List<Bill> bills = request.getBills();
         ApportionV2 apportion;
 
-        //Save the request through persister
-        producer.push(config.getBillRequestTopic(), request);
-
-        //Fetch the required MDMS data
-        Object masterData = mdmsService.mDMSCall(request.getRequestInfo(), request.getTenantId());
+        // No longer using Kafka producer - removed persister calls
 
         for (Bill bill : bills) {
-        	
-            // Create a map of businessService to list of billDetails belonging to that businessService
-         //   Map<String, List<BillDetail>> businessServiceToBillDetails = util.groupByBusinessService(billInfo.getBillDetails());
-
             bill.getBillDetails().sort(Comparator.comparing(BillDetail::getFromPeriod));
 
-
             String businessKey = bill.getBusinessService();
-            BigDecimal amountPaid = bill.getAmountPaid();
 
             List<BillDetail> billDetails = bill.getBillDetails();
 
@@ -93,15 +83,14 @@ public class ApportionServiceV2 {
             /*
              * Apportion the paid amount among the given list of billDetail
              */
-
-            ApportionRequestV2 apportionRequestV2 = translationService.translate(bill);
-            List<TaxDetail> taxDetails = apportion.apportionPaidAmount(apportionRequestV2, masterData);
+            ApportionRequestV2 apportionRequestV2 = translationService.translate(bill, tenantId, clientId);
+            
+            List<TaxDetail> taxDetails = apportion.apportionPaidAmount(apportionRequestV2, clientId);
             updateAdjustedAmountInBills(bill,taxDetails);
             addAdvanceIfExistForBill(billDetails,taxDetails);
         }
 
-        //Save the response through persister
-        producer.push(config.getBillResponseTopic(), request);
+        // No longer using Kafka producer - removed persister calls
         return bills;
     }
 
@@ -133,22 +122,19 @@ public class ApportionServiceV2 {
      * Apportions the paid amount for the given list of demands
      *
      * @param request The apportion request
+     * @param tenantId The tenant ID from header
+     * @param clientId The client ID from header
      * @return Apportioned Bills
      */
-    public List<Demand> apportionDemands(DemandApportionRequest request) {
+    public List<Demand> apportionDemands(DemandApportionRequest request, String tenantId, String clientId) {
         List<Demand> demands = request.getDemands();
         ApportionV2 apportion;
 
-        //Save the request through persister
-        producer.push(config.getDemandRequestTopic(), request);
-
-        //Fetch the required MDMS data
-        Object masterData = mdmsService.mDMSCall(request.getRequestInfo(), request.getTenantId());
+        // No longer using Kafka producer - removed persister calls
 
         demands.sort(Comparator.comparing(Demand::getTaxPeriodFrom));
 
-        ApportionRequestV2 apportionRequestV2 = translationService.translate(demands,masterData);
-
+        ApportionRequestV2 apportionRequestV2 = translationService.translate(demands, tenantId, clientId);
 
         /*
         * Need to validate that all demands that come for apportioning
@@ -161,14 +147,11 @@ public class ApportionServiceV2 {
         else
             apportion = getApportion(DEFAULT);
 
-        List<TaxDetail> taxDetails = apportion.apportionPaidAmount(apportionRequestV2, masterData);
+        List<TaxDetail> taxDetails = apportion.apportionPaidAmount(apportionRequestV2, clientId);
         updateAdjustedAmountInDemands(demands,taxDetails);
         addAdvanceIfExistForDemand(demands,taxDetails);
 
-
-
-        //Save the response through persister
-        producer.push(config.getDemandResponseTopic(), request);
+        // No longer using Kafka producer - removed persister calls
         return demands;
     }
 

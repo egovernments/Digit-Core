@@ -14,41 +14,43 @@ import java.util.Map;
 @Service
 public class TranslationService {
 
-
     private TaxHeadMasterService taxHeadMasterService;
-
 
     @Autowired
     public TranslationService(TaxHeadMasterService taxHeadMasterService) {
         this.taxHeadMasterService = taxHeadMasterService;
     }
 
-
-    public ApportionRequestV2 translate(Bill bill){
-
+    public ApportionRequestV2 translate(Bill bill, String tenantId, String clientId){
         String businessService = bill.getBusinessService();
         BigDecimal amountPaid = bill.getAmountPaid();
         Boolean isAdvanceAllowed = bill.getIsAdvanceAllowed();
 
-        ApportionRequestV2 apportionRequestV2 = ApportionRequestV2.builder().amountPaid(amountPaid).businessService(businessService)
-                                                .isAdvanceAllowed(isAdvanceAllowed).build();
+        ApportionRequestV2 apportionRequestV2 = ApportionRequestV2.builder()
+                .amountPaid(amountPaid)
+                .businessService(businessService)
+                .isAdvanceAllowed(isAdvanceAllowed)
+                .tenantId(tenantId)
+                .build();
 
         List<BillDetail> billDetails = bill.getBillDetails();
 
         for(BillDetail billDetail : billDetails){
-
-            TaxDetail taxDetail = TaxDetail.builder().fromPeriod(billDetail.getFromPeriod()).amountToBePaid(billDetail.getAmount())
-                                  .amountPaid((billDetail.getAmountPaid() == null) ? BigDecimal.ZERO : billDetail.getAmountPaid())
-                                  .entityId(billDetail.getId())
-                                  .build();
+            TaxDetail taxDetail = TaxDetail.builder()
+                    .fromPeriod(billDetail.getFromPeriod())
+                    .amountToBePaid(billDetail.getAmount())
+                    .amountPaid((billDetail.getAmountPaid() == null) ? BigDecimal.ZERO : billDetail.getAmountPaid())
+                    .entityId(billDetail.getId())
+                    .build();
 
             billDetail.getBillAccountDetails().forEach(billAccountDetail -> {
-                Bucket bucket = Bucket.builder().amount(billAccountDetail.getAmount())
-                                .adjustedAmount((billAccountDetail.getAdjustedAmount()==null) ? BigDecimal.ZERO : billAccountDetail.getAdjustedAmount())
-                                .taxHeadCode(billAccountDetail.getTaxHeadCode())
-                                .priority(billAccountDetail.getOrder())
-                                .entityId(billAccountDetail.getId())
-                                .build();
+                Bucket bucket = Bucket.builder()
+                        .amount(billAccountDetail.getAmount())
+                        .adjustedAmount((billAccountDetail.getAdjustedAmount()==null) ? BigDecimal.ZERO : billAccountDetail.getAdjustedAmount())
+                        .taxHeadCode(billAccountDetail.getTaxHeadCode())
+                        .priority(billAccountDetail.getOrder())
+                        .entityId(billAccountDetail.getId())
+                        .build();
                 taxDetail.addBucket(bucket);
             });
 
@@ -56,51 +58,51 @@ public class TranslationService {
         }
 
         return apportionRequestV2;
-
     }
 
-
-
-    public ApportionRequestV2 translate(List<Demand> demands,Object mdmsData) {
-
+    public ApportionRequestV2 translate(List<Demand> demands, String tenantId, String clientId) {
         // Group by businessService before calling this function
         String businessService = demands.get(0).getBusinessService();
 
-
-        Map<String,Integer> codeToOrderMap = taxHeadMasterService.getCodeToOrderMap(businessService,mdmsData);
+        // Use new billing service API instead of MDMS
+        Map<String,Integer> codeToOrderMap = taxHeadMasterService.getCodeToOrderMap(businessService, tenantId);
 
         // FIX ME
         BigDecimal amountPaid = BigDecimal.ZERO;
-        Boolean isAdvanceAllowed = taxHeadMasterService.isAdvanceAllowed(businessService,mdmsData);
+        Boolean isAdvanceAllowed = taxHeadMasterService.isAdvanceAllowed(businessService, tenantId);
 
-
-        ApportionRequestV2 apportionRequestV2 = ApportionRequestV2.builder().amountPaid(amountPaid).businessService(businessService)
-                .isAdvanceAllowed(isAdvanceAllowed).build();
+        ApportionRequestV2 apportionRequestV2 = ApportionRequestV2.builder()
+                .amountPaid(amountPaid)
+                .businessService(businessService)
+                .isAdvanceAllowed(isAdvanceAllowed)
+                .tenantId(tenantId)
+                .build();
 
         Map<String,String> errorMap = new HashMap<>();
 
         for(Demand demand : demands){
-
-            TaxDetail taxDetail = TaxDetail.builder().fromPeriod(demand.getTaxPeriodFrom()).entityId(demand.getId()).build();
+            TaxDetail taxDetail = TaxDetail.builder()
+                    .fromPeriod(demand.getTaxPeriodFrom())
+                    .entityId(demand.getId())
+                    .build();
 
             BigDecimal amountToBePaid = BigDecimal.ZERO;
             BigDecimal collectedAmount = BigDecimal.ZERO;
 
             for(DemandDetail demandDetail : demand.getDemandDetails()){
-
                 Integer priority = codeToOrderMap.get(demandDetail.getTaxHeadMasterCode());
 
                 if(priority == null)
                     errorMap.put("INVALID_TAXHEAD_CODE","Order is null or taxHead is not found for code: "+demandDetail.getTaxHeadMasterCode());
 
-                Bucket bucket = Bucket.builder().amount(demandDetail.getTaxAmount())
+                Bucket bucket = Bucket.builder()
+                        .amount(demandDetail.getTaxAmount())
                         .adjustedAmount((demandDetail.getCollectionAmount()==null) ? BigDecimal.ZERO : demandDetail.getCollectionAmount())
                         .taxHeadCode(demandDetail.getTaxHeadMasterCode())
                         .priority(priority)
                         .entityId(demandDetail.getId())
                         .build();
                 taxDetail.addBucket(bucket);
-
 
                 amountToBePaid = amountToBePaid.add(demandDetail.getTaxAmount());
                 collectedAmount = collectedAmount.add(demandDetail.getCollectionAmount());
@@ -110,7 +112,6 @@ public class TranslationService {
             taxDetail.setAmountToBePaid(amountToBePaid);
 
             apportionRequestV2.addTaxDetail(taxDetail);
-
         }
 
         if(!CollectionUtils.isEmpty(errorMap))
@@ -118,9 +119,4 @@ public class TranslationService {
 
         return apportionRequestV2;
     }
-
-
-
-
-
-    }
+}
