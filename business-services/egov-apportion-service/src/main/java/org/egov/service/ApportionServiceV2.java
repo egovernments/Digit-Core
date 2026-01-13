@@ -8,6 +8,7 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.config.ApportionConfig;
 import org.egov.producer.Producer;
+import org.egov.repository.ApportionRepository;
 import org.egov.web.models.*;
 import org.egov.web.models.enums.DemandApportionRequest;
 import org.egov.web.models.enums.Purpose;
@@ -25,15 +26,18 @@ public class ApportionServiceV2 {
     private Producer producer;
     private ApportionConfig config;
     private TranslationService translationService;
+    private ApportionRepository apportionRepository;
 
 
     @Autowired
     public ApportionServiceV2(List<ApportionV2> apportions, Producer producer,
-                              ApportionConfig config, TranslationService translationService) {
+                              ApportionConfig config, TranslationService translationService,
+                              ApportionRepository apportionRepository) {
         this.apportions = Collections.unmodifiableList(apportions);
         this.producer = producer;
         this.config = config;
         this.translationService = translationService;
+        this.apportionRepository = apportionRepository;
         initialize();
     }
 
@@ -61,10 +65,17 @@ public class ApportionServiceV2 {
     public List<Bill> apportionBills(ApportionRequest request, String tenantId, String clientId) {
         List<Bill> bills = request.getBills();
         ApportionV2 apportion;
+        
+        // Generate consistent timestamp for the entire request
+        Long currentTime = System.currentTimeMillis();
 
-        // No longer using Kafka producer - removed persister calls
+        // Save the request to database
+        apportionRepository.saveBillRequest(request, tenantId, clientId, currentTime);
 
         for (Bill bill : bills) {
+            // Enrich tenantId and audit details from header into bill and nested objects
+            enrichTenantId(bill, tenantId);
+            enrichAuditDetails(bill, clientId, currentTime);
             bill.getBillDetails().sort(Comparator.comparing(BillDetail::getFromPeriod));
 
             String businessKey = bill.getBusinessService();
@@ -90,7 +101,8 @@ public class ApportionServiceV2 {
             addAdvanceIfExistForBill(billDetails,taxDetails);
         }
 
-        // No longer using Kafka producer - removed persister calls
+        // Save the response to database
+        apportionRepository.saveBillResponse(bills, tenantId, clientId, currentTime);
         return bills;
     }
 
@@ -129,8 +141,16 @@ public class ApportionServiceV2 {
     public List<Demand> apportionDemands(DemandApportionRequest request, String tenantId, String clientId) {
         List<Demand> demands = request.getDemands();
         ApportionV2 apportion;
+        
+        // Generate consistent timestamp for the entire request
+        Long currentTime = System.currentTimeMillis();
 
-        // No longer using Kafka producer - removed persister calls
+        // Save the request to database
+        apportionRepository.saveDemandRequest(request, tenantId, clientId, currentTime);
+        
+        // Enrich tenantId and audit details from header into demands and nested objects
+        enrichTenantIdInDemands(demands, tenantId);
+        enrichAuditDetailsInDemands(demands, clientId, currentTime);
 
         demands.sort(Comparator.comparing(Demand::getTaxPeriodFrom));
 
@@ -151,7 +171,8 @@ public class ApportionServiceV2 {
         updateAdjustedAmountInDemands(demands,taxDetails);
         addAdvanceIfExistForDemand(demands,taxDetails);
 
-        // No longer using Kafka producer - removed persister calls
+        // Save the response to database
+        apportionRepository.saveDemandResponse(demands, tenantId, clientId, currentTime);
         return demands;
     }
 
@@ -250,6 +271,149 @@ public class ApportionServiceV2 {
             billDetails.get(billDetails.size()-1).getBillAccountDetails().add(billAccountDetailForAdvance);
         }
 
+    }
+
+
+    /**
+     * Enriches tenantId from header into demands and all nested objects
+     * @param demands The demands to enrich
+     * @param tenantId The tenant ID from header
+     */
+    private void enrichTenantIdInDemands(List<Demand> demands, String tenantId) {
+        demands.forEach(demand -> {
+            // Set tenantId in demand
+            demand.setTenantId(tenantId);
+            
+            // Set tenantId in demand details
+            if (demand.getDemandDetails() != null) {
+                demand.getDemandDetails().forEach(demandDetail -> {
+                    demandDetail.setTenantId(tenantId);
+                });
+            }
+        });
+    }
+
+    /**
+     * Enriches audit details for demands and all nested objects
+     * @param demands The demands to enrich
+     * @param clientId The client ID from header
+     * @param currentTime The consistent timestamp for this request
+     */
+    private void enrichAuditDetailsInDemands(List<Demand> demands, String clientId, Long currentTime) {
+        demands.forEach(demand -> {
+            // Set audit details in demand if not present
+            if (demand.getAuditDetails() == null) {
+                demand.setAuditDetails(AuditDetails.builder()
+                        .createdBy(clientId)
+                        .lastModifiedBy(clientId)
+                        .createdTime(currentTime)
+                        .lastModifiedTime(currentTime)
+                        .build());
+            } else {
+                demand.getAuditDetails().setLastModifiedBy(clientId);
+                demand.getAuditDetails().setLastModifiedTime(currentTime);
+            }
+            
+            // Set audit details in demand details
+            if (demand.getDemandDetails() != null) {
+                demand.getDemandDetails().forEach(demandDetail -> {
+                    // Set audit details in demand detail if not present
+                    if (demandDetail.getAuditDetails() == null) {
+                        demandDetail.setAuditDetails(AuditDetails.builder()
+                                .createdBy(clientId)
+                                .lastModifiedBy(clientId)
+                                .createdTime(currentTime)
+                                .lastModifiedTime(currentTime)
+                                .build());
+                    } else {
+                        demandDetail.getAuditDetails().setLastModifiedBy(clientId);
+                        demandDetail.getAuditDetails().setLastModifiedTime(currentTime);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Enriches tenantId from header into bill and all nested objects
+     * @param bill The bill to enrich
+     * @param tenantId The tenant ID from header
+     */
+    private void enrichTenantId(Bill bill, String tenantId) {
+        // Set tenantId in bill
+        bill.setTenantId(tenantId);
+        
+        // Set tenantId in bill details
+        if (bill.getBillDetails() != null) {
+            bill.getBillDetails().forEach(billDetail -> {
+                billDetail.setTenantId(tenantId);
+                
+                // Set tenantId in bill account details
+                if (billDetail.getBillAccountDetails() != null) {
+                    billDetail.getBillAccountDetails().forEach(billAccountDetail -> {
+                        billAccountDetail.setTenantId(tenantId);
+                    });
+                }
+            });
+        }
+    }
+
+    /**
+     * Enriches audit details for bill and all nested objects
+     * @param bill The bill to enrich
+     * @param clientId The client ID from header
+     * @param currentTime The consistent timestamp for this request
+     */
+    private void enrichAuditDetails(Bill bill, String clientId, Long currentTime) {
+        // Set audit details in bill if not present
+        if (bill.getAuditDetails() == null) {
+            bill.setAuditDetails(AuditDetails.builder()
+                    .createdBy(clientId)
+                    .lastModifiedBy(clientId)
+                    .createdTime(currentTime)
+                    .lastModifiedTime(currentTime)
+                    .build());
+        } else {
+            // Update last modified details
+            bill.getAuditDetails().setLastModifiedBy(clientId);
+            bill.getAuditDetails().setLastModifiedTime(currentTime);
+        }
+        
+        // Set audit details in bill details
+        if (bill.getBillDetails() != null) {
+            bill.getBillDetails().forEach(billDetail -> {
+                // Set audit details in bill detail if not present
+                if (billDetail.getAuditDetails() == null) {
+                    billDetail.setAuditDetails(AuditDetails.builder()
+                            .createdBy(clientId)
+                            .lastModifiedBy(clientId)
+                            .createdTime(currentTime)
+                            .lastModifiedTime(currentTime)
+                            .build());
+                } else {
+                    billDetail.getAuditDetails().setLastModifiedBy(clientId);
+                    billDetail.getAuditDetails().setLastModifiedTime(currentTime);
+                }
+                
+                // Set audit details in bill account details
+                if (billDetail.getBillAccountDetails() != null) {
+                    billDetail.getBillAccountDetails().forEach(billAccountDetail -> {
+                        // Set audit details in bill account detail if not present
+                        if (billAccountDetail.getAuditDetails() == null) {
+                            billAccountDetail.setAuditDetails(AuditDetails.builder()
+                                    .createdBy(clientId)
+                                    .lastModifiedBy(clientId)
+                                    .createdTime(currentTime)
+                                    .lastModifiedTime(currentTime)
+                                    .build());
+                        } else {
+                            billAccountDetail.getAuditDetails().setLastModifiedBy(clientId);
+                            billAccountDetail.getAuditDetails().setLastModifiedTime(currentTime);
+                        }
+                    });
+                }
+            });
+        }
     }
 
 
