@@ -258,7 +258,7 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
         }
     }
 
-    private static String maskMobile(String number) {
+    protected static String maskMobile(String number) {
         if (number == null) return "null";
         int n = number.length();
         return (n <= 4) ? "****" : ("****" + number.substring(n - 4));
