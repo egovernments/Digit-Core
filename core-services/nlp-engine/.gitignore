@@ -1,0 +1,10 @@
+# Virtual environment
+nlp_env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Local development files
+src/LocalController.py

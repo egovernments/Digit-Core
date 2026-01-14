@@ -1,6 +1,6 @@
 FROM python:3.8
 WORKDIR /code
-COPY requirements.txt .
+COPY ../requirements.txt .
 RUN pip install -r requirements.txt
 RUN python3 -m nltk.downloader punkt
 RUN python3 -m nltk.downloader averaged_perceptron_tagger
@@ -12,5 +12,5 @@ RUN pip install dist/libindic-inexactsearch*.tar.gz
 
 WORKDIR /code
 
-COPY src/ .
+COPY ../src/ .
 CMD [ "python", "./Controller.py" ] 
