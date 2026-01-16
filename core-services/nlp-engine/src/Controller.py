@@ -4,7 +4,7 @@ from flask import Flask, jsonify, request, send_file
 
 controller = Flask(__name__)
 
-@controller.route('/nlp-engine/fuzzy/city', methods=['POST'])
+@controller.route('/fuzzy/city', methods=['POST'])
 def getCities():
     request_data = request.get_json()
     inp  = request_data['input_city']
@@ -17,7 +17,7 @@ def getCities():
 
     return jsonify(response)
 
-@controller.route('/nlp-engine/fuzzy/locality',methods=['POST'])
+@controller.route('/fuzzy/locality',methods=['POST'])
 def getLocalities():
     request_data = request.get_json()
     city = request_data['city']
