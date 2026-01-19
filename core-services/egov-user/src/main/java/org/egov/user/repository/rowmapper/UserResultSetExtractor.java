@@ -52,6 +52,10 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
                         .accountLocked(rs.getBoolean("accountlocked")).photo(rs.getString("photo"))
                         .identificationMark(rs.getString("identificationmark")).uuid(rs.getString("uuid"))
                         .accountLockedDate(rs.getLong("accountlockeddate")).alternateMobileNumber(rs.getString("alternatemobilenumber"))
+                        .idpIssuer(rs.getString("idp_issuer"))
+                        .idpSubject(rs.getString("idp_subject"))
+                        .idpTokenExp(rs.getTimestamp("idp_token_exp"))
+                        .lastSsoLoginAt(rs.getTimestamp("last_sso_login_at"))
                         .build();
 
                 for (UserType type : UserType.values()) {
