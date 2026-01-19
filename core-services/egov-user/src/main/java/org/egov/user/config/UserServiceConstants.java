@@ -70,7 +70,7 @@ public class UserServiceConstants {
 
     public static final String CITIZEN_ROLE_CODE = "CITIZEN";
 
-    public static final String DEFAULT_MOBILE_VALIDATION_NAME = "defaultMobileValidation";
+    public static final String MOBILE_UNIQUE_IDENTIFIER = "mobile";
     
 }
 
