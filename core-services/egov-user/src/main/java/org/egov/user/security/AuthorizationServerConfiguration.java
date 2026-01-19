@@ -1,6 +1,9 @@
 package org.egov.user.security;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.egov.user.security.oauth2.custom.CustomTokenEnhancer;
+import org.egov.user.security.oauth2.custom.jwt.JwtExchangeTokenGranter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +15,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.CompositeTokenGranter;
+import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import redis.clients.jedis.JedisShardInfo;
@@ -48,7 +53,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         final int accessTokenValidityInSeconds = accessTokenValidityInMinutes * 60;
         final int refreshTokenValidityInSeconds = refreshTokenValidityInMinutes * 60;
         clients.inMemory().withClient(USER_CLIENT_ID)
-                .authorizedGrantTypes("authorization_code", "refresh_token", "password")
+                .authorizedGrantTypes("authorization_code", "refresh_token", "password", "jwt_exchange")
                 .authorities("ROLE_APP", "ROLE_CITIZEN", "ROLE_ADMIN", "ROLE_EMPLOYEE").scopes("read", "write")
                 .refreshTokenValiditySeconds(refreshTokenValidityInSeconds)
                 .accessTokenValiditySeconds(accessTokenValidityInSeconds);
@@ -57,6 +62,16 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+        List<TokenGranter> granters = new ArrayList<>();
+        granters.add(endpoints.getTokenGranter()); // password, refresh_token
+        granters.add(new JwtExchangeTokenGranter(
+                customAuthenticationManager,
+                endpoints.getTokenServices(),
+                clientDetailsService,
+                endpoints.getOAuth2RequestFactory()
+        ));
+
+        endpoints.tokenGranter(new CompositeTokenGranter(granters));
         endpoints.tokenServices(customTokenServices())
                 .authenticationManager(customAuthenticationManager);
     }

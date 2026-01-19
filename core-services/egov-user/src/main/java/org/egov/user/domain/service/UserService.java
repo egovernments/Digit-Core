@@ -7,6 +7,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.user.IdpTokenExchangeRequest;
 import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.exception.AtleastOneRoleCodeException;
 import org.egov.user.domain.exception.DuplicateUserNameException;
@@ -664,5 +666,28 @@ public class UserService {
         }
     }
 
+    public User getUniqueUser(String issuer, String subject, String tenantId, UserType userType) {
 
+        UserSearchCriteria userSearchCriteria = UserSearchCriteria.builder()
+                .idpIssuer(issuer)
+                .idpSubject(subject)
+                .tenantId(userUtils.getStateLevelTenantForCitizen(tenantId, userType))
+                .type(userType)
+                .build();
+
+        if (isEmpty(subject) || isEmpty(tenantId) || isNull(userType)) {
+            log.error("Invalid lookup, mandatory fields are absent");
+            throw new UserNotFoundException(userSearchCriteria);
+        }
+
+        userSearchCriteria = encryptionDecryptionUtil.encryptObject(userSearchCriteria, "User", UserSearchCriteria.class);
+        List<User> users = userRepository.findAll(userSearchCriteria);
+
+        if (users.isEmpty())
+            throw new UserNotFoundException(userSearchCriteria);
+        if (users.size() > 1)
+            throw new DuplicateUserNameException(userSearchCriteria);
+
+        return users.get(0);
+    }
 }

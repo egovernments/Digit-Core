@@ -157,6 +157,19 @@ public class UserRepository {
     }
 
     /**
+     * Lookup a user by IdP issuer + subject pair (SSO/OIDC identity).
+     */
+    public List<User> findByIdpIssuerSubject(String tenantId, UserType userType, String idpIssuer, String idpSubject) {
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .idpIssuer(idpIssuer)
+                .idpSubject(idpSubject)
+                .tenantId(tenantId)
+                .type(userType)
+                .build();
+        return findAll(criteria);
+    }
+
+    /**
      * this api will create the user.
      *
      * @param user
@@ -318,6 +331,31 @@ public class UserRepository {
         }
 
         updateuserInputs.put("alternatemobilenumber", user.getAlternateMobileNumber());
+
+        // IdP/OIDC metadata: keep old values if new ones are null to avoid unintentionally wiping linkage
+        if (user.getIdpIssuer() != null) {
+            updateuserInputs.put("IdpIssuer", user.getIdpIssuer());
+        } else {
+            updateuserInputs.put("IdpIssuer", oldUser.getIdpIssuer());
+        }
+
+        if (user.getIdpSubject() != null) {
+            updateuserInputs.put("IdpSubject", user.getIdpSubject());
+        } else {
+            updateuserInputs.put("IdpSubject", oldUser.getIdpSubject());
+        }
+
+        if (user.getIdpTokenExp() != null) {
+            updateuserInputs.put("IdpTokenExp", user.getIdpTokenExp());
+        } else {
+            updateuserInputs.put("IdpTokenExp", oldUser.getIdpTokenExp());
+        }
+
+        if (user.getLastSsoLoginAt() != null) {
+            updateuserInputs.put("LastSsoLoginAt", user.getLastSsoLoginAt());
+        } else {
+            updateuserInputs.put("LastSsoLoginAt", oldUser.getLastSsoLoginAt());
+        }
 
         updateuserInputs.put("LastModifiedDate", new Date());
         updateuserInputs.put("LastModifiedBy", userId );
@@ -567,6 +605,10 @@ public class UserRepository {
         userInputs.put("createdby", entityUser.getLoggedInUserId());
         userInputs.put("lastmodifiedby", entityUser.getLoggedInUserId());
         userInputs.put("alternatemobilenumber", entityUser.getAlternateMobileNumber());
+        userInputs.put("idp_issuer", entityUser.getIdpIssuer());
+        userInputs.put("idp_subject", entityUser.getIdpSubject());
+        userInputs.put("idp_token_exp", entityUser.getIdpTokenExp());
+        userInputs.put("last_sso_login_at", entityUser.getLastSsoLoginAt());
 
         namedParameterJdbcTemplate.update(userTypeQueryBuilder.getInsertUserQuery(), userInputs);
         return entityUser;
