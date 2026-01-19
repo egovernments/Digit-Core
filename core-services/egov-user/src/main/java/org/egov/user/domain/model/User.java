@@ -88,6 +88,13 @@ public class User {
     private boolean mobileValidationMandatory = true;
     private String alternateMobileNumber;
 
+    // IdP/OIDC metadata (provider-agnostic)
+    // These are nullable and only populated for SSO/OIDC users.
+    private String idpIssuer;
+    private String idpSubject;
+    private Date idpTokenExp;
+    private Date lastSsoLoginAt;
+
     public User addAddressItem(Address addressItem) {
         if (this.addresses == null) {
             this.addresses = new HashSet<>();
