@@ -9,14 +9,17 @@ import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import java.util.UUID;
 
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.domain.exception.TokenUpdateException;
 import org.egov.domain.model.Token;
 import org.egov.domain.model.TokenSearchCriteria;
 import org.egov.domain.model.Tokens;
 import org.egov.domain.model.ValidateRequest;
+import org.egov.web.util.OtpConfiguration;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -31,11 +34,17 @@ public class TokenRepositoryTest {
     private TokenRepository tokenRepository;
 
     @Autowired
+    private MultiStateInstanceUtil multiStateInstanceUtil;
+
+    @Autowired
+    private OtpConfiguration otpConfiguration;
+
+    @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Before
     public void before() {
-        tokenRepository = new TokenRepository(namedParameterJdbcTemplate);
+        tokenRepository = new TokenRepository(namedParameterJdbcTemplate, multiStateInstanceUtil, otpConfiguration);
     }
 
     @Test
