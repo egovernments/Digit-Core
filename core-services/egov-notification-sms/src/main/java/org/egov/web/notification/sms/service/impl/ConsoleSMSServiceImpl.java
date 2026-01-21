@@ -14,7 +14,7 @@ public class ConsoleSMSServiceImpl extends BaseSMSService {
     @Override
     protected void submitToExternalSmsService(Sms sms) {
         log.info(String.format("Sending sms to %s with message '%s'",
-                sms.getMobileNumber(), sms.getMessage()));
+                maskMobile(sms.getMobileNumber()), sms.getMessage()));
 
     }
 }

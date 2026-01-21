@@ -88,7 +88,7 @@ public class OtpEmailRepository {
 			localisedMessages.put(LOCALIZATION_KEY_PWD_RESET_SUBJECT_EMAIL, "Password Reset");
 			localisedMessages.put(LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL, "Your OTP for recovering password is %s.");
 			localisedMessages.put(LOCALIZATION_KEY_LOGIN_SUBJECT_EMAIL, "Login OTP");
-			localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear Citizen, Your Login OTP is %s.");
+            localisedMessages.put(LOCALIZATION_KEY_LOGIN_BODY_EMAIL, "Dear Citizen, Your Login OTP is %s.");
 		}
 		return localisedMessages.get(localizationKey);
 	}
@@ -114,13 +114,13 @@ public class OtpEmailRepository {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_PWD_RESET_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = PWD_RESET_BODY_EMAIL;
-			body = format(body, otpNumber);
+            body = format(body, otpNumber);
 		}
 		else {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
 				body = LOGIN_BODY_EMAIL;
-			body = format(body, otpNumber);
+            body = format(body, otpNumber);
 		}
 		return body;
 	}

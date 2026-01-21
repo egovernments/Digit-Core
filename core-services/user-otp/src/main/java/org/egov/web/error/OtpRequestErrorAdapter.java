@@ -33,6 +33,9 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
 	private static final String MOBILE_INVALIDLENGTH_MESSAGE = "Mobile number length should be min 10 and max 13 digits";
 	private static final String MOBILE_INVALIDLENGTH_FIELD = "otp.mobileNumber";
 
+	private static final String MOBILE_MDMS_VALIDATION_CODE = "OTP.MOBILE_NUMBER_VALIDATION_FAILED";
+	private static final String MOBILE_MDMS_VALIDATION_FIELD = "otp.mobileNumber";
+
     @Override
     public ErrorResponse adapt(OtpRequest model) {
         final Error error = getError(model);
@@ -53,8 +56,13 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
         addTenantIdValidationErrors(model, errorFields);
         addMobileNumberValidationErrors(model, errorFields);
         addRequestTypeValidationErrors(model, errorFields);
-        addMobileNumberInvalidValidationErrors(model, errorFields);
-		addMobileNumberValidLengthValidationError(model, errorFields);
+        // Use MDMS error message if available, otherwise fall back to default validation errors
+        if (model.hasMdmsValidationError()) {
+            addMdmsValidationError(model, errorFields);
+        } else {
+            addMobileNumberInvalidValidationErrors(model, errorFields);
+            addMobileNumberValidLengthValidationError(model, errorFields);
+        }
         return errorFields;
     }
 
@@ -110,6 +118,15 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
 		final ErrorField latitudeErrorField = ErrorField.builder().code(MOBILE_INVALID_CODE)
 				.message(MOBILE_INVALID_MESSAGE).field(MOBILE_INVALID_FIELD).build();
 		errorFields.add(latitudeErrorField);
+	}
+
+	private void addMdmsValidationError(OtpRequest model, List<ErrorField> errorFields) {
+		final ErrorField errorField = ErrorField.builder()
+				.code(MOBILE_MDMS_VALIDATION_CODE)
+				.message(model.getMdmsValidationErrorMessage())
+				.field(MOBILE_MDMS_VALIDATION_FIELD)
+				.build();
+		errorFields.add(errorField);
 	}
 
 }
