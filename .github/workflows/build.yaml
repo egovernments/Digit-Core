@@ -31,6 +31,7 @@ on:
           - "egov-indexer"
           - "egov-localization"
           - "egov-location"
+          - "egov-malware-detection"
           - "egov-mdms-service"
           - "egov-notification-mail"
           - "egov-notification-sms"

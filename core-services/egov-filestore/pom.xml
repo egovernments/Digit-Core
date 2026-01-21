@@ -12,7 +12,7 @@
 	</parent>
 	<groupId>org.egov</groupId>
 	<artifactId>egov-filestore</artifactId>
-	<version>2.9.1-SNAPSHOT</version>
+	<version>2.9.3-SNAPSHOT</version>
 	<name>egov-filestore</name>
 	<description>eGov File store project for eGov services</description>
 	<properties>
@@ -130,7 +130,12 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-	</dependencies>
+		<!-- Kafka for malware scanning events -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+    </dependencies>
 	<repositories>
     <repository>
 			<id>repo.egovernments.org</id>
