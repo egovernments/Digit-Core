@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.contract.user.IdpTokenExchangeRequest;
 import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.exception.AtleastOneRoleCodeException;
 import org.egov.user.domain.exception.DuplicateUserNameException;
