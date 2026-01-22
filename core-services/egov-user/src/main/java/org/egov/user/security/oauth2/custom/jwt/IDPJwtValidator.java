@@ -52,6 +52,7 @@ public class IDPJwtValidator implements JwtValidator {
         Date expirationTime = null;
         Date issueTime = null;
         Set<String> roles = new HashSet<>();
+        String projectId = null;
         String issuer = extractIssuerUnverified(token);
         AuthProperties.Provider provider = resolveProviderByIssuer(issuer)
                 .orElseThrow(() -> new CustomException("OIDC_PROVIDER_NOT_FOUND", "No OIDC provider configured for issuer"));
@@ -72,11 +73,12 @@ public class IDPJwtValidator implements JwtValidator {
             claims.put("tenantId", tenantId);
             claims.put("userType", userType);
             roles = extractRoles(provider, claims);
+            projectId = extractProject(provider, claims);
         } catch (Exception e) {
             log.error("Error while parsing the jwt token", e);
             throw new OAuth2Exception("Invalid JWT token", e);
         }
-        return new OidcValidatedJwt(roles, claims, expirationTime, issueTime);
+        return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, projectId);
     }
 
     private String firstNonEmpty(String... values) {
@@ -100,6 +102,23 @@ public class IDPJwtValidator implements JwtValidator {
             return roles.stream().map(rolesMapping::get).filter(Objects::nonNull).collect(Collectors.toSet());
         }
         return defaultRoles;
+    }
+
+    private String extractProject(AuthProperties.Provider provider, Map<String, Object> claims) {
+        String roleClaimKey = provider.getRoleClaimKey();
+        Map<String, String> roleProjectMapping = provider.getRoleProjectMapping();
+        Object rolesObject = claims.remove(roleClaimKey);
+        String projectId = null;
+        if(rolesObject instanceof List) {
+            List<String> roles = (List<String>) rolesObject;
+            projectId = roles.stream().map(roleProjectMapping::get).filter(Objects::nonNull).findFirst()
+                    .orElseThrow(() -> new OAuth2Exception("No project mapping found for roles " + rolesObject));
+        }
+        if(projectId == null) {
+            log.error("No project mapping found for roles {}", rolesObject);
+            throw new OAuth2Exception("No project mapping found for roles " + rolesObject);
+        }
+        return projectId;
     }
 
     private String extractIssuerUnverified(String jwt) {
