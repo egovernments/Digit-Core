@@ -3,6 +3,7 @@ package org.egov.user.security.oauth2.custom.jwt;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class IDPJwtValidator implements JwtValidator {
             throw new OAuth2Exception(e.getMessage(), e);
         }
         try {
-            claims = jwt.getClaims();
+            claims = new HashMap<>(jwt.getClaims());
             expirationTime = Date.from(jwt.getExpiresAt());
             issueTime = Date.from(jwt.getIssuedAt());
             String tenantId = firstNonEmpty((String) claims.get("tenantId"), (String) claims.get("tenant_id"), provider.getTenantId());
