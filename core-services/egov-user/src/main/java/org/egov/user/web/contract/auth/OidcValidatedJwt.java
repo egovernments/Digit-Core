@@ -3,20 +3,22 @@ package org.egov.user.web.contract.auth;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
 
+@Getter
 public class OidcValidatedJwt {
     private final Set<String> roles;
-
     private final Map<String, Object> claims;
-
     private final Date expirationTime;
     private final Date issuanceTime;
+    private final String projectId;
 
-    public OidcValidatedJwt(Set<String> roles, Map<String, Object> claims, Date expirationTime, Date issuanceTime) {
+    public OidcValidatedJwt(Set<String> roles, Map<String, Object> claims, Date expirationTime, Date issuanceTime, String projectId) {
         this.claims = claims;
         this.roles = roles;
         this.expirationTime = expirationTime;
         this.issuanceTime = issuanceTime;
+        this.projectId = projectId;
     }
 
     public String getIssuer() {
@@ -29,10 +31,6 @@ public class OidcValidatedJwt {
 
     public String getEmail() {
         return (String) claims.get("email");
-    }
-
-    public Map<String, Object> getClaims() {
-        return claims;
     }
 
     public String getName() {
@@ -54,18 +52,6 @@ public class OidcValidatedJwt {
     public String getExternalUserId() {
         // Use sub as stable ID
         return getSubject();
-    }
-
-    public Set<String> getRoles() {
-        return this.roles;
-    }
-
-    public Date getExpirationTime() {
-        return expirationTime;
-    }
-
-    public Date getIssuanceTime() {
-        return issuanceTime;
     }
 }
 
