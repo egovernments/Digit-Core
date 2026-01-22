@@ -24,6 +24,7 @@ Encryption Service offers following features :
 - Sign - Encryption Service can hash and sign the data which can be used as unique identifier of the data. This can also be used for searching gicen value from a datastore.
 - Verify - Based on the input sign and the claim, it can verify if the the given sign is correct for the provided claim.
 - Rotate Key - Encryption Service supports changing the key used for encryption. The old key will still remain with the service which will be used to decrypt old data. All the new data will be encrypted by the new key.
+- Master Data Provider - This service supports two providers to get Master data (MDMS) from a WebService or from a Postgres Database
 
 #### Configurations
 
@@ -37,6 +38,7 @@ Following are the properties in application.properties file in egov-enc-service 
 | `size.key.symmetric`         | 256               | Default size of Symmetric key.                                                                                               |          
 | `size.key.asymmetric`        | 1024              | Default size of Asymmetric key.                                                                                              |      
 | `size.initialvector`         | 12                | Default size of Initial vector.                                                                                              |
+| `egov.mdms.provider`         | ```org.egov.enc.masterdata.provider.WebServiceMasterDataProvider```                | Default Value of the MDMS provider                              |       
 
 ### API Details
 
