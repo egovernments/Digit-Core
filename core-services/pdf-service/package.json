@@ -32,7 +32,7 @@
   "author": "Jason Miller <jason@developit.ca>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "0.18.0",
     "body-parser": "^1.13.3",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
@@ -68,7 +68,7 @@
     "eslint": "^3.1.1",
     "mustache": "^3.0.1",
     "nodemon": "^1.19.4",
-    "pdfmake": "^0.2.2"
+    "pdfmake": "0.2.2"
   },
   "bugs": {
     "url": "https://github.com/egovernments/core-services/issues"
