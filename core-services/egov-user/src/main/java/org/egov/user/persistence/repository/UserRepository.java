@@ -619,7 +619,6 @@ public class UserRepository {
         userInputs.put("idp_token_exp", entityUser.getIdpTokenExp());
         userInputs.put("last_sso_login_at", entityUser.getLastSsoLoginAt());
 
-        namedParameterJdbcTemplate.update(userTypeQueryBuilder.getInsertUserQuery(), userInputs);
         // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(), entityUser.getTenantId());
         namedParameterJdbcTemplate.update(query, userInputs);

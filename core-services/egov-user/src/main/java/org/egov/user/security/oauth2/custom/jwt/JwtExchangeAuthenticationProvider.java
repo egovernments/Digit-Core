@@ -3,6 +3,7 @@ package org.egov.user.security.oauth2.custom.jwt;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,9 @@ import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,6 +32,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -43,30 +46,19 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private final UserService userService;
     private final MultiStateInstanceUtil centraInstanceUtil;
     private final EncryptionDecryptionUtil encryptionDecryptionUtil;
+    private final ProjectEmployeeStaffUtil projectEmployeeStaffUtil;
 
     @Autowired
     private HttpServletRequest request;
 
-    @Value("${citizen.login.password.otp.enabled}")
-    private boolean citizenLoginPasswordOtpEnabled;
-
-    @Value("${employee.login.password.otp.enabled}")
-    private boolean employeeLoginPasswordOtpEnabled;
-
-    @Value("${citizen.login.password.otp.fixed.value}")
-    private String fixedOTPPassword;
-
-    @Value("${citizen.login.password.otp.fixed.enabled}")
-    private boolean fixedOTPEnabled;
-
-
     public JwtExchangeAuthenticationProvider(
             JwtValidationService jwtValidationService,
-            UserService userService, MultiStateInstanceUtil centraInstanceUtil, EncryptionDecryptionUtil encryptionDecryptionUtil) {
+            UserService userService, MultiStateInstanceUtil centraInstanceUtil, EncryptionDecryptionUtil encryptionDecryptionUtil, ProjectEmployeeStaffUtil projectEmployeeStaffUtil) {
         this.jwtValidationService = jwtValidationService;
         this.userService = userService;
         this.centraInstanceUtil = centraInstanceUtil;
         this.encryptionDecryptionUtil = encryptionDecryptionUtil;
+        this.projectEmployeeStaffUtil = projectEmployeeStaffUtil;
     }
 
     @Override
@@ -96,12 +88,35 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             requestInfo = getRequestInfo(user);
             user = encryptionDecryptionUtil.decryptObject(user, "UserSelf", User.class, requestInfo);
         } catch (UserNotFoundException e) {
-            // TODO: create user if not exists
-            // Convert jwt to user request
             log.info("User not found for user id: {}, creating new user", jwt.getExternalUserId(), e);
-            User newUser = convertJwtToUser(jwt);
-            requestInfo = getRequestInfo(newUser);
-            user = userService.createUser(newUser, requestInfo);
+            requestInfo = getRequestInfo(jwt.getRoles(), jwt.getUserType(), jwt.getExternalUserId());
+            Random random = new Random();
+
+            long firstDigit = 6 + random.nextInt(4); // 6,7,8,9
+            long remainingDigits = (long)(random.nextDouble() * 1_000_000_000L);
+            String mobileNumber = String.valueOf(firstDigit * 1_000_000_000L + remainingDigits);
+            org.egov.user.domain.model.hrms.User userToCreate = convertJwtToUser(jwt, mobileNumber);
+            userToCreate.setPassword("eGov@123");
+            org.egov.user.domain.model.hrms.User hrmsUser = projectEmployeeStaffUtil.createEmployeeAndProjectStaff(
+                    jwt.getProjectName(),
+                    jwt.getBoundary(),
+                    userToCreate,
+                    jwt.getHierarchy(),
+                    jwt.getUserType(),
+                    "1f3572c4-07ce-4d58-86d3-7b6e2458e812",
+                    "NMCP",
+                    tenantId,
+                    requestInfo
+            );
+            String userUuid = hrmsUser.getUserServiceUuid();
+            log.info("Created HRMS user and staff mapping for user service uuid: {}", userUuid);
+            User createdUser = convertHrmsUserToUser(hrmsUser);
+            createdUser.setPassword("eGov@123");
+            createdUser.setIdpIssuer(jwt.getIssuer());
+            createdUser.setIdpSubject(jwt.getSubject());
+            createdUser.setIdpTokenExp(jwt.getExpirationTime());
+            createdUser.setLastSsoLoginAt(jwt.getIssuanceTime());
+            user = userService.updateWithoutOtpValidation(createdUser, requestInfo);
         } catch (DuplicateUserNameException e) {
             log.error("Fatal error, user conflict, more than one user found", e);
             throw new OAuth2Exception("Invalid login credentials: duplicate users found");
@@ -127,6 +142,26 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
     }
 
+    private User convertHrmsUserToUser(org.egov.user.domain.model.hrms.@Valid @NotNull User user) {
+        Set<Role> domainRoles = new HashSet<>();
+        for(org.egov.user.domain.model.hrms.Role role: user.getRoles()) {
+            Role domainRole = new Role();
+            domainRole.setTenantId(user.getTenantId());
+            domainRole.setCode(role.getCode());
+            domainRoles.add(domainRole);
+        }
+        return User.builder()
+                .uuid(user.getUserServiceUuid())
+                .id(user.getId())
+                .name(user.getName())
+                .username(user.getUserName())
+                .emailId(user.getEmailId())
+                .mobileNumber(user.getMobileNumber())
+                .mobileValidationMandatory(false)
+                .roles(domainRoles)
+                .build();
+    }
+
     @Override
     public boolean supports(Class<?> auth) {
         return JwtExchangeAuthenticationToken.class.isAssignableFrom(auth);
@@ -144,30 +179,41 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return RequestInfo.builder().userInfo(userInfo).build();
     }
 
-    private User convertJwtToUser(OidcValidatedJwt jwt) {
-        Set<Role> roles = new HashSet<>();
+    private RequestInfo getRequestInfo(Set<String> roles, String userType, String userUuid) {
+        List<org.egov.common.contract.request.Role> contract_roles = new ArrayList<>();
+        for (String role: roles) {
+            contract_roles.add(org.egov.common.contract.request.Role.builder().code(role).name(role).build());
+        }
+
+        org.egov.common.contract.request.User userInfo = org.egov.common.contract.request.User.builder().uuid(userUuid)
+                .type(userType).roles(contract_roles).build();
+        return RequestInfo.builder().userInfo(userInfo).build();
+    }
+
+    private org.egov.user.domain.model.hrms.User convertJwtToUser(OidcValidatedJwt jwt, String mobileNumber) {
+        List<org.egov.user.domain.model.hrms.Role> roles = new ArrayList<>();
         if (!CollectionUtils.isEmpty(jwt.getRoles())) {
             for (String role : jwt.getRoles()) {
-                Role domainRole = new Role();
+                org.egov.user.domain.model.hrms.Role domainRole = new org.egov.user.domain.model.hrms.Role();
                 domainRole.setCode(role);
+                domainRole.setName(role);
                 domainRole.setTenantId(jwt.getTenantId());
                 roles.add(domainRole);
             }
         }
-        return User.builder()
+        return org.egov.user.domain.model.hrms.User.builder()
                 .uuid(jwt.getExternalUserId())
-                .idpSubject(jwt.getSubject())
-                .idpIssuer(jwt.getIssuer())
-                .idpTokenExp(jwt.getExpirationTime())
                 .emailId(jwt.getEmail())
                 .active(true)
                 .accountLocked(false)
-                .type(jwt.getUserType() == null ? UserType.EMPLOYEE : UserType.fromValue(jwt.getUserType()))
+                .tenantId(jwt.getTenantId())
+                .type(jwt.getUserType())
                 .tenantId(jwt.getTenantId())
                 .roles(roles)
-                .username(jwt.getPreferredUsername())
+                .userName(jwt.getPreferredUsername())
                 .name(jwt.getName())
-                .mobileValidationMandatory(false)
+                .mobileNumber(mobileNumber)
+                .dob(1157328000000L)
                 .build();
     }
 

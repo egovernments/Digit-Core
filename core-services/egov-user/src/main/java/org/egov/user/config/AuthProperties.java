@@ -47,16 +47,18 @@ public class AuthProperties {
         private String defaultRoleCodes;
         private String roleClaimKey = "roles";
         private Map<String, String> roleMapping;
-        private Map<String, String> roleProjectMapping;
+        private Map<String, String> roleBoundaryMapping;
+        private String hierarchyType;
+        private String projectName;
 
         @JsonSetter("roleMapping")
         public void setRoleMapping(String roleMappingString) throws IOException {
             roleMapping = (Map<String, String>) new ObjectMapper().readValue(roleMappingString, Map.class);
         }
 
-        @JsonSetter("roleProjectMapping")
-        public void setRoleProjectMapping(String roleProjectMappingString) throws IOException {
-            roleProjectMapping = (Map<String, String>) new ObjectMapper().readValue(roleProjectMappingString, Map.class);
+        @JsonSetter("roleBoundaryMapping")
+        public void setRoleBoundaryMapping(String roleBoundaryMappingString) throws IOException {
+            roleBoundaryMapping = (Map<String, String>) new ObjectMapper().readValue(roleBoundaryMappingString, Map.class);
         }
     }
 }
