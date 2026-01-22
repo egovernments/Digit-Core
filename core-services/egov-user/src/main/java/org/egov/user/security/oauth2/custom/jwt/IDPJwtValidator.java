@@ -18,9 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.tracer.model.CustomException;
 import org.egov.user.config.AuthProperties;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
-import org.springframework.security.oauth2.common.exceptions.UnauthorizedUserException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -52,7 +50,7 @@ public class IDPJwtValidator implements JwtValidator {
         Date expirationTime = null;
         Date issueTime = null;
         Set<String> roles = new HashSet<>();
-        String projectId = null;
+        String boundary = null;
         String issuer = extractIssuerUnverified(token);
         AuthProperties.Provider provider = resolveProviderByIssuer(issuer)
                 .orElseThrow(() -> new CustomException("OIDC_PROVIDER_NOT_FOUND", "No OIDC provider configured for issuer"));
@@ -73,12 +71,12 @@ public class IDPJwtValidator implements JwtValidator {
             claims.put("tenantId", tenantId);
             claims.put("userType", userType);
             roles = extractRoles(provider, claims);
-            projectId = extractProject(provider, claims);
+            boundary = extractBoundary(provider, claims);
         } catch (Exception e) {
             log.error("Error while parsing the jwt token", e);
             throw new OAuth2Exception("Invalid JWT token", e);
         }
-        return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, projectId);
+        return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, provider.getProjectName(), provider.getHierarchyType(), boundary);
     }
 
     private String firstNonEmpty(String... values) {
@@ -104,21 +102,21 @@ public class IDPJwtValidator implements JwtValidator {
         return defaultRoles;
     }
 
-    private String extractProject(AuthProperties.Provider provider, Map<String, Object> claims) {
+    private String extractBoundary(AuthProperties.Provider provider, Map<String, Object> claims) {
         String roleClaimKey = provider.getRoleClaimKey();
-        Map<String, String> roleProjectMapping = provider.getRoleProjectMapping();
+        Map<String, String> roleProjectMapping = provider.getRoleBoundaryMapping();
         Object rolesObject = claims.remove(roleClaimKey);
-        String projectId = null;
+        String boundaryCode = "mz"; // TODO: change back to null
         if(rolesObject instanceof List) {
             List<String> roles = (List<String>) rolesObject;
-            projectId = roles.stream().map(roleProjectMapping::get).filter(Objects::nonNull).findFirst()
-                    .orElseThrow(() -> new OAuth2Exception("No project mapping found for roles " + rolesObject));
+            boundaryCode = roles.stream().map(roleProjectMapping::get).filter(Objects::nonNull).findFirst()
+                    .orElseThrow(() -> new OAuth2Exception("No boundaryCode mapping found for roles " + rolesObject));
         }
-        if(projectId == null) {
+        if(boundaryCode == null) {
             log.error("No project mapping found for roles {}", rolesObject);
-            throw new OAuth2Exception("No project mapping found for roles " + rolesObject);
+            throw new OAuth2Exception("No boundaryCode mapping found for roles " + rolesObject);
         }
-        return projectId;
+        return boundaryCode;
     }
 
     private String extractIssuerUnverified(String jwt) {

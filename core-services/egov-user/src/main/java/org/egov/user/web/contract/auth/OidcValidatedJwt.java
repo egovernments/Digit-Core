@@ -11,14 +11,18 @@ public class OidcValidatedJwt {
     private final Map<String, Object> claims;
     private final Date expirationTime;
     private final Date issuanceTime;
-    private final String projectId;
+    private final String projectName;
+    private final String hierarchy;
+    private final String boundary;
 
-    public OidcValidatedJwt(Set<String> roles, Map<String, Object> claims, Date expirationTime, Date issuanceTime, String projectId) {
+    public OidcValidatedJwt(Set<String> roles, Map<String, Object> claims, Date expirationTime, Date issuanceTime, String projectName, String hierarchy, String boundary) {
         this.claims = claims;
         this.roles = roles;
         this.expirationTime = expirationTime;
         this.issuanceTime = issuanceTime;
-        this.projectId = projectId;
+        this.projectName = projectName;
+        this.hierarchy = hierarchy;
+        this.boundary = boundary;
     }
 
     public String getIssuer() {
