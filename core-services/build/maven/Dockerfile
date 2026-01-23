@@ -15,7 +15,7 @@ RUN mvn -B -f /app/pom.xml package
 
 
 # Create runtime image
-FROM egovio/8-openjdk-alpine
+FROM egovio/openjdk:8-jre-headless
 
 
 WORKDIR /opt/egov
