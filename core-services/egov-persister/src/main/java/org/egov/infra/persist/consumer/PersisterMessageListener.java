@@ -1,5 +1,6 @@
 package org.egov.infra.persist.consumer;
 
+import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.egov.infra.persist.service.PersistService;
 import org.egov.tracer.kafka.CustomKafkaTemplate;
@@ -36,15 +37,13 @@ public class PersisterMessageListener implements MessageListener<String, Object>
 	@Value("${audit.generate.kafka.topic}")
 	private String auditGenerateKafkaTopic;
 
-	@Override
+	@SneakyThrows
+    @Override
 	public void onMessage(ConsumerRecord<String, Object> data) {
 		String rcvData = null;
-		
-		try {
-			rcvData = objectMapper.writeValueAsString(data.value());
-		} catch (JsonProcessingException e) {
-			log.error("Failed to serialize incoming message", e);
-		}
+		long startTime = System.currentTimeMillis();
+
+		rcvData = objectMapper.writeValueAsString(data.value());
 		persistService.persist(data.topic(),rcvData);
 
 		if(!data.topic().equalsIgnoreCase(persistAuditKafkaTopic)){
@@ -53,6 +52,8 @@ public class PersisterMessageListener implements MessageListener<String, Object>
 			producerRecord.put("value", data.value());
 			kafkaTemplate.send(auditGenerateKafkaTopic, producerRecord);
 		}
+
+		log.info("Message processed successfully in {} ms.", System.currentTimeMillis() - startTime);
 	}
 
 }

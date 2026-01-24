@@ -26,9 +26,13 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Configuration
@@ -60,14 +64,37 @@ public class PersisterBatchConsumerConfig {
     @Value("${persister.batch.size}")
     private Integer batchSize;
 
+    @Value("${persister.batch.topics:}")
+    private String batchTopicsConfig;
+
+    private Set<String> configuredBatchTopics = new HashSet<>();
+
     @PostConstruct
     public void setTopics() {
+        // Parse configured batch topics from property
+        if (StringUtils.hasText(batchTopicsConfig)) {
+            configuredBatchTopics = Arrays.stream(batchTopicsConfig.split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::hasText)
+                    .collect(Collectors.toSet());
+            log.info("Configured batch topics from property: {}", configuredBatchTopics);
+        }
+
+        // Add topics that either contain "-batch" OR are in the configured list
         topicMap.getTopicMap().keySet().forEach(topic -> {
-            if(topic.contains("-batch")){
+            if (topic.contains("-batch") || configuredBatchTopics.contains(topic)) {
                 topics.add(topic);
             }
         });
-        log.info("Topics subscribed for batch listner: "+topics.toString());
+        log.info("Topics subscribed for batch listener: {}", topics);
+    }
+
+    public Set<String> getConfiguredBatchTopics() {
+        return configuredBatchTopics;
+    }
+
+    public Set<String> getBatchTopics() {
+        return topics;
     }
 
     @Bean("consumerFactoryBatch")
@@ -112,12 +139,13 @@ public class PersisterBatchConsumerConfig {
         // set more properties
    //     properties.setPauseEnabled(true);
    //     properties.setPauseAfter(0);
-        // properties.setGenericErrorHandler(kafkaConsumerErrorHandler);
         properties.setMessageListener(indexerMessageListener);
 
         log.info("Custom KafkaListenerContainer built...");
 
-        return new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        container.setCommonErrorHandler(kafkaConsumerErrorHandler);
+        return container;
     }
 
     @Bean("startBatchContainer")
