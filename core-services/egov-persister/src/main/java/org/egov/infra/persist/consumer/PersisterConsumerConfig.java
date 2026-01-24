@@ -59,12 +59,15 @@ public class PersisterConsumerConfig {
     @Value("${persister.batch.topics:}")
     private String batchTopicsConfig;
 
+    @Value("${persister.bulk.enabled:false}")
+    private Boolean batchPersisterEnabled;
+
     private Set<String> configuredBatchTopics = new HashSet<>();
 
     @PostConstruct
     public void setTopics() {
         // Parse configured batch topics from property
-        if (StringUtils.hasText(batchTopicsConfig)) {
+        if (batchPersisterEnabled && StringUtils.hasText(batchTopicsConfig)) {
             configuredBatchTopics = Arrays.stream(batchTopicsConfig.split(","))
                     .map(String::trim)
                     .filter(StringUtils::hasText)
