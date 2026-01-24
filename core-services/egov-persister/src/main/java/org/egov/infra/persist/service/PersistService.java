@@ -63,21 +63,20 @@ public class PersistService {
 			applicableMappings.put(document, filterMappings(map.get(topic), document));
 		}
 
-		applicableMappings.forEach((jsonObj, mappings) -> {
+		for (Map.Entry<Object, List<Mapping>> entry : applicableMappings.entrySet()) {
+			Object jsonObj = entry.getKey();
+			List<Mapping> mappings = entry.getValue();
+
 			for (Mapping mapping : mappings) {
-				List<QueryMap> queryMaps = mapping.getQueryMaps();
-				for (QueryMap queryMap : queryMaps) {
+				for (QueryMap queryMap : mapping.getQueryMaps()) {
+
 					String query = queryMap.getQuery();
-					List<JsonMap> jsonMaps = queryMap.getJsonMaps();
 					String basePath = queryMap.getBasePath();
-
-					List<Object[]> rows = new LinkedList<>(persistRepository.getRows(jsonMaps, jsonObj, basePath));
-
+					List<Object[]> rows = persistRepository.getRows(queryMap.getJsonMaps(), jsonObj, basePath);
 					persistRepository.persist(query, rows);
 				}
-
 			}
-		});
+		}
 	}
 
 	private List<Mapping> filterMappings(List<Mapping> mappings, Object json){
