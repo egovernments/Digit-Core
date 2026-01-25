@@ -41,7 +41,7 @@ public class PersisterMessageListener implements MessageListener<String, Object>
 	@Value("${audit.generate.kafka.topic}")
 	private String auditGenerateKafkaTopic;
 
-	@Value("${persister.deadLetter.reprocess.error.topic}")
+	@Value("${persister.dead-letter.reprocess.error-topic}")
 	private String deadLetterReprocessErrorTopic;
 
 	@Value("${tracer.errorsTopic}")
@@ -58,9 +58,6 @@ public class PersisterMessageListener implements MessageListener<String, Object>
 		String topic = data.topic();
 		String deadLetterTopic = null;
 		Object body = null;
-
-
-
 		try {
 			if (Objects.equals(topic, tracerErrorsTopic)) {
 				LinkedHashMap<String, Object> message = (LinkedHashMap<String, Object>) data.value();
