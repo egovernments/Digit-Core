@@ -61,8 +61,14 @@ public class PersisterConsumerConfig {
     @Value("${persister.batch.topics:}")
     private String batchTopicsConfig;
 
+    @Value("${persister.highVolume.topics:}")
+    private String highVolumeTopicsConfig;
+
     @Value("${persister.bulk.enabled:false}")
     private Boolean batchPersisterEnabled;
+
+    @Value("${persister.high.volume.enabled:false}")
+    private Boolean highVolumePersisterEnabled;
 
     @Value("${persister.custom.executor.maxPoolSize}")
     private Integer maxPoolSize;
@@ -77,6 +83,7 @@ public class PersisterConsumerConfig {
     private String deadLetterErrorTopic;
 
     private Set<String> configuredBatchTopics = new HashSet<>();
+    private Set<String> highVolumeTopics = new HashSet<>();
 
     @PostConstruct
     public void setTopics() {
@@ -89,9 +96,20 @@ public class PersisterConsumerConfig {
             log.info("Configured batch topics from property: {}", configuredBatchTopics);
         }
 
-        // Add topics that do NOT contain "-batch" AND are NOT in the configured batch list
+        // Parse high volume topics to exclude
+        if (highVolumePersisterEnabled && StringUtils.hasText(highVolumeTopicsConfig)) {
+            highVolumeTopics = Arrays.stream(highVolumeTopicsConfig.split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::hasText)
+                    .collect(Collectors.toSet());
+            log.info("High volume topics (excluded from single listener): {}", highVolumeTopics);
+        }
+
+        // Add topics that do NOT contain "-batch" AND are NOT in batch/highVolume lists
         topicMap.getTopicMap().keySet().forEach(topic -> {
-            if (!topic.contains("-batch") && !configuredBatchTopics.contains(topic)) {
+            if (!topic.contains("-batch")
+                    && !configuredBatchTopics.contains(topic)
+                    && !highVolumeTopics.contains(topic)) {
                 topics.add(topic);
             }
         });
@@ -105,7 +123,7 @@ public class PersisterConsumerConfig {
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
 
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
 
         JsonDeserializer jsonDeserializer = new JsonDeserializer<>(Object.class,false);

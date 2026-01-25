@@ -58,9 +58,6 @@ public class PersisterMessageListener implements MessageListener<String, Object>
 		String topic = data.topic();
 		String deadLetterTopic = null;
 		Object body = null;
-
-
-
 		try {
 			if (Objects.equals(topic, tracerErrorsTopic)) {
 				LinkedHashMap<String, Object> message = (LinkedHashMap<String, Object>) data.value();
