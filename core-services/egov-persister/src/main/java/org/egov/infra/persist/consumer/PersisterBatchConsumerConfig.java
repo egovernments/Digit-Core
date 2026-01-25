@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
@@ -26,12 +27,16 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
@@ -60,6 +65,12 @@ public class PersisterBatchConsumerConfig {
     private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
 
     private Set<String> topics = new HashSet<>();
+
+    @Value("${persister.custom.executor.batchMaxPoolSize}")
+    private Integer maxPoolSize;
+
+    @Value("${persister.custom.executor.enabled}")
+    private Boolean customExecutorEnabled;
 
     @Value("${persister.batch.size}")
     private Integer batchSize;
@@ -140,6 +151,11 @@ public class PersisterBatchConsumerConfig {
    //     properties.setPauseEnabled(true);
    //     properties.setPauseAfter(0);
         properties.setMessageListener(indexerMessageListener);
+        if (customExecutorEnabled) {
+            ExecutorService executorService = Executors.newFixedThreadPool(maxPoolSize);
+            AsyncTaskExecutor taskExecutor = new ConcurrentTaskExecutor(executorService);
+            properties.setListenerTaskExecutor(taskExecutor);
+        }
 
         log.info("Custom KafkaListenerContainer built...");
 

@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
@@ -24,12 +25,13 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
@@ -62,6 +64,18 @@ public class PersisterConsumerConfig {
     @Value("${persister.bulk.enabled:false}")
     private Boolean batchPersisterEnabled;
 
+    @Value("${persister.custom.executor.maxPoolSize}")
+    private Integer maxPoolSize;
+
+    @Value("${persister.custom.executor.enabled}")
+    private Boolean customExecutorEnabled;
+
+    @Value("${persister.deadLetter.reprocess.enabled}")
+    private Boolean deadLetterReprocessEnabled;
+
+    @Value("${tracer.errorsTopic}")
+    private String deadLetterErrorTopic;
+
     private Set<String> configuredBatchTopics = new HashSet<>();
 
     @PostConstruct
@@ -81,6 +95,9 @@ public class PersisterConsumerConfig {
                 topics.add(topic);
             }
         });
+        if (deadLetterReprocessEnabled && StringUtils.hasText(deadLetterErrorTopic)) {
+            topics.add(deadLetterErrorTopic);
+        }
         log.info("Topics subscribed for single listener: {}", topics);
     }
 
@@ -120,6 +137,11 @@ public class PersisterConsumerConfig {
      //   properties.setPauseEnabled(true);
      //   properties.setPauseAfter(0);
         properties.setMessageListener(indexerMessageListener);
+        if (customExecutorEnabled) {
+            ExecutorService executorService = Executors.newFixedThreadPool(maxPoolSize);
+            AsyncTaskExecutor taskExecutor = new ConcurrentTaskExecutor(executorService);
+            properties.setListenerTaskExecutor(taskExecutor);
+        }
 
         log.info("Custom KafkaListenerContainer built...");
 
