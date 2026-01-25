@@ -15,11 +15,8 @@ public class TransactionInterceptorAspect {
     @Around("@annotation(org.springframework.transaction.annotation.Transactional)")
     public Object aroundTransactional(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
-            Object result = joinPoint.proceed();
-            log.info("Transactional method succeeded: {}", joinPoint.getSignature());
-            return result;
+            return joinPoint.proceed();
         } catch (Exception e) {
-            log.error("Transactional method failed: {}", joinPoint.getSignature());
             throw new ListenerExecutionFailedException(e.getMessage(), e);
         }
     }

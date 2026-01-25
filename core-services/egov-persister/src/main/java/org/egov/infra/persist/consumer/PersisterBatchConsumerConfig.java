@@ -1,8 +1,8 @@
-
-
 package org.egov.infra.persist.consumer;
 
-
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -12,31 +12,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.*;
+import org.springframework.kafka.listener.BatchMessageListener;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-
-import jakarta.annotation.PostConstruct;
-import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -53,7 +41,7 @@ public class PersisterBatchConsumerConfig {
     private StoppingErrorHandler stoppingErrorHandler;*/
 
     @Autowired
-    private BatchMessageListener indexerMessageListener;
+    private BatchMessageListener batchMessageListener;
 
     @Autowired
     private TopicMap topicMap;
@@ -64,148 +52,92 @@ public class PersisterBatchConsumerConfig {
     @Autowired
     private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
 
-    private Set<String> topics = new HashSet<>();
-
-    @Value("${persister.custom.executor.batchMaxPoolSize}")
-    private Integer maxPoolSize;
-
-    @Value("${persister.custom.executor.enabled}")
-    private Boolean customExecutorEnabled;
-
     @Value("${persister.batch.size}")
     private Integer batchSize;
 
     @Value("${persister.batch.topics:}")
     private String batchTopicsConfig;
 
-    private Set<String> configuredBatchTopics = new HashSet<>();
+    @Getter
+    private Set<String> batchTopics = new HashSet<>();
+
+    private KafkaMessageListenerContainer<String, Object> batchContainer;
 
     @PostConstruct
-    public void setTopics() {
+    public void init() {
+        parseTopicConfigurations();
+        createBatchContainer();
+    }
+
+    private void parseTopicConfigurations() {
         // Parse configured batch topics from property
+        Set<String> configuredBatchTopics = new HashSet<>();
         if (StringUtils.hasText(batchTopicsConfig)) {
             configuredBatchTopics = Arrays.stream(batchTopicsConfig.split(","))
                     .map(String::trim)
                     .filter(StringUtils::hasText)
                     .collect(Collectors.toSet());
-            log.info("Configured batch topics from property: {}", configuredBatchTopics);
         }
 
-        // Add topics that either contain "-batch" OR are in the configured list
+        // Batch topics = topics containing "-batch" OR explicitly configured
+        Set<String> finalConfiguredBatchTopics = configuredBatchTopics;
         topicMap.getTopicMap().keySet().forEach(topic -> {
-            if (topic.contains("-batch") || configuredBatchTopics.contains(topic)) {
-                topics.add(topic);
+            if (topic.contains("-batch") || finalConfiguredBatchTopics.contains(topic)) {
+                batchTopics.add(topic);
             }
         });
-        log.info("Topics subscribed for batch listener: {}", topics);
+        log.info("Batch topics: {}", batchTopics);
     }
 
-    public Set<String> getConfiguredBatchTopics() {
-        return configuredBatchTopics;
+    /**
+     * Creates ONE container for all batch topics.
+     */
+    private void createBatchContainer() {
+        if (batchTopics.isEmpty()) {
+            log.info("No batch topics configured, skipping batch container");
+            return;
+        }
+
+        try {
+            ContainerProperties properties = new ContainerProperties(batchTopics.toArray(new String[0]));
+            properties.setMessageListener(batchMessageListener);
+            properties.setAckMode(ContainerProperties.AckMode.BATCH);
+
+            batchContainer = new KafkaMessageListenerContainer<>(createConsumerFactory(), properties);
+            batchContainer.setCommonErrorHandler(kafkaConsumerErrorHandler);
+            batchContainer.setBeanName("batchContainer");
+            batchContainer.start();
+
+            log.info("Started batch container for {} topics: {}", batchTopics.size(), batchTopics);
+
+        } catch (Exception e) {
+            log.error("Failed to create batch container", e);
+        }
     }
 
-    public Set<String> getBatchTopics() {
-        return topics;
-    }
-
-    @Bean("consumerFactoryBatch")
-    public ConsumerFactory<String, String> consumerFactory() {
+    private ConsumerFactory<String, Object> createConsumerFactory() {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
 
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batchSize);
 
 
-        JsonDeserializer jsonDeserializer = new JsonDeserializer<>(Object.class,false);
-
-        ErrorHandlingDeserializer<String> errorHandlingDeserializer
-                = new ErrorHandlingDeserializer<>(jsonDeserializer);
+        JsonDeserializer<Object> jsonDeserializer = new JsonDeserializer<>(Object.class, false);
+        ErrorHandlingDeserializer<Object> errorHandlingDeserializer = new ErrorHandlingDeserializer<>(jsonDeserializer);
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), errorHandlingDeserializer);
-
     }
 
-    @Bean("kafkaListenerContainerFactoryBatch")
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(3);
-        factory.getContainerProperties().setPollTimeout(30000);
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
-        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
-
-
-        // BATCH PROPERTY
-        factory.setBatchListener(true);
-
-        log.info("Custom KafkaListenerContainerFactory built...");
-        return factory;
-
-    }
-
-    @Bean("batchContainer")
-    public KafkaMessageListenerContainer<String, String> container() throws Exception {
-        ContainerProperties properties = new ContainerProperties(this.topics.toArray(new String[topics.size()]));
-        // set more properties
-   //     properties.setPauseEnabled(true);
-   //     properties.setPauseAfter(0);
-        properties.setMessageListener(indexerMessageListener);
-        if (customExecutorEnabled) {
-            ExecutorService executorService = Executors.newFixedThreadPool(maxPoolSize);
-            AsyncTaskExecutor taskExecutor = new ConcurrentTaskExecutor(executorService);
-            properties.setListenerTaskExecutor(taskExecutor);
+    @PreDestroy
+    public void shutdown() {
+        if (batchContainer != null) {
+            try {
+                batchContainer.stop();
+                log.info("Stopped batch container");
+            } catch (Exception e) {
+                log.error("Error stopping batch container", e);
+            }
         }
-
-        log.info("Custom KafkaListenerContainer built...");
-
-        KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
-        container.setCommonErrorHandler(kafkaConsumerErrorHandler);
-        return container;
     }
-
-    @Bean("startBatchContainer")
-    public boolean startContainer() {
-        KafkaMessageListenerContainer<String, String> container = null;
-        try {
-            container = container();
-        } catch (Exception e) {
-            log.error("Container couldn't be started: ", e);
-            return false;
-        }
-        container.start();
-        log.info("Custom KakfaListenerContainer STARTED...");
-        return true;
-
-    }
-
-    public boolean pauseContainer() {
-        KafkaMessageListenerContainer<String, String> container = null;
-        try {
-            container = container();
-        } catch (Exception e) {
-            log.error("Container couldn't be started: ", e);
-            return false;
-        }
-        container.stop();
-        log.info("Custom KakfaListenerContainer STOPPED...");
-
-        return true;
-    }
-
-    public boolean resumeContainer() {
-        KafkaMessageListenerContainer<String, String> container = null;
-        try {
-            container = container();
-        } catch (Exception e) {
-            log.error("Container couldn't be started: ", e);
-            return false;
-        }
-        container.start();
-        log.info("Custom KakfaListenerContainer STARTED...");
-
-        return true;
-    }
-
 }
-
