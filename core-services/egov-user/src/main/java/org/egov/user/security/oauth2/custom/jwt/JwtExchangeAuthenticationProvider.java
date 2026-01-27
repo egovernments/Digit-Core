@@ -112,10 +112,14 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             log.info("Created HRMS user and staff mapping for user service uuid: {}", userUuid);
             User createdUser = convertHrmsUserToUser(hrmsUser);
             createdUser.setPassword("eGov@123");
+            createdUser.setTenantId(tenantId);
             createdUser.setIdpIssuer(jwt.getIssuer());
             createdUser.setIdpSubject(jwt.getSubject());
             createdUser.setIdpTokenExp(jwt.getExpirationTime());
             createdUser.setLastSsoLoginAt(jwt.getIssuanceTime());
+            createdUser.setActive(Boolean.TRUE);
+            requestInfo.getUserInfo().setId(createdUser.getId());
+            requestInfo.getUserInfo().setUuid(createdUser.getUuid());
             user = userService.updateWithoutOtpValidation(createdUser, requestInfo);
         } catch (DuplicateUserNameException e) {
             log.error("Fatal error, user conflict, more than one user found", e);

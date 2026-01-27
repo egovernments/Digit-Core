@@ -53,7 +53,8 @@ public class IDPJwtValidator implements JwtValidator {
         String boundary = null;
         String issuer = extractIssuerUnverified(token);
         AuthProperties.Provider provider = resolveProviderByIssuer(issuer)
-                .orElseThrow(() -> new CustomException("OIDC_PROVIDER_NOT_FOUND", "No OIDC provider configured for issuer"));
+                .orElseThrow(
+                        () -> new CustomException("OIDC_PROVIDER_NOT_FOUND", "No OIDC provider configured for issuer"));
         JwtDecoder decoder = getDecoder(provider);
         Jwt jwt = null;
         try {
@@ -66,8 +67,10 @@ public class IDPJwtValidator implements JwtValidator {
             claims = new HashMap<>(jwt.getClaims());
             expirationTime = Date.from(jwt.getExpiresAt());
             issueTime = Date.from(jwt.getIssuedAt());
-            String tenantId = firstNonEmpty((String) claims.get("tenantId"), (String) claims.get("tenant_id"), provider.getTenantId());
-            String userType = firstNonEmpty((String) claims.get("userType"), (String) claims.get("user_type"), provider.getUserType());
+            String tenantId = firstNonEmpty((String) claims.get("tenantId"), (String) claims.get("tenant_id"),
+                    provider.getTenantId());
+            String userType = firstNonEmpty((String) claims.get("userType"), (String) claims.get("user_type"),
+                    provider.getUserType());
             claims.put("tenantId", tenantId);
             claims.put("userType", userType);
             roles = extractRoles(provider, claims);
@@ -76,12 +79,14 @@ public class IDPJwtValidator implements JwtValidator {
             log.error("Error while parsing the jwt token", e);
             throw new OAuth2Exception("Invalid JWT token", e);
         }
-        return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, provider.getProjectName(), provider.getHierarchyType(), boundary);
+        return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, provider.getProjectName(),
+                provider.getHierarchyType(), boundary);
     }
 
     private String firstNonEmpty(String... values) {
         for (String value : values) {
-            if (value != null && !value.isEmpty()) return value;
+            if (value != null && !value.isEmpty())
+                return value;
         }
         return null;
     }
@@ -91,11 +96,13 @@ public class IDPJwtValidator implements JwtValidator {
         Map<String, String> rolesMapping = provider.getRoleMapping();
         Set<String> defaultRoles = new HashSet<>();
         if (provider.getDefaultRoleCodes() != null) {
-            defaultRoles.addAll(Arrays.stream(provider.getDefaultRoleCodes().split(",")).map(String::trim).collect(Collectors.toList()));
+            defaultRoles.addAll(Arrays.stream(provider.getDefaultRoleCodes().split(",")).map(String::trim)
+                    .collect(Collectors.toList()));
         }
-        if (claims == null || claims.get(roleClaimKey) == null) return defaultRoles;
-        Object rolesObject = claims.remove(roleClaimKey);
-        if(rolesObject instanceof List) {
+        if (claims == null || claims.get(roleClaimKey) == null)
+            return defaultRoles;
+        Object rolesObject = claims.get(roleClaimKey);
+        if (rolesObject instanceof List) {
             List<String> roles = (List<String>) rolesObject;
             return roles.stream().map(rolesMapping::get).filter(Objects::nonNull).collect(Collectors.toSet());
         }
@@ -105,14 +112,14 @@ public class IDPJwtValidator implements JwtValidator {
     private String extractBoundary(AuthProperties.Provider provider, Map<String, Object> claims) {
         String roleClaimKey = provider.getRoleClaimKey();
         Map<String, String> roleProjectMapping = provider.getRoleBoundaryMapping();
-        Object rolesObject = claims.remove(roleClaimKey);
-        String boundaryCode = "mz"; // TODO: change back to null
-        if(rolesObject instanceof List) {
+        Object rolesObject = claims.get(roleClaimKey);
+        String boundaryCode = null;
+        if (rolesObject instanceof List) {
             List<String> roles = (List<String>) rolesObject;
             boundaryCode = roles.stream().map(roleProjectMapping::get).filter(Objects::nonNull).findFirst()
                     .orElseThrow(() -> new OAuth2Exception("No boundaryCode mapping found for roles " + rolesObject));
         }
-        if(boundaryCode == null) {
+        if (boundaryCode == null) {
             log.error("No project mapping found for roles {}", rolesObject);
             throw new OAuth2Exception("No boundaryCode mapping found for roles " + rolesObject);
         }
@@ -130,14 +137,16 @@ public class IDPJwtValidator implements JwtValidator {
     private JwtDecoder getDecoder(AuthProperties.Provider provider) {
         return decoders.computeIfAbsent(provider.getId(), id -> {
             if (provider.getJwkSetUri() == null || provider.getJwkSetUri().trim().isEmpty()) {
-                throw new CustomException("OIDC_JWKS_MISSING", "jwk-set-uri missing for providerId=" + provider.getId());
+                throw new CustomException("OIDC_JWKS_MISSING",
+                        "jwk-set-uri missing for providerId=" + provider.getId());
             }
             return NimbusJwtDecoder.withJwkSetUri(provider.getJwkSetUri().trim()).build();
         });
     }
 
     private Optional<AuthProperties.Provider> resolveProviderByIssuer(String issuer) {
-        if (issuer == null) return Optional.empty();
+        if (issuer == null)
+            return Optional.empty();
         for (AuthProperties.Provider p : authProperties.getProviders()) {
             if (p.getIssuerUri() != null && issuer.equals(p.getIssuerUri().trim())) {
                 return Optional.of(p);
@@ -146,4 +155,3 @@ public class IDPJwtValidator implements JwtValidator {
         return Optional.empty();
     }
 }
-
