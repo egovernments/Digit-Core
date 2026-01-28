@@ -82,9 +82,9 @@ public class Bill {
     @JsonProperty("partPaymentAllowed")
     private Boolean partPaymentAllowed = null;
 
-    @NotNull
+//    @NotNull
     @JsonProperty("isAdvanceAllowed")
-    private Boolean isAdvanceAllowed;
+    private Boolean isAdvanceAllowed = false;
 
     @JsonProperty("minimumAmountToBePaid")
     private BigDecimal minimumAmountToBePaid = null;
@@ -105,7 +105,7 @@ public class Bill {
     private Long billDate = null;
 
     @NotNull
-    @JsonProperty("amountPaid")
+    @JsonProperty("totalCollectedAmount")
     private BigDecimal amountPaid = null;
 
 

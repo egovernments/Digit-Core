@@ -200,31 +200,48 @@ public class ApportionServiceV2 {
     }
 
     /**
-     * Updates adjusted amount in bill from mao returned after apportion
+     * Updates adjusted amount in bill from map returned after apportion
+     * Uses taxHeadCode as the primary matching key since it's always present
      * @param bill
      * @param taxDetails
      */
     private void updateAdjustedAmountInBills(Bill bill,List<TaxDetail> taxDetails){
 
-        Map<String,Bucket> idToBucket = new HashMap<>();
         Map<String,BigDecimal> idToAmountPaid = new HashMap<>();
 
         taxDetails.forEach(taxDetail -> {
             idToAmountPaid.put(taxDetail.getEntityId(),taxDetail.getAmountPaid());
-            taxDetail.getBuckets().forEach(bucket -> {
-                idToBucket.put(bucket.getEntityId(),bucket);
-            });
         });
 
         bill.getBillDetails().forEach(billDetail -> {
             billDetail.setAmountPaid(idToAmountPaid.get(billDetail.getId()));
-            billDetail.getBillAccountDetails().forEach(billAccountDetail -> {
-                billAccountDetail.setAdjustedAmount(idToBucket.get(billAccountDetail.getId()).getAdjustedAmount());
-                if(billAccountDetail.getTaxHeadCode().contains("ADVANCE")){
-                    billAccountDetail.setAmount(idToBucket.get(billAccountDetail.getId()).getAmount());
-                }
-
-            });
+            
+            // Find the corresponding TaxDetail for this BillDetail
+            TaxDetail matchingTaxDetail = taxDetails.stream()
+                    .filter(td -> (td.getEntityId() == null && billDetail.getId() == null) || 
+                                  (td.getEntityId() != null && td.getEntityId().equals(billDetail.getId())))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (matchingTaxDetail != null) {
+                // Create a map by taxHeadCode for matching
+                Map<String, Bucket> taxHeadToBucket = new HashMap<>();
+                matchingTaxDetail.getBuckets().forEach(bucket -> 
+                    taxHeadToBucket.put(bucket.getTaxHeadCode(), bucket)
+                );
+                
+                billDetail.getBillAccountDetails().forEach(billAccountDetail -> {
+                    // Match by taxHeadCode which is always present
+                    Bucket matchedBucket = taxHeadToBucket.get(billAccountDetail.getTaxHeadCode());
+                    
+                    if (matchedBucket != null) {
+                        billAccountDetail.setAdjustedAmount(matchedBucket.getAdjustedAmount());
+                        if(billAccountDetail.getTaxHeadCode().contains("ADVANCE")){
+                            billAccountDetail.setAmount(matchedBucket.getAmount());
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -257,7 +274,7 @@ public class ApportionServiceV2 {
         TaxDetail taxDetail = taxDetails.get(taxDetails.size()-1);
 
         for(Bucket bucket : taxDetail.getBuckets()){
-            if(bucket.getEntityId()==null && bucket.getPurpose().equals(Purpose.ADVANCE_AMOUNT)){
+            if(bucket.getEntityId()==null && bucket.getTaxHeadCode().contains("ADVANCE")){
                 advanceBucket = bucket;
                 break;
             }
