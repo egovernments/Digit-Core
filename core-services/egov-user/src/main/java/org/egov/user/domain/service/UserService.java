@@ -363,9 +363,12 @@ public class UserService {
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         validateUserRoles(user);
         user.validateUserModification();
-        validatePassword(user.getPassword());
-        user.setPassword(encryptPwd(user.getPassword()));
-        /* encrypt */
+        if (user.getPassword() != null) {
+            validatePassword(user.getPassword());
+            user.setPassword(encryptPwd(user.getPassword()));
+        } else {
+            user.setPassword(existingUser.getPassword());
+        }
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
         userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
 

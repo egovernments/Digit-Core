@@ -21,6 +21,7 @@ import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -86,6 +87,9 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         try {
             user = userService.getUniqueUser(jwt.getIssuer(), jwt.getExternalUserId(), tenantId, UserType.fromValue(userType));
             requestInfo = getRequestInfo(user);
+            User userForUpdate = createUserForSsoUpdate(user, jwt);
+            requestInfo.getUserInfo().setId(userForUpdate.getId());
+            userForUpdate = userService.updateWithoutOtpValidation(userForUpdate, requestInfo);
             user = encryptionDecryptionUtil.decryptObject(user, "UserSelf", User.class, requestInfo);
         } catch (UserNotFoundException e) {
             log.info("User not found for user id: {}, creating new user", jwt.getExternalUserId(), e);
@@ -259,5 +263,21 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
 
         return updatedUser;
     }
+
+    private User createUserForSsoUpdate(User user, OidcValidatedJwt jwt) {
+        User copy = new User();
+        BeanUtils.copyProperties(user, copy);
+
+        copy.setIdpTokenExp(jwt.getExpirationTime());
+        copy.setLastSsoLoginAt(jwt.getIssuanceTime());
+
+        copy.setPassword(null);
+        copy.setMobileNumber(null);
+        copy.setUsername(null);
+        copy.setName(null);
+
+        return copy;
+    }
+
 }
 

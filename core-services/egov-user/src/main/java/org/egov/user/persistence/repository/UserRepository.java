@@ -300,7 +300,10 @@ public class UserRepository {
             updateuserInputs.put("MobileNumber", user.getMobileNumber());
         else
             updateuserInputs.put("MobileNumber", oldUser.getMobileNumber());
-        updateuserInputs.put("Name", user.getName());
+        if(null !=user.getName())
+            updateuserInputs.put("Name", user.getName());
+        else
+            updateuserInputs.put("Name", oldUser.getName());
         updateuserInputs.put("Pan", user.getPan());
 
         if (!isEmpty(user.getPassword()))
