@@ -278,9 +278,9 @@ public class ProjectEmployeeStaffUtil {
                     "User service UUID is missing from HRMS employee response");
         }
 
-        ProjectStaff projectStaff = createProjectStaff(userServiceUuid, project.getId(), tenantId, requestInfo);
+//        ProjectStaff projectStaff = createProjectStaff(userServiceUuid, project.getId(), tenantId, requestInfo);
 
-        log.info("Successfully completed workflow for user: {} and project: {}", user.getName(), project.getName());
+        log.info("Successfully completed workflow for user: {}", user.getName());
         return employee.getUser();
     }
 

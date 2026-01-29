@@ -6,6 +6,7 @@ import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.config.AuthProperties;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import org.egov.user.domain.model.UserSearchCriteria;
@@ -37,109 +38,127 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class JwtExchangeAuthenticationProviderTest {
 
-    @Mock
-    private JwtValidationService jwtValidationService;
+        @Mock
+        private JwtValidationService jwtValidationService;
 
-    @Mock
-    private UserService userService;
+        @Mock
+        private UserService userService;
 
-    @Mock
-    private MultiStateInstanceUtil multiStateInstanceUtil;
+        @Mock
+        private MultiStateInstanceUtil multiStateInstanceUtil;
 
-    @Mock
-    private EncryptionDecryptionUtil encryptionDecryptionUtil;
+        @Mock
+        private EncryptionDecryptionUtil encryptionDecryptionUtil;
 
-    @Mock
-    private ProjectEmployeeStaffUtil projectEmployeeStaffUtil;
+        @Mock
+        private ProjectEmployeeStaffUtil projectEmployeeStaffUtil;
 
-    @Mock
-    private HttpServletRequest request;
+        @Mock
+        private AuthProperties authProperties;
 
-    private JwtExchangeAuthenticationProvider authenticationProvider;
+        @Mock
+        private AuthProperties.Provider provider;
 
-    @Before
-    public void setup() {
-        authenticationProvider = new JwtExchangeAuthenticationProvider(
-                jwtValidationService, userService, multiStateInstanceUtil, encryptionDecryptionUtil,
-                projectEmployeeStaffUtil);
-    }
+        private JwtExchangeAuthenticationProvider authenticationProvider;
 
-    @Test
-    public void testAuthenticate_ExistingUser() {
-        String token = "jwt-token";
-        JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token);
+        @Before
+        public void setup() {
+                authenticationProvider = new JwtExchangeAuthenticationProvider(
+                                jwtValidationService, userService, multiStateInstanceUtil, encryptionDecryptionUtil,
+                                projectEmployeeStaffUtil, authProperties);
+                when(authProperties.getProviders()).thenReturn(Collections.singletonList(provider));
+                when(provider.getIssuerUri()).thenReturn("issuer");
+                when(provider.getDefaultPassword()).thenReturn("eGov@123");
+                when(provider.getDefaultDob()).thenReturn(1157328000000L);
+                when(provider.getDefaultDesignation()).thenReturn("1f3572c4-07ce-4d58-86d3-7b6e2458e812");
+                when(provider.getDefaultDepartment()).thenReturn("NMCP");
+                when(provider.getMobileNumberPrefix()).thenReturn("9");
+                when(provider.getMobileNumberLength()).thenReturn(10);
+                when(provider.getEmployeeType()).thenReturn("PERMANENT");
+        }
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("iss", "issuer");
-        claims.put("sub", "subject");
-        claims.put("tenantId", "pb");
-        claims.put("userType", "EMPLOYEE");
+        @Test
+        public void testAuthenticate_ExistingUser() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token);
 
-        OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(), new Date(),
-                "Project", "Hierarchy", "Boundary");
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", "pb");
+                claims.put("userType", "EMPLOYEE");
 
-        User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true).password("password")
-                .roles(Collections.emptySet()).build();
+                OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
+                                new Date(),
+                                "Project", "Hierarchy", "Boundary");
 
-        when(jwtValidationService.validate(token)).thenReturn(jwt);
-        when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
-        when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any())).thenReturn(user);
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true).password("password")
+                                .roles(Collections.emptySet()).build();
 
-        Authentication result = authenticationProvider.authenticate(authenticationToken);
+                when(jwtValidationService.validate(token)).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+                when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any()))
+                                .thenReturn(user);
 
-        assertNotNull(result);
-        assertTrue(result instanceof UsernamePasswordAuthenticationToken);
-        SecureUser secureUser = (SecureUser) result.getPrincipal();
-        assertEquals("uuid", secureUser.getUser().getUuid());
-    }
+                Authentication result = authenticationProvider.authenticate(authenticationToken);
 
-    @Test
-    public void testAuthenticate_NewUserCreation() {
-        String token = "jwt-token";
-        JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token);
+                assertNotNull(result);
+                assertTrue(result instanceof UsernamePasswordAuthenticationToken);
+                SecureUser secureUser = (SecureUser) result.getPrincipal();
+                assertEquals("uuid", secureUser.getUser().getUuid());
+        }
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("iss", "issuer");
-        claims.put("sub", "subject");
-        claims.put("tenantId", "pb");
-        claims.put("userType", "EMPLOYEE");
-        claims.put("name", "John Doe");
-        claims.put("preferred_username", "johndoe");
-        claims.put("email", "john@example.com");
+        @Test
+        public void testAuthenticate_NewUserCreation() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token);
 
-        OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(), new Date(),
-                "Project", "Hierarchy", "Boundary");
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", "pb");
+                claims.put("userType", "EMPLOYEE");
+                claims.put("name", "John Doe");
+                claims.put("preferred_username", "johndoe");
+                claims.put("email", "john@example.com");
 
-        when(jwtValidationService.validate(token)).thenReturn(jwt);
-        when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
-                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+                OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
+                                new Date(),
+                                "Project", "Hierarchy", "Boundary");
 
-        org.egov.user.domain.model.hrms.User hrmsUser = org.egov.user.domain.model.hrms.User.builder()
-                .userServiceUuid("new-uuid")
-                .userName("johndoe")
-                .name("John Doe")
-                .roles(Collections.emptyList())
-                .tenantId("pb")
-                .build();
+                when(jwtValidationService.validate(token)).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(
+                                                new UserSearchCriteria()));
 
-        when(projectEmployeeStaffUtil.createEmployeeAndProjectStaff(anyString(), anyString(), any(), anyString(),
-                anyString(), anyString(), anyString(), anyString(), any()))
-                .thenReturn(hrmsUser);
+                org.egov.user.domain.model.hrms.User hrmsUser = org.egov.user.domain.model.hrms.User.builder()
+                                .userServiceUuid("new-uuid")
+                                .userName("johndoe")
+                                .name("John Doe")
+                                .roles(Collections.emptyList())
+                                .tenantId("pb")
+                                .build();
 
-        User createdUser = User.builder().uuid("new-uuid").username("johndoe").type(UserType.EMPLOYEE).active(true)
-                .password("password").roles(Collections.emptySet()).build();
-        when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(createdUser);
+                when(projectEmployeeStaffUtil.createEmployeeAndProjectStaff(anyString(), anyString(), any(),
+                                anyString(),
+                                anyString(), anyString(), anyString(), anyString(), any()))
+                                .thenReturn(hrmsUser);
 
-        Authentication result = authenticationProvider.authenticate(authenticationToken);
+                User createdUser = User.builder().uuid("new-uuid").username("johndoe").type(UserType.EMPLOYEE)
+                                .active(true)
+                                .password("password").roles(Collections.emptySet()).build();
+                when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(createdUser);
 
-        assertNotNull(result);
-        verify(projectEmployeeStaffUtil).createEmployeeAndProjectStaff(eq("Project"), eq("Boundary"), any(),
-                eq("Hierarchy"), eq("EMPLOYEE"), anyString(), anyString(), eq("pb"), any());
-        verify(userService).updateWithoutOtpValidation(any(), any());
-    }
+                Authentication result = authenticationProvider.authenticate(authenticationToken);
 
-    @Test
-    public void testSupports() {
-        assertTrue(authenticationProvider.supports(JwtExchangeAuthenticationToken.class));
-    }
+                assertNotNull(result);
+                verify(projectEmployeeStaffUtil).createEmployeeAndProjectStaff(eq("Project"), eq("Boundary"), any(),
+                                eq("Hierarchy"), eq("PERMANENT"), anyString(), anyString(), eq("pb"), any());
+                verify(userService).updateWithoutOtpValidation(any(), any());
+        }
+
+        @Test
+        public void testSupports() {
+                assertTrue(authenticationProvider.supports(JwtExchangeAuthenticationToken.class));
+        }
 }

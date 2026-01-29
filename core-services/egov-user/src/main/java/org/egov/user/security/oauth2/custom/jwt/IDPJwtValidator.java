@@ -114,10 +114,16 @@ public class IDPJwtValidator implements JwtValidator {
         Map<String, String> roleProjectMapping = provider.getRoleBoundaryMapping();
         Object rolesObject = claims.get(roleClaimKey);
         String boundaryCode = null;
-        if (rolesObject instanceof List) {
+        if (roleProjectMapping != null && rolesObject instanceof List) {
             List<String> roles = (List<String>) rolesObject;
             boundaryCode = roles.stream().map(roleProjectMapping::get).filter(Objects::nonNull).findFirst()
-                    .orElseThrow(() -> new OAuth2Exception("No boundaryCode mapping found for roles " + rolesObject));
+                    .orElse(null);
+        }
+        if (boundaryCode == null) {
+            boundaryCode = provider.getDefaultBoundaryCode();
+        }
+        if (boundaryCode == null) {
+            boundaryCode = authProperties.getDefaultBoundaryCode();
         }
         if (boundaryCode == null) {
             log.error("No project mapping found for roles {}", rolesObject);

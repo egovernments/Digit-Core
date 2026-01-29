@@ -113,4 +113,88 @@ public class IDPJwtValidatorTest {
         assertEquals(1, result.getRoles().size());
         assertEquals("DIGIT_ROLE_1", result.getRoles().iterator().next());
     }
+
+    @Test
+    public void testValidate_DefaultBoundary() {
+        String token = "header.payload.signature";
+        String issuer = "https://sts.windows.net/tenant-id/";
+
+        AuthProperties.Provider provider = new AuthProperties.Provider();
+        provider.setId("azure");
+        provider.setIssuerUri(issuer);
+        provider.setJwkSetUri("http://jwks");
+        provider.setRoleClaimKey("roles");
+        provider.setDefaultBoundaryCode("DEFAULT_BOUNDARY");
+        // No roleBoundaryMapping provided
+        ReflectionTestUtils.setField(provider, "roleMapping", Collections.singletonMap("AZURE_ROLE_1", "DIGIT_ROLE_1"));
+
+        when(authProperties.getProviders()).thenReturn(Collections.singletonList(provider));
+
+        Map<String, JwtDecoder> decoders = (Map<String, JwtDecoder>) ReflectionTestUtils.getField(idpJwtValidator,
+                "decoders");
+        decoders.put("azure", jwtDecoder);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("iss", issuer);
+        claims.put("sub", "user-guid");
+        claims.put("roles", Collections.singletonList("AZURE_ROLE_1"));
+        claims.put("tenantId", "pb.amritsar");
+        claims.put("userType", "EMPLOYEE");
+
+        Jwt jwt = new Jwt(token, Instant.now(), Instant.now().plusSeconds(3600),
+                Collections.singletonMap("alg", "RS256"), claims);
+
+        String header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+        String payload = "eyJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC90ZW5hbnQtaWQvIn0";
+        String realLookingToken = header + "." + payload + ".signature";
+
+        when(jwtDecoder.decode(realLookingToken)).thenReturn(jwt);
+
+        OidcValidatedJwt result = idpJwtValidator.validate(realLookingToken);
+
+        assertNotNull(result);
+        assertEquals("DEFAULT_BOUNDARY", result.getBoundary());
+    }
+
+    @Test
+    public void testValidate_GlobalDefaultBoundary() {
+        String token = "header.payload.signature";
+        String issuer = "https://sts.windows.net/tenant-id/";
+
+        AuthProperties.Provider provider = new AuthProperties.Provider();
+        provider.setId("azure");
+        provider.setIssuerUri(issuer);
+        provider.setJwkSetUri("http://jwks");
+        provider.setRoleClaimKey("roles");
+        // No provider-specific defaultBoundaryCode
+        ReflectionTestUtils.setField(provider, "roleMapping", Collections.singletonMap("AZURE_ROLE_1", "DIGIT_ROLE_1"));
+
+        when(authProperties.getProviders()).thenReturn(Collections.singletonList(provider));
+        when(authProperties.getDefaultBoundaryCode()).thenReturn("GLOBAL_DEFAULT_BOUNDARY");
+
+        Map<String, JwtDecoder> decoders = (Map<String, JwtDecoder>) ReflectionTestUtils.getField(idpJwtValidator,
+                "decoders");
+        decoders.put("azure", jwtDecoder);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("iss", issuer);
+        claims.put("sub", "user-guid");
+        claims.put("roles", Collections.singletonList("AZURE_ROLE_1"));
+        claims.put("tenantId", "pb.amritsar");
+        claims.put("userType", "EMPLOYEE");
+
+        Jwt jwt = new Jwt(token, Instant.now(), Instant.now().plusSeconds(3600),
+                Collections.singletonMap("alg", "RS256"), claims);
+
+        String header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+        String payload = "eyJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC90ZW5hbnQtaWQvIn0";
+        String realLookingToken = header + "." + payload + ".signature";
+
+        when(jwtDecoder.decode(realLookingToken)).thenReturn(jwt);
+
+        OidcValidatedJwt result = idpJwtValidator.validate(realLookingToken);
+
+        assertNotNull(result);
+        assertEquals("GLOBAL_DEFAULT_BOUNDARY", result.getBoundary());
+    }
 }

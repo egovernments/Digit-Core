@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.codehaus.jackson.annotate.JsonSetter;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,6 +21,7 @@ public class AuthProperties {
 
     private Forward forward = new Forward();
     private List<Provider> providers = new ArrayList<>();
+    private String defaultBoundaryCode;
 
     @Getter
     @Setter
@@ -44,12 +45,22 @@ public class AuthProperties {
         private List<String> audiences = new ArrayList<>();
         private String tenantId;
         private String userType = "EMPLOYEE";
+        private String employeeType = "PERMANENT";
         private String defaultRoleCodes;
         private String roleClaimKey = "roles";
         private Map<String, String> roleMapping;
         private Map<String, String> roleBoundaryMapping;
         private String hierarchyType;
         private String projectName;
+        private String defaultPassword;
+        private Long defaultDob;
+        private String defaultDesignation;
+        private String defaultDepartment;
+        private String mobileNumberPrefix;
+        private Integer mobileNumberLength;
+        private String rolePrefix = "ROLE_";
+        private String defaultBoundaryCode;
+        private String decryptionPurpose = "UserSelf";
 
         @JsonSetter("roleMapping")
         public void setRoleMapping(String roleMappingString) throws IOException {
@@ -58,8 +69,8 @@ public class AuthProperties {
 
         @JsonSetter("roleBoundaryMapping")
         public void setRoleBoundaryMapping(String roleBoundaryMappingString) throws IOException {
-            roleBoundaryMapping = (Map<String, String>) new ObjectMapper().readValue(roleBoundaryMappingString, Map.class);
+            roleBoundaryMapping = (Map<String, String>) new ObjectMapper().readValue(roleBoundaryMappingString,
+                    Map.class);
         }
     }
 }
-

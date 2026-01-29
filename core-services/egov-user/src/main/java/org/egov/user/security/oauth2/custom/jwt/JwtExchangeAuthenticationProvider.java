@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.MDC;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.user.config.AuthProperties;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
@@ -22,7 +23,6 @@ import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,7 +32,6 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -48,18 +47,19 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private final MultiStateInstanceUtil centraInstanceUtil;
     private final EncryptionDecryptionUtil encryptionDecryptionUtil;
     private final ProjectEmployeeStaffUtil projectEmployeeStaffUtil;
-
-    @Autowired
-    private HttpServletRequest request;
+    private final AuthProperties authProperties;
 
     public JwtExchangeAuthenticationProvider(
             JwtValidationService jwtValidationService,
-            UserService userService, MultiStateInstanceUtil centraInstanceUtil, EncryptionDecryptionUtil encryptionDecryptionUtil, ProjectEmployeeStaffUtil projectEmployeeStaffUtil) {
+            UserService userService, MultiStateInstanceUtil centraInstanceUtil,
+            EncryptionDecryptionUtil encryptionDecryptionUtil, ProjectEmployeeStaffUtil projectEmployeeStaffUtil,
+            AuthProperties authProperties) {
         this.jwtValidationService = jwtValidationService;
         this.userService = userService;
         this.centraInstanceUtil = centraInstanceUtil;
         this.encryptionDecryptionUtil = encryptionDecryptionUtil;
         this.projectEmployeeStaffUtil = projectEmployeeStaffUtil;
+        this.authProperties = authProperties;
     }
 
     @Override
@@ -85,37 +85,37 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         User user;
         RequestInfo requestInfo;
         try {
-            user = userService.getUniqueUser(jwt.getIssuer(), jwt.getExternalUserId(), tenantId, UserType.fromValue(userType));
+            user = userService.getUniqueUser(jwt.getIssuer(), jwt.getExternalUserId(), tenantId,
+                    UserType.fromValue(userType));
             requestInfo = getRequestInfo(user);
             User userForUpdate = createUserForSsoUpdate(user, jwt);
             requestInfo.getUserInfo().setId(userForUpdate.getId());
             userForUpdate = userService.updateWithoutOtpValidation(userForUpdate, requestInfo);
-            user = encryptionDecryptionUtil.decryptObject(user, "UserSelf", User.class, requestInfo);
+            AuthProperties.Provider provider = getProvider(jwt.getIssuer());
+            user = encryptionDecryptionUtil.decryptObject(user, provider.getDecryptionPurpose(), User.class,
+                    requestInfo);
         } catch (UserNotFoundException e) {
             log.info("User not found for user id: {}, creating new user", jwt.getExternalUserId(), e);
             requestInfo = getRequestInfo(jwt.getRoles(), jwt.getUserType(), jwt.getExternalUserId());
-            Random random = new Random();
+            AuthProperties.Provider provider = getProvider(jwt.getIssuer());
 
-            long firstDigit = 6 + random.nextInt(4); // 6,7,8,9
-            long remainingDigits = (long)(random.nextDouble() * 1_000_000_000L);
-            String mobileNumber = String.valueOf(firstDigit * 1_000_000_000L + remainingDigits);
-            org.egov.user.domain.model.hrms.User userToCreate = convertJwtToUser(jwt, mobileNumber);
-            userToCreate.setPassword("eGov@123");
+            String mobileNumber = generateMobileNumber(provider);
+            org.egov.user.domain.model.hrms.User userToCreate = convertJwtToUser(jwt, mobileNumber, provider);
+            userToCreate.setPassword(provider.getDefaultPassword());
             org.egov.user.domain.model.hrms.User hrmsUser = projectEmployeeStaffUtil.createEmployeeAndProjectStaff(
                     jwt.getProjectName(),
                     jwt.getBoundary(),
                     userToCreate,
                     jwt.getHierarchy(),
-                    jwt.getUserType(),
-                    "1f3572c4-07ce-4d58-86d3-7b6e2458e812",
-                    "NMCP",
+                    provider.getEmployeeType(),
+                    provider.getDefaultDesignation(),
+                    provider.getDefaultDepartment(),
                     tenantId,
-                    requestInfo
-            );
+                    requestInfo);
             String userUuid = hrmsUser.getUserServiceUuid();
             log.info("Created HRMS user and staff mapping for user service uuid: {}", userUuid);
             User createdUser = convertHrmsUserToUser(hrmsUser);
-            createdUser.setPassword("eGov@123");
+            createdUser.setPassword(provider.getDefaultPassword());
             createdUser.setTenantId(tenantId);
             createdUser.setIdpIssuer(jwt.getIssuer());
             createdUser.setIdpSubject(jwt.getSubject());
@@ -143,16 +143,25 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 throw new OAuth2Exception("Account locked");
         }
 
+        AuthProperties.Provider provider = getProvider(jwt.getIssuer());
+
         List<GrantedAuthority> grantedAuths = new ArrayList<>();
-        grantedAuths.add(new SimpleGrantedAuthority("ROLE_" + user.getType()));
+        grantedAuths.add(new SimpleGrantedAuthority(provider.getRolePrefix() + user.getType()));
         final SecureUser secureUser = new SecureUser(getUser(user));
         userService.resetFailedLoginAttempts(user);
         return new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
     }
 
+    private AuthProperties.Provider getProvider(String issuer) {
+        return authProperties.getProviders().stream()
+                .filter(p -> p.getIssuerUri() != null && p.getIssuerUri().trim().equals(issuer))
+                .findFirst()
+                .orElseThrow(() -> new OAuth2Exception("No OIDC provider configured for issuer"));
+    }
+
     private User convertHrmsUserToUser(org.egov.user.domain.model.hrms.@Valid @NotNull User user) {
         Set<Role> domainRoles = new HashSet<>();
-        for(org.egov.user.domain.model.hrms.Role role: user.getRoles()) {
+        for (org.egov.user.domain.model.hrms.Role role : user.getRoles()) {
             Role domainRole = new Role();
             domainRole.setTenantId(user.getTenantId());
             domainRole.setCode(role.getCode());
@@ -179,17 +188,19 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         Set<Role> domain_roles = user.getRoles();
         List<org.egov.common.contract.request.Role> contract_roles = new ArrayList<>();
         for (org.egov.user.domain.model.Role role : domain_roles) {
-            contract_roles.add(org.egov.common.contract.request.Role.builder().code(role.getCode()).name(role.getName()).build());
+            contract_roles.add(
+                    org.egov.common.contract.request.Role.builder().code(role.getCode()).name(role.getName()).build());
         }
 
-        org.egov.common.contract.request.User userInfo = org.egov.common.contract.request.User.builder().uuid(user.getUuid())
+        org.egov.common.contract.request.User userInfo = org.egov.common.contract.request.User.builder()
+                .uuid(user.getUuid())
                 .type(user.getType() != null ? user.getType().name() : null).roles(contract_roles).build();
         return RequestInfo.builder().userInfo(userInfo).build();
     }
 
     private RequestInfo getRequestInfo(Set<String> roles, String userType, String userUuid) {
         List<org.egov.common.contract.request.Role> contract_roles = new ArrayList<>();
-        for (String role: roles) {
+        for (String role : roles) {
             contract_roles.add(org.egov.common.contract.request.Role.builder().code(role).name(role).build());
         }
 
@@ -198,7 +209,8 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return RequestInfo.builder().userInfo(userInfo).build();
     }
 
-    private org.egov.user.domain.model.hrms.User convertJwtToUser(OidcValidatedJwt jwt, String mobileNumber) {
+    private org.egov.user.domain.model.hrms.User convertJwtToUser(OidcValidatedJwt jwt, String mobileNumber,
+            AuthProperties.Provider provider) {
         List<org.egov.user.domain.model.hrms.Role> roles = new ArrayList<>();
         if (!CollectionUtils.isEmpty(jwt.getRoles())) {
             for (String role : jwt.getRoles()) {
@@ -216,25 +228,40 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .accountLocked(false)
                 .tenantId(jwt.getTenantId())
                 .type(jwt.getUserType())
-                .tenantId(jwt.getTenantId())
                 .roles(roles)
                 .userName(jwt.getPreferredUsername())
                 .name(jwt.getName())
                 .mobileNumber(mobileNumber)
-                .dob(1157328000000L)
+                .dob(provider.getDefaultDob())
                 .build();
     }
 
+    private String generateMobileNumber(AuthProperties.Provider provider) {
+        Random random = new Random();
+        String prefix = provider.getMobileNumberPrefix();
+        int length = provider.getMobileNumberLength();
+        int remainingLength = length - prefix.length();
 
+        if (remainingLength <= 0) {
+            return prefix;
+        }
+
+        StringBuilder mobileNumber = new StringBuilder(prefix);
+        for (int i = 0; i < remainingLength; i++) {
+            mobileNumber.append(random.nextInt(10));
+        }
+        return mobileNumber.toString();
+    }
 
     private org.egov.user.web.contract.auth.User getUser(User user) {
-        org.egov.user.web.contract.auth.User authUser =  org.egov.user.web.contract.auth.User.builder().id(user.getId()).userName(user.getUsername()).uuid(user.getUuid())
+        org.egov.user.web.contract.auth.User authUser = org.egov.user.web.contract.auth.User.builder().id(user.getId())
+                .userName(user.getUsername()).uuid(user.getUuid())
                 .name(user.getName()).mobileNumber(user.getMobileNumber()).emailId(user.getEmailId())
                 .locale(user.getLocale()).active(user.getActive()).type(user.getType().name())
                 .roles(toAuthRole(user.getRoles())).tenantId(user.getTenantId())
                 .build();
 
-        if(user.getPermanentAddress()!=null)
+        if (user.getPermanentAddress() != null)
             authUser.setPermanentCity(user.getPermanentAddress().getCity());
 
         return authUser;
@@ -280,4 +307,3 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     }
 
 }
-
