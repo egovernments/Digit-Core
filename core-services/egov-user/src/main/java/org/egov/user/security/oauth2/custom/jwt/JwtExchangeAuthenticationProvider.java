@@ -119,6 +119,8 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             createdUser.setTenantId(tenantId);
             createdUser.setIdpIssuer(jwt.getIssuer());
             createdUser.setIdpSubject(jwt.getSubject());
+            createdUser.setAuthProvider(jwt.getProviderId());
+            createdUser.setJwtToken(jwt.getRawToken());
             createdUser.setIdpTokenExp(jwt.getExpirationTime());
             createdUser.setLastSsoLoginAt(jwt.getIssuanceTime());
             createdUser.setActive(Boolean.TRUE);
@@ -297,13 +299,30 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
 
         copy.setIdpTokenExp(jwt.getExpirationTime());
         copy.setLastSsoLoginAt(jwt.getIssuanceTime());
+        copy.setAuthProvider(jwt.getProviderId());
+        copy.setJwtToken(jwt.getRawToken());
+
+        copy.setName(jwt.getName());
+        copy.setEmailId(jwt.getEmail());
+        copy.setRoles(toDomainRoles(jwt.getRoles(), user.getTenantId()));
 
         copy.setPassword(null);
         copy.setMobileNumber(null);
         copy.setUsername(null);
-        copy.setName(null);
 
         return copy;
+    }
+
+    private Set<Role> toDomainRoles(Set<String> roles, String tenantId) {
+        if (CollectionUtils.isEmpty(roles)) {
+            return new HashSet<>();
+        }
+        return roles.stream()
+                .map(roleCode -> Role.builder()
+                        .code(roleCode)
+                        .tenantId(tenantId)
+                        .build())
+                .collect(Collectors.toSet());
     }
 
 }

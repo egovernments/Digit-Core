@@ -80,7 +80,7 @@ public class IDPJwtValidator implements JwtValidator {
             throw new OAuth2Exception("Invalid JWT token", e);
         }
         return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, provider.getProjectName(),
-                provider.getHierarchyType(), boundary);
+                provider.getHierarchyType(), boundary, token, provider.getId());
     }
 
     private String firstNonEmpty(String... values) {

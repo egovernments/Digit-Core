@@ -10,17 +10,15 @@ import org.egov.user.config.AuthProperties;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import org.egov.user.domain.model.UserSearchCriteria;
-import org.egov.user.domain.model.UserSearchCriteria;
 import org.junit.Before;
+import org.mockito.ArgumentCaptor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -87,16 +85,20 @@ public class JwtExchangeAuthenticationProviderTest {
                 claims.put("sub", "subject");
                 claims.put("tenantId", "pb");
                 claims.put("userType", "EMPLOYEE");
+                claims.put("name", "John Doe");
+                claims.put("email", "john@example.com");
 
                 OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
                                 new Date(),
-                                "Project", "Hierarchy", "Boundary");
+                                "Project", "Hierarchy", "Boundary", token, "oidc-azure");
 
                 User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true).password("password")
+                                .tenantId("pb")
                                 .roles(Collections.emptySet()).build();
 
                 when(jwtValidationService.validate(token)).thenReturn(jwt);
                 when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+                when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(user);
                 when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any()))
                                 .thenReturn(user);
 
@@ -106,6 +108,14 @@ public class JwtExchangeAuthenticationProviderTest {
                 assertTrue(result instanceof UsernamePasswordAuthenticationToken);
                 SecureUser secureUser = (SecureUser) result.getPrincipal();
                 assertEquals("uuid", secureUser.getUser().getUuid());
+
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(userService).updateWithoutOtpValidation(userCaptor.capture(), any());
+                User updatedUser = userCaptor.getValue();
+                assertEquals("John Doe", updatedUser.getName());
+                assertEquals("john@example.com", updatedUser.getEmailId());
+                assertEquals(1, updatedUser.getRoles().size());
+                assertEquals("ROLE", updatedUser.getRoles().iterator().next().getCode());
         }
 
         @Test
@@ -124,7 +134,7 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
                                 new Date(),
-                                "Project", "Hierarchy", "Boundary");
+                                "Project", "Hierarchy", "Boundary", token, "oidc-azure");
 
                 when(jwtValidationService.validate(token)).thenReturn(jwt);
                 when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))

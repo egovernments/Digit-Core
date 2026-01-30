@@ -23,48 +23,52 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class AuditRepository {
-	
-	public static final String INSERT_AUDIT_DETAILS = "insert into " + SCHEMA_REPLACE_STRING + ".eg_user_audit_table (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
-            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime) values (:id,:uuid,:tenantid,:salutation,"
-            + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:alternatemobilenumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
-            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime) ";
 
-	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    public static final String INSERT_AUDIT_DETAILS = "insert into " + SCHEMA_REPLACE_STRING
+            + ".eg_user_audit_table (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
+            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime,idp_issuer,idp_subject,idp_token_exp,last_sso_login_at,auth_provider,jwt_token) values (:id,:uuid,:tenantid,:salutation,"
+            + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:alternatemobilenumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
+            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime,:idp_issuer,:idp_subject,:idp_token_exp,:last_sso_login_at,:auth_provider,:jwt_token) ";
+
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final DatabaseSchemaUtils databaseSchemaUtils;
 
     /**
-     * Constructs an instance of AuditRepository with the given namedParameterJdbcTemplate
+     * Constructs an instance of AuditRepository with the given
+     * namedParameterJdbcTemplate
      * and databaseSchemaUtils.
      *
-     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate instance responsible
-     *                                    for executing database operations with named parameters
-     * @param databaseSchemaUtils        the DatabaseSchemaUtils instance for handling schema
-     *                                    related operations and utilities
+     * @param namedParameterJdbcTemplate the NamedParameterJdbcTemplate instance
+     *                                   responsible
+     *                                   for executing database operations with
+     *                                   named parameters
+     * @param databaseSchemaUtils        the DatabaseSchemaUtils instance for
+     *                                   handling schema
+     *                                   related operations and utilities
      */
-    public AuditRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, DatabaseSchemaUtils databaseSchemaUtils) {
+    public AuditRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+            DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.databaseSchemaUtils = databaseSchemaUtils;
-    }    
+    }
 
-	public void auditUser(User oldUser, long userId, String uuid) {
-			
-		Map<String, Object> auditInputs = new HashMap<String, Object>();
+    public void auditUser(User oldUser, long userId, String uuid) {
 
-    	
-    	auditInputs.put("auditcreatedby", uuid);
-    	auditInputs.put("auditcreatedtime", System.currentTimeMillis() );
-    	
-    	auditInputs.put("id", oldUser.getId());
+        Map<String, Object> auditInputs = new HashMap<String, Object>();
+
+        auditInputs.put("auditcreatedby", uuid);
+        auditInputs.put("auditcreatedtime", System.currentTimeMillis());
+
+        auditInputs.put("id", oldUser.getId());
         auditInputs.put("uuid", oldUser.getUuid());
-    	
-    	auditInputs.put("username", oldUser.getUsername());
+
+        auditInputs.put("username", oldUser.getUsername());
         auditInputs.put("type", oldUser.getType().toString());
         auditInputs.put("tenantid", oldUser.getTenantId());
         auditInputs.put("aadhaarnumber", oldUser.getAadhaarNumber());
 
         auditInputs.put("accountlocked", oldUser.getAccountLocked());
         auditInputs.put("accountlockeddate", oldUser.getAccountLockedDate());
-        
 
         auditInputs.put("active", oldUser.getActive());
         auditInputs.put("altcontactnumber", oldUser.getAltContactNumber());
@@ -75,14 +79,12 @@ public class AuditRepository {
                 auditInputs.put("bloodgroup", oldUser.getBloodGroup().toString());
             else
                 auditInputs.put("bloodgroup", "");
-        }
-        else {
+        } else {
             auditInputs.put("bloodgroup", "");
         }
 
-        
         auditInputs.put("dob", oldUser.getDob());
-        
+
         auditInputs.put("emailid", oldUser.getEmailId());
 
         if (oldUser.getGender() != null) {
@@ -93,7 +95,7 @@ public class AuditRepository {
             } else if (Gender.OTHERS.toString().equals(oldUser.getGender().toString())) {
                 auditInputs.put("gender", 3);
             } else if (Gender.TRANSGENDER.toString().equals(oldUser.getGender().toString())) {
-                auditInputs.put("gender", 4); 
+                auditInputs.put("gender", 4);
             } else {
                 auditInputs.put("gender", 0);
             }
@@ -104,12 +106,12 @@ public class AuditRepository {
 
         List<Enum> enumValues = Arrays.asList(GuardianRelation.values());
         if (oldUser.getGuardianRelation() != null) {
-            if(enumValues.contains(oldUser.getGuardianRelation()))
+            if (enumValues.contains(oldUser.getGuardianRelation()))
                 auditInputs.put("guardianrelation", oldUser.getGuardianRelation().toString());
             else {
                 auditInputs.put("guardianrelation", "");
             }
-            
+
         } else {
             auditInputs.put("guardianrelation", "");
         }
@@ -124,24 +126,20 @@ public class AuditRepository {
         if (!isEmpty(oldUser.getPassword()))
             auditInputs.put("password", oldUser.getPassword());
         else {
-        	auditInputs.put("password", "");
+            auditInputs.put("password", "");
         }
-        
 
-        if ( oldUser.getPhoto() != null && oldUser.getPhoto().contains("http")) {
+        if (oldUser.getPhoto() != null && oldUser.getPhoto().contains("http")) {
             auditInputs.put("photo", oldUser.getPhoto());
-        }
-        else {
-        	auditInputs.put("photo", "");
+        } else {
+            auditInputs.put("photo", "");
         }
 
-        
         auditInputs.put("pwdexpirydate", oldUser.getPasswordExpiryDate());
-        
+
         auditInputs.put("salutation", oldUser.getSalutation());
         auditInputs.put("signature", oldUser.getSignature());
         auditInputs.put("title", oldUser.getTitle());
-
 
         List<Enum> userTypeEnumValues = Arrays.asList(UserType.values());
         if (oldUser.getType() != null) {
@@ -150,19 +148,23 @@ public class AuditRepository {
             else {
                 auditInputs.put("type", "");
             }
-        }
-        else {
+        } else {
             auditInputs.put("type", "");
         }
-        
 
         auditInputs.put("alternatemobilenumber", oldUser.getAlternateMobileNumber());
+        auditInputs.put("idp_issuer", oldUser.getIdpIssuer());
+        auditInputs.put("idp_subject", oldUser.getIdpSubject());
+        auditInputs.put("idp_token_exp", oldUser.getIdpTokenExp());
+        auditInputs.put("last_sso_login_at", oldUser.getLastSsoLoginAt());
+        auditInputs.put("auth_provider", oldUser.getAuthProvider());
+        auditInputs.put("jwt_token", oldUser.getJwtToken());
 
         String query = INSERT_AUDIT_DETAILS;
         // replaced schema placeholder with tenant specific schema name
         query = databaseSchemaUtils.replaceSchemaPlaceholder(query, oldUser.getTenantId());
         namedParameterJdbcTemplate.update(query, auditInputs);
-    	
-	}
+
+    }
 
 }

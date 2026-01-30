@@ -94,6 +94,8 @@ public class User {
     private String idpSubject;
     private Date idpTokenExp;
     private Date lastSsoLoginAt;
+    private String authProvider = "LOCAL";
+    private String jwtToken;
 
     public User addAddressItem(Address addressItem) {
         if (this.addresses == null) {
@@ -133,8 +135,7 @@ public class User {
     public void validateUserModification() {
         if (isPermanentAddressInvalid()
                 || isCorrespondenceAddressInvalid()
-                || isTenantIdAbsent()
-        ) {
+                || isTenantIdAbsent()) {
             throw new InvalidUserUpdateException(this);
         }
     }
@@ -255,5 +256,3 @@ public class User {
         active = isActive;
     }
 }
-
-

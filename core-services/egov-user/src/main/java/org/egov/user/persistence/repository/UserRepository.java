@@ -42,13 +42,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-
 @Repository
 @Slf4j
 public class UserRepository {
-	
-	@Autowired
-	private UserUtils userUtils;
+
+    @Autowired
+    private UserUtils userUtils;
 
     private final DatabaseSchemaUtils databaseSchemaUtils;
 
@@ -61,10 +60,11 @@ public class UserRepository {
     private UserResultSetExtractor userResultSetExtractor;
 
     @Autowired
-    UserRepository(DatabaseSchemaUtils databaseSchemaUtils, RoleRepository roleRepository, UserTypeQueryBuilder userTypeQueryBuilder,
-                   AddressRepository addressRepository, UserResultSetExtractor userResultSetExtractor,
-                   JdbcTemplate jdbcTemplate,
-                   NamedParameterJdbcTemplate namedParameterJdbcTemplate, AuditRepository auditRepository) {
+    UserRepository(DatabaseSchemaUtils databaseSchemaUtils, RoleRepository roleRepository,
+            UserTypeQueryBuilder userTypeQueryBuilder,
+            AddressRepository addressRepository, UserResultSetExtractor userResultSetExtractor,
+            JdbcTemplate jdbcTemplate,
+            NamedParameterJdbcTemplate namedParameterJdbcTemplate, AuditRepository auditRepository) {
         this.databaseSchemaUtils = databaseSchemaUtils;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -97,7 +97,8 @@ public class UserRepository {
                 if (CollectionUtils.isEmpty(userSearch.getId()))
                     userSearch.setId(userIds);
                 else {
-                    userSearch.setId(userSearch.getId().stream().filter(userIds::contains).collect(Collectors.toList()));
+                    userSearch
+                            .setId(userSearch.getId().stream().filter(userIds::contains).collect(Collectors.toList()));
                     if (CollectionUtils.isEmpty(userSearch.getId()))
                         return users;
                 }
@@ -117,7 +118,6 @@ public class UserRepository {
         return users;
     }
 
-
     /**
      * get list of all userids with role in given tenant
      *
@@ -136,7 +136,6 @@ public class UserRepository {
 
         return usersIds;
     }
-
 
     /**
      * Api will check user is present or not with userName And tenantId
@@ -188,10 +187,10 @@ public class UserRepository {
         user.setLastModifiedDate(new Date());
         user.setCreatedBy(user.getLoggedInUserId());
         user.setLastModifiedBy(user.getLoggedInUserId());
-		/*
-		 * for central 'in' will be returned and for states state level will be returned
-		 * like pb for pb.amritsar
-		 */
+        /*
+         * for central 'in' will be returned and for states state level will be returned
+         * like pb for pb.amritsar
+         */
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         final User savedUser = save(user);
         if (user.getRoles().size() > 0) {
@@ -210,22 +209,21 @@ public class UserRepository {
      * api will update the user details.
      *
      * @param user
-     * @param uuid 
-     * @param  
+     * @param uuid
+     * @param
      * @return
      */
     public void update(final User user, User oldUser, long userId, String uuid) {
-
 
         Map<String, Object> updateuserInputs = new HashMap<>();
 
         updateuserInputs.put("username", oldUser.getUsername());
         updateuserInputs.put("type", oldUser.getType().toString());
-        
+
         String tenantId = oldUser.getTenantId();
-        if(UserType.CITIZEN.equals(oldUser.getType()) && tenantId.contains("."))
-        		tenantId = tenantId.split("//.")[0];
-        	
+        if (UserType.CITIZEN.equals(oldUser.getType()) && tenantId.contains("."))
+            tenantId = tenantId.split("//.")[0];
+
         updateuserInputs.put("tenantid", tenantId);
         updateuserInputs.put("AadhaarNumber", user.getAadhaarNumber());
 
@@ -248,14 +246,12 @@ public class UserRepository {
                 updateuserInputs.put("BloodGroup", user.getBloodGroup().toString());
             else
                 updateuserInputs.put("BloodGroup", "");
-        }
-        else if (oldUser != null && oldUser.getBloodGroup() != null) {
+        } else if (oldUser != null && oldUser.getBloodGroup() != null) {
             if (bloodGroupEnumValues.contains(oldUser.getBloodGroup()))
                 updateuserInputs.put("BloodGroup", oldUser.getBloodGroup().toString());
             else
                 updateuserInputs.put("BloodGroup", "");
-        }
-        else {
+        } else {
             updateuserInputs.put("BloodGroup", "");
         }
 
@@ -274,7 +270,7 @@ public class UserRepository {
             } else if (Gender.OTHERS.toString().equals(user.getGender().toString())) {
                 updateuserInputs.put("Gender", 3);
             } else if (Gender.TRANSGENDER.toString().equals(user.getGender().toString())) {
-                updateuserInputs.put("Gender", 4); 
+                updateuserInputs.put("Gender", 4);
             } else {
                 updateuserInputs.put("Gender", 0);
             }
@@ -285,12 +281,12 @@ public class UserRepository {
 
         List<Enum> enumValues = Arrays.asList(GuardianRelation.values());
         if (user.getGuardianRelation() != null) {
-            if(enumValues.contains(user.getGuardianRelation()))
+            if (enumValues.contains(user.getGuardianRelation()))
                 updateuserInputs.put("GuardianRelation", user.getGuardianRelation().toString());
             else {
                 updateuserInputs.put("GuardianRelation", "");
             }
-            
+
         } else {
             updateuserInputs.put("GuardianRelation", "");
         }
@@ -300,7 +296,7 @@ public class UserRepository {
             updateuserInputs.put("MobileNumber", user.getMobileNumber());
         else
             updateuserInputs.put("MobileNumber", oldUser.getMobileNumber());
-        if(null !=user.getName())
+        if (null != user.getName())
             updateuserInputs.put("Name", user.getName());
         else
             updateuserInputs.put("Name", oldUser.getName());
@@ -324,7 +320,6 @@ public class UserRepository {
         updateuserInputs.put("Signature", user.getSignature());
         updateuserInputs.put("Title", user.getTitle());
 
-
         List<Enum> userTypeEnumValues = Arrays.asList(UserType.values());
         if (user.getType() != null) {
             if (userTypeEnumValues.contains(user.getType()))
@@ -332,14 +327,14 @@ public class UserRepository {
             else {
                 updateuserInputs.put("Type", "");
             }
-        }
-        else {
+        } else {
             updateuserInputs.put("Type", oldUser.getType().toString());
         }
 
         updateuserInputs.put("alternatemobilenumber", user.getAlternateMobileNumber());
 
-        // IdP/OIDC metadata: keep old values if new ones are null to avoid unintentionally wiping linkage
+        // IdP/OIDC metadata: keep old values if new ones are null to avoid
+        // unintentionally wiping linkage
         if (user.getIdpIssuer() != null) {
             updateuserInputs.put("IdpIssuer", user.getIdpIssuer());
         } else {
@@ -363,15 +358,27 @@ public class UserRepository {
         } else {
             updateuserInputs.put("LastSsoLoginAt", oldUser.getLastSsoLoginAt());
         }
+        if (user.getAuthProvider() != null) {
+            updateuserInputs.put("AuthProvider", user.getAuthProvider());
+        } else {
+            updateuserInputs.put("AuthProvider", oldUser.getAuthProvider());
+        }
+        if (user.getJwtToken() != null) {
+            updateuserInputs.put("JwtToken", user.getJwtToken());
+        } else {
+            updateuserInputs.put("JwtToken", oldUser.getJwtToken());
+        }
 
         updateuserInputs.put("LastModifiedDate", new Date());
-        updateuserInputs.put("LastModifiedBy", userId );
-        
+        updateuserInputs.put("LastModifiedBy", userId);
+
         updateAuditDetails(oldUser, userId, uuid);
         // replaced schema placeholder with tenant specific schema name
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getUpdateUserQuery(), tenantId);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getUpdateUserQuery(),
+                tenantId);
         namedParameterJdbcTemplate.update(query, updateuserInputs);
-        if (user.getRoles() != null && !CollectionUtils.isEmpty(user.getRoles()) && !oldUser.getRoles().equals(user.getRoles())) {
+        if (user.getRoles() != null && !CollectionUtils.isEmpty(user.getRoles())
+                && !oldUser.getRoles().equals(user.getRoles())) {
             validateAndEnrichRoles(Collections.singletonList(user));
             updateRoles(user);
         }
@@ -380,22 +387,23 @@ public class UserRepository {
         }
     }
 
-	public void fetchFailedLoginAttemptsByUser(String tenantId, String uuid) {
+    public void fetchFailedLoginAttemptsByUser(String tenantId, String uuid) {
         fetchFailedAttemptsByUserAndTime(tenantId, uuid, 0L);
     }
 
-    public List<FailedLoginAttempt> fetchFailedAttemptsByUserAndTime(String tenantId, String uuid, long attemptStartDate) {
+    public List<FailedLoginAttempt> fetchFailedAttemptsByUserAndTime(String tenantId, String uuid,
+            long attemptStartDate) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("user_uuid", uuid);
         params.put("attempt_date", attemptStartDate);
 
-//		RowMapper<FailedLoginAttempt> rowMapper = (rs, rowNum) -> {
-//			FailedLoginAttempt failedLoginAttempt = new FailedLoginAttempt();
-//			failedLoginAttempt.setUserUuid(rs.getString("user_uuid"));
-//			failedLoginAttempt.setIp(rs.getString("ip"));
-//			failedLoginAttempt.setAttemptDate(rs.getLong("attempt_date"));
-//			return failedLoginAttempt;
-//		};
+        // RowMapper<FailedLoginAttempt> rowMapper = (rs, rowNum) -> {
+        // FailedLoginAttempt failedLoginAttempt = new FailedLoginAttempt();
+        // failedLoginAttempt.setUserUuid(rs.getString("user_uuid"));
+        // failedLoginAttempt.setIp(rs.getString("ip"));
+        // failedLoginAttempt.setAttemptDate(rs.getLong("attempt_date"));
+        // return failedLoginAttempt;
+        // };
         // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_FAILED_ATTEMPTS_BY_USER_SQL, tenantId);
         return namedParameterJdbcTemplate.query(query, params,
@@ -410,7 +418,8 @@ public class UserRepository {
         inputs.put("attempt_date", failedLoginAttempt.getAttemptDate());
         inputs.put("active", failedLoginAttempt.isActive());
         // replaced schema placeholder with tenant specific schema name
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.INSERT_FAILED_ATTEMPTS_SQL, tenantId);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.INSERT_FAILED_ATTEMPTS_SQL,
+                tenantId);
         namedParameterJdbcTemplate.update(query, inputs);
 
         return failedLoginAttempt;
@@ -418,11 +427,11 @@ public class UserRepository {
 
     public void resetFailedLoginAttemptsForUser(String tenantId, String uuid) {
         // replaced schema placeholder with tenant specific schema name
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.UPDATE_FAILED_ATTEMPTS_SQL, tenantId);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(UserTypeQueryBuilder.UPDATE_FAILED_ATTEMPTS_SQL,
+                tenantId);
         namedParameterJdbcTemplate.update(query,
                 Collections.singletonMap("user_uuid", uuid));
     }
-
 
     /**
      * Fetch roles by role codes
@@ -432,7 +441,6 @@ public class UserRepository {
      * @return enriched roles
      */
     private Set<Role> fetchRolesByCode(Set<String> roleCodes, String tenantId) {
-
 
         Set<Role> validatedRoles = roleRepository.findRolesByCode(roleCodes, tenantId);
 
@@ -496,8 +504,8 @@ public class UserRepository {
         if (roleCodes.isEmpty())
             return Collections.emptyMap();
 
-		Set<Role> validatedRoles = fetchRolesByCode(roleCodes,
-				databaseSchemaUtils.getStateLevelTenant(users.get(0).getTenantId()));
+        Set<Role> validatedRoles = fetchRolesByCode(roleCodes,
+                databaseSchemaUtils.getStateLevelTenant(users.get(0).getTenantId()));
 
         Map<String, Role> roleCodeMap = new HashMap<>();
 
@@ -506,7 +514,6 @@ public class UserRepository {
 
         return roleCodeMap;
     }
-
 
     /**
      * api will do the mapping between user and role.
@@ -526,7 +533,8 @@ public class UserRepository {
                             .getValues());
         }
         // replaced schema placeholder with tenant specific schema name
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.INSERT_USER_ROLES, entityUser.getTenantId());
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.INSERT_USER_ROLES,
+                entityUser.getTenantId());
         namedParameterJdbcTemplate.batchUpdate(query, batchValues.toArray(new Map[entityUser.getRoles().size()]));
     }
 
@@ -577,8 +585,7 @@ public class UserRepository {
             else {
                 userInputs.put("type", "");
             }
-        }
-        else {
+        } else {
             userInputs.put("type", "");
         }
 
@@ -590,23 +597,20 @@ public class UserRepository {
             else {
                 userInputs.put("guardianrelation", "");
             }
-        }
-        else {
+        } else {
             userInputs.put("guardianrelation", "");
         }
         userInputs.put("signature", entityUser.getSignature());
         userInputs.put("accountlocked", entityUser.getAccountLocked());
 
-
         List<Enum> bloodGroupEnumValues = Arrays.asList(BloodGroup.values());
-        if(entityUser.getBloodGroup() != null){
+        if (entityUser.getBloodGroup() != null) {
             if (bloodGroupEnumValues.contains(entityUser.getBloodGroup()))
                 userInputs.put("bloodgroup", entityUser.getBloodGroup().toString());
             else {
                 userInputs.put("bloodgroup", "");
             }
-        }
-        else {
+        } else {
             userInputs.put("bloodgroup", "");
         }
 
@@ -621,18 +625,23 @@ public class UserRepository {
         userInputs.put("idp_subject", entityUser.getIdpSubject());
         userInputs.put("idp_token_exp", entityUser.getIdpTokenExp());
         userInputs.put("last_sso_login_at", entityUser.getLastSsoLoginAt());
+        userInputs.put("auth_provider", entityUser.getAuthProvider());
+        userInputs.put("jwt_token", entityUser.getJwtToken());
 
         // replaced schema placeholder with tenant specific schema name
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(), entityUser.getTenantId());
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(),
+                entityUser.getTenantId());
         namedParameterJdbcTemplate.update(query, userInputs);
         return entityUser;
     }
 
     /**
      * Fetches the next sequence number for a given tenant based on its schema.
-     * The schema placeholder in the query is replaced with the tenant-specific schema name.
+     * The schema placeholder in the query is replaced with the tenant-specific
+     * schema name.
      *
-     * @param tenantId the identifier of the tenant for which the next sequence number is to be fetched
+     * @param tenantId the identifier of the tenant for which the next sequence
+     *                 number is to be fetched
      * @return the next sequence number as a Long for the specified tenant
      */
     private Long getNextSequence(String tenantId) {
@@ -657,7 +666,6 @@ public class UserRepository {
         return null;
     }
 
-
     /**
      * api will update the user Roles.
      *
@@ -668,16 +676,15 @@ public class UserRepository {
         roleInputs.put("user_id", user.getId());
         roleInputs.put("user_tenantid", user.getTenantId());
         // replaced schema placeholder with tenant specific schema name
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.DELETE_USER_ROLES, user.getTenantId());
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.DELETE_USER_ROLES,
+                user.getTenantId());
         namedParameterJdbcTemplate.update(query, roleInputs);
         saveUserRoles(user);
     }
 
-	
-	private void updateAuditDetails(User oldUser, long userId, String uuid) {
-		auditRepository.auditUser(oldUser,userId,uuid);
-		
-	}
+    private void updateAuditDetails(User oldUser, long userId, String uuid) {
+        auditRepository.auditUser(oldUser, userId, uuid);
 
+    }
 
 }

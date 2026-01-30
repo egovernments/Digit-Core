@@ -40,22 +40,29 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
 
             if (!usersMap.containsKey(userId)) {
 
-                user = User.builder().id(rs.getLong("id")).tenantId(rs.getString("tenantid")).title(rs.getString("title"))
+                user = User.builder().id(rs.getLong("id")).tenantId(rs.getString("tenantid"))
+                        .title(rs.getString("title"))
                         .salutation(rs.getString("salutation"))
                         .dob(rs.getDate("dob")).locale(rs.getString("locale")).username(rs.getString("username"))
                         .password(rs.getString("password")).passwordExpiryDate(rs.getTimestamp("pwdexpirydate"))
                         .mobileNumber(rs.getString("mobilenumber")).altContactNumber(rs.getString("altcontactnumber"))
-                        .emailId(rs.getString("emailid")).active(rs.getBoolean("active")).name(rs.getString("name")).
-                                lastModifiedBy(rs.getLong("lastmodifiedby")).lastModifiedDate(rs.getTimestamp("lastmodifieddate"))
-                        .pan(rs.getString("pan")).aadhaarNumber(rs.getString("aadhaarnumber")).createdBy(rs.getLong("createdby"))
-                        .createdDate(rs.getTimestamp("createddate")).guardian(rs.getString("guardian")).signature(rs.getString("signature"))
+                        .emailId(rs.getString("emailid")).active(rs.getBoolean("active")).name(rs.getString("name"))
+                        .lastModifiedBy(rs.getLong("lastmodifiedby"))
+                        .lastModifiedDate(rs.getTimestamp("lastmodifieddate"))
+                        .pan(rs.getString("pan")).aadhaarNumber(rs.getString("aadhaarnumber"))
+                        .createdBy(rs.getLong("createdby"))
+                        .createdDate(rs.getTimestamp("createddate")).guardian(rs.getString("guardian"))
+                        .signature(rs.getString("signature"))
                         .accountLocked(rs.getBoolean("accountlocked")).photo(rs.getString("photo"))
                         .identificationMark(rs.getString("identificationmark")).uuid(rs.getString("uuid"))
-                        .accountLockedDate(rs.getLong("accountlockeddate")).alternateMobileNumber(rs.getString("alternatemobilenumber"))
+                        .accountLockedDate(rs.getLong("accountlockeddate"))
+                        .alternateMobileNumber(rs.getString("alternatemobilenumber"))
                         .idpIssuer(rs.getString("idp_issuer"))
                         .idpSubject(rs.getString("idp_subject"))
                         .idpTokenExp(rs.getTimestamp("idp_token_exp"))
                         .lastSsoLoginAt(rs.getTimestamp("last_sso_login_at"))
+                        .authProvider(rs.getString("auth_provider"))
+                        .jwtToken(rs.getString("jwt_token"))
                         .build();
 
                 for (UserType type : UserType.values()) {
@@ -63,7 +70,6 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
                         user.setType(type);
                     }
                 }
-
 
                 for (BloodGroup bloodGroup : BloodGroup.values()) {
                     if (bloodGroup.toString().equals(rs.getString("bloodgroup"))) {

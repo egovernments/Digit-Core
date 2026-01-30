@@ -14,8 +14,11 @@ public class OidcValidatedJwt {
     private final String projectName;
     private final String hierarchy;
     private final String boundary;
+    private final String rawToken;
+    private final String providerId;
 
-    public OidcValidatedJwt(Set<String> roles, Map<String, Object> claims, Date expirationTime, Date issuanceTime, String projectName, String hierarchy, String boundary) {
+    public OidcValidatedJwt(Set<String> roles, Map<String, Object> claims, Date expirationTime, Date issuanceTime,
+            String projectName, String hierarchy, String boundary, String rawToken, String providerId) {
         this.claims = claims;
         this.roles = roles;
         this.expirationTime = expirationTime;
@@ -23,6 +26,8 @@ public class OidcValidatedJwt {
         this.projectName = projectName;
         this.hierarchy = hierarchy;
         this.boundary = boundary;
+        this.rawToken = rawToken;
+        this.providerId = providerId;
     }
 
     public String getIssuer() {
@@ -57,5 +62,12 @@ public class OidcValidatedJwt {
         // Use sub as stable ID
         return getSubject();
     }
-}
 
+    public String getRawToken() {
+        return rawToken;
+    }
+
+    public String getProviderId() {
+        return providerId;
+    }
+}
