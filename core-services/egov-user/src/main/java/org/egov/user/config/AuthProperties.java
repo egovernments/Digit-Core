@@ -61,6 +61,12 @@ public class AuthProperties {
         private String rolePrefix = "ROLE_";
         private String defaultBoundaryCode;
         private String decryptionPurpose = "UserSelf";
+        private String graphClientId;
+        private String graphClientSecret;
+        private String graphTenantId;
+        private String graphMethodsUrl = "https://graph.microsoft.com/v1.0/users/%s/authentication/methods";
+        private String graphTokenUrl = "https://login.microsoftonline.com/%s/oauth2/v2.0/token";
+        private String graphScope = "https://graph.microsoft.com/.default";
 
         @JsonSetter("roleMapping")
         public void setRoleMapping(String roleMappingString) throws IOException {

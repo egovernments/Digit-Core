@@ -69,6 +69,7 @@ public class User {
     private Set<Role> roles;
     private Date dob;
     private Date passwordExpiryDate;
+    @Builder.Default
     private String locale = "en_IN";
     private UserType type;
     private BloodGroup bloodGroup;
@@ -85,6 +86,7 @@ public class User {
     private Long loggedInUserId;
     private String loggedInUserUuid;
     private boolean otpValidationMandatory;
+    @Builder.Default
     private boolean mobileValidationMandatory = true;
     private String alternateMobileNumber;
 
@@ -96,6 +98,13 @@ public class User {
     private Date lastSsoLoginAt;
     private String authProvider = "LOCAL";
     private String jwtToken;
+
+    // MFA (Multi-Factor Authentication) details
+    private Boolean mfaEnabled;
+    private String mfaDeviceName;
+    private String mfaPhoneLast4;
+    private Date mfaRegisteredOn;
+    private String mfaDetails;
 
     public User addAddressItem(Address addressItem) {
         if (this.addresses == null) {

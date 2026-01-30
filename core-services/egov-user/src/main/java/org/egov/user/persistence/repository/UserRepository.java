@@ -369,6 +369,34 @@ public class UserRepository {
             updateuserInputs.put("JwtToken", oldUser.getJwtToken());
         }
 
+        // MFA enabled handling
+        if (user.getMfaEnabled() != null) {
+            updateuserInputs.put("mfaEnabled", user.getMfaEnabled());
+        } else {
+            updateuserInputs.put("mfaEnabled", oldUser.getMfaEnabled());
+        }
+
+        // MFA phone last 4 handling
+        if (user.getMfaPhoneLast4() != null) {
+            updateuserInputs.put("mfaPhoneLast4", user.getMfaPhoneLast4());
+        } else {
+            updateuserInputs.put("mfaPhoneLast4", oldUser.getMfaPhoneLast4());
+        }
+
+        // MFA registered on handling
+        if (user.getMfaRegisteredOn() != null) {
+            updateuserInputs.put("mfaRegisteredOn", user.getMfaRegisteredOn());
+        } else {
+            updateuserInputs.put("mfaRegisteredOn", oldUser.getMfaRegisteredOn());
+        }
+
+        // MFA details handling
+        if (user.getMfaDetails() != null) {
+            updateuserInputs.put("mfaDetails", user.getMfaDetails());
+        } else {
+            updateuserInputs.put("mfaDetails", oldUser.getMfaDetails());
+        }
+
         updateuserInputs.put("LastModifiedDate", new Date());
         updateuserInputs.put("LastModifiedBy", userId);
 
@@ -627,6 +655,7 @@ public class UserRepository {
         userInputs.put("last_sso_login_at", entityUser.getLastSsoLoginAt());
         userInputs.put("auth_provider", entityUser.getAuthProvider());
         userInputs.put("jwt_token", entityUser.getJwtToken());
+        userInputs.put("mfa_enabled", entityUser.getMfaEnabled());
 
         // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(),

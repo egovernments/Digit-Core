@@ -7,8 +7,10 @@ import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.config.AuthProperties;
+import org.egov.user.security.oauth2.custom.MsGraphService;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.user.domain.model.UserSearchCriteria;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
@@ -57,13 +59,18 @@ public class JwtExchangeAuthenticationProviderTest {
         @Mock
         private AuthProperties.Provider provider;
 
+        @Mock
+        private MsGraphService msGraphService;
+
+        private ObjectMapper objectMapper = new ObjectMapper();
+
         private JwtExchangeAuthenticationProvider authenticationProvider;
 
         @Before
         public void setup() {
                 authenticationProvider = new JwtExchangeAuthenticationProvider(
                                 jwtValidationService, userService, multiStateInstanceUtil, encryptionDecryptionUtil,
-                                projectEmployeeStaffUtil, authProperties);
+                                projectEmployeeStaffUtil, authProperties, msGraphService, objectMapper);
                 when(authProperties.getProviders()).thenReturn(Collections.singletonList(provider));
                 when(provider.getIssuerUri()).thenReturn("issuer");
                 when(provider.getDefaultPassword()).thenReturn("eGov@123");
@@ -165,6 +172,158 @@ public class JwtExchangeAuthenticationProviderTest {
                 verify(projectEmployeeStaffUtil).createEmployeeAndProjectStaff(eq("Project"), eq("Boundary"), any(),
                                 eq("Hierarchy"), eq("PERMANENT"), anyString(), anyString(), eq("pb"), any());
                 verify(userService).updateWithoutOtpValidation(any(), any());
+        }
+
+        public void testAuthenticate_MfaEnable_AuthTokenJwt() {
+                String token = "jwt-assertion";
+                // Simple JWT for authToken with amr claim
+                String authToken = "eyJhbGciOiJub25lIn0.eyJhbXIiOlsicHdkIiwibWZhIl19.";
+                JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token,
+                                authToken);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", "pb");
+                claims.put("userType", "EMPLOYEE");
+
+                OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
+                                new Date(), "Project", "Hierarchy", "Boundary", token, "oidc-azure");
+
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .roles(Collections.emptySet()).build();
+
+                when(jwtValidationService.validate(token)).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+                when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(user);
+                when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any()))
+                                .thenReturn(user);
+
+                authenticationProvider.authenticate(authenticationToken);
+
+                verify(userService).updateMfaEnabled(eq(user), eq(true), any());
+        }
+
+        @Test
+        public void testAuthenticate_MfaDisable_AuthTokenJwt() {
+                String token = "jwt-assertion";
+                // Simple JWT for authToken without mfa in amr
+                String authToken = "eyJhbGciOiJub25lIn0.eyJhbXIiOlsicHdkIl19.";
+                JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token,
+                                authToken);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", "pb");
+                claims.put("userType", "EMPLOYEE");
+
+                OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
+                                new Date(), "Project", "Hierarchy", "Boundary", token, "oidc-azure");
+
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .roles(Collections.emptySet()).build();
+
+                when(jwtValidationService.validate(token)).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+                when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(user);
+                when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any()))
+                                .thenReturn(user);
+
+                authenticationProvider.authenticate(authenticationToken);
+
+                verify(userService).updateMfaEnabled(eq(user), eq(false), any());
+        }
+
+        @Test
+        public void testAuthenticate_MfaEnable_AuthTokenJson_Amr() {
+                String token = "jwt-assertion";
+                String authToken = "{\"amr\": [\"pwd\", \"mfa\"]}";
+                JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token,
+                                authToken);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", "pb");
+                claims.put("userType", "EMPLOYEE");
+
+                OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
+                                new Date(), "Project", "Hierarchy", "Boundary", token, "oidc-azure");
+
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .roles(Collections.emptySet()).build();
+
+                when(jwtValidationService.validate(token)).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+                when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(user);
+                when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any()))
+                                .thenReturn(user);
+
+                authenticationProvider.authenticate(authenticationToken);
+
+                verify(userService).updateMfaEnabled(eq(user), eq(true), any());
+        }
+
+        @Test
+        public void testAuthenticate_MfaEnable_AuthTokenJson_MfaEnable() {
+                String token = "jwt-assertion";
+                String authToken = "{\"mfaenable\": true}";
+                JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token,
+                                authToken);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", "pb");
+                claims.put("userType", "EMPLOYEE");
+
+                OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
+                                new Date(), "Project", "Hierarchy", "Boundary", token, "oidc-azure");
+
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .roles(Collections.emptySet()).build();
+
+                when(jwtValidationService.validate(token)).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+                when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(user);
+                when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any()))
+                                .thenReturn(user);
+
+                authenticationProvider.authenticate(authenticationToken);
+
+                verify(userService).updateMfaEnabled(eq(user), eq(true), any());
+        }
+
+        @Test
+        public void testAuthenticate_RawAuthToken_DefaultsToFalse() {
+                String token = "jwt-token";
+                String authToken = "not-a-jwt-or-json";
+                JwtExchangeAuthenticationToken authenticationToken = new JwtExchangeAuthenticationToken(token,
+                                authToken);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", "pb");
+                claims.put("userType", "EMPLOYEE");
+
+                OidcValidatedJwt jwt = new OidcValidatedJwt(Collections.singleton("ROLE"), claims, new Date(),
+                                new Date(), "Project", "Hierarchy", "Boundary", token, "oidc-azure");
+
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .roles(Collections.emptySet()).build();
+
+                when(jwtValidationService.validate(token)).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+                when(userService.updateWithoutOtpValidation(any(), any())).thenReturn(user);
+                when(encryptionDecryptionUtil.decryptObject(any(), anyString(), eq(User.class), any()))
+                                .thenReturn(user);
+
+                authenticationProvider.authenticate(authenticationToken);
+
+                // Should default to false because parsing fails
+                verify(userService).updateMfaEnabled(eq(user), eq(false), any());
         }
 
         @Test

@@ -1,6 +1,10 @@
 package org.egov.user.security.oauth2.custom.jwt;
 
 import java.util.ArrayList;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -21,6 +25,7 @@ import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
+import org.egov.user.security.oauth2.custom.MsGraphService;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -48,24 +53,34 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private final EncryptionDecryptionUtil encryptionDecryptionUtil;
     private final ProjectEmployeeStaffUtil projectEmployeeStaffUtil;
     private final AuthProperties authProperties;
+    private final MsGraphService msGraphService;
+    private final ObjectMapper objectMapper;
 
     public JwtExchangeAuthenticationProvider(
             JwtValidationService jwtValidationService,
             UserService userService, MultiStateInstanceUtil centraInstanceUtil,
             EncryptionDecryptionUtil encryptionDecryptionUtil, ProjectEmployeeStaffUtil projectEmployeeStaffUtil,
-            AuthProperties authProperties) {
+            AuthProperties authProperties, MsGraphService msGraphService, ObjectMapper objectMapper) {
         this.jwtValidationService = jwtValidationService;
         this.userService = userService;
         this.centraInstanceUtil = centraInstanceUtil;
         this.encryptionDecryptionUtil = encryptionDecryptionUtil;
         this.projectEmployeeStaffUtil = projectEmployeeStaffUtil;
         this.authProperties = authProperties;
+        this.msGraphService = msGraphService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) {
 
         String token = (String) authentication.getCredentials();
+        String authToken = null;
+
+        // Extract auth token from JwtExchangeAuthenticationToken if available
+        if (authentication instanceof JwtExchangeAuthenticationToken) {
+            authToken = ((JwtExchangeAuthenticationToken) authentication).getAuthToken();
+        }
 
         OidcValidatedJwt jwt = jwtValidationService.validate(token);
 
@@ -124,6 +139,9 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             createdUser.setIdpTokenExp(jwt.getExpirationTime());
             createdUser.setLastSsoLoginAt(jwt.getIssuanceTime());
             createdUser.setActive(Boolean.TRUE);
+            createdUser.setEmailId(jwt.getPreferredUsername());
+            msGraphService.enrichUserWithMfaDetails(createdUser, provider);
+
             requestInfo.getUserInfo().setId(createdUser.getId());
             requestInfo.getUserInfo().setUuid(createdUser.getUuid());
             user = userService.updateWithoutOtpValidation(createdUser, requestInfo);
@@ -146,6 +164,42 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         }
 
         AuthProperties.Provider provider = getProvider(jwt.getIssuer());
+
+        // Determine MFA enablement from authToken (amr claim if JWT, or mfaenable/amr
+        // if JSON)
+        boolean mfaEnabled = false;
+        if (!isEmpty(authToken)) {
+            try {
+                // Try parsing as JWT first
+                JWTClaimsSet jwtClaimsSet = JWTParser.parse(authToken).getJWTClaimsSet();
+                Object amrClaim = jwtClaimsSet.getClaim("amr");
+                if (amrClaim instanceof List) {
+                    mfaEnabled = ((List<?>) amrClaim).contains("mfa");
+                }
+            } catch (Exception e) {
+                // If not a JWT, try parsing as JSON
+                try {
+                    JsonNode tokenNode = objectMapper.readTree(authToken);
+                    if (tokenNode.has("mfaenable")) {
+                        mfaEnabled = tokenNode.get("mfaenable").asBoolean();
+                    } else if (tokenNode.has("amr")) {
+                        JsonNode amrNode = tokenNode.get("amr");
+                        if (amrNode.isArray()) {
+                            for (JsonNode node : amrNode) {
+                                if ("mfa".equals(node.asText())) {
+                                    mfaEnabled = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e2) {
+                    log.debug("auth_token is neither a valid JWT nor a JSON object: {}", authToken);
+                }
+            }
+        }
+
+        userService.updateMfaEnabled(user, mfaEnabled, requestInfo);
 
         List<GrantedAuthority> grantedAuths = new ArrayList<>();
         grantedAuths.add(new SimpleGrantedAuthority(provider.getRolePrefix() + user.getType()));
@@ -301,6 +355,12 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         copy.setLastSsoLoginAt(jwt.getIssuanceTime());
         copy.setAuthProvider(jwt.getProviderId());
         copy.setJwtToken(jwt.getRawToken());
+        copy.setIdpSubject(jwt.getSubject());
+        copy.setIdpIssuer(jwt.getIssuer());
+        copy.setEmailId(jwt.getPreferredUsername());
+
+        AuthProperties.Provider provider = getProvider(jwt.getIssuer());
+        msGraphService.enrichUserWithMfaDetails(copy, provider);
 
         copy.setName(jwt.getName());
         copy.setEmailId(jwt.getEmail());

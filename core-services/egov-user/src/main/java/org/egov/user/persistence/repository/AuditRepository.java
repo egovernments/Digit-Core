@@ -26,9 +26,9 @@ public class AuditRepository {
 
     public static final String INSERT_AUDIT_DETAILS = "insert into " + SCHEMA_REPLACE_STRING
             + ".eg_user_audit_table (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
-            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime,idp_issuer,idp_subject,idp_token_exp,last_sso_login_at,auth_provider,jwt_token) values (:id,:uuid,:tenantid,:salutation,"
+            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime,idp_issuer,idp_subject,idp_token_exp,last_sso_login_at,auth_provider,jwt_token,mfa_enabled,mfa_device_name,mfa_phone_last4,mfa_registered_on,mfa_details) values (:id,:uuid,:tenantid,:salutation,"
             + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:alternatemobilenumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
-            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime,:idp_issuer,:idp_subject,:idp_token_exp,:last_sso_login_at,:auth_provider,:jwt_token) ";
+            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime,:idp_issuer,:idp_subject,:idp_token_exp,:last_sso_login_at,:auth_provider,:jwt_token,:mfa_enabled,:mfa_device_name,:mfa_phone_last4,:mfa_registered_on,:mfa_details) ";
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final DatabaseSchemaUtils databaseSchemaUtils;
@@ -159,6 +159,11 @@ public class AuditRepository {
         auditInputs.put("last_sso_login_at", oldUser.getLastSsoLoginAt());
         auditInputs.put("auth_provider", oldUser.getAuthProvider());
         auditInputs.put("jwt_token", oldUser.getJwtToken());
+        auditInputs.put("mfa_enabled", oldUser.getMfaEnabled());
+        auditInputs.put("mfa_device_name", oldUser.getMfaDeviceName());
+        auditInputs.put("mfa_phone_last4", oldUser.getMfaPhoneLast4());
+        auditInputs.put("mfa_registered_on", oldUser.getMfaRegisteredOn());
+        auditInputs.put("mfa_details", oldUser.getMfaDetails());
 
         String query = INSERT_AUDIT_DETAILS;
         // replaced schema placeholder with tenant specific schema name

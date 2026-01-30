@@ -32,9 +32,10 @@ public class JwtExchangeTokenGranter extends AbstractTokenGranter {
             ClientDetails client, TokenRequest tokenRequest) {
 
         String jwt = tokenRequest.getRequestParameters().get("assertion");
+        String authToken = tokenRequest.getRequestParameters().get("auth_token");
 
         Authentication authRequest =
-                new JwtExchangeAuthenticationToken(jwt);
+                new JwtExchangeAuthenticationToken(jwt, authToken);
 
         Authentication authResult =
                 authenticationManager.authenticate(authRequest);
