@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.models.AuditDetails;
 import org.egov.common.utils.AuditDetailsEnrichmentUtil;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,16 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import digit.models.coremodels.AuditDetails;
 import digit.util.FileReader;
 import digit.web.models.MasterDataMigrationRequest;
 import digit.web.models.Mdms;
 import digit.web.models.MdmsRequest;
 import net.minidev.json.JSONArray;
+
+import static digit.constants.ErrorCodes.MASTER_DATA_MIGRATION_ERROR_CODE;
+import static digit.constants.ErrorCodes.MASTER_DATA_MIGRATION_TENANTID_DOES_NOT_EXIST_ERROR_MESSAGE;
+import static digit.constants.MDMSMigrationToolkitConstants.DOT_SEPARATOR;
+
 
 @Service
 public class MasterDataMigrationService {
@@ -55,7 +61,7 @@ public class MasterDataMigrationService {
         // Build audit details for mdms objects creation
         AuditDetails auditDetails = new AuditDetails();
         RequestInfo requestInfo = masterDataMigrationRequest.getRequestInfo();
-        AuditDetailsEnrichmentUtil.enrichAuditDetails(auditDetails, requestInfo, Boolean.TRUE);
+        AuditDetailsEnrichmentUtil.prepareAuditDetails(auditDetails, requestInfo, Boolean.TRUE);
 
         List<Mdms> masterDataList = new ArrayList<>();
 

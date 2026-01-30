@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.egov.common.contract.models.Workflow;
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.request.User;
+
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +19,13 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import digit.config.Configuration;
-import digit.models.coremodels.BusinessService;
-import digit.models.coremodels.BusinessServiceResponse;
-import digit.models.coremodels.ProcessInstance;
-import digit.models.coremodels.ProcessInstanceRequest;
-import digit.models.coremodels.ProcessInstanceResponse;
-import digit.models.coremodels.RequestInfoWrapper;
-import digit.models.coremodels.State;
-import digit.models.coremodels.Workflow;
+import org.egov.common.contract.workflow.BusinessService;
+import org.egov.common.contract.workflow.BusinessServiceResponse;
+import org.egov.common.contract.workflow.ProcessInstance;
+import org.egov.common.contract.workflow.ProcessInstanceRequest;
+import org.egov.common.contract.workflow.ProcessInstanceResponse;
+import org.egov.common.contract.models.RequestInfoWrapper;
+import org.egov.common.contract.workflow.State;
 import digit.repository.ServiceRequestRepository;
 
 @Service
@@ -121,7 +124,7 @@ public class WorkflowUtil {
         processInstance.setModuleName(wfModuleName);
         processInstance.setTenantId(tenantId);
         processInstance.setBusinessService(getBusinessService(requestInfo, tenantId, businessServiceCode).getBusinessService());
-        processInstance.setDocuments(workflow.getVerificationDocuments());
+        processInstance.setDocuments(workflow.getDocuments());
         processInstance.setComment(workflow.getComments());
 
         if(!CollectionUtils.isEmpty(workflow.getAssignes())) {
@@ -159,7 +162,7 @@ public class WorkflowUtil {
                 .action(processInstance.getAction())
                 .assignes(userIds)
                 .comments(processInstance.getComment())
-                .verificationDocuments(processInstance.getDocuments())
+                .documents(processInstance.getDocuments())
                 .build();
 
             businessIdToWorkflow.put(processInstance.getBusinessId(), workflow);
