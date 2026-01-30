@@ -13,6 +13,7 @@ import org.egov.mdms.model.ModuleDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.egov.common.contract.request.RequestInfo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

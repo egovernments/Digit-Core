@@ -17,7 +17,7 @@ import digit.models.coremodels.IdGenerationResponse;
 import digit.models.coremodels.IdRequest;
 import digit.models.coremodels.IdResponse;
 import digit.repository.ServiceRequestRepository;
-
+import org.egov.common.contract.request.RequestInfo;
 @Component
 public class IdgenUtil {
 
