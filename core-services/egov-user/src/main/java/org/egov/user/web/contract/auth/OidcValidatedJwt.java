@@ -63,6 +63,15 @@ public class OidcValidatedJwt {
         return getSubject();
     }
 
+    /**
+     * Azure/Entra object id (oid). Required for Microsoft Graph API user lookup.
+     * Falls back to sub if oid is not present.
+     */
+    public String getOid() {
+        Object oid = claims.get("oid");
+        return oid != null ? oid.toString() : getSubject();
+    }
+
     public String getRawToken() {
         return rawToken;
     }

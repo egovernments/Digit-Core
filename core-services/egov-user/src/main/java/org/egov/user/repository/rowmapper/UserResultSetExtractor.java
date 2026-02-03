@@ -64,6 +64,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
                         .authProvider(rs.getString("auth_provider"))
                         .jwtToken(rs.getString("jwt_token"))
                         .mfaEnabled(rs.getBoolean("mfa_enabled"))
+                        .mfaDeviceName(rs.getString("mfa_device_name"))
                         .mfaPhoneLast4(rs.getString("mfa_phone_last4"))
                         .mfaRegisteredOn(rs.getTimestamp("mfa_registered_on"))
                         .mfaDetails(rs.getString("mfa_details"))

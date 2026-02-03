@@ -376,6 +376,13 @@ public class UserRepository {
             updateuserInputs.put("mfaEnabled", oldUser.getMfaEnabled());
         }
 
+        // MFA device name handling
+        if (user.getMfaDeviceName() != null) {
+            updateuserInputs.put("mfaDeviceName", user.getMfaDeviceName());
+        } else {
+            updateuserInputs.put("mfaDeviceName", oldUser.getMfaDeviceName());
+        }
+
         // MFA phone last 4 handling
         if (user.getMfaPhoneLast4() != null) {
             updateuserInputs.put("mfaPhoneLast4", user.getMfaPhoneLast4());
@@ -656,6 +663,10 @@ public class UserRepository {
         userInputs.put("auth_provider", entityUser.getAuthProvider());
         userInputs.put("jwt_token", entityUser.getJwtToken());
         userInputs.put("mfa_enabled", entityUser.getMfaEnabled());
+        userInputs.put("mfa_device_name", entityUser.getMfaDeviceName());
+        userInputs.put("mfa_phone_last4", entityUser.getMfaPhoneLast4());
+        userInputs.put("mfa_registered_on", entityUser.getMfaRegisteredOn());
+        userInputs.put("mfa_details", entityUser.getMfaDetails());
 
         // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(),

@@ -33,6 +33,7 @@ import org.egov.user.domain.model.LoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.NonLoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserSearchCriteria;
+import org.egov.user.security.oauth2.custom.jwt.AccessTokenMfaDetails;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.domain.service.utils.NotificationUtil;
@@ -732,5 +733,32 @@ public class UserService {
                 requestInfo.getUserInfo().getUuid());
 
         log.info("Successfully updated MFA enabled status for user with uuid: {}", user.getUuid());
+    }
+
+    /**
+     * Update all MFA-related fields for a user from IdP access_token details.
+     * Called on each token exchange so MFA state (enabled, phone last4, device, etc.)
+     * is refreshed from the latest login.
+     */
+    public void updateMfaDetails(User user, AccessTokenMfaDetails mfaDetails, RequestInfo requestInfo) {
+        if (user == null) {
+            log.warn("Cannot update MFA details: user is null");
+            return;
+        }
+        if (mfaDetails == null) {
+            log.debug("No MFA details to apply for user uuid: {}", user.getUuid());
+            return;
+        }
+        User.UserBuilder builder = user.toBuilder().password(null);
+        if (mfaDetails.getMfaEnabled() != null) builder.mfaEnabled(mfaDetails.getMfaEnabled());
+        if (mfaDetails.getMfaPhoneLast4() != null) builder.mfaPhoneLast4(mfaDetails.getMfaPhoneLast4());
+        if (mfaDetails.getMfaDeviceName() != null) builder.mfaDeviceName(mfaDetails.getMfaDeviceName());
+        if (mfaDetails.getMfaDetails() != null) builder.mfaDetails(mfaDetails.getMfaDetails());
+        if (mfaDetails.getMfaRegisteredOn() != null) builder.mfaRegisteredOn(mfaDetails.getMfaRegisteredOn());
+        User userForUpdate = builder.build();
+        userForUpdate = encryptionDecryptionUtil.encryptObject(userForUpdate, "User", User.class);
+        userRepository.update(userForUpdate, user, requestInfo.getUserInfo().getId(),
+                requestInfo.getUserInfo().getUuid());
+        log.info("Updated MFA details for user uuid: {} (mfaEnabled={})", user.getUuid(), mfaDetails.getMfaEnabled());
     }
 }

@@ -1,10 +1,6 @@
 package org.egov.user.security.oauth2.custom.jwt;
 
 import java.util.ArrayList;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -27,6 +23,8 @@ import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.security.oauth2.custom.MsGraphService;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
+import org.egov.user.security.oauth2.custom.jwt.AccessTokenMfaDetails;
+import org.egov.user.security.oauth2.custom.jwt.AccessTokenMfaExtractor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,13 +52,13 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private final ProjectEmployeeStaffUtil projectEmployeeStaffUtil;
     private final AuthProperties authProperties;
     private final MsGraphService msGraphService;
-    private final ObjectMapper objectMapper;
+    private final AccessTokenMfaExtractor accessTokenMfaExtractor;
 
     public JwtExchangeAuthenticationProvider(
             JwtValidationService jwtValidationService,
             UserService userService, MultiStateInstanceUtil centraInstanceUtil,
             EncryptionDecryptionUtil encryptionDecryptionUtil, ProjectEmployeeStaffUtil projectEmployeeStaffUtil,
-            AuthProperties authProperties, MsGraphService msGraphService, ObjectMapper objectMapper) {
+            AuthProperties authProperties, MsGraphService msGraphService, AccessTokenMfaExtractor accessTokenMfaExtractor) {
         this.jwtValidationService = jwtValidationService;
         this.userService = userService;
         this.centraInstanceUtil = centraInstanceUtil;
@@ -68,7 +66,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         this.projectEmployeeStaffUtil = projectEmployeeStaffUtil;
         this.authProperties = authProperties;
         this.msGraphService = msGraphService;
-        this.objectMapper = objectMapper;
+        this.accessTokenMfaExtractor = accessTokenMfaExtractor;
     }
 
     @Override
@@ -97,6 +95,9 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             throw new OAuth2Exception("User Type is mandatory and has to be a valid type");
         }
 
+        AuthProperties.Provider provider = getProvider(jwt.getIssuer());
+        AccessTokenMfaDetails mfaDetails = accessTokenMfaExtractor.extract(authToken);
+
         User user;
         RequestInfo requestInfo;
         try {
@@ -104,15 +105,13 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                     UserType.fromValue(userType));
             requestInfo = getRequestInfo(user);
             User userForUpdate = createUserForSsoUpdate(user, jwt);
+            applyMfaDetailsToUser(userForUpdate, mfaDetails);
+            msGraphService.enrichUserWithMfaDetails(userForUpdate, provider, jwt.getOid());
             requestInfo.getUserInfo().setId(userForUpdate.getId());
-            userForUpdate = userService.updateWithoutOtpValidation(userForUpdate, requestInfo);
-            AuthProperties.Provider provider = getProvider(jwt.getIssuer());
-            user = encryptionDecryptionUtil.decryptObject(user, provider.getDecryptionPurpose(), User.class,
-                    requestInfo);
+            user = userService.updateWithoutOtpValidation(userForUpdate, requestInfo);
         } catch (UserNotFoundException e) {
             log.info("User not found for user id: {}, creating new user", jwt.getExternalUserId(), e);
             requestInfo = getRequestInfo(jwt.getRoles(), jwt.getUserType(), jwt.getExternalUserId());
-            AuthProperties.Provider provider = getProvider(jwt.getIssuer());
 
             String mobileNumber = generateMobileNumber(provider);
             org.egov.user.domain.model.hrms.User userToCreate = convertJwtToUser(jwt, mobileNumber, provider);
@@ -140,7 +139,8 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             createdUser.setLastSsoLoginAt(jwt.getIssuanceTime());
             createdUser.setActive(Boolean.TRUE);
             createdUser.setEmailId(jwt.getPreferredUsername());
-            msGraphService.enrichUserWithMfaDetails(createdUser, provider);
+            applyMfaDetailsToUser(createdUser, mfaDetails);
+            msGraphService.enrichUserWithMfaDetails(createdUser, provider, jwt.getOid());
 
             requestInfo.getUserInfo().setId(createdUser.getId());
             requestInfo.getUserInfo().setUuid(createdUser.getUuid());
@@ -162,44 +162,6 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             } else
                 throw new OAuth2Exception("Account locked");
         }
-
-        AuthProperties.Provider provider = getProvider(jwt.getIssuer());
-
-        // Determine MFA enablement from authToken (amr claim if JWT, or mfaenable/amr
-        // if JSON)
-        boolean mfaEnabled = false;
-        if (!isEmpty(authToken)) {
-            try {
-                // Try parsing as JWT first
-                JWTClaimsSet jwtClaimsSet = JWTParser.parse(authToken).getJWTClaimsSet();
-                Object amrClaim = jwtClaimsSet.getClaim("amr");
-                if (amrClaim instanceof List) {
-                    mfaEnabled = ((List<?>) amrClaim).contains("mfa");
-                }
-            } catch (Exception e) {
-                // If not a JWT, try parsing as JSON
-                try {
-                    JsonNode tokenNode = objectMapper.readTree(authToken);
-                    if (tokenNode.has("mfaenable")) {
-                        mfaEnabled = tokenNode.get("mfaenable").asBoolean();
-                    } else if (tokenNode.has("amr")) {
-                        JsonNode amrNode = tokenNode.get("amr");
-                        if (amrNode.isArray()) {
-                            for (JsonNode node : amrNode) {
-                                if ("mfa".equals(node.asText())) {
-                                    mfaEnabled = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e2) {
-                    log.debug("auth_token is neither a valid JWT nor a JSON object: {}", authToken);
-                }
-            }
-        }
-
-        userService.updateMfaEnabled(user, mfaEnabled, requestInfo);
 
         List<GrantedAuthority> grantedAuths = new ArrayList<>();
         grantedAuths.add(new SimpleGrantedAuthority(provider.getRolePrefix() + user.getType()));
@@ -359,9 +321,6 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         copy.setIdpIssuer(jwt.getIssuer());
         copy.setEmailId(jwt.getPreferredUsername());
 
-        AuthProperties.Provider provider = getProvider(jwt.getIssuer());
-        msGraphService.enrichUserWithMfaDetails(copy, provider);
-
         copy.setName(jwt.getName());
         copy.setEmailId(jwt.getEmail());
         copy.setRoles(toDomainRoles(jwt.getRoles(), user.getTenantId()));
@@ -383,6 +342,19 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                         .tenantId(tenantId)
                         .build())
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Apply MFA details from access_token to user (only non-null fields).
+     * Used before the single update so MFA is persisted in one call.
+     */
+    private void applyMfaDetailsToUser(User user, AccessTokenMfaDetails mfa) {
+        if (user == null || mfa == null) return;
+        if (mfa.getMfaEnabled() != null) user.setMfaEnabled(mfa.getMfaEnabled());
+        if (mfa.getMfaPhoneLast4() != null) user.setMfaPhoneLast4(mfa.getMfaPhoneLast4());
+        if (mfa.getMfaDeviceName() != null) user.setMfaDeviceName(mfa.getMfaDeviceName());
+        if (mfa.getMfaDetails() != null) user.setMfaDetails(mfa.getMfaDetails());
+        if (mfa.getMfaRegisteredOn() != null) user.setMfaRegisteredOn(mfa.getMfaRegisteredOn());
     }
 
 }

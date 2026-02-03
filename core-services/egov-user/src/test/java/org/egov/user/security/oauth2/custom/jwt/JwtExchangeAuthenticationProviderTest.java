@@ -12,6 +12,7 @@ import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.user.domain.model.UserSearchCriteria;
+import org.egov.user.security.oauth2.custom.jwt.AccessTokenMfaExtractor;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -62,7 +64,7 @@ public class JwtExchangeAuthenticationProviderTest {
         @Mock
         private MsGraphService msGraphService;
 
-        private ObjectMapper objectMapper = new ObjectMapper();
+        private AccessTokenMfaExtractor accessTokenMfaExtractor = new AccessTokenMfaExtractor(new ObjectMapper());
 
         private JwtExchangeAuthenticationProvider authenticationProvider;
 
@@ -70,7 +72,7 @@ public class JwtExchangeAuthenticationProviderTest {
         public void setup() {
                 authenticationProvider = new JwtExchangeAuthenticationProvider(
                                 jwtValidationService, userService, multiStateInstanceUtil, encryptionDecryptionUtil,
-                                projectEmployeeStaffUtil, authProperties, msGraphService, objectMapper);
+                                projectEmployeeStaffUtil, authProperties, msGraphService, accessTokenMfaExtractor);
                 when(authProperties.getProviders()).thenReturn(Collections.singletonList(provider));
                 when(provider.getIssuerUri()).thenReturn("issuer");
                 when(provider.getDefaultPassword()).thenReturn("eGov@123");
@@ -201,7 +203,9 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 authenticationProvider.authenticate(authenticationToken);
 
-                verify(userService).updateMfaEnabled(eq(user), eq(true), any());
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(userService).updateWithoutOtpValidation(userCaptor.capture(), any());
+                assertTrue(userCaptor.getValue().getMfaEnabled());
         }
 
         @Test
@@ -232,7 +236,9 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 authenticationProvider.authenticate(authenticationToken);
 
-                verify(userService).updateMfaEnabled(eq(user), eq(false), any());
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(userService).updateWithoutOtpValidation(userCaptor.capture(), any());
+                assertFalse(userCaptor.getValue().getMfaEnabled());
         }
 
         @Test
@@ -262,7 +268,9 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 authenticationProvider.authenticate(authenticationToken);
 
-                verify(userService).updateMfaEnabled(eq(user), eq(true), any());
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(userService).updateWithoutOtpValidation(userCaptor.capture(), any());
+                assertTrue(userCaptor.getValue().getMfaEnabled());
         }
 
         @Test
@@ -292,7 +300,9 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 authenticationProvider.authenticate(authenticationToken);
 
-                verify(userService).updateMfaEnabled(eq(user), eq(true), any());
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(userService).updateWithoutOtpValidation(userCaptor.capture(), any());
+                assertTrue(userCaptor.getValue().getMfaEnabled());
         }
 
         @Test
@@ -323,7 +333,9 @@ public class JwtExchangeAuthenticationProviderTest {
                 authenticationProvider.authenticate(authenticationToken);
 
                 // Should default to false because parsing fails
-                verify(userService).updateMfaEnabled(eq(user), eq(false), any());
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(userService).updateWithoutOtpValidation(userCaptor.capture(), any());
+                assertFalse(userCaptor.getValue().getMfaEnabled());
         }
 
         @Test
