@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"rowsPerPageOptions":{"type":"array","items":{"type":"integer"}},"defaultValue":{"type":"integer"}},"required":["defaultValue"],"x-unique":["defaultValue"],"title":"Generated schema for TablePaginationOptions","x-ref-schema":[]}

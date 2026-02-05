@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"format":{"type":"string"},"idname":{"type":"string"}},"required":["idname"],"x-unique":["idname"],"title":"Generated schema for IdFormat","x-ref-schema":[]}

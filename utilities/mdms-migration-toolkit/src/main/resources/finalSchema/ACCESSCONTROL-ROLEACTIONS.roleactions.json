@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"rolecode":{"type":"string"},"actionid":{"type":"integer"},"actioncode":{"type":"string"},"tenantId":{"type":"string"}},"required":["rolecode","actionid","tenantId"],"x-unique":["rolecode","actionid"],"title":"Generated schema for roleactions","x-ref-schema":[]}
