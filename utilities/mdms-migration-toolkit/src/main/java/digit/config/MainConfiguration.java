@@ -36,8 +36,7 @@ public class MainConfiguration {
     public JsonSchemaInferrer jsonSchemaInferrer() {
         return JsonSchemaInferrer.newBuilder()
                 .setSpecVersion(SpecVersion.DRAFT_07)
-                .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
-                .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
+                .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.allowed())
                 .build();
     }
 

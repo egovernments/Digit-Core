@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"code":{"type":"string"},"description":{"type":"string"},"active":{"type":"boolean"},"effectiveFrom":{"type":"integer"},"effectiveTo":{"type":"null"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for OrgFunctionClass","x-ref-schema":[]}

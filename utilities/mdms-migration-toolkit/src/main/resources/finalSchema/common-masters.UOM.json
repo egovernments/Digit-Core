@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"code":{"type":"string"},"active":{"type":"boolean"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for UOM","x-ref-schema":[]}

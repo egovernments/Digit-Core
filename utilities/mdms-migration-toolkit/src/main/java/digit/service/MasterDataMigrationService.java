@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.validation.Valid;
 
@@ -65,6 +66,12 @@ public class MasterDataMigrationService {
 
         List<Mdms> masterDataList = new ArrayList<>();
 
+        // Counters for tracking migration status (using AtomicInteger for lambda compatibility)
+        AtomicInteger totalRecords = new AtomicInteger(0);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger duplicateCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
+
         // Check if master data is present for the incoming tenantId.
         if (tenantMap.containsKey(tenantId)) {
             tenantMap.get(tenantId).keySet().forEach(module -> {
@@ -77,31 +84,61 @@ public class MasterDataMigrationService {
                             .get(module)
                             .get(master);
 
+                    System.out.println("Migrating " + masterDataJsonArray.size() + " records for schema: " + module + DOT_SEPARATOR + master);
+
                     // Build MDMS objects
-                    masterDataJsonArray.forEach(masterDatum -> {
-                        // Convert JSONArray member to JsonNode
-                        JsonNode masterDatumJsonNode = objectMapper.valueToTree(masterDatum);
+                    for (Object masterDatum : masterDataJsonArray) {
+                        totalRecords.incrementAndGet();
+                        try {
+                            // Convert JSONArray member to JsonNode
+                            JsonNode masterDatumJsonNode = objectMapper.valueToTree(masterDatum);
 
-                        // Build MDMS objects
-                        Mdms mdms = Mdms.builder()
-                                .schemaCode(module + DOT_SEPARATOR + master)
-                                .data(masterDatumJsonNode)
-                                .isActive(Boolean.TRUE)
-                                .tenantId(tenantId)
-                                .uniqueIdentifier(UUID.randomUUID().toString())
-                                .auditDetails(auditDetails)
-                                .build();
+                            // Build MDMS objects
+                            Mdms mdms = Mdms.builder()
+                                    .schemaCode(module + DOT_SEPARATOR + master)
+                                    .data(masterDatumJsonNode)
+                                    .isActive(Boolean.TRUE)
+                                    .tenantId(tenantId)
+                                    .uniqueIdentifier(UUID.randomUUID().toString())
+                                    .auditDetails(auditDetails)
+                                    .build();
 
-                        MdmsRequest mdmsRequest = MdmsRequest.builder()
-                                .mdms(mdms)
-                                .requestInfo(requestInfo)
-                                .build();
+                            MdmsRequest mdmsRequest = MdmsRequest.builder()
+                                    .mdms(mdms)
+                                    .requestInfo(requestInfo)
+                                    .build();
 
-                        // TODO - Make call to MDMS Service with the created request
-                        restTemplate.postForObject("http://localhost:8094/mdms-v2/v2/_create/" + mdmsRequest.getMdms().getSchemaCode(), mdmsRequest, Map.class);
-                    });
+                            // Make call to MDMS Service with the created request
+                            restTemplate.postForObject("http://localhost:8094/mdms-v2/v2/_create/" + mdmsRequest.getMdms().getSchemaCode(), mdmsRequest, Map.class);
+                            successCount.incrementAndGet();
+
+                        } catch (org.springframework.web.client.HttpClientErrorException e) {
+                            // Check if it's a duplicate record error
+                            if (e.getResponseBodyAsString().contains("DUPLICATE_RECORD")) {
+                                duplicateCount.incrementAndGet();
+                                System.out.println("WARN: Duplicate record found for schema: " + module + DOT_SEPARATOR + master);
+                                System.out.println("WARN: Problematic record data: " + masterDatum.toString());
+                                System.out.println("WARN: Skipping this record");
+                            } else {
+                                errorCount.incrementAndGet();
+                                System.err.println("ERROR: Failed to migrate record for schema: " + module + DOT_SEPARATOR + master + " - " + e.getMessage());
+                                System.err.println("ERROR: Record data: " + masterDatum.toString());
+                            }
+                        } catch (Exception e) {
+                            errorCount.incrementAndGet();
+                            System.err.println("ERROR: Unexpected error migrating record for schema: " + module + DOT_SEPARATOR + master + " - " + e.getMessage());
+                        }
+                    }
                 });
             });
+
+            System.out.println("===== Master Data Migration Summary =====");
+            System.out.println("Migration completed for tenantId: " + tenantId);
+            System.out.println("Total records processed: " + totalRecords.get());
+            System.out.println("Successfully migrated: " + successCount.get());
+            System.out.println("Duplicates skipped: " + duplicateCount.get());
+            System.out.println("Errors encountered: " + errorCount.get());
+            System.out.println("=========================================");
         } else {
             throw new CustomException(MASTER_DATA_MIGRATION_ERROR_CODE, MASTER_DATA_MIGRATION_TENANTID_DOES_NOT_EXIST_ERROR_MESSAGE + masterDataMigrationRequest.getMasterDataMigrationCriteria().getTenantId());
         }
