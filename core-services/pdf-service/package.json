@@ -46,7 +46,7 @@
     "moment-timezone": "^0.5.28",
     "morgan": "^1.8.0",
     "pdfmake": "0.2.4",
-    "pg": "^8.7.1",
+    "pg": "^8.18.0",
     "qrcode": "^1.4.1",
     "request": "^2.88.0",
     "resource-router-middleware": "^0.6.0",
