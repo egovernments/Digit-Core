@@ -13,7 +13,7 @@ RUN mvn -B -f pom.xml package -DskipTests
 
 
 # ─────────────── RUNTIME STAGE ───────────────
-FROM egovio/8-openjdk-alpine AS runtime
+FROM eclipse-temurin:8-jdk AS runtime
 WORKDIR /opt/egov
 
 # Pull in the fat JAR and our startup script
