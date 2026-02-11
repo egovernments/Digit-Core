@@ -343,6 +343,7 @@ config:
         image-name: "pdf-service"
         dockerfile: "core-services/pdf-service/Dockerfile"
       - work-dir: "core-services/pdf-service/migration"
+        dockerfile: "core-services/pdf-service/migration/Dockerfile"
         image-name: "pdf-service-db"
         
   - name: "builds/Digit-Core/core-services/telemetry/egov-telemetry-kafka-streams"
