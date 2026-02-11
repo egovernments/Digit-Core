@@ -11,6 +11,7 @@ import org.apache.log4j.MDC;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.user.config.AuthProperties;
+import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
@@ -23,8 +24,6 @@ import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.security.oauth2.custom.MsGraphService;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
-import org.egov.user.security.oauth2.custom.jwt.AccessTokenMfaDetails;
-import org.egov.user.security.oauth2.custom.jwt.AccessTokenMfaExtractor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,6 +50,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private final EncryptionDecryptionUtil encryptionDecryptionUtil;
     private final ProjectEmployeeStaffUtil projectEmployeeStaffUtil;
     private final AuthProperties authProperties;
+    private final OidcProviderSupplier oidcProviderSupplier;
     private final MsGraphService msGraphService;
     private final AccessTokenMfaExtractor accessTokenMfaExtractor;
 
@@ -58,13 +58,16 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             JwtValidationService jwtValidationService,
             UserService userService, MultiStateInstanceUtil centraInstanceUtil,
             EncryptionDecryptionUtil encryptionDecryptionUtil, ProjectEmployeeStaffUtil projectEmployeeStaffUtil,
-            AuthProperties authProperties, MsGraphService msGraphService, AccessTokenMfaExtractor accessTokenMfaExtractor) {
+            AuthProperties authProperties, OidcProviderSupplier oidcProviderSupplier,
+            MsGraphService msGraphService,
+            AccessTokenMfaExtractor accessTokenMfaExtractor) {
         this.jwtValidationService = jwtValidationService;
         this.userService = userService;
         this.centraInstanceUtil = centraInstanceUtil;
         this.encryptionDecryptionUtil = encryptionDecryptionUtil;
         this.projectEmployeeStaffUtil = projectEmployeeStaffUtil;
         this.authProperties = authProperties;
+        this.oidcProviderSupplier = oidcProviderSupplier;
         this.msGraphService = msGraphService;
         this.accessTokenMfaExtractor = accessTokenMfaExtractor;
     }
@@ -95,7 +98,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             throw new OAuth2Exception("User Type is mandatory and has to be a valid type");
         }
 
-        AuthProperties.Provider provider = getProvider(jwt.getIssuer());
+        AuthProperties.Provider provider = getProviderById(jwt.getProviderId());
         AccessTokenMfaDetails mfaDetails = accessTokenMfaExtractor.extract(authToken);
 
         User user;
@@ -107,11 +110,20 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             User userForUpdate = createUserForSsoUpdate(user, jwt);
             applyMfaDetailsToUser(userForUpdate, mfaDetails);
             msGraphService.enrichUserWithMfaDetails(userForUpdate, provider, jwt.getOid());
+            if (jwt.getOid() != null) {
+                String oidDigits = jwt.getOid().replaceAll("\\D", "");
+                if (!oidDigits.isEmpty()) {
+                    long creatorId = Long.parseLong(oidDigits.substring(0, Math.min(oidDigits.length(), 10)));
+                    userForUpdate.setCreatedBy(creatorId);
+                    userForUpdate.setLastModifiedBy(creatorId);
+                    userForUpdate.setLoggedInUserId(creatorId);
+                }
+            }
             requestInfo.getUserInfo().setId(userForUpdate.getId());
             user = userService.updateWithoutOtpValidation(userForUpdate, requestInfo);
         } catch (UserNotFoundException e) {
-            log.info("User not found for user id: {}, creating new user", jwt.getExternalUserId(), e);
-            requestInfo = getRequestInfo(jwt.getRoles(), jwt.getUserType(), jwt.getExternalUserId());
+            log.info("User not found for user id: {}, creating new user", jwt.getOid(), e);
+            requestInfo = getRequestInfo(jwt.getRoles(), jwt.getUserType(), jwt.getOid());
 
             String mobileNumber = generateMobileNumber(provider);
             org.egov.user.domain.model.hrms.User userToCreate = convertJwtToUser(jwt, mobileNumber, provider);
@@ -124,7 +136,9 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                     provider.getEmployeeType(),
                     provider.getDefaultDesignation(),
                     provider.getDefaultDepartment(),
+                    provider.getDefaultEmployeeStatus(),
                     tenantId,
+                    jwt.getOid(),
                     requestInfo);
             String userUuid = hrmsUser.getUserServiceUuid();
             log.info("Created HRMS user and staff mapping for user service uuid: {}", userUuid);
@@ -138,7 +152,16 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             createdUser.setIdpTokenExp(jwt.getExpirationTime());
             createdUser.setLastSsoLoginAt(jwt.getIssuanceTime());
             createdUser.setActive(Boolean.TRUE);
+            createdUser.setActive(Boolean.TRUE);
             createdUser.setEmailId(jwt.getPreferredUsername());
+            if (jwt.getOid() != null) {
+                String oidDigits = jwt.getOid().replaceAll("\\D", "");
+                if (!oidDigits.isEmpty()) {
+                    long creatorId = Long.parseLong(oidDigits.substring(0, Math.min(oidDigits.length(), 10)));
+                    createdUser.setCreatedBy(creatorId);
+                    createdUser.setLastModifiedBy(creatorId);
+                }
+            }
             applyMfaDetailsToUser(createdUser, mfaDetails);
             msGraphService.enrichUserWithMfaDetails(createdUser, provider, jwt.getOid());
 
@@ -170,20 +193,22 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
     }
 
-    private AuthProperties.Provider getProvider(String issuer) {
-        return authProperties.getProviders().stream()
-                .filter(p -> p.getIssuerUri() != null && p.getIssuerUri().trim().equals(issuer))
+    private AuthProperties.Provider getProviderById(String providerId) {
+        return oidcProviderSupplier.getProviders().stream()
+                .filter(p -> p.getId() != null && p.getId().trim().equals(providerId))
                 .findFirst()
-                .orElseThrow(() -> new OAuth2Exception("No OIDC provider configured for issuer"));
+                .orElseThrow(() -> new OAuth2Exception("No OIDC provider configured for providerId=" + providerId));
     }
 
     private User convertHrmsUserToUser(org.egov.user.domain.model.hrms.@Valid @NotNull User user) {
         Set<Role> domainRoles = new HashSet<>();
-        for (org.egov.user.domain.model.hrms.Role role : user.getRoles()) {
-            Role domainRole = new Role();
-            domainRole.setTenantId(user.getTenantId());
-            domainRole.setCode(role.getCode());
-            domainRoles.add(domainRole);
+        if (user.getRoles() != null) {
+            for (org.egov.user.domain.model.hrms.Role role : user.getRoles()) {
+                Role domainRole = new Role();
+                domainRole.setTenantId(user.getTenantId());
+                domainRole.setCode(role.getCode());
+                domainRoles.add(domainRole);
+            }
         }
         return User.builder()
                 .uuid(user.getUserServiceUuid())
@@ -194,6 +219,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .mobileNumber(user.getMobileNumber())
                 .mobileValidationMandatory(false)
                 .roles(domainRoles)
+                .loggedInUserId(user.getId())
                 .build();
     }
 
@@ -223,7 +249,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         }
 
         org.egov.common.contract.request.User userInfo = org.egov.common.contract.request.User.builder().uuid(userUuid)
-                .type(userType).roles(contract_roles).build();
+                .type(userType).roles(contract_roles).id(97L).build();
         return RequestInfo.builder().userInfo(userInfo).build();
     }
 
@@ -239,6 +265,11 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 roles.add(domainRole);
             }
         }
+        String idpRole = getFirstIdpRole(jwt, provider);
+        String userName = generateEmployeeUsername(jwt.getTenantId(), jwt.getRoles(), idpRole, provider);
+        if (userName == null) {
+            userName = jwt.getPreferredUsername();
+        }
         return org.egov.user.domain.model.hrms.User.builder()
                 .uuid(jwt.getExternalUserId())
                 .emailId(jwt.getEmail())
@@ -247,11 +278,73 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .tenantId(jwt.getTenantId())
                 .type(jwt.getUserType())
                 .roles(roles)
-                .userName(jwt.getPreferredUsername())
+                .userName(userName)
                 .name(jwt.getName())
                 .mobileNumber(mobileNumber)
                 .dob(provider.getDefaultDob())
+                .createdBy(jwt.getOid())
                 .build();
+    }
+
+    /** First raw role from the JWT (e.g. Azure "roles" claim like "Digit.Admin"), before Digit mapping. */
+    private String getFirstIdpRole(OidcValidatedJwt jwt, AuthProperties.Provider provider) {
+        String claimKey = provider.getRoleClaimKey();
+        if (claimKey == null || jwt.getClaims() == null) return null;
+        Object val = jwt.getClaims().get(claimKey);
+        if (val instanceof List) {
+            List<?> list = (List<?>) val;
+            return list.isEmpty() ? null : (list.get(0) != null ? list.get(0).toString() : null);
+        }
+        return val != null ? val.toString() : null;
+    }
+
+    /**
+     * Generates employee username from pattern when auth.providers[i].employee-username-format is set.
+     * Placeholders: {provider} (e.g. ms, google), {tenantId}, {role} (Digit-mapped), {idpRole} (raw IdP role), {number}.
+     */
+    private String generateEmployeeUsername(String tenantId, Set<String> roles, String idpRole,
+            AuthProperties.Provider provider) {
+        String format = provider.getEmployeeUsernameFormat();
+        if (format == null || format.trim().isEmpty()) {
+            return null;
+        }
+        String role = null;
+        if (!CollectionUtils.isEmpty(roles)) {
+            role = roles.iterator().next();
+        }
+        if (role == null && provider.getDefaultRoleCodes() != null) {
+            String[] parts = provider.getDefaultRoleCodes().split(",");
+            if (parts.length > 0) {
+                role = parts[0].trim();
+            }
+        }
+        if (role == null) {
+            role = "EMP";
+        }
+        if (idpRole == null) {
+            idpRole = "";
+        }
+        String providerKey = provider.getEmployeeUsernameProviderKey();
+        if (providerKey == null) {
+            providerKey = provider.getId() != null ? provider.getId() : "";
+        }
+        int numLen = provider.getEmployeeUsernameNumberLength() != null && provider.getEmployeeUsernameNumberLength() > 0
+                ? provider.getEmployeeUsernameNumberLength() : 6;
+        long seq;
+        try {
+            seq = userService.getNextEmployeeUsernameNumber(tenantId != null ? tenantId : "", numLen);
+        } catch (Exception e) {
+            log.warn("Failed to get next employee username sequence for tenant {}, using random: {}", tenantId, e.getMessage());
+            int max = (int) Math.pow(10, numLen);
+            seq = new Random().nextInt(max);
+        }
+        String number = String.format("%0" + numLen + "d", seq);
+        return format
+                .replace("{provider}", providerKey)
+                .replace("{tenantId}", tenantId != null ? tenantId : "")
+                .replace("{role}", role)
+                .replace("{idpRole}", idpRole)
+                .replace("{number}", number);
     }
 
     private String generateMobileNumber(AuthProperties.Provider provider) {
@@ -324,7 +417,6 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         copy.setName(jwt.getName());
         copy.setEmailId(jwt.getEmail());
         copy.setRoles(toDomainRoles(jwt.getRoles(), user.getTenantId()));
-
         copy.setPassword(null);
         copy.setMobileNumber(null);
         copy.setUsername(null);
@@ -349,12 +441,18 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
      * Used before the single update so MFA is persisted in one call.
      */
     private void applyMfaDetailsToUser(User user, AccessTokenMfaDetails mfa) {
-        if (user == null || mfa == null) return;
-        if (mfa.getMfaEnabled() != null) user.setMfaEnabled(mfa.getMfaEnabled());
-        if (mfa.getMfaPhoneLast4() != null) user.setMfaPhoneLast4(mfa.getMfaPhoneLast4());
-        if (mfa.getMfaDeviceName() != null) user.setMfaDeviceName(mfa.getMfaDeviceName());
-        if (mfa.getMfaDetails() != null) user.setMfaDetails(mfa.getMfaDetails());
-        if (mfa.getMfaRegisteredOn() != null) user.setMfaRegisteredOn(mfa.getMfaRegisteredOn());
+        if (user == null || mfa == null)
+            return;
+        if (mfa.getMfaEnabled() != null)
+            user.setMfaEnabled(mfa.getMfaEnabled());
+        if (mfa.getMfaPhoneLast4() != null)
+            user.setMfaPhoneLast4(mfa.getMfaPhoneLast4());
+        if (mfa.getMfaDeviceName() != null)
+            user.setMfaDeviceName(mfa.getMfaDeviceName());
+        if (mfa.getMfaDetails() != null)
+            user.setMfaDetails(mfa.getMfaDetails());
+        if (mfa.getMfaRegisteredOn() != null)
+            user.setMfaRegisteredOn(mfa.getMfaRegisteredOn());
     }
 
 }

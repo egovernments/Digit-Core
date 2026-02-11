@@ -27,6 +27,11 @@ public class AuthProperties {
     @Setter
     public static class Oidc {
         private boolean enabled = false;
+        /**
+         * Source of OIDC provider list: "static" (from auth.providers) or "mdms" (from MDMS master).
+         * When "mdms", provider config is fetched from MDMS and works for any OIDC IdP (Azure, Google, etc.).
+         */
+        private String providersSource = "static";
     }
 
     @Getter
@@ -41,6 +46,14 @@ public class AuthProperties {
     public static class Provider {
         private String id;
         private String issuerUri;
+        /**
+         * Optional alternate issuer values for the same provider.
+         * Useful when an IdP can emit tokens with multiple valid issuer formats
+         * (e.g. Azure AD v1 vs v2 issuer strings).
+         *
+         * Property: auth.providers[i].issuer-aliases[0..n]
+         */
+        private List<String> issuerAliases = new ArrayList<>();
         private String jwkSetUri;
         private List<String> audiences = new ArrayList<>();
         private String tenantId;
@@ -58,7 +71,14 @@ public class AuthProperties {
         private String defaultDepartment;
         private String mobileNumberPrefix;
         private Integer mobileNumberLength;
+        private String defaultEmployeeStatus = "EMPLOYED";
         private String rolePrefix = "ROLE_";
+        /** Optional. When set, SSO-created employee username uses this pattern: {provider}, {tenantId}, {role}, {idpRole}, {number}. */
+        private String employeeUsernameFormat;
+        /** Short keyword for {provider} in username (e.g. ms, google, okta) so you can see which IdP created the user. */
+        private String employeeUsernameProviderKey;
+        /** Zero-padded length for {number} in employeeUsernameFormat (default 6). */
+        private Integer employeeUsernameNumberLength = 6;
         private String defaultBoundaryCode;
         private String decryptionPurpose = "UserSelf";
         private String graphClientId;

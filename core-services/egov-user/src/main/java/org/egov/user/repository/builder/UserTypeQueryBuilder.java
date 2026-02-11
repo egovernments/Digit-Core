@@ -88,6 +88,10 @@ public class UserTypeQueryBuilder {
     public static final String SELECT_NEXT_SEQUENCE_USER = "select nextval('" + SCHEMA_REPLACE_STRING
             + ".seq_eg_user')";
 
+    /** Sequence for SSO employee username suffix (EMP-...-{number}). Per-tenant. */
+    public static final String SELECT_NEXT_SEQUENCE_EMPLOYEE_USERNAME = "select nextval('" + SCHEMA_REPLACE_STRING
+            + ".seq_eg_employee_username_num')";
+
     public static final String SELECT_FAILED_ATTEMPTS_BY_USER_SQL = "select user_uuid, ip, attempt_date, active from " +
             SCHEMA_REPLACE_STRING
             + ".eg_user_login_failed_attempts WHERE user_uuid = :user_uuid AND attempt_date >= :attempt_date AND active "

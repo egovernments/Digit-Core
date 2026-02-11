@@ -185,6 +185,18 @@ public class UserService {
     }
 
     /**
+     * Next number from DB sequence for SSO employee username suffix (EMP-...-{number}).
+     * Reliable across restarts and multiple instances.
+     *
+     * @param tenantId     tenant schema
+     * @param numberLength digit length (e.g. 6 → 000000..999999)
+     * @return value in [0, 10^numberLength - 1]
+     */
+    public long getNextEmployeeUsernameNumber(String tenantId, int numberLength) {
+        return userRepository.getNextEmployeeUsernameNumber(tenantId, numberLength);
+    }
+
+    /**
      * get the users based on on userSearch criteria
      *
      * @param searchCriteria

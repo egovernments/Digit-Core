@@ -306,6 +306,12 @@
         "jsonPath": "fatherOrHusbandName",
         "patternId": "001",
         "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "jwtToken",
+        "jsonPath": "jwtToken",
+        "patternId": "001",
+        "defaultVisibility": "PLAIN"
       }
     ],
     "uniqueIdentifier": {
@@ -393,6 +399,12 @@
         "name": "searchUsername",
         "jsonPath": "userName",
         "patternId": "002",
+        "defaultVisibility": "PLAIN"
+      },
+      {
+        "name": "jwtToken",
+        "jsonPath": "jwtToken",
+        "patternId": "001",
         "defaultVisibility": "PLAIN"
       }
     ],

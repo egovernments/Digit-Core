@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import static java.util.Objects.isNull;
 import static org.egov.user.repository.builder.UserTypeQueryBuilder.SELECT_FAILED_ATTEMPTS_BY_USER_SQL;
 import static org.egov.user.repository.builder.UserTypeQueryBuilder.SELECT_NEXT_SEQUENCE_USER;
+import static org.egov.user.repository.builder.UserTypeQueryBuilder.SELECT_NEXT_SEQUENCE_EMPLOYEE_USERNAME;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.ArrayList;
@@ -688,6 +689,20 @@ public class UserRepository {
         // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_NEXT_SEQUENCE_USER, tenantId);
         return jdbcTemplate.queryForObject(query, Long.class);
+    }
+
+    /**
+     * Next value from seq_eg_employee_username_num for the tenant, in range [0, max-1].
+     * Used for SSO employee username format EMP-{tenantId}-{provider}-{idpRole}-{number}.
+     */
+    public long getNextEmployeeUsernameNumber(String tenantId, int numberLength) {
+        if (numberLength <= 0 || numberLength > 10) {
+            throw new IllegalArgumentException("numberLength must be between 1 and 10");
+        }
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_NEXT_SEQUENCE_EMPLOYEE_USERNAME, tenantId);
+        long nextVal = jdbcTemplate.queryForObject(query, Long.class);
+        int max = (int) Math.pow(10, numberLength);
+        return Math.floorMod(nextVal, max);
     }
 
     /**

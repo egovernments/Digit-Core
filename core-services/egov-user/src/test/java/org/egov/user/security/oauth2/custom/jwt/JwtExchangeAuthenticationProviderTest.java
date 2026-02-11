@@ -7,12 +7,12 @@ import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.config.AuthProperties;
+import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.security.oauth2.custom.MsGraphService;
 import org.egov.user.utils.ProjectEmployeeStaffUtil;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.user.domain.model.UserSearchCriteria;
-import org.egov.user.security.oauth2.custom.jwt.AccessTokenMfaExtractor;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.junit.Test;
@@ -59,6 +59,9 @@ public class JwtExchangeAuthenticationProviderTest {
         private AuthProperties authProperties;
 
         @Mock
+        private OidcProviderSupplier oidcProviderSupplier;
+
+        @Mock
         private AuthProperties.Provider provider;
 
         @Mock
@@ -72,8 +75,10 @@ public class JwtExchangeAuthenticationProviderTest {
         public void setup() {
                 authenticationProvider = new JwtExchangeAuthenticationProvider(
                                 jwtValidationService, userService, multiStateInstanceUtil, encryptionDecryptionUtil,
-                                projectEmployeeStaffUtil, authProperties, msGraphService, accessTokenMfaExtractor);
+                                projectEmployeeStaffUtil, authProperties, oidcProviderSupplier, msGraphService, accessTokenMfaExtractor);
                 when(authProperties.getProviders()).thenReturn(Collections.singletonList(provider));
+                when(oidcProviderSupplier.getProviders()).thenReturn(Collections.singletonList(provider));
+                when(provider.getId()).thenReturn("oidc-azure");
                 when(provider.getIssuerUri()).thenReturn("issuer");
                 when(provider.getDefaultPassword()).thenReturn("eGov@123");
                 when(provider.getDefaultDob()).thenReturn(1157328000000L);
@@ -82,6 +87,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 when(provider.getMobileNumberPrefix()).thenReturn("9");
                 when(provider.getMobileNumberLength()).thenReturn(10);
                 when(provider.getEmployeeType()).thenReturn("PERMANENT");
+                when(provider.getDefaultEmployeeStatus()).thenReturn("EMPLOYED");
         }
 
         @Test
@@ -160,7 +166,7 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 when(projectEmployeeStaffUtil.createEmployeeAndProjectStaff(anyString(), anyString(), any(),
                                 anyString(),
-                                anyString(), anyString(), anyString(), anyString(), any()))
+                                anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any()))
                                 .thenReturn(hrmsUser);
 
                 User createdUser = User.builder().uuid("new-uuid").username("johndoe").type(UserType.EMPLOYEE)
@@ -172,10 +178,12 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 assertNotNull(result);
                 verify(projectEmployeeStaffUtil).createEmployeeAndProjectStaff(eq("Project"), eq("Boundary"), any(),
-                                eq("Hierarchy"), eq("PERMANENT"), anyString(), anyString(), eq("pb"), any());
+                                eq("Hierarchy"), eq("PERMANENT"), anyString(), anyString(), eq("EMPLOYED"), eq("pb"),
+                                anyString(), any());
                 verify(userService).updateWithoutOtpValidation(any(), any());
         }
 
+        @Test
         public void testAuthenticate_MfaEnable_AuthTokenJwt() {
                 String token = "jwt-assertion";
                 // Simple JWT for authToken with amr claim
