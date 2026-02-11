@@ -1,17 +1,16 @@
-FROM egovio/alpine-node-builder-10:yarn
+# syntax=docker/dockerfile:1.4
+FROM node:10 AS builder
 
 ARG WORK_DIR
-ENV npm_config_cache=/tmp
 WORKDIR /app
-
-COPY ${WORK_DIR} .
-
+COPY ${WORK_DIR:-core-services/pdf-service}/ .
 RUN npm install
 
-# set your port
-ENV PORT 8080
-# expose the port to outside world
-#EXPOSE  8080
+FROM node:10
+WORKDIR /app
+COPY --from=builder /app /app
 
-# start command as per package.json
+ENV PORT=8080
+EXPOSE 8080
+
 CMD ["npm", "start"]
