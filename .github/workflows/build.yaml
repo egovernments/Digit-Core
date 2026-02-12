@@ -131,7 +131,8 @@ jobs:
       - name: Check for DB folder
         id: check-db-folder
         run: |
-          if [ -d "${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}/src/main/resources/db" ]; then
+          if [ -d "${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}/src/main/resources/db" ] || \
+             [ -d "${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}/migration" ]; then
             echo "folder_exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "folder_exists=false" >> "$GITHUB_OUTPUT"
