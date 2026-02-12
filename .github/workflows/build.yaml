@@ -131,9 +131,16 @@ jobs:
       - name: Check for DB folder
         id: check-db-folder
         run: |
-          if [ -d "${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}/src/main/resources/db" ] || \
-             [ -d "${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}/migration" ]; then
+          BASE_PATH="${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}"
+      
+          if [ -d "$BASE_PATH/src/main/resources/db" ]; then
             echo "folder_exists=true" >> "$GITHUB_OUTPUT"
+            echo "db_path=$BASE_PATH/src/main/resources/db" >> "$GITHUB_OUTPUT"
+      
+          elif [ -d "$BASE_PATH/migration" ]; then
+            echo "folder_exists=true" >> "$GITHUB_OUTPUT"
+            echo "db_path=$BASE_PATH/migration" >> "$GITHUB_OUTPUT"
+      
           else
             echo "folder_exists=false" >> "$GITHUB_OUTPUT"
           fi
@@ -164,12 +171,11 @@ jobs:
         id: build_push_db
         uses: docker/build-push-action@v5
         with:
-          context: ${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}/src/main/resources/db
-          file: ${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}/src/main/resources/db/Dockerfile
+          context: ${{ steps.check-db-folder.outputs.db_path }}
+          file: ${{ steps.check-db-folder.outputs.db_path }}/Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
           tags: egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-${{ matrix.arch }}
-
 
   create-manifest:
     needs: [build-matrix, resolve-config]
