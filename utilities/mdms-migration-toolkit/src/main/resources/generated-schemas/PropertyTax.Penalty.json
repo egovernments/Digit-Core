@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"rate":{"type":"integer"},"minAmount":{"type":"integer"},"flatAmount":{"type":"integer"},"fromFY":{"type":"string"},"startingDay":{"type":"string"}},"required":["fromFY"],"x-unique":["fromFY"],"title":"Generated schema for Penalty","x-ref-schema":[]}

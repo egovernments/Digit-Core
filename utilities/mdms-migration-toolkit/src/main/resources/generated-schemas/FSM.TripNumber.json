@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"name":{"type":"string"},"code":{"type":"integer"},"active":{"type":"boolean"},"i18nKey":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for TripNumber","x-ref-schema":[]}

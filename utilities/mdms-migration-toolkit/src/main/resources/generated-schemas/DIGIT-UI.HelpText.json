@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"PT":{"type":"object","properties":{"propertyIdFormat":{"type":"string"},"maxPropertyResult":{"type":"integer"},"maxResultValidation":{"type":"boolean"}},"additionalProperties":true}},"required":["code"],"x-unique":["code"],"title":"Generated schema for HelpText","x-ref-schema":[]}

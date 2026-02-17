@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"key":{"type":"string"},"attributeList":{"type":"array","items":{"type":"object","properties":{"jsonPath":{"type":"string"},"type":{"type":"string"}},"additionalProperties":true}}},"required":["code"],"x-unique":["code"],"title":"Generated schema for EncryptionPolicy","x-ref-schema":[]}

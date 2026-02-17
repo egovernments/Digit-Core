@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"defaultConfig":{"type":"object","properties":{"lat":{"type":"number"},"lng":{"type":"number"}},"additionalProperties":true}},"required":["code"],"x-unique":["code"],"title":"Generated schema for MapConfig","x-ref-schema":[]}

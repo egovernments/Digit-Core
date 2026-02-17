@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"businessDetails":{"type":"string"},"bankAccount":{"type":"string"},"bank":{"type":"string"},"bankBranch":{"type":"string"},"tenantId":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for BankAccountServiceMapping","x-ref-schema":[]}

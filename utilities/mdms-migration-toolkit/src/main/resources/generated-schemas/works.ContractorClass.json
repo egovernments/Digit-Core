@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"grade":{"type":"string"},"description":{"type":"string"},"minimumAmount":{"type":"integer"},"maximumAmount":{"type":"integer"},"active":{"type":"boolean"}},"required":["class","tenantId"],"x-unique":["class","tenantId"],"title":"Generated schema for ContractorClass","x-ref-schema":[]}

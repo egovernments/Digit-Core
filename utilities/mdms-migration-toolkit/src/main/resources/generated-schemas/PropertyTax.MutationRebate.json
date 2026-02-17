@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"rate":{"type":"integer"},"maxAmount":{"type":"null"},"flatAmount":{"type":"null"},"fromFY":{"type":"string"},"endingDay":{"type":"string"},"mutationPaymentPeriodInMonth":{"type":"string"}},"required":["fromFY"],"x-unique":["fromFY"],"title":"Generated schema for MutationRebate","x-ref-schema":[]}

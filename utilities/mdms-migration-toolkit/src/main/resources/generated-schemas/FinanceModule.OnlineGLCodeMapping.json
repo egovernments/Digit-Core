@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"servicecode":{"type":"string"},"glcode":{"type":"string"},"validFrom":{"type":"integer"},"validTo":{"type":"integer"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for OnlineGLCodeMapping","x-ref-schema":[]}
