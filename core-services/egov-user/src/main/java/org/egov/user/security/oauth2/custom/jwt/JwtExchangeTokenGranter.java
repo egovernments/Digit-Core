@@ -17,6 +17,14 @@ public class JwtExchangeTokenGranter extends AbstractTokenGranter {
 
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Constructs a JWT exchange token granter.
+     *
+     * @param authenticationManager the authentication manager to authenticate JWT tokens
+     * @param tokenServices the token services for creating access tokens
+     * @param clientDetailsService the client details service
+     * @param requestFactory the OAuth2 request factory
+     */
     public JwtExchangeTokenGranter(
             AuthenticationManager authenticationManager,
             AuthorizationServerTokenServices tokenServices,
@@ -27,6 +35,15 @@ public class JwtExchangeTokenGranter extends AbstractTokenGranter {
         this.authenticationManager = authenticationManager;
     }
 
+    /**
+     * Creates an OAuth2 authentication from the token request.
+     * Extracts the JWT assertion and optional auth/access token from request parameters,
+     * authenticates using the JWT exchange authentication provider, and creates an OAuth2 authentication.
+     *
+     * @param client the OAuth2 client details
+     * @param tokenRequest the token request containing JWT assertion and optional auth token
+     * @return OAuth2Authentication object ready for token generation
+     */
     @Override
     protected OAuth2Authentication getOAuth2Authentication(
             ClientDetails client, TokenRequest tokenRequest) {

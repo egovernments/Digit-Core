@@ -75,6 +75,10 @@ public class IDPJwtValidator implements JwtValidator {
         this.restTemplate = restTemplate;
     }
 
+    /**
+     * Initializes the JWT validator by pre-loading SSO role mappings from MDMS for all configured providers.
+     * This improves performance by caching role mappings at startup rather than fetching them on-demand.
+     */
     @PostConstruct
     public void init() {
         if (authProperties.getOidc() != null && authProperties.getOidc().isEnabled()) {
@@ -89,11 +93,37 @@ public class IDPJwtValidator implements JwtValidator {
         }
     }
 
+    /**
+     * Checks if this validator supports tokens from the given issuer.
+     * Returns true if OIDC is enabled in configuration.
+     *
+     * @param issuer the issuer (iss) claim from the JWT token
+     * @return true if OIDC is enabled, false otherwise
+     */
     @Override
     public boolean supports(String issuer) {
         return authProperties.getOidc().isEnabled();
     }
 
+    /**
+     * Validates a JWT token from an identity provider.
+     * 
+     * <p>This method performs the following operations:
+     * <ol>
+     *   <li>Extracts issuer and audience from token (unverified)</li>
+     *   <li>Resolves the provider configuration based on issuer and audience</li>
+     *   <li>Decodes and validates the token signature using JWKS</li>
+     *   <li>Validates standard claims (iss, aud, exp, nbf)</li>
+     *   <li>Extracts and normalizes tenant ID and user type</li>
+     *   <li>Maps roles from JWT claims to Digit roles using MDMS or configuration</li>
+     *   <li>Extracts boundary information from roles</li>
+     * </ol>
+     *
+     * @param token the raw JWT token string to validate
+     * @return OidcValidatedJwt containing validated claims and extracted information
+     * @throws OAuth2Exception if token validation fails (invalid signature, expired, wrong audience, etc.)
+     * @throws CustomException if provider configuration is missing or invalid
+     */
     @Override
     public OidcValidatedJwt validate(String token) {
         Map<String, Object> claims = null;
@@ -132,6 +162,13 @@ public class IDPJwtValidator implements JwtValidator {
                 provider.getHierarchyType(), boundary, token, provider.getId());
     }
 
+    /**
+     * Returns the first non-empty string from the provided values.
+     * Used to select tenant ID or user type from multiple possible sources.
+     *
+     * @param values variable number of string values to check
+     * @return the first non-null, non-empty string, or null if all are empty
+     */
     private String firstNonEmpty(String... values) {
         for (String value : values) {
             if (value != null && !value.isEmpty())
@@ -140,6 +177,15 @@ public class IDPJwtValidator implements JwtValidator {
         return null;
     }
 
+    /**
+     * Extracts and maps roles from JWT claims to Digit role codes.
+     * Uses role mapping from MDMS (cached) or provider configuration.
+     * Falls back to default roles if no roles are found in the token.
+     *
+     * @param provider the OIDC provider configuration
+     * @param claims the validated JWT claims map
+     * @return set of Digit role codes mapped from JWT roles
+     */
     private Set<String> extractRoles(AuthProperties.Provider provider, Map<String, Object> claims) {
         String roleClaimKey = provider.getRoleClaimKey();
         String tenantId = (String) claims.get("tenantId");
@@ -166,6 +212,14 @@ public class IDPJwtValidator implements JwtValidator {
         return defaultRoles;
     }
 
+    /**
+     * Fetches role mapping for a provider and tenant, using cache if available.
+     * Falls back to provider configuration if MDMS fetch fails.
+     *
+     * @param provider the OIDC provider configuration
+     * @param tenantId the tenant ID to fetch role mapping for
+     * @return map of SSO role names to Digit role codes (comma-separated if multiple)
+     */
     private Map<String, String> fetchRoleMapping(AuthProperties.Provider provider, String tenantId) {
         String cacheKey = provider.getId() + ":" + tenantId;
         return roleMappingCache.computeIfAbsent(cacheKey, k -> {
@@ -180,6 +234,13 @@ public class IDPJwtValidator implements JwtValidator {
         });
     }
 
+    /**
+     * Fetches SSO role mapping from MDMS (Master Data Management Service).
+     * Queries MDMS for role mappings configured for the tenant.
+     *
+     * @param tenantId the tenant ID to fetch role mapping for
+     * @return map of SSO role names to Digit role codes, empty map if not found
+     */
     private Map<String, String> fetchRoleMappingFromMdms(String tenantId) {
         String url = mdmsHost + mdmsEndpoint;
 
@@ -240,6 +301,15 @@ public class IDPJwtValidator implements JwtValidator {
         return Collections.emptyMap();
     }
 
+    /**
+     * Extracts boundary code from JWT claims based on roles.
+     * Uses role-to-boundary mapping from provider configuration, with fallback to defaults.
+     *
+     * @param provider the OIDC provider configuration
+     * @param claims the validated JWT claims map
+     * @return boundary code string
+     * @throws OAuth2Exception if no boundary code can be determined
+     */
     private String extractBoundary(AuthProperties.Provider provider, Map<String, Object> claims) {
         String roleClaimKey = provider.getRoleClaimKey();
         Map<String, String> roleProjectMapping = provider.getRoleBoundaryMapping();
@@ -263,6 +333,14 @@ public class IDPJwtValidator implements JwtValidator {
         return boundaryCode;
     }
 
+    /**
+     * Extracts the issuer claim from a JWT without full validation.
+     * Used for provider resolution before signature validation.
+     *
+     * @param jwt the JWT token string
+     * @return the issuer (iss) claim value
+     * @throws RuntimeException if the token cannot be parsed
+     */
     private String extractIssuerUnverified(String jwt) {
         try {
             return JWTParser.parse(jwt).getJWTClaimsSet().getIssuer();
@@ -271,6 +349,14 @@ public class IDPJwtValidator implements JwtValidator {
         }
     }
 
+    /**
+     * Extracts the audience claim from a JWT without full validation.
+     * Used for provider resolution when multiple providers share the same issuer.
+     *
+     * @param jwt the JWT token string
+     * @return list of audience (aud) claim values, empty list if not present
+     * @throws RuntimeException if the token cannot be parsed
+     */
     private List<String> extractAudiencesUnverified(String jwt) {
         try {
             List<String> aud = JWTParser.parse(jwt).getJWTClaimsSet().getAudience();
@@ -280,6 +366,15 @@ public class IDPJwtValidator implements JwtValidator {
         }
     }
 
+    /**
+     * Gets or creates a JWT decoder for the given provider.
+     * Decoders are cached by provider ID to avoid repeated initialization.
+     * Configures validators for issuer, audience, and timestamps.
+     *
+     * @param provider the OIDC provider configuration
+     * @return configured JwtDecoder instance
+     * @throws CustomException if JWKS URI or issuer URI is missing
+     */
     private JwtDecoder getDecoder(AuthProperties.Provider provider) {
         return decoders.computeIfAbsent(provider.getId(), id -> {
             if (provider.getJwkSetUri() == null || provider.getJwkSetUri().trim().isEmpty()) {
@@ -307,6 +402,15 @@ public class IDPJwtValidator implements JwtValidator {
         });
     }
 
+    /**
+     * Resolves the provider configuration based on issuer and audience.
+     * Handles cases where multiple providers share the same issuer by using audience for disambiguation.
+     *
+     * @param issuerRaw the raw issuer claim from the token
+     * @param tokenAudiences the audience claims from the token
+     * @return the matching provider configuration
+     * @throws CustomException if no provider matches or multiple providers match without disambiguation
+     */
     private AuthProperties.Provider resolveProvider(String issuerRaw, List<String> tokenAudiences) {
         String issuer = normalizeIssuer(issuerRaw);
         if (issuer == null || issuer.isEmpty()) {
@@ -351,6 +455,14 @@ public class IDPJwtValidator implements JwtValidator {
                 "Multiple OIDC providers match issuer=" + issuerRaw + " and audience=" + aud + " providers=" + matchedIds);
     }
 
+    /**
+     * Checks if a provider matches the given normalized issuer.
+     * Compares against both the primary issuer URI and any configured aliases.
+     *
+     * @param provider the provider configuration to check
+     * @param normalizedIssuer the normalized issuer string to match
+     * @return true if the provider matches this issuer, false otherwise
+     */
     private boolean matchesIssuer(AuthProperties.Provider provider, String normalizedIssuer) {
         if (provider == null) {
             return false;
@@ -359,6 +471,13 @@ public class IDPJwtValidator implements JwtValidator {
         return allowedIssuers.contains(normalizedIssuer);
     }
 
+    /**
+     * Gets all allowed issuer URIs for a provider, including aliases.
+     * Normalizes all issuer strings (removes trailing slashes).
+     *
+     * @param provider the provider configuration
+     * @return set of normalized issuer URIs
+     */
     private Set<String> getAllowedIssuers(AuthProperties.Provider provider) {
         Set<String> issuers = new HashSet<>();
         if (provider.getIssuerUri() != null) {
@@ -378,6 +497,13 @@ public class IDPJwtValidator implements JwtValidator {
         return issuers;
     }
 
+    /**
+     * Normalizes an issuer URI by trimming whitespace and removing trailing slashes.
+     * Ensures consistent comparison of issuer values.
+     *
+     * @param issuer the issuer URI to normalize
+     * @return normalized issuer URI, or null if input is null
+     */
     private String normalizeIssuer(String issuer) {
         if (issuer == null) {
             return null;
@@ -389,6 +515,14 @@ public class IDPJwtValidator implements JwtValidator {
         return s;
     }
 
+    /**
+     * Checks if provider audiences and token audiences have any intersection.
+     * Used to disambiguate providers when multiple share the same issuer.
+     *
+     * @param providerAudiences the audiences configured for the provider
+     * @param tokenAudiences the audiences from the token
+     * @return true if there is at least one common audience, false otherwise
+     */
     private boolean intersects(List<String> providerAudiences, List<String> tokenAudiences) {
         if (providerAudiences == null || providerAudiences.isEmpty() || tokenAudiences == null || tokenAudiences.isEmpty()) {
             return false;
@@ -405,6 +539,11 @@ public class IDPJwtValidator implements JwtValidator {
     private static class MultiIssuerValidator implements OAuth2TokenValidator<Jwt> {
         private final Set<String> allowedIssuersNormalized;
 
+        /**
+         * Creates a multi-issuer validator.
+         *
+         * @param allowedIssuersNormalized set of normalized issuer URIs that are allowed
+         */
         private MultiIssuerValidator(Set<String> allowedIssuersNormalized) {
             this.allowedIssuersNormalized = allowedIssuersNormalized == null ? Collections.emptySet() : allowedIssuersNormalized;
         }
@@ -425,11 +564,22 @@ public class IDPJwtValidator implements JwtValidator {
     private static class AudienceValidator implements OAuth2TokenValidator<Jwt> {
         private final Set<String> allowedAudiences;
 
+        /**
+         * Creates an audience validator.
+         *
+         * @param allowedAudiences list of allowed audience values
+         */
         private AudienceValidator(List<String> allowedAudiences) {
             this.allowedAudiences = allowedAudiences == null ? Collections.emptySet()
                     : allowedAudiences.stream().filter(Objects::nonNull).collect(Collectors.toSet());
         }
 
+        /**
+         * Validates that the token's audience matches at least one of the allowed audiences.
+         *
+         * @param token the JWT token to validate
+         * @return success if audience matches, failure otherwise
+         */
         @Override
         public OAuth2TokenValidatorResult validate(Jwt token) {
             List<String> aud = token.getAudience();

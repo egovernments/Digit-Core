@@ -13,6 +13,15 @@ import java.util.Map;
 @Service
 public class CustomTokenEnhancer extends TokenEnhancerChain {
 
+    /**
+     * Enhances the OAuth2 access token with additional user information.
+     * Adds ResponseInfo metadata and UserRequest details to the token's additional information.
+     * This allows clients to receive user information along with the access token.
+     *
+     * @param accessToken the base OAuth2 access token to enhance
+     * @param authentication the OAuth2 authentication containing user details
+     * @return the enhanced OAuth2 access token with user information in additionalInfo
+     */
     @Override
     public OAuth2AccessToken enhance(final OAuth2AccessToken accessToken, final OAuth2Authentication authentication) {
         final DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;

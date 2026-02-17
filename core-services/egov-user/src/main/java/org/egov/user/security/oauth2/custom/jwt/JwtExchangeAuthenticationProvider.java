@@ -72,6 +72,25 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         this.accessTokenMfaExtractor = accessTokenMfaExtractor;
     }
 
+    /**
+     * Authenticates a user using JWT exchange flow.
+     * 
+     * <p>This method performs the following operations:
+     * <ol>
+     *   <li>Validates the JWT token from the identity provider</li>
+     *   <li>Extracts tenant ID, user type, and user information from JWT</li>
+     *   <li>Looks up existing user or creates new user if not found</li>
+     *   <li>Updates user information from JWT claims (roles, email, name, etc.)</li>
+     *   <li>Enriches user with MFA details from access token and Microsoft Graph</li>
+     *   <li>Validates account status (active, locked)</li>
+     *   <li>Unlocks account if eligible</li>
+     *   <li>Returns authenticated user with authorities</li>
+     * </ol>
+     *
+     * @param authentication the JwtExchangeAuthenticationToken containing JWT and optional auth token
+     * @return UsernamePasswordAuthenticationToken with authenticated user and authorities
+     * @throws OAuth2Exception if authentication fails (invalid token, user not found, account locked, etc.)
+     */
     @Override
     public Authentication authenticate(Authentication authentication) {
 
@@ -193,6 +212,13 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
     }
 
+    /**
+     * Gets the provider configuration by provider ID.
+     *
+     * @param providerId the provider ID to look up
+     * @return the matching provider configuration
+     * @throws OAuth2Exception if no provider is found with the given ID
+     */
     private AuthProperties.Provider getProviderById(String providerId) {
         return oidcProviderSupplier.getProviders().stream()
                 .filter(p -> p.getId() != null && p.getId().trim().equals(providerId))
@@ -200,6 +226,13 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .orElseThrow(() -> new OAuth2Exception("No OIDC provider configured for providerId=" + providerId));
     }
 
+    /**
+     * Converts an HRMS user object to a domain User object.
+     * Maps roles from HRMS format to domain format.
+     *
+     * @param user the HRMS user object to convert
+     * @return converted domain User object
+     */
     private User convertHrmsUserToUser(org.egov.user.domain.model.hrms.@Valid @NotNull User user) {
         Set<Role> domainRoles = new HashSet<>();
         if (user.getRoles() != null) {
@@ -223,11 +256,24 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .build();
     }
 
+    /**
+     * Checks if this authentication provider supports the given authentication type.
+     *
+     * @param auth the authentication class to check
+     * @return true if the authentication is a JwtExchangeAuthenticationToken, false otherwise
+     */
     @Override
     public boolean supports(Class<?> auth) {
         return JwtExchangeAuthenticationToken.class.isAssignableFrom(auth);
     }
 
+    /**
+     * Creates a RequestInfo object from a User domain object.
+     * Converts domain roles to contract roles.
+     *
+     * @param user the user domain object
+     * @return RequestInfo with user information
+     */
     private RequestInfo getRequestInfo(User user) {
         Set<Role> domain_roles = user.getRoles();
         List<org.egov.common.contract.request.Role> contract_roles = new ArrayList<>();
@@ -242,6 +288,15 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return RequestInfo.builder().userInfo(userInfo).build();
     }
 
+    /**
+     * Creates a RequestInfo object from role codes, user type, and user UUID.
+     * Used when creating a new user before the user exists in the system.
+     *
+     * @param roles set of role codes
+     * @param userType the user type string
+     * @param userUuid the user UUID
+     * @return RequestInfo with user information
+     */
     private RequestInfo getRequestInfo(Set<String> roles, String userType, String userUuid) {
         List<org.egov.common.contract.request.Role> contract_roles = new ArrayList<>();
         for (String role : roles) {
@@ -253,6 +308,15 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return RequestInfo.builder().userInfo(userInfo).build();
     }
 
+    /**
+     * Converts a validated JWT to an HRMS User object.
+     * Extracts user information from JWT claims and generates username if configured.
+     *
+     * @param jwt the validated JWT containing user claims
+     * @param mobileNumber the generated mobile number for the user
+     * @param provider the OIDC provider configuration
+     * @return HRMS User object ready for creation
+     */
     private org.egov.user.domain.model.hrms.User convertJwtToUser(OidcValidatedJwt jwt, String mobileNumber,
             AuthProperties.Provider provider) {
         List<org.egov.user.domain.model.hrms.Role> roles = new ArrayList<>();
@@ -286,7 +350,14 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .build();
     }
 
-    /** First raw role from the JWT (e.g. Azure "roles" claim like "Digit.Admin"), before Digit mapping. */
+    /**
+     * Gets the first raw role from the JWT before Digit role mapping.
+     * For example, Azure "roles" claim like "Digit.Admin" before mapping to "EMPLOYEE".
+     *
+     * @param jwt the validated JWT
+     * @param provider the OIDC provider configuration
+     * @return the first raw role from the JWT, or null if not found
+     */
     private String getFirstIdpRole(OidcValidatedJwt jwt, AuthProperties.Provider provider) {
         String claimKey = provider.getRoleClaimKey();
         if (claimKey == null || jwt.getClaims() == null) return null;
@@ -347,6 +418,13 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .replace("{number}", number);
     }
 
+    /**
+     * Generates a random mobile number for new users.
+     * Uses the provider's configured prefix and length.
+     *
+     * @param provider the OIDC provider configuration
+     * @return generated mobile number string
+     */
     private String generateMobileNumber(AuthProperties.Provider provider) {
         Random random = new Random();
         String prefix = provider.getMobileNumberPrefix();
@@ -364,6 +442,12 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return mobileNumber.toString();
     }
 
+    /**
+     * Converts a domain User object to a contract User object for API responses.
+     *
+     * @param user the domain User object
+     * @return contract User object with user information
+     */
     private org.egov.user.web.contract.auth.User getUser(User user) {
         org.egov.user.web.contract.auth.User authUser = org.egov.user.web.contract.auth.User.builder().id(user.getId())
                 .userName(user.getUsername()).uuid(user.getUuid())
@@ -378,6 +462,12 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return authUser;
     }
 
+    /**
+     * Converts domain Role objects to contract Role objects.
+     *
+     * @param domainRoles set of domain Role objects
+     * @return set of contract Role objects
+     */
     private Set<org.egov.user.web.contract.auth.Role> toAuthRole(Set<org.egov.user.domain.model.Role> domainRoles) {
         if (domainRoles == null)
             return new HashSet<>();
@@ -402,6 +492,14 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return updatedUser;
     }
 
+    /**
+     * Creates a User object for SSO update from existing user and JWT claims.
+     * Updates user information from JWT while preserving existing user data.
+     *
+     * @param user the existing user object
+     * @param jwt the validated JWT with updated claims
+     * @return User object ready for update
+     */
     private User createUserForSsoUpdate(User user, OidcValidatedJwt jwt) {
         User copy = new User();
         BeanUtils.copyProperties(user, copy);
@@ -424,6 +522,13 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return copy;
     }
 
+    /**
+     * Converts a set of role code strings to domain Role objects.
+     *
+     * @param roles set of role code strings
+     * @param tenantId the tenant ID for the roles
+     * @return set of domain Role objects
+     */
     private Set<Role> toDomainRoles(Set<String> roles, String tenantId) {
         if (CollectionUtils.isEmpty(roles)) {
             return new HashSet<>();
@@ -437,8 +542,11 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     }
 
     /**
-     * Apply MFA details from access_token to user (only non-null fields).
+     * Applies MFA details from access token to user object (only non-null fields).
      * Used before the single update so MFA is persisted in one call.
+     *
+     * @param user the user object to update
+     * @param mfa the MFA details extracted from access token
      */
     private void applyMfaDetailsToUser(User user, AccessTokenMfaDetails mfa) {
         if (user == null || mfa == null)

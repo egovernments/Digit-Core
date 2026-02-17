@@ -54,6 +54,14 @@ public class AccessTokenMfaExtractor {
         }
     }
 
+    /**
+     * Extracts MFA details from a JWT-formatted access token.
+     * Parses the JWT and extracts MFA-related claims (amr, mfa_phone_last4, etc.).
+     *
+     * @param accessToken the JWT access token string
+     * @return AccessTokenMfaDetails with extracted MFA information
+     * @throws Exception if the token cannot be parsed as JWT
+     */
     private AccessTokenMfaDetails extractFromJwt(String accessToken) throws Exception {
         JWTClaimsSet claims = JWTParser.parse(accessToken).getJWTClaimsSet();
         boolean mfaEnabled = isMfaFromAmr(claims.getClaim(CLAIM_AMR));
@@ -74,6 +82,13 @@ public class AccessTokenMfaExtractor {
      * Determine MFA from "amr" claim. Microsoft sends amr as array; Nimbus may
      * return List or other collection. Also handle single string.
      */
+    /**
+     * Determines if MFA was used based on the "amr" (Authentication Methods Reference) claim.
+     * Handles various formats: collections, iterables, and single strings.
+     *
+     * @param amrClaim the amr claim value from the JWT
+     * @return true if MFA is indicated in the amr claim, false otherwise
+     */
     private boolean isMfaFromAmr(Object amrClaim) {
         if (amrClaim == null) return false;
         if (amrClaim instanceof Collection) {
@@ -92,12 +107,26 @@ public class AccessTokenMfaExtractor {
         return isMfaValue(amrClaim);
     }
 
+    /**
+     * Checks if an item represents an MFA authentication method.
+     * Recognizes "mfa" and "ngcmfa" values (case-insensitive).
+     *
+     * @param item the item to check
+     * @return true if the item represents MFA, false otherwise
+     */
     private boolean isMfaValue(Object item) {
         if (item == null) return false;
         String s = item.toString().trim();
         return MFA_VALUE.equalsIgnoreCase(s) || MFA_VALUE_NGCMFA.equalsIgnoreCase(s);
     }
 
+    /**
+     * Safely extracts a string claim from JWT claims set.
+     *
+     * @param claims the JWT claims set
+     * @param name the claim name to extract
+     * @return the claim value as string, or null if not present or extraction fails
+     */
     private String getStringClaim(JWTClaimsSet claims, String name) {
         try {
             Object v = claims.getClaim(name);
@@ -107,6 +136,14 @@ public class AccessTokenMfaExtractor {
         }
     }
 
+    /**
+     * Safely extracts a date claim from JWT claims set.
+     * Handles both Date objects and numeric timestamps.
+     *
+     * @param claims the JWT claims set
+     * @param name the claim name to extract
+     * @return the claim value as Date, or null if not present or extraction fails
+     */
     private Date getDateClaim(JWTClaimsSet claims, String name) {
         try {
             Object v = claims.getClaim(name);
@@ -119,6 +156,14 @@ public class AccessTokenMfaExtractor {
         }
     }
 
+    /**
+     * Extracts MFA details from a JSON-formatted access token.
+     * Parses the JSON and extracts MFA-related fields.
+     *
+     * @param accessToken the JSON access token string
+     * @return AccessTokenMfaDetails with extracted MFA information
+     * @throws Exception if the token cannot be parsed as JSON
+     */
     private AccessTokenMfaDetails extractFromJson(String accessToken) throws Exception {
         JsonNode root = objectMapper.readTree(accessToken);
         boolean mfaEnabled = false;

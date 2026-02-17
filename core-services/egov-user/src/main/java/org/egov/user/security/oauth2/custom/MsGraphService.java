@@ -66,6 +66,12 @@ public class MsGraphService {
         }
     }
 
+    /**
+     * Obtains an access token from Microsoft Graph API using client credentials flow.
+     *
+     * @param provider the OIDC provider configuration containing Graph API credentials
+     * @return the access token string, or null if token acquisition fails
+     */
     private String getGraphAccessToken(AuthProperties.Provider provider) {
         String tokenUrl = String.format(provider.getGraphTokenUrl(), provider.getGraphTenantId());
         HttpHeaders headers = new HttpHeaders();
@@ -91,6 +97,15 @@ public class MsGraphService {
         }
     }
 
+    /**
+     * Fetches authentication methods from Microsoft Graph API and applies MFA details to user.
+     * Extracts phone number (last 4 digits), device name, registration date, and method types.
+     *
+     * @param user the user object to enrich with MFA details
+     * @param provider the OIDC provider configuration
+     * @param userOid the Azure object ID (oid) for the user
+     * @param accessToken the Graph API access token
+     */
     private void fetchAndApplyAuthenticationMethods(User user, AuthProperties.Provider provider,
                                                     String userOid, String accessToken) {
         String methodsUrl = String.format(provider.getGraphMethodsUrl(), userOid);
@@ -149,12 +164,24 @@ public class MsGraphService {
         }
     }
 
+    /**
+     * Extracts the last four digits from a phone number string.
+     *
+     * @param phone the phone number string
+     * @return the last four digits, or null if not found
+     */
     private static String extractLastFourDigits(String phone) {
         if (phone == null) return null;
         Matcher m = LAST_FOUR_DIGITS.matcher(phone.trim());
         return m.find() ? m.group(1) : null;
     }
 
+    /**
+     * Parses an ISO 8601 date string to a Date object.
+     *
+     * @param s the ISO 8601 date string
+     * @return the parsed Date object, or null if parsing fails
+     */
     private static Date parseIso8601(String s) {
         if (s == null || s.isEmpty()) return null;
         try {

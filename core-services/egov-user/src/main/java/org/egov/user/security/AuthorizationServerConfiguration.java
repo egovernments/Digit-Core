@@ -48,6 +48,13 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Autowired
     private TokenStore tokenStore;
 
+    /**
+     * Configures OAuth2 client details for the authorization server.
+     * Sets up the in-memory client with supported grant types, authorities, scopes, and token validity periods.
+     *
+     * @param clients the client details service configurer
+     * @throws Exception if configuration fails
+     */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         final int accessTokenValidityInSeconds = accessTokenValidityInMinutes * 60;
@@ -60,6 +67,14 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     }
 
 
+    /**
+     * Configures the authorization server endpoints.
+     * Sets up token granters (including JWT exchange), token services, and authentication manager.
+     * Combines default token granters with custom JWT exchange token granter.
+     *
+     * @param endpoints the authorization server endpoints configurer
+     * @throws Exception if configuration fails
+     */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         List<TokenGranter> granters = new ArrayList<>();
@@ -76,11 +91,24 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .authenticationManager(customAuthenticationManager);
     }
 
+    /**
+     * Creates and configures the Redis connection factory for token storage.
+     * Uses Jedis as the Redis client implementation.
+     *
+     * @return configured JedisConnectionFactory instance
+     * @throws Exception if connection factory creation fails
+     */
     @Bean
     public JedisConnectionFactory connectionFactory() throws Exception {
         return new JedisConnectionFactory(new JedisShardInfo(host));
     }
 
+    /**
+     * Creates and configures custom token services for OAuth2 token management.
+     * Configures token enhancement, storage, refresh token support, and authentication.
+     *
+     * @return configured DefaultTokenServices instance with custom token enhancer
+     */
     @Bean
     public DefaultTokenServices customTokenServices() {
         DefaultTokenServices tokenServices = new DefaultTokenServices();

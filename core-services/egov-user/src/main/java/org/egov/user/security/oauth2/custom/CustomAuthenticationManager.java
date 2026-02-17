@@ -30,6 +30,24 @@ public class CustomAuthenticationManager implements AuthenticationManager {
         this.authenticationProviders = authenticationProviders;
     }
 
+    /**
+     * Attempts to authenticate the provided authentication object by iterating through
+     * all registered authentication providers until one successfully authenticates.
+     * 
+     * <p>This method:
+     * <ul>
+     *   <li>Iterates through all authentication providers</li>
+     *   <li>Skips providers that don't support the authentication type</li>
+     *   <li>Stops on first successful authentication</li>
+     *   <li>Immediately throws AccountStatusException or InternalAuthenticationServiceException</li>
+     *   <li>Erases credentials after successful authentication if configured</li>
+     * </ul>
+     *
+     * @param authentication the authentication request object
+     * @return a fully authenticated Authentication object with credentials and authorities
+     * @throws AuthenticationException if authentication fails for all providers or account status is invalid
+     * @throws OAuth2Exception if no provider can authenticate the request
+     */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Class<? extends Authentication> toTest = authentication.getClass();
