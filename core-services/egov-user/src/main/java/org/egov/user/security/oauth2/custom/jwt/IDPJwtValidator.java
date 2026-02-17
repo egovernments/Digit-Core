@@ -81,16 +81,18 @@ public class IDPJwtValidator implements JwtValidator {
      */
     @PostConstruct
     public void init() {
-        if (authProperties.getOidc() != null && authProperties.getOidc().isEnabled()) {
-            log.info("Initializing SSO role mapping cache for OIDC providers...");
-            for (AuthProperties.Provider provider : oidcProviderSupplier.getProviders()) {
-                if (provider.getTenantId() != null && !provider.getTenantId().isEmpty()) {
-                    log.info("Pre-loading role mapping for provider: {} and tenant: {}", provider.getId(),
-                            provider.getTenantId());
-                    fetchRoleMapping(provider, provider.getTenantId());
-                }
-            }
+        if (authProperties.getOidc() == null || !authProperties.getOidc().isEnabled()) {
+            return;
         }
+        
+        log.info("Initializing SSO role mapping cache for OIDC providers...");
+        oidcProviderSupplier.getProviders().stream()
+                .filter(p -> p.getTenantId() != null && !p.getTenantId().isEmpty())
+                .forEach(provider -> {
+                    log.info("Pre-loading role mapping for provider: {} and tenant: {}", 
+                            provider.getId(), provider.getTenantId());
+                    fetchRoleMapping(provider, provider.getTenantId());
+                });
     }
 
     /**
@@ -175,11 +177,10 @@ public class IDPJwtValidator implements JwtValidator {
      * @return the first non-null, non-empty string, or null if all are empty
      */
     private String firstNonEmpty(String... values) {
-        for (String value : values) {
-            if (value != null && !value.isEmpty())
-                return value;
-        }
-        return null;
+        return Arrays.stream(values)
+                .filter(v -> v != null && !v.isEmpty())
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -194,27 +195,44 @@ public class IDPJwtValidator implements JwtValidator {
     private Set<String> extractRoles(AuthProperties.Provider provider, Map<String, Object> claims) {
         String roleClaimKey = provider.getRoleClaimKey();
         String tenantId = (String) claims.get("tenantId");
-
         Map<String, String> rolesMapping = fetchRoleMapping(provider, tenantId);
+        Set<String> defaultRoles = getDefaultRoles(provider);
 
-        Set<String> defaultRoles = new HashSet<>();
-        if (provider.getDefaultRoleCodes() != null) {
-            defaultRoles.addAll(Arrays.stream(provider.getDefaultRoleCodes().split(",")).map(String::trim)
-                    .collect(Collectors.toList()));
-        }
-        if (claims == null || claims.get(roleClaimKey) == null)
+        if (claims == null || roleClaimKey == null || claims.get(roleClaimKey) == null) {
             return defaultRoles;
-        Object rolesObject = claims.get(roleClaimKey);
-        if (rolesObject instanceof List) {
-            List<String> roles = (List<String>) rolesObject;
-            return roles.stream()
-                    .map(rolesMapping::get)
-                    .filter(Objects::nonNull)
-                    .flatMap(roleString -> Arrays.stream(roleString.split(",")).map(String::trim))
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toSet());
         }
-        return defaultRoles;
+
+        Object rolesObject = claims.get(roleClaimKey);
+        if (!(rolesObject instanceof List)) {
+            return defaultRoles;
+        }
+
+        @SuppressWarnings("unchecked")
+        List<String> roles = (List<String>) rolesObject;
+        Set<String> mappedRoles = roles.stream()
+                .map(rolesMapping::get)
+                .filter(Objects::nonNull)
+                .flatMap(roleString -> Arrays.stream(roleString.split(",")).map(String::trim))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+
+        return mappedRoles.isEmpty() ? defaultRoles : mappedRoles;
+    }
+
+    /**
+     * Gets default role codes from provider configuration.
+     *
+     * @param provider the OIDC provider configuration
+     * @return set of default role codes, empty set if not configured
+     */
+    private Set<String> getDefaultRoles(AuthProperties.Provider provider) {
+        if (provider.getDefaultRoleCodes() == null || provider.getDefaultRoleCodes().trim().isEmpty()) {
+            return new HashSet<>();
+        }
+        return Arrays.stream(provider.getDefaultRoleCodes().split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -233,10 +251,20 @@ public class IDPJwtValidator implements JwtValidator {
             } catch (Exception e) {
                 log.error("Failed to fetch role mapping from MDMS for tenant {}. Falling back to config.", tenantId, e);
             }
-            log.info("Falling back to configured role mapping for provider: {} and tenant: {}", provider.getId(),
-                    tenantId);
-            return provider.getRoleMapping() != null ? provider.getRoleMapping() : Collections.emptyMap();
+            log.info("Falling back to configured role mapping for provider: {} and tenant: {}", 
+                    provider.getId(), tenantId);
+            return getProviderRoleMapping(provider);
         });
+    }
+
+    /**
+     * Gets role mapping from provider configuration.
+     *
+     * @param provider the OIDC provider configuration
+     * @return role mapping map, or empty map if not configured
+     */
+    private Map<String, String> getProviderRoleMapping(AuthProperties.Provider provider) {
+        return provider.getRoleMapping() != null ? provider.getRoleMapping() : Collections.emptyMap();
     }
 
     /**
@@ -266,44 +294,93 @@ public class IDPJwtValidator implements JwtValidator {
         log.debug("Fetching SSO role mapping from MDMS for tenant {}: {}", tenantId, url);
         JsonNode response = restTemplate.postForObject(url, mdmsCriteriaReq, JsonNode.class);
 
-        if (response != null && response.has("MdmsRes")) {
-            JsonNode mdmsRes = response.get("MdmsRes");
-            if (mdmsRes.has(ssoRoleModuleName)) {
-                JsonNode moduleNode = mdmsRes.get(ssoRoleModuleName);
-                if (moduleNode.has(ssoRoleMasterName)) {
-                    JsonNode masterNode = moduleNode.get(ssoRoleMasterName);
-                    if (masterNode.isArray() && masterNode.size() > 0) {
-                        // Assuming the first entry contains the mapping or it's a list of mappings
-                        // Based on the user's previous context, it seems to be an array of objects
-                        Map<String, String> mapping = new HashMap<>();
-                        for (JsonNode entry : masterNode) {
-                            if (entry.has("ssoRole") && (entry.has("digitRoles") || entry.has("digitRole"))) {
-                                String ssoRole = entry.get("ssoRole").asText();
-                                JsonNode digitRolesNode = entry.has("digitRoles") ? entry.get("digitRoles")
-                                        : entry.get("digitRole");
-                                String digitRolesStr;
-                                if (digitRolesNode.isArray()) {
-                                    StringBuilder sb = new StringBuilder();
-                                    for (JsonNode roleNode : digitRolesNode) {
-                                        if (sb.length() > 0)
-                                            sb.append(",");
-                                        sb.append(roleNode.asText());
-                                    }
-                                    digitRolesStr = sb.toString();
-                                } else {
-                                    digitRolesStr = digitRolesNode.asText();
-                                }
-                                mapping.merge(ssoRole, digitRolesStr, (oldVal, newVal) -> oldVal + "," + newVal);
-                            }
-                        }
-                        return mapping;
-                    }
+        // Early return if response is invalid
+        if (response == null || !response.has("MdmsRes")) {
+            log.warn("No SSO role mapping found in MDMS for tenant {}: invalid response", tenantId);
+            return Collections.emptyMap();
+        }
+
+        JsonNode mdmsRes = response.get("MdmsRes");
+        if (!mdmsRes.has(ssoRoleModuleName)) {
+            log.warn("No SSO role mapping found in MDMS for tenant {}: module not found", tenantId);
+            return Collections.emptyMap();
+        }
+
+        JsonNode moduleNode = mdmsRes.get(ssoRoleModuleName);
+        if (!moduleNode.has(ssoRoleMasterName)) {
+            log.warn("No SSO role mapping found in MDMS for tenant {}: master not found", tenantId);
+            return Collections.emptyMap();
+        }
+
+        JsonNode masterNode = moduleNode.get(ssoRoleMasterName);
+        if (!masterNode.isArray() || masterNode.size() == 0) {
+            log.warn("No SSO role mapping found in MDMS for tenant {}: empty master array", tenantId);
+            return Collections.emptyMap();
+        }
+
+        // Process role mappings from master node array
+        Map<String, String> mapping = new HashMap<>();
+        for (JsonNode entry : masterNode) {
+            if (isValidRoleMappingEntry(entry)) {
+                String ssoRole = entry.get("ssoRole").asText();
+                String digitRolesStr = extractDigitRoles(entry);
+                if (ssoRole != null && digitRolesStr != null) {
+                    mapping.merge(ssoRole, digitRolesStr, (oldVal, newVal) -> oldVal + "," + newVal);
                 }
             }
         }
 
-        log.warn("No SSO role mapping found in MDMS for tenant {}", tenantId);
-        return Collections.emptyMap();
+        if (mapping.isEmpty()) {
+            log.warn("No SSO role mapping found in MDMS for tenant {}", tenantId);
+        }
+        return mapping;
+    }
+
+    /**
+     * Checks if a JSON entry contains valid role mapping data.
+     *
+     * @param entry the JSON node entry to validate
+     * @return true if entry has ssoRole and either digitRoles or digitRole
+     */
+    private boolean isValidRoleMappingEntry(JsonNode entry) {
+        return entry != null 
+                && entry.has("ssoRole") 
+                && (entry.has("digitRoles") || entry.has("digitRole"));
+    }
+
+    /**
+     * Extracts digit roles string from a role mapping entry.
+     * Handles both array and string formats.
+     *
+     * @param entry the JSON node entry containing role mapping
+     * @return comma-separated string of digit roles, or null if not found
+     */
+    private String extractDigitRoles(JsonNode entry) {
+        JsonNode digitRolesNode = entry.has("digitRoles") 
+                ? entry.get("digitRoles") 
+                : entry.get("digitRole");
+        
+        if (digitRolesNode == null) {
+            return null;
+        }
+
+        return digitRolesNode.isArray()
+                ? extractRolesFromArray(digitRolesNode)
+                : digitRolesNode.asText();
+    }
+
+    /**
+     * Extracts roles from a JSON array and returns as comma-separated string.
+     *
+     * @param rolesArray the JSON array node containing roles
+     * @return comma-separated string of roles
+     */
+    private String extractRolesFromArray(JsonNode rolesArray) {
+        return java.util.stream.StreamSupport.stream(
+                java.util.Spliterators.spliteratorUnknownSize(rolesArray.iterator(), 
+                        java.util.Spliterator.ORDERED), false)
+                .map(JsonNode::asText)
+                .collect(Collectors.joining(","));
     }
 
     /**
@@ -317,25 +394,50 @@ public class IDPJwtValidator implements JwtValidator {
      */
     private String extractBoundary(AuthProperties.Provider provider, Map<String, Object> claims) {
         String roleClaimKey = provider.getRoleClaimKey();
-        Map<String, String> roleProjectMapping = provider.getRoleBoundaryMapping();
         Object rolesObject = claims.get(roleClaimKey);
-        String boundaryCode = null;
-        if (roleProjectMapping != null && rolesObject instanceof List) {
-            List<String> roles = (List<String>) rolesObject;
-            boundaryCode = roles.stream().map(roleProjectMapping::get).filter(Objects::nonNull).findFirst()
-                    .orElse(null);
-        }
+        
+        // Try to get boundary from role mapping
+        String boundaryCode = extractBoundaryFromRoles(provider, rolesObject);
+        
+        // Fallback to provider default
         if (boundaryCode == null) {
             boundaryCode = provider.getDefaultBoundaryCode();
         }
+        
+        // Fallback to global default
         if (boundaryCode == null) {
             boundaryCode = authProperties.getDefaultBoundaryCode();
         }
+        
+        // Throw exception if still no boundary found
         if (boundaryCode == null) {
-            log.error("No project mapping found for roles {}", rolesObject);
+            log.error("No boundary mapping found for roles {}", rolesObject);
             throw new OAuth2Exception("No boundaryCode mapping found for roles " + rolesObject);
         }
+        
         return boundaryCode;
+    }
+
+    /**
+     * Extracts boundary code from roles using role-to-boundary mapping.
+     *
+     * @param provider the OIDC provider configuration
+     * @param rolesObject the roles object from JWT claims
+     * @return boundary code if found, null otherwise
+     */
+    private String extractBoundaryFromRoles(AuthProperties.Provider provider, Object rolesObject) {
+        Map<String, String> roleProjectMapping = provider.getRoleBoundaryMapping();
+        if (roleProjectMapping == null || !(rolesObject instanceof List)) {
+            return null;
+        }
+        
+        @SuppressWarnings("unchecked")
+        List<String> roles = (List<String>) rolesObject;
+        return roles.stream()
+                .map(roleProjectMapping::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -382,29 +484,49 @@ public class IDPJwtValidator implements JwtValidator {
      */
     private JwtDecoder getDecoder(AuthProperties.Provider provider) {
         return decoders.computeIfAbsent(provider.getId(), id -> {
-            if (provider.getJwkSetUri() == null || provider.getJwkSetUri().trim().isEmpty()) {
-                throw new CustomException("OIDC_JWKS_MISSING",
-                        "jwk-set-uri missing for providerId=" + provider.getId());
-            }
-            if (provider.getIssuerUri() == null || provider.getIssuerUri().trim().isEmpty()) {
-                throw new CustomException("OIDC_ISSUER_MISSING", "issuer-uri missing for providerId=" + provider.getId());
-            }
-
+            validateProviderConfiguration(provider);
             NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(provider.getJwkSetUri().trim()).build();
-
-            // Always validate timestamps + issuer. Validate audience when configured.
-            OAuth2TokenValidator<Jwt> timestampValidator = JwtValidators.createDefault();
-            OAuth2TokenValidator<Jwt> issuerValidator = new MultiIssuerValidator(getAllowedIssuers(provider));
-            if (provider.getAudiences() != null && !provider.getAudiences().isEmpty()) {
-                OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(provider.getAudiences());
-                decoder.setJwtValidator(new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
-                        timestampValidator, issuerValidator, audienceValidator));
-            } else {
-                decoder.setJwtValidator(new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
-                        timestampValidator, issuerValidator));
-            }
+            decoder.setJwtValidator(createJwtValidator(provider));
             return decoder;
         });
+    }
+
+    /**
+     * Validates that provider has required configuration for JWT decoding.
+     *
+     * @param provider the provider to validate
+     * @throws CustomException if required configuration is missing
+     */
+    private void validateProviderConfiguration(AuthProperties.Provider provider) {
+        if (provider.getJwkSetUri() == null || provider.getJwkSetUri().trim().isEmpty()) {
+            throw new CustomException("OIDC_JWKS_MISSING",
+                    "jwk-set-uri missing for providerId=" + provider.getId());
+        }
+        if (provider.getIssuerUri() == null || provider.getIssuerUri().trim().isEmpty()) {
+            throw new CustomException("OIDC_ISSUER_MISSING", 
+                    "issuer-uri missing for providerId=" + provider.getId());
+        }
+    }
+
+    /**
+     * Creates JWT validator with timestamp, issuer, and optionally audience validation.
+     *
+     * @param provider the OIDC provider configuration
+     * @return configured OAuth2TokenValidator
+     */
+    private OAuth2TokenValidator<Jwt> createJwtValidator(AuthProperties.Provider provider) {
+        OAuth2TokenValidator<Jwt> timestampValidator = JwtValidators.createDefault();
+        OAuth2TokenValidator<Jwt> issuerValidator = new MultiIssuerValidator(getAllowedIssuers(provider));
+        
+        List<OAuth2TokenValidator<Jwt>> validators = new java.util.ArrayList<>();
+        validators.add(timestampValidator);
+        validators.add(issuerValidator);
+        
+        if (provider.getAudiences() != null && !provider.getAudiences().isEmpty()) {
+            validators.add(new AudienceValidator(provider.getAudiences()));
+        }
+        
+        return new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(validators);
     }
 
     /**
@@ -435,7 +557,21 @@ public class IDPJwtValidator implements JwtValidator {
             return issuerMatches.get(0);
         }
 
-        // Disambiguate by audience when multiple providers share the same issuer (same tenant).
+        // Disambiguate by audience when multiple providers share the same issuer
+        return resolveProviderByAudience(issuerRaw, issuerMatches, tokenAudiences);
+    }
+
+    /**
+     * Resolves provider from multiple issuer matches using audience disambiguation.
+     *
+     * @param issuerRaw the raw issuer claim for error messages
+     * @param issuerMatches list of providers matching the issuer
+     * @param tokenAudiences the audience claims from the token
+     * @return the matching provider configuration
+     * @throws CustomException if disambiguation fails
+     */
+    private AuthProperties.Provider resolveProviderByAudience(String issuerRaw, 
+            List<AuthProperties.Provider> issuerMatches, List<String> tokenAudiences) {
         List<String> aud = tokenAudiences == null ? Collections.emptyList() : tokenAudiences;
         if (aud.isEmpty()) {
             throw new CustomException("OIDC_PROVIDER_AMBIGUOUS",
@@ -455,7 +591,9 @@ public class IDPJwtValidator implements JwtValidator {
                     "No OIDC provider matches issuer=" + issuerRaw + " and audience=" + aud);
         }
 
-        String matchedIds = audMatches.stream().map(AuthProperties.Provider::getId).collect(Collectors.joining(","));
+        String matchedIds = audMatches.stream()
+                .map(AuthProperties.Provider::getId)
+                .collect(Collectors.joining(","));
         throw new CustomException("OIDC_PROVIDER_AMBIGUOUS",
                 "Multiple OIDC providers match issuer=" + issuerRaw + " and audience=" + aud + " providers=" + matchedIds);
     }
@@ -485,21 +623,33 @@ public class IDPJwtValidator implements JwtValidator {
      */
     private Set<String> getAllowedIssuers(AuthProperties.Provider provider) {
         Set<String> issuers = new HashSet<>();
-        if (provider.getIssuerUri() != null) {
-            String norm = normalizeIssuer(provider.getIssuerUri());
-            if (norm != null && !norm.isEmpty()) {
-                issuers.add(norm);
-            }
-        }
+        
+        // Add primary issuer URI
+        addNormalizedIssuer(issuers, provider.getIssuerUri());
+        
+        // Add issuer aliases
         if (provider.getIssuerAliases() != null) {
-            for (String alias : provider.getIssuerAliases()) {
-                String norm = normalizeIssuer(alias);
-                if (norm != null && !norm.isEmpty()) {
-                    issuers.add(norm);
-                }
-            }
+            provider.getIssuerAliases().stream()
+                    .forEach(alias -> addNormalizedIssuer(issuers, alias));
         }
+        
         return issuers;
+    }
+
+    /**
+     * Normalizes and adds an issuer URI to the set if it's valid.
+     *
+     * @param issuers the set to add to
+     * @param issuerUri the issuer URI to normalize and add
+     */
+    private void addNormalizedIssuer(Set<String> issuers, String issuerUri) {
+        if (issuerUri == null) {
+            return;
+        }
+        String normalized = normalizeIssuer(issuerUri);
+        if (normalized != null && !normalized.isEmpty()) {
+            issuers.add(normalized);
+        }
     }
 
     /**
@@ -513,11 +663,7 @@ public class IDPJwtValidator implements JwtValidator {
         if (issuer == null) {
             return null;
         }
-        String s = issuer.trim();
-        while (s.endsWith("/")) {
-            s = s.substring(0, s.length() - 1);
-        }
-        return s;
+        return issuer.trim().replaceAll("/+$", "");
     }
 
     /**
@@ -529,16 +675,18 @@ public class IDPJwtValidator implements JwtValidator {
      * @return true if there is at least one common audience, false otherwise
      */
     private boolean intersects(List<String> providerAudiences, List<String> tokenAudiences) {
-        if (providerAudiences == null || providerAudiences.isEmpty() || tokenAudiences == null || tokenAudiences.isEmpty()) {
+        if (providerAudiences == null || providerAudiences.isEmpty() 
+                || tokenAudiences == null || tokenAudiences.isEmpty()) {
             return false;
         }
-        Set<String> tokenSet = tokenAudiences.stream().filter(Objects::nonNull).collect(Collectors.toSet());
-        for (String a : providerAudiences) {
-            if (a != null && tokenSet.contains(a)) {
-                return true;
-            }
-        }
-        return false;
+        
+        Set<String> tokenSet = tokenAudiences.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        
+        return providerAudiences.stream()
+                .filter(Objects::nonNull)
+                .anyMatch(tokenSet::contains);
     }
 
     private static class MultiIssuerValidator implements OAuth2TokenValidator<Jwt> {
@@ -555,13 +703,22 @@ public class IDPJwtValidator implements JwtValidator {
 
         @Override
         public OAuth2TokenValidatorResult validate(Jwt token) {
-            String iss = token.getIssuer() != null ? token.getIssuer().toString() : null;
-            String normalized = iss == null ? null : iss.trim().replaceAll("/+$", "");
-            if (normalized != null && allowedIssuersNormalized.contains(normalized)) {
+            if (token.getIssuer() == null) {
+                return createFailureResult("Missing issuer (iss) in token");
+            }
+            
+            String iss = token.getIssuer().toString();
+            String normalized = iss.trim().replaceAll("/+$", "");
+            
+            if (allowedIssuersNormalized.contains(normalized)) {
                 return OAuth2TokenValidatorResult.success();
             }
-            OAuth2Error error = new OAuth2Error("invalid_token",
-                    "Invalid issuer (iss). Expected one of " + allowedIssuersNormalized + " but was " + iss, null);
+            
+            return createFailureResult("Invalid issuer (iss). Expected one of " + allowedIssuersNormalized + " but was " + iss);
+        }
+
+        private OAuth2TokenValidatorResult createFailureResult(String message) {
+            OAuth2Error error = new OAuth2Error("invalid_token", message, null);
             return OAuth2TokenValidatorResult.failure(error);
         }
     }
@@ -588,15 +745,23 @@ public class IDPJwtValidator implements JwtValidator {
         @Override
         public OAuth2TokenValidatorResult validate(Jwt token) {
             List<String> aud = token.getAudience();
-            if (aud != null) {
-                for (String a : aud) {
-                    if (allowedAudiences.contains(a)) {
-                        return OAuth2TokenValidatorResult.success();
-                    }
-                }
+            if (aud == null || aud.isEmpty()) {
+                return createFailureResult("Missing audience (aud) in token");
             }
-            OAuth2Error error = new OAuth2Error("invalid_token",
-                    "Invalid audience (aud). Expected one of " + allowedAudiences + " but was " + aud, null);
+            
+            boolean hasMatch = aud.stream()
+                    .filter(Objects::nonNull)
+                    .anyMatch(allowedAudiences::contains);
+            
+            if (hasMatch) {
+                return OAuth2TokenValidatorResult.success();
+            }
+            
+            return createFailureResult("Invalid audience (aud). Expected one of " + allowedAudiences + " but was " + aud);
+        }
+
+        private OAuth2TokenValidatorResult createFailureResult(String message) {
+            OAuth2Error error = new OAuth2Error("invalid_token", message, null);
             return OAuth2TokenValidatorResult.failure(error);
         }
     }
