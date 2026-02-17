@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"fromDate":{"type":"integer"},"toDate":{"type":"integer"},"periodCycle":{"type":"string"},"service":{"type":"string"},"code":{"type":"string"},"financialYear":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for TaxPeriod","x-ref-schema":[]}

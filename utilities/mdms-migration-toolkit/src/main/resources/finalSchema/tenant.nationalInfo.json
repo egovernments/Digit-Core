@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"stateCode":{"type":"string"},"stateName":{"type":"string"},"code":{"type":"string"},"name":{"type":"string"},"active":{"type":"boolean"},"module":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for nationalInfo","x-ref-schema":[]}

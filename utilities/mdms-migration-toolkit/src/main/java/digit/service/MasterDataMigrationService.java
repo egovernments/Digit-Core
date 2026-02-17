@@ -1,6 +1,13 @@
 package digit.service;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,6 +54,34 @@ public class MasterDataMigrationService {
     public String schemaFilesDirectory;
 
     /**
+     * Writes a record to a file with timestamp and schema information
+     */
+    private void writeRecordToFile(String fileName, String schema, String recordData, String errorMessage) {
+        try {
+            // Create migration-errors directory if it doesn't exist
+            Files.createDirectories(Paths.get("migration-errors"));
+
+            String filePath = "migration-errors/" + fileName;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = sdf.format(new Date());
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+                writer.write("========================================\n");
+                writer.write("Timestamp: " + timestamp + "\n");
+                writer.write("Schema: " + schema + "\n");
+                if (errorMessage != null && !errorMessage.isEmpty()) {
+                    writer.write("Error: " + errorMessage + "\n");
+                }
+                writer.write("Record Data:\n");
+                writer.write(recordData + "\n");
+                writer.write("========================================\n\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to write to file " + fileName + ": " + e.getMessage());
+        }
+    }
+
+    /**
      * This methods accepts master data migration request and triggers
      * creation of MDMS objects
      * @param masterDataMigrationRequest
@@ -71,6 +106,12 @@ public class MasterDataMigrationService {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger duplicateCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
+
+        // Create file names with timestamp for this migration run
+        SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String timestamp = fileDateFormat.format(new Date());
+        String duplicatesFileName = "duplicates_" + tenantId + "_" + timestamp + ".txt";
+        String errorsFileName = "errors_" + tenantId + "_" + timestamp + ".txt";
 
         // Check if master data is present for the incoming tenantId.
         if (tenantMap.containsKey(tenantId)) {
@@ -116,17 +157,17 @@ public class MasterDataMigrationService {
                             // Check if it's a duplicate record error
                             if (e.getResponseBodyAsString().contains("DUPLICATE_RECORD")) {
                                 duplicateCount.incrementAndGet();
-                                System.out.println("WARN: Duplicate record found for schema: " + module + DOT_SEPARATOR + master);
-                                System.out.println("WARN: Problematic record data: " + masterDatum.toString());
-                                System.out.println("WARN: Skipping this record");
+                                writeRecordToFile(duplicatesFileName, module + DOT_SEPARATOR + master,
+                                                masterDatum.toString(), "DUPLICATE_RECORD");
                             } else {
                                 errorCount.incrementAndGet();
-                                System.err.println("ERROR: Failed to migrate record for schema: " + module + DOT_SEPARATOR + master + " - " + e.getMessage());
-                                System.err.println("ERROR: Record data: " + masterDatum.toString());
+                                writeRecordToFile(errorsFileName, module + DOT_SEPARATOR + master,
+                                                masterDatum.toString(), e.getMessage());
                             }
                         } catch (Exception e) {
                             errorCount.incrementAndGet();
-                            System.err.println("ERROR: Unexpected error migrating record for schema: " + module + DOT_SEPARATOR + master + " - " + e.getMessage());
+                            writeRecordToFile(errorsFileName, module + DOT_SEPARATOR + master,
+                                            "Record data not available", "Unexpected error: " + e.getMessage());
                         }
                     }
                 });
@@ -138,6 +179,13 @@ public class MasterDataMigrationService {
             System.out.println("Successfully migrated: " + successCount.get());
             System.out.println("Duplicates skipped: " + duplicateCount.get());
             System.out.println("Errors encountered: " + errorCount.get());
+            System.out.println("");
+            if (duplicateCount.get() > 0) {
+                System.out.println("Duplicate records written to: migration-errors/" + duplicatesFileName);
+            }
+            if (errorCount.get() > 0) {
+                System.out.println("Error records written to: migration-errors/" + errorsFileName);
+            }
             System.out.println("=========================================");
         } else {
             throw new CustomException(MASTER_DATA_MIGRATION_ERROR_CODE, MASTER_DATA_MIGRATION_TENANTID_DOES_NOT_EXIST_ERROR_MESSAGE + masterDataMigrationRequest.getMasterDataMigrationCriteria().getTenantId());

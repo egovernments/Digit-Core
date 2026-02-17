@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"instrumenttype":{"type":"string"},"glcode":{"type":"string"},"validFrom":{"type":"integer"},"validTo":{"type":"integer"}},"required":["instrumenttype"],"x-unique":["instrumenttype"],"title":"Generated schema for InstrumentGLcodeMapping","x-ref-schema":[]}

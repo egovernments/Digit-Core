@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"rate":{"type":"integer"},"minAmount":{"type":"null"},"flatAmount":{"type":"null"},"maxAmount":{"type":"null"},"fromFY":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for WaterCess","x-ref-schema":[]}

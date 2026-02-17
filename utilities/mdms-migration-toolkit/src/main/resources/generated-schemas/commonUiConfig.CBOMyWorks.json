@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"searchCriteria":{"type":"array","items":{"type":"string"}},"acceptCode":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for CBOMyWorks","x-ref-schema":[]}

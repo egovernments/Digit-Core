@@ -2,7 +2,13 @@ package digit.service;
 
 import static digit.constants.MDMSMigrationToolkitConstants.DOT_SEPARATOR;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +53,30 @@ public class SchemaDefinitionMigrationService {
 
     private Map<String, JsonNode> schemaCodeToSchemaJsonMap;
 
+    /**
+     * Writes schema creation error to a file
+     */
+    private void writeSchemaErrorToFile(String fileName, String schemaCode, String errorMessage) {
+        try {
+            // Create migration-errors directory if it doesn't exist
+            Files.createDirectories(Paths.get("migration-errors"));
+
+            String filePath = "migration-errors/" + fileName;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = sdf.format(new Date());
+
+            try (BufferedWriter writer = new BufferedWriter(new java.io.FileWriter(filePath, true))) {
+                writer.write("========================================\n");
+                writer.write("Timestamp: " + timestamp + "\n");
+                writer.write("Schema Code: " + schemaCode + "\n");
+                writer.write("Error: " + errorMessage + "\n");
+                writer.write("========================================\n\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to write schema error to file " + fileName + ": " + e.getMessage());
+        }
+    }
+
     public void beginMigration(SchemaMigrationRequest schemaMigrationRequest) {
         // Fetch schema code to schema definition map
         Map<String, JsonNode> schemaCodeVsSchemaDefinitionMap = fileReader.readFiles(schemaFilesDirectory);
@@ -65,15 +95,47 @@ public class SchemaDefinitionMigrationService {
             schemaDefinitionPOJOs.add(schemaDefinition);
         });
 
-        schemaDefinitionPOJOs.forEach(schemaDefinition -> {
+        // Counters for tracking schema creation
+        int totalSchemas = schemaDefinitionPOJOs.size();
+        int successCount = 0;
+        int errorCount = 0;
+
+        // Create file name with timestamp for schema creation errors
+        SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String timestamp = fileDateFormat.format(new Date());
+        String tenantId = schemaMigrationRequest.getSchemaMigrationCriteria().getTenantId();
+        String schemaErrorsFileName = "schema_creation_errors_" + tenantId + "_" + timestamp + ".txt";
+
+        for (SchemaDefinition schemaDefinition : schemaDefinitionPOJOs) {
             SchemaDefinitionRequest schemaDefinitionRequest = SchemaDefinitionRequest.builder()
                     .requestInfo(schemaMigrationRequest.getRequestInfo())
                     .schemaDefinition(schemaDefinition)
                     .build();
 
-            // Send it to kafka/make API calls to MDMS service schema APIs
-            serviceRequestRepository.fetchResult(new StringBuilder("http://localhost:8094/mdms-v2/schema/v1/_create"), schemaDefinitionRequest);
-        });
+            try {
+                System.out.println("Creating schema for: " + schemaDefinition.getCode());
+                // Send it to kafka/make API calls to MDMS service schema APIs
+                serviceRequestRepository.fetchResult(new StringBuilder("http://localhost:8094/mdms-v2/schema/v1/_create"), schemaDefinitionRequest);
+                System.out.println("Successfully created schema: " + schemaDefinition.getCode());
+                successCount++;
+            } catch (Exception e) {
+                System.err.println("FAILED to create schema: " + schemaDefinition.getCode());
+                System.err.println("Error: " + e.getMessage());
+                writeSchemaErrorToFile(schemaErrorsFileName, schemaDefinition.getCode(), e.getMessage());
+                errorCount++;
+                // DO NOT throw exception - continue with next schema
+            }
+        }
+
+        // Print summary
+        System.out.println("===== Schema Creation Summary =====");
+        System.out.println("Total schemas: " + totalSchemas);
+        System.out.println("Successfully created: " + successCount);
+        System.out.println("Failed: " + errorCount);
+        if (errorCount > 0) {
+            System.out.println("Schema creation errors written to: migration-errors/" + schemaErrorsFileName);
+        }
+        System.out.println("===================================");
     }
 
     /**

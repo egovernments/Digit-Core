@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"cityName":{"type":"string"},"locale":{"type":"string"},"tenantId":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for CityLocaleMasterData","x-ref-schema":[]}

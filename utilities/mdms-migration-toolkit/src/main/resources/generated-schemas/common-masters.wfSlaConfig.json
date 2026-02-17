@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"slotPercentage":{"type":"integer"},"positiveSlabColor":{"type":"string"},"negativeSlabColor":{"type":"string"},"middleSlabColor":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for wfSlaConfig","x-ref-schema":[]}

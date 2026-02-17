@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"locale":{"type":"string"},"cities":{"type":"array","items":{"type":"string"}}},"required":["code"],"x-unique":["code"],"title":"Generated schema for CityNames","x-ref-schema":[]}

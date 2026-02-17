@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"name":{"type":"string"},"code":{"type":"string"},"usageCategorySubMinor":{"type":"string"},"active":{"type":"boolean"},"fromFY":{"type":"string"}},"required":["code"],"x-unique":["code"],"title":"Generated schema for UsageCategoryDetail","x-ref-schema":[]}
