@@ -93,16 +93,22 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
      */
     @Override
     public Authentication authenticate(Authentication authentication) {
+        try {
+            String token = (String) authentication.getCredentials();
+            String authToken = null;
 
-        String token = (String) authentication.getCredentials();
-        String authToken = null;
+            // Extract auth token from JwtExchangeAuthenticationToken if available
+            if (authentication instanceof JwtExchangeAuthenticationToken) {
+                authToken = ((JwtExchangeAuthenticationToken) authentication).getAuthToken();
+            }
 
-        // Extract auth token from JwtExchangeAuthenticationToken if available
-        if (authentication instanceof JwtExchangeAuthenticationToken) {
-            authToken = ((JwtExchangeAuthenticationToken) authentication).getAuthToken();
-        }
-
-        OidcValidatedJwt jwt = jwtValidationService.validate(token);
+            OidcValidatedJwt jwt;
+            try {
+                jwt = jwtValidationService.validate(token);
+            } catch (IllegalArgumentException e) {
+                log.error("JWT validation failed: {}", e.getMessage());
+                throw new OAuth2Exception("Invalid JWT token: " + e.getMessage());
+            }
 
         String tenantId = jwt.getTenantId();
         String userType = jwt.getUserType();
@@ -205,11 +211,15 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 throw new OAuth2Exception("Account locked");
         }
 
-        List<GrantedAuthority> grantedAuths = new ArrayList<>();
-        grantedAuths.add(new SimpleGrantedAuthority(provider.getRolePrefix() + user.getType()));
-        final SecureUser secureUser = new SecureUser(getUser(user));
-        userService.resetFailedLoginAttempts(user);
-        return new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
+            List<GrantedAuthority> grantedAuths = new ArrayList<>();
+            grantedAuths.add(new SimpleGrantedAuthority(provider.getRolePrefix() + user.getType()));
+            final SecureUser secureUser = new SecureUser(getUser(user));
+            userService.resetFailedLoginAttempts(user);
+            return new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
+        } catch (Exception e) {
+            log.error("Unexpected error during JWT exchange authentication", e);
+            throw new OAuth2Exception("Authentication failed: " + e.getMessage(), e);
+        }
     }
 
     /**

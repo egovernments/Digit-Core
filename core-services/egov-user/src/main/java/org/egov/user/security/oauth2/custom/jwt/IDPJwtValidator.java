@@ -126,40 +126,45 @@ public class IDPJwtValidator implements JwtValidator {
      */
     @Override
     public OidcValidatedJwt validate(String token) {
-        Map<String, Object> claims = null;
-        Date expirationTime = null;
-        Date issueTime = null;
-        Set<String> roles = new HashSet<>();
-        String boundary = null;
-        String issuer = extractIssuerUnverified(token);
-        List<String> audiences = extractAudiencesUnverified(token);
-        AuthProperties.Provider provider = resolveProvider(issuer, audiences);
-        JwtDecoder decoder = getDecoder(provider);
-        Jwt jwt = null;
         try {
-            jwt = decoder.decode(token);
+            Map<String, Object> claims = null;
+            Date expirationTime = null;
+            Date issueTime = null;
+            Set<String> roles = new HashSet<>();
+            String boundary = null;
+            String issuer = extractIssuerUnverified(token);
+            List<String> audiences = extractAudiencesUnverified(token);
+            AuthProperties.Provider provider = resolveProvider(issuer, audiences);
+            JwtDecoder decoder = getDecoder(provider);
+            Jwt jwt = null;
+            try {
+                jwt = decoder.decode(token);
+            } catch (Exception e) {
+                log.error("Error while decoding the jwt token", e);
+                throw new OAuth2Exception(e.getMessage(), e);
+            }
+            try {
+                claims = new HashMap<>(jwt.getClaims());
+                expirationTime = Date.from(jwt.getExpiresAt());
+                issueTime = Date.from(jwt.getIssuedAt());
+                String tenantId = firstNonEmpty((String) claims.get("tenantId"), (String) claims.get("tenant_id"),
+                        provider.getTenantId());
+                String userType = firstNonEmpty((String) claims.get("userType"), (String) claims.get("user_type"),
+                        provider.getUserType());
+                claims.put("tenantId", tenantId);
+                claims.put("userType", userType);
+                roles = extractRoles(provider, claims);
+                boundary = extractBoundary(provider, claims);
+            } catch (Exception e) {
+                log.error("Error while parsing the jwt token", e);
+                throw new OAuth2Exception("Invalid JWT token", e);
+            }
+            return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, provider.getProjectName(),
+                    provider.getHierarchyType(), boundary, token, provider.getId());
         } catch (Exception e) {
-            log.error("Error while decoding the jwt token", e);
-            throw new OAuth2Exception(e.getMessage(), e);
+            log.error("Unexpected error during JWT validation", e);
+            throw new OAuth2Exception("JWT validation failed: " + e.getMessage(), e);
         }
-        try {
-            claims = new HashMap<>(jwt.getClaims());
-            expirationTime = Date.from(jwt.getExpiresAt());
-            issueTime = Date.from(jwt.getIssuedAt());
-            String tenantId = firstNonEmpty((String) claims.get("tenantId"), (String) claims.get("tenant_id"),
-                    provider.getTenantId());
-            String userType = firstNonEmpty((String) claims.get("userType"), (String) claims.get("user_type"),
-                    provider.getUserType());
-            claims.put("tenantId", tenantId);
-            claims.put("userType", userType);
-            roles = extractRoles(provider, claims);
-            boundary = extractBoundary(provider, claims);
-        } catch (Exception e) {
-            log.error("Error while parsing the jwt token", e);
-            throw new OAuth2Exception("Invalid JWT token", e);
-        }
-        return new OidcValidatedJwt(roles, claims, expirationTime, issueTime, provider.getProjectName(),
-                provider.getHierarchyType(), boundary, token, provider.getId());
     }
 
     /**

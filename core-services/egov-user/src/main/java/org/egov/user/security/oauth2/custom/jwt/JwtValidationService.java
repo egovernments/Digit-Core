@@ -36,14 +36,18 @@ public class JwtValidationService {
      * @throws IllegalArgumentException if no validator supports the token's issuer
      */
     public OidcValidatedJwt validate(String token) {
-        String issuer = extractIssuer(token);
+        try {
+            String issuer = extractIssuer(token);
 
-        return validators.stream()
-                .filter(v -> v.supports(issuer))
-                .findFirst()
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Unsupported issuer: " + issuer))
-                .validate(token);
+            return validators.stream()
+                    .filter(v -> v.supports(issuer))
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new IllegalArgumentException("Unsupported issuer: " + issuer))
+                    .validate(token);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("JWT validation failed: " + e.getMessage(), e);
+        }
     }
 
     /**

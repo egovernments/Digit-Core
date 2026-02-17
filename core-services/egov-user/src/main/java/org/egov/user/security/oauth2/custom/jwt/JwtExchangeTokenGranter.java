@@ -47,22 +47,29 @@ public class JwtExchangeTokenGranter extends AbstractTokenGranter {
     @Override
     protected OAuth2Authentication getOAuth2Authentication(
             ClientDetails client, TokenRequest tokenRequest) {
+        try {
+            String jwt = tokenRequest.getRequestParameters().get("assertion");
+            // Accept both auth_token and access_token (Microsoft sends access_token)
+            String authToken = tokenRequest.getRequestParameters().get("auth_token");
+            if (authToken == null || authToken.isEmpty()) {
+                authToken = tokenRequest.getRequestParameters().get("access_token");
+            }
 
-        String jwt = tokenRequest.getRequestParameters().get("assertion");
-        // Accept both auth_token and access_token (Microsoft sends access_token)
-        String authToken = tokenRequest.getRequestParameters().get("auth_token");
-        if (authToken == null || authToken.isEmpty()) {
-            authToken = tokenRequest.getRequestParameters().get("access_token");
+            Authentication authRequest =
+                    new JwtExchangeAuthenticationToken(jwt, authToken);
+
+            Authentication authResult =
+                    authenticationManager.authenticate(authRequest);
+
+            OAuth2Request storedRequest = getRequestFactory().createOAuth2Request(client, tokenRequest);
+            return new OAuth2Authentication(storedRequest, authResult);
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            throw new org.springframework.security.oauth2.common.exceptions.InvalidGrantException(
+                    "JWT authentication failed: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new org.springframework.security.oauth2.common.exceptions.InvalidGrantException(
+                    "Error processing JWT exchange request: " + e.getMessage(), e);
         }
-
-        Authentication authRequest =
-                new JwtExchangeAuthenticationToken(jwt, authToken);
-
-        Authentication authResult =
-                authenticationManager.authenticate(authRequest);
-
-        OAuth2Request storedRequest = getRequestFactory().createOAuth2Request(client, tokenRequest);
-        return new OAuth2Authentication(storedRequest, authResult);
     }
 }
 
