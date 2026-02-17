@@ -1,0 +1,53 @@
+#name: "Sandbox"
+#description: "Use this form to raise a query, request, or report a bug in the sandbox environment."
+labels: ["sandbox"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to raise a query, request, or report a bug you've come across in our Sandbox. 
+        
+  - type: input
+    id: name
+    attributes:
+      label: Your Name
+      description: "Enter your full name."
+      placeholder: "e.g., John Doe"
+    validations:
+      required: true
+
+  - type: input
+    id: organization
+    attributes:
+      label: Organization
+      description: "Enter the name of the organization you represent"
+      placeholder: "e.g., XYZ"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: product_name
+    attributes:
+      label: Product
+      options: 
+        - Property Tax System
+        - Citizen Complaint Resolution System
+        - Local Business License Issuing System
+        - Fire Safety Certifications (NOC)
+        - Residential Construction Permit System
+        - Birth and Death Certificate Issuance
+        - mCollect
+        - Water and Sewerage Connections
+        - Finance
+        - Survey
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "Describe your issue/query. Submit one issue per form—do not combine multiple queries. Attach relevant screenshots with the URL clearly visible."
+      placeholder: "Add description here"
+    validations:
+      required: false

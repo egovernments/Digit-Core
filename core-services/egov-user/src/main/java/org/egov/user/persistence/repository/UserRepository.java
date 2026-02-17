@@ -222,7 +222,10 @@ public class UserRepository {
         else
             updateuserInputs.put("AccountLockedDate", user.getAccountLockedDate());
 
-        updateuserInputs.put("Active", user.getActive());
+        if (null != user.getActive())
+            updateuserInputs.put("Active", user.getActive());
+        else
+            updateuserInputs.put("Active", oldUser.getActive());
         updateuserInputs.put("AltContactNumber", user.getAltContactNumber());
 
         List<Enum> bloodGroupEnumValues = Arrays.asList(BloodGroup.values());

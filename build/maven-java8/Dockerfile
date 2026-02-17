@@ -13,7 +13,7 @@ RUN mvn -B -f pom.xml package -DskipTests
 
 
 # ─────────────── RUNTIME STAGE ───────────────
-FROM openjdk:8-jdk-alpine AS runtime
+FROM eclipse-temurin:8-jdk AS runtime
 WORKDIR /opt/egov
 
 # Pull in the fat JAR and our startup script
@@ -24,3 +24,4 @@ RUN chmod +x ./start.sh
 
 # Override any Alpine tini entrypoint and launch via shell
 ENTRYPOINT ["sh", "./start.sh"]
+
