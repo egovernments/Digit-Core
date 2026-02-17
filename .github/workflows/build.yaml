@@ -54,6 +54,7 @@ on:
           - "report"
           - "service-request"
           - "tenant"
+          - "tenant-management"
           - "user-otp"
           - "xstate-chatbot"
           - "zuul"
