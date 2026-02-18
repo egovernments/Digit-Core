@@ -1,5 +1,5 @@
 # ──────────────── BUILD STAGE ────────────────
-FROM maven:3.9.6-amazoncorretto-8-debian AS build
+FROM egovio/maven:3.9.6-amazoncorretto-8-debian AS build
 ARG WORK_DIR
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN mvn -B -f pom.xml package -DskipTests
 
 
 # ─────────────── RUNTIME STAGE ───────────────
-FROM eclipse-temurin:8-jdk AS runtime
+FROM egovio/eclipse-temurin:8-jdk AS runtime
 WORKDIR /opt/egov
 
 # Pull in the fat JAR and our startup script
