@@ -3,6 +3,7 @@ package com.example.gateway.constants;
 public class GatewayConstants {
 
     public static final String EMPTY_STRING = "";
+    public static final String AUTH_TOKEN = "auth-token";
     public static final String JSON_TYPE = "json";
     public static final String X_WWW_FORM_URLENCODED_TYPE = "application/x-www-form-urlencoded";
     public static final String FORM_DATA = "multipart/form-data";
