@@ -484,7 +484,9 @@ config:
     build:
       - work-dir: "core-services/default-data-handler"
         image-name: "default-data-handler"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven/Dockerfile"  
+      - work-dir: "core-services/default-data-handler/src/main/resources/db"
+        image-name: "default-data-handler-db"
 
   - name: "builds/Digit-Core/core-services/tenant-management"
     build:
