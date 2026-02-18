@@ -533,8 +533,3 @@ config:
         dockerfile: frontend/micro-ui/web/docker/Dockerfile
         image-name: digit-ui
         
-  - name: "builds/Digit-Core/core-services/default-data-handler"
-    build:
-      - work-dir: "core-services/default-data-handler"
-        image-name: "default-data-handler"
-        dockerfile: "build/maven/Dockerfile"
