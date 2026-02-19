@@ -55,7 +55,7 @@ public class RbacFilterHelper implements RewriteFunction<Map, Map> {
     @Override
     public Publisher<Map> apply(ServerWebExchange serverWebExchange, Map map) {
 
-        isIncomingURIInAuthorizedActionList(serverWebExchange,map);
+        isIncomingURIInAuthorizedActionList(serverWebExchange, map);
         return Mono.just(map);
     }
 
@@ -69,7 +69,7 @@ public class RbacFilterHelper implements RewriteFunction<Map, Map> {
             throw new RuntimeException("User information not found. Can't execute RBAC filter");
         }
 
-        Set<String> tenantIds = commonUtils.validateRequestAndSetRequestTenantId(exchange,map);
+        Set<String> tenantIds = commonUtils.validateRequestAndSetRequestTenantId(exchange, map);
 
         /*
          * Adding tenantId to header for tracer logging with correlation-id
@@ -82,21 +82,17 @@ public class RbacFilterHelper implements RewriteFunction<Map, Map> {
 
         exchange.getAttributes().put(CURRENT_REQUEST_TENANTID, String.join(",", tenantIds));
 
-        AuthorizationRequest request = AuthorizationRequest.builder()
-                .roles(new HashSet<>(user.getRoles()))
-                .uri(requestUri)
-                .tenantIds(tenantIds)
-                .build();
+        AuthorizationRequest request = AuthorizationRequest.builder().roles(new HashSet<>(user.getRoles())).uri(requestUri).tenantIds(tenantIds).build();
 
-        boolean isUriAuthorised = isUriAuthorized(request , exchange);
+        boolean isUriAuthorised = isUriAuthorized(request, exchange);
 
-        if(!isUriAuthorised) {
+        if (!isUriAuthorised) {
             throw new CustomException(HttpStatus.UNAUTHORIZED.toString(), "You are not authorized to access this resource");
         }
 
     }
 
-    private boolean isUriAuthorized(AuthorizationRequest authorizationRequest , ServerWebExchange exchange) {
+    private boolean isUriAuthorized(AuthorizationRequest authorizationRequest, ServerWebExchange exchange) {
 
         AuthorizationRequestWrapper authorizationRequestWrapper = new AuthorizationRequestWrapper(new RequestInfo(), authorizationRequest);
 
@@ -111,8 +107,7 @@ public class RbacFilterHelper implements RewriteFunction<Map, Map> {
 
         try {
 
-            ResponseEntity<Void> responseEntity = restTemplate.postForEntity(applicationProperties.getAuthorizationUrl(), httpEntity, Void
-                    .class);
+            ResponseEntity<Void> responseEntity = restTemplate.postForEntity(applicationProperties.getAuthorizationUrl(), httpEntity, Void.class);
 
             return responseEntity.getStatusCode().equals(HttpStatus.OK);
         } catch (HttpClientErrorException e) {

@@ -16,14 +16,14 @@ import static com.example.gateway.constants.GatewayConstants.SKIP_RBAC;
 
 @Slf4j
 @Component
-public class RbacPreCheckFilterHelper implements RewriteFunction<Map,Map> {
+public class RbacPreCheckFilterHelper implements RewriteFunction<Map, Map> {
 
 
     private List<String> anonymousEndpointsWhitelist;
 
     private ApplicationProperties applicationProperties;
 
-    public RbacPreCheckFilterHelper(List<String> anonymousEndpointsWhitelist , ApplicationProperties applicationProperties) {
+    public RbacPreCheckFilterHelper(List<String> anonymousEndpointsWhitelist, ApplicationProperties applicationProperties) {
         this.anonymousEndpointsWhitelist = anonymousEndpointsWhitelist;
         this.applicationProperties = applicationProperties;
     }
@@ -32,11 +32,10 @@ public class RbacPreCheckFilterHelper implements RewriteFunction<Map,Map> {
     public Publisher<Map> apply(ServerWebExchange serverWebExchange, Map map) {
         String endPointPath = serverWebExchange.getRequest().getPath().value();
 
-        if(applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath) || anonymousEndpointsWhitelist.contains(endPointPath)){
+        if (applicationProperties.getOpenEndpointsWhitelist().contains(endPointPath) || anonymousEndpointsWhitelist.contains(endPointPath)) {
             serverWebExchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, false);
             log.info(SKIP_RBAC, endPointPath);
-        }
-        else {
+        } else {
             serverWebExchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, true);
         }
         return Mono.just(map);
