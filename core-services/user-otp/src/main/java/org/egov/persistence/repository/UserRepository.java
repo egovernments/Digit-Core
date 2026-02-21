@@ -48,7 +48,7 @@ public class UserRepository {
             request = new UserSearchRequest(null, tenantId, userType, mobileNumber);
         } else {
         	tenantIdForHeader = tenantId.split("\\.")[0];
-            request = new UserSearchRequest(mobileNumber, tenantIdForHeader, userType, null);
+            request = new UserSearchRequest(null, tenantIdForHeader, userType, mobileNumber);
         }
         
         ObjectMapper mapper = new ObjectMapper();

@@ -18,7 +18,6 @@ import org.egov.web.notification.sms.models.Sms;
 @ToString
 public class SMSRequest {
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "MobileNumber should be 10 digit number")
     private String mobileNumber;
 
     @Size(max = 1000)

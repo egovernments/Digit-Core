@@ -12,11 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.regex.*;
-
 @Service
 @Controller
 @RequestMapping("/smsbounce/callback")
@@ -49,11 +44,6 @@ public class CallbackAPI {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Status value should be 0 to 11");
-        }
-        if(!(Pattern.matches("(^[6-9][0-9]{9}$)",mobilenumber))) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Mobile number should be of format: \n (i) 91(have 10 digits with starting number with 6 or 7 or 8 or 9) or \n (ii) have 10 digits starting with 6 or 7 or 8 or 9 or \n (iii) in the format +91-(start with 9 or 8 or 7 or 6 with 10 digits)");
         }
         Report report = new Report();
         report.setJobno(jobno);
