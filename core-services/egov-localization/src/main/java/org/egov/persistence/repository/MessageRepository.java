@@ -31,6 +31,30 @@ public class MessageRepository {
 				.map(org.egov.persistence.entity.Message::toDomain).collect(Collectors.toList());
 	}
 
+	/**
+	 * Lightweight query using interface projection — bypasses JPA persistence context.
+	 * Returns only the 5 fields needed for message resolution (code, locale, module, message, tenantId).
+	 */
+	public List<Message> findProjectedByTenantAndLocale(Tenant tenant, String locale) {
+		return messageJpaRepository.findProjected(tenant.getTenantId(), locale).stream()
+				.map(MessageRepository::projectionToDomain).collect(Collectors.toList());
+	}
+
+	/**
+	 * Module-scoped lightweight query — loads only messages for the specified modules.
+	 */
+	public List<Message> findProjectedByTenantLocaleAndModules(Tenant tenant, String locale, List<String> modules) {
+		return messageJpaRepository.findProjectedByModules(tenant.getTenantId(), locale, modules).stream()
+				.map(MessageRepository::projectionToDomain).collect(Collectors.toList());
+	}
+
+	private static Message projectionToDomain(MessageProjection p) {
+		final Tenant t = new Tenant(p.getTenantId());
+		final org.egov.domain.model.MessageIdentity identity = org.egov.domain.model.MessageIdentity.builder()
+				.code(p.getCode()).module(p.getModule()).locale(p.getLocale()).tenant(t).build();
+		return Message.builder().messageIdentity(identity).message(p.getMessage()).build();
+	}
+
 	public List<Message> findAllMessage(Tenant tenant, String locale, String module, String code) {
 		return messageJpaRepository.find(tenant.getTenantId(), locale, module, code).stream()
 				.map(org.egov.persistence.entity.Message::toDomain).collect(Collectors.toList());
