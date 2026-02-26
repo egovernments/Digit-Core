@@ -203,13 +203,15 @@ public class BusinessServiceRepositoryV1 {
                 // throw new CustomException("INVALID_MDMS_CONFIG","The master data is missing for businessService: "+code);
             }
 
+            boolean isAtStateLevel = multiStateInstanceUtil.isTenantIdStateLevel(tenantId);
+
             if(isStatelevel){
-                if(tenantId.equalsIgnoreCase(config.getStateLevelTenantId())){
+                if(isAtStateLevel){
                     filteredBusinessService.add(businessService);
                 }
             }
             else {
-                if(!tenantId.equalsIgnoreCase(config.getStateLevelTenantId())){
+                if(!isAtStateLevel){
                     filteredBusinessService.add(businessService);
                 }
             }

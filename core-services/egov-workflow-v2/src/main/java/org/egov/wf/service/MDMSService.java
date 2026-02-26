@@ -82,10 +82,25 @@ public class MDMSService {
 
 
     /**
-     * Calls MDMS service to fetch master data
+     * Calls MDMS service to fetch master data.
+     * Derives the state-level tenant from the provided tenantId
+     * so that workflows under any state root are supported.
      * @param requestInfo
+     * @param tenantId tenantId from the request (e.g. "pg.citya" or "statea.city1")
      * @return
      */
+    public Object mDMSCall(RequestInfo requestInfo, String tenantId){
+        String stateTenant = centralInstanceUtil.getStateLevelTenant(tenantId);
+        MdmsCriteriaReq mdmsCriteriaReq = getMDMSRequest(requestInfo, stateTenant);
+        Object result = serviceRequestRepository.fetchResult(getMdmsSearchUrl(), mdmsCriteriaReq);
+        return result;
+    }
+
+    /**
+     * @deprecated Use {@link #mDMSCall(RequestInfo, String)} with an explicit tenantId.
+     * Falls back to the configured state.level.tenant.id for backward compatibility.
+     */
+    @Deprecated
     public Object mDMSCall(RequestInfo requestInfo){
         MdmsCriteriaReq mdmsCriteriaReq = getMDMSRequest(requestInfo,workflowConfig.getStateLevelTenantId());
         Object result = serviceRequestRepository.fetchResult(getMdmsSearchUrl(), mdmsCriteriaReq);

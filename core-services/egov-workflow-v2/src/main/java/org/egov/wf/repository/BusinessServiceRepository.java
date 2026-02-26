@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.repository.querybuilder.BusinessServiceQueryBuilder;
 import org.egov.wf.repository.rowmapper.BusinessServiceRowMapper;
@@ -41,6 +42,9 @@ public class BusinessServiceRepository {
     
     @Autowired
     private  WorkflowUtil util;
+
+    @Autowired
+    private MultiStateInstanceUtil centralInstanceUtil;
 
 
     @Autowired
@@ -186,13 +190,19 @@ public class BusinessServiceRepository {
                // throw new CustomException("INVALID_MDMS_CONFIG","The master data is missing for businessService: "+code);
             }
 
+            // Derive whether this definition is at state level by checking if its
+            // tenantId equals its own root (e.g., "pg" == root of "pg", so it's state-level).
+            // This replaces the previous comparison against a hardcoded config value,
+            // allowing workflow definitions under any state root to be recognized.
+            boolean isAtStateLevel = centralInstanceUtil.isTenantIdStateLevel(tenantId);
+
             if(isStatelevel){
-                if(tenantId.equalsIgnoreCase(config.getStateLevelTenantId())){
+                if(isAtStateLevel){
                     filteredBusinessService.add(businessService);
                 }
             }
             else {
-                if(!tenantId.equalsIgnoreCase(config.getStateLevelTenantId())){
+                if(!isAtStateLevel){
                     filteredBusinessService.add(businessService);
                 }
             }
