@@ -428,7 +428,7 @@ config:
   - name: "builds/Digit-Core/accelerators/inbox"
     build:
       - work-dir: "accelerators/inbox"
-        image-name: "inbox"
+        image-name: "inbox-v2"
         dockerfile: "build/maven/Dockerfile"
 
   - name: "builds/Digit-Core/accelerators/gateway-kubernetes-discovery"
