@@ -4,23 +4,23 @@
 //import org.egov.user.domain.model.OtpValidationRequest;
 //import org.egov.user.web.contract.Otp;
 //import org.egov.user.web.contract.OtpValidateRequest;
-//import org.junit.Before;
-//import org.junit.Ignore;
-//import org.junit.Test;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Disabled;
+//import org.junit.jupiter.api.Test;
 //import org.junit.runner.RunWith;
-//import org.mockito.runners.MockitoJUnitRunner;
+//import org.mockito.junit.jupiter.MockitoExtension;
 //import org.springframework.http.HttpMethod;
 //import org.springframework.http.MediaType;
 //import org.springframework.test.web.client.MockRestServiceServer;
 //import org.springframework.web.client.RestTemplate;
 //
-//import static org.junit.Assert.assertEquals;
-//import static org.junit.Assert.assertFalse;
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertFalse;
 //import static org.springframework.test.web.client.ExpectedCount.once;
 //import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 //import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 //
-//@RunWith(MockitoJUnitRunner.class)
+//@ExtendWith(MockitoExtension.class)
 //public class OtpRepositoryTest {
 //
 //    private OtpRepository otpRepository;

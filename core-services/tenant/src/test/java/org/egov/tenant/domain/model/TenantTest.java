@@ -2,27 +2,28 @@ package org.egov.tenant.domain.model;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.egov.tenant.domain.exception.InvalidTenantDetailsException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TenantTest {
 
     @Mock
     City city;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(city.isValid()).thenReturn(true);
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_city_is_not_valid() {
         when(city.isValid()).thenReturn(false);
 
@@ -43,10 +44,12 @@ public class TenantTest {
             .helpLineNumber("helpLineNumber")
             .build();
         assertThat(tenant.isCityAbsent()).isFalse();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_city_is_not_present() {
         Tenant tenant = Tenant.builder()
             .code("tenantcode")
@@ -66,10 +69,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isCityAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_code_is_not_present() {
         Tenant tenant = Tenant.builder()
             .code(null)
@@ -89,10 +94,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isCodeAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_code_is_empty() {
         Tenant tenant = Tenant.builder()
             .code("")
@@ -112,10 +119,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isCodeAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_code_is_more_than_256_characters() {
         String code = RandomStringUtils.random(257);
 
@@ -137,10 +146,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isCodeOfInvalidLength()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_logoId_is_not_present() {
         Tenant tenant = Tenant.builder()
             .code("tenantcode")
@@ -160,10 +171,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isLogoIdAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_logoId_is_empty() {
         Tenant tenant = Tenant.builder()
             .code("tenantcode")
@@ -183,10 +196,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isLogoIdAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_imageId_is_not_present() {
         Tenant tenant = Tenant.builder()
             .code("tenantcode")
@@ -206,10 +221,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isImageIdAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_imageId_is_empty() {
         Tenant tenant = Tenant.builder()
             .code("tenantcode")
@@ -229,10 +246,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isImageIdAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_type_is_not_present() {
         Tenant tenant = Tenant.builder()
             .code("tenantcode")
@@ -252,10 +271,12 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isTypeAbsent()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 
-    @Test(expected = InvalidTenantDetailsException.class)
+    @Test
     public void test_should_throw_exception_when_type_is_invalid() {
         Tenant tenant = Tenant.builder()
             .code("tenantcode")
@@ -275,6 +296,8 @@ public class TenantTest {
             .build();
 
         assertThat(tenant.isTypeInvalid()).isTrue();
-        tenant.validate();
+        assertThrows(InvalidTenantDetailsException.class, () -> {
+            tenant.validate();
+        });
     }
 }

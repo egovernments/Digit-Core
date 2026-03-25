@@ -1,6 +1,8 @@
 package org.egov.user.web.controller;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -12,9 +14,7 @@ import org.egov.user.Resources;
 import org.egov.user.TestConfiguration;
 import org.egov.user.domain.model.NonLoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.service.UserService;
-import org.egov.user.security.CustomAuthenticationKeyGenerator;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,10 +23,9 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(PasswordController.class)
 @Import({TestConfiguration.class})
 public class PasswordControllerTest {
@@ -43,9 +42,6 @@ public class PasswordControllerTest {
     @MockBean
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    @MockBean
-    private CustomAuthenticationKeyGenerator authenticationKeyGenerator;
-    
     @MockBean
     private MultiStateInstanceUtil multiStateInstanceUtil;
 

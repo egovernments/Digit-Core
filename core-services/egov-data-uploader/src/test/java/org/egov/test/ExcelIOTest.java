@@ -3,23 +3,23 @@ package org.egov.test;
 import org.egov.dataupload.model.Document;
 import org.egov.dataupload.service.ExcelIO;
 import org.egov.dataupload.service.FileIO;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.TestCase.assertTrue;
-@Ignore
+import static org.junit.jupiter.api.Assertions.assertTrue;
+@Disabled
 public class ExcelIOTest {
 
     private FileIO excelIO;
     private Document document;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         excelIO = new ExcelIO();
 

@@ -2,17 +2,17 @@ package org.egov.tenant.persistence.rowmapper;
 
 import org.egov.tenant.domain.model.TenantType;
 import org.egov.tenant.persistence.entity.Tenant;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.ResultSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TenantRowMapperTest {
 
     @Mock
@@ -34,10 +34,10 @@ public class TenantRowMapperTest {
         when(resultSet.getString(Tenant.ADDRESS)).thenReturn("address");
         when(resultSet.getString(Tenant.CONTACTNUMBER)).thenReturn("contactNumber");
         when(resultSet.getString(Tenant.HELPLINENUMBER)).thenReturn("helpLineNumber");
-        
-        
-        
-        
+
+
+
+
         TenantRowMapper tenantRowMapper = new TenantRowMapper();
 
         Tenant tenant = tenantRowMapper.mapRow(resultSet, 1);

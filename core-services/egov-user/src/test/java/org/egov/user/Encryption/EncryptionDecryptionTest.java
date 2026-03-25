@@ -10,7 +10,7 @@
 //import org.egov.user.domain.model.enums.*;
 //import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 //import org.egov.user.web.contract.NonLoggedInUserUpdatePasswordRequest;
-//import org.junit.Test;
+//import org.junit.jupiter.api.Test;
 //import org.junit.runner.RunWith;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;
@@ -25,12 +25,12 @@
 //import java.text.SimpleDateFormat;
 //import java.util.*;
 //
-//import static org.junit.Assert.assertEquals;
-//import static org.junit.Assert.assertNotNull;
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertNotNull;
 //import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 //
 //
-//@RunWith(SpringRunner.class)
+//@ExtendWith(SpringExtension.class)
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 //public class EncryptionDecryptionTest {
 //

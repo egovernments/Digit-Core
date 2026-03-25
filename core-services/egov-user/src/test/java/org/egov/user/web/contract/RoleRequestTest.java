@@ -1,6 +1,6 @@
 package org.egov.user.web.contract;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
 import java.util.Date;

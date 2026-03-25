@@ -1,7 +1,7 @@
 package org.egov.tenant.web.controller;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -20,16 +20,16 @@ import org.egov.tenant.domain.model.Tenant;
 import org.egov.tenant.domain.service.TenantService;
 import org.egov.tenant.web.contract.factory.ResponseInfoFactory;
 import org.egov.tracer.kafka.ErrorQueueProducer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(TenantController.class)
 public class TenantControllerTest {
 
@@ -38,13 +38,13 @@ public class TenantControllerTest {
 
     @MockBean
     ResponseInfoFactory responseInfoFactory;
-    
+
     @Autowired
     MockMvc mockMvc;
-    
+
     @MockBean
     ErrorQueueProducer errorQueueProducer;
-    
+
     @Test
     public void test_should_create_tenant() throws Exception {
         City city = City.builder()
@@ -77,7 +77,7 @@ public class TenantControllerTest {
             .city(city)
             .build();
         ResponseInfo responseInfo = ResponseInfo.builder().apiId("emp").build();
-        
+
         when(tenantService.createTenant(tenant)).thenReturn(tenant);
         when(responseInfoFactory.createResponseInfoFromRequestInfo(any(RequestInfo.class),any(Boolean.class))).thenReturn(responseInfo);
 
@@ -236,9 +236,9 @@ public class TenantControllerTest {
             .build();
 
         when(tenantService.updateTenant(any(Tenant.class))).thenReturn(tenant);
-        
+
         ResponseInfo responseInfo = ResponseInfo.builder().apiId("emp").build();
-               
+
         when(responseInfoFactory.createResponseInfoFromRequestInfo(any(RequestInfo.class),any(Boolean.class))).thenReturn(responseInfo);
 
         mockMvc.perform(post("/v1/tenant/_update")
@@ -248,10 +248,10 @@ public class TenantControllerTest {
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(content().json(new Resources().getFileContents("tenantUpdateResponse.json")));
     }
-    
+
     @Test
     public void test_shouldReturn_tenantCode_error() throws Exception{
-    	
+
     	City city = City.builder()
                 .name("testname")
                 .localName("testlocalname")
@@ -263,7 +263,7 @@ public class TenantControllerTest {
                 .ulbGrade("testCorporation")
                 .shapeFileLocation("testshapeFileLocation")
 	            .captcha("testcaptcha")
-                
+
                 .build();
     	 Tenant tenant = Tenant.builder()
     	            .description("testdescription")
@@ -279,7 +279,7 @@ public class TenantControllerTest {
                     .helpLineNumber("helpLineNumber")
     	            .city(city)
     	            .build();
-    	 
+
     	 when(tenantService.updateTenant(any(Tenant.class))).thenThrow(new InvalidTenantDetailsException(tenant));
 
          mockMvc.perform(post("/v1/tenant/_update")
@@ -288,12 +288,12 @@ public class TenantControllerTest {
              .andExpect(status().isBadRequest())
              .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
              .andExpect(content().json(new Resources().getFileContents("tenantCodeErrorResponse.json")));
-    	
+
     }
-    
+
     @Test
     public void test_shouldReturn_tenantCode_invalid_error() throws Exception{
-    	
+
     	City city = City.builder()
                 .name("testname")
                 .localName("testlocalname")
@@ -307,7 +307,7 @@ public class TenantControllerTest {
 	            .captcha("testcaptcha")
                 .build();
     	 Tenant tenant = Tenant.builder()
-    			    .code("aaaaaaaa") 
+    			    .code("aaaaaaaa")
     	            .description("testdescription")
     	            .logoId("testlogoId")
     	            .imageId("testimageId")
@@ -321,7 +321,7 @@ public class TenantControllerTest {
                     .helpLineNumber("helpLineNumber")
     	            .city(city)
     	            .build();
-    	 
+
     	 when(tenantService.updateTenant(any(Tenant.class))).thenThrow(new TenantInvalidCodeException(tenant));
 
          mockMvc.perform(post("/v1/tenant/_update")
@@ -330,7 +330,7 @@ public class TenantControllerTest {
              .andExpect(status().isBadRequest())
              .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
              .andExpect(content().json(new Resources().getFileContents("tenantInvalidCodeErrorResponse.json")));
-    	
+
     }
-  
+
 }

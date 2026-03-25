@@ -7,19 +7,19 @@ import com.jayway.jsonpath.JsonPath;
 import org.egov.dataupload.model.Document;
 import org.egov.dataupload.model.UploadDefinition;
 import org.egov.dataupload.utils.DataUploadUtils;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@Ignore
+@Disabled
 public class Test {
 
     private DataUploadUtils dataUploadUtils = new DataUploadUtils();
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGroupingRowsByIndex() throws Exception{
         Document document = dataUploadUtils.readExcelFile(new FileInputStream
                 ("C:\\Users\\Nithin\\Documents\\eGov\\egov-services\\core\\egov-data-uploader\\src\\main\\resources" +
@@ -29,7 +29,7 @@ public class Test {
 
     }
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testFlatDataUpload() throws Exception{
         Document document = dataUploadUtils.readExcelFile(new FileInputStream
                 ("C:\\Users\\Nithin\\Documents\\eGov\\egov-services\\core\\egov-data-uploader\\src\\main\\resources" +
@@ -41,7 +41,7 @@ public class Test {
                 "\\assets.yml"), UploadDefinition.class);
     }
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void test() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String json = "{\"RequestInfo\": null,\"Asset\":{\"anticipatedLife\":15,\"orderNumber\":\"\"," +
@@ -64,7 +64,7 @@ public class Test {
 
     }
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void readDefinition() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         UploadDefinition definition = mapper.readValue(new FileInputStream("C:\\Users\\Nithin\\Documents\\eGov\\egov-services\\core\\egov-data-uploader\\src\\main\\resources" +
@@ -72,7 +72,7 @@ public class Test {
         System.out.println(definition);
     }
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void name() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         List<Object> list1 = objectMapper.readValue("[{\"code\":\"EMPLOYEE\"}]", List.class);

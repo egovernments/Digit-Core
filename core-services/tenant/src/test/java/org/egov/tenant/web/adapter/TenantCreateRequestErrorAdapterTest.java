@@ -5,18 +5,18 @@ import org.egov.common.contract.response.ErrorResponse;
 import org.egov.tenant.domain.model.City;
 import org.egov.tenant.domain.model.Tenant;
 import org.egov.tenant.domain.model.TenantType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TenantCreateRequestErrorAdapterTest {
 
     @Mock
@@ -27,7 +27,7 @@ public class TenantCreateRequestErrorAdapterTest {
 
     private TenantCreateRequestErrorAdapter errorAdapter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         errorAdapter = new TenantCreateRequestErrorAdapter();
         when(tenant.getCity()).thenReturn(city);
