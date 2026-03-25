@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import jakarta.annotation.PostConstruct;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
@@ -62,7 +63,7 @@ public class MDMSService {
     }
 
 
-    @Bean
+    @PostConstruct
     public void stateLevelMapping(){
         Map<String, Boolean> stateLevelMapping = new HashMap<>();
 

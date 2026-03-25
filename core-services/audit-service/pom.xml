@@ -13,7 +13,7 @@
 	<name>audit-service</name>
 	<description>Service to handle audit logs</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>25</java.version>
 	</properties>
 	<dependencyManagement>
     <dependencies>

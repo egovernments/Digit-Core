@@ -29,7 +29,6 @@ public class EarlyReconciliationJobConfig {
     }
 
     @Bean
-    @Autowired
     CronTriggerFactoryBean earlyReconciliationTrigger(JobDetail earlyReconciliationJob) {
         int runEvery = appProperties.getEarlyReconcileJobRunInterval();
         Integer runEveryMinutes, runEveryHours;

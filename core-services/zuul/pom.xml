@@ -15,9 +15,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <name>api-gateway</name>
   <description>Api gateway for egov - Spring Cloud Gateway</description>
   <properties>
-    <log4j2.version>2.17.1</log4j2.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
+    <java.version>25</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.30</lombok.version>
     <spring-cloud.version>2025.0.1</spring-cloud.version>

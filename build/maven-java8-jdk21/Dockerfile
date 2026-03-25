@@ -1,11 +1,11 @@
-# JDK 8→21 hybrid: compile with JDK 8, run on JDK 21.
+# JDK 8→25 hybrid: compile with JDK 8, run on JDK 25.
 # Use this for services on Spring Boot 1.5/2.x that cannot be recompiled
-# for JDK 17+ but benefit from JDK 21's cgroup v2 fix and memory improvements.
+# for JDK 17+ but benefit from JDK 25's virtual threads, ZGC, and cgroup v2 support.
 #
-# JDK 21 fixes cgroup v2 CPU detection (JDK-8281181), auto-sizes heap/threads
-# from container limits, and runs Java 8 bytecode natively.
+# JDK 25 LTS: virtual threads, generational ZGC, cgroup v2 support,
+# auto-sizes heap/threads from container limits, runs Java 8 bytecode natively.
 #
-# Spring Boot 1.5 needs two runtime patches for JDK 21:
+# Spring Boot 1.5 needs two runtime patches for JDK 25:
 #   1. JAXB API + runtime (removed from JDK 11)
 #   2. --add-opens flags for internal JDK module access
 
@@ -21,7 +21,7 @@ COPY ${WORK_DIR}/src           ./src
 RUN mvn -B -f pom.xml package -DskipTests
 
 # ──────────── JAXB PATCH STAGE ─────────────
-FROM eclipse-temurin:21-jdk-alpine AS patcher
+FROM eclipse-temurin:25-jdk-alpine AS patcher
 RUN apk add --no-cache curl
 WORKDIR /patch
 
@@ -48,7 +48,7 @@ RUN mkdir -p BOOT-INF/lib && \
       BOOT-INF/lib/stax-ex.jar
 
 # ─────────────── RUNTIME STAGE ───────────────
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 RUN apk add --no-cache dos2unix
 

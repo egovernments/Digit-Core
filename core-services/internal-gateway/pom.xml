@@ -15,7 +15,7 @@
 	<name>internal-gateway</name>
 	<description>Control the tenant based routing</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>25</java.version>
 		<spring-cloud.version>2025.0.0</spring-cloud.version>
 		<lombok.version>1.18.44</lombok.version>
 	</properties>

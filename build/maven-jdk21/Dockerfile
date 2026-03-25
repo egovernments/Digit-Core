@@ -1,11 +1,11 @@
-# JDK 21 runtime variant of build/maven/Dockerfile.
-# Use this for services on Spring Boot 3.x compiled with Java 17+.
-# Services on Spring Boot 1.5/2.x must continue using build/maven/Dockerfile.
+# JDK 25 runtime variant of build/maven/Dockerfile.
+# Use this for services on Spring Boot 3.x compiled with Java 25+.
+# Services on Spring Boot 1.5/2.x must continue using build/maven-java8-jdk25/Dockerfile.
 #
-# JDK 21 fixes cgroup v2 CPU detection (JDK-8281181), auto-sizes heap/threads
-# from container limits, and runs Java 17 bytecode natively (no recompilation).
+# JDK 25 LTS: virtual threads, generational ZGC, cgroup v2 support,
+# auto-sizes heap/threads from container limits.
 
-FROM egovio/maven:3.9.6-amazoncorretto-17 AS build
+FROM maven:3.9.9-eclipse-temurin-25-alpine AS build
 ARG WORK_DIR
 WORKDIR /app
 
@@ -17,8 +17,8 @@ COPY ${WORK_DIR}/src ./src
 # Build the project
 RUN mvn -B -f /app/pom.xml package
 
-# Runtime image — JDK 21 on Alpine
-FROM eclipse-temurin:21-jre-alpine
+# Runtime image — JDK 25 LTS on Alpine
+FROM eclipse-temurin:25-jre-alpine
 
 RUN apk add --no-cache dos2unix
 

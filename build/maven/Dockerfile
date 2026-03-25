@@ -1,4 +1,4 @@
-FROM egovio/maven:3.9.6-amazoncorretto-17 AS build
+FROM maven:3.9.9-eclipse-temurin-25-alpine AS build
 ARG WORK_DIR
 WORKDIR /app
 
@@ -10,9 +10,9 @@ COPY ${WORK_DIR}/src ./src
 # Build the project
 RUN mvn -B -f /app/pom.xml package
 
-# Runtime image – JDK 21 fixes cgroup v2 CPU detection (JDK-8281181),
-# auto-sizes heap/threads from container limits, and runs Java 17 bytecode natively.
-FROM eclipse-temurin:21-jre-alpine
+# Runtime image — Java 25 LTS with virtual threads, cgroup v2 support,
+# and generational ZGC as default GC.
+FROM eclipse-temurin:25-jre-alpine
 
 RUN apk add --no-cache dos2unix
 

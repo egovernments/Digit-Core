@@ -14,9 +14,8 @@
 	<name>gateway</name>
 	<description>API Gateway for Spring Boot</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>25</java.version>
 		<kafka.version>3.1.1</kafka.version>
-		<log4j2.version>2.17.1</log4j2.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 	</properties>
