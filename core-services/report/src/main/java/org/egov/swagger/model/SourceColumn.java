@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 /**
  * This is the column definition for the purpose of defining the report. Please note that in case of external column (basicaly columns fetched from external service) dependsOn indicates the internal column which needs to be send as the paarmeter for teh external url to respond with result that will contain the value at the configured JSONpath.

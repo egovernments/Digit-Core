@@ -1,17 +1,29 @@
 package org.egov.utils;
 
-import com.netflix.zuul.exception.ZuulException;
+import org.springframework.http.HttpStatus;
 
-public class CustomException extends ZuulException {
-    public CustomException(Throwable throwable, String sMessage, int nStatusCode, String errorCause) {
-        super(throwable, sMessage, nStatusCode, errorCause);
+public class CustomException extends RuntimeException {
+
+    private final HttpStatus statusCode;
+    private final String description;
+
+    public CustomException(String message, HttpStatus statusCode, String description) {
+        super(message);
+        this.statusCode = statusCode;
+        this.description = description;
     }
 
-    public CustomException(String sMessage, int nStatusCode, String errorCause) {
-        super(sMessage, nStatusCode, errorCause);
+    public CustomException(Throwable cause, String message, HttpStatus statusCode, String description) {
+        super(message, cause);
+        this.statusCode = statusCode;
+        this.description = description;
     }
 
-    public CustomException(Throwable throwable, int nStatusCode, String errorCause) {
-        super(throwable, nStatusCode, errorCause);
+    public HttpStatus getStatusCode() {
+        return statusCode;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

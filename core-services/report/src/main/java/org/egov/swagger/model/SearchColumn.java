@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 /**
  * This is the column definition for the purpose of defining the search columns

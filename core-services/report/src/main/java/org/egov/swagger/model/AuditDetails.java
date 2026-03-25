@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 
 import java.math.BigDecimal;
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Collection of audit related fields used by most models

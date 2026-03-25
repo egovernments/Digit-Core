@@ -3,7 +3,7 @@ package org.egov.commons.model;
 import lombok.*;
 import org.egov.common.contract.request.User;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;

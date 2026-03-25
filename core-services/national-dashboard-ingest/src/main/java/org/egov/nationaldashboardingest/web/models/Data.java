@@ -3,8 +3,8 @@ package org.egov.nationaldashboardingest.web.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 
 @Getter

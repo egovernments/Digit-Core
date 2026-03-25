@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.egov.chat.config.KafkaStreamsConfig;
 import org.egov.chat.post.formatter.ChatNodeJsonPointerConstants;
 import org.egov.chat.post.formatter.ResponseFormatter;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;

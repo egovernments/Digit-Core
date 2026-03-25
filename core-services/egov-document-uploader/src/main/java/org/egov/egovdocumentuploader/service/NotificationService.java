@@ -2,7 +2,7 @@ package org.egov.egovdocumentuploader.service;
 
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
-import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.egovdocumentuploader.config.ApplicationProperties;
 import org.egov.egovdocumentuploader.producer.Producer;

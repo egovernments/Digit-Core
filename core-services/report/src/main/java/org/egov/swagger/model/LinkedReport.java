@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 /**
  * next drill down report. In case the report is on the values in the report
