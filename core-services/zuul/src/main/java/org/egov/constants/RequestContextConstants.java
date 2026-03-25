@@ -28,4 +28,7 @@ public class RequestContextConstants {
     public static final String SKIP_RBAC = "RBAC check skipped";
     public static final String REQUEST_TENANT_ID_KEY = "tenantId";
     public static final String TENANT_ID_KEY = "TENANT_ID";
+
+    /** Key used to store the cached request body bytes in exchange attributes. */
+    public static final String CACHED_REQUEST_BODY_ATTR = "cachedRequestBody";
 }
