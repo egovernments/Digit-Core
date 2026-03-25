@@ -10,9 +10,9 @@ import org.egov.encryption.config.ErrorConstants;
 import org.egov.mdms.model.*;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.slf4j.MDC;
 import java.util.Arrays;
 
@@ -22,13 +22,18 @@ public class MdmsFetcher {
 
     @Autowired
     private EncProperties encProperties;
-    @Autowired
-    private RestTemplate restTemplate;
+
+    private final WebClient webClient;
 
     @Autowired
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
     public static final String TENANTID_MDC_STRING = "TENANTID";
+
+    @Autowired
+    public MdmsFetcher(@Qualifier("logAwareWebClient") WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
 
     public JSONArray getSecurityMdmsForFilter(String filter) {
         return getMdmsForFilter(filter, EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME);
@@ -53,10 +58,13 @@ public class MdmsFetcher {
         }
 
         try {
-            ResponseEntity<MdmsResponse> response =
-                    restTemplate.postForEntity(encProperties.getEgovMdmsHost() + encProperties.getEgovMdmsSearchEndpoint(),
-                            mdmsCriteriaReq, MdmsResponse.class);
-            return response.getBody().getMdmsRes().get(EncClientConstants.MDMS_MODULE_NAME)
+            MdmsResponse response = webClient.post()
+                    .uri(encProperties.getEgovMdmsHost() + encProperties.getEgovMdmsSearchEndpoint())
+                    .bodyValue(mdmsCriteriaReq)
+                    .retrieve()
+                    .bodyToMono(MdmsResponse.class)
+                    .block();
+            return response.getMdmsRes().get(EncClientConstants.MDMS_MODULE_NAME)
                     .get(masterName);
         } catch (Exception e) {
             log.error(ErrorConstants.MDMS_FETCH_ERROR_MESSAGE, e);

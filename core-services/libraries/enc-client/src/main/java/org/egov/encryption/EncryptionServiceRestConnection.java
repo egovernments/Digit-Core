@@ -9,9 +9,9 @@ import org.egov.encryption.web.contract.EncReqObject;
 import org.egov.encryption.web.contract.EncryptionRequest;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,10 +24,14 @@ class EncryptionServiceRestConnection {
     @Autowired
     private EncProperties encProperties;
     @Autowired
-    private RestTemplate restTemplate;
-    @Autowired
     private ObjectMapper objectMapper;
 
+    private final WebClient webClient;
+
+    @Autowired
+    EncryptionServiceRestConnection(@Qualifier("logAwareWebClient") WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
 
     Object callEncrypt(String tenantId, String type, Object value) throws IOException {
         EncReqObject encReqObject = new EncReqObject(tenantId, type, value);
@@ -35,9 +39,13 @@ class EncryptionServiceRestConnection {
         encryptionRequest.setEncryptionRequests(new ArrayList<>(Collections.singleton(encReqObject)));
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(encProperties.getEgovEncHost() + encProperties.getEgovEncEncryptPath(),
-                    encryptionRequest, String.class);
-            return objectMapper.readTree(response.getBody()).get(0);
+            String response = webClient.post()
+                    .uri(encProperties.getEgovEncHost() + encProperties.getEgovEncEncryptPath())
+                    .bodyValue(encryptionRequest)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            return objectMapper.readTree(response).get(0);
         } catch (Exception e) {
             log.error(ErrorConstants.ENCRYPTION_SERVICE_ERROR_MESSAGE, e);
             throw new CustomException(ErrorConstants.ENCRYPTION_SERVICE_ERROR, ErrorConstants.ENCRYPTION_SERVICE_ERROR_MESSAGE);
@@ -46,9 +54,12 @@ class EncryptionServiceRestConnection {
 
     JsonNode callDecrypt(Object ciphertext) {
         try {
-            ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-                    encProperties.getEgovEncHost() + encProperties.getEgovEncDecryptPath(), ciphertext, JsonNode.class);
-            return response.getBody();
+            return webClient.post()
+                    .uri(encProperties.getEgovEncHost() + encProperties.getEgovEncDecryptPath())
+                    .bodyValue(ciphertext)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
         } catch (Exception e) {
             throw new CustomException(ErrorConstants.ENCRYPTION_SERVICE_ERROR, ErrorConstants.ENCRYPTION_SERVICE_ERROR_MESSAGE);
         }

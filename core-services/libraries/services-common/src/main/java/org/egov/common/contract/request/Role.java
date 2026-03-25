@@ -2,7 +2,7 @@ package org.egov.common.contract.request;
 
 import lombok.*;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 @Getter
 @Setter

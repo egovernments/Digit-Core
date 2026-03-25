@@ -11,7 +11,6 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
@@ -30,8 +29,6 @@ public class DecryptionPolicyConfiguration {
 
     @Autowired
     private MdmsFetcher mdmsFetcher;
-    @Autowired
-    private RestTemplate restTemplate;
     @Autowired
     private ObjectMapper objectMapper;
 

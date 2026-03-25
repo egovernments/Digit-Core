@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class EncryptionServiceImplTest {
     @Autowired
     private EncryptionServiceImpl encryptionServiceImpl;
 
-    @Before
+    @BeforeEach
     public void init() throws InstantiationException, IllegalAccessException, IOException {
         Role role1 = Role.builder().code("GRO").build();
         Role role2 = Role.builder().code("LME").build();
@@ -39,13 +39,13 @@ public class EncryptionServiceImplTest {
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void encryptValueTest() throws IOException {
         log.info(encryptionServiceImpl.encryptValue(1, "pb", "Normal"));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void encryptJsonUsingKey() throws IOException {
         JsonNode plaintext = mapper.readTree("{\"RequestInfo\":{\"api_id\":\"1\",\"ver\":\"1\",\"ts\":null," +
@@ -58,7 +58,7 @@ public class EncryptionServiceImplTest {
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void decryptJsonArrayUsingRoles() throws IOException {
         RequestInfo requestInfo = new RequestInfo();
@@ -73,7 +73,7 @@ public class EncryptionServiceImplTest {
         log.info(plaintext.toString());
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void decryptJsonObjectUsingRoles() throws IOException {
         RequestInfo requestInfo = new RequestInfo();
@@ -88,7 +88,7 @@ public class EncryptionServiceImplTest {
         log.info(plaintext.toString());
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void test() throws IOException {
         RequestInfo requestInfo = new RequestInfo();
