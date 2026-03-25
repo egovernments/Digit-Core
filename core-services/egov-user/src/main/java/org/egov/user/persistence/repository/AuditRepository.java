@@ -1,7 +1,7 @@
 package org.egov.user.persistence.repository;
 
 import static java.util.Objects.isNull;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -2,7 +2,7 @@ package org.egov.user.security.oauth2.custom.authproviders;
 
 import static java.util.Objects.isNull;
 import static org.egov.user.config.UserServiceConstants.IP_HEADER_NAME;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.MDC;
+import org.slf4j.MDC;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.ServiceCallException;
@@ -34,7 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -95,10 +95,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		}
 
         if (isEmpty(tenantId)) {
-            throw new OAuth2Exception("TenantId is mandatory");
+            throw new AuthenticationServiceException("TenantId is mandatory");
         }
         if (isEmpty(userType) || isNull(UserType.fromValue(userType))) {
-            throw new OAuth2Exception("User Type is mandatory and has to be a valid type");
+            throw new AuthenticationServiceException("User Type is mandatory and has to be a valid type");
         }
 
         User user;
@@ -119,15 +119,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         } catch (UserNotFoundException e) {
             log.error("User not found", e);
-            throw new OAuth2Exception("Invalid login credentials");
+            throw new AuthenticationServiceException("Invalid login credentials");
         } catch (DuplicateUserNameException e) {
             log.error("Fatal error, user conflict, more than one user found", e);
-            throw new OAuth2Exception("Invalid login credentials");
+            throw new AuthenticationServiceException("Invalid login credentials");
 
         }
 
         if (user.getActive() == null || !user.getActive()) {
-            throw new OAuth2Exception("Please activate your account");
+            throw new AuthenticationServiceException("Please activate your account");
         }
 
         // If account is locked, perform lazy unlock if eligible
@@ -137,7 +137,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             if (userService.isAccountUnlockAble(user)) {
                 user = unlockAccount(user, requestInfo);
             } else
-                throw new OAuth2Exception("Account locked");
+                throw new AuthenticationServiceException("Account locked");
         }
 
 
@@ -175,7 +175,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             // Fetch Real IP after being forwarded by reverse proxy
             userService.handleFailedLogin(user, request.getHeader(IP_HEADER_NAME), requestInfo);
 
-            throw new OAuth2Exception("Invalid login credentials");
+            throw new AuthenticationServiceException("Invalid login credentials");
         }
 
     }
@@ -214,7 +214,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         final String tenantId = details.get("tenantId");
         if (isEmpty(tenantId)) {
-            throw new OAuth2Exception("TenantId is mandatory");
+            throw new AuthenticationServiceException("TenantId is mandatory");
         }
         return tenantId;
     }

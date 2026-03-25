@@ -78,7 +78,7 @@ public class MdmsRepository {
 				.userInfo(requestInfo.getUserInfo()).build();
 
 		if(requestInfo.getTs()!=null){
-			requestinfo.setTs(requestInfo.getTs().getTime());
+			requestinfo.setTs(requestInfo.getTs());
 		}
 
 		MasterDetails[] masterDetails;

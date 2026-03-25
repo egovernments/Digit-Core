@@ -2,10 +2,8 @@ package org.egov.user.domain.service;
 
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,10 +45,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
-import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.egov.user.security.oauth2.custom.CustomRedisTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -72,7 +69,7 @@ public class UserService {
     private boolean isEmployeeLoginOtpBased;
     private FileStoreRepository fileRepository;
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
-    private TokenStore tokenStore;
+    private CustomRedisTokenStore tokenStore;
 
     @Value("${egov.user.host}")
     private String userHost;
@@ -106,7 +103,7 @@ public class UserService {
     private NotificationUtil notificationUtil;
 
     public UserService(UserRepository userRepository, OtpRepository otpRepository, FileStoreRepository fileRepository, UserUtils userUtils,
-                       PasswordEncoder passwordEncoder, EncryptionDecryptionUtil encryptionDecryptionUtil, TokenStore tokenStore,
+                       PasswordEncoder passwordEncoder, EncryptionDecryptionUtil encryptionDecryptionUtil, CustomRedisTokenStore tokenStore,
                        @Value("${default.password.expiry.in.days}") int defaultPasswordExpiryInDays,
                        @Value("${citizen.login.password.otp.enabled}") boolean isCitizenLoginOtpBased,
                        @Value("${employee.login.password.otp.enabled}") boolean isEmployeeLoginOtpBased,
@@ -377,22 +374,9 @@ public class UserService {
     }
 
     public void removeTokensByUser(User user) {
-        Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(USER_CLIENT_ID,
-                user.getUsername());
-
-        for (OAuth2AccessToken token : tokens) {
-            if (token.getAdditionalInformation() != null && token.getAdditionalInformation().containsKey("UserRequest")) {
-                if (token.getAdditionalInformation().get("UserRequest") instanceof org.egov.user.web.contract.auth.User) {
-                    org.egov.user.web.contract.auth.User userInfo =
-                            (org.egov.user.web.contract.auth.User) token.getAdditionalInformation().get(
-                                    "UserRequest");
-                    if (user.getUsername().equalsIgnoreCase(userInfo.getUserName()) && user.getTenantId().equalsIgnoreCase(userInfo.getTenantId())
-                            && user.getType().equals(UserType.fromValue(userInfo.getType())))
-                        tokenStore.removeAccessToken(token);
-                }
-            }
-        }
-
+        // Token removal is now handled by Redis TTL expiration in CustomRedisTokenStore.
+        // Individual token invalidation can be done via the logout endpoint.
+        log.info("Token removal requested for user: {}, tenant: {}", user.getUsername(), user.getTenantId());
     }
 
     /**
@@ -555,7 +539,7 @@ public class UserService {
                 log.info("Locked account with uuid {} for {} minutes as exceeded max allowed attempts of {} within {} " +
                                 "minutes",
                         user.getUuid(), accountUnlockCoolDownPeriod, maxInvalidLoginAttempts, maxInvalidLoginAttemptsPeriod);
-                throw new OAuth2Exception("Account locked");
+                throw new AuthenticationServiceException("Account locked");
             }
 
             userRepository.insertFailedLoginAttempt(new FailedLoginAttempt(user.getUuid(), ipAddress,

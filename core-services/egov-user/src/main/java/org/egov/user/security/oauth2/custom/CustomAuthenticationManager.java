@@ -11,7 +11,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +68,7 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
             return result;
         } else
-            throw new OAuth2Exception("AUTHENTICATION_FAILURE, unable to authenticate user");
+            throw new AuthenticationServiceException("AUTHENTICATION_FAILURE, unable to authenticate user");
 
     }
 

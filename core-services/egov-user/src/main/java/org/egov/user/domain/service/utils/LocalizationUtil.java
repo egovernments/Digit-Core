@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.egov.user.config.UserServiceConstants.DEFAULT_EMAIL_UPDATION_MESSAGE;
-import static org.reflections.Reflections.log;
 
 @Component
 @Slf4j
