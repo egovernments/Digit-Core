@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.2</version>
+        <version>3.5.12</version>
     </parent>
 
     <properties>
@@ -21,7 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
     </properties>
 <dependencyManagement>
     <dependencies>

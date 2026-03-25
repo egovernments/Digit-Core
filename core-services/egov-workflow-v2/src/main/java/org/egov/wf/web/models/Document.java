@@ -8,8 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.egov.wf.web.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 
 /**
  * A Object holds the basic data for a Trade License
