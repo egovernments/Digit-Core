@@ -4,9 +4,9 @@ import org.egov.tenant.domain.model.City;
 import org.egov.tenant.domain.model.Tenant;
 import org.egov.tenant.domain.model.TenantSearchCriteria;
 import org.egov.tenant.domain.model.TenantType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,7 +14,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,11 +26,11 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.egov.tenant.persistence.entity.Tenant.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class TenantRepositoryTest {
     private static final List<String> TENANT_CODES = asList("AP.KURNOOL");
@@ -43,7 +43,7 @@ public class TenantRepositoryTest {
 
     private TenantRepository tenantRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         tenantRepository = new TenantRepository(cityRepository, namedParameterJdbcTemplate);
     }
@@ -171,7 +171,7 @@ public class TenantRepositoryTest {
                     put(EMAILID ,resultSet.getString(EMAILID));
                     put(ADDRESS,resultSet.getString(ADDRESS));
                     put(CONTACTNUMBER,resultSet.getString(CONTACTNUMBER));
-                    put(HELPLINENUMBER,resultSet.getString(HELPLINENUMBER)); 
+                    put(HELPLINENUMBER,resultSet.getString(HELPLINENUMBER));
                 }};
 
                 rows.add(row);
@@ -179,8 +179,8 @@ public class TenantRepositoryTest {
             return rows;
         }
     }
-    
-    
+
+
     @Test
     @Sql(scripts = {"/sql/clearCity.sql", "/sql/clearTenant.sql","/sql/insertTenantData.sql"})
     public void test_should_update_tenant() throws Exception {
@@ -205,7 +205,7 @@ public class TenantRepositoryTest {
 
         Tenant actual=  tenantRepository.update(expected);
         assertEquals(expected,actual);
-       
+
     }
 
 }

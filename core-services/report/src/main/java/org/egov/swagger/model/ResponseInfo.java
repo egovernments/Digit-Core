@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 import org.egov.common.contract.request.RequestInfo;
 

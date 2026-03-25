@@ -13,10 +13,11 @@ import org.egov.mdms.model.ModuleDetail;
 import org.egov.tracer.model.CustomException;
 import org.egov.tracer.model.ServiceCallException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,14 +25,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MdmsClientService {
 
-	@Autowired
-	private RestTemplate restTemplate;
+	private final WebClient webClient;
 
 	@Value("${mdms.service.host:http://localhost:8080/}")
 	private String mdmsHost;
-	
+
 	@Value("${mdms.service.search.uri:egov-mdms-service/v1/_search}")
 	private String mdmsSearchUri;
+
+	@Autowired
+	public MdmsClientService(@Qualifier("logAwareWebClient") WebClient.Builder webClientBuilder) {
+		this.webClient = webClientBuilder.build();
+	}
 
 	public MdmsResponse getMaster(RequestInfo requestInfo, String tenantId,
 			Map<String, List<MasterDetail>> masterDetails) {
@@ -54,19 +59,20 @@ public class MdmsClientService {
 
 	public MdmsResponse getMaster(MdmsCriteriaReq mdmsCriteriaReq) {
 		log.info("mdmsCriteriaReq:" + mdmsCriteriaReq);
-		MdmsResponse mdmsResponse = null;
 		try {
-			  mdmsResponse = restTemplate.postForObject(mdmsHost.concat(mdmsSearchUri), mdmsCriteriaReq, MdmsResponse.class);
-		} catch (HttpClientErrorException ex) {
-			ex.printStackTrace();
+			return webClient.post()
+					.uri(mdmsHost + mdmsSearchUri)
+					.bodyValue(mdmsCriteriaReq)
+					.retrieve()
+					.bodyToMono(MdmsResponse.class)
+					.block();
+		} catch (WebClientResponseException ex) {
 			String excep = ex.getResponseBodyAsString();
-			log.info("HttpClientErrorException:" + excep);
+			log.info("WebClientResponseException:" + excep);
 			throw new ServiceCallException(excep);
 		} catch (Exception ex) {
 			log.error("Exception: " + ex.getMessage());
 			throw new CustomException("MDMS_RESPONSE_ERROR", "Error while fetching data from MDMS: " + ex.getMessage());
-
 		}
-		return mdmsResponse;
 	}
 }

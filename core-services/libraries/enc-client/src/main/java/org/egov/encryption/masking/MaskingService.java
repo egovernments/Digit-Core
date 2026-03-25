@@ -17,7 +17,6 @@ import org.egov.encryption.util.MdmsFetcher;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
 import java.util.*;
@@ -29,8 +28,6 @@ public class MaskingService {
     Map<String, String> maskingPatternMap = new HashMap<>();
     @Autowired
     private EncProperties encProperties;
-    @Autowired
-    private RestTemplate restTemplate;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired

@@ -1,7 +1,7 @@
 package org.egov.commons.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,15 +16,15 @@ import org.egov.commons.repository.BusinessCategoryRepository;
 import org.egov.commons.service.BusinessCategoryService;
 import org.egov.commons.web.contract.BusinessCategoryRequest;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @WebMvcTest(BusinessCategoryService.class)
 @WebAppConfiguration
 public class BusinessCategoryServiceTest {
@@ -36,7 +36,7 @@ public class BusinessCategoryServiceTest {
 
 	private BusinessCategoryService businessCategoryService;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		businessCategoryService = new BusinessCategoryService(kafkaTemplate, businessCategoryRepository);
 	}

@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.Builder;
 import org.egov.common.contract.response.ResponseInfo;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 

@@ -2,10 +2,10 @@ package org.egov.tenant.persistence.rowmapper;
 
 import org.egov.tenant.persistence.entity.City;
 import org.egov.tenant.persistence.entity.Tenant;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.egov.tenant.persistence.entity.City.*;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CityRowMapperTest {
 
     @Mock

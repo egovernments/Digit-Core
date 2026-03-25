@@ -1,46 +1,43 @@
 package org.egov.common.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MultiStateInstanceUtilTest {
+class MultiStateInstanceUtilTest {
 
 	@Test
-	public void testIfStateLevelTenantIdIsReturnedForCentralDeployment(){
-	
+	void testIfStateLevelTenantIdIsReturnedForCentralDeployment(){
+
 		MultiStateInstanceUtil centralUtil = new MultiStateInstanceUtil(2, true, 1);
 		String InputTenantId = "in.statea.tenantx";
 		String outputTenant = "in.statea";
 		String actualOutputTenantId = centralUtil.getStateLevelTenant(InputTenantId);
-		
-		assertEquals(actualOutputTenantId, outputTenant);
+
+		assertEquals(outputTenant, actualOutputTenantId);
 	}
-	
+
 	@Test
-	public void testIfSameTenantIdIsReturnedIfStateLengthIslargerThanActualTenantLength(){
-	
+	void testIfSameTenantIdIsReturnedIfStateLengthIslargerThanActualTenantLength(){
+
 		MultiStateInstanceUtil centralUtil = new MultiStateInstanceUtil(3, true, 1);
 		String InputTenantId = "in.statea.tenantx";
 		String outputTenant = "in.statea.tenantx";
 		String actualOutputTenantId = centralUtil.getStateLevelTenant(InputTenantId);
-		
-		assertEquals(actualOutputTenantId, outputTenant);
+
+		assertEquals(outputTenant, actualOutputTenantId);
 	}
-	
+
 	@Test
-	public void testIfStateLevelTenantIdIsReturnedForIsolatedDeployment(){
-	
+	void testIfStateLevelTenantIdIsReturnedForIsolatedDeployment(){
+
 		MultiStateInstanceUtil centralUtil = new MultiStateInstanceUtil(2, false, 1);
 		String InputTenantId = "in.statea.tenantx";
 		String outputTenant = "in";
-		
+
 		String actualOutputTenantId = centralUtil.getStateLevelTenant(InputTenantId);
-		
-		assertEquals(actualOutputTenantId, outputTenant);
+
+		assertEquals(outputTenant, actualOutputTenantId);
 	}
 
 }

@@ -10,7 +10,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.2</version>
+    <version>3.5.12</version>
   </parent>
 
   <distributionManagement>
@@ -27,52 +27,46 @@
   </distributionManagement>
 
   <properties>
-    <log4j2.version>2.17.1</log4j2.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
+    <java.version>25</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
-		<dependency>
-			<groupId>org.egov.services</groupId>
-			<artifactId>tracer</artifactId>
-			<version>2.9.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.egov</groupId>
-			<artifactId>mdms-client</artifactId>
-			<version>2.9.0-SNAPSHOT</version>
-		</dependency>
+    <dependency>
+      <groupId>org.egov.services</groupId>
+      <artifactId>tracer</artifactId>
+      <version>2.9.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.egov</groupId>
+      <artifactId>mdms-client</artifactId>
+      <version>2.9.0-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>net.minidev</groupId>
       <artifactId>json-smart</artifactId>
-      <version>2.5.0</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.8</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.9.8</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
-      <version>0.9.11</version>
+      <version>0.10.2</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -80,38 +74,18 @@
       <artifactId>spring-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.22</version>
+      <version>1.18.44</version>
     </dependency>
   </dependencies>
 
   <repositories>
     <repository>
-      <id>repo.egovernments.org</id>
-      <name>eGov ERP Releases Repository</name>
-      <url>https://nexus-repo.egovernments.org/nexus/content/repositories/releases/</url>
+      <id>repo.digit.org.snapshot</id>
+      <name>eGov DIGIT Releases Repository</name>
+      <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
     </repository>
-    <repository>
-      <id>snapshots.repo.egovernments.org</id>
-      <name>eGov ERP Snapshots Repository</name>
-      <url>https://nexus-repo.egovernments.org/nexus/content/repositories/snapshots/</url>
-    </repository>
-    <repository>
-			<id>repo.digit.org.snapshot</id>
-			<name>eGov DIGIT Releases Repository</name>
-			<url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
-		</repository>
   </repositories>
 
   <build>
@@ -119,12 +93,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.12.1</version>
+        <version>3.14.1</version>
         <configuration>
-          <source>17</source>
-          <target>17</target>
           <release>17</release>
-          <verbose>true</verbose>
         </configuration>
       </plugin>
     </plugins>

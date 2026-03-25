@@ -2,8 +2,9 @@ package org.egov.encryption;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public class EncryptionServiceRestConnectionTest {
 
@@ -12,11 +13,10 @@ public class EncryptionServiceRestConnectionTest {
 
     private ObjectMapper mapper;
 
-    @Before
+    @BeforeEach
     public void initialize() {
-        encryptionServiceRestConnection = new EncryptionServiceRestConnection();
+        encryptionServiceRestConnection = new EncryptionServiceRestConnection(WebClient.builder());
         mapper = new ObjectMapper(new JsonFactory());
     }
-
 
 }

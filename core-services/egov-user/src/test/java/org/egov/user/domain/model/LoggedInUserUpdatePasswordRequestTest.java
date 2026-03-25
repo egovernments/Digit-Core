@@ -2,10 +2,9 @@ package org.egov.user.domain.model;
 
 import org.egov.user.domain.exception.InvalidLoggedInUserUpdatePasswordRequestException;
 import org.egov.user.domain.model.enums.UserType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LoggedInUserUpdatePasswordRequestTest {
 
@@ -86,7 +85,7 @@ public class LoggedInUserUpdatePasswordRequestTest {
         updatePassword.validate();
     }
 
-    @Test(expected = InvalidLoggedInUserUpdatePasswordRequestException.class)
+    @Test
     public void test_validate_should_throw_exception_when_user_id_is_not_present() {
         final LoggedInUserUpdatePasswordRequest updatePassword = LoggedInUserUpdatePasswordRequest.builder()
                 .existingPassword("existingPassword")
@@ -94,10 +93,12 @@ public class LoggedInUserUpdatePasswordRequestTest {
                 .userName(null)
                 .build();
 
-        updatePassword.validate();
+        assertThrows(InvalidLoggedInUserUpdatePasswordRequestException.class, () -> {
+            updatePassword.validate();
+        });
     }
 
-    @Test(expected = InvalidLoggedInUserUpdatePasswordRequestException.class)
+    @Test
     public void test_validate_should_throw_exception_when_old_password_is_not_present() {
         final LoggedInUserUpdatePasswordRequest updatePassword = LoggedInUserUpdatePasswordRequest.builder()
                 .existingPassword(null)
@@ -105,10 +106,12 @@ public class LoggedInUserUpdatePasswordRequestTest {
                 .userName("xya")
                 .build();
 
-        updatePassword.validate();
+        assertThrows(InvalidLoggedInUserUpdatePasswordRequestException.class, () -> {
+            updatePassword.validate();
+        });
     }
 
-    @Test(expected = InvalidLoggedInUserUpdatePasswordRequestException.class)
+    @Test
     public void test_validate_should_throw_exception_when_new_password_is_not_present() {
         final LoggedInUserUpdatePasswordRequest updatePassword = LoggedInUserUpdatePasswordRequest.builder()
                 .existingPassword("existingPassword")
@@ -116,7 +119,9 @@ public class LoggedInUserUpdatePasswordRequestTest {
                 .userName("xyz")
                 .build();
 
-        updatePassword.validate();
+        assertThrows(InvalidLoggedInUserUpdatePasswordRequestException.class, () -> {
+            updatePassword.validate();
+        });
     }
 
 }

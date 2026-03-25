@@ -1,17 +1,24 @@
 package org.egov.exceptions;
 
-import com.netflix.zuul.exception.ZuulException;
+public class CustomException extends RuntimeException {
+    public final int nStatusCode;
+    public final String errorCause;
 
-public class CustomException extends ZuulException {
-    public CustomException(Throwable throwable, String sMessage, int nStatusCode, String errorCause) {
-        super(throwable, sMessage, nStatusCode, errorCause);
+    public CustomException(String message, int nStatusCode, String errorCause) {
+        super(message);
+        this.nStatusCode = nStatusCode;
+        this.errorCause = errorCause;
     }
 
-    public CustomException(String sMessage, int nStatusCode, String errorCause) {
-        super(sMessage, nStatusCode, errorCause);
+    public CustomException(Throwable throwable, String message, int nStatusCode, String errorCause) {
+        super(message, throwable);
+        this.nStatusCode = nStatusCode;
+        this.errorCause = errorCause;
     }
 
     public CustomException(Throwable throwable, int nStatusCode, String errorCause) {
-        super(throwable, nStatusCode, errorCause);
+        super(throwable);
+        this.nStatusCode = nStatusCode;
+        this.errorCause = errorCause;
     }
 }

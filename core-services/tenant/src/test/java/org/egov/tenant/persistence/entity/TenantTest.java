@@ -1,7 +1,7 @@
 package org.egov.tenant.persistence.entity;
 
 import org.egov.tenant.domain.model.TenantType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +42,7 @@ public class TenantTest {
         assertThat(tenantModel.getAddress()).isEqualTo("address");
         assertThat(tenantModel.getContactNumber()).isEqualTo("contactNumber");
         assertThat(tenantModel.getHelpLineNumber()).isEqualTo("helpLineNumber");
-        
-        
+
+
     }
 }

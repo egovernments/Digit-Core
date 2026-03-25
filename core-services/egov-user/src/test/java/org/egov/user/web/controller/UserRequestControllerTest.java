@@ -1,6 +1,8 @@
 package org.egov.user.web.controller;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -30,10 +32,9 @@ import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.TokenService;
 import org.egov.user.domain.service.UserService;
-import org.egov.user.security.CustomAuthenticationKeyGenerator;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,10 +42,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(UserController.class)
 @Import(TestConfiguration.class)
 public class UserRequestControllerTest {
@@ -64,9 +64,6 @@ public class UserRequestControllerTest {
     @MockBean
     private TokenService tokenService;
 
-    @MockBean
-    private CustomAuthenticationKeyGenerator authenticationKeyGenerator;
-
 /*
     @Test
     @WithMockUser
@@ -85,7 +82,7 @@ public class UserRequestControllerTest {
     }
 */
 
-    @Ignore
+    @Disabled
     @Test
     @WithMockUser
     public void testShouldThrowErrorWhileRegisteringCitizenWithPendingOtpValidation() throws Exception {
@@ -173,7 +170,7 @@ public class UserRequestControllerTest {
 
     @Test
     @WithMockUser
-    @Ignore
+    @Disabled
     public void testShouldThrowErrorWhileUpdatingWithDuplicateCitizen() throws Exception {
         DuplicateUserNameException exception = new DuplicateUserNameException(UserSearchCriteria.builder().userName
                 ("test").build());
@@ -191,7 +188,7 @@ public class UserRequestControllerTest {
 
     @Test
     @WithMockUser
-    @Ignore
+    @Disabled
     public void testShouldThrowErrorWhileUpdatingWithInvalidCitizen() throws Exception {
         UserNotFoundException exception = new UserNotFoundException(UserSearchCriteria.builder().userName
                 ("test").build());

@@ -1,4 +1,4 @@
-FROM egovio/maven:3.9.6-amazoncorretto-17 AS build
+FROM maven:3.9.9-eclipse-temurin-25-alpine AS build
 ARG WORK_DIR
 WORKDIR /app
 
@@ -10,18 +10,29 @@ COPY ${WORK_DIR}/src ./src
 # Build the project
 RUN mvn -B -f /app/pom.xml package
 
-# Runtime image – using a multi-arch base image
-FROM egovio/amazoncorretto:17-alpine
+# Runtime image — Java 25 LTS with virtual threads, cgroup v2 support,
+# and generational ZGC as default GC.
+FROM eclipse-temurin:25-jre-alpine
+
+RUN apk add --no-cache dos2unix
 
 WORKDIR /opt/egov
 
 # Copy artifacts from the build stage
-COPY --from=build /app/target/*.jar /app/start.sh /opt/egov/
+COPY --from=build /app/target/*.jar /opt/egov/app.jar
+COPY --from=build /app/start.sh /opt/egov/start.sh
+
+# CDS pre-dump: generate classlist then shared archive for faster startup.
+# The app will attempt to start (no DB/Kafka available) — timeout kills it
+# after 30s, which is enough to load all classes for the classlist.
+RUN timeout 30 java -XX:DumpLoadedClassList=/opt/egov/app.classlist \
+      -jar /opt/egov/app.jar 2>/dev/null; true
+RUN java -Xshare:dump \
+      -XX:SharedClassListFile=/opt/egov/app.classlist \
+      -XX:SharedArchiveFile=/opt/egov/app-cds.jsa \
+      -jar /opt/egov/app.jar 2>/dev/null; true
 
 # Ensure the start script has correct line endings and is executable
 RUN dos2unix /opt/egov/start.sh && chmod +x /opt/egov/start.sh
-
-# Verify architecture inside the container
-RUN uname -m
 
 CMD ["/opt/egov/start.sh"]

@@ -1,6 +1,5 @@
 package org.egov.Utils;
 
-import com.netflix.zuul.context.RequestContext;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.model.EventLogRequest;
 import org.egov.model.RequestCaptureCriteria;
@@ -8,8 +7,9 @@ import org.egov.producer.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Component
 @Slf4j
@@ -29,21 +29,20 @@ public class EventLoggerUtil {
     private RequestCaptureCriteria criteria;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         criteria = RequestCaptureCriteria.builder()
-            .captureInputBody(captureInputBody)
-            .captureOutputBody(captureOutputBody)
-            .captureOutputBodyOnlyForError(captureOutputBodyOnlyOnError)
-            .build();
+                .captureInputBody(captureInputBody)
+                .captureOutputBody(captureOutputBody)
+                .captureOutputBodyOnlyForError(captureOutputBodyOnlyOnError)
+                .build();
     }
 
-    public Object logCurrentRequest(String topic){
+    public void logRequest(ServerWebExchange exchange, String topic) {
         try {
-            EventLogRequest request = EventLogRequest.fromRequestContext(RequestContext.getCurrentContext(), criteria);
+            EventLogRequest request = EventLogRequest.fromExchange(exchange, criteria);
             producer.push(topic, request);
         } catch (Exception ex) {
             log.error("event logger", ex);
         }
-        return null;
     }
 }

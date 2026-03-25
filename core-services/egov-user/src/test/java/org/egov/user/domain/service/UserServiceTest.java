@@ -1,9 +1,10 @@
 package org.egov.user.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -40,17 +41,17 @@ import org.egov.user.persistence.repository.OtpRepository;
 import org.egov.user.persistence.repository.UserRepository;
 import org.egov.user.web.contract.Otp;
 import org.egov.user.web.contract.OtpValidateRequest;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.egov.user.security.oauth2.custom.CustomRedisTokenStore;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
     private static final int DEFAULT_PASSWORD_EXPIRY_IN_DAYS = 90;
@@ -68,7 +69,7 @@ public class UserServiceTest {
 
     @Mock
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
-    private TokenStore tokenStore;
+    private CustomRedisTokenStore tokenStore;
 
     private UserService userService;
     
@@ -86,7 +87,7 @@ public class UserServiceTest {
     private Integer pwdMinLength = 8;
 
 
-    @Before
+    @BeforeEach
     public void before() {
         userService = new UserService(userRepository, otpRepository, fileRepository, userUtils, passwordEncoder, encryptionDecryptionUtil,
                 tokenStore, DEFAULT_PASSWORD_EXPIRY_IN_DAYS,
@@ -160,18 +161,18 @@ public class UserServiceTest {
         assertEquals(expectedUser, returnedUser);
     }
 
-    @Test(expected = UserNameNotValidException.class)
+    @Test
     public void test_should_not_create_citizenWithWrongUserName() {
         userService = new UserService(userRepository, otpRepository, fileRepository, userUtils, passwordEncoder,
                 encryptionDecryptionUtil, tokenStore, DEFAULT_PASSWORD_EXPIRY_IN_DAYS,
                 true, false, pwdRegex, pwdMaxLength, pwdMinLength);
         org.egov.user.domain.model.User domainUser = User.builder().username("TestUser").name("Test").active(true)
                 .tenantId("default").mobileNumber("123456789").type(UserType.CITIZEN).build();
-        userService.createCitizen(domainUser, getValidRequestInfo());
+        assertThrows(UserNameNotValidException.class, () -> userService.createCitizen(domainUser, getValidRequestInfo()));
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void test_should_create_a_valid_citizen_withotp() throws Exception {
         org.egov.user.domain.model.User domainUser = mock(User.class);
@@ -227,23 +228,23 @@ public class UserServiceTest {
         verify(domainUser).setRoleToCitizen();
     }
 
-    @Test(expected = DuplicateUserNameException.class)
+    @Test
     public void test_should_raise_exception_when_duplicate_user_name_exists() throws Exception {
         org.egov.user.domain.model.User domainUser = validDomainUser(false);
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
         when(userRepository.isUserPresent("supandi_rocks", "tenantId", UserType.CITIZEN)).thenReturn(true);
         when(userUtils.getStateLevelTenantForCitizen("tenantId", UserType.CITIZEN)).thenReturn("tenantId");
         when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        userService.createUser(domainUser, getValidRequestInfo());
+        assertThrows(DuplicateUserNameException.class, () -> userService.createUser(domainUser, getValidRequestInfo()));
     }
 
-    @Test(expected = OtpValidationPendingException.class)
+    @Test
     public void test_exception_is_raised_when_otp_validation_fails() throws Exception {
         org.egov.user.domain.model.User domainUser = validDomainUser(false);
         domainUser.setOtpValidationMandatory(true);
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(false);
 
-        userService.createUser(domainUser, any());
+        assertThrows(OtpValidationPendingException.class, () -> userService.createUser(domainUser, any()));
     }
 
     @Test
@@ -256,16 +257,16 @@ public class UserServiceTest {
         verify(otpRepository, never()).isOtpValidationComplete(getExpectedRequest());
     }
 
-    @Test(expected = InvalidUserCreateException.class)
+    @Test
     public void test_should_raise_exception_when_user_is_invalid() throws Exception {
         org.egov.user.domain.model.User domainUser = org.egov.user.domain.model.User.builder().build();
 
-        userService.createUser(domainUser, getValidRequestInfo());
+        assertThrows(InvalidUserCreateException.class, () -> userService.createUser(domainUser, getValidRequestInfo()));
         verify(userRepository, never()).create(any(org.egov.user.domain.model.User.class));
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void test_should_update_a_valid_user() {
         User domainUser = validDomainUser(false);
         User user = User.builder().build();
@@ -280,7 +281,7 @@ public class UserServiceTest {
         assertEquals(expectedUser, returnedUser);
     }
 
-    @Test(expected = AtleastOneRoleCodeException.class)
+    @Test
     public void test_should_validate_user_on_update() {
         org.egov.user.domain.model.User domainUser = User.builder().uuid("xyz").build();
         User user = User.builder().build();
@@ -289,8 +290,7 @@ public class UserServiceTest {
                 .model.User
                 .class),any(Long.class) , any(String.class));
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(user));
-        userService.updateWithoutOtpValidation(domainUser, any());
-        verify(domainUser).validateUserModification();
+        assertThrows(AtleastOneRoleCodeException.class, () -> userService.updateWithoutOtpValidation(domainUser, any()));
     }
 
 //	@Ignore
@@ -302,22 +302,22 @@ public class UserServiceTest {
 ////		userService.updateWithoutOtpValidation(1L, domainUser);
 ////	}
 
-    @Test(expected = UserNotFoundException.class)
+    @Test
     public void test_should_throw_error_when_user_not_exists_while_updating() throws Exception {
         User domainUser = validDomainUser(false);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.emptyList());
 
-        userService.updateWithoutOtpValidation(domainUser, getValidRequestInfo());
+        assertThrows(UserNotFoundException.class, () -> userService.updateWithoutOtpValidation(domainUser, getValidRequestInfo()));
     }
 
-    @Test(expected = UserNotFoundException.class)
+    @Test
     public void test_should_throw_exception_on_partial_update_when_id_is_not_present() {
         final User user = User.builder().uuid(null).build();
         when(encryptionDecryptionUtil.encryptObject(user, "User", User.class)).thenReturn(user);
-        userService.partialUpdate(user, getValidRequestInfo());
+        assertThrows(UserNotFoundException.class, () -> userService.partialUpdate(user, getValidRequestInfo()));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void test_should_nullify_fields_that_are_not_allowed_to_be_updated() {
         final User user = mock(User.class);
@@ -327,7 +327,7 @@ public class UserServiceTest {
         verify(user).nullifySensitiveFields();
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void test_should_partially_update_user() {
         final User user = mock(User.class);
@@ -339,7 +339,7 @@ public class UserServiceTest {
         verify(userRepository).update(user, user,user.getId() ,user.getUuid());
     }
 
-    @Test(expected = UserProfileUpdateDeniedException.class)
+    @Test
     public void test_should_throw_exception_when_logged_in_user_is_different_from_user_being_updated() {
         final User user = User.builder().id(12L).username("xyz").uuid("zyz").type(UserType.CITIZEN).loggedInUserId(11L)
                 .tenantId
@@ -348,11 +348,11 @@ public class UserServiceTest {
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(user));
         when(encryptionDecryptionUtil.encryptObject(user, "User", User.class)).thenReturn(user);
         when(encryptionDecryptionUtil.decryptObject(user, "User", User.class, getValidRequestInfo())).thenReturn(user);
-        userService.partialUpdate(user, getValidRequestInfo());
+        assertThrows(UserProfileUpdateDeniedException.class, () -> userService.partialUpdate(user, getValidRequestInfo()));
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void test_should_validate_update_password_request() {
         final LoggedInUserUpdatePasswordRequest updatePasswordRequest = LoggedInUserUpdatePasswordRequest.builder()
                 .userName("xyz")
@@ -370,7 +370,7 @@ public class UserServiceTest {
         verify(updatePasswordRequest).validate();
     }
 
-    @Test(expected = InvalidUpdatePasswordRequestException.class)
+    @Test
     public void test_should_throwexception_incaseofloginotpenabledastrue_forcitizen_update_password_request() {
         userService = new UserService(userRepository, otpRepository, fileRepository, userUtils, passwordEncoder,
                 encryptionDecryptionUtil, tokenStore, DEFAULT_PASSWORD_EXPIRY_IN_DAYS,
@@ -385,10 +385,10 @@ public class UserServiceTest {
                 .existingPassword("existingPassword")
                 .build();
 
-        userService.updatePasswordForLoggedInUser(updatePasswordRequest);
+        assertThrows(InvalidUpdatePasswordRequestException.class, () -> userService.updatePasswordForLoggedInUser(updatePasswordRequest));
     }
 
-    @Test(expected = InvalidUpdatePasswordRequestException.class)
+    @Test
     public void test_should_throwexception_incaseofloginotpenabledastrue_foremployee_update_password_request() {
         userService = new UserService(userRepository, otpRepository, fileRepository, userUtils, passwordEncoder,
                 encryptionDecryptionUtil, tokenStore, DEFAULT_PASSWORD_EXPIRY_IN_DAYS,
@@ -402,20 +402,20 @@ public class UserServiceTest {
                 .newPassword("newPassword")
                 .existingPassword("existingPassword")
                 .build();
-        userService.updatePasswordForLoggedInUser(updatePasswordRequest);
+        assertThrows(InvalidUpdatePasswordRequestException.class, () -> userService.updatePasswordForLoggedInUser(updatePasswordRequest));
     }
 
-    @Test(expected = UserNotFoundException.class)
+    @Test
     public void test_should_throw_exception_when_attempting_to_update_password_for_a_user_that_does_not_exist() {
         final LoggedInUserUpdatePasswordRequest updatePasswordRequest = mock(LoggedInUserUpdatePasswordRequest.class);
         when(updatePasswordRequest.getUserName()).thenReturn("abcd");
         when(updatePasswordRequest.getTenantId()).thenReturn("tenantId");
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.emptyList());
 
-        userService.updatePasswordForLoggedInUser(updatePasswordRequest);
+        assertThrows(UserNotFoundException.class, () -> userService.updatePasswordForLoggedInUser(updatePasswordRequest));
     }
 
-    @Test(expected = PasswordMismatchException.class)
+    @Test
     public void test_should_throw_exception_when_existing_password_does_not_match_on_attempting_to_update_user() {
         final LoggedInUserUpdatePasswordRequest updatePasswordRequest = LoggedInUserUpdatePasswordRequest.builder()
                 .userName("xyz")
@@ -428,7 +428,7 @@ public class UserServiceTest {
         when(passwordEncoder.matches("wrongPassword", "existingPasswordEncoded")).thenReturn(false);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(user));
 
-        userService.updatePasswordForLoggedInUser(updatePasswordRequest);
+        assertThrows(PasswordMismatchException.class, () -> userService.updatePasswordForLoggedInUser(updatePasswordRequest));
     }
 
     @Test
@@ -469,13 +469,13 @@ public class UserServiceTest {
 
     }
 
-    @Test(expected = UserNotFoundException.class)
+    @Test
     public void test_should_throw_exception_when_user_does_not_exist_when_updating_password_for_non_logged_in_user() {
         final NonLoggedInUserUpdatePasswordRequest request = mock(NonLoggedInUserUpdatePasswordRequest.class);
         when(otpRepository.isOtpValidationComplete(any())).thenReturn(true);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.emptyList());
 
-        userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo());
+        assertThrows(UserNotFoundException.class, () -> userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo()));
     }
 
     @Test
@@ -501,7 +501,7 @@ public class UserServiceTest {
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected = Exception.class)
+    @Test
     public void test_notshould_update_existing_password_for_non_logged_in_user() throws Exception {
         final NonLoggedInUserUpdatePasswordRequest request = NonLoggedInUserUpdatePasswordRequest.builder()
                 .userName("xyz")
@@ -514,13 +514,11 @@ public class UserServiceTest {
         final User domainUser = mock(User.class);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
 
-        userService.updatePasswordForNonLoggedInUser(request, any());
-
-        verify(domainUser).updatePassword("newPassword");
+        assertThrows(Exception.class, () -> userService.updatePasswordForNonLoggedInUser(request, any()));
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected = InvalidUpdatePasswordRequestException.class)
+    @Test
     public void test_notshould_update_password_whenCitizenotpconfigured_istrue() throws Exception {
         userService = new UserService(userRepository, otpRepository, fileRepository, userUtils, passwordEncoder,
                 encryptionDecryptionUtil, tokenStore, DEFAULT_PASSWORD_EXPIRY_IN_DAYS,
@@ -536,11 +534,11 @@ public class UserServiceTest {
         final User domainUser = mock(User.class);
         when(domainUser.getType()).thenReturn(UserType.CITIZEN);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
-        userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo());
+        assertThrows(InvalidUpdatePasswordRequestException.class, () -> userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo()));
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected = InvalidNonLoggedInUserUpdatePasswordRequestException.class)
+    @Test
     public void test_notshould_update_password_whenEmployeeotpconfigured_istrue() throws Exception {
         userService = new UserService(userRepository, otpRepository, fileRepository, userUtils, passwordEncoder,
                 encryptionDecryptionUtil, tokenStore, DEFAULT_PASSWORD_EXPIRY_IN_DAYS,
@@ -555,10 +553,10 @@ public class UserServiceTest {
         final User domainUser = mock(User.class);
         when(domainUser.getType()).thenReturn(UserType.EMPLOYEE);
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
-        userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo());
+        assertThrows(InvalidNonLoggedInUserUpdatePasswordRequestException.class, () -> userService.updatePasswordForNonLoggedInUser(request, getValidRequestInfo()));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void test_should_create_a_valid_citizen_WithOtp() throws Exception {
         org.egov.user.domain.model.User domainUser = mock(User.class);

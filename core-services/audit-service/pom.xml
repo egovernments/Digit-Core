@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.2</version>
+		<version>3.5.12</version>
 	</parent>
 	<groupId>org.egov</groupId>
 	<artifactId>audit-service</artifactId>
@@ -13,7 +13,7 @@
 	<name>audit-service</name>
 	<description>Service to handle audit logs</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>25</java.version>
 	</properties>
 	<dependencyManagement>
     <dependencies>

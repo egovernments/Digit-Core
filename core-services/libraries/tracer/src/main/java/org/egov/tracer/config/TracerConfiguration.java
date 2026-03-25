@@ -1,6 +1,7 @@
 package org.egov.tracer.config;
 
 import org.egov.tracer.http.RestTemplateLoggingInterceptor;
+import org.egov.tracer.http.WebClientLoggingFilter;
 import org.egov.tracer.http.filters.TracerFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,6 +12,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Collections;
 
@@ -38,13 +40,12 @@ public class TracerConfiguration {
                 .build();
     }
 
-    /**
-     * Configure tracer filter with order one
-     *
-     * @param objectMapperFactory Object mapper
-     * @param tracerProperties    configuration for the filter
-     * @return Filter
-     */
+    @Bean(name = "logAwareWebClient")
+    public WebClient.Builder logAwareWebClientBuilder(TracerProperties tracerProperties) {
+        return WebClient.builder()
+                .filter(new WebClientLoggingFilter(tracerProperties));
+    }
+
     @Bean
     @ConditionalOnProperty(name = "tracer.filter.enabled",
             havingValue = "true", matchIfMissing = true)
@@ -58,22 +59,4 @@ public class TracerConfiguration {
         return registration;
     }
 
-//    /**
-//     * Disable open tracing by injecting a Noop
-//     *
-//     * @return Noop tracer
-//     */
-//    @Bean
-//    @ConditionalOnProperty(
-//            name = {"tracer.opentracing.enabled"},
-//            havingValue = "false",
-//            matchIfMissing = true
-//    )
-//    public io.opentracing.Tracer tracer() {
-//        return NoopTracerFactory.create();
-//    }
-
-
 }
-
-

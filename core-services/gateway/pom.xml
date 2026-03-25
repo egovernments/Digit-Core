@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.2</version>
+		<version>3.5.12</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.egov</groupId>
@@ -14,9 +14,8 @@
 	<name>gateway</name>
 	<description>API Gateway for Spring Boot</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>25</java.version>
 		<kafka.version>3.1.1</kafka.version>
-		<log4j2.version>2.17.1</log4j2.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 	</properties>
@@ -51,7 +50,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-gateway</artifactId>
-			<version>4.1.1</version>
+			<version>4.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>
@@ -66,7 +65,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.22</version>
+			<version>1.18.36</version>
 		</dependency>
 		<dependency>
 			<groupId>org.egov.services</groupId>

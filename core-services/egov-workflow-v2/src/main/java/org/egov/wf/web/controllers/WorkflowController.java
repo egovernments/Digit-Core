@@ -3,7 +3,7 @@ package org.egov.wf.web.controllers;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.egov.wf.service.WorkflowService;

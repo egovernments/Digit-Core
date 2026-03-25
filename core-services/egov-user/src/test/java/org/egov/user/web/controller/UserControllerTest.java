@@ -1,12 +1,14 @@
 package org.egov.user.web.controller;
 
 import static java.util.Arrays.asList;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.ArrayUtils.isEquals;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.argThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -43,12 +45,10 @@ import org.egov.user.domain.model.enums.GuardianRelation;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.TokenService;
 import org.egov.user.domain.service.UserService;
-import org.egov.user.security.CustomAuthenticationKeyGenerator;
 import org.egov.user.web.contract.auth.Role;
 import org.egov.user.web.contract.auth.User;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +56,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(UserController.class)
 @Import(TestConfiguration.class)
 public class UserControllerTest {
@@ -79,8 +78,6 @@ public class UserControllerTest {
     @MockBean
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
-    @MockBean
-    private CustomAuthenticationKeyGenerator authenticationKeyGenerator;
 
     @Test
     @WithMockUser
@@ -179,7 +176,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser
-    @Ignore
+    @Disabled
     public void test_should_return_error_response_when_user_search_is_invalid() throws Exception {
         final UserSearchCriteria invalidSearchCriteria = UserSearchCriteria.builder().build();
         when(userService.searchUsers(any(), true, any())).thenThrow(new InvalidUserSearchCriteriaException(invalidSearchCriteria));
@@ -193,7 +190,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser
-    @Ignore
+    @Disabled
     public void test_should_update_user_profile() throws Exception {
         when(userService.partialUpdate(any(), any())).thenReturn(org.egov.user.domain.model.User.builder().build());
 
@@ -207,7 +204,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser
-    @Ignore
+    @Disabled
     public void test_should_update_user_details() throws Exception {
 
         org.egov.user.domain.model.User userRequest = org.egov.user.domain.model.User.builder().name("foo").username("userName").dob(new Date("04/08/1986")).guardian("name of relative").build();
@@ -221,7 +218,7 @@ public class UserControllerTest {
                 .andExpect(content().json(getFileContents("userCreateSuccessResponse.json")));
     }
 
-    @Ignore
+    @Disabled
     @Test
     @WithMockUser
     public void test_should_create_citizen() throws Exception {
@@ -272,9 +269,9 @@ public class UserControllerTest {
     @Test
     @WithMockUser
     public void testUserDetails() throws Exception {
-        OAuth2Authentication oAuth2Authentication = mock(OAuth2Authentication.class);
+        Authentication authentication = mock(Authentication.class);
         SecureUser secureUser = new SecureUser(getUser());
-        when(oAuth2Authentication.getPrincipal()).thenReturn(secureUser);
+        when(authentication.getPrincipal()).thenReturn(secureUser);
         when(tokenService.getUser("c80e0ade-f48d-4077-b0d2-4e58526a6bfd"))
                 .thenReturn(getCustomUserDetails());
 
@@ -388,7 +385,7 @@ public class UserControllerTest {
         }
     }
 
-    class UserSearchMatcher extends ArgumentMatcher<UserSearchCriteria> {
+    class UserSearchMatcher implements ArgumentMatcher<UserSearchCriteria> {
 
         private UserSearchCriteria expectedUserSearch;
 
@@ -397,8 +394,7 @@ public class UserControllerTest {
         }
 
         @Override
-        public boolean matches(Object o) {
-            UserSearchCriteria userSearch = (UserSearchCriteria) o;
+        public boolean matches(UserSearchCriteria userSearch) {
             return userSearch.getId().equals(expectedUserSearch.getId()) &&
                     userSearch.getUserName().equals(expectedUserSearch.getUserName()) &&
                     userSearch.getName().equals(expectedUserSearch.getName()) &&
@@ -416,7 +412,7 @@ public class UserControllerTest {
         }
     }
 
-    class UserSearchActiveFlagMatcher extends ArgumentMatcher<UserSearchCriteria> {
+    class UserSearchActiveFlagMatcher implements ArgumentMatcher<UserSearchCriteria> {
 
         private UserSearchCriteria expectedUserSearch;
 
@@ -425,8 +421,7 @@ public class UserControllerTest {
         }
 
         @Override
-        public boolean matches(Object o) {
-            UserSearchCriteria userSearch = (UserSearchCriteria) o;
+        public boolean matches(UserSearchCriteria userSearch) {
             return userSearch.getActive() == expectedUserSearch.getActive();
         }
     }

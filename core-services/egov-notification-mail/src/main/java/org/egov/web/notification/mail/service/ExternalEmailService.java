@@ -1,6 +1,6 @@
 package org.egov.web.notification.mail.service;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 
 import org.egov.tracer.model.CustomException;
 import org.egov.web.notification.mail.config.ApplicationConfiguration;

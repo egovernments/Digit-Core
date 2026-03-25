@@ -1,7 +1,7 @@
 package org.egov.commons.persistence.repository;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -13,14 +13,14 @@ import org.egov.commons.model.BusinessCategoryCriteria;
 import org.egov.commons.repository.BusinessCategoryRepository;
 import org.egov.commons.repository.builder.BusinessCategoryQueryBuilder;
 import org.egov.commons.repository.rowmapper.BusinessCategoryRowMapper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BusinessCategoryRepositoryTest {
 
 	@Mock

@@ -6,8 +6,8 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.model.enums.UserType;
 
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @AllArgsConstructor
 @NoArgsConstructor

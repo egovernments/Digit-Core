@@ -4,21 +4,21 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public class JacksonUtilsTest {
 
     ObjectMapper mapper;
 
-    @Before
+    @BeforeEach
     public void initializeCommonObjects() {
         JsonFactory jsonFactory = new JsonFactory();
         mapper = new ObjectMapper(jsonFactory);

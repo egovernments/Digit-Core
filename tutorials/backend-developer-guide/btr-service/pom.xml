@@ -6,7 +6,7 @@
     <name>birth-registration</name>
     <version>1.0.0</version>
     <properties>
-    <java.version>17</java.version>
+    <java.version>25</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 </properties>

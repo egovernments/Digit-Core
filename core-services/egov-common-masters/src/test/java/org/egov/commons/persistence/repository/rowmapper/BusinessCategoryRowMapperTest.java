@@ -7,15 +7,15 @@ import java.sql.ResultSet;
 
 import org.egov.commons.model.BusinessCategory;
 import org.egov.commons.repository.rowmapper.BusinessCategoryRowMapper;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BusinessCategoryRowMapperTest {
 
 	@Mock
@@ -25,7 +25,7 @@ public class BusinessCategoryRowMapperTest {
 	private BusinessCategoryRowMapper categoryRowMapper;
 
 	@Test
-    @Ignore
+    @Disabled
 	public void test_should_map_result_set_to_entity() throws Exception {
 		Mockito.when(rs.next()).thenReturn(true).thenReturn(false);
 		when(rs.getLong("id")).thenReturn(1L);

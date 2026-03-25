@@ -21,7 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
 @Slf4j
@@ -56,10 +56,10 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
         String userType = details.get("userType");
 
         if (isEmpty(tenantId)) {
-            throw new OAuth2Exception("TenantId is mandatory");
+            throw new AuthenticationServiceException("TenantId is mandatory");
         }
         if (isEmpty(userType) || isNull(UserType.fromValue(userType))) {
-            throw new OAuth2Exception("User Type is mandatory and has to be a valid type");
+            throw new AuthenticationServiceException("User Type is mandatory and has to be a valid type");
         }
 
         User user;
@@ -77,15 +77,15 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
             user = encryptionDecryptionUtil.decryptObject(user, "UserSelf", User.class, requestInfo);
         } catch (UserNotFoundException e) {
             log.error("User not found", e);
-            throw new OAuth2Exception("Invalid login credentials");
+            throw new AuthenticationServiceException("Invalid login credentials");
         } catch (DuplicateUserNameException e) {
             log.error("Fatal error, user conflict, more than one user found", e);
-            throw new OAuth2Exception("Invalid login credentials");
+            throw new AuthenticationServiceException("Invalid login credentials");
 
         }
 
         if (user.getAccountLocked() == null || user.getAccountLocked()) {
-            throw new OAuth2Exception("Account locked");
+            throw new AuthenticationServiceException("Account locked");
         }
 
         List<GrantedAuthority> grantedAuths = new ArrayList<>();

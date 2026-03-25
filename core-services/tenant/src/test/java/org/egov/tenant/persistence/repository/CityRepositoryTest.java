@@ -1,16 +1,16 @@
 package org.egov.tenant.persistence.repository;
 
 import org.egov.tenant.domain.model.City;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,7 +19,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.egov.tenant.persistence.entity.City.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class CityRepositoryTest {
 
@@ -28,7 +28,7 @@ public class CityRepositoryTest {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cityRepository = new CityRepository(namedParameterJdbcTemplate);
     }
@@ -114,9 +114,9 @@ public class CityRepositoryTest {
                     put(LAST_MODIFIED_BY, resultSet.getLong(LAST_MODIFIED_BY));
                     put(LAST_MODIFIED_DATE, resultSet.getString(LAST_MODIFIED_DATE));
                     put(SHAPEFILE_LOCATION, resultSet.getString(SHAPEFILE_LOCATION));
-                    put(CAPTCHA,resultSet.getString(CAPTCHA));    
+                    put(CAPTCHA,resultSet.getString(CAPTCHA));
                     put(CODE,resultSet.getString(CODE));
-                    
+
                 }};
 
                 rows.add(row);
@@ -124,8 +124,8 @@ public class CityRepositoryTest {
             return rows;
         }
     }
-    
-    
+
+
     @Test
     @Sql(scripts = {"/sql/clearCity.sql", "/sql/clearTenant.sql", "/sql/insertTenantData.sql","/sql/insertCityData.sql"})
     public void test_should_update_city() {
@@ -158,7 +158,7 @@ public class CityRepositoryTest {
         assertThat(row.get(SHAPEFILE_LOCATION)).isNotNull();
         assertThat(row.get(CAPTCHA)).isNotNull();
         assertThat(row.get(CODE)).isNotNull();
-        
+
     }
 
 }

@@ -40,7 +40,7 @@
 
 package org.egov.commons.repository.builder;
 
-import static org.springframework.util.StringUtils.isEmpty;
+
 
 import java.util.List;
 
@@ -102,7 +102,7 @@ public class CalendarYearQueryBuilder {
             preparedStatementValues.add(calendarYearGetRequest.getTenantId());
         }
 
-        if (!isEmpty(year)) {
+        if (year != 0) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" name >= ?");
             preparedStatementValues.add(year);

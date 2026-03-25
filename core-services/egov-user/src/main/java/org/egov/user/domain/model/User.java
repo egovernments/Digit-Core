@@ -16,13 +16,13 @@ import org.egov.user.domain.model.enums.BloodGroup;
 import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.GuardianRelation;
 import org.egov.user.domain.model.enums.UserType;
-import org.hibernate.validator.constraints.Email;
+import jakarta.validation.constraints.Email;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 

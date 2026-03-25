@@ -42,7 +42,7 @@ public class DataUploadConsumer {
 	@KafkaListener(topics = { "${kafka.topics.dataupload}" })
 
 	public void listen(final Map<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-					   @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) String key) {
+					   @Header(KafkaHeaders.RECEIVED_KEY) String key) {
 		ObjectMapper mapper = new ObjectMapper();
 		UploaderRequest req=null;
 		try {
