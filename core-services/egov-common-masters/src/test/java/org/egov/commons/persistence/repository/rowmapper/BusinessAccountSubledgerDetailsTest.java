@@ -8,15 +8,15 @@ import java.sql.ResultSet;
 import org.egov.commons.model.BusinessAccountDetails;
 import org.egov.commons.model.BusinessAccountSubLedgerDetails;
 import org.egov.commons.repository.rowmapper.BusinessAccountSubledgerDetailsRowMapper;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BusinessAccountSubledgerDetailsTest {
 	@Mock
 	private ResultSet rs;
@@ -25,7 +25,7 @@ public class BusinessAccountSubledgerDetailsTest {
 	private BusinessAccountSubledgerDetailsRowMapper subledgerDetailsRowMapper;
 
 	@Test
-    @Ignore
+    @Disabled
 	public void test_should_map_result_set_to_entity() throws Exception {
 		Mockito.when(rs.next()).thenReturn(true).thenReturn(false);
 

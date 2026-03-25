@@ -8,11 +8,11 @@ import org.egov.commons.service.DepartmentService;
 import org.egov.commons.web.contract.DepartmentGetRequest;
 import org.egov.commons.web.contract.DepartmentRequest;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -20,12 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @WebMvcTest(DepartmentService.class)
 @WebAppConfiguration
 public class DepartmentServiceTest {
@@ -36,7 +36,7 @@ public class DepartmentServiceTest {
 
     private DepartmentService departmentService;
 
-    @Before
+    @BeforeEach
     public void before() {
         departmentService = new DepartmentService(departmentRepository, kafkaTemplate);
     }

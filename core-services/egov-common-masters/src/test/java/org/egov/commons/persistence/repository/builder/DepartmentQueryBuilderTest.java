@@ -2,13 +2,13 @@ package org.egov.commons.persistence.repository.builder;
 
 import org.egov.commons.repository.builder.DepartmentQueryBuilder;
 import org.egov.commons.web.contract.DepartmentGetRequest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class DepartmentQueryBuilderTest {

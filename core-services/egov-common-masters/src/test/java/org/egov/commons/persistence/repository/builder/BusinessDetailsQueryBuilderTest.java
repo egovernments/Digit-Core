@@ -1,19 +1,19 @@
 package org.egov.commons.persistence.repository.builder;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.egov.commons.model.BusinessDetailsCriteria;
 import org.egov.commons.repository.builder.BusinessDetailsQueryBuilder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class BusinessDetailsQueryBuilderTest {
 
 	@Test
-    @Ignore
+    @Disabled
 	public void no_input_test() {
 		BusinessDetailsCriteria detailsCriteria = new BusinessDetailsCriteria();
 
@@ -38,7 +38,7 @@ public class BusinessDetailsQueryBuilderTest {
 	}
 
 	@Test
-    @Ignore
+    @Disabled
 	public void all_input_test() {
 		BusinessDetailsCriteria detailsCriteria = new BusinessDetailsCriteria();
 		BusinessDetailsQueryBuilder builder = new BusinessDetailsQueryBuilder();
