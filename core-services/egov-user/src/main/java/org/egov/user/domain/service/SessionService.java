@@ -99,6 +99,7 @@ public class SessionService {
             map.add("grant_type", "password");
             map.add("scope", "read");
             map.add("tenantId", tenantId);
+            map.add("userType", "EMPLOYEE");
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
             @SuppressWarnings("unchecked")
