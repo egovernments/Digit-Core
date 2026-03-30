@@ -32,7 +32,7 @@ public class SessionController {
             @Valid @RequestBody ValidateSessionRequest request) {
 
         ValidateSessionResponse response = sessionService.validateSession(
-                request.getUsername(), request.getTenantId());
+                request.getUsername(), request.getTenantId(), request.getDeviceToken());
 
         response.setResponseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(
                 request.getRequestInfo(), true));

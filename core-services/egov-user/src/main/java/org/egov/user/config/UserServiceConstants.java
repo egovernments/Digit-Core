@@ -71,6 +71,22 @@ public class UserServiceConstants {
     public static final String CITIZEN_ROLE_CODE = "CITIZEN";
 
     public static final String INVALID_TENANT_ID_ERR_CODE = "INVALID_TENANT_ID";
-    
+
+    // Session/Switch API constants
+    public static final String ANY_OTHER_REASON = "ANY_OTHER_REASON";
+    public static final String USER_REQUEST_KEY = "UserRequest";
+    public static final String DEVICE_TOKENS_KEY = "deviceTokens";
+    public static final String DEVICE_TOKEN_KEY = "deviceToken";
+    public static final String OAUTH_TOKEN_PATH = "/user/oauth/token";
+    public static final String DEVICE_TOKEN_SEARCH_PATH = "egov-notification-push/device-token/v1/_search";
+    public static final String BASIC_AUTH_HEADER = "Basic ZWdvdi11c2VyLWNsaWVudDo=";
+    public static final String GRANT_TYPE_PASSWORD = "password";
+    public static final String SCOPE_READ = "read";
+    public static final String USER_TYPE_EMPLOYEE = "EMPLOYEE";
+
+    // Error codes
+    public static final String ERR_INVALID_SWITCH_REQUEST = "INVALID_SWITCH_REQUEST";
+    public static final String ERR_LOGIN_FAILED = "LOGIN_FAILED";
+
 }
 
