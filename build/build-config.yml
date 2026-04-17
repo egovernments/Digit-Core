@@ -89,13 +89,13 @@ config:
     build:
       - work-dir: "core-services/egov-accesscontrol"
         image-name: "egov-accesscontrol"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 # Core Services
   - name: "builds/Digit-Core/core-services/audit-service"
     build:
       - work-dir: "core-services/audit-service"
         image-name: "audit-service"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/audit-service/src/main/resources/db"
         image-name: "audit-service-db"
   - name: "builds/Digit-Core/core-services/egov-common-masters"
@@ -118,7 +118,7 @@ config:
     build:
       - work-dir: "core-services/egov-enc-service"
         image-name: "egov-enc-service"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-enc-service/src/main/resources/db"
         image-name: "egov-enc-service-db"
 
@@ -126,7 +126,7 @@ config:
     build:
       - work-dir: "core-services/egov-filestore"
         image-name: "egov-filestore"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-filestore/src/main/resources/db"
         image-name: "egov-filestore-db"
 
@@ -134,7 +134,7 @@ config:
     build:
       - work-dir: "core-services/egov-idgen"
         image-name: "egov-idgen"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-idgen/src/main/resources/db"
         image-name: "egov-idgen-db"
 
@@ -142,7 +142,7 @@ config:
     build:
       - work-dir: "core-services/egov-indexer"
         image-name: "egov-indexer"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-indexer/src/main/resources/db"
         image-name: "egov-indexer-db"
 
@@ -150,7 +150,7 @@ config:
     build:
       - work-dir: "core-services/egov-localization"
         image-name: "egov-localization"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-localization/src/main/resources/db"
         image-name: "egov-localization-db"
 
@@ -158,7 +158,7 @@ config:
     build:
       - work-dir: "core-services/egov-location"
         image-name: "egov-location"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-location/src/main/resources/db"
         image-name: "egov-location-db"
 
@@ -166,7 +166,7 @@ config:
     build:
       - work-dir: "core-services/boundary-service"
         image-name: "boundary-service"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/boundary-service/src/main/resources/db"
         image-name: "boundary-service-db"
 
@@ -174,13 +174,13 @@ config:
     build:
       - work-dir: "core-services/egov-mdms-service"
         image-name: "egov-mdms-service"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/mdms-v2"
     build:
       - work-dir: "core-services/mdms-v2"
         image-name: "mdms-v2"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/mdms-v2/src/main/resources/db"
         image-name: "mdms-v2-db"
 
@@ -188,19 +188,19 @@ config:
     build:
       - work-dir: "core-services/egov-notification-mail"
         image-name: "egov-notification-mail"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/egov-notification-sms"
     build:
       - work-dir: "core-services/egov-notification-sms"
         image-name: "egov-notification-sms"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/egov-otp"
     build:
       - work-dir: "core-services/egov-otp"
         image-name: "egov-otp"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-otp/src/main/resources/db"
         image-name: "egov-otp-db"
 
@@ -208,13 +208,13 @@ config:
     build:
       - work-dir: "core-services/egov-persister"
         image-name: "egov-persister"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/egov-pg-service"
     build:
       - work-dir: "core-services/egov-pg-service"
         image-name: "egov-pg-service"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-pg-service/src/main/resources/db"
         image-name: "egov-pg-service-db"
 
@@ -234,7 +234,7 @@ config:
     build:
       - work-dir: "core-services/egov-user"
         image-name: "egov-user"
-        dockerfile: "build/maven-java8/Dockerfile"
+        dockerfile: "build/maven-java8-jdk21/Dockerfile"
       - work-dir: "core-services/egov-user/src/main/resources/db"
         image-name: "egov-user-db"
 
@@ -242,7 +242,7 @@ config:
     build:
       - work-dir: "core-services/egov-user-event"
         image-name: "egov-user-event"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-user-event/src/main/resources/db"
         image-name: "egov-user-event-db"
 
@@ -250,7 +250,7 @@ config:
     build:
       - work-dir: "core-services/egov-workflow-v2"
         image-name: "egov-workflow-v2"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-workflow-v2/src/main/resources/db"
         image-name: "egov-workflow-v2-db"
 
@@ -303,7 +303,7 @@ config:
     build:
       - work-dir: "core-services/user-otp"
         image-name: "user-otp"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/zuul"
     build:
@@ -315,7 +315,7 @@ config:
     build:
       - work-dir: "core-services/gateway"
         image-name: "gateway"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 
   - name: "builds/Digit-Core/core-services/internal-gateway"
     build:
@@ -327,15 +327,15 @@ config:
     build:
       - work-dir: "core-services/internal-gateway-scg"
         image-name: "internal-gateway-scg"
-        dockerfile: "build/maven/Dockerfile"
-        
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
   - name: "builds/Digit-Core/core-services/egov-user-event"
     build:
       - work-dir: "core-services/egov-user-event"
         image-name: "egov-user-event"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-user-event/src/main/resources/db"
-        image-name: "egov-user-event-db"       
+        image-name: "egov-user-event-db"
 
   - name: "builds/Digit-Core/core-services/pdf-service"
     build:
@@ -360,7 +360,7 @@ config:
     build:
       - work-dir: "core-services/egov-url-shortening"
         image-name: "egov-url-shortening"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/egov-url-shortening/src/main/resources/db"
         image-name: "egov-url-shortening-db"
   
@@ -444,7 +444,7 @@ config:
     build:
       - work-dir: "accelerators/inbox"
         image-name: "inbox"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
 
   - name: "builds/Digit-Core/accelerators/gateway-kubernetes-discovery"
     build:
@@ -455,7 +455,7 @@ config:
     build:
       - work-dir: "accelerators/pgr-services"
         image-name: "pgr-services"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "accelerators/pgr-services/src/main/resources/db"
         image-name: "pgr-services-db"
 
@@ -463,7 +463,7 @@ config:
     build:
       - work-dir: "core-services/service-request"
         image-name: "service-request"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "build/maven-jdk21/Dockerfile"
       - work-dir: "core-services/service-request/src/main/resources/db"
         image-name: "service-request-db"
 
