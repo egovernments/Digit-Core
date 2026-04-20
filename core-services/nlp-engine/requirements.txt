@@ -21,7 +21,7 @@ joblib==0.16.0
 MarkupSafe==1.1.1
 nltk==3.5
 pickle-mixin==1.0.2
-protobuf==3.13.0
+protobuf==5.29.6
 regex==2020.7.14
 requests==2.24.0
 rfc3986==1.4.0
