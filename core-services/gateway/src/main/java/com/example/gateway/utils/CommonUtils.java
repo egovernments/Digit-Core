@@ -160,6 +160,7 @@ public class CommonUtils {
     public Set<String> getTenantIdsFromRequest(ServerHttpRequest request, Map body) throws CustomException {
 
         Set<String> tenantIds = new HashSet<>();
+        String path = request.getURI().getPath();
 
         if (CommonUtils.isRequestBodyCompatible(request)) {
 
@@ -192,9 +193,13 @@ public class CommonUtils {
                 }
 
             } catch (Exception e) {
-                CustomException customException = new CustomException("REQUEST_PARSE_FAILED", "Failed to parse request at API gateway");
-                customException.setCode(HttpStatus.UNAUTHORIZED.toString());
-                throw customException;
+                if (("/error-handler/handle-error").equals(path)) {
+                    tenantIds.add("go");
+                } else {
+                    CustomException customException = new CustomException("REQUEST_PARSE_FAILED", "Failed to parse request at API gateway");
+                    customException.setCode(HttpStatus.UNAUTHORIZED.toString());
+                    throw customException;
+                }
             }
         } else {
             setTenantIdsFromQueryParams(request.getQueryParams(), tenantIds);
