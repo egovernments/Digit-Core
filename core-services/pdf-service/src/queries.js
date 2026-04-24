@@ -17,7 +17,7 @@ const pool = new Pool({
   port: envVariables.DB_PORT,
 })
 
-const uuidv4 = require("uuid/v4");
+const { v4: uuidv4 } = require("uuid");
 
 export const getFileStoreIds = (
   jobid,

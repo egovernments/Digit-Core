@@ -1,6 +1,5 @@
 "use strict";
 import http from "http";
-import request from "request";
 import express from "express";
 import logger from "./config/logger";
 import path from "path";
@@ -15,7 +14,6 @@ import asyncHandler from "express-async-handler";
 import * as pdfmake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import get from "lodash/get";
-import set from "lodash/set";
 import {
   strict
 } from "assert";
@@ -127,7 +125,7 @@ var defaultFontMapping = {
 }
 
 const printer = new pdfMakePrinter(fontDescriptors);
-const uuidv4 = require("uuid/v4");
+const { v4: uuidv4 } = require("uuid");
 
 let mustache = require("mustache");
 mustache.escape = function (text) {
