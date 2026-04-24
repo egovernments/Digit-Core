@@ -32,7 +32,9 @@
   "author": "Jason Miller <jason@developit.ca>",
   "license": "MIT",
   "dependencies": {
+    "async": "3.2.3",
     "axios": "^1.15.0",
+    "base64-stream": "1.0.0",
     "body-parser": "^1.20.3",
     "compression": "^1.8.1",
     "cors": "^2.7.1",
@@ -44,16 +46,14 @@
     "lodash.get": "^4.4.2",
     "moment-timezone": "^0.5.28",
     "morgan": "^1.8.0",
+    "node-cache": "5.1.2",
+    "pdf-merger-js": "3.2.1",
     "pdfmake": "0.2.4",
     "pg": "^8.7.1",
     "qrcode": "^1.4.1",
     "resource-router-middleware": "^0.6.0",
-    "uuid": "^10.0.0",
-    "winston": "^3.2.1",
-    "pdf-merger-js": "3.2.1",
-    "base64-stream": "1.0.0",
-    "node-cache": "5.1.2",
-    "async": "3.2.3"
+    "uuid": "^9.0.1",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
