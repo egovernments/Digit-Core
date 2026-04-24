@@ -1,6 +1,5 @@
 "use strict";
 import http from "http";
-import request from "request";
 import express from "express";
 import logger from "./config/logger";
 import path from "path";
@@ -15,7 +14,6 @@ import asyncHandler from "express-async-handler";
 import * as pdfmake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import get from "lodash/get";
-import set from "lodash/set";
 import {
   strict
 } from "assert";
@@ -33,6 +31,7 @@ import {
 } from "./utils/externalAPIMapping";
 import envVariables from "./EnvironmentVariables";
 import QRCode from "qrcode";
+import { v4 as uuidv4 } from "uuid";
 import {
   getStateSchemaIndexPositionInTenantId,
   getValue, isEnvironmentCentralInstance
@@ -53,6 +52,7 @@ import {
   findLocalisation,
   getDateInRequiredFormat
 } from "./utils/commons";
+import { queryJsonPath } from "./utils/jsonPath";
 
 
 let v8 = require("v8");
@@ -63,9 +63,15 @@ console.log(`*******************************************`);
 
 
 
-var jp = require("jsonpath");
 //create binary
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+const resolvedVfs =
+  get(pdfFonts, "pdfMake.vfs") ||
+  get(pdfFonts, "vfs") ||
+  get(pdfFonts, "default.pdfMake.vfs") ||
+  get(pdfFonts, "default.vfs");
+if (resolvedVfs) {
+  pdfMake.vfs = resolvedVfs;
+}
 var pdfMakePrinter = require("pdfmake/src/printer");
 
 let app = express();
@@ -127,7 +133,6 @@ var defaultFontMapping = {
 }
 
 const printer = new pdfMakePrinter(fontDescriptors);
-const uuidv4 = require("uuid/v4");
 
 let mustache = require("mustache");
 mustache.escape = function (text) {
@@ -1101,7 +1106,7 @@ const generateQRCodes = async (
   variableTovalueMap
 ) => {
   let qrcodeMappings = getValue(
-    jp.query(dataconfig, "$.DataConfigs.mappings.*.mappings.*.qrcodeConfig.*"),
+    queryJsonPath(dataconfig, "$.DataConfigs.mappings.*.mappings.*.qrcodeConfig.*"),
     [],
     "$.DataConfigs.mappings.*.mappings.*.qrcodeConfig.*"
   );
@@ -1118,7 +1123,7 @@ const generateQRCodes = async (
 
 const handleDerivedMapping = (dataconfig, variableTovalueMap) => {
   let derivedMappings = getValue(
-    jp.query(dataconfig, "$.DataConfigs.mappings.*.mappings.*.derived.*"),
+    queryJsonPath(dataconfig, "$.DataConfigs.mappings.*.mappings.*.derived.*"),
     [],
     "$.DataConfigs.mappings.*.mappings.*.derived.*"
   );
@@ -1275,7 +1280,7 @@ const prepareBulk = async (
   let entityIds = [];
   let countOfObjectsInCurrentFile = 0;
   let moduleObjectsArray = getValue(
-    jp.query(req.body || req, baseKeyPath),
+    queryJsonPath(req.body || req, baseKeyPath),
     [],
     baseKeyPath
   );
@@ -1284,7 +1289,7 @@ const prepareBulk = async (
     for (var i = 0, len = moduleObjectsArray.length; i < len; i++) {
       let moduleObject = moduleObjectsArray[i];
       let entityKey = getValue(
-        jp.query(moduleObject, entityIdPath),
+        queryJsonPath(moduleObject, entityIdPath),
         [null],
         entityIdPath
       );

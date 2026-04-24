@@ -8,6 +8,7 @@ import fs, {
   exists
 } from "fs";
 import { getStateSchemaIndexPositionInTenantId, isEnvironmentCentralInstance } from "./utils/commons";
+import { v4 as uuidv4 } from "uuid";
 
 const pool = new Pool({
   user: envVariables.DB_USER,
@@ -16,8 +17,6 @@ const pool = new Pool({
   password: envVariables.DB_PASSWORD,
   port: envVariables.DB_PORT,
 })
-
-const uuidv4 = require("uuid/v4");
 
 export const getFileStoreIds = (
   jobid,

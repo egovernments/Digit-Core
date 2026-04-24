@@ -8,6 +8,7 @@ import {
   getValue
 } from "./commons";
 import logger from "../config/logger";
+import { queryJsonPath } from "./jsonPath";
 /**
  *
  * @param {*} key -name of the key used to identify module configs. Provided request URL
@@ -34,9 +35,8 @@ export const externalAPIMapping = async function (
   unregisteredLocalisationCodes,
   header
 ) {
-  var jp = require("jsonpath");
   var objectOfExternalAPI = getValue(
-    jp.query(dataconfig, "$.DataConfigs.mappings.*.mappings.*.externalAPI.*"),
+    queryJsonPath(dataconfig, "$.DataConfigs.mappings.*.mappings.*.externalAPI.*"),
     [],
     "$.DataConfigs.mappings.*.mappings.*.externalAPI.*"
   );
@@ -76,7 +76,7 @@ export const externalAPIMapping = async function (
         ) {
           if (flag == 1) {
             temp2 = temp1;
-            let temp3 = getValue(jp.query(req, temp1), "NA", temp1);
+            let temp3 = getValue(queryJsonPath(req, temp1), "NA", temp1);
             externalAPIArray[i].queryParams = externalAPIArray[
               i
             ].queryParams.replace(temp2, temp3);
@@ -93,7 +93,7 @@ export const externalAPIMapping = async function (
         }
         if (j == externalAPIArray[i].queryParams.length - 1 && flag == 1) {
           temp2 = temp1;
-          let temp3 = getValue(jp.query(req, temp1), "NA", temp1);
+          let temp3 = getValue(queryJsonPath(req, temp1), "NA", temp1);
 
           externalAPIArray[i].queryParams = externalAPIArray[
             i
@@ -125,7 +125,7 @@ export const externalAPIMapping = async function (
           if (flag == 1) {
             temp2 = temp1;
 
-            let temp3 = getValue(jp.query(req, temp1), "NA", temp1);
+            let temp3 = getValue(queryJsonPath(req, temp1), "NA", temp1);
             externalAPIArray[i].queryParams = externalAPIArray[
               i
             ].queryParams.replace(temp2, temp3);
@@ -147,7 +147,7 @@ export const externalAPIMapping = async function (
         }
         if (j == externalAPIArray[i].queryParams.length - 1 && flag == 1) {
           temp2 = temp1;
-          let temp3 = getValue(jp.query(req, temp1), "NA", temp1);
+          let temp3 = getValue(queryJsonPath(req, temp1), "NA", temp1);
 
           externalAPIArray[i].queryParams = externalAPIArray[
             i
@@ -209,7 +209,7 @@ export const externalAPIMapping = async function (
 
     for (let j = 0; j < externalAPIArray[i].jPath.length; j++) {
       let replaceValue = getValue(
-        jp.query(res, externalAPIArray[i].jPath[j].value),
+        queryJsonPath(res, externalAPIArray[i].jPath[j].value),
         "NA",
         externalAPIArray[i].jPath[j].value
       );
@@ -259,7 +259,7 @@ export const externalAPIMapping = async function (
         let {
           scema = []
         } = format;
-        let val = getValue(jp.query(res, value), "NA", value);
+        let val = getValue(queryJsonPath(res, value), "NA", value);
 
 
         //taking values about owner from request body

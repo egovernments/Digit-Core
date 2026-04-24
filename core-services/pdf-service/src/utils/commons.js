@@ -28,7 +28,7 @@ export const getTransformedLocale = (label) => {
  * @param {*} isMainTypeRequired  - ex:- "GOODS_RETAIL_TST-1" = get localisation for "RETAIL"
  * @param {*} isSubTypeRequired  - - ex:- "GOODS_RETAIL_TST-1" = get localisation for "GOODS_RETAIL_TST-1"
  */
- export const findLocalisation = async (
+export const findLocalisation = async (
   requestInfo,
   moduleList,
   codeList,
@@ -224,5 +224,3 @@ export const getStateSchemaIndexPositionInTenantId = () => {
     return 1;
   }
 }
-
-

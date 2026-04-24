@@ -8,8 +8,7 @@ import {
   getDateInRequiredFormat,
   getValue
 } from "./commons";
-
-var jp = require("jsonpath");
+import { queryJsonPath } from "./jsonPath";
 
 let externalHost = envVariables.EGOV_EXTERNAL_HOST;
 /**
@@ -41,7 +40,7 @@ export const directMapping = async (
   var localisationModules = [];
   var variableToModuleMap = {};
   // using jp-jsonpath because loadash can not handele '*'
-  var objectOfDirectMapping = jp.query(
+  var objectOfDirectMapping = queryJsonPath(
     dataconfig,
     "$.DataConfigs.mappings.*.mappings.*.direct.*"
   );
@@ -55,7 +54,7 @@ export const directMapping = async (
       jPath: item.variable,
       val:
         item.value &&
-        getValue(jp.query(req, item.value.path), "NA", item.value.path),
+        getValue(queryJsonPath(req, item.value.path), "NA", item.value.path),
       valJsonPath: item.value && item.value.path,
       type: item.type,
       url: item.url,
@@ -76,7 +75,7 @@ export const directMapping = async (
     }
     if (directArr[i].type == "selectFromRequestInfo") {
       directArr[i].val = getValue(
-        jp.query(requestInfo, directArr[i].valJsonPath),
+        queryJsonPath(requestInfo, directArr[i].valJsonPath),
         "NA",
         directArr[i].valJsonPath
       );

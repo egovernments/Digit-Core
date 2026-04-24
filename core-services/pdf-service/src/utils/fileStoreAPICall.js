@@ -1,7 +1,6 @@
-import request from "request";
 import fs from "fs";
 import get from "lodash/get";
-import axios, { post } from "axios";
+import axios from "axios";
 var FormData = require("form-data");
 import envVariables from "../EnvironmentVariables";
 
@@ -42,7 +41,7 @@ export async function getFilestoreUrl(filestoreid, tenantId){
 
 export async function getShortneningUrl(actualUrl){
   var url = `${externalHost}egov-url-shortening/shortener`;
-  var request = {
+  var payload = {
     "url": actualUrl
   };
 
@@ -52,7 +51,7 @@ export async function getShortneningUrl(actualUrl){
     }
   };
 
-  let response = await axios.post(url,request, headers);
+  let response = await axios.post(url,payload, headers);
   let shortUrl = response.data;
   return shortUrl;
 }
