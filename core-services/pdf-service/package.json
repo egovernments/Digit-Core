@@ -50,7 +50,7 @@
     "qrcode": "^1.4.1",
     "request": "^2.88.0",
     "resource-router-middleware": "^0.6.0",
-    "uuid": "^3.3.3",
+    "uuid": "^14.0.0",
     "winston": "^3.2.1",
     "pdf-merger-js": "3.2.1",
     "base64-stream": "1.0.0",
