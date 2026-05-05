@@ -61,13 +61,13 @@ public class LegacyIndexMessageListener implements MessageListener<String, Strin
 				LegacyIndexRequest legacyIndexRequest = mapper.readValue(data.value(), LegacyIndexRequest.class);
 				legacyIndexService.beginLegacyIndex(legacyIndexRequest);
 			}catch(Exception e) {
-				dlqHandler.handleError(data.value(), e, "LegacyIndexMessageListener");
+				dlqHandler.handleError(data.value(), e, "LegacyIndexMessageListener", data.topic());
 			}
 		}else {
 			try {
 				indexerService.esIndexer(data.topic(), data.value());
 			} catch (Exception e) {
-				dlqHandler.handleError(data.value(), e, "LegacyIndexMessageListener");
+				dlqHandler.handleError(data.value(), e, "LegacyIndexMessageListener", data.topic());
 			}
 		}
 	}

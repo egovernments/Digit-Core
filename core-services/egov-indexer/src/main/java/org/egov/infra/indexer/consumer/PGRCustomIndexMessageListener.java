@@ -62,43 +62,31 @@ public class PGRCustomIndexMessageListener implements MessageListener<String, St
 		MDC.put(TENANTID_MDC_STRING, stateLevelTenantId );
 
 		if(data.topic().equals(pgrCreateTopic) || data.topic().equals(pgrBatchCreateTopic)){
-			String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
+			try {
+				String kafkaJson = pgrCustomDecorator.enrichDepartmentPlaceholderInPgrRequest(data.value());
+				ObjectMapper mapper = indexerUtils.getObjectMapper();
+				ServiceResponse serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
 
-			ObjectMapper mapper = indexerUtils.getObjectMapper();
-			ServiceResponse serviceResponse = null;
-			try{
-				 serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
-			}catch (Exception e)
-			{
-				dlqHandler.handleError(data.value(), e, "PGRCustomIndexMessageListener");
-			}
-
-			//Extracting tenantId
-			String tenantId = null;
-			if(!serviceResponse.getServices().isEmpty())
-			{
-				if(serviceResponse.getServices().get(0) != null)
-				{
+				String tenantId = null;
+				if(serviceResponse.getServices() != null && !serviceResponse.getServices().isEmpty()
+						&& serviceResponse.getServices().get(0) != null) {
 					tenantId = serviceResponse.getServices().get(0).getTenantId();
 				}
-			}
 
-			String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson, tenantId);
-			kafkaJson = kafkaJson.replace(IndexerConstants.DEPT_CODE, deptCode);
-			try {
-
+				String deptCode = pgrCustomDecorator.getDepartmentCodeForPgrRequest(kafkaJson, tenantId);
+				kafkaJson = kafkaJson.replace(IndexerConstants.DEPT_CODE, deptCode);
 				indexerService.esIndexer(data.topic(), kafkaJson);
-			}catch(Exception e){
-				dlqHandler.handleError(kafkaJson, e, "PGRCustomIndexMessageListener");
+			} catch(Exception e) {
+				dlqHandler.handleError(data.value(), e, "PGRCustomIndexMessageListener", data.topic());
 			}
-		}else {
+		} else {
 			ObjectMapper mapper = indexerUtils.getObjectMapper();
 			try {
 				ServiceResponse serviceResponse = mapper.readValue(data.value(), ServiceResponse.class);
 				PGRIndexObject indexObject = pgrCustomDecorator.dataTransformationForPGR(serviceResponse);
 				indexerService.esIndexer(data.topic(), mapper.writeValueAsString(indexObject));
 			} catch (Exception e) {
-				dlqHandler.handleError(data.value(), e, "PGRCustomIndexMessageListener");
+				dlqHandler.handleError(data.value(), e, "PGRCustomIndexMessageListener", data.topic());
 			}
 		}
 	}

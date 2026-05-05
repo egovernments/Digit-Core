@@ -61,13 +61,13 @@ public class ReindexMessageListener implements MessageListener<String, String> {
 				ReindexRequest reindexRequest = mapper.readValue(data.value(), ReindexRequest.class);
 				reindexService.beginReindex(reindexRequest);
 			} catch (Exception e) {
-				dlqHandler.handleError(data.value(), e, "ReindexMessageListener");
+				dlqHandler.handleError(data.value(), e, "ReindexMessageListener", data.topic());
 			}	
 		}else {
 			try {
 				indexerService.esIndexer(data.topic(), data.value());
 			} catch (Exception e) {
-				dlqHandler.handleError(data.value(), e, "ReindexMessageListener");
+				dlqHandler.handleError(data.value(), e, "ReindexMessageListener", data.topic());
 			}
 		}
 	}

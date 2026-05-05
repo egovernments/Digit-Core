@@ -42,7 +42,7 @@ public class CoreIndexMessageListener implements MessageListener<String, String>
 		try {
 			indexerService.esIndexer(data.topic(), data.value());
 		} catch (Exception e) {
-			dlqHandler.handleError(data.value(), e, "CoreIndexMessageListener");
+			dlqHandler.handleError(data.value(), e, "CoreIndexMessageListener", data.topic());
 		} finally {
 			// Always clear MDC to prevent data leakage across thread reuse
 			MDC.remove(TENANTID_MDC_STRING);

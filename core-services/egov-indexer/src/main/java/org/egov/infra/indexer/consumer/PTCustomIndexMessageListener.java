@@ -65,7 +65,7 @@ public class PTCustomIndexMessageListener implements MessageListener<String, Str
 			propertyRequest.setProperties(ptCustomDecorator.transformData(propertyRequest.getProperties()));
 			indexerService.esIndexer(data.topic(), mapper.writeValueAsString(propertyRequest));
 		} catch (Exception e) {
-			dlqHandler.handleError(data.value(), e, "PTCustomIndexMessageListener");
+			dlqHandler.handleError(data.value(), e, "PTCustomIndexMessageListener", data.topic());
 		} finally {
 			// Always clear MDC to prevent data leakage across thread reuse
 			if (tenantId != null) {

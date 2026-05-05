@@ -2,6 +2,7 @@ package org.egov.infra.indexer.util;
 
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.infra.indexer.service.IndexerException;
 import org.egov.tracer.kafka.ErrorQueueProducer;
 import org.egov.tracer.model.ErrorQueueContract;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,53 +26,46 @@ public class DLQHandler {
     @Value("${tracer.errorsPublish}")
     private boolean publishErrors;
 
-    /**
-     * Complete error handling logic for all message listeners
-     * @param messageBody The original kafka message
-     * @param exception The exception that occurred
-     * @param source The source/listener name
-     */
-    public void handleError(String messageBody, Exception exception, String source) {
-        // Always log the error first
-        log.error("Error while processing in {}: ", source, exception);
-        
-        // Send directly to DLQ using tracer's ErrorQueueProducer
+    public void handleError(String messageBody, Exception exception, String source, String topic) {
+        log.error("error while processing in {}: ", source, exception);
+
         if (publishErrors) {
             try {
+                String targetIndexNames = "unknown";
+                if (exception instanceof IndexerException) {
+                    IndexerException indexerEx = (IndexerException) exception;
+                    targetIndexNames = indexerEx.getTargetIndexNames();
+                }
+
+                String enhancedSource = source + " -> " + targetIndexNames;
                 String correlationId = extractCorrelationId(messageBody);
-                sendToDLQ(messageBody, exception, correlationId, source);
-                log.info("Successfully sent failed message to DLQ topic: {} from {}", errorTopic, source);
+
+                log.info("DLQ Debug - Topic: {}, TargetIndexes: {}, Source: {}", topic, targetIndexNames, enhancedSource);
+                sendToDLQ(messageBody, exception, correlationId, enhancedSource);
+                log.info("Successfully sent failed message to DLQ topic: {} for indexes: {}", errorTopic, targetIndexNames);
+                return;
             } catch (Exception dlqException) {
                 log.error("Failed to send message to DLQ: ", dlqException);
-                // Log both the original exception and DLQ failure
-                log.error("Original processing error: ", exception);
             }
         }
-        
-        // Always re-throw to maintain consistent error handling behavior
-        // The tracer at container level will handle retry/DLQ based on configuration
-        throw new RuntimeException("Failed to process message in " + source, exception);
+
+        throw new RuntimeException("Failed to process message in " + source + " - routing to DLQ", exception);
     }
 
-    /**
-     * Send failed message to DLQ using tracer's ErrorQueueProducer
-     */
-    private void sendToDLQ(String messageBody, Exception exception, String correlationId, String source) {
+    private void sendToDLQ(String messageBody, Exception exception, String correlationId, String enhancedSource) {
         try {
-            // Create ErrorQueueContract using the correct field names from tracer library
             StackTraceElement[] elements = exception.getStackTrace();
-            
+
             ErrorQueueContract errorContract = ErrorQueueContract.builder()
                     .id(UUID.randomUUID().toString())
                     .correlationId(correlationId)
                     .body(messageBody)
-                    .source(source)
+                    .source(enhancedSource)
                     .ts(new Date().getTime())
                     .exception(Arrays.asList(elements))
                     .message(exception.getMessage())
                     .build();
-            
-            // Send to DLQ using tracer's ErrorQueueProducer
+
             errorQueueProducer.sendMessage(errorContract);
         } catch (Exception e) {
             log.error("Failed to create or send ErrorQueueContract to DLQ", e);
@@ -79,16 +73,11 @@ public class DLQHandler {
         }
     }
 
-    /**
-     * Extract correlation ID from Kafka message body
-     */
     private String extractCorrelationId(String messageBody) {
         try {
-            // Try to extract correlation ID from RequestInfo
             return JsonPath.read(messageBody, "$.RequestInfo.correlationId");
         } catch (Exception e) {
             try {
-                // Fallback: try to extract from different path
                 return JsonPath.read(messageBody, "$.correlationId");
             } catch (Exception ex) {
                 log.debug("Could not extract correlation ID from message: {}", ex.getMessage());

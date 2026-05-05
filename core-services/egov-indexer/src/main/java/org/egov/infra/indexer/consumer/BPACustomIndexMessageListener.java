@@ -67,11 +67,7 @@ public class BPACustomIndexMessageListener implements MessageListener<String, St
             EnrichedBPARequest enrichedBPARequest = bpaCustomDecorator.transformData(bpaRequest);
             indexerService.esIndexer(data.topic(), mapper.writeValueAsString(enrichedBPARequest));
         } catch (Exception e) {
-            try {
-                dlqHandler.handleError(data.value(), e, "BPACustomIndexMessageListener");
-            } catch (RuntimeException dlqException) {
-                log.error("Failed to handle error in DLQ for BPACustomIndexMessageListener", dlqException);
-            }
+            dlqHandler.handleError(data.value(), e, "BPACustomIndexMessageListener", data.topic());
         } finally {
             // Always clear MDC to prevent data leakage across thread reuse
             if (tenantId != null) {

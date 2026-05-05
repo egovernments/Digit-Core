@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -80,10 +79,17 @@ public class IndexerService {
 				}
 			} catch (Exception e) {
 				log.error("Exception while indexing, Uncaught at the indexer level: ", e);
-				throw e; // Re-throw to allow DLQ handling
+				String indexNames = mapping.getIndexes().stream()
+						.map(Index::getName)
+						.reduce((a, b) -> a + ", " + b)
+						.orElse("unknown");
+				IndexerException indexerException = new IndexerException("Failed to index to: " + indexNames, e);
+				indexerException.setTargetIndexNames(indexNames);
+				throw indexerException;
 			}
 		} else {
 			log.error("No mappings found for the service to which the following topic belongs: " + topic);
+			throw new IndexerException("No mappings found for topic: " + topic, new RuntimeException("No mapping configuration"));
 		}
 	}
 
@@ -158,8 +164,11 @@ public class IndexerService {
 			else
 				indexWithESId(index, finalJson);
 		} else {
-			log.error("Indexing will not be done, please modify the data and retry.");
-			log.error("Object: " + finalJson);
+			log.error("Indexing will not be done, finalJson is empty. Index: {}", index.getName());
+			IndexerException ex = new IndexerException("Empty JSON produced for index: " + index.getName() + " - please modify the data and retry",
+					new RuntimeException("Empty/null JSON for index: " + index.getName()));
+			ex.setTargetIndexNames(index.getName());
+			throw ex;
 		}
 	}
 
