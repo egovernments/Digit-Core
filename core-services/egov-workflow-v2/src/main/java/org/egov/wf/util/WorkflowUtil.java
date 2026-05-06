@@ -493,9 +493,9 @@ public class WorkflowUtil {
 
         String finalQuery = null;
         if (config.getIsEnvironmentCentralInstance()) {
-            String multiInstanceSchema = centralInstanceUtil.getStateLevelTenant(tenantId);
+            // String multiInstanceSchema = centralInstanceUtil.getStateLevelTenant(tenantId);
             try {
-                finalQuery = centralInstanceUtil.replaceSchemaPlaceholder(query, multiInstanceSchema);
+                finalQuery = centralInstanceUtil.replaceSchemaPlaceholder(query, tenantId);
             }catch (Exception e){
                 throw new CustomException("EG_WF_SEARCH_ERR", "Invalid tenantId provided as part of search");
             }

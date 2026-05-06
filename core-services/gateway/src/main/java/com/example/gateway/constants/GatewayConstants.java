@@ -3,6 +3,7 @@ package com.example.gateway.constants;
 public class GatewayConstants {
 
     public static final String EMPTY_STRING = "";
+    public static final String AUTH_TOKEN = "auth-token";
     public static final String JSON_TYPE = "json";
     public static final String X_WWW_FORM_URLENCODED_TYPE = "application/x-www-form-urlencoded";
     public static final String FORM_DATA = "multipart/form-data";
@@ -35,6 +36,9 @@ public class GatewayConstants {
     public static final String REQUEST_TENANT_ID_KEY = "tenantId";
     public static final String TENANT_ID_KEY = "TENANT_ID";
     public static final String OPEN_ENDPOINT_MESSAGE = "Routing to an open endpoint: {}";
+    public static final String PASS_THROUGH_GATEWAY_HEADER_NAME = "x-pass-through-gateway";
+    public static final String PASS_THROUGH_GATEWAY_HEADER_VALUE = "true";
+
 
 
 }
