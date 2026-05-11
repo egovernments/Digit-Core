@@ -2,6 +2,8 @@ package org.egov.common.utils;
 
 import java.util.regex.Pattern;
 
+import org.egov.common.error.ErrorCode;
+import org.egov.common.exception.InvalidTenantIdFormatException;
 import org.egov.common.exception.InvalidTenantIdException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +19,9 @@ import lombok.NoArgsConstructor;
 public class MultiStateInstanceUtil {
 
     // central-instance configs
-	public static String SCHEMA_REPLACE_STRING = "{schema}";
+	public static final String SCHEMA_REPLACE_STRING = "{schema}";
+
+    private static final Pattern SCHEMA_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]{0,62}$");
     /*
      * Represents the length of the tenantId array when it's split by "."
      *
@@ -40,6 +44,15 @@ public class MultiStateInstanceUtil {
      */
     @Value("${state.schema.index.position.tenantid:1}")
     private Integer stateSchemaIndexPositionInTenantId;
+
+    private void validateTenantId(String tenantId) {
+        if (tenantId == null || tenantId.isEmpty())
+            throw new InvalidTenantIdFormatException(ErrorCode.INVALID_TENANT_ID_FORMAT);
+        for (String segment : tenantId.split("\\.", -1)) {
+            if (!SCHEMA_NAME_PATTERN.matcher(segment).matches())
+                throw new InvalidTenantIdFormatException(ErrorCode.INVALID_TENANT_ID_FORMAT);
+        }
+    }
 
     /**
      * Resolves the schema name from a tenantId using {@code stateSchemaIndexPositionInTenantId}.
@@ -72,7 +85,10 @@ public class MultiStateInstanceUtil {
         String[] parts = tenantId.split("\\.");
         if (parts.length == 1) return tenantId;
         int idx = Math.min(stateSchemaIndexPositionInTenantId, parts.length - 1);
-        return parts[idx];
+        String schema = parts[idx];
+        if (!SCHEMA_NAME_PATTERN.matcher(schema).matches())
+            throw new InvalidTenantIdFormatException(String.format(ErrorCode.INVALID_SCHEMA_NAME, schema));
+        return schema;
     }
 
 	/**
@@ -95,6 +111,7 @@ public class MultiStateInstanceUtil {
 	 * </pre>
 	 */
 	public String replaceSchemaPlaceholder(String query, String tenantId) throws InvalidTenantIdException {
+		validateTenantId(tenantId);
 		if (getIsEnvironmentCentralInstance()) {
 			String schemaName = resolveSchemaName(tenantId);
 			return query.replaceAll("(?i)" + Pattern.quote(SCHEMA_REPLACE_STRING), schemaName);
@@ -220,7 +237,7 @@ public class MultiStateInstanceUtil {
 	 * @return
 	 */
 	public String getStateSpecificTopicName(String tenantId, String topic) {
-
+		validateTenantId(tenantId);
 		if (getIsEnvironmentCentralInstance()) {
 			String schema = resolveSchemaName(tenantId);
 			return schema.concat("-").concat(topic);
