@@ -23,7 +23,7 @@ public class DLQHandler {
     @Value("${tracer.errorsTopic}")
     private String errorTopic;
 
-    @Value("${tracer.errorsPublish}")
+    @Value("${egov.indexer.dlq.enabled:true}")
     private boolean publishErrors;
 
     public void handleError(String messageBody, Exception exception, String source, String topic) {
