@@ -39,10 +39,19 @@
  */
 package org.egov.user.config;
 
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Getter
 public class UserServiceConstants {
+
+    @Value("${kafka.topics.user.status.change}")
+    private String userStatusChangeTopic;
+
+    @Value("${user.status.change.event.enabled}")
+    private boolean userStatusChangeEventEnabled;
 
     public static final String EMAIL_UPDATION_CODE = "EMAIL_UPDATED";
 
@@ -71,6 +80,11 @@ public class UserServiceConstants {
     public static final String CITIZEN_ROLE_CODE = "CITIZEN";
 
     public static final String MOBILE_UNIQUE_IDENTIFIER = "mobile";
-    
-}
 
+    // User Status Change Event Keys
+    public static final String USER_UUID_KEY = "userUuid";
+    public static final String TENANT_ID_KEY = "tenantId";
+    public static final String ACTIVE_KEY = "active";
+    public static final String EFFECTIVE_DATE_KEY = "effectiveDate";
+
+}
