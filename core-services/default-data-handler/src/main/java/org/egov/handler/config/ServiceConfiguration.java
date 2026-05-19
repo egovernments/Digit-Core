@@ -98,6 +98,19 @@ public class ServiceConfiguration {
     @Value("${egov.tenant.management.tenant.search.page.size:50}")
     private int tenantSearchPageSize;
 
+    // Config Service
+    @Value("${egov.config.service.host}")
+    private String configServiceHost;
+
+    @Value("${egov.config.service.search.path}")
+    private String configServiceSearchPath;
+
+    @Value("${egov.config.service.create.path}")
+    private String configServiceCreatePath;
+
+    @Value("#{'${default.config.service.schema.codes}'.split(',')}")
+    private List<String> defaultConfigServiceSchemaCodes;
+
     // Default Tenant Id
     @Value("${default.tenant.id}")
     private String defaultTenantId;

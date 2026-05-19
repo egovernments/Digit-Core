@@ -52,7 +52,15 @@ public class OtpSMSRepository {
 		Long currentTime = System.currentTimeMillis() + maxExecutionTime;
 		final String message = getMessage(otpNumber, otpRequest);
         String updatedTopic = centralInstanceUtil.getStateSpecificTopicName(otpRequest.getTenantId(), smsTopic);
-        kafkaTemplate.send(updatedTopic, new SMSRequest(otpRequest.getMobileNumber(), message, Category.OTP, currentTime));
+        String mobile = buildMobileWithCountryCode(otpRequest.getMobileNumber(), otpRequest.getCountryCode());
+        kafkaTemplate.send(updatedTopic, new SMSRequest(mobile, message, Category.OTP, currentTime));
+    }
+
+    private String buildMobileWithCountryCode(String mobileNumber, String countryCode) {
+        if (mobileNumber == null) return null;
+        if (mobileNumber.startsWith("+")) return mobileNumber;
+        if (countryCode != null && !countryCode.isEmpty()) return countryCode + mobileNumber;
+        return mobileNumber;
     }
 
     private String getMessage(String otpNumber, OtpRequest otpRequest) {

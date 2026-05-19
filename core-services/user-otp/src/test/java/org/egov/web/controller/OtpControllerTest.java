@@ -27,92 +27,98 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestConfiguration.class)
 public class OtpControllerTest {
 
-	private final static String TENANT_ID = "tenantId";
-	private static final String OTP_NUMBER = "otpNumber";
+    private final static String TENANT_ID = "tenantId";
+    private static final String OTP_NUMBER = "otpNumber";
 
-	@Autowired
-	private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-	private Resources resources = new Resources();
+    private Resources resources = new Resources();
 
-	@MockBean
-	private OtpService otpService;
+    @MockBean
+    private OtpService otpService;
 
-	@Test
-	public void test_should_return_success_response_when_otp_is_sent() throws Exception {
+    @Test
+    public void test_should_return_success_response_when_otp_is_sent() throws Exception {
 
-		mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.content(resources.getFileContents("otpSendRequest.json"))).andExpect(status().isCreated())
-				.andExpect(content().json(resources.getFileContents("otpSendSuccessResponse.json")));
+        mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(resources.getFileContents("otpSendRequest.json"))).andExpect(status().isCreated())
+                .andExpect(content().json(resources.getFileContents("otpSendSuccessResponse.json")));
 
-		final OtpRequest expectedOtpRequest = new OtpRequest(null,"mobileNumber", "tenantId", OtpRequestType.PASSWORD_RESET, "CITIZEN", "mobileNumber");
-		verify(otpService).sendOtp(expectedOtpRequest);
-	}
+        final OtpRequest expectedOtpRequest = new OtpRequest(null, "mobileNumber", "tenantId",
+                OtpRequestType.PASSWORD_RESET, "CITIZEN", "mobileNumber", null, null, null);
+        verify(otpService).sendOtp(expectedOtpRequest);
+    }
 
-	@Test
-	public void test_should_return_error_response_when_mandatory_fields_are_not_present_in_request() throws Exception {
-		final OtpRequest expectedOtpRequest = new OtpRequest(null,"", "", null, "CITIZEN", "mobileNumber");
-		doThrow(new InvalidOtpRequestException(expectedOtpRequest)).when(otpService).sendOtp(expectedOtpRequest);
+    @Test
+    public void test_should_return_error_response_when_mandatory_fields_are_not_present_in_request() throws Exception {
+        final OtpRequest expectedOtpRequest = new OtpRequest(null, "", "", null, "CITIZEN", "mobileNumber",
+                null, null, null);
+        doThrow(new InvalidOtpRequestException(expectedOtpRequest)).when(otpService).sendOtp(expectedOtpRequest);
 
-		mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.content(resources.getFileContents("otpRequestWithoutMandatoryFields.json")))
-				.andExpect(status().isBadRequest())
-				.andExpect(content().json(resources.getFileContents("otpMandatoryFieldsErrorResponse.json")));
-	}
+        mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(resources.getFileContents("otpRequestWithoutMandatoryFields.json")))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(resources.getFileContents("otpMandatoryFieldsErrorResponse.json")));
+    }
 
-	@Test
-	public void test_should_return_error_response_when_user_not_found_for_sending_forgot_password_otp()
-			throws Exception {
-		final OtpRequest expectedOtpRequest = new OtpRequest(null,"", "", null, "CITIZEN", "mobileNumber");
-		doThrow(new UserNotFoundException()).when(otpService).sendOtp(expectedOtpRequest);
+    @Test
+    public void test_should_return_error_response_when_user_not_found_for_sending_forgot_password_otp()
+            throws Exception {
+        final OtpRequest expectedOtpRequest = new OtpRequest(null, "", "", null, "CITIZEN", "mobileNumber",
+                null, null, null);
+        doThrow(new UserNotFoundException()).when(otpService).sendOtp(expectedOtpRequest);
 
-		mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.content(resources.getFileContents("otpRequestWithoutMandatoryFields.json")))
-				.andExpect(status().isBadRequest())
-				.andExpect(content().json(resources.getFileContents("unknownMobileNumberErrorResponse.json")));
-	}
+        mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(resources.getFileContents("otpRequestWithoutMandatoryFields.json")))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(resources.getFileContents("unknownMobileNumberErrorResponse.json")));
+    }
 
-	@Test
-	public void test_should_return_error_response_when_user_alreadyExist_incaseoftypeisregister() throws Exception {
-		final OtpRequest expectedOtpRequest = new OtpRequest(null,"mobileNumber", "tenantId", OtpRequestType.REGISTER, "CITIZEN", "mobileNumber");
-		doThrow(new UserAlreadyExistInSystemException()).when(otpService).sendOtp(expectedOtpRequest);
+    @Test
+    public void test_should_return_error_response_when_user_alreadyExist_incaseoftypeisregister() throws Exception {
+        final OtpRequest expectedOtpRequest = new OtpRequest(null, "mobileNumber", "tenantId",
+                OtpRequestType.REGISTER, "CITIZEN", "mobileNumber", null, null, null);
+        doThrow(new UserAlreadyExistInSystemException()).when(otpService).sendOtp(expectedOtpRequest);
 
-		mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.content(resources.getFileContents("otpSendRegisterRequest.json"))).andExpect(status().isBadRequest())
-				.andExpect(content().json(resources.getFileContents("userAlreadyExistInSystemResponse.json")));
-	}
+        mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(resources.getFileContents("otpSendRegisterRequest.json"))).andExpect(status().isBadRequest())
+                .andExpect(content().json(resources.getFileContents("userAlreadyExistInSystemResponse.json")));
+    }
 
-	@Test
-	public void test_should_return_error_response_when_user_doesntExist_incaseoftypeislogin() throws Exception {
-		final OtpRequest expectedOtpRequest = new OtpRequest(null,"mobileNumber", "tenantId", OtpRequestType.LOGIN, "CITIZEN", "mobileNumber");
-		doThrow(new UserNotExistingInSystemException()).when(otpService).sendOtp(expectedOtpRequest);
+    @Test
+    public void test_should_return_error_response_when_user_doesntExist_incaseoftypeislogin() throws Exception {
+        final OtpRequest expectedOtpRequest = new OtpRequest(null, "mobileNumber", "tenantId",
+                OtpRequestType.LOGIN, "CITIZEN", "mobileNumber", null, null, null);
+        doThrow(new UserNotExistingInSystemException()).when(otpService).sendOtp(expectedOtpRequest);
 
-		mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.content(resources.getFileContents("otpSendLoginRequest.json"))).andExpect(status().isBadRequest())
-				.andExpect(content().json(resources.getFileContents("userNotExistInSytemResponse.json")));
-	}
+        mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(resources.getFileContents("otpSendLoginRequest.json"))).andExpect(status().isBadRequest())
+                .andExpect(content().json(resources.getFileContents("userNotExistInSytemResponse.json")));
+    }
 
-	@Test
-	public void test_should_return_error_response_when_user_mobilenot_found_for_sending_forgot_password_otp()
-			throws Exception {
-		final OtpRequest expectedOtpRequest = new OtpRequest(null,"", "", null, "CITIZEN", "mobileNumber");
-		doThrow(new UserMobileNumberNotFoundException()).when(otpService).sendOtp(expectedOtpRequest);
+    @Test
+    public void test_should_return_error_response_when_user_mobilenot_found_for_sending_forgot_password_otp()
+            throws Exception {
+        final OtpRequest expectedOtpRequest = new OtpRequest(null, "", "", null, "CITIZEN", "mobileNumber",
+                null, null, null);
+        doThrow(new UserMobileNumberNotFoundException()).when(otpService).sendOtp(expectedOtpRequest);
 
-		mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.content(resources.getFileContents("otpRequestWithoutMandatoryFields.json")))
-				.andExpect(status().isBadRequest())
-				.andExpect(content().json(resources.getFileContents("invalidMobileNumberErrorResponse.json")));
-	}
+        mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(resources.getFileContents("otpRequestWithoutMandatoryFields.json")))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(resources.getFileContents("invalidMobileNumberErrorResponse.json")));
+    }
 
-	@Test
-	public void test_should_return_error_message_when_unhandled_exception_occurs() throws Exception {
-		final OtpRequest expectedOtpRequest = new OtpRequest(null, "mobileNumber", "tenantId", null, "CITIZEN", "mobileNumber");
-		final String exceptionMessage = "Some exception message";
-		doThrow(new RuntimeException(exceptionMessage)).when(otpService).sendOtp(expectedOtpRequest);
+    @Test
+    public void test_should_return_error_message_when_unhandled_exception_occurs() throws Exception {
+        final OtpRequest expectedOtpRequest = new OtpRequest(null, "mobileNumber", "tenantId", null,
+                "CITIZEN", "mobileNumber", null, null, null);
+        final String exceptionMessage = "Some exception message";
+        doThrow(new RuntimeException(exceptionMessage)).when(otpService).sendOtp(expectedOtpRequest);
 
-		mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.content(resources.getFileContents("invalidOtpSendRequest.json")))
-				.andExpect(status().isInternalServerError()).andExpect(content().string(exceptionMessage));
-	}
-
+        mockMvc.perform(post("/v1/_send").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(resources.getFileContents("invalidOtpSendRequest.json")))
+                .andExpect(status().isInternalServerError()).andExpect(content().string(exceptionMessage));
+    }
 }
