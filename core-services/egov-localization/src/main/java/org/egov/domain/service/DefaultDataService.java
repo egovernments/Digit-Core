@@ -19,7 +19,15 @@ public class DefaultDataService {
     }
 
     public void create(@Valid DefaultDataRequest defaultDataRequest) {
-        int insertedCount = defaultDataJpaRepository.copyMessageDefinitions(defaultDataRequest.getDefaultTenantId(), defaultDataRequest.getTargetTenantId(), new Timestamp(System.currentTimeMillis()), defaultDataRequest.getLocale(), defaultDataRequest.getModules());
-        log.info("Number of records inserted: {}", insertedCount);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        boolean sync = Boolean.TRUE.equals(defaultDataRequest.getMigrationSync());
+        int count;
+        if (sync) {
+            count = defaultDataJpaRepository.syncMessageDefinitions(defaultDataRequest.getDefaultTenantId(), defaultDataRequest.getTargetTenantId(), now, defaultDataRequest.getLocale(), defaultDataRequest.getModules());
+            log.info("Sync upserted {} records for tenant={} locale={}", count, defaultDataRequest.getTargetTenantId(), defaultDataRequest.getLocale());
+        } else {
+            count = defaultDataJpaRepository.copyMessageDefinitions(defaultDataRequest.getDefaultTenantId(), defaultDataRequest.getTargetTenantId(), now, defaultDataRequest.getLocale(), defaultDataRequest.getModules());
+            log.info("Inserted {} records for tenant={} locale={}", count, defaultDataRequest.getTargetTenantId(), defaultDataRequest.getLocale());
+        }
     }
 }

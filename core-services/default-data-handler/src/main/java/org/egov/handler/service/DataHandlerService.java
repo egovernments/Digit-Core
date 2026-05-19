@@ -35,8 +35,6 @@ import org.egov.handler.web.models.DefaultMdmsDataRequest;
 import org.egov.handler.web.models.Email;
 import org.egov.handler.web.models.EmailRequest;
 import org.egov.handler.web.models.Mdms;
-import org.egov.handler.web.models.MdmsCriteriaReqV2;
-import org.egov.handler.web.models.MdmsCriteriaV2;
 import org.egov.handler.web.models.MdmsRequest;
 import org.egov.handler.web.models.MdmsResponseV2;
 import org.egov.handler.web.models.TenantConfig;
@@ -160,34 +158,8 @@ public class DataHandlerService {
         }
     }
 
-    // Method to get all search results with pagination
     public List<Mdms> getAllMdmsResults(String tenantId, String schemaCode, RequestInfo requestInfo) {
-        List<Mdms> allMdmsResults = new ArrayList<>();
-        int limit = 100; // Default limit
-        int offset = 0; // Default offset
-
-        while (true) {
-            // Create MdmsCriteriaV2 with current offset and limit
-            MdmsCriteriaV2 mdmsCriteria = MdmsCriteriaV2.builder().tenantId(tenantId).schemaCode(schemaCode).offset(offset).limit(limit).build();
-
-            MdmsCriteriaReqV2 mdmsCriteriaReq = MdmsCriteriaReqV2.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
-
-            // Fetch results from the repository
-            MdmsResponseV2 dataSearchResponse = mdmsV2Util.searchMdmsData(mdmsCriteriaReq);
-            List<Mdms> mdmsList = dataSearchResponse.getMdms();
-
-            // Add the current batch of results to the list
-            allMdmsResults.addAll(mdmsList);
-
-            // Check if there are fewer results than the limit; if so, this is the last page
-            if (mdmsList.size() < limit) {
-                break;
-            }
-
-            // Update offset for the next batch
-            offset += limit;
-        }
-        return allMdmsResults;
+        return mdmsV2Util.getAllMdmsResults(tenantId, schemaCode, requestInfo);
     }
 
     public void createTenantConfig(TenantRequest tenantRequest) {

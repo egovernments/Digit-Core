@@ -1,0 +1,96 @@
+{
+  "info": {
+    "name": "Default Data Handler",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "description": "API collection for the default-data-handler service. Handles initial tenant data setup and migration of new/updated default data to existing tenants.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup Default Data (new tenant)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{host}}/default-data-handler/defaultdata/setup",
+          "host": ["{{host}}"],
+          "path": ["default-data-handler", "defaultdata", "setup"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"RequestInfo\": {\n    \"apiId\": \"Rainmaker\",\n    \"action\": \"\",\n    \"did\": \"1\",\n    \"key\": \"\",\n    \"msgId\": \"20170310130900|en_IN\",\n    \"requesterId\": \"\",\n    \"ts\": null,\n    \"ver\": \".01\",\n    \"authToken\": \"{{authToken}}\",\n    \"userInfo\": {\n      \"id\": 128,\n      \"uuid\": \"40dceade-992d-4a8f-8243-19dda76a4171\",\n      \"userName\": \"SUPERUSER\",\n      \"name\": \"Super User\",\n      \"type\": \"SYSTEM\",\n      \"roles\": [\n        {\n          \"name\": \"Super User\",\n          \"code\": \"SUPERUSER\",\n          \"tenantId\": \"{{targetTenantId}}\"\n        }\n      ],\n      \"tenantId\": \"{{targetTenantId}}\"\n    }\n  },\n  \"targetTenantId\": \"{{targetTenantId}}\",\n  \"module\": \"PGR\",\n  \"onlySchemas\": false\n}"
+        },
+        "description": "Sets up all default MDMS schemas, localization, and workflow config for a newly created tenant. Called once per new tenant. Use the migrate endpoint for propagating updates to existing tenants."
+      },
+      "response": []
+    },
+    {
+      "name": "Migrate Default Data - All Tenants",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{host}}/default-data-handler/migrate",
+          "host": ["{{host}}"],
+          "path": ["default-data-handler", "migrate"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"RequestInfo\": {\n    \"apiId\": \"Rainmaker\",\n    \"action\": \"\",\n    \"did\": \"1\",\n    \"key\": \"\",\n    \"msgId\": \"20170310130900|en_IN\",\n    \"requesterId\": \"\",\n    \"ts\": null,\n    \"ver\": \".01\",\n    \"authToken\": \"{{authToken}}\",\n    \"userInfo\": {\n      \"id\": 128,\n      \"uuid\": \"40dceade-992d-4a8f-8243-19dda76a4171\",\n      \"userName\": \"SUPERUSER\",\n      \"name\": \"Super User\",\n      \"type\": \"SYSTEM\",\n      \"roles\": [\n        {\n          \"name\": \"Super User\",\n          \"code\": \"SUPERUSER\",\n          \"tenantId\": \"TESTUSERTWO\"\n        }\n      ],\n      \"tenantId\": \"TESTUSERTWO\"\n    }\n  }\n}"
+        },
+        "description": "Upserts all current default MDMS data and localization into every existing tenant. Omitting 'tenantIds' causes the service to auto-discover all tenants from tenant-management. Returns immediately (202 Accepted); migration runs asynchronously via Kafka. Safe to re-run — identical records are skipped, only new or changed records are inserted/updated. Nothing is deleted."
+      },
+      "response": []
+    },
+    {
+      "name": "Migrate Default Data - Specific Tenants",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{host}}/default-data-handler/migrate",
+          "host": ["{{host}}"],
+          "path": ["default-data-handler", "migrate"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"RequestInfo\": {\n    \"apiId\": \"Rainmaker\",\n    \"action\": \"\",\n    \"did\": \"1\",\n    \"key\": \"\",\n    \"msgId\": \"20170310130900|en_IN\",\n    \"requesterId\": \"\",\n    \"ts\": null,\n    \"ver\": \".01\",\n    \"authToken\": \"{{authToken}}\",\n    \"userInfo\": {\n      \"id\": 128,\n      \"uuid\": \"40dceade-992d-4a8f-8243-19dda76a4171\",\n      \"userName\": \"SUPERUSER\",\n      \"name\": \"Super User\",\n      \"type\": \"SYSTEM\",\n      \"roles\": [\n        {\n          \"name\": \"Super User\",\n          \"code\": \"SUPERUSER\",\n          \"tenantId\": \"TESTUSERTWO\"\n        }\n      ],\n      \"tenantId\": \"TESTUSERTWO\"\n    }\n  },\n  \"tenantIds\": [\n    \"TENANT1\",\n    \"TENANT2\"\n  ]\n}"
+        },
+        "description": "Upserts all current default MDMS data and localization into a specific list of tenants. Use this when you want to migrate only selected tenants rather than all. Returns immediately (202 Accepted); migration runs asynchronously via Kafka."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "host",
+      "value": "http://localhost:8080",
+      "description": "Base URL of the default-data-handler service"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "description": "Auth token from user login"
+    },
+    {
+      "key": "targetTenantId",
+      "value": "TESTTENANT",
+      "description": "Target tenant ID for setup"
+    }
+  ]
+}

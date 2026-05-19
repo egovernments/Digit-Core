@@ -1,15 +1,21 @@
 package org.egov.handler.util;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.egov.common.contract.models.RequestInfoWrapper;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.handler.config.ServiceConfiguration;
+import org.egov.handler.web.models.Tenant;
 import org.egov.handler.web.models.TenantConfigRequest;
 import org.egov.handler.web.models.TenantConfigResponse;
+import org.egov.handler.web.models.TenantSearchResponse;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -45,6 +51,41 @@ public class TenantManagementUtil {
 			log.error("Error searching tenant config for {}", code);
 			throw new CustomException("TENANT_CONFIG_SEARCH_FAILED", "Failed to search the tenant config for " + code);
 		}
+	}
+
+	public List<String> fetchAllTenantCodes(RequestInfo requestInfo) {
+		List<String> tenantCodes = new ArrayList<>();
+		int offset = 0;
+		int limit = serviceConfig.getTenantSearchPageSize();
+
+		while (true) {
+			String uri = serviceConfig.getTenantSearchURI() + "?offset=" + offset + "&limit=" + limit;
+			TenantSearchResponse response;
+			try {
+				response = restTemplate.postForObject(uri, requestInfo, TenantSearchResponse.class);
+			} catch (Exception e) {
+				log.error("Error fetching tenants at offset={}: {}", offset, e.getMessage());
+				throw new CustomException("TENANT_SEARCH_FAILED", "Failed to fetch tenants at offset " + offset);
+			}
+
+			if (response == null || response.getTenants() == null || response.getTenants().isEmpty()) {
+				break;
+			}
+
+			for (Tenant tenant : response.getTenants()) {
+				if (tenant.getCode() != null) {
+					tenantCodes.add(tenant.getCode());
+				}
+			}
+
+			if (response.getTenants().size() < limit) {
+				break;
+			}
+			offset += limit;
+		}
+
+		log.info("Fetched {} tenants from tenant-management", tenantCodes.size());
+		return tenantCodes;
 	}
 
 	public TenantConfigResponse createTenantConfig(TenantConfigRequest tenantConfigRequest) {

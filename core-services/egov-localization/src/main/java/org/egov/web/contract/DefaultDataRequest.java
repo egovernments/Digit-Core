@@ -40,4 +40,7 @@ public class DefaultDataRequest {
     @NotNull
     @Size(min = 1, max = 100)
     private String defaultTenantId = null;
+
+    @JsonProperty("migrationSync")
+    private Boolean migrationSync = Boolean.FALSE;
 }

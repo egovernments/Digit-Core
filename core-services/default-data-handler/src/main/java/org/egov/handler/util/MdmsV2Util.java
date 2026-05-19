@@ -3,6 +3,7 @@ package org.egov.handler.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.handler.config.ServiceConfiguration;
 import org.egov.handler.web.models.*;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -94,6 +98,41 @@ public class MdmsV2Util {
 			log.error("Error searching MDMS data for {} : {}", mdmsCriteriaReqV2.getMdmsCriteria().getTenantId(), e.getMessage());
 			throw new CustomException("MDMS_DATA_SEARCH_FAILED", "Failed to search mdms data for " + mdmsCriteriaReqV2.getMdmsCriteria().getTenantId() + " : " + e.getMessage());
 		}
+	}
+
+	public void updateMdmsData(MdmsRequest mdmsRequest) {
+		StringBuilder uri = new StringBuilder();
+		uri.append(serviceConfig.getMdmsDataUpdateURI());
+		uri.append("/");
+		uri.append(mdmsRequest.getMdms().getSchemaCode());
+
+		try {
+			restTemplate.postForObject(uri.toString(), mdmsRequest, MdmsResponseV2.class);
+		} catch (Exception e) {
+			log.error("Error updating MDMS data for schema {} tenant {} : {}", mdmsRequest.getMdms().getSchemaCode(), mdmsRequest.getMdms().getTenantId(), e.getMessage());
+			throw new CustomException("MDMS_DATA_UPDATE_FAILED", "Failed to update mdms data for " + mdmsRequest.getMdms().getTenantId() + " : " + e.getMessage());
+		}
+	}
+
+	public List<Mdms> getAllMdmsResults(String tenantId, String schemaCode, RequestInfo requestInfo) {
+		List<Mdms> allResults = new ArrayList<>();
+		int limit = 100;
+		int offset = 0;
+
+		while (true) {
+			MdmsCriteriaV2 criteria = MdmsCriteriaV2.builder()
+					.tenantId(tenantId).schemaCode(schemaCode).offset(offset).limit(limit).build();
+			MdmsCriteriaReqV2 criteriaReq = MdmsCriteriaReqV2.builder()
+					.requestInfo(requestInfo).mdmsCriteria(criteria).build();
+
+			MdmsResponseV2 response = searchMdmsData(criteriaReq);
+			List<Mdms> batch = response.getMdms();
+			allResults.addAll(batch);
+
+			if (batch.size() < limit) break;
+			offset += limit;
+		}
+		return allResults;
 	}
 
 	private JsonNode parseErrorResponse(String responseBody) {

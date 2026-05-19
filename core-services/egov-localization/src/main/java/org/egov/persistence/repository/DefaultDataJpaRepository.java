@@ -26,4 +26,18 @@ public interface DefaultDataJpaRepository extends CrudRepository<Message, String
         @Param("currentTimestamp") java.sql.Timestamp currentTimestamp,
         @Param("locale") String locale,
         @Param("modules") List<String> modules);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO message (id, tenantid, locale, module, code, message, createdby, createddate, lastmodifiedby, lastmodifieddate) " +
+        "SELECT uuid_generate_v4(), :targetTenantId, locale, module, code, message, createdby, :currentTimestamp, lastmodifiedby, :currentTimestamp " +
+        "FROM message " +
+        "WHERE tenantid = :defaultTenantId AND locale = :locale AND module IN :modules " +
+        "ON CONFLICT (tenantid, locale, module, code) DO UPDATE SET message = EXCLUDED.message, lastmodifieddate = EXCLUDED.lastmodifieddate", nativeQuery = true)
+    int syncMessageDefinitions(
+        @Param("defaultTenantId") String defaultTenantId,
+        @Param("targetTenantId") String targetTenantId,
+        @Param("currentTimestamp") java.sql.Timestamp currentTimestamp,
+        @Param("locale") String locale,
+        @Param("modules") List<String> modules);
 }

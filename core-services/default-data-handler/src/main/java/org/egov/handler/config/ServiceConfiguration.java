@@ -18,6 +18,9 @@ public class ServiceConfiguration {
     @Value("${kafka.topics.create.tenant}")
     private String createTopic;
 
+    @Value("${kafka.topics.migrate.tenant}")
+    private String migrateTopic;
+
     //MDMS Configs
     @Value("${egov.mdms.host}${egov.mdms.default.data.create.endpoint}")
     private String mdmsDefaultDataCreateURI;
@@ -30,6 +33,9 @@ public class ServiceConfiguration {
 
     @Value("${egov.mdms.host}${egov.mdms.data.create.endpoint}")
     private String mdmsDataCreateURI;
+
+    @Value("${egov.mdms.host}${egov.mdms.data.update.endpoint}")
+    private String mdmsDataUpdateURI;
 
     @Value("${egov.mdms.host}${egov.mdms.data.search.endpoint}")
     private String mdmsDataSearchURI;
@@ -85,6 +91,12 @@ public class ServiceConfiguration {
 
     @Value("${egov.tenant.management.host}${egov.tenant.management.context.path}${egov.tenant.management.config.search.path}")
     private String tenantConfigSearchURI;
+
+    @Value("${egov.tenant.management.host}${egov.tenant.management.context.path}${egov.tenant.management.tenant.search.path}")
+    private String tenantSearchURI;
+
+    @Value("${egov.tenant.management.tenant.search.page.size:50}")
+    private int tenantSearchPageSize;
 
     // Default Tenant Id
     @Value("${default.tenant.id}")
