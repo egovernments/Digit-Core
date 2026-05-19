@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.handler.config.ServiceConfiguration;
+import org.egov.handler.util.ConfigServiceUtil;
 import org.egov.handler.util.HrmsUtil;
 import org.egov.handler.util.LocalizationUtil;
 import org.egov.handler.util.MdmsV2Util;
@@ -77,6 +78,8 @@ public class DataHandlerService {
 
     private final TenantManagementUtil tenantManagementUtil;
 
+    private final ConfigServiceUtil configServiceUtil;
+
     private final ServiceConfiguration serviceConfig;
 
     private final ObjectMapper objectMapper;
@@ -86,15 +89,16 @@ public class DataHandlerService {
     private final WorkflowUtil workflowUtil;
 
     private final CustomKafkaTemplate producer;
-    
+
     private final RestTemplate restTemplate;
 
     @Autowired
-    public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper, ResourceLoader resourceLoader, WorkflowUtil workflowUtil, CustomKafkaTemplate producer, RestTemplate restTemplate) {
+    public DataHandlerService(MdmsV2Util mdmsV2Util, HrmsUtil hrmsUtil, LocalizationUtil localizationUtil, TenantManagementUtil tenantManagementUtil, ConfigServiceUtil configServiceUtil, ServiceConfiguration serviceConfig, ObjectMapper objectMapper, ResourceLoader resourceLoader, WorkflowUtil workflowUtil, CustomKafkaTemplate producer, RestTemplate restTemplate) {
         this.mdmsV2Util = mdmsV2Util;
         this.hrmsUtil = hrmsUtil;
         this.localizationUtil = localizationUtil;
         this.tenantManagementUtil = tenantManagementUtil;
+        this.configServiceUtil = configServiceUtil;
         this.serviceConfig = serviceConfig;
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
@@ -125,6 +129,16 @@ public class DataHandlerService {
                 DefaultLocalizationDataRequest defaultLocalizationDataRequest = DefaultLocalizationDataRequest.builder().requestInfo(defaultDataRequest.getRequestInfo()).targetTenantId(defaultDataRequest.getTargetTenantId()).locale(locale).modules(defaultDataRequest.getModules()).defaultTenantId(serviceConfig.getDefaultTenantId()).build();
                 localizationUtil.createLocalizationData(defaultLocalizationDataRequest);
             }
+        }
+
+        // Copy WhatsApp notification configs from default tenant
+        try {
+            configServiceUtil.copyConfigData(
+                    defaultDataRequest.getRequestInfo(),
+                    defaultDataRequest.getTargetTenantId(),
+                    serviceConfig.getDefaultConfigServiceSchemaCodes());
+        } catch (Exception e) {
+            log.error("Failed to copy config-service data for tenant: {}", defaultDataRequest.getTargetTenantId(), e);
         }
     }
 
