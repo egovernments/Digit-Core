@@ -53,39 +53,24 @@ public class TenantManagementUtil {
 		}
 	}
 
-	public List<String> fetchAllTenantCodes(RequestInfo requestInfo) {
-		List<String> tenantCodes = new ArrayList<>();
-		int offset = 0;
-		int limit = serviceConfig.getTenantSearchPageSize();
-
-		while (true) {
-			String uri = serviceConfig.getTenantSearchURI() + "?offset=" + offset + "&limit=" + limit;
-			TenantSearchResponse response;
-			try {
-				response = restTemplate.postForObject(uri, requestInfo, TenantSearchResponse.class);
-			} catch (Exception e) {
-				log.error("Error fetching tenants at offset={}: {}", offset, e.getMessage());
-				throw new CustomException("TENANT_SEARCH_FAILED", "Failed to fetch tenants at offset " + offset);
+	public List<String> fetchTenantCodesPage(RequestInfo requestInfo, int offset, int limit) {
+		String uri = serviceConfig.getTenantSearchURI() + "?offset=" + offset + "&limit=" + limit;
+		try {
+			TenantSearchResponse response = restTemplate.postForObject(uri, requestInfo, TenantSearchResponse.class);
+			if (response == null || response.getTenants() == null) {
+				return new ArrayList<>();
 			}
-
-			if (response == null || response.getTenants() == null || response.getTenants().isEmpty()) {
-				break;
-			}
-
+			List<String> codes = new ArrayList<>();
 			for (Tenant tenant : response.getTenants()) {
 				if (tenant.getCode() != null) {
-					tenantCodes.add(tenant.getCode());
+					codes.add(tenant.getCode());
 				}
 			}
-
-			if (response.getTenants().size() < limit) {
-				break;
-			}
-			offset += limit;
+			return codes;
+		} catch (Exception e) {
+			log.error("Error fetching tenants at offset={}: {}", offset, e.getMessage());
+			throw new CustomException("TENANT_SEARCH_FAILED", "Failed to fetch tenants at offset " + offset);
 		}
-
-		log.info("Fetched {} tenants from tenant-management", tenantCodes.size());
-		return tenantCodes;
 	}
 
 	public TenantConfigResponse createTenantConfig(TenantConfigRequest tenantConfigRequest) {

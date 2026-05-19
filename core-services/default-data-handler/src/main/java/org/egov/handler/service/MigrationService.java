@@ -13,9 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,24 +50,65 @@ public class MigrationService {
     }
 
     public List<String> triggerMigration(MigrationRequest request) {
-        List<String> tenantIds = request.getTenantIds();
+        List<String> explicitTenantIds = request.getTenantIds();
 
-        if (tenantIds == null || tenantIds.isEmpty()) {
-            tenantIds = tenantManagementUtil.fetchAllTenantCodes(request.getRequestInfo()).stream()
-                    .filter(code -> !serviceConfig.getDefaultTenantId().equals(code))
-                    .collect(Collectors.toList());
+        if (explicitTenantIds != null && !explicitTenantIds.isEmpty()) {
+            Set<String> seen = new HashSet<>();
+            List<String> queued = new ArrayList<>();
+            for (String tenantId : explicitTenantIds) {
+                if (seen.add(tenantId)) {
+                    queueMigration(tenantId, request);
+                    queued.add(tenantId);
+                }
+            }
+            log.info("Queued migration for {} explicit tenants (migrationSync={})", queued.size(), request.getMigrationSync());
+            return queued;
         }
 
-        log.info("Queuing migration for {} tenants (migrationSync={})", tenantIds.size(), request.getMigrationSync());
-        for (String tenantId : tenantIds) {
-            MigrationMessage msg = MigrationMessage.builder()
-                    .tenantId(tenantId)
-                    .requestInfo(request.getRequestInfo())
-                    .migrationSync(request.getMigrationSync())
-                    .build();
-            producer.send(serviceConfig.getMigrateTopic(), msg);
+        // Page-by-page fetch — never loads all tenants into memory at once.
+        // A Set guards against both duplicates and API wrap-around (stops when a
+        // full page yields zero new codes).
+        Set<String> queued = new HashSet<>();
+        int offset = 0;
+        int limit = serviceConfig.getTenantSearchPageSize();
+        String defaultTenantId = serviceConfig.getDefaultTenantId();
+
+        while (true) {
+            List<String> page = tenantManagementUtil.fetchTenantCodesPage(request.getRequestInfo(), offset, limit);
+
+            if (page.isEmpty()) {
+                break;
+            }
+
+            int newInPage = 0;
+            for (String code : page) {
+                if (!defaultTenantId.equals(code) && queued.add(code)) {
+                    queueMigration(code, request);
+                    newInPage++;
+                }
+            }
+
+            log.info("Page offset={} size={} newQueued={} totalQueued={}", offset, page.size(), newInPage, queued.size());
+
+            // Stop if: API returned a partial page (real end) OR entire page was duplicates (wrap-around)
+            if (page.size() < limit || newInPage == 0) {
+                break;
+            }
+
+            offset += limit;
         }
-        return tenantIds;
+
+        log.info("Migration queued for {} tenants (migrationSync={})", queued.size(), request.getMigrationSync());
+        return new ArrayList<>(queued);
+    }
+
+    private void queueMigration(String tenantId, MigrationRequest request) {
+        MigrationMessage msg = MigrationMessage.builder()
+                .tenantId(tenantId)
+                .requestInfo(request.getRequestInfo())
+                .migrationSync(request.getMigrationSync())
+                .build();
+        producer.send(serviceConfig.getMigrateTopic(), msg);
     }
 
     public void migrateDefaultData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
