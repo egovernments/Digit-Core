@@ -3,6 +3,7 @@ package org.egov.handler.service;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.handler.config.ServiceConfiguration;
+import org.egov.handler.util.ConfigServiceUtil;
 import org.egov.handler.util.LocalizationUtil;
 import org.egov.handler.util.MdmsV2Util;
 import org.egov.handler.util.TenantManagementUtil;
@@ -30,17 +31,19 @@ public class MigrationService {
     private final ServiceConfiguration serviceConfig;
     private final CustomKafkaTemplate producer;
     private final DataHandlerService dataHandlerService;
+    private final ConfigServiceUtil configServiceUtil;
 
     @Autowired
     public MigrationService(MdmsV2Util mdmsV2Util, LocalizationUtil localizationUtil,
                             TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig,
-                            CustomKafkaTemplate producer, @Lazy DataHandlerService dataHandlerService) {
+                            CustomKafkaTemplate producer, @Lazy DataHandlerService dataHandlerService, ConfigServiceUtil configServiceUtil) {
         this.mdmsV2Util = mdmsV2Util;
         this.localizationUtil = localizationUtil;
         this.tenantManagementUtil = tenantManagementUtil;
         this.serviceConfig = serviceConfig;
         this.producer = producer;
         this.dataHandlerService = dataHandlerService;
+        this.configServiceUtil = configServiceUtil;
     }
 
     public List<String> triggerMigration(MigrationRequest request) {
@@ -76,9 +79,20 @@ public class MigrationService {
             try {
                 ensureSchemaExists(targetTenantId, schemaCode, requestInfo);
                 upsertMdmsForSchema(targetTenantId, schemaCode, requestInfo);
+                
             } catch (Exception e) {
                 log.error("Migration failed for schema {} tenant {}: {}", schemaCode, targetTenantId, e.getMessage());
             }
+        }
+        
+        // Copy WhatsApp notification configs from default tenant
+        try {
+            configServiceUtil.copyConfigData(
+            		requestInfo,
+                    targetTenantId,
+                    serviceConfig.getDefaultConfigServiceSchemaCodes());
+        } catch (Exception e) {
+            log.error("Failed to copy config-service data for tenant: {}", targetTenantId, e);
         }
 
         for (String locale : serviceConfig.getDefaultLocalizationLocaleList()) {
