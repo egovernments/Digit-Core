@@ -9,8 +9,10 @@ import org.egov.handler.util.TenantManagementUtil;
 import org.egov.handler.web.models.*;
 import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,16 +29,18 @@ public class MigrationService {
     private final TenantManagementUtil tenantManagementUtil;
     private final ServiceConfiguration serviceConfig;
     private final CustomKafkaTemplate producer;
+    private final DataHandlerService dataHandlerService;
 
     @Autowired
     public MigrationService(MdmsV2Util mdmsV2Util, LocalizationUtil localizationUtil,
                             TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig,
-                            CustomKafkaTemplate producer) {
+                            CustomKafkaTemplate producer, @Lazy DataHandlerService dataHandlerService) {
         this.mdmsV2Util = mdmsV2Util;
         this.localizationUtil = localizationUtil;
         this.tenantManagementUtil = tenantManagementUtil;
         this.serviceConfig = serviceConfig;
         this.producer = producer;
+        this.dataHandlerService = dataHandlerService;
     }
 
     public List<String> triggerMigration(MigrationRequest request) {
@@ -63,11 +67,14 @@ public class MigrationService {
     public void migrateDefaultData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
         log.info("Starting migration for tenant: {} (migrationSync={})", targetTenantId, migrationSync);
 
+        ensureBoundaryExists(targetTenantId, requestInfo);
+
         for (String schemaCode : serviceConfig.getDefaultMdmsSchemaList()) {
             if (TENANT_BOUNDARY_SCHEMA.equals(schemaCode)) {
                 continue;
             }
             try {
+                ensureSchemaExists(targetTenantId, schemaCode, requestInfo);
                 upsertMdmsForSchema(targetTenantId, schemaCode, requestInfo);
             } catch (Exception e) {
                 log.error("Migration failed for schema {} tenant {}: {}", schemaCode, targetTenantId, e.getMessage());
@@ -92,6 +99,63 @@ public class MigrationService {
         }
 
         log.info("Completed migration for tenant: {}", targetTenantId);
+    }
+
+    private void ensureSchemaExists(String targetTenantId, String schemaCode, RequestInfo requestInfo) {
+        SchemaDefCriteria targetCriteria = SchemaDefCriteria.builder()
+                .tenantId(targetTenantId)
+                .codes(Collections.singletonList(schemaCode))
+                .build();
+        SchemaDefinitionResponse targetResponse = mdmsV2Util.searchMdmsSchema(
+                SchemaDefSearchRequest.builder().requestInfo(requestInfo).schemaDefCriteria(targetCriteria).build());
+
+        if (targetResponse != null && targetResponse.getSchemaDefinitions() != null
+                && !targetResponse.getSchemaDefinitions().isEmpty()) {
+            return;
+        }
+
+        SchemaDefCriteria defaultCriteria = SchemaDefCriteria.builder()
+                .tenantId(serviceConfig.getDefaultTenantId())
+                .codes(Collections.singletonList(schemaCode))
+                .build();
+        SchemaDefinitionResponse defaultResponse = mdmsV2Util.searchMdmsSchema(
+                SchemaDefSearchRequest.builder().requestInfo(requestInfo).schemaDefCriteria(defaultCriteria).build());
+
+        if (defaultResponse == null || defaultResponse.getSchemaDefinitions() == null
+                || defaultResponse.getSchemaDefinitions().isEmpty()) {
+            log.warn("Schema {} not found in default tenant, skipping schema creation", schemaCode);
+            return;
+        }
+
+        SchemaDefinition source = defaultResponse.getSchemaDefinitions().get(0);
+        SchemaDefinition newSchema = SchemaDefinition.builder()
+                .tenantId(targetTenantId)
+                .code(source.getCode())
+                .description(source.getDescription())
+                .definition(source.getDefinition())
+                .isActive(source.getIsActive())
+                .build();
+        mdmsV2Util.createMdmsSchema(
+                SchemaDefinitionRequest.builder().requestInfo(requestInfo).schemaDefinition(newSchema).build());
+        log.info("Created schema {} for tenant {}", schemaCode, targetTenantId);
+    }
+
+    private void ensureBoundaryExists(String targetTenantId, RequestInfo requestInfo) {
+        try {
+            if (dataHandlerService.boundaryEntityDataExists(targetTenantId, requestInfo)) {
+                log.info("Boundary data already exists for tenant {}", targetTenantId);
+                return;
+            }
+            log.info("Boundary data not found for tenant {}, creating...", targetTenantId);
+            DefaultDataRequest boundaryRequest = DefaultDataRequest.builder()
+                    .requestInfo(requestInfo)
+                    .targetTenantId(targetTenantId)
+                    .build();
+            dataHandlerService.createBoundaryDataFromFile(boundaryRequest);
+            log.info("Boundary data created for tenant {}", targetTenantId);
+        } catch (Exception e) {
+            log.error("Failed to ensure boundary data for tenant {}: {}", targetTenantId, e.getMessage());
+        }
     }
 
     private void upsertMdmsForSchema(String targetTenantId, String schemaCode, RequestInfo requestInfo) {

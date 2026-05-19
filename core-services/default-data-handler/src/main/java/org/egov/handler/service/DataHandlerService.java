@@ -475,7 +475,7 @@ public class DataHandlerService {
         throw new RuntimeException("Boundary data not available after waiting for tenant " + tenantId);
     }
     
-	private boolean boundaryEntityDataExists(String tenantId, RequestInfo requestInfo) {
+	public boolean boundaryEntityDataExists(String tenantId, RequestInfo requestInfo) {
 
 		String searchUri = serviceConfig.getBoundaryEntitySearchUri();
 
