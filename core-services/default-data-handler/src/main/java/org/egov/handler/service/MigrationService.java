@@ -68,7 +68,8 @@ public class MigrationService {
             }
             total++;
             try {
-                publishToMigrationTopics(tenantId, request.getRequestInfo(), request.getMigrationSync());
+                producer.send(serviceConfig.getMigrateTopic(),
+                        buildMessage(tenantId, request.getRequestInfo(), request.getMigrationSync()));
                 queued.add(tenantId);
             } catch (Exception e) {
                 log.error("Failed to queue tenant {}: {}", tenantId, e.getMessage());
@@ -92,17 +93,15 @@ public class MigrationService {
         return queued;
     }
 
-    private void publishToMigrationTopics(String tenantId, RequestInfo requestInfo, Boolean migrationSync) {
-        MigrationMessage message = MigrationMessage.builder()
+    private MigrationMessage buildMessage(String tenantId, RequestInfo requestInfo, Boolean migrationSync) {
+        return MigrationMessage.builder()
                 .tenantId(tenantId)
                 .requestInfo(requestInfo)
                 .migrationSync(migrationSync)
                 .build();
-        producer.send(serviceConfig.getMigrateTopic(), message);
-        producer.send(serviceConfig.getMigrateBoundaryLocalizationTopic(), message);
     }
 
-    public void migrateMdmsAndConfigData(String targetTenantId, RequestInfo requestInfo) {
+    public void migrateMdmsAndConfigData(String targetTenantId, RequestInfo requestInfo, Boolean migrationSync) {
         log.info("Starting MDMS and config migration for tenant: {}", targetTenantId);
 
         for (String schemaCode : serviceConfig.getDefaultMdmsSchemaList()) {
@@ -125,10 +124,18 @@ public class MigrationService {
         } catch (Exception e) {
             log.error("Failed to copy config-service data for tenant: {}", targetTenantId, e);
         }
-        
+
+        log.info("Completed MDMS and config migration for tenant: {}, publishing boundary event", targetTenantId);
+        producer.send(serviceConfig.getMigrateBoundaryTopic(), buildMessage(targetTenantId, requestInfo, migrationSync));
+    }
+
+    public void migrateBoundaryData(String targetTenantId, RequestInfo requestInfo, Boolean migrationSync) {
+        log.info("Starting boundary migration for tenant: {}", targetTenantId);
+
         ensureBoundaryExists(targetTenantId, requestInfo);
 
-        log.info("Completed MDMS and config migration for tenant: {}", targetTenantId);
+        log.info("Completed boundary migration for tenant: {}, publishing localization event", targetTenantId);
+        producer.send(serviceConfig.getMigrateLocalizationTopic(), buildMessage(targetTenantId, requestInfo, migrationSync));
     }
 
     public void migrateLocalizationData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {

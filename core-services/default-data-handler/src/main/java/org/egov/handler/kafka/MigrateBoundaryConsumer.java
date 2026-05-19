@@ -14,23 +14,21 @@ import java.util.HashMap;
 
 @Slf4j
 @Component
-public class MigrateLocalizationConsumer {
+public class MigrateBoundaryConsumer {
 
     private final ObjectMapper mapper;
     private final MigrationService migrationService;
 
     @Autowired
-    public MigrateLocalizationConsumer(ObjectMapper mapper, MigrationService migrationService) {
+    public MigrateBoundaryConsumer(ObjectMapper mapper, MigrationService migrationService) {
         this.mapper = mapper;
         this.migrationService = migrationService;
     }
 
-    @KafkaListener(topics = {"${kafka.topics.migrate.localization}"})
+    @KafkaListener(topics = {"${kafka.topics.migrate.boundary}"})
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         MigrationMessage message = mapper.convertValue(record, MigrationMessage.class);
-        boolean migrationSync = Boolean.TRUE.equals(message.getMigrationSync());
-        log.info("Processing localization migration for tenant: {} (migrationSync={})",
-                message.getTenantId(), migrationSync);
-        migrationService.migrateLocalizationData(message.getTenantId(), message.getRequestInfo(), migrationSync);
+        log.info("Processing boundary migration for tenant: {}", message.getTenantId());
+        migrationService.migrateBoundaryData(message.getTenantId(), message.getRequestInfo(), message.getMigrationSync());
     }
 }

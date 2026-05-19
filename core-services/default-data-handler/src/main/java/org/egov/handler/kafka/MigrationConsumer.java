@@ -31,6 +31,6 @@ public class MigrationConsumer {
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         MigrationMessage message = mapper.convertValue(record, MigrationMessage.class);
         log.info("Processing MDMS+config migration for tenant: {}", message.getTenantId());
-        migrationService.migrateMdmsAndConfigData(message.getTenantId(), message.getRequestInfo());
+        migrationService.migrateMdmsAndConfigData(message.getTenantId(), message.getRequestInfo(), message.getMigrationSync());
     }
 }
