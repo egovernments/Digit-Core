@@ -19,6 +19,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,11 +38,13 @@ public class MigrationService {
     private final CustomKafkaTemplate producer;
     private final DataHandlerService dataHandlerService;
     private final ConfigServiceUtil configServiceUtil;
+    private final ExecutorService migrationExecutor;
 
     @Autowired
     public MigrationService(MdmsV2Util mdmsV2Util, LocalizationUtil localizationUtil,
                             TenantManagementUtil tenantManagementUtil, ServiceConfiguration serviceConfig,
-                            CustomKafkaTemplate producer, @Lazy DataHandlerService dataHandlerService, ConfigServiceUtil configServiceUtil) {
+                            CustomKafkaTemplate producer, @Lazy DataHandlerService dataHandlerService,
+                            ConfigServiceUtil configServiceUtil) {
         this.mdmsV2Util = mdmsV2Util;
         this.localizationUtil = localizationUtil;
         this.tenantManagementUtil = tenantManagementUtil;
@@ -47,6 +52,7 @@ public class MigrationService {
         this.producer = producer;
         this.dataHandlerService = dataHandlerService;
         this.configServiceUtil = configServiceUtil;
+        this.migrationExecutor = Executors.newFixedThreadPool(serviceConfig.getMigrationWorkerCount());
     }
 
     public List<String> triggerMigration(MigrationRequest request) {
@@ -104,17 +110,21 @@ public class MigrationService {
     public void migrateMdmsAndConfigData(String targetTenantId, RequestInfo requestInfo, Boolean migrationSync) {
         log.info("Starting MDMS and config migration for tenant: {}", targetTenantId);
 
-        for (String schemaCode : serviceConfig.getDefaultMdmsSchemaList()) {
-            if (TENANT_BOUNDARY_SCHEMA.equals(schemaCode)) {
-                continue;
-            }
-            try {
-                ensureSchemaExists(targetTenantId, schemaCode, requestInfo);
-                upsertMdmsForSchema(targetTenantId, schemaCode, requestInfo);
-            } catch (Exception e) {
-                log.error("Migration failed for schema {} tenant {}: {}", schemaCode, targetTenantId, e.getMessage());
-            }
-        }
+        List<String> schemaList = serviceConfig.getDefaultMdmsSchemaList().stream()
+                .filter(s -> !TENANT_BOUNDARY_SCHEMA.equals(s))
+                .collect(Collectors.toList());
+
+        // Two bulk searches instead of 2 calls per schema
+        Map<String, SchemaDefinition> defaultSchemas = fetchSchemaMap(serviceConfig.getDefaultTenantId(), schemaList, requestInfo);
+        Map<String, SchemaDefinition> targetSchemas = fetchSchemaMap(targetTenantId, schemaList, requestInfo);
+
+        List<CompletableFuture<Void>> futures = schemaList.stream()
+                .map(schemaCode -> CompletableFuture.runAsync(
+                        () -> migrateSchema(targetTenantId, schemaCode, defaultSchemas, targetSchemas, requestInfo),
+                        migrationExecutor))
+                .collect(Collectors.toList());
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
         try {
             configServiceUtil.copyConfigData(
@@ -141,63 +151,82 @@ public class MigrationService {
     public void migrateLocalizationData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
         log.info("Starting localization migration for tenant: {} (migrationSync={})", targetTenantId, migrationSync);
 
-        for (String locale : serviceConfig.getDefaultLocalizationLocaleList()) {
-            try {
-                DefaultLocalizationDataRequest locReq = DefaultLocalizationDataRequest.builder()
-                        .requestInfo(requestInfo)
-                        .targetTenantId(targetTenantId)
-                        .locale(locale)
-                        .modules(serviceConfig.getDefaultLocalizationModuleList())
-                        .defaultTenantId(serviceConfig.getDefaultTenantId())
-                        .migrationSync(migrationSync)
-                        .build();
-                localizationUtil.createLocalizationData(locReq);
-                log.info("Migrated localization locale={} tenant={}", locale, targetTenantId);
-            } catch (Exception e) {
-                log.error("Migration failed for localization locale={} tenant={}: {}", locale, targetTenantId, e.getMessage());
-            }
-        }
+        List<String> modules = serviceConfig.getDefaultLocalizationModuleList();
 
-        log.info("Completed boundary and localization migration for tenant: {}", targetTenantId);
+        List<CompletableFuture<Void>> futures = serviceConfig.getDefaultLocalizationLocaleList().stream()
+                .map(locale -> CompletableFuture.runAsync(() -> {
+                    try {
+                        DefaultLocalizationDataRequest locReq = DefaultLocalizationDataRequest.builder()
+                                .requestInfo(requestInfo)
+                                .targetTenantId(targetTenantId)
+                                .locale(locale)
+                                .modules(modules)
+                                .defaultTenantId(serviceConfig.getDefaultTenantId())
+                                .migrationSync(migrationSync)
+                                .build();
+                        localizationUtil.createLocalizationData(locReq);
+                        log.info("Migrated localization locale={} tenant={}", locale, targetTenantId);
+                    } catch (Exception e) {
+                        log.error("Migration failed for localization locale={} tenant={}: {}", locale, targetTenantId, e.getMessage());
+                    }
+                }, migrationExecutor))
+                .collect(Collectors.toList());
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        log.info("Completed localization migration for tenant: {}", targetTenantId);
     }
 
-    private void ensureSchemaExists(String targetTenantId, String schemaCode, RequestInfo requestInfo) {
-        SchemaDefCriteria targetCriteria = SchemaDefCriteria.builder()
-                .tenantId(targetTenantId)
-                .codes(Collections.singletonList(schemaCode))
-                .build();
-        SchemaDefinitionResponse targetResponse = mdmsV2Util.searchMdmsSchema(
-                SchemaDefSearchRequest.builder().requestInfo(requestInfo).schemaDefCriteria(targetCriteria).build());
+    // --- private helpers ---
 
-        if (targetResponse != null && targetResponse.getSchemaDefinitions() != null
-                && !targetResponse.getSchemaDefinitions().isEmpty()) {
-            return;
+    private Map<String, SchemaDefinition> fetchSchemaMap(String tenantId, List<String> codes, RequestInfo requestInfo) {
+        try {
+            SchemaDefCriteria criteria = SchemaDefCriteria.builder()
+                    .tenantId(tenantId)
+                    .codes(codes)
+                    .limit(codes.size() + 10)
+                    .build();
+            SchemaDefinitionResponse response = mdmsV2Util.searchMdmsSchema(
+                    SchemaDefSearchRequest.builder().requestInfo(requestInfo).schemaDefCriteria(criteria).build());
+            if (response == null || response.getSchemaDefinitions() == null) return Collections.emptyMap();
+            return response.getSchemaDefinitions().stream()
+                    .collect(Collectors.toMap(SchemaDefinition::getCode, Function.identity()));
+        } catch (Exception e) {
+            log.error("Bulk schema fetch failed for tenant {}, will fall back to per-schema create: {}", tenantId, e.getMessage());
+            return Collections.emptyMap();
         }
+    }
 
-        SchemaDefCriteria defaultCriteria = SchemaDefCriteria.builder()
-                .tenantId(serviceConfig.getDefaultTenantId())
-                .codes(Collections.singletonList(schemaCode))
-                .build();
-        SchemaDefinitionResponse defaultResponse = mdmsV2Util.searchMdmsSchema(
-                SchemaDefSearchRequest.builder().requestInfo(requestInfo).schemaDefCriteria(defaultCriteria).build());
-
-        if (defaultResponse == null || defaultResponse.getSchemaDefinitions() == null
-                || defaultResponse.getSchemaDefinitions().isEmpty()) {
-            log.warn("Schema {} not found in default tenant, skipping schema creation", schemaCode);
-            return;
+    private void migrateSchema(String targetTenantId, String schemaCode,
+                               Map<String, SchemaDefinition> defaultSchemas,
+                               Map<String, SchemaDefinition> targetSchemas,
+                               RequestInfo requestInfo) {
+        try {
+            if (!targetSchemas.containsKey(schemaCode)) {
+                SchemaDefinition source = defaultSchemas.get(schemaCode);
+                if (source == null) {
+                    log.warn("Schema {} not found in default tenant, skipping schema creation", schemaCode);
+                } else {
+                    try {
+                        SchemaDefinition newSchema = SchemaDefinition.builder()
+                                .tenantId(targetTenantId)
+                                .code(source.getCode())
+                                .description(source.getDescription())
+                                .definition(source.getDefinition())
+                                .isActive(source.getIsActive())
+                                .build();
+                        mdmsV2Util.createMdmsSchema(
+                                SchemaDefinitionRequest.builder().requestInfo(requestInfo).schemaDefinition(newSchema).build());
+                        log.info("Created schema {} for tenant {}", schemaCode, targetTenantId);
+                    } catch (Exception e) {
+                        log.error("Failed to create schema {} for tenant {}: {}", schemaCode, targetTenantId, e.getMessage());
+                    }
+                }
+            }
+            upsertMdmsForSchema(targetTenantId, schemaCode, requestInfo);
+        } catch (Exception e) {
+            log.error("Migration failed for schema {} tenant {}: {}", schemaCode, targetTenantId, e.getMessage());
         }
-
-        SchemaDefinition source = defaultResponse.getSchemaDefinitions().get(0);
-        SchemaDefinition newSchema = SchemaDefinition.builder()
-                .tenantId(targetTenantId)
-                .code(source.getCode())
-                .description(source.getDescription())
-                .definition(source.getDefinition())
-                .isActive(source.getIsActive())
-                .build();
-        mdmsV2Util.createMdmsSchema(
-                SchemaDefinitionRequest.builder().requestInfo(requestInfo).schemaDefinition(newSchema).build());
-        log.info("Created schema {} for tenant {}", schemaCode, targetTenantId);
     }
 
     private void ensureBoundaryExists(String targetTenantId, RequestInfo requestInfo) {

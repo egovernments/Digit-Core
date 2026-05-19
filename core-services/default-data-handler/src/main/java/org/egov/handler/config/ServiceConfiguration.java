@@ -121,6 +121,10 @@ public class ServiceConfiguration {
     @Value("${default.tenant.id}")
     private String defaultTenantId;
 
+    // Migration parallelism
+    @Value("${migration.worker.count:10}")
+    private int migrationWorkerCount;
+
     // Workflow Configuration
     @Value("${egov.workflow.host}${egov.workflow.businessservice.create.path}")
     private String wfBusinessServiceCreateURI;
