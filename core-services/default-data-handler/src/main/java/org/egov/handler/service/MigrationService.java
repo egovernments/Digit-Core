@@ -60,61 +60,50 @@ public class MigrationService {
         Set<String> seen = new HashSet<>();
         List<String> queued = new ArrayList<>();
         List<String> failed = new ArrayList<>();
+        int total = 0;
 
         for (String tenantId : sourceTenantIds) {
             if (tenantId == null || defaultTenantId.equals(tenantId) || !seen.add(tenantId)) {
                 continue;
             }
+            total++;
             try {
-                producer.send(serviceConfig.getMigrateTopic(), MigrationMessage.builder()
-                        .tenantId(tenantId)
-                        .requestInfo(request.getRequestInfo())
-                        .migrationSync(request.getMigrationSync())
-                        .build());
+                publishToMigrationTopics(tenantId, request.getRequestInfo(), request.getMigrationSync());
                 queued.add(tenantId);
             } catch (Exception e) {
-                log.error("Failed to queue migration for tenant {}: {}", tenantId, e.getMessage());
+                log.error("Failed to queue tenant {}: {}", tenantId, e.getMessage());
                 failed.add(tenantId);
             }
 
-            if (queued.size() % 100 == 0) {
-                log.info("Migration queuing progress: {}/{} tenants queued", queued.size(), sourceTenantIds.size());
+            int processed = queued.size() + failed.size();
+            if (processed % 100 == 0) {
+                log.info("Queuing progress: completed={} pending={} failed={} total={}",
+                        queued.size(), total - processed, failed.size(), total);
             }
         }
 
-        log.info("Initial queuing complete: queued={} failed={} migrationSync={}",
-                queued.size(), failed.size(), request.getMigrationSync());
+        log.info("Migration queuing complete: total={} queued={} failed={} migrationSync={}",
+                total, queued.size(), failed.size(), request.getMigrationSync());
 
         if (!failed.isEmpty()) {
-            log.warn("Retrying {} failed tenants after initial pass", failed.size());
-            List<String> retryFailed = new ArrayList<>();
-            for (String tenantId : failed) {
-                try {
-                    producer.send(serviceConfig.getMigrateTopic(), MigrationMessage.builder()
-                            .tenantId(tenantId)
-                            .requestInfo(request.getRequestInfo())
-                            .migrationSync(request.getMigrationSync())
-                            .build());
-                    queued.add(tenantId);
-                    log.info("Retry succeeded for tenant {}", tenantId);
-                } catch (Exception e) {
-                    log.error("Retry also failed for tenant {}: {}", tenantId, e.getMessage());
-                    retryFailed.add(tenantId);
-                }
-            }
-            if (!retryFailed.isEmpty()) {
-                log.error("Permanently failed to queue {} tenants after retry: {}", retryFailed.size(), retryFailed);
-            }
+            log.error("Failed to queue {} tenants (not retrying): {}", failed.size(), failed);
         }
 
-        log.info("Migration queuing done: total_queued={} migrationSync={}", queued.size(), request.getMigrationSync());
         return queued;
     }
 
-    public void migrateDefaultData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
-        log.info("Starting migration for tenant: {} (migrationSync={})", targetTenantId, migrationSync);
+    private void publishToMigrationTopics(String tenantId, RequestInfo requestInfo, Boolean migrationSync) {
+        MigrationMessage message = MigrationMessage.builder()
+                .tenantId(tenantId)
+                .requestInfo(requestInfo)
+                .migrationSync(migrationSync)
+                .build();
+        producer.send(serviceConfig.getMigrateTopic(), message);
+        producer.send(serviceConfig.getMigrateBoundaryLocalizationTopic(), message);
+    }
 
-        ensureBoundaryExists(targetTenantId, requestInfo);
+    public void migrateMdmsAndConfigData(String targetTenantId, RequestInfo requestInfo) {
+        log.info("Starting MDMS and config migration for tenant: {}", targetTenantId);
 
         for (String schemaCode : serviceConfig.getDefaultMdmsSchemaList()) {
             if (TENANT_BOUNDARY_SCHEMA.equals(schemaCode)) {
@@ -123,21 +112,27 @@ public class MigrationService {
             try {
                 ensureSchemaExists(targetTenantId, schemaCode, requestInfo);
                 upsertMdmsForSchema(targetTenantId, schemaCode, requestInfo);
-                
             } catch (Exception e) {
                 log.error("Migration failed for schema {} tenant {}: {}", schemaCode, targetTenantId, e.getMessage());
             }
         }
-        
-        // Copy WhatsApp notification configs from default tenant
+
         try {
             configServiceUtil.copyConfigData(
-            		requestInfo,
+                    requestInfo,
                     targetTenantId,
                     serviceConfig.getDefaultConfigServiceSchemaCodes());
         } catch (Exception e) {
             log.error("Failed to copy config-service data for tenant: {}", targetTenantId, e);
         }
+        
+        ensureBoundaryExists(targetTenantId, requestInfo);
+
+        log.info("Completed MDMS and config migration for tenant: {}", targetTenantId);
+    }
+
+    public void migrateLocalizationData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
+        log.info("Starting localization migration for tenant: {} (migrationSync={})", targetTenantId, migrationSync);
 
         for (String locale : serviceConfig.getDefaultLocalizationLocaleList()) {
             try {
@@ -156,7 +151,7 @@ public class MigrationService {
             }
         }
 
-        log.info("Completed migration for tenant: {}", targetTenantId);
+        log.info("Completed boundary and localization migration for tenant: {}", targetTenantId);
     }
 
     private void ensureSchemaExists(String targetTenantId, String schemaCode, RequestInfo requestInfo) {

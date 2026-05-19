@@ -21,6 +21,9 @@ public class ServiceConfiguration {
     @Value("${kafka.topics.migrate.tenant}")
     private String migrateTopic;
 
+    @Value("${kafka.topics.migrate.boundary.localization}")
+    private String migrateBoundaryLocalizationTopic;
+
     //MDMS Configs
     @Value("${egov.mdms.host}${egov.mdms.default.data.create.endpoint}")
     private String mdmsDefaultDataCreateURI;
