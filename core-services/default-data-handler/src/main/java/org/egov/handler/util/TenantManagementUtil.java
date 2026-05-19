@@ -53,11 +53,12 @@ public class TenantManagementUtil {
 		}
 	}
 
-	public List<String> fetchTenantCodesPage(RequestInfo requestInfo, int offset, int limit) {
-		String uri = serviceConfig.getTenantSearchURI() + "?offset=" + offset + "&limit=" + limit;
+	public List<String> fetchAllTenantCodes(RequestInfo requestInfo) {
+		String uri = serviceConfig.getTenantSearchURI();
 		try {
 			TenantSearchResponse response = restTemplate.postForObject(uri, requestInfo, TenantSearchResponse.class);
 			if (response == null || response.getTenants() == null) {
+				log.warn("Tenant search returned null/empty response");
 				return new ArrayList<>();
 			}
 			List<String> codes = new ArrayList<>();
@@ -66,10 +67,11 @@ public class TenantManagementUtil {
 					codes.add(tenant.getCode());
 				}
 			}
+			log.info("Fetched {} tenants from tenant-management", codes.size());
 			return codes;
 		} catch (Exception e) {
-			log.error("Error fetching tenants at offset={}: {}", offset, e.getMessage());
-			throw new CustomException("TENANT_SEARCH_FAILED", "Failed to fetch tenants at offset " + offset);
+			log.error("Error fetching all tenants: {}", e.getMessage());
+			throw new CustomException("TENANT_SEARCH_FAILED", "Failed to fetch tenants: " + e.getMessage());
 		}
 	}
 

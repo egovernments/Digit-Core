@@ -50,65 +50,65 @@ public class MigrationService {
     }
 
     public List<String> triggerMigration(MigrationRequest request) {
-        List<String> explicitTenantIds = request.getTenantIds();
+        List<String> sourceTenantIds = request.getTenantIds();
 
-        if (explicitTenantIds != null && !explicitTenantIds.isEmpty()) {
-            Set<String> seen = new HashSet<>();
-            List<String> queued = new ArrayList<>();
-            for (String tenantId : explicitTenantIds) {
-                if (seen.add(tenantId)) {
-                    queueMigration(tenantId, request);
-                    queued.add(tenantId);
-                }
-            }
-            log.info("Queued migration for {} explicit tenants (migrationSync={})", queued.size(), request.getMigrationSync());
-            return queued;
+        if (sourceTenantIds == null || sourceTenantIds.isEmpty()) {
+            sourceTenantIds = tenantManagementUtil.fetchAllTenantCodes(request.getRequestInfo());
         }
 
-        // Page-by-page fetch — never loads all tenants into memory at once.
-        // A Set guards against both duplicates and API wrap-around (stops when a
-        // full page yields zero new codes).
-        Set<String> queued = new HashSet<>();
-        int offset = 0;
-        int limit = serviceConfig.getTenantSearchPageSize();
         String defaultTenantId = serviceConfig.getDefaultTenantId();
+        Set<String> seen = new HashSet<>();
+        List<String> queued = new ArrayList<>();
+        List<String> failed = new ArrayList<>();
 
-        while (true) {
-            List<String> page = tenantManagementUtil.fetchTenantCodesPage(request.getRequestInfo(), offset, limit);
-
-            if (page.isEmpty()) {
-                break;
+        for (String tenantId : sourceTenantIds) {
+            if (tenantId == null || defaultTenantId.equals(tenantId) || !seen.add(tenantId)) {
+                continue;
+            }
+            try {
+                producer.send(serviceConfig.getMigrateTopic(), MigrationMessage.builder()
+                        .tenantId(tenantId)
+                        .requestInfo(request.getRequestInfo())
+                        .migrationSync(request.getMigrationSync())
+                        .build());
+                queued.add(tenantId);
+            } catch (Exception e) {
+                log.error("Failed to queue migration for tenant {}: {}", tenantId, e.getMessage());
+                failed.add(tenantId);
             }
 
-            int newInPage = 0;
-            for (String code : page) {
-                if (!defaultTenantId.equals(code) && queued.add(code)) {
-                    queueMigration(code, request);
-                    newInPage++;
-                }
+            if (queued.size() % 100 == 0) {
+                log.info("Migration queuing progress: {}/{} tenants queued", queued.size(), sourceTenantIds.size());
             }
-
-            log.info("Page offset={} size={} newQueued={} totalQueued={}", offset, page.size(), newInPage, queued.size());
-
-            // Stop if: API returned a partial page (real end) OR entire page was duplicates (wrap-around)
-            if (page.size() < limit || newInPage == 0) {
-                break;
-            }
-
-            offset += limit;
         }
 
-        log.info("Migration queued for {} tenants (migrationSync={})", queued.size(), request.getMigrationSync());
-        return new ArrayList<>(queued);
-    }
+        log.info("Initial queuing complete: queued={} failed={} migrationSync={}",
+                queued.size(), failed.size(), request.getMigrationSync());
 
-    private void queueMigration(String tenantId, MigrationRequest request) {
-        MigrationMessage msg = MigrationMessage.builder()
-                .tenantId(tenantId)
-                .requestInfo(request.getRequestInfo())
-                .migrationSync(request.getMigrationSync())
-                .build();
-        producer.send(serviceConfig.getMigrateTopic(), msg);
+        if (!failed.isEmpty()) {
+            log.warn("Retrying {} failed tenants after initial pass", failed.size());
+            List<String> retryFailed = new ArrayList<>();
+            for (String tenantId : failed) {
+                try {
+                    producer.send(serviceConfig.getMigrateTopic(), MigrationMessage.builder()
+                            .tenantId(tenantId)
+                            .requestInfo(request.getRequestInfo())
+                            .migrationSync(request.getMigrationSync())
+                            .build());
+                    queued.add(tenantId);
+                    log.info("Retry succeeded for tenant {}", tenantId);
+                } catch (Exception e) {
+                    log.error("Retry also failed for tenant {}: {}", tenantId, e.getMessage());
+                    retryFailed.add(tenantId);
+                }
+            }
+            if (!retryFailed.isEmpty()) {
+                log.error("Permanently failed to queue {} tenants after retry: {}", retryFailed.size(), retryFailed);
+            }
+        }
+
+        log.info("Migration queuing done: total_queued={} migrationSync={}", queued.size(), request.getMigrationSync());
+        return queued;
     }
 
     public void migrateDefaultData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
