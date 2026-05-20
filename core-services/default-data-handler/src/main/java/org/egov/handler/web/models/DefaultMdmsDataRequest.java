@@ -39,4 +39,7 @@ public class DefaultMdmsDataRequest {
 	@NotNull
 	@Size(min = 1, max = 100)
 	private String defaultTenantId = null;
+
+	@JsonProperty("isMigration")
+	private Boolean migration = Boolean.FALSE;
 }

@@ -21,4 +21,7 @@ public class MigrationMessage {
 
     @JsonProperty("migrationSync")
     private Boolean migrationSync = Boolean.FALSE;
+
+    @JsonProperty("isMigration")
+    private Boolean migration = Boolean.FALSE;
 }

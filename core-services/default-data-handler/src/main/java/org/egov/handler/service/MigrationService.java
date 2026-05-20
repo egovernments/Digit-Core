@@ -75,7 +75,7 @@ public class MigrationService {
             total++;
             try {
                 producer.send(serviceConfig.getMigrateTopic(),
-                        buildMessage(tenantId, request.getRequestInfo(), request.getMigrationSync()));
+                        buildMessage(tenantId, request.getRequestInfo(), request.getMigrationSync(), request.getMigration()));
                 queued.add(tenantId);
             } catch (Exception e) {
                 log.error("Failed to queue tenant {}: {}", tenantId, e.getMessage());
@@ -99,15 +99,16 @@ public class MigrationService {
         return queued;
     }
 
-    private MigrationMessage buildMessage(String tenantId, RequestInfo requestInfo, Boolean migrationSync) {
+    private MigrationMessage buildMessage(String tenantId, RequestInfo requestInfo, Boolean migrationSync, Boolean isMigration) {
         return MigrationMessage.builder()
                 .tenantId(tenantId)
                 .requestInfo(requestInfo)
                 .migrationSync(migrationSync)
+                .migration(isMigration)
                 .build();
     }
 
-    public void migrateMdmsAndConfigData(String targetTenantId, RequestInfo requestInfo, Boolean migrationSync) {
+    public void migrateMdmsAndConfigData(String targetTenantId, RequestInfo requestInfo, Boolean migrationSync, Boolean isMigration) {
         log.info("Starting MDMS and config migration for tenant: {}", targetTenantId);
 
         List<String> schemaList = serviceConfig.getDefaultMdmsSchemaList().stream()
@@ -120,7 +121,7 @@ public class MigrationService {
 
         List<CompletableFuture<Void>> futures = schemaList.stream()
                 .map(schemaCode -> CompletableFuture.runAsync(
-                        () -> migrateSchema(targetTenantId, schemaCode, defaultSchemas, targetSchemas, requestInfo),
+                        () -> migrateSchema(targetTenantId, schemaCode, defaultSchemas, targetSchemas, requestInfo, isMigration),
                         migrationExecutor))
                 .collect(Collectors.toList());
 
@@ -136,16 +137,16 @@ public class MigrationService {
         }
 
         log.info("Completed MDMS and config migration for tenant: {}, publishing boundary event", targetTenantId);
-        producer.send(serviceConfig.getMigrateBoundaryTopic(), buildMessage(targetTenantId, requestInfo, migrationSync));
+        producer.send(serviceConfig.getMigrateBoundaryTopic(), buildMessage(targetTenantId, requestInfo, migrationSync, isMigration));
     }
 
-    public void migrateBoundaryData(String targetTenantId, RequestInfo requestInfo, Boolean migrationSync) {
+    public void migrateBoundaryData(String targetTenantId, RequestInfo requestInfo, Boolean migrationSync, Boolean isMigration) {
         log.info("Starting boundary migration for tenant: {}", targetTenantId);
 
         ensureBoundaryExists(targetTenantId, requestInfo);
 
         log.info("Completed boundary migration for tenant: {}, publishing localization event", targetTenantId);
-        producer.send(serviceConfig.getMigrateLocalizationTopic(), buildMessage(targetTenantId, requestInfo, migrationSync));
+        producer.send(serviceConfig.getMigrateLocalizationTopic(), buildMessage(targetTenantId, requestInfo, migrationSync, isMigration));
     }
 
     public void migrateLocalizationData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
@@ -200,7 +201,7 @@ public class MigrationService {
     private void migrateSchema(String targetTenantId, String schemaCode,
                                Map<String, SchemaDefinition> defaultSchemas,
                                Map<String, SchemaDefinition> targetSchemas,
-                               RequestInfo requestInfo) {
+                               RequestInfo requestInfo, boolean isMigration) {
         try {
             if (!targetSchemas.containsKey(schemaCode)) {
                 SchemaDefinition source = defaultSchemas.get(schemaCode);
@@ -223,7 +224,7 @@ public class MigrationService {
                     }
                 }
             }
-            upsertMdmsForSchema(targetTenantId, schemaCode, requestInfo);
+            upsertMdmsForSchema(targetTenantId, schemaCode, requestInfo, isMigration);
         } catch (Exception e) {
             log.error("Migration failed for schema {} tenant {}: {}", schemaCode, targetTenantId, e.getMessage());
         }
@@ -247,40 +248,16 @@ public class MigrationService {
         }
     }
 
-    private void upsertMdmsForSchema(String targetTenantId, String schemaCode, RequestInfo requestInfo) {
-        List<Mdms> defaultRecords = mdmsV2Util.getAllMdmsResults(serviceConfig.getDefaultTenantId(), schemaCode, requestInfo);
-        if (defaultRecords.isEmpty()) return;
-
-        List<Mdms> existingRecords = mdmsV2Util.getAllMdmsResults(targetTenantId, schemaCode, requestInfo);
-        Map<String, Mdms> existingByUniqueId = existingRecords.stream()
-                .filter(m -> m.getUniqueIdentifier() != null)
-                .collect(Collectors.toMap(Mdms::getUniqueIdentifier, Function.identity(), (a, b) -> a));
-
-        int created = 0, updated = 0, skipped = 0;
-
-        for (Mdms defaultRecord : defaultRecords) {
-            String uniqueId = defaultRecord.getUniqueIdentifier();
-            Mdms existing = existingByUniqueId.get(uniqueId);
-
-            if (existing == null) {
-                Mdms newRecord = Mdms.builder()
-                        .tenantId(targetTenantId)
-                        .schemaCode(schemaCode)
-                        .uniqueIdentifier(uniqueId)
-                        .data(defaultRecord.getData())
-                        .isActive(defaultRecord.getIsActive())
-                        .build();
-                mdmsV2Util.createMdmsData(MdmsRequest.builder().requestInfo(requestInfo).mdms(newRecord).build());
-                created++;
-            } else if (!existing.getData().equals(defaultRecord.getData())) {
-                existing.setData(defaultRecord.getData());
-                mdmsV2Util.updateMdmsData(MdmsRequest.builder().requestInfo(requestInfo).mdms(existing).build());
-                updated++;
-            } else {
-                skipped++;
-            }
-        }
-
-        log.info("Schema {} tenant {}: created={} updated={} skipped={}", schemaCode, targetTenantId, created, updated, skipped);
+    private void upsertMdmsForSchema(String targetTenantId, String schemaCode, RequestInfo requestInfo, boolean isMigration) {
+        DefaultMdmsDataRequest defaultMdmsDataRequest = DefaultMdmsDataRequest.builder()
+                .requestInfo(requestInfo)
+                .targetTenantId(targetTenantId)
+                .schemaCodes(Collections.singletonList(schemaCode))
+                .onlySchemas(Boolean.FALSE)
+                .defaultTenantId(serviceConfig.getDefaultTenantId())
+                .migration(isMigration)
+                .build();
+        mdmsV2Util.createDefaultMdmsData(defaultMdmsDataRequest);
+        log.info("Schema {} data copied for tenant {} (isMigration={})", schemaCode, targetTenantId, isMigration);
     }
 }

@@ -27,4 +27,7 @@ public class MigrationRequest {
 
     @JsonProperty("migrationSync")
     private Boolean migrationSync = Boolean.TRUE;
+
+    @JsonProperty("isMigration")
+    private Boolean migration = Boolean.FALSE;
 }

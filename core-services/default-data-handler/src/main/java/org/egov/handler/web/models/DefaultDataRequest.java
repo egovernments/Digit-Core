@@ -42,4 +42,7 @@ public class DefaultDataRequest {
 	@JsonProperty("modules")
 	@Valid
 	private List<String> modules = null;
+
+	@JsonProperty("isMigration")
+	private Boolean migration = Boolean.FALSE;
 }

@@ -29,6 +29,6 @@ public class MigrateBoundaryConsumer {
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         MigrationMessage message = mapper.convertValue(record, MigrationMessage.class);
         log.info("Processing boundary migration for tenant: {}", message.getTenantId());
-        migrationService.migrateBoundaryData(message.getTenantId(), message.getRequestInfo(), message.getMigrationSync());
+        migrationService.migrateBoundaryData(message.getTenantId(), message.getRequestInfo(), message.getMigrationSync(), message.getMigration());
     }
 }

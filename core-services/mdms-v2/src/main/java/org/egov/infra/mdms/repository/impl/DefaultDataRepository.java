@@ -1,9 +1,7 @@
 package org.egov.infra.mdms.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -21,35 +19,30 @@ public class DefaultDataRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	public void copySchemaData(String defaultTenantId, String targetTenantId, List<String> schemaCodes) {
-		// Construct the query with parameters
+	public void copySchemaData(String defaultTenantId, String targetTenantId, List<String> schemaCodes, boolean isMigration) {
+		long currentEpochMillis = System.currentTimeMillis();
+
+		String conflictClause = isMigration
+				? "ON CONFLICT (tenantid, schemacode, uniqueidentifier) DO UPDATE SET data = EXCLUDED.data, lastmodifiedtime = ?"
+				: "ON CONFLICT (tenantid, schemacode, uniqueidentifier) DO NOTHING";
+
 		String sql = "INSERT INTO eg_mdms_data (id, tenantid, uniqueidentifier, schemacode, data, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) " +
 				"SELECT uuid_generate_v4(), ?, uniqueidentifier, schemacode, data, isactive, createdby, lastmodifiedby, ?, NULL::bigint " +
 				"FROM eg_mdms_data " +
 				"WHERE tenantid = ? " +
-				"AND schemacode IN (" + createQuery(schemaCodes) + ")" +
-				"ON CONFLICT (tenantid, schemacode, uniqueidentifier) DO NOTHING;";
-
-		// Get the current time in milliseconds
-		long currentEpochMillis = System.currentTimeMillis();
+				"AND schemacode IN (" + createQuery(schemaCodes) + ") " +
+				conflictClause + ";";
 
 		List<Object> preparedStmtList = new ArrayList<>();
 		preparedStmtList.add(targetTenantId);
 		preparedStmtList.add(currentEpochMillis);
 		preparedStmtList.add(defaultTenantId);
 		addToPreparedStatement(preparedStmtList, schemaCodes);
-
-		try {
-			// Execute the query
-			jdbcTemplate.update(sql, preparedStmtList.toArray());
-		} catch (DataIntegrityViolationException e) {
-			// extract information from the exception
-			String message = e.getMessage();
-			log.error("Detailed error: {}", message);
-
-			// Re-throw or handle the conflict as needed
-			throw new CustomException("Conflict during insert operation", e.getMessage());
+		if (isMigration) {
+			preparedStmtList.add(currentEpochMillis);
 		}
+
+		jdbcTemplate.update(sql, preparedStmtList.toArray());
 	}
 
 	private String createQuery(List<String> ids) {

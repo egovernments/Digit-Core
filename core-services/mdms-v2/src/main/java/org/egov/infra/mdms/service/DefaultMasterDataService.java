@@ -27,7 +27,8 @@ public class DefaultMasterDataService {
 		schemaRepository.copySchemaDefinitions(defaultTenantId, targetTenantId, schemaCodes);
 
 		if (Boolean.FALSE.equals(defaultMasterDataRequest.getOnlySchemas())) {
-			dataRepository.copySchemaData(defaultTenantId, targetTenantId, schemaCodes);
+			boolean isMigration = Boolean.TRUE.equals(defaultMasterDataRequest.getMigration());
+			dataRepository.copySchemaData(defaultTenantId, targetTenantId, schemaCodes, isMigration);
 		}
 	}
 
