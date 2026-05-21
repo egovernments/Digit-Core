@@ -2,8 +2,8 @@ package org.egov.services.individual;
 
 import org.egov.config.ApiProperties;
 import org.egov.services.individual.model.Individual;
-import org.egov.services.individual.model.IndividualResponse;
 import org.egov.services.individual.model.IndividualSearchResponse;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,8 +18,8 @@ import lombok.Getter;
 public class IndividualClient {
     private final RestTemplate restTemplate;
     private final ApiProperties apiProperties;
-    private static final int DEFAULT_LIMIT = 10;
-    private static final int DEFAULT_OFFSET = 0;
+    private static final int DEFAULT_PAGE = 1;
+    private static final int DEFAULT_SIZE = 20;
 
     public IndividualClient(RestTemplate restTemplate, ApiProperties apiProperties) {
         this.restTemplate = restTemplate;
@@ -27,49 +27,54 @@ public class IndividualClient {
     }
 
     public Individual createIndividual(Individual individual) {
-        String url = this.apiProperties.getIndividualServiceUrl() + "/individual/v3/individuals";
-        ResponseEntity response = this.restTemplate.postForEntity(url, Map.of("Individual", individual), IndividualResponse.class, new Object[0]);
-        return response.getBody() != null ? ((IndividualResponse)response.getBody()).getIndividual() : null;
+        String url = this.apiProperties.getIndividualServiceUrl() + "/individuals/v3/individuals";
+        ResponseEntity<Individual> response = this.restTemplate.postForEntity(url, individual, Individual.class, new Object[0]);
+        return response.getBody();
     }
 
     public Individual getIndividualById(String individualId) {
-        String url = this.apiProperties.getIndividualServiceUrl() + "/individual/v3/individuals/" + individualId;
-        ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), IndividualResponse.class, new Object[0]);
-        return response.getBody() != null ? ((IndividualResponse)response.getBody()).getIndividual() : null;
+        String url = this.apiProperties.getIndividualServiceUrl() + "/individuals/v3/individuals/" + individualId;
+        ResponseEntity<Individual> response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Individual.class, new Object[0]);
+        return response.getBody();
     }
 
     public IndividualSearchResponse searchIndividualsByName(String individualName) {
-        return this.searchIndividualsByName(individualName, 10, 0);
+        return this.searchIndividualsByName(individualName, DEFAULT_PAGE, DEFAULT_SIZE);
     }
 
-    public IndividualSearchResponse searchIndividualsByName(String individualName, Integer limit, Integer offset) {
-        int finalLimit = limit != null && limit > 0 ? limit : 10;
-        int finalOffset = offset != null && offset >= 0 ? offset : 0;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString((String)(this.apiProperties.getIndividualServiceUrl() + "/individual/v3/individuals")).queryParam("limit", new Object[]{finalLimit}).queryParam("offset", new Object[]{finalOffset});
+    public IndividualSearchResponse searchIndividualsByName(String individualName, Integer page, Integer size) {
+        int finalPage = page != null && page > 0 ? page : DEFAULT_PAGE;
+        int finalSize = size != null && size > 0 ? size : DEFAULT_SIZE;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(this.apiProperties.getIndividualServiceUrl() + "/individuals/v3/individuals")
+                .queryParam("page", new Object[]{finalPage})
+                .queryParam("size", new Object[]{finalSize});
         if (individualName != null && !individualName.trim().isEmpty()) {
-            builder.queryParam("name", new Object[]{individualName});
+            builder.queryParam("givenName", new Object[]{individualName});
         }
-        ResponseEntity response = this.restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity(new HttpHeaders()), IndividualSearchResponse.class, new Object[0]);
-        return (IndividualSearchResponse)response.getBody();
+        ResponseEntity<IndividualSearchResponse> response = this.restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), IndividualSearchResponse.class, new Object[0]);
+        return response.getBody();
     }
 
     public IndividualSearchResponse searchAllIndividuals() {
-        return this.searchIndividualsByName(null, 10, 0);
+        return this.searchIndividualsByName(null, DEFAULT_PAGE, DEFAULT_SIZE);
     }
 
-    public IndividualSearchResponse searchAllIndividuals(Integer limit, Integer offset) {
-        return this.searchIndividualsByName(null, limit, offset);
+    public IndividualSearchResponse searchAllIndividuals(Integer page, Integer size) {
+        return this.searchIndividualsByName(null, page, size);
     }
 
     public boolean isIndividualExist(String individualId) {
-        return this.isIndividualExistsById(individualId, 10, 0);
+        return this.isIndividualExistsById(individualId, DEFAULT_PAGE, DEFAULT_SIZE);
     }
 
-    public boolean isIndividualExistsById(String individualId, Integer limit, Integer offset) {
+    public boolean isIndividualExistsById(String individualId, Integer page, Integer size) {
         try {
-            String url = this.apiProperties.getIndividualServiceUrl() + "/individual/v3/individuals/" + individualId;
-            ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), IndividualResponse.class, new Object[0]);
-            return response.getBody() != null && ((IndividualResponse)response.getBody()).getIndividual() != null;
+            String url = UriComponentsBuilder.fromUriString(this.apiProperties.getIndividualServiceUrl() + "/individuals/v3/individuals/exists")
+                    .queryParam("id", new Object[]{individualId})
+                    .toUriString();
+            ResponseEntity<Map<String, Boolean>> response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<Map<String, Boolean>>(){}, new Object[0]);
+            Map<String, Boolean> body = response.getBody();
+            return body != null && Boolean.TRUE.equals(body.get("exists"));
         }
         catch (HttpClientErrorException.NotFound e) {
             return false;

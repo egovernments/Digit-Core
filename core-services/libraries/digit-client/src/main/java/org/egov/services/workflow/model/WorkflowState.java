@@ -11,21 +11,21 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkflowProcessResponse {
+public class WorkflowState {
     @JsonProperty(value="id")
     private String id;
     @JsonProperty(value="code")
     private String code;
     @JsonProperty(value="name")
     private String name;
+    @JsonProperty(value="type")
+    private String type;
     @JsonProperty(value="description")
     private String description;
-    @JsonProperty(value="version")
-    private String version;
     @JsonProperty(value="sla")
     private Long sla;
-    @JsonProperty(value="tenantId")
-    private String tenantId;
+    @JsonProperty(value="processCode")
+    private String processCode;
     @JsonProperty(value="auditDetail")
     private AuditDetails auditDetail;
 }

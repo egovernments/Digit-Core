@@ -14,8 +14,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndividualSearchResponse {
-    @JsonProperty(value="Individuals")
+    @JsonProperty("individuals")
     private List<Individual> individuals;
-    @JsonProperty(value="totalCount")
+    @JsonProperty("totalCount")
     private Long totalCount;
+    @JsonProperty("page")
+    private Integer page;
+    @JsonProperty("size")
+    private Integer size;
+    @JsonProperty("hasMore")
+    private Boolean hasMore;
 }

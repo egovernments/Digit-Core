@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.egov.services.common.model.AuditDetails;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 @Data
@@ -17,24 +16,54 @@ import org.egov.services.common.model.AuditDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Individual {
-    @JsonProperty(value="id")
+    @JsonProperty("id")
     private String id;
+    @JsonProperty("individualId")
+    private String individualId;
+    @JsonProperty("tenantId")
+    private String tenantId;
     @JsonProperty("givenName")
     private String name;
-    @JsonProperty(value="dateOfBirth")
+    @JsonProperty("familyName")
+    private String familyName;
+    @JsonProperty("otherNames")
+    private String otherNames;
+    @JsonProperty("dateOfBirth")
     private String dateOfBirth;
-    @JsonProperty(value="gender")
+    @JsonProperty("gender")
     private String gender;
-    @JsonProperty(value="mobileNumber")
+    @JsonProperty("age")
+    private Integer age;
+    @JsonProperty("mobileNumber")
     private String mobileNumber;
-    @JsonProperty(value="email")
+    @JsonProperty("mobileNumberVerified")
+    private Boolean mobileNumberVerified;
+    @JsonProperty("altContactNumber")
+    private String altContactNumber;
+    @JsonProperty("email")
     private String email;
-    @JsonProperty(value="address")
-    private Address address;
-    @JsonProperty(value="documents")
+    @JsonProperty("emailVerified")
+    private Boolean emailVerified;
+    @JsonProperty("locale")
+    private String locale;
+    @JsonProperty("fatherName")
+    private String fatherName;
+    @JsonProperty("husbandName")
+    private String husbandName;
+    @JsonProperty("photo")
+    private String photo;
+    @JsonProperty("userId")
+    private String userId;
+    @JsonProperty("isActive")
+    private Boolean isActive;
+    @JsonProperty("version")
+    private Integer version;
+    @JsonProperty("address")
+    private List<Address> address;
+    @JsonProperty("documents")
     private List<Document> documents;
-    @JsonProperty(value="auditDetail")
+    @JsonProperty("auditDetail")
     private AuditDetails auditDetail;
-    @JsonProperty(value="additionalFields")
-    private Map<String, Object> additionalFields;
+    @JsonProperty("additionalAttributes")
+    private Map<String, String> additionalAttributes;
 }

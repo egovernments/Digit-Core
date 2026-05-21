@@ -51,7 +51,7 @@ public class RegistryClient {
         }
         try {
             log.debug("Creating registry data with schema code: {}", (Object)schemaCode);
-            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/schema/" + schemaCode + "/data";
+            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/" + schemaCode + "/data";
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
             ResponseEntity response = this.restTemplate.postForEntity(url, (Object)new HttpEntity((Object)registryData, headers), RegistryDataResponse.class, new Object[0]);
@@ -77,7 +77,7 @@ public class RegistryClient {
         }
         try {
             log.debug("Searching registry data with schema code: {}, registry ID: {}, history: {}", new Object[]{schemaCode, registryId, history});
-            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/schema/" + schemaCode + "/data/_registry?registryId=" + registryId + "&history=" + history;
+            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/" + schemaCode + "/data/_registry?registryId=" + registryId + "&history=" + history;
             ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), RegistryDataResponse.class, new Object[0]);
             log.debug("Successfully retrieved registry data with schema code: {}, registry ID: {}", (Object)schemaCode, (Object)registryId);
             return (RegistryDataResponse)response.getBody();
@@ -112,7 +112,7 @@ public class RegistryClient {
             int actualLimit = limit != null ? limit : 5;
             int actualOffset = offset != null ? offset : 0;
             log.debug("Searching registry data with schema code: {}, key: {}, value: {}, limit: {}, offset: {}", new Object[]{schemaCode, key, value, actualLimit, actualOffset});
-            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/schema/" + schemaCode + "/data/_search";
+            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/" + schemaCode + "/data/_search";
             Map<String, Object> searchRequest = new HashMap<>();
             searchRequest.put("contains", Map.of(key, value));
             searchRequest.put("limit", actualLimit);
@@ -171,7 +171,7 @@ public class RegistryClient {
                 }
             }
             registryData.setVersion(currentVersion);
-            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/schema/" + schemaCode + "/data?id=" + registryId;
+            String url = this.apiProperties.getRegistryServiceUrl() + "/registry/v3/" + schemaCode + "/data?id=" + registryId;
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
             ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity((Object)registryData, headers), RegistryDataResponse.class, new Object[0]);

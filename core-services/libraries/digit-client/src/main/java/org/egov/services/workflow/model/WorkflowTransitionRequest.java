@@ -13,14 +13,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkflowTransitionRequest {
-    @JsonProperty(value="processId")
-    private String processId;
+    @JsonProperty(value="processCode")
+    private String processCode;
+    @JsonProperty(value="processInstanceId")
+    private String processInstanceId;
     @JsonProperty(value="entityId")
     private String entityId;
     @JsonProperty(value="action")
     private String action;
     @JsonProperty(value="comment")
     private String comment;
+    @JsonProperty(value="documents")
+    private List<Document> documents;
+    @JsonProperty(value="assigner")
+    private String assigner;
+    @JsonProperty(value="assignees")
+    private List<String> assignees;
     @JsonProperty(value="attributes")
     private Map<String, List<String>> attributes;
 }

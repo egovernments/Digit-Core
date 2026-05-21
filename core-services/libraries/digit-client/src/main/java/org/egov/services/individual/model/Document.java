@@ -1,5 +1,6 @@
 package org.egov.services.individual.model;
 
+import org.egov.services.common.model.AuditDetails;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -21,4 +22,6 @@ public class Document {
     private String fileStoreId;
     @JsonProperty(value="documentUid")
     private String documentUid;
+    @JsonProperty("auditDetail")
+    private AuditDetails auditDetail;
 }

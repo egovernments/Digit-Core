@@ -3,10 +3,9 @@ package org.egov.services.workflow;
 import org.egov.config.ApiProperties;
 import org.egov.exception.DigitClientException;
 import org.egov.services.workflow.model.WorkflowProcessResponse;
+import org.egov.services.workflow.model.WorkflowState;
 import org.egov.services.workflow.model.WorkflowTransitionRequest;
 import org.egov.services.workflow.model.WorkflowTransitionResponse;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import org.springframework.core.ParameterizedTypeReference;
@@ -33,8 +32,8 @@ public class WorkflowClient {
         if (transitionRequest == null) {
             throw new DigitClientException("WorkflowTransitionRequest cannot be null");
         }
-        if (transitionRequest.getProcessId() == null || transitionRequest.getProcessId().trim().isEmpty()) {
-            throw new DigitClientException("Process ID cannot be null or empty");
+        if (transitionRequest.getProcessCode() == null || transitionRequest.getProcessCode().trim().isEmpty()) {
+            throw new DigitClientException("Process code cannot be null or empty");
         }
         if (transitionRequest.getEntityId() == null || transitionRequest.getEntityId().trim().isEmpty()) {
             throw new DigitClientException("Entity ID cannot be null or empty");
@@ -43,7 +42,7 @@ public class WorkflowClient {
             throw new DigitClientException("Action cannot be null or empty");
         }
         try {
-            log.debug("Executing workflow transition for processId: {}, entityId: {}, action: {}", new Object[]{transitionRequest.getProcessId(), transitionRequest.getEntityId(), transitionRequest.getAction()});
+            log.debug("Executing workflow transition for processCode: {}, entityId: {}, action: {}", new Object[]{transitionRequest.getProcessCode(), transitionRequest.getEntityId(), transitionRequest.getAction()});
             String url = this.apiProperties.getWorkflowServiceUrl() + "/workflow/v3/transition";
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
@@ -60,56 +59,50 @@ public class WorkflowClient {
         }
     }
 
-    public WorkflowTransitionResponse executeTransition(String processId, String entityId, String action, String comment) {
-        WorkflowTransitionRequest request = WorkflowTransitionRequest.builder().processId(processId).entityId(entityId).action(action).comment(comment).build();
+    public WorkflowTransitionResponse executeTransition(String processCode, String entityId, String action, String comment) {
+        WorkflowTransitionRequest request = WorkflowTransitionRequest.builder().processCode(processCode).entityId(entityId).action(action).comment(comment).build();
         return this.executeTransition(request);
     }
 
-    public WorkflowTransitionResponse executeTransition(String processId, String entityId, String action, String comment, Map<String, List<String>> attributes) {
-        WorkflowTransitionRequest request = WorkflowTransitionRequest.builder().processId(processId).entityId(entityId).action(action).comment(comment).attributes(attributes).build();
+    public WorkflowTransitionResponse executeTransition(String processCode, String entityId, String action, String comment, Map<String, List<String>> attributes) {
+        WorkflowTransitionRequest request = WorkflowTransitionRequest.builder().processCode(processCode).entityId(entityId).action(action).comment(comment).attributes(attributes).build();
         return this.executeTransition(request);
     }
 
-    public WorkflowProcessResponse getProcessById(String processId) {
-        if (processId == null || processId.trim().isEmpty()) {
-            throw new DigitClientException("Process ID cannot be null or empty");
+    public List<WorkflowState> listStates(String processCode) {
+        if (processCode == null || processCode.trim().isEmpty()) {
+            throw new DigitClientException("Process code cannot be null or empty");
         }
         try {
-            log.debug("Retrieving workflow process with ID: {}", (Object)processId);
-            String url = this.apiProperties.getWorkflowServiceUrl() + "/workflow/v3/process/" + processId;
+            log.debug("Retrieving states for processCode: {}", (Object)processCode);
+            String url = this.apiProperties.getWorkflowServiceUrl() + "/workflow/v3/process/" + processCode + "/state";
+            ResponseEntity<List<WorkflowState>> response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<List<WorkflowState>>(){}, new Object[0]);
+            return response.getBody();
+        }
+        catch (Exception e) {
+            if (e instanceof DigitClientException) {
+                throw e;
+            }
+            throw new DigitClientException("Failed to retrieve states: " + e.getMessage(), e);
+        }
+    }
+
+    public WorkflowProcessResponse getProcessDefinition(String processCode) {
+        if (processCode == null || processCode.trim().isEmpty()) {
+            throw new DigitClientException("Process code cannot be null or empty");
+        }
+        try {
+            log.debug("Retrieving workflow process definition with code: {}", (Object)processCode);
+            String url = this.apiProperties.getWorkflowServiceUrl() + "/workflow/v3/process/definition/" + processCode;
             ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), WorkflowProcessResponse.class, new Object[0]);
-            log.debug("Successfully retrieved workflow process: {}", (Object)processId);
+            log.debug("Successfully retrieved workflow process definition: {}", (Object)processCode);
             return (WorkflowProcessResponse)response.getBody();
         }
         catch (Exception e) {
             if (e instanceof DigitClientException) {
                 throw e;
             }
-            throw new DigitClientException("Failed to retrieve workflow process: " + e.getMessage(), e);
-        }
-    }
-
-    public String getProcessByCode(String code) {
-        if (code == null || code.trim().isEmpty()) {
-            throw new DigitClientException("Process code cannot be null or empty");
-        }
-        try {
-            log.debug("Retrieving workflow process with code: {}", (Object)code);
-            String url = this.apiProperties.getWorkflowServiceUrl() + "/workflow/v3/process?code=" + URLEncoder.encode(code, StandardCharsets.UTF_8);
-            ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), new ParameterizedTypeReference<List<WorkflowProcessResponse>>(){}, new Object[0]);
-            List processes = (List)response.getBody();
-            if (processes == null || processes.isEmpty()) {
-                throw new DigitClientException("No workflow process found for code: " + code);
-            }
-            String processId = ((WorkflowProcessResponse)processes.get(0)).getId();
-            log.debug("Successfully retrieved workflow process ID: {}", (Object)processId);
-            return processId;
-        }
-        catch (Exception e) {
-            if (e instanceof DigitClientException) {
-                throw e;
-            }
-            throw new DigitClientException("Failed to retrieve workflow process: " + e.getMessage(), e);
+            throw new DigitClientException("Failed to retrieve workflow process definition: " + e.getMessage(), e);
         }
     }
 }
