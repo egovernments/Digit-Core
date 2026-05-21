@@ -106,7 +106,7 @@ class EndpointVerificationTest {
     void workflow_transition_usesCorrectEndpoint() {
         var client = new WorkflowClient(restTemplate, props);
         var req = WorkflowTransitionRequest.builder()
-                .processId("proc-1").entityId("ent-1").action("APPROVE").build();
+                .processCode("proc-1").entityId("ent-1").action("APPROVE").build();
 
         when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(WorkflowTransitionResponse.class)))
                 .thenReturn(ResponseEntity.ok(null));
@@ -119,17 +119,17 @@ class EndpointVerificationTest {
     }
 
     @Test
-    void workflow_getProcessById_usesCorrectEndpoint() {
+    void workflow_getProcessDefinition_usesCorrectEndpoint() {
         var client = new WorkflowClient(restTemplate, props);
 
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(WorkflowProcessResponse.class)))
                 .thenReturn(ResponseEntity.ok(null));
 
-        client.getProcessById("proc-123");
+        client.getProcessDefinition("proc-123");
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(WorkflowProcessResponse.class));
-        assertEquals(BASE + "/workflow/v3/process/proc-123", urlCaptor.getValue());
+        assertEquals(BASE + "/workflow/v3/process/definition/proc-123", urlCaptor.getValue());
     }
 
     // ── Billing ───────────────────────────────────────────────────────────────
@@ -329,7 +329,7 @@ class EndpointVerificationTest {
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(MdmsResponseV2.class));
-        assertTrue(urlCaptor.getValue().startsWith(BASE + "/mdms/v3/data"));
+        assertTrue(urlCaptor.getValue().startsWith(BASE + "/mdms-v2/v2"));
     }
 
     // ── Registry ──────────────────────────────────────────────────────────────
@@ -350,7 +350,7 @@ class EndpointVerificationTest {
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).postForEntity(urlCaptor.capture(), any(), eq(RegistryDataResponse.class));
-        assertEquals(BASE + "/registry/v3/schema/trade-license/data", urlCaptor.getValue());
+        assertEquals(BASE + "/registry/v3/trade-license/data", urlCaptor.getValue());
     }
 
     @Test
@@ -364,7 +364,7 @@ class EndpointVerificationTest {
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(RegistryDataResponse.class));
-        assertTrue(urlCaptor.getValue().startsWith(BASE + "/registry/v3/schema/trade-license/data/_registry"));
+        assertTrue(urlCaptor.getValue().startsWith(BASE + "/registry/v3/trade-license/data/_registry"));
         assertTrue(urlCaptor.getValue().contains("registryId=reg-123"));
     }
 
@@ -379,7 +379,7 @@ class EndpointVerificationTest {
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.POST), any(), eq(RegistryDataResponse.class));
-        assertEquals(BASE + "/registry/v3/schema/trade-license/data/_search", urlCaptor.getValue());
+        assertEquals(BASE + "/registry/v3/trade-license/data/_search", urlCaptor.getValue());
     }
 
     // ── Individual ────────────────────────────────────────────────────────────
@@ -392,28 +392,28 @@ class EndpointVerificationTest {
         var client = new IndividualClient(restTemplate, props);
         var individual = new Individual();
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(IndividualResponse.class)))
+        when(restTemplate.postForEntity(anyString(), any(), eq(Individual.class)))
                 .thenReturn(ResponseEntity.ok(null));
 
         client.createIndividual(individual);
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
-        verify(restTemplate).postForEntity(urlCaptor.capture(), any(), eq(IndividualResponse.class));
-        assertEquals(BASE + "/individual/v3/individuals", urlCaptor.getValue());
+        verify(restTemplate).postForEntity(urlCaptor.capture(), any(), eq(Individual.class));
+        assertEquals(BASE + "/individuals/v3/individuals", urlCaptor.getValue());
     }
 
     @Test
     void individual_getById_usesCorrectEndpoint() {
         var client = new IndividualClient(restTemplate, props);
 
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(IndividualResponse.class)))
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(Individual.class)))
                 .thenReturn(ResponseEntity.ok(null));
 
         client.getIndividualById("ind-123");
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
-        verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(IndividualResponse.class));
-        assertEquals(BASE + "/individual/v3/individuals/ind-123", urlCaptor.getValue());
+        verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(Individual.class));
+        assertEquals(BASE + "/individuals/v3/individuals/ind-123", urlCaptor.getValue());
     }
 
     @Test
@@ -427,8 +427,8 @@ class EndpointVerificationTest {
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(IndividualSearchResponse.class));
-        assertTrue(urlCaptor.getValue().startsWith(BASE + "/individual/v3/individuals"));
-        assertTrue(urlCaptor.getValue().contains("name=John"));
+        assertTrue(urlCaptor.getValue().startsWith(BASE + "/individuals/v3/individuals"));
+        assertTrue(urlCaptor.getValue().contains("givenName=John"));
     }
     // ── Filestore ─────────────────────────────────────────────────────────────
     // Spec: POST /filestore/v3/files/metadata?fileStoreId=...&tenantId=...
