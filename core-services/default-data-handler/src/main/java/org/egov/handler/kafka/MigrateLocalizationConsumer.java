@@ -25,7 +25,7 @@ public class MigrateLocalizationConsumer {
         this.migrationService = migrationService;
     }
 
-    @KafkaListener(topics = {"${kafka.topics.migrate.localization}"})
+    //@KafkaListener(topics = {"${kafka.topics.migrate.localization}"})
     public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         MigrationMessage message = mapper.convertValue(record, MigrationMessage.class);
         boolean migrationSync = Boolean.TRUE.equals(message.getMigrationSync());

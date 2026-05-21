@@ -146,7 +146,7 @@ public class MigrationService {
         ensureBoundaryExists(targetTenantId, requestInfo);
 
         log.info("Completed boundary migration for tenant: {}, publishing localization event", targetTenantId);
-        producer.send(serviceConfig.getMigrateLocalizationTopic(), buildMessage(targetTenantId, requestInfo, migrationSync, isMigration));
+        //producer.send(serviceConfig.getMigrateLocalizationTopic(), buildMessage(targetTenantId, requestInfo, migrationSync, isMigration));
     }
 
     public void migrateLocalizationData(String targetTenantId, RequestInfo requestInfo, boolean migrationSync) {
