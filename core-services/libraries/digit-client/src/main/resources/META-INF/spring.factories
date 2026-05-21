@@ -1,4 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-config.org.egov.HeaderPropagationAutoConfiguration,\
-config.org.egov.OpenTelemetryAutoConfiguration,\
-org.egov.config.RegistryCacheAutoConfiguration
+org.digit.config.HeaderPropagationAutoConfiguration,\
+org.digit.config.OpenTelemetryAutoConfiguration,\
+org.digit.config.RegistryCacheAutoConfiguration
