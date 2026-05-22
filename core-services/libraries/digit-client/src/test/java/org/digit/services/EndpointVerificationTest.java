@@ -440,11 +440,10 @@ class EndpointVerificationTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(byte[].class)))
                 .thenReturn(ResponseEntity.ok(null));
 
-        client.isFileAvailable("file-abc", "pb");
+        client.isFileAvailable("file-abc");
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(byte[].class));
-        assertTrue(urlCaptor.getValue().startsWith(BASE + "/filestore/v3/files/file-abc"));
-        assertTrue(urlCaptor.getValue().contains("tenantId=pb"));
+        assertEquals(BASE + "/filestore/v3/files/file-abc", urlCaptor.getValue());
     }
 }
