@@ -64,15 +64,15 @@ public class TransactionService {
 	 * @param transactionRequest Valid transaction request for which transaction needs to be initiated
 	 * @return Redirect URI to the gateway for the particular transaction
 	 */
-	public Transaction initiateTransaction(TransactionRequest transactionRequest, String tenantId, String clientId) {
+	public Transaction initiateTransaction(TransactionRequest transactionRequest, String tenantId, String userId, String requestId) {
 		Transaction txn = transactionRequest.getTransaction();
 
 		// Validate Transaction
 		validator.validateCreateTxn(txn);
-		paymentsService.validatePayment(txn, tenantId, clientId);
+		paymentsService.validatePayment(txn, tenantId, userId);
 
 		// Enrich transaction by generating txnId, audit details, default status
-		enrichmentService.enrichCreateTransaction(txn, tenantId, clientId);
+		enrichmentService.enrichCreateTransaction(txn, tenantId, userId);
 
 		Transaction transaction = transactionRequest.getTransaction();
 
@@ -83,7 +83,7 @@ public class TransactionService {
 
 		if (skipGateway(transaction)) {
 			transaction.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
-			paymentsService.registerPayment(txn, tenantId, clientId);
+			paymentsService.registerPayment(txn, tenantId, userId);
 		} else {
 			URI uri = gatewayService.initiateTxn(transaction);
 			transaction.setRedirectUrl(uri.toString());
@@ -92,8 +92,8 @@ public class TransactionService {
 		}
 
 		// Persist transaction and transaction dump objects
-		transactionRepository.saveTransaction(txn);
-		transactionRepository.saveTransactionDump(dump);
+		transactionRepository.saveTransaction(txn, requestId);
+		transactionRepository.saveTransactionDump(dump, requestId);
 
 		// Publish transaction create event to messaging queue
 		if (Boolean.TRUE.equals(appProperties.getMessageBrokerEnabled())) {
@@ -138,7 +138,7 @@ public class TransactionService {
 	 * @param clientId
 	 * @return Updated transaction
 	 */
-	public List<Transaction> updateTransaction(Map<String, String> requestParams, String tenantId, String clientId) {
+	public List<Transaction> updateTransaction(Map<String, String> requestParams, String tenantId, String userId, String requestId) {
 
 		Transaction currentTxnStatus = validator.validateUpdateTxn(requestParams);
 		if (tenantId == null) {
@@ -157,12 +157,12 @@ public class TransactionService {
 			newTxn = gatewayService.getLiveStatus(currentTxnStatus, requestParams);
 
 			// Enrich the new transaction status before persisting
-			enrichmentService.enrichUpdateTransaction(currentTxnStatus, newTxn, clientId);
+			enrichmentService.enrichUpdateTransaction(currentTxnStatus, newTxn, userId);
 		}
 
 		// Check if transaction is successful, amount matches etc
 		if (shouldGenerateReceipt(currentTxnStatus, newTxn)) {
-			paymentsService.registerPayment(newTxn, tenantId, clientId);
+			paymentsService.registerPayment(newTxn, tenantId, userId);
 		}
 
 		TransactionDump dump = TransactionDump.builder()
@@ -171,8 +171,8 @@ public class TransactionService {
 				.auditDetails(newTxn.getAuditDetails())
 				.build();
 
-		transactionRepository.updateTransaction(newTxn);
-		transactionRepository.updateTransactionDump(dump);
+		transactionRepository.updateTransaction(newTxn, requestId);
+		transactionRepository.updateTransactionDump(dump, requestId);
 
 		// Publish transaction update event to messaging queue
 		if (Boolean.TRUE.equals(appProperties.getMessageBrokerEnabled())) {

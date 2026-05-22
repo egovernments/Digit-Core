@@ -56,12 +56,12 @@ class TransactionsApiControllerTest {
         txn.setRedirectUrl("https://gateway/redirect");
         TransactionRequest request = TransactionRequest.builder().transaction(baseTransaction()).build();
 
-        when(transactionService.initiateTransaction(any(TransactionRequest.class), eq("pb"), eq("mobile-app")))
+        when(transactionService.initiateTransaction(any(TransactionRequest.class), eq("pb"), eq("mobile-app"), any()))
                 .thenReturn(txn);
 
         mockMvc.perform(post("/transaction/v3/_create")
                         .header("X-Tenant-ID", "pb")
-                        .header("X-Client-ID", "mobile-app")
+                        .header("X-User-ID", "mobile-app")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -89,11 +89,11 @@ class TransactionsApiControllerTest {
         Transaction txn = baseTransaction();
         txn.setTxnId("TXN-22");
         txn.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
-        when(transactionService.updateTransaction(any(), eq("pb"), eq("web"))).thenReturn(List.of(txn));
+        when(transactionService.updateTransaction(any(), eq("pb"), eq("web"), any())).thenReturn(List.of(txn));
 
         mockMvc.perform(put("/transaction/v3/_update")
                         .header("X-Tenant-ID", "pb")
-                        .header("X-Client-ID", "web")
+                        .header("X-User-ID", "web")
                         .param("transactionId", "TXN-22"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.Transaction[0].txnStatus").value("SUCCESS"));

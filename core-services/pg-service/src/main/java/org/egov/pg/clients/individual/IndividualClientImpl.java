@@ -29,7 +29,7 @@ public class IndividualClientImpl implements IndividualClient {
 	}
 
 	@Override
-	public Individual create(String tenantId, String clientId, Individual individual) {
+	public Individual create(String tenantId, String userId, Individual individual) {
 
 		IndividualRequest requestBody = IndividualRequest.builder()
 				.individual(individual)
@@ -40,7 +40,7 @@ public class IndividualClientImpl implements IndividualClient {
 					.uri(appProperties.getIndividualHost() + appProperties.getIndividualCreatePath())
 					.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 					.header("X-Tenant-ID", tenantId)
-					.header("X-Client-ID", clientId)
+					.header("X-User-ID", userId)
 					.body(requestBody)
 					.retrieve()
 					.body(IndividualResponse.class);
@@ -64,7 +64,7 @@ public class IndividualClientImpl implements IndividualClient {
 	}
 
 	@Override
-	public List<Individual> search(String tenantId, String clientId, IndividualSearchCriteria params) {
+	public List<Individual> search(String tenantId, String userId, IndividualSearchCriteria params) {
 
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder
 				.fromHttpUrl(appProperties.getIndividualHost())
@@ -103,7 +103,7 @@ public class IndividualClientImpl implements IndividualClient {
 			IndividualSearchResponse response = restClient.get()
 					.uri(uri)
 					.header("X-Tenant-ID", tenantId)
-					.header("X-Client-ID", clientId)
+					.header("X-User-ID", userId)
 					.retrieve()
 					.body(IndividualSearchResponse.class);
 

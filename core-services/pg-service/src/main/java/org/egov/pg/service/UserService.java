@@ -30,9 +30,9 @@ public class UserService {
 		this.appProperties = appProperties;
 	}
 
-	public User createOrSearchUser(Transaction transaction, String tenantId, String clientId) {
+	public User createOrSearchUser(Transaction transaction, String tenantId, String userId) {
 
-		List<Individual> individuals = individualClient.search(tenantId, clientId,
+		List<Individual> individuals = individualClient.search(tenantId, userId,
 				IndividualSearchCriteria.builder()
 						.mobileNumber(List.of(transaction.getUser().getMobileNumber()))
 						.givenName(transaction.getUser().getName())
@@ -41,7 +41,7 @@ public class UserService {
 
 		Individual individual;
 		if (CollectionUtils.isEmpty(individuals) && appProperties.getIsUserCreationEnable()) {
-			individual = individualClient.create(tenantId, clientId, toIndividual(transaction.getUser(), tenantId));
+			individual = individualClient.create(tenantId, userId, toIndividual(transaction.getUser(), tenantId));
 		} else if (!CollectionUtils.isEmpty(individuals)) {
 			individual = individuals.get(0);
 		} else {

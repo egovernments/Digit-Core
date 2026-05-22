@@ -44,10 +44,10 @@ public class TransactionsApiController {
 	 * @return Transaction that has been created
 	 */
 	@PostMapping(value = "/transaction/v3/_create")
-	public ResponseEntity<TransactionCreateResponse> transactionsV1CreatePost(@RequestHeader("X-Tenant-ID") String tenantId, @RequestHeader("X-Client-ID") String clientId, @Valid @RequestBody TransactionRequest transactionRequest) {
+	public ResponseEntity<TransactionCreateResponse> transactionsV1CreatePost(@RequestHeader("X-Tenant-ID") String tenantId, @RequestHeader("X-User-ID") String userId, @RequestHeader(value = "X-Request-ID", required = false) String requestId, @Valid @RequestBody TransactionRequest transactionRequest) {
 		transactionRequest.getTransaction().setTenantId(tenantId);
 
-		Transaction transaction = transactionService.initiateTransaction(transactionRequest, tenantId, clientId);
+		Transaction transaction = transactionService.initiateTransaction(transactionRequest, tenantId, userId, requestId);
 		TransactionCreateResponse response = new TransactionCreateResponse(transaction);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -77,8 +77,8 @@ public class TransactionsApiController {
 	 * @return The current transaction status of the transaction
 	 */
 	@PutMapping(value = "/transaction/v3/_update")
-	public ResponseEntity<TransactionResponse> transactionsV1UpdatePost(@RequestHeader("X-Tenant-ID") String tenantId, @RequestHeader("X-Client-ID") String clientId, @RequestParam Map<String, String> params) {
-		List<Transaction> transactions = transactionService.updateTransaction(params, tenantId, clientId);
+	public ResponseEntity<TransactionResponse> transactionsV1UpdatePost(@RequestHeader("X-Tenant-ID") String tenantId, @RequestHeader("X-User-ID") String userId, @RequestHeader(value = "X-Request-ID", required = false) String requestId, @RequestParam Map<String, String> params) {
+		List<Transaction> transactions = transactionService.updateTransaction(params, tenantId, userId, requestId);
 		TransactionResponse response = new TransactionResponse(transactions);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

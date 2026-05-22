@@ -27,7 +27,7 @@ public class PaymentsService {
 		this.mapper = mapper;
 	}
 
-	public Payment registerPayment(Transaction txn, String tenantId, String clientId) {
+	public Payment registerPayment(Transaction txn, String tenantId, String userId) {
 		PaymentCreate paymentCreate = toPaymentCreate(txn);
 		paymentCreate.setInstrumentDate(txn.getAuditDetails().getCreatedTime());
 		paymentCreate.setInstrumentNumber(txn.getTxnId());
@@ -39,12 +39,12 @@ public class PaymentsService {
 					});
 			paymentCreate.setMetadata(metadata);
 		}
-		return billingClient.createPayment(tenantId, clientId, paymentCreate);
+		return billingClient.createPayment(tenantId, userId, paymentCreate);
 	}
 
-	public Payment validatePayment(Transaction txn, String tenantId, String clientId) {
+	public Payment validatePayment(Transaction txn, String tenantId, String userId) {
 		PaymentCreate paymentCreate = toPaymentCreate(txn);
-		return billingClient.validatePayment(tenantId, clientId, paymentCreate);
+		return billingClient.validatePayment(tenantId, userId, paymentCreate);
 	}
 
 	private PaymentCreate toPaymentCreate(Transaction txn) {

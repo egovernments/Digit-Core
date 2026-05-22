@@ -46,16 +46,16 @@ public class EnrichmentService {
 		this.appProperties = appProperties;
 	}
 
-	void enrichCreateTransaction(Transaction txn, String tenantId, String clientId) {
+	void enrichCreateTransaction(Transaction txn, String tenantId, String userId) {
 		txn.setTenantId(tenantId);
 
-		BankAccount bankAccount = getBankAccount(tenantId, clientId);
+		BankAccount bankAccount = getBankAccount(tenantId, userId);
 		txn.setAdditionalFields(singletonMap(TransactionAdditionalFields.BANK_ACCOUNT_NUMBER, bankAccount.getAccountNumber()));
 
 		// Generate ID from ID Gen service and assign to txn object
 		String txnId = idGenClient.generateId(tenantId, appProperties.getIdGenTxnIdTemplateCode(), Map.of("TENANTID", tenantId));
 		txn.setTxnId(txnId);
-		txn.setUser(userService.createOrSearchUser(txn, tenantId, clientId));
+		txn.setUser(userService.createOrSearchUser(txn, tenantId, userId));
 		txn.setTxnStatus(Transaction.TxnStatusEnum.PENDING);
 		txn.setTxnStatusMsg(PgConstants.TXN_INITIATED);
 
@@ -77,17 +77,17 @@ public class EnrichmentService {
 		txn.setCallbackUrl(uri);
 
 		AuditDetails auditDetails = AuditDetails.builder()
-				.createdBy(clientId)
+				.createdBy(userId)
 				.createdTime(System.currentTimeMillis())
 				.build();
 		txn.setAuditDetails(auditDetails);
 	}
 
-	void enrichUpdateTransaction(Transaction currentTxnStatus, Transaction newTxn, String clientId) {
+	void enrichUpdateTransaction(Transaction currentTxnStatus, Transaction newTxn, String userId) {
 		AuditDetails auditDetails = AuditDetails.builder()
 				.createdBy(currentTxnStatus.getAuditDetails().getCreatedBy())
 				.createdTime(currentTxnStatus.getAuditDetails().getCreatedTime())
-				.lastModifiedBy(clientId)
+				.lastModifiedBy(userId)
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
 
@@ -105,12 +105,12 @@ public class EnrichmentService {
 
 	}
 
-	private BankAccount getBankAccount(String tenantId, String clientId) {
+	private BankAccount getBankAccount(String tenantId, String userId) {
 		DataSearchRequest request = DataSearchRequest.builder()
 				.filters(Map.of("active", true))
 				.build();
 
-		List<RegistryData> records = registryClient.search(tenantId, clientId, "bankAccount", request);
+		List<RegistryData> records = registryClient.search(tenantId, userId, "bankAccount", request);
 
 		if (records.size() != 1) {
 			log.error("Expected to find one bank account for tenant {}, instead found {}", tenantId, records.size());

@@ -23,18 +23,18 @@ public class TransactionRepository {
 			"(txn_id, txn_amount, txn_status, txn_status_msg, gateway, consumer_code, bill_id, product_info, " +
 			"user_uuid, user_name, mobile_number, email_id, name, user_tenant_id, tenant_id, " +
 			"gateway_txn_id, gateway_payment_mode, gateway_status_code, gateway_status_msg, receipt, " +
-			"additional_details, created_by, created_time, last_modified_by, last_modified_time) " +
-			"VALUES (?, ?::numeric, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?)";
+			"additional_details, created_by, created_time, last_modified_by, last_modified_time, request_id) " +
+			"VALUES (?, ?::numeric, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_TXN = "UPDATE eg_pg_transactions SET " +
 			"txn_status=?, txn_status_msg=?, gateway_txn_id=?, gateway_payment_mode=?, " +
 			"gateway_status_code=?, gateway_status_msg=?, receipt=?, " +
-			"last_modified_by=?, last_modified_time=? " +
+			"last_modified_by=?, last_modified_time=?, request_id=? " +
 			"WHERE txn_id=? AND tenant_id=?";
 	private static final String INSERT_TXN_DUMP = "INSERT INTO eg_pg_transactions_dump " +
-			"(txn_id, txn_request, txn_response, created_by, created_time, last_modified_by, last_modified_time) " +
-			"VALUES (?, ?, ?::jsonb, ?, ?, ?, ?)";
+			"(txn_id, txn_request, txn_response, created_by, created_time, last_modified_by, last_modified_time, request_id) " +
+			"VALUES (?, ?, ?::jsonb, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_TXN_DUMP = "UPDATE eg_pg_transactions_dump SET " +
-			"txn_response=?::jsonb, last_modified_by=?, last_modified_time=? " +
+			"txn_response=?::jsonb, last_modified_by=?, last_modified_time=?, request_id=? " +
 			"WHERE txn_id=?";
 
 	private final JdbcTemplate jdbcTemplate;
@@ -45,7 +45,7 @@ public class TransactionRepository {
 		this.objectMapper = objectMapper;
 	}
 
-	public void saveTransaction(Transaction txn) {
+	public void saveTransaction(Transaction txn, String requestId) {
 		try {
 			jdbcTemplate.update(INSERT_TXN,
 					txn.getTxnId(),
@@ -72,7 +72,8 @@ public class TransactionRepository {
 					txn.getAuditDetails().getCreatedBy(),
 					txn.getAuditDetails().getCreatedTime(),
 					txn.getAuditDetails().getLastModifiedBy(),
-					txn.getAuditDetails().getLastModifiedTime()
+					txn.getAuditDetails().getLastModifiedTime(),
+					requestId
 			);
 		} catch (DataAccessException e) {
 			log.error("Failed to save transaction: {}", txn.getTxnId(), e);
@@ -80,7 +81,7 @@ public class TransactionRepository {
 		}
 	}
 
-	public void updateTransaction(Transaction txn) {
+	public void updateTransaction(Transaction txn, String requestId) {
 		try {
 			jdbcTemplate.update(UPDATE_TXN,
 					txn.getTxnStatus().toString(),
@@ -92,6 +93,7 @@ public class TransactionRepository {
 					txn.getReceipt(),
 					txn.getAuditDetails().getLastModifiedBy(),
 					txn.getAuditDetails().getLastModifiedTime(),
+					requestId,
 					txn.getTxnId(),
 					txn.getTenantId()
 			);
@@ -101,7 +103,7 @@ public class TransactionRepository {
 		}
 	}
 
-	public void saveTransactionDump(TransactionDump dump) {
+	public void saveTransactionDump(TransactionDump dump, String requestId) {
 		try {
 			jdbcTemplate.update(INSERT_TXN_DUMP,
 					dump.getTxnId(),
@@ -110,7 +112,8 @@ public class TransactionRepository {
 					dump.getAuditDetails().getCreatedBy(),
 					dump.getAuditDetails().getCreatedTime(),
 					dump.getAuditDetails().getLastModifiedBy(),
-					dump.getAuditDetails().getLastModifiedTime()
+					dump.getAuditDetails().getLastModifiedTime(),
+					requestId
 			);
 		} catch (DataAccessException e) {
 			log.error("Failed to save transaction dump: {}", dump.getTxnId(), e);
@@ -118,12 +121,13 @@ public class TransactionRepository {
 		}
 	}
 
-	public void updateTransactionDump(TransactionDump dump) {
+	public void updateTransactionDump(TransactionDump dump, String requestId) {
 		try {
 			jdbcTemplate.update(UPDATE_TXN_DUMP,
 					toJson(dump.getTxnResponse()),
 					dump.getAuditDetails().getLastModifiedBy(),
 					dump.getAuditDetails().getLastModifiedTime(),
+					requestId,
 					dump.getTxnId()
 			);
 		} catch (DataAccessException e) {

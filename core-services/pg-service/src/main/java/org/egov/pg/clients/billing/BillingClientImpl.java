@@ -25,10 +25,10 @@ public class BillingClientImpl implements BillingClient {
 	}
 
 	@Override
-	public Payment createPayment(String tenantId, String clientId, PaymentCreate payment) {
+	public Payment createPayment(String tenantId, String userId, PaymentCreate payment) {
 		return callPaymentEndpoint(
 				tenantId,
-				clientId,
+				userId,
 				payment,
 				appProperties.getBillingHost() + appProperties.getBillingPaymentCreatePath(),
 				"create"
@@ -36,24 +36,24 @@ public class BillingClientImpl implements BillingClient {
 	}
 
 	@Override
-	public Payment validatePayment(String tenantId, String clientId, PaymentCreate payment) {
+	public Payment validatePayment(String tenantId, String userId, PaymentCreate payment) {
 		return callPaymentEndpoint(
 				tenantId,
-				clientId,
+				userId,
 				payment,
 				appProperties.getBillingHost() + appProperties.getBillingPaymentValidatePath(),
 				"validate"
 		);
 	}
 
-	private Payment callPaymentEndpoint(String tenantId, String clientId,
+	private Payment callPaymentEndpoint(String tenantId, String userId,
 										PaymentCreate payment, String uri, String operation) {
 		try {
 			Payment response = restClient.post()
 					.uri(uri)
 					.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 					.header("X-Tenant-ID", tenantId)
-					.header("X-Client-ID", clientId)
+					.header("X-User-ID", userId)
 					.body(payment)
 					.retrieve()
 					.body(Payment.class);

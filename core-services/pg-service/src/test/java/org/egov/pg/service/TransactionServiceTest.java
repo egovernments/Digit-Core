@@ -71,16 +71,16 @@ class TransactionServiceTest {
         when(appProperties.getMessageBrokerEnabled()).thenReturn(true);
         when(appProperties.getUpdateTxnTopic()).thenReturn("pg-update-topic");
 
-        Transaction result = transactionService.initiateTransaction(request, "pb.amritsar", "client-a");
+        Transaction result = transactionService.initiateTransaction(request, "pb.amritsar", "client-a", null);
 
         assertThat(result.getRedirectUrl()).isEqualTo("https://gateway.test/redirect");
         verify(validator).validateCreateTxn(txn);
         verify(paymentsService).validatePayment(txn, "pb.amritsar", "client-a");
         verify(enrichmentService).enrichCreateTransaction(txn, "pb.amritsar", "client-a");
-        verify(transactionRepository).saveTransaction(txn);
+        verify(transactionRepository).saveTransaction(eq(txn), any());
 
         ArgumentCaptor<TransactionDump> dumpCaptor = ArgumentCaptor.forClass(TransactionDump.class);
-        verify(transactionRepository).saveTransactionDump(dumpCaptor.capture());
+        verify(transactionRepository).saveTransactionDump(dumpCaptor.capture(), any());
         assertThat(dumpCaptor.getValue().getTxnRequest()).isEqualTo("https://gateway.test/redirect");
 
         verify(producer).push("pg-update-topic", txn);
@@ -95,7 +95,7 @@ class TransactionServiceTest {
         TransactionRequest request = TransactionRequest.builder().transaction(txn).build();
         when(appProperties.getMessageBrokerEnabled()).thenReturn(false);
 
-        Transaction result = transactionService.initiateTransaction(request, "pb", "client");
+        Transaction result = transactionService.initiateTransaction(request, "pb", "client", null);
 
         assertThat(result.getTxnStatus()).isEqualTo(Transaction.TxnStatusEnum.SUCCESS);
         verify(paymentsService).registerPayment(txn, "pb", "client");
@@ -127,15 +127,15 @@ class TransactionServiceTest {
         when(validator.validateUpdateTxn(any())).thenReturn(existing);
         when(appProperties.getMessageBrokerEnabled()).thenReturn(false);
 
-        List<Transaction> updated = transactionService.updateTransaction(Map.of("transactionId", "TXN-4"), null, "client-b");
+        List<Transaction> updated = transactionService.updateTransaction(Map.of("transactionId", "TXN-4"), null, "client-b", null);
 
         assertThat(updated).hasSize(1);
         assertThat(updated.get(0)).isSameAs(existing);
         verify(paymentsService).registerPayment(existing, "pb.tenant", "client-b");
         verify(gatewayService, never()).getLiveStatus(any(), any());
         verify(enrichmentService, never()).enrichUpdateTransaction(any(), any(), any());
-        verify(transactionRepository).updateTransaction(existing);
-        verify(transactionRepository).updateTransactionDump(any(TransactionDump.class));
+        verify(transactionRepository).updateTransaction(eq(existing), any());
+        verify(transactionRepository).updateTransactionDump(any(TransactionDump.class), any());
     }
 
     @Test
@@ -154,7 +154,7 @@ class TransactionServiceTest {
         when(appProperties.getMessageBrokerEnabled()).thenReturn(true);
         when(appProperties.getUpdateTxnTopic()).thenReturn("topic-update");
 
-        List<Transaction> result = transactionService.updateTransaction(Map.of("transactionId", "TXN-5"), "pb", "client-c");
+        List<Transaction> result = transactionService.updateTransaction(Map.of("transactionId", "TXN-5"), "pb", "client-c", null);
 
         assertThat(result).singleElement().isSameAs(fromGateway);
         assertThat(fromGateway.getTxnStatus()).isEqualTo(Transaction.TxnStatusEnum.SUCCESS);

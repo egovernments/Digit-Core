@@ -56,7 +56,8 @@ public class EarlyReconciliationJob implements Job {
 			log.info(transactionService.updateTransaction(
 					Collections.singletonMap(PgConstants.PG_TXN_IN_LABEL, txn.getTxnId()),
 					txn.getTenantId(),
-					appProperties.getEgovPgReconciliationSystemUserUuid()
+					appProperties.getEgovPgReconciliationSystemUserUuid(),
+					null
 			).toString());
 		}
 	}

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IndividualClient {
 
-	Individual create(String tenantId, String clientId, Individual individual);
+	Individual create(String tenantId, String userId, Individual individual);
 
-	List<Individual> search(String tenantId, String clientId, IndividualSearchCriteria criteria);
+	List<Individual> search(String tenantId, String userId, IndividualSearchCriteria criteria);
 }

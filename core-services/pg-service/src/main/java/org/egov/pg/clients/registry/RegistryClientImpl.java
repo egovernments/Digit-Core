@@ -30,7 +30,7 @@ public class RegistryClientImpl implements RegistryClient {
 	}
 
 	@Override
-	public List<RegistryData> search(String tenantId, String clientId, String schemaCode, DataSearchRequest request) {
+	public List<RegistryData> search(String tenantId, String userId, String schemaCode, DataSearchRequest request) {
 
 		String uri = UriComponentsBuilder
 				.fromHttpUrl(appProperties.getRegistryHost())
@@ -43,7 +43,7 @@ public class RegistryClientImpl implements RegistryClient {
 					.uri(uri)
 					.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 					.header("X-Tenant-ID", tenantId)
-					.header("X-Client-ID", clientId)
+					.header("X-User-ID", userId)
 					.body(request)
 					.retrieve()
 					.body(DataSearchResponse.class);

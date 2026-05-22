@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface RegistryClient {
 
-	List<RegistryData> search(String tenantId, String clientId, String schemaCode, DataSearchRequest request);
+	List<RegistryData> search(String tenantId, String userId, String schemaCode, DataSearchRequest request);
 }
