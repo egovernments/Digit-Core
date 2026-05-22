@@ -1,0 +1,4 @@
+org.egov.payment.service.gateways.axis.AxisGatewayProviderFactory
+org.egov.payment.service.gateways.paytm.PaytmGatewayProviderFactory
+org.egov.payment.service.gateways.phonepe.PhonepeGatewayProviderFactory
+org.egov.payment.service.gateways.payu.PayuGatewayProviderFactory
