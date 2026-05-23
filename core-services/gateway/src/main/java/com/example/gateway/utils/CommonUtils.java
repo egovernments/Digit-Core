@@ -194,7 +194,7 @@ public class CommonUtils {
 
             } catch (Exception e) {
                 if (("/error-handler/handle-error").equals(path)) {
-                    tenantIds.add("go");
+                    tenantIds.add("kb");
                 } else {
                     CustomException customException = new CustomException("REQUEST_PARSE_FAILED", "Failed to parse request at API gateway");
                     customException.setCode(HttpStatus.UNAUTHORIZED.toString());
