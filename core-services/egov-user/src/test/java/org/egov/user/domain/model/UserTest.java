@@ -317,6 +317,7 @@ public class UserTest {
                 .password("password")
                 .passwordExpiryDate(new Date())
                 .roles(new HashSet<>(Arrays.asList(role1, role2)))
+                .active(true)
                 .build();
 
         user.nullifySensitiveFields();
@@ -326,6 +327,7 @@ public class UserTest {
         assertNull(user.getPassword());
         assertNull(user.getPasswordExpiryDate());
         assertNull(user.getRoles());
+        assertNull(user.getActive());
     }
 
     @Test

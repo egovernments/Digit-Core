@@ -1,10 +1,10 @@
 package org.egov.tracer.config;
 
-import io.opentracing.noop.NoopTracerFactory;
 import org.egov.tracer.http.RestTemplateLoggingInterceptor;
 import org.egov.tracer.http.filters.TracerFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
@@ -19,7 +19,6 @@ import java.util.Collections;
 @ComponentScan(basePackages = {"org.egov.tracer"})
 @PropertySource("classpath:tracer.properties")
 @EnableConfigurationProperties({TracerProperties.class})
-//@Import(OpenTracingConfiguration.class)
 public class TracerConfiguration {
 
     @Bean
@@ -28,13 +27,15 @@ public class TracerConfiguration {
     }
 
     @Bean(name = "logAwareRestTemplate")
-    public RestTemplate logAwareRestTemplate(TracerProperties tracerProperties) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setOutputStreaming(false);
-        RestTemplate restTemplate =
-                new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
-        restTemplate.setInterceptors(Collections.singletonList(new RestTemplateLoggingInterceptor(tracerProperties)));
-        return restTemplate;
+    public RestTemplate logAwareRestTemplate(RestTemplateBuilder builder, TracerProperties tracerProperties) {
+        return builder
+                .requestFactory(() -> {
+                    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+                    factory.setOutputStreaming(false);
+                    return new BufferingClientHttpRequestFactory(factory);
+                })
+                .interceptors(new RestTemplateLoggingInterceptor(tracerProperties))
+                .build();
     }
 
     /**
@@ -57,20 +58,20 @@ public class TracerConfiguration {
         return registration;
     }
 
-    /**
-     * Disable open tracing by injecting a Noop
-     *
-     * @return Noop tracer
-     */
-    @Bean
-    @ConditionalOnProperty(
-            name = {"tracer.opentracing.enabled"},
-            havingValue = "false",
-            matchIfMissing = true
-    )
-    public io.opentracing.Tracer tracer() {
-        return NoopTracerFactory.create();
-    }
+//    /**
+//     * Disable open tracing by injecting a Noop
+//     *
+//     * @return Noop tracer
+//     */
+//    @Bean
+//    @ConditionalOnProperty(
+//            name = {"tracer.opentracing.enabled"},
+//            havingValue = "false",
+//            matchIfMissing = true
+//    )
+//    public io.opentracing.Tracer tracer() {
+//        return NoopTracerFactory.create();
+//    }
 
 
 }

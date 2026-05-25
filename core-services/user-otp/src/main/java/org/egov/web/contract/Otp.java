@@ -18,6 +18,8 @@ public class Otp {
     private String tenantId;
     private String type;
     private String userType;
+    private String userName;
+    private String countryCode;
 
     @JsonIgnore
     public OtpRequestType getTypeOrDefault() {

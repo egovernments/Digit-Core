@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIGIT Sandbox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300;
+            background-color: #f5f5f5;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px;
+            justify-content: center !important;
+            flex-wrap: nowrap;
+            width: 100%;
+            text-align: center !important;
+            margin: 0 auto !important;
+        }
+
+        .logo-dots {
+            display: inline-flex;
+            flex-wrap: wrap;
+            width: 24px;
+            height: 20px;
+            position: relative;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: white;
+            position: absolute;
+        }
+
+        .dot:nth-child(1) { left: 0px; top: 0px; }
+        .dot:nth-child(2) { left: 8px; top: 0px; }
+        .dot:nth-child(3) { left: 16px; top: 0px; }
+        .dot:nth-child(4) { left: 8px; top: 10px; }
+        .dot:nth-child(5) { left: 16px; top: 10px; }
+        .dot:nth-child(6) { left: 16px; top: 20px; }
+
+        .brand-text {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .divider {
+            color: #8a9ba8;
+            font-size: 28px;
+            font-weight: 300;
+            margin: 0 8px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .sandbox-text {
+            font-size: 28px;
+            color: white;
+            font-weight: 300;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            min-height: calc(100vh - 60px);
+        }
+
+        .content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #002147;
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        .credentials-section {
+            background-color: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .credentials-title {
+            color: #002147;
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .credential-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .credential-label {
+            min-width: 120px;
+            color: #002147;
+            font-size: 14px;
+            font-weight: 300;
+            text-align: left;
+        }
+
+        .credential-value {
+            margin-left: 30px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        .login-button-container {
+            text-align: center;
+        }
+
+        .login-button {
+            display: inline-block;
+            background-color: #ff6b35;
+            color: white !important;
+            text-decoration: none !important;
+            border: none;
+            padding: 8px 40px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 24px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-button:hover {
+            background-color: #e55a2b;
+        }
+
+        .what-you-can-do {
+            margin-bottom: 1px;
+        }
+
+        .section-title {
+            color: #002147;
+            font-size: 16px;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .devices-image {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .contact-info {
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+
+        .contact-text {
+            color: #666;
+            font-size: 12px;
+            font-weight: 300;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        .contact-email {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 300;
+        }
+
+        .contact-email:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        .footer {
+            background-color: #3c4a5c;
+            color: white;
+            text-align: center;
+            margin-top: -50px;
+            padding: 20px;
+        }
+
+        .footer-logo {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .egov-logo {
+            width: 80px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            font-weight: 300;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .brand-text, .sandbox-text, .divider {
+                font-size: 20px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- EMAIL-COMPATIBLE HEADER -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #3c4a5c; max-width: 800px; margin: 0 auto;">
+  <tr>
+    <td align="center" style="padding: 15px 20px;">
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td valign="middle" style="padding-right: 8px;">
+            <table border="0" cellspacing="0" cellpadding="0" style="display: inline-block; width: 24px; height: 20px; position: relative;">
+              <tr>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+                <td width="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+                <td width="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+              </tr>
+              <tr height="4"></tr>
+              <tr>
+                <td colspan="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+                <td width="2"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+              </tr>
+              <tr height="4"></tr>
+              <tr>
+                <td colspan="4"></td>
+                <td width="6" height="6" style="background-color: white; border-radius: 50%;"></td>
+              </tr>
+            </table>
+          </td>
+          
+          <td valign="middle">
+            <span style="font-size: 24px; font-weight: 700; color: white; display: inline-block; vertical-align: middle; line-height: 1.2;">DIGIT</span>
+            <span style="color: #8a9ba8; font-size: 24px; font-weight: 300; margin: 0 8px; display: inline-block; vertical-align: middle; line-height: 1.2;">|</span>
+            <span style="font-size: 24px; color: white; font-weight: 300; display: inline-block; vertical-align: middle; line-height: 1.2;">Sandbox</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<div class="container">
+    <div class="content">
+        <h1>Welcome to DIGIT Sandbox!</h1>
+
+        <div class="intro-text">
+            Thank you for signing up for DIGIT Sandbox! You can now begin your journey on DIGIT, one of the world's largest open source platform for transforming public service delivery. With no setup or infrastructure costs, DIGIT Sandbox lets you get started in a matter of minutes!
+        </div>
+
+        <div class="credentials-section">
+            <div class="credentials-title">Your Credentials</div>
+            <div class="credential-row">
+                <span class="credential-label">Username:</span>
+                <span class="credential-value">{{orgName}}</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Work Email ID:</span>
+                <span class="credential-value">{{email}}</span>
+            </div>
+            <div class="login-button-container">
+                <a href="{{logInURL}}" class="login-button">Login</a>
+            </div>
+        </div>
+
+        <div class="what-you-can-do">
+            <div class="section-title">What You Can Do</div>
+
+            <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/welcome.png" alt="DIGIT Platform Devices" class="devices-image" />
+
+            <!-- FIXED FEATURES SECTION -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 800px; margin: 0 auto 30px;">
+              <tr>
+                <!-- FEATURE 1 -->
+                <td width="33.33%" valign="top" align="center" style="padding: 5px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; max-width: 240px; height: 220px;">
+                    <tr>
+                      <td style="padding: 20px; height: 220px; vertical-align: top;">
+                        <!-- ICON -->
+                        <table border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td style="width: 40px; height: 40px; background-color: #e8d5ff; border-radius: 8px; text-align: center; vertical-align: middle;">
+                              <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/action_key.png" alt="Action key icon" width="24" height="24" style="display: block; margin: 8px auto;">
+                            </td>
+                          </tr>
+                        </table>
+                        <!-- TITLE -->
+                        <div style="color: #002147; font-size: 14px; font-weight: bold; margin: 15px 0 8px 0; line-height: 1.3; text-align: left; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">
+                          Explore products on DIGIT
+                        </div>
+                        <!-- DESCRIPTION -->
+                        <div style="color: #666666; font-size: 12px; line-height: 1.4; text-align: left; margin-top: 8px;">
+                          Drive partner confidence and speed up decision-making
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                
+                <!-- FEATURE 2 -->
+                <td width="33.33%" valign="top" align="center" style="padding: 5px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; max-width: 240px; height: 220px;">
+                    <tr>
+                      <td style="padding: 20px; height: 220px; vertical-align: top;">
+                        <!-- ICON -->
+                        <table border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td style="width: 40px; height: 40px; background-color: #fed7aa; border-radius: 8px; text-align: center; vertical-align: middle;">
+                              <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/interactive_space.png" alt="Interactive space icon" width="24" height="24" style="display: block; margin: 8px auto;">
+                            </td>
+                          </tr>
+                        </table>
+                        <!-- TITLE -->
+                        <div style="color: #002147; font-size: 14px; font-weight: bold; margin: 15px 0 8px 0; line-height: 1.3; text-align: left; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">
+                          Experience service delivery in action
+                        </div>
+                        <!-- DESCRIPTION -->
+                        <div style="color: #666666; font-size: 12px; line-height: 1.4; text-align: left; margin-top: 8px;">
+                          Take a pick from our globally deployed solutions
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                
+                <!-- FEATURE 3 -->
+                <td width="33.33%" valign="top" align="center" style="padding: 5px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; max-width: 240px; height: 220px;">
+                    <tr>
+                      <td style="padding: 20px; height: 220px; vertical-align: top;">
+                        <!-- ICON -->
+                        <table border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td style="width: 40px; height: 40px; background-color: #ccfbf1; border-radius: 8px; text-align: center; vertical-align: middle;">
+                              <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/checklist.png" alt="Checklist icon" width="24" height="24" style="display: block; margin: 8px auto;">
+                            </td>
+                          </tr>
+                        </table>
+                        <!-- TITLE -->
+                        <div style="color: #002147; font-size: 14px; font-weight: bold; margin: 15px 0 8px 0; line-height: 1.3; text-align: left; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">
+                          Assess real world fit instantly
+                        </div>
+                        <!-- DESCRIPTION -->
+                        <div style="color: #666666; font-size: 12px; line-height: 1.4; text-align: left; margin-top: 8px;">
+                          Start experiencing products immediately with pre-configured data
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <!-- RESPONSIVE STYLES -->
+            <style type="text/css">
+              @media screen and (max-width: 600px) {
+                table[width="33.33%"] {
+                  display: block !important;
+                  width: 100% !important;
+                  padding: 10px 0 !important;
+                }
+                
+                td[width="33.33%"] > table {
+                  margin: 0 auto !important;
+                  max-width: 280px !important;
+                }
+              }
+            </style>
+        </div>
+
+        <div class="contact-info">
+            <div class="contact-text">
+                Please feel free to reach out in case of any questions at <a href="mailto:digit.sandbox@egovernments.org" class="contact-email">digit.sandbox@egovernments.org</a>
+            </div>
+            <div style="margin-top: 10px;">
+                <div class="contact-text">Regards,</div>
+                <div class="contact-text">Sandbox Team</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-logo">
+            <img src="https://digit-sandbox-prod-s3.s3.ap-south-1.amazonaws.com/assets/Reverse+Orange+%26+White.png" alt="eGov" class="egov-logo"/>
+        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
+          <tr>
+            <td align="center" style="font-family: 'Roboto', sans-serif;">
+              <span style="color: white; text-decoration: none; font-size: 12px; font-weight: 300; display: inline-block; padding: 0 5px;">
+                <a href="https://egov.org.in/" style="color: white; text-decoration: none; font-size: 12px; font-weight: 300;">Website</a>
+              </span>
+              <span style="color: #8a9ba8; font-size: 12px; display: inline-block; padding: 0 5px;">|</span>
+              
+              <span style="color: white; text-decoration: none; font-size: 12px; font-weight: 300; display: inline-block; padding: 0 5px;">
+                <a href="https://egov.createsend1.com/t/y-l-mkduklk-hyxlhjuki-y/" style="color: white; text-decoration: none; font-size: 12px; font-weight: 300;">LinkedIn</a>
+              </span>
+            </td>
+          </tr>
+        </table>
+
+        <div class="footer-text">© 2025 eGov Foundation. All rights reserved.</div>
+    </div>
+</div>
+</body>
+</html>

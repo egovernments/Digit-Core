@@ -56,6 +56,7 @@ public class User {
     private String name;
     private Gender gender;
     private String mobileNumber;
+    private String countryCode;
 
     @Email
     private String emailId;
@@ -201,6 +202,7 @@ public class User {
         roles = null;
         accountLocked = null;
         accountLockedDate = null;
+        active = null;
     }
 
     @JsonIgnore
@@ -221,9 +223,18 @@ public class User {
     public OtpValidationRequest getOtpValidationRequest() {
         return OtpValidationRequest.builder()
                 .mobileNumber(mobileNumber)
+                .countryCode(countryCode)
                 .tenantId(tenantId)
                 .otpReference(otpReference)
                 .build();
+    }
+
+    @JsonIgnore
+    public String getFullMobileNumber() {
+        if (countryCode != null && mobileNumber != null) {
+            return countryCode + mobileNumber;
+        }
+        return mobileNumber;
     }
 
     @JsonIgnore

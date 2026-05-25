@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.egov.wf.repository.querybuilder.EscalationQueryBuilder;
+import org.egov.wf.util.WorkflowUtil;
 import org.egov.wf.web.models.EscalationSearchCriteria;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,9 @@ class EscalationRepositoryTest {
 
     @MockBean
     private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private WorkflowUtil util;
 
     @Test
     void testGetBusinessIds() throws DataAccessException {

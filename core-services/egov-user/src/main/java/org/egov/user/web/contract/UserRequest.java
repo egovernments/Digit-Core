@@ -44,10 +44,11 @@ public class UserRequest {
     @Size(max = 15)
     private String gender;
 
-    @Pattern(regexp = UserServiceConstants.PATTERN_MOBILE)
     private String mobileNumber;
-    
-    @Pattern(regexp = UserServiceConstants.PATTERN_MOBILE)
+
+    @Size(max = 10)
+    private String countryCode;
+
     private String alternatemobilenumber;
 
     @Email
@@ -159,6 +160,7 @@ public class UserRequest {
         this.name = user.getName();
         this.gender = user.getGender() != null ? user.getGender().toString() : null;
         this.mobileNumber = user.getMobileNumber();
+        this.countryCode = user.getCountryCode();
         this.emailId = user.getEmailId();
         this.altContactNumber = user.getAltContactNumber();
         this.pan = user.getPan();
@@ -225,6 +227,7 @@ public class UserRequest {
                 .username(this.userName)
                 .salutation(this.salutation)
                 .mobileNumber(this.mobileNumber)
+                .countryCode(this.countryCode)
                 .emailId(this.emailId)
                 .altContactNumber(this.altContactNumber)
                 .pan(this.pan)

@@ -1,0 +1,56 @@
+[
+    {
+      "tenantId":"{tenantid}",
+      "code":"pg.citya",
+      "geometry":null,
+      "additionalDetails":{"name":"CityA","boundaryNum":1}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"ZONE1",
+      "geometry":null,
+      "additionalDetails":{"name":"Zone 1","boundaryNum":1}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"BLOCK1",
+      "geometry":null,
+      "additionalDetails":{"name":"Victoria North","boundaryNum":1}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"ADMIN_SUN01",
+      "geometry":null,
+      "additionalDetails":{"name":"Heritage Square","boundaryNum":1,"pincode":144001}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"ADMIN_SUN02",
+      "geometry":null,
+      "additionalDetails":{"name":"Evergreen Park","boundaryNum":1,"pincode":144002}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"ADMIN_SUN03",
+      "geometry":null,
+      "additionalDetails":{"name":"Maplewood","boundaryNum":1,"pincode":144003}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"ADMIN_SUN04",
+      "geometry":null,
+      "additionalDetails":{"name":"Central Plaza","boundaryNum":1,"pincode":144004}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"ADMIN_SUN05",
+      "geometry":null,
+      "additionalDetails":{"name":"Innovation Park","boundaryNum":1,"pincode":144005}
+    },
+    {
+      "tenantId":"{tenantid}",
+      "code":"ADMIN_SUN06",
+      "geometry":null,
+      "additionalDetails":{"name":"Financial District","boundaryNum":1,"pincode":144006}
+    }
+]
