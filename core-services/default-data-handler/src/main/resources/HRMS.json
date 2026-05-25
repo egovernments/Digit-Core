@@ -16,7 +16,7 @@
       "employeeType": "PERMANENT",
       "jurisdictions": [
         {
-          "hierarchy": "REVENUE",
+          "hierarchy": "ADMIN",
           "boundaryType": "City",
           "boundary": "TENANTID",
           "tenantId": "TENANTID",

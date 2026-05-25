@@ -1,0 +1,65 @@
+#name: "Local Governance"
+#description: "Use this form to raise a query, request, or report a bug in the sandbox environment."
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to raise a query, request, or report a bug you've come across in our Local Governance product suite. 
+      
+  - type: dropdown
+    id: product_name
+    attributes:
+      label: Product
+      options: 
+        - Property Tax System
+        - Citizen Complaint Resolution System
+        - Local Business License Issuing System
+        - Fire Safety Certifications (NOC)
+        - Residential Construction Permit System
+        - Birth and Death Certificate Issuance
+        - mCollect
+        - Water and Sewerage Connections
+        - Finance
+        - Survey
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "Provide detailed description of your issue/query along with any errors/exceptions/logs. Attach relevant screenshots."
+      placeholder: "Add issue/query description here"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: troubleshoot_steps
+    attributes:
+      label: Steps taken to troubleshoot issue
+      description: "List down the steps taken by you to troubleshoot the problem"
+      placeholder: "Add issue troubleshooting steps taken here"
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: cloud_provider
+    attributes:
+      label: Cloud provider
+      options: 
+        - AWS
+        - Azure
+        - GCP
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installation_mode
+    attributes:
+      label: Installation Mode
+      options: 
+        - GitHub Workflow (Quick Setup)
+        - DIGIT Full Deployment (via Command Line Installer)
+    validations:
+      required: true

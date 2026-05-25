@@ -86,6 +86,19 @@ public class ServiceConfiguration {
     @Value("${egov.tenant.management.host}${egov.tenant.management.context.path}${egov.tenant.management.config.search.path}")
     private String tenantConfigSearchURI;
 
+    // Config Service
+    @Value("${egov.config.service.host}")
+    private String configServiceHost;
+
+    @Value("${egov.config.service.search.path}")
+    private String configServiceSearchPath;
+
+    @Value("${egov.config.service.create.path}")
+    private String configServiceCreatePath;
+
+    @Value("#{'${default.config.service.schema.codes}'.split(',')}")
+    private List<String> defaultConfigServiceSchemaCodes;
+
     // Default Tenant Id
     @Value("${default.tenant.id}")
     private String defaultTenantId;
@@ -122,4 +135,21 @@ public class ServiceConfiguration {
 
     @Value("${sandbox.login.url}")
     private String loginUrl;
+    
+    @Value("${egov.boundary.host}${egov.boundary.hierarchy.definition.create}")
+    private String hierarchyDefinitionCreateUri;
+
+    @Value("${egov.boundary.host}${egov.boundary.entity.create}")
+    private String boundaryEntityCreateUri;
+
+    @Value("${egov.boundary.host}${egov.boundary.relationship.create}")
+    private String boundaryRelationshipCreateUri;
+    
+    @Value("${egov.boundary.host}${egov.boundary.entity.search}")
+    private String boundaryEntitySearchUri;
+    
+    @Value("${egov.boundary.host}${egov.boundary.hierarchy.definition.search}")
+    private String hierarchyDefinitionSearchUri;
+    
+    
 }

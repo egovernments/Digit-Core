@@ -147,15 +147,15 @@ public class PersisterAuditClientService {
                         jsonPath = jsonPath.replace("{".concat(attribute).concat("}"), "\"" + rawDataRecord.get(attribute).toString() + "\"");
                         JSONArray jsonArray = JsonPath.read(jsonObj, jsonPath);
                         // row.add(jsonArray.get(0));
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), jsonArray.get(0));
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), jsonArray.get(0));
                         continue;
                     } else if (type.equals(TypeEnum.CURRENTDATE)) {
                         if (dbType.equals(TypeEnum.DATE)) {
                             //    row.add(new Date());
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), new Date());
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), new Date());
                         } else if (dbType.equals(TypeEnum.LONG)) {
                             //   row.add(new Date().getTime());
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), new Date().getTime());
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), new Date().getTime());
                         }
                         continue;
                     } else if ((type.equals(TypeEnum.ARRAY)) && dbType.equals(TypeEnum.STRING)) {
@@ -174,12 +174,12 @@ public class PersisterAuditClientService {
                     }
                     if (jsonPath.startsWith("default")) {
                         //    row.add(null);
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), null);
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), null);
                     } else if (type.equals(TypeEnum.JSON) && dbType.equals(TypeEnum.STRING)) {
                         try {
                             String json = objectMapper.writeValueAsString(value);
                             //    row.add(json);
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), json);
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), json);
                         } catch (JsonProcessingException e) {
                             log.error("Error while processing JSON object to string", e);
                         }
@@ -190,7 +190,7 @@ public class PersisterAuditClientService {
                             pGobject.setType("jsonb");
                             pGobject.setValue(json);
                             //     row.add(pGobject);
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), pGobject);
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), pGobject);
                         } catch (JsonProcessingException e) {
                             log.error("Error while processing JSON object to string", e);
                         } catch (SQLException e) {
@@ -199,10 +199,10 @@ public class PersisterAuditClientService {
                     } else if (type.equals(TypeEnum.LONG)) {
                         if (dbType == null) {
                             //    row.add(value);
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), value);
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), value);
                         } else if (dbType.equals(TypeEnum.DATE)) {
                             //    row.add(new java.sql.Date(Long.parseLong(value.toString())));
-                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), new java.sql.Date(Long.parseLong(value.toString())));
+                            keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), new java.sql.Date(Long.parseLong(value.toString())));
                         }
                     } else if (type.equals(TypeEnum.DATE) & value != null) {
                         String date = value.toString();
@@ -214,10 +214,10 @@ public class PersisterAuditClientService {
                             log.error("Unable to parse date", e);
                         }
                         // row.add(startDate);
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), startDate);
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), startDate);
                     } else {
                         //    row.add(value);
-                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath), value);
+                        keyValuePairs.put(extractSanitizedFieldNameFromJsonPath(jsonPath,keyValuePairs), value);
                     }
                 }
                 RowData rowData = RowData.builder().auditAttributes(auditAttributes).keyValueMap(keyValuePairs).build();
@@ -425,10 +425,19 @@ public class PersisterAuditClientService {
         return filteredMaps;
     }
 
-    private String extractSanitizedFieldNameFromJsonPath(String jsonPath){
-        if(jsonPath.contains(".")){
-            jsonPath = jsonPath.substring(jsonPath.lastIndexOf(".") + 1);
+    private String extractSanitizedFieldNameFromJsonPath(String jsonPath, Map<String, Object> keyValuePairs) {
+
+        String extractedJsonPath;
+        if (jsonPath.contains(".")) {
+            extractedJsonPath = jsonPath.substring(jsonPath.lastIndexOf(".") + 1);
+        } else {
+            extractedJsonPath = jsonPath;
         }
-        return jsonPath;
+        if (keyValuePairs.containsKey(extractedJsonPath)) {
+            if (jsonPath.startsWith("$.")) {
+                extractedJsonPath = jsonPath.replaceFirst("^\\$\\.", "");
+            }
+        }
+        return extractedJsonPath;
     }
 }

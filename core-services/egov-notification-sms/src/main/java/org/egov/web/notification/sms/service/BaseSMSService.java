@@ -137,7 +137,8 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
                         map.add(key, smsProperties.getSenderid());
                         break;
                     case "$mobileno":
-                        map.add(key, smsProperties.getMobileNumberPrefix() + sms.getMobileNumber());
+                        String mobileNo = sms.getMobileNumber();
+                        map.add(key, mobileNo.startsWith("+") ? mobileNo : smsProperties.getMobileNumberPrefix() + mobileNo);
                         break;
                     case "$message":
                         map.add(key, sms.getMessage());

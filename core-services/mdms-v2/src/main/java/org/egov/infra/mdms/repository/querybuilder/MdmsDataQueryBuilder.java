@@ -71,4 +71,19 @@ public class MdmsDataQueryBuilder {
         return builder.toString();
     }
 
+        /**
+     * Escapes SQL LIKE special characters (%, _) to prevent wildcard injection
+     * @param input The input string to escape
+     * @return The escaped string safe for use in LIKE patterns
+     */
+    private String escapeLikeWildcards(String input) {
+        if (input == null) {
+            return null;
+        }
+        // Escape backslash first, then % and _
+        return input.replace("\\", "\\\\")
+                    .replace("%", "\\%")
+                    .replace("_", "\\_");
+    }
+
 }

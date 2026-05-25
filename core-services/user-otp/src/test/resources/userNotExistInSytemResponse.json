@@ -2,7 +2,7 @@
     "responseInfo": null,
     "error": {
         "code": 400,
-        "message": "Organization name not registered. Please try again or sign up.",
+        "message": "User name not registered. Please try again or sign up.",
         "description": null,
         "fields": [
             {

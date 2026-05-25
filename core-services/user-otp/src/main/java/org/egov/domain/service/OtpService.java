@@ -23,18 +23,21 @@ public class OtpService {
     private OtpSMSRepository otpSMSSender;
     private OtpEmailRepository otpEmailRepository;
     private UserRepository userRepository;
+    private OtpRequestValidator otpRequestValidator;
 
     @Autowired
-    public OtpService(OtpRepository otpRepository, OtpSMSRepository otpSMSSender, OtpEmailRepository otpEmailRepository,
-                      UserRepository userRepository) {
+    public OtpService(OtpRepository otpRepository, OtpSMSRepository otpSMSSender,
+                      OtpEmailRepository otpEmailRepository, UserRepository userRepository,
+                      OtpRequestValidator otpRequestValidator) {
         this.otpRepository = otpRepository;
         this.otpSMSSender = otpSMSSender;
         this.otpEmailRepository = otpEmailRepository;
         this.userRepository = userRepository;
+        this.otpRequestValidator = otpRequestValidator;
     }
 
     public void sendOtp(OtpRequest otpRequest) {
-        otpRequest.validate();
+        otpRequestValidator.validate(otpRequest);
         setUserNameIfNotPresent(otpRequest);
         if (otpRequest.isRegistrationRequestType() || otpRequest.isLoginRequestType()) {
             sendOtpForUserRegistration(otpRequest);
@@ -54,18 +57,13 @@ public class OtpService {
 
         final String otpNumber = otpRepository.fetchOtp(otpRequest);
 
-        // TEMPORARILY ADDED FOR TESTING
-        // REMOVE IT !!!!!!!!!!!!!!!!!!!!!!
-        System.out.println("OTP: "+otpNumber);
-
         otpSMSSender.send(otpRequest, otpNumber);
-        if(!otpRequest.isRegistrationRequestType()) // Because new user doesn't have any email configured
-            try{
+        if (!otpRequest.isRegistrationRequestType()) // new user has no email configured
+            try {
                 otpEmailRepository.send(matchingUser.getEmail(), otpNumber, otpRequest);
-            } catch (Exception ignore){
+            } catch (Exception ignore) {
                 log.warn("Could not send OTP over email");
             }
-
     }
 
     private void sendOtpForPasswordReset(OtpRequest otpRequest) {
@@ -82,7 +80,7 @@ public class OtpService {
             otpSMSSender.send(otpRequest, otpNumber);
             try {
                 otpEmailRepository.send(matchingUser.getEmail(), otpNumber, otpRequest);
-            } catch (Exception ignore){
+            } catch (Exception ignore) {
                 log.warn("Could not send OTP over email");
             }
         } catch (Exception e) {
@@ -90,10 +88,9 @@ public class OtpService {
         }
     }
 
-    private void setUserNameIfNotPresent(OtpRequest otpRequest){
-        if (StringUtils.isEmpty(otpRequest.getUserName())){
+    private void setUserNameIfNotPresent(OtpRequest otpRequest) {
+        if (StringUtils.isEmpty(otpRequest.getUserName())) {
             otpRequest.setUserName(otpRequest.getMobileNumber());
         }
     }
-
 }

@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -99,6 +100,9 @@ public class UserService {
 
     @Value("${egov.user.pwd.pattern.max.length}")
     private Integer pwdMaxLength;
+
+    @Value("${default.otp}")
+    private String defaultOtp;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -342,6 +346,9 @@ public class UserService {
      * @return
      */
     public Boolean validateOtp(User user) {
+    	if(user.getType().equals(UserType.CITIZEN) && defaultOtp.equals(user.getOtpReference())){
+            return Boolean.TRUE;
+        }
         Otp otp = Otp.builder().otp(user.getOtpReference()).identity(user.getUsername()).tenantId(user.getTenantId())
                 .userType(user.getType()).build();
         RequestInfo requestInfo = RequestInfo.builder().action("validate").ts(System.currentTimeMillis()).build();
@@ -686,6 +693,7 @@ public class UserService {
         loginAuditRepository.saveLoginAudit(loginAudit);
 
     }
+
 
 
 

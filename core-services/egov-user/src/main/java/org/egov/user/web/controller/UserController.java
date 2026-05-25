@@ -11,6 +11,7 @@ import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserDetail;
 import org.egov.user.domain.model.UserSearchCriteria;
+import org.egov.user.domain.service.MobileNumberValidator;
 import org.egov.user.domain.service.TokenService;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.web.contract.*;
@@ -46,6 +47,7 @@ public class UserController {
 
     private UserService userService;
     private TokenService tokenService;
+    private MobileNumberValidator mobileNumberValidator;
 
     @Value("${mobile.number.validation.workaround.enabled}")
     private String mobileValidationWorkaroundEnabled;
@@ -61,9 +63,10 @@ public class UserController {
 
 
     @Autowired
-    public UserController(UserService userService, TokenService tokenService) {
+    public UserController(UserService userService, TokenService tokenService, MobileNumberValidator mobileNumberValidator) {
         this.userService = userService;
         this.tokenService = tokenService;
+        this.mobileNumberValidator = mobileNumberValidator;
     }
 
     /**
@@ -77,6 +80,14 @@ public class UserController {
     public Object createCitizen(@RequestBody @Valid CreateUserRequest createUserRequest) {
         log.info("Received Citizen Registration Request  " + createUserRequest);
         User user = createUserRequest.toDomain(true);
+
+        // Validate mobile number with country code using MDMS-v2
+        String validatedCountryCode = mobileNumberValidator.validateMobileNumberWithCountryCode(user.getMobileNumber(), user.getCountryCode(),
+                user.getTenantId(), createUserRequest.getRequestInfo());
+        user.setCountryCode(validatedCountryCode);
+        mobileNumberValidator.validateMobileNumberWithCountryCode(user.getAlternateMobileNumber(), user.getCountryCode(), user.getTenantId(),
+                createUserRequest.getRequestInfo());
+
         user.setOtpValidationMandatory(IsValidationMandatory);
         if (isRegWithLoginEnabled) {
             Object object = userService.registerWithLogin(user, createUserRequest.getRequestInfo());
@@ -95,9 +106,17 @@ public class UserController {
      */
     @PostMapping("/users/_createnovalidate")
     public UserDetailResponse createUserWithoutValidation(@RequestBody @Valid CreateUserRequest createUserRequest,
-                                                          @RequestHeader HttpHeaders headers) {
+            @RequestHeader HttpHeaders headers) {
 
         User user = createUserRequest.toDomain(true);
+
+        // Validate mobile number with country code using MDMS-v2
+        String validatedCountryCode = mobileNumberValidator.validateMobileNumberWithCountryCode(user.getMobileNumber(), user.getCountryCode(),
+                user.getTenantId(), createUserRequest.getRequestInfo());
+        user.setCountryCode(validatedCountryCode);
+        mobileNumberValidator.validateMobileNumberWithCountryCode(user.getAlternateMobileNumber(), user.getCountryCode(), user.getTenantId(),
+                createUserRequest.getRequestInfo());
+
         user.setMobileValidationMandatory(isMobileValidationRequired(headers));
         user.setOtpValidationMandatory(false);
         final User newUser = userService.createUser(user, createUserRequest.getRequestInfo());
@@ -144,7 +163,7 @@ public class UserController {
     public CustomUserDetails getUser(@RequestParam(value = "access_token") String accessToken) {
         final UserDetail userDetail = tokenService.getUser(accessToken);
         return new CustomUserDetails(userDetail);
-        //  no encrypt/decrypt
+        // no encrypt/decrypt
     }
 
     /**
@@ -156,8 +175,16 @@ public class UserController {
      */
     @PostMapping("/users/_updatenovalidate")
     public UpdateResponse updateUserWithoutValidation(@RequestBody final @Valid CreateUserRequest createUserRequest,
-                                                      @RequestHeader HttpHeaders headers) {
+            @RequestHeader HttpHeaders headers) {
         User user = createUserRequest.toDomain(false);
+
+        // Validate mobile number with country code using MDMS-v2
+        String validatedCountryCode = mobileNumberValidator.validateMobileNumberWithCountryCode(user.getMobileNumber(), user.getCountryCode(),
+                user.getTenantId(), createUserRequest.getRequestInfo());
+        user.setCountryCode(validatedCountryCode);
+        mobileNumberValidator.validateMobileNumberWithCountryCode(user.getAlternateMobileNumber(), user.getCountryCode(), user.getTenantId(),
+                createUserRequest.getRequestInfo());
+
         user.setMobileValidationMandatory(isMobileValidationRequired(headers));
         final User updatedUser = userService.updateWithoutOtpValidation(user, createUserRequest.getRequestInfo());
         return createResponseforUpdate(updatedUser);
@@ -173,6 +200,14 @@ public class UserController {
     public UpdateResponse patch(@RequestBody final @Valid CreateUserRequest createUserRequest) {
         log.info("Received Profile Update Request  " + createUserRequest);
         User user = createUserRequest.toDomain(false);
+
+        // Validate mobile number with country code using MDMS-v2
+        String validatedCountryCode = mobileNumberValidator.validateMobileNumberWithCountryCode(user.getMobileNumber(), user.getCountryCode(),
+                user.getTenantId(), createUserRequest.getRequestInfo());
+        user.setCountryCode(validatedCountryCode);
+        mobileNumberValidator.validateMobileNumberWithCountryCode(user.getAlternateMobileNumber(), user.getCountryCode(), user.getTenantId(),
+                createUserRequest.getRequestInfo());
+
         final User updatedUser = userService.partialUpdate(user, createUserRequest.getRequestInfo());
         return createResponseforUpdate(updatedUser);
     }

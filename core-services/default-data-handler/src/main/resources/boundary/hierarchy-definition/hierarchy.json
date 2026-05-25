@@ -1,0 +1,28 @@
+{
+  "BoundaryHierarchy": {
+    "tenantId": "{tenantid}",
+    "hierarchyType": "ADMIN",
+    "boundaryHierarchy": [
+      {
+        "boundaryType": "City",
+        "parentBoundaryType": null,
+        "active": true
+      },
+      {
+        "boundaryType": "Zone",
+        "parentBoundaryType": "City",
+        "active": true
+      },
+      {
+        "boundaryType": "Block",
+        "parentBoundaryType": "Zone",
+        "active": true
+      },
+      {
+        "boundaryType": "Locality",
+        "parentBoundaryType": "Block",
+        "active": true
+      }
+    ]
+  }
+}

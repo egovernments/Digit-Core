@@ -44,7 +44,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
                         .salutation(rs.getString("salutation"))
                         .dob(rs.getDate("dob")).locale(rs.getString("locale")).username(rs.getString("username"))
                         .password(rs.getString("password")).passwordExpiryDate(rs.getTimestamp("pwdexpirydate"))
-                        .mobileNumber(rs.getString("mobilenumber")).altContactNumber(rs.getString("altcontactnumber"))
+                        .mobileNumber(rs.getString("mobilenumber")).countryCode(rs.getString("countrycode")).altContactNumber(rs.getString("altcontactnumber"))
                         .emailId(rs.getString("emailid")).active(rs.getBoolean("active")).name(rs.getString("name")).
                                 lastModifiedBy(rs.getLong("lastmodifiedby")).lastModifiedDate(rs.getTimestamp("lastmodifieddate"))
                         .pan(rs.getString("pan")).aadhaarNumber(rs.getString("aadhaarnumber")).createdBy(rs.getLong("createdby"))

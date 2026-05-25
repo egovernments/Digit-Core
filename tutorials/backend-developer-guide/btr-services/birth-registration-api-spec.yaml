@@ -1,0 +1,245 @@
+openapi: 3.0.1
+info:
+  title: Birth Registration Service.
+  description: |
+    This service provides APIs to register new births in the system. The applicant is the father/mother of the baby. Baby is not created as a user in the system.
+    Parents do this on behalf of the child.
+  contact:
+    name: eGovernments Foundation
+    email: contacts@egovernments.org
+  version: 1.0.0
+paths:
+  /birth/registration/v1/_search:
+    post:
+      tags:
+       - Birth Registration Application
+      summary: Get the list of Birth registration applications
+      description: 1. Search and get birth registration applications(s) based on defined
+        search criteria. 2. In case multiple parameters are passed voter registration
+        applications will be searched as an AND combination of all the parameters.
+      requestBody:
+        description: Parameter to carry Request metadata in the request body
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/BirthApplicationSearchCriteria'
+        required: false
+      responses:
+        200:
+          description: Birth registration applications(s) Retrived Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BirthRegistrationRequest'
+        400:
+          description: Invalid input
+          content:
+            '*/*':
+              schema:
+                $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/ErrorResponse'
+      x-codegen-request-body-name: requestInfo
+  /birth/registration/v1/_create:
+    post:
+      tags:
+       - Birth Registration Application
+      summary: Create new Birth Registration Application
+      description: "To create new birth registration applications in the system. API\
+        \ supports bulk creation with max limit as defined in the Birth Registration\
+        \ Request. Please note that either whole batch succeeds or fails, there's\
+        \ no partial batch success. \n  \n"
+      requestBody:
+        description: Details for the new Birth Registration Application(s) + RequestInfo
+          meta data.
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/BirthRegistrationRequest'
+        required: true
+      responses:
+        201:
+          description: ReponseInfo with Birth Registration Application(s) created
+            successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BirthRegistrationResponse'
+        400:
+          description: Birth Registration Application(s) creation failed
+          content:
+            '*/*':
+              schema:
+                $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/ErrorResponse'
+      x-codegen-request-body-name: BirthRegistrationRequest
+  /birth/registration/v1/_update:
+    post:
+      tags:
+       - Birth Registration Application
+      summary: update existing Birth Registration Applications.
+      description: |
+        To update existing birth registration applications in the system. API supports bulk updation with max limit as defined in the birth registration Request. Please note that either whole batch succeeds or fails, there's no partial batch success.
+      requestBody:
+        description: Details for the new (s) + RequestInfo meta data.
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/BirthRegistrationRequest'
+        required: true
+      responses:
+        201:
+          description: ReponseInfo with Birth Registration Application(s) updated
+            sudcessfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BirthRegistrationResponse'
+        400:
+          description: (s) updation failed
+          content:
+            '*/*':
+              schema:
+                $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/ErrorResponse'
+      x-codegen-request-body-name: BirthRegistrationRequest
+components:
+  schemas:
+    BirthRegistrationApplication:
+      required:
+      - babyFirstName
+      - doctorName
+      - father
+      - hospitalName
+      - mother
+      - placeOfBirth
+      - tenantId
+      type: object
+      properties:
+        id:
+          maxLength: 64
+          minLength: 2
+          type: string
+          description: Unique Identifier of the Birth Registration Application (UUID)
+          readOnly: true
+        tenantId:
+          maxLength: 128
+          minLength: 2
+          type: string
+          description: Unique Identifier of ULB
+        applicationNumber:
+          maxLength: 128
+          minLength: 2
+          type: string
+          description: Unique application number
+          readOnly: true
+        babyFirstName:
+          maxLength: 128
+          minLength: 2
+          type: string
+          description: Baby’s first name
+        babyLastName:
+          maxLength: 128
+          minLength: 2
+          type: string
+          description: Baby’s last name
+        father:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/User'
+        mother:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/User'
+        doctorName:
+          maxLength: 128
+          minLength: 2
+          type: string
+          description: Name of doctor
+        hospitalName:
+          maxLength: 128
+          minLength: 2
+          type: string
+          description: Name of hospital
+        placeOfBirth:
+          maxLength: 128
+          minLength: 2
+          type: string
+          description: Place of birth
+        timeOfBirth:
+          type: integer
+          description: Date of birth epoch
+        address:
+          $ref: '#/components/schemas/BirthApplicationAddress'
+        workflow:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/Workflow'
+        auditDetails:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/AuditDetails'
+      description: A Object holds the basic data for a Birth Registration Application
+
+    BirthApplicationAddress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: System generated UUID
+          minLength: 2
+          maxLength: 36
+        tenantId:
+          type: string
+          description: Tenant Id
+          minLength: 2
+          maxLength: 64
+        applicationNumber:
+          type: string
+          description: Reference to the birth application number
+        applicantAddress:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/Address'
+      required: [tenantId]
+
+
+    BirthRegistrationRequest:
+      type: object
+      properties:
+        RequestInfo:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/RequestInfo'
+        BirthRegistrationApplications:
+          type: array
+          description: Used for search result and create only
+          items:
+            $ref: '#/components/schemas/BirthRegistrationApplication'
+      description: Contract class to receive request. Array of  items are used in
+        case of create, whereas single  item is used for update
+
+    BirthRegistrationResponse:
+      type: object
+      properties:
+        ResponseInfo:
+          $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml#/components/schemas/ResponseInfo'
+        BirthRegistrationApplications:
+          type: array
+          description: Used for search result and create only
+          items:
+            $ref: '#/components/schemas/BirthRegistrationApplication'
+      description: Contract class to send response. Array of  items are used in case
+        of search results or response for create, whereas single  item is used for
+        update
+
+    BirthApplicationSearchCriteria:
+      type: object
+      properties:
+        tenantId:
+          type: string
+          description: Unique id for a tenant.
+        status:
+          description: Search based on status.
+          type: string
+        ids:
+          description: unique identifier of birth registration
+          maxItems: 50
+          type: array
+          items:
+            type: string
+        applicationNumber:
+          description: Unique application number for the Birth Registration Application
+          maxLength: 64
+          minLength: 2
+          type: string
+      required:
+        - tenantId
+
+x-api-id: org.egov.birth.services
+x-common-path: https://raw.githubusercontent.com/egovernments/DIGIT-Specs/common-contract-update/Common%20Services/common-contract.yaml
