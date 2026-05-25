@@ -97,6 +97,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
         }
         log.info("Mdms Data search query: {}", query);
+        log.info("Mdms Data search query params: {}", preparedStmtList);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
     }
 
@@ -116,6 +117,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
         }
         log.info("Mdms Data multi-tenant search query: {}", query);
+        log.info("Mdms Data multi-tenant search query params: {}", preparedStmtList);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
     }
 
@@ -134,6 +136,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
         }
         log.info("Mdms Data search query: {}", query);
+        log.info("Mdms Data search query params: {}", preparedStmtList);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapper);
     }
 }

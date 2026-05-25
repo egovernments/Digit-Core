@@ -85,6 +85,7 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
         }
         log.info("Schema definition search query: {}", query);
+        log.info("Schema definition search query params: {}", preparedStatementList);
 
         // Query the database to fetch schema definitions
         return jdbcTemplate.query(query, preparedStatementList.toArray(), rowMapper);
