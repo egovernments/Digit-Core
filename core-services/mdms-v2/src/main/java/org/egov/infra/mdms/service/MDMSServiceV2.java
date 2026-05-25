@@ -12,33 +12,36 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class MDMSServiceV2 {
 
     private MdmsDataValidator mdmsDataValidator;
-
     private MdmsDataEnricher mdmsDataEnricher;
-
     private MdmsDataRepository mdmsDataRepository;
-
     private SchemaUtil schemaUtil;
-
     private MultiStateInstanceUtil multiStateInstanceUtil;
+    private MdmsCacheService mdmsCacheService;
 
     @Autowired
     public MDMSServiceV2(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil) {
+                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil,
+                         MultiStateInstanceUtil multiStateInstanceUtil, MdmsCacheService mdmsCacheService) {
         this.mdmsDataValidator = mdmsDataValidator;
         this.mdmsDataEnricher = mdmsDataEnricher;
         this.mdmsDataRepository = mdmsDataRepository;
         this.schemaUtil = schemaUtil;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
+        this.mdmsCacheService = mdmsCacheService;
     }
 
     /**
@@ -60,35 +63,85 @@ public class MDMSServiceV2 {
         // Emit MDMS create event to be listened by persister
         mdmsDataRepository.create(mdmsRequest);
 
+        mdmsCacheService.evictDataCache(mdmsRequest.getMdms().getTenantId(), mdmsRequest.getMdms().getSchemaCode());
+
         return Arrays.asList(mdmsRequest.getMdms());
     }
 
     /**
      * This method processes the requests that come for master data search.
-     * @param mdmsCriteriaReqV2
-     * @return
+     * Cache-first: checks Redis per tenant level (most-specific first). On full miss,
+     * fires a single DB query with tenantid IN (...) covering all fallback levels, then
+     * caches each level's results separately for subsequent requests.
      */
     public List<Mdms> search(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
+        MdmsCriteriaV2 criteria = mdmsCriteriaReqV2.getMdmsCriteria();
+        if (log.isDebugEnabled()) {
+            log.debug("V2 search params: tenantId={} schemaCode={} ids={} uniqueIdentifiers={} filterMap={} isActive={} offset={} limit={}",
+                    criteria.getTenantId(), criteria.getSchemaCode(), criteria.getIds(),
+                    criteria.getUniqueIdentifiers(), criteria.getFilterMap(), criteria.getIsActive(),
+                    criteria.getOffset(), criteria.getLimit());
+        }
+        String tenantId = criteria.getTenantId();
+        String schemaCode = criteria.getSchemaCode();
 
-        /*
-         * Set incoming tenantId as state level tenantId for fallback in case master data for
-         * concrete tenantId does not exist.
-         */
-        String tenantId = mdmsCriteriaReqV2.getMdmsCriteria().getTenantId();
+        List<String> subTenantList = FallbackUtil.getSubTenantListForFallBack(tenantId);
 
-        List<Mdms> masterDataList = new ArrayList<>();
-        List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
+        // Cache is only safe for unfiltered schema lookups. Additional filters (filterMap, ids,
+        // uniqueIdentifiers, isActive) produce a partial result that must not be cached against
+        // the full tenantId+schemaCode key — it would corrupt subsequent unfiltered requests.
+        boolean isSimpleLookup = !ObjectUtils.isEmpty(schemaCode)
+                && Objects.isNull(criteria.getIds())
+                && Objects.isNull(criteria.getUniqueIdentifiers())
+                && CollectionUtils.isEmpty(criteria.getFilterMap())
+                && Objects.isNull(criteria.getIsActive());
 
-        // Make a call to repository and get list of master data
-        for(String subTenantId : subTenantListForFallback) {
-            mdmsCriteriaReqV2.getMdmsCriteria().setTenantId(subTenantId);
-            masterDataList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
+        if (isSimpleLookup) {
+            for (String subTenantId : subTenantList) {
+                List<Mdms> cached = mdmsCacheService.getDataFromCache(subTenantId, schemaCode);
+                if (cached != null) {
+                    return applyPagination(cached, criteria);
+                }
+            }
 
-            if(!CollectionUtils.isEmpty(masterDataList))
-                break;
+            // Full cache miss — single DB query across all tenant levels
+            List<Mdms> allData = mdmsDataRepository.searchV2ForTenants(criteria, subTenantList);
+
+            // Cache each level separately (including empty lists, to avoid repeated DB hits for missing tenants)
+            Map<String, List<Mdms>> byTenant = allData.stream()
+                    .collect(Collectors.groupingBy(Mdms::getTenantId));
+            for (String subTenantId : subTenantList) {
+                mdmsCacheService.putDataToCache(subTenantId, schemaCode,
+                        byTenant.getOrDefault(subTenantId, Collections.emptyList()));
+            }
+
+            // Return data from most-specific tenant that has results
+            for (String subTenantId : subTenantList) {
+                List<Mdms> tenantData = byTenant.get(subTenantId);
+                if (!CollectionUtils.isEmpty(tenantData)) {
+                    return applyPagination(tenantData, criteria);
+                }
+            }
+            return Collections.emptyList();
         }
 
-        return masterDataList;
+        // Filtered or non-schemaCode queries: original sequential DB path
+        for (String subTenantId : subTenantList) {
+            criteria.setTenantId(subTenantId);
+            List<Mdms> result = mdmsDataRepository.searchV2(criteria);
+            if (!CollectionUtils.isEmpty(result)) {
+                return result;
+            }
+        }
+        criteria.setTenantId(tenantId); // restore original
+        return Collections.emptyList();
+    }
+
+    private List<Mdms> applyPagination(List<Mdms> data, MdmsCriteriaV2 criteria) {
+        int offset = criteria.getOffset() != null ? criteria.getOffset() : 0;
+        int limit = criteria.getLimit() != null ? criteria.getLimit() : data.size();
+        if (offset == 0 && limit >= data.size()) return data;
+        return data.stream().skip(offset).limit(limit).collect(Collectors.toList());
     }
 
     /**
@@ -109,6 +162,8 @@ public class MDMSServiceV2 {
 
         // Emit MDMS update event to be listened by persister
         mdmsDataRepository.update(mdmsRequest);
+
+        mdmsCacheService.evictDataCache(mdmsRequest.getMdms().getTenantId(), mdmsRequest.getMdms().getSchemaCode());
 
         return Arrays.asList(mdmsRequest.getMdms());
     }

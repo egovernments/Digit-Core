@@ -13,7 +13,10 @@ public interface MdmsDataRepository {
 
     public void update(MdmsRequest mdmsRequest);
 
-    public  List<Mdms> searchV2(MdmsCriteriaV2 mdmsCriteriaV2);
+    public List<Mdms> searchV2(MdmsCriteriaV2 mdmsCriteriaV2);
+
+    // Single-query fallback across all tenant hierarchy levels; returns unpaginated results for caching
+    public List<Mdms> searchV2ForTenants(MdmsCriteriaV2 mdmsCriteriaV2, List<String> tenantIds);
 
     public Map<String, Map<String, JSONArray>> search(MdmsCriteria mdmsCriteria);
 }

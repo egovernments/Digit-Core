@@ -92,12 +92,30 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = mdmsDataQueryBuilderV2.getMdmsDataSearchQuery(mdmsCriteriaV2, preparedStmtList);
         try {
-            // Replaced schema placeholder in the query with tenant specific schema name
             query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, mdmsCriteriaV2.getTenantId());
         } catch (InvalidTenantIdException e) {
             throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
         }
         log.info("Mdms Data search query: {}", query);
+        return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
+    }
+
+    /**
+     * Single DB round-trip across all tenant hierarchy levels; used by cache-miss path.
+     * Results are unpaginated so the service can cache the full dataset per tenant+schema.
+     */
+    @Override
+    public List<Mdms> searchV2ForTenants(MdmsCriteriaV2 mdmsCriteriaV2, List<String> tenantIds) {
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = mdmsDataQueryBuilderV2.getMdmsDataSearchQueryForTenants(mdmsCriteriaV2, tenantIds, preparedStmtList);
+        // Use the first (most-specific) tenant id to resolve the schema placeholder
+        String schemaResolutionTenantId = tenantIds.get(0);
+        try {
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, schemaResolutionTenantId);
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
+        }
+        log.info("Mdms Data multi-tenant search query: {}", query);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
     }
 

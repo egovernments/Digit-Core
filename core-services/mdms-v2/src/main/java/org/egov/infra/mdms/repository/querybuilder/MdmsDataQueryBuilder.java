@@ -2,6 +2,7 @@ package org.egov.infra.mdms.repository.querybuilder;
 
 import org.egov.infra.mdms.model.MdmsCriteria;
 import org.egov.infra.mdms.utils.QueryUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -16,6 +17,11 @@ public class MdmsDataQueryBuilder {
 
     private static final String MDMS_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc ";
 
+    // Safety cap: prevents unbounded heap usage when AC or others call V1 without filters.
+    // V1 response format has no pagination; this guards against OOM from full-table loads.
+    @Value("${mdms.v1.max.result.limit:10000}")
+    private int v1MaxResultLimit;
+
     /**
      * Method to handle request for fetching MDMS data search query
      * @param mdmsCriteria
@@ -25,6 +31,7 @@ public class MdmsDataQueryBuilder {
     public String getMdmsDataSearchQuery(MdmsCriteria mdmsCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(mdmsCriteria, preparedStmtList);
         query = QueryUtil.addOrderByClause(query, MDMS_DATA_QUERY_ORDER_BY_CLAUSE);
+        query = query + " LIMIT " + v1MaxResultLimit;
         return query;
     }
 

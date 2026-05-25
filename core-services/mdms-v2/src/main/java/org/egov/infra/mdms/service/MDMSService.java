@@ -35,14 +35,18 @@ public class MDMSService {
 
 	private MultiStateInstanceUtil multiStateInstanceUtil;
 
+	private MdmsCacheService mdmsCacheService;
+
 	@Autowired
 	public MDMSService(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-					   MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil) {
+					   MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil,
+					   MultiStateInstanceUtil multiStateInstanceUtil, MdmsCacheService mdmsCacheService) {
 		this.mdmsDataValidator = mdmsDataValidator;
 		this.mdmsDataEnricher = mdmsDataEnricher;
 		this.mdmsDataRepository = mdmsDataRepository;
 		this.schemaUtil = schemaUtil;
 		this.multiStateInstanceUtil = multiStateInstanceUtil;
+		this.mdmsCacheService = mdmsCacheService;
 	}
 
 	/**
@@ -63,6 +67,8 @@ public class MDMSService {
 
 		// Emit mdms creation request event
 		mdmsDataRepository.create(mdmsRequest);
+
+		mdmsCacheService.evictDataCache(mdmsRequest.getMdms().getTenantId(), mdmsRequest.getMdms().getSchemaCode());
 
 		return Arrays.asList(mdmsRequest.getMdms());
 	}

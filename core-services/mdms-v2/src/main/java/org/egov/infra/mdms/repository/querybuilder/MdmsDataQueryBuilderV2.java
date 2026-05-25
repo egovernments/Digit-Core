@@ -37,6 +37,29 @@ public class MdmsDataQueryBuilderV2 {
     }
 
     /**
+     * Builds a single query covering all tenant levels for fallback in one DB round-trip.
+     * Used internally by cache-miss path; tenantIds list is passed separately so the API
+     * model (MdmsCriteriaV2) is not modified.
+     */
+    public String getMdmsDataSearchQueryForTenants(MdmsCriteriaV2 mdmsCriteriaV2,
+                                                   List<String> tenantIds,
+                                                   List<Object> preparedStmtList) {
+        StringBuilder builder = new StringBuilder(SEARCH_MDMS_DATA_QUERY);
+
+        // Deduplicate while preserving most-specific-first order so placeholder count matches set size
+        Set<String> uniqueTenants = new java.util.LinkedHashSet<>(tenantIds);
+        QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+        builder.append(" data.tenantid IN ( ")
+               .append(QueryUtil.createQuery(uniqueTenants.size()))
+               .append(" ) ");
+        QueryUtil.addToPreparedStatement(preparedStmtList, uniqueTenants);
+
+        appendSharedFilters(builder, mdmsCriteriaV2, preparedStmtList);
+        // No pagination — caller caches all records and paginates in memory
+        return QueryUtil.addOrderByClause(builder.toString(), MDMS_DATA_QUERY_ORDER_BY_CLAUSE);
+    }
+
+    /**
      * Method to build query dynamically based on the criteria passed to the method
      * @param mdmsCriteriaV2
      * @param preparedStmtList
@@ -44,12 +67,17 @@ public class MdmsDataQueryBuilderV2 {
      */
     private String buildQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
         StringBuilder builder = new StringBuilder(SEARCH_MDMS_DATA_QUERY);
-        Map<String, String> schemaCodeFilterMap = mdmsCriteriaV2.getSchemaCodeFilterMap();
         if (!Objects.isNull(mdmsCriteriaV2.getTenantId())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.tenantid = ? ");
             preparedStmtList.add(mdmsCriteriaV2.getTenantId());
         }
+        appendSharedFilters(builder, mdmsCriteriaV2, preparedStmtList);
+        return builder.toString();
+    }
+
+    private void appendSharedFilters(StringBuilder builder, MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
+        Map<String, String> schemaCodeFilterMap = mdmsCriteriaV2.getSchemaCodeFilterMap();
         if (!Objects.isNull(mdmsCriteriaV2.getIds())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.id IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getIds().size())).append(" )");
@@ -60,33 +88,31 @@ public class MdmsDataQueryBuilderV2 {
             builder.append(" data.uniqueidentifier IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getUniqueIdentifiers().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getUniqueIdentifiers());
         }
-        if (!Objects.isNull(mdmsCriteriaV2.getSchemaCodeFilterMap())) {
+        if (!Objects.isNull(schemaCodeFilterMap)) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.schemacode IN ( ").append(QueryUtil.createQuery(schemaCodeFilterMap.keySet().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, schemaCodeFilterMap.keySet());
         }
-        if(!Objects.isNull(mdmsCriteriaV2.getSchemaCode())){
+        if (!Objects.isNull(mdmsCriteriaV2.getSchemaCode())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.schemacode = ? ");
             preparedStmtList.add(mdmsCriteriaV2.getSchemaCode());
         }
-        if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getFilterMap())){
+        if (!CollectionUtils.isEmpty(mdmsCriteriaV2.getFilterMap())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.data @> CAST( ? AS jsonb )");
-            String partialQueryJsonString = QueryUtil.preparePartialJsonStringFromFilterMap(mdmsCriteriaV2.getFilterMap());
-            preparedStmtList.add(partialQueryJsonString);
+            preparedStmtList.add(QueryUtil.preparePartialJsonStringFromFilterMap(mdmsCriteriaV2.getFilterMap()));
         }
-        if(!CollectionUtils.isEmpty(mdmsCriteriaV2.getUniqueIdentifiersForRefVerification())){
+        if (!CollectionUtils.isEmpty(mdmsCriteriaV2.getUniqueIdentifiersForRefVerification())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.uniqueidentifier IN ( ").append(QueryUtil.createQuery(mdmsCriteriaV2.getUniqueIdentifiersForRefVerification().size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList, mdmsCriteriaV2.getUniqueIdentifiersForRefVerification());
         }
-        if(!Objects.isNull(mdmsCriteriaV2.getIsActive())) {
+        if (!Objects.isNull(mdmsCriteriaV2.getIsActive())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
             builder.append(" data.isactive = ? ");
             preparedStmtList.add(mdmsCriteriaV2.getIsActive());
         }
-        return builder.toString();
     }
 
     private String getPaginatedQuery(String query, MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
