@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,6 @@ import org.egov.access.persistence.repository.querybuilder.ValidateActionQueryBu
 import org.egov.access.persistence.repository.rowmapper.ActionRowMapper;
 import org.egov.access.persistence.repository.rowmapper.ActionValidationRowMapper;
 import org.egov.access.util.AccessControlConstants;
-import org.egov.access.util.Utils;
 import org.egov.access.web.contract.action.ActionRequest;
 import org.egov.access.web.contract.action.Module;
 import org.egov.common.utils.MultiStateInstanceUtil;
@@ -152,28 +150,24 @@ public class ActionService {
 
 	private boolean isAuthorizedOnGivenTenantLevel(AuthorizationRequest authorizeRequest, String tenantId){
 
-		Map<String, ActionContainer>  roleActions = mdmsRepository.fetchRoleActionData(tenantId);
-
 		String uriToBeAuthorized = authorizeRequest.getUri();
 		Set<String> applicableRoles = getApplicableRoles(authorizeRequest);
-		Set<String> uris = new HashSet<>();
-		List<String> regexUris = new ArrayList<>();
 
-		for(String roleCode : applicableRoles){
-			if(roleActions.containsKey(roleCode))
-				uris.addAll(roleActions.get(roleCode).getUris());
-
-			if(roleActions.containsKey(roleCode))
-				regexUris.addAll(roleActions.get(roleCode).getRegexUris());
+		for (String roleCode : applicableRoles) {
+			ActionContainer container = mdmsRepository.fetchRoleActionData(tenantId, roleCode);
+			if (container == null) continue;
+			if (container.getUris().contains(uriToBeAuthorized)) {
+				log.debug("Role {} authorized for URI {}", roleCode, uriToBeAuthorized);
+				return true;
+			}
+			if (container.matchesRegexUri(uriToBeAuthorized)) {
+				log.debug("Role {} authorized for URI {} via regex", roleCode, uriToBeAuthorized);
+				return true;
+			}
 		}
 
-		boolean isAuthorized = uris.contains(uriToBeAuthorized) || containsRegexUri(regexUris, uriToBeAuthorized);
-
-		//log.info("Request tenant ids:  " + authorizeRequest.getTenantIds());
-		log.info("Role {} has access to requested URI {} : {}", applicableRoles, uriToBeAuthorized,
-				isAuthorized);
-
-		return isAuthorized;
+		log.debug("No role in {} authorized for URI {}", applicableRoles, uriToBeAuthorized);
+		return false;
 	}
 
 	private Set<String> getApplicableRoles(AuthorizationRequest authorizationRequest){
@@ -196,14 +190,6 @@ public class ActionService {
 		}
 
 		return applicableRoles.stream().map(Role::getCode).collect(Collectors.toSet());
-	}
-
-	private boolean containsRegexUri(List<String> actionUris, String requestUri){
-		for(String actionUri : actionUris){
-			if(Utils.isRegexUriMatch(actionUri, requestUri))
-				return true;
-		}
-		return false;
 	}
 
 	private String getCentralInstanceLevelTenant(String tenantId){

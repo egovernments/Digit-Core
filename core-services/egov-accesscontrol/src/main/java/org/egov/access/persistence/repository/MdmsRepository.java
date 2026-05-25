@@ -2,14 +2,17 @@ package org.egov.access.persistence.repository;
 
 import static java.util.Objects.isNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.cache2k.Cache;
+import org.cache2k.Cache2kBuilder;
 import org.egov.access.domain.model.Action;
 import org.egov.access.domain.model.ActionContainer;
 import org.egov.access.domain.model.RoleAction;
@@ -22,7 +25,6 @@ import org.egov.mdms.model.ModuleDetail;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Repository;
@@ -60,107 +62,153 @@ public class MdmsRepository {
     @Value("${action.master.mdms.filter}")
     private String actionFilter;
 
+    @Value("${cache.expiry.action.minutes}")
+    private long actionsExpiryMinutes;
+
+    @Value("${cache.expiry.role.action.minutes}")
+    private long roleActionsExpiryMinutes;
+
+    @Value("${cache.expiry.jitter.minutes:3}")
+    private long jitterMinutes;
+
+    @Value("${cache.local.entry.capacity:2000}")
+    private long entryCapacity;
+
+    // key: tenantId — raw action list (id + url only), shared across all role lookups for the tenant
+    private Cache<String, List<Action>> actionsCache;
+
+    // key: tenantId — raw role-action mappings, shared across all role lookups for the tenant
+    private Cache<String, List<RoleAction>> rawRoleActionsCache;
+
+    // key: tenantId:roleCode — ready-to-use ActionContainer for the specific role
+    private Cache<String, ActionContainer> roleActionsCache;
+
+    @PostConstruct
+    public void initCaches() {
+        actionsCache = new Cache2kBuilder<String, List<Action>>() {}
+                .name("actions-local")
+                .expiryPolicy((key, value, loadTime, oldEntry) -> jitterExpiryTime(loadTime, actionsExpiryMinutes))
+                .refreshAhead(true)
+                .entryCapacity(entryCapacity)
+                .loader(this::loadActionsFromMdms)
+                .build();
+
+        rawRoleActionsCache = new Cache2kBuilder<String, List<RoleAction>>() {}
+                .name("rawRoleActions-local")
+                .expiryPolicy((key, value, loadTime, oldEntry) -> jitterExpiryTime(loadTime, roleActionsExpiryMinutes))
+                .refreshAhead(true)
+                .entryCapacity(entryCapacity)
+                .loader(this::loadRawRoleActionsFromMdms)
+                .build();
+
+        // Loader splits the composite key and delegates to buildContainer.
+        // cache2k guarantees only one loader thread per unique key — concurrent misses
+        // for the same tenantId:roleCode block on the first load rather than each hitting MDMS.
+        roleActionsCache = new Cache2kBuilder<String, ActionContainer>() {}
+                .name("roleActions-local")
+                .expiryPolicy((key, value, loadTime, oldEntry) -> jitterExpiryTime(loadTime, roleActionsExpiryMinutes))
+                .refreshAhead(true)
+                .entryCapacity(entryCapacity)
+                .loader(key -> {
+                    int sep = key.indexOf(':');
+                    return buildContainer(key.substring(0, sep), key.substring(sep + 1));
+                })
+                .build();
+    }
+
+    @PreDestroy
+    public void destroyCaches() {
+        if (actionsCache != null) actionsCache.close();
+        if (rawRoleActionsCache != null) rawRoleActionsCache.close();
+        if (roleActionsCache != null) roleActionsCache.close();
+    }
 
     /**
-     * Returns a map of role to URIs authorized
-     *  - Ex, CITIZEN -> [/foo/bar, /foo/{}/bar]
-     *  - Regular URIs will be part of regular uris
-     *  - Regex patterns such as path params are handled and will be part of regex uris]
+     * Returns the ActionContainer for the given tenant and role.
+     * Key: tenantId:roleCode — one entry per (tenant, role) pair.
      *
-     *  This method is cacheable and will only run the method when the cache expiration has reached
-     *   part of config
-     *
-     *
-     * @param tenantId tenant for which role actions need to be retrieved
-     * @return Map of roles to URIs authorized
+     * On L1 hit: returns cached object reference (~200 ns), compiled regex patterns reused.
+     * On miss: loads actions + rawRoleActions for the tenant (each fetched once regardless of
+     * how many roles miss simultaneously), builds the container, and caches it.
      */
-    @Cacheable(value = "roleActions", sync = true)
-    public  Map<String, ActionContainer> fetchRoleActionData(String tenantId){
-        List<ModuleDetail> moduleDetail = new ArrayList<ModuleDetail>();
-        RequestInfo requestInfo = new RequestInfo();
+    private long jitterExpiryTime(long loadTime, long ttlMinutes) {
+        long jitterMs = (long)(Math.random() * TimeUnit.MINUTES.toMillis(jitterMinutes));
+        return loadTime + TimeUnit.MINUTES.toMillis(ttlMinutes) + jitterMs;
+    }
 
-        MasterDetail actionsMasterDetail =
-                MasterDetail.builder().name(actionMaster).filter(actionFilter).build();
-        moduleDetail.add(ModuleDetail.builder().moduleName(actionModule).masterDetails(Collections.singletonList(
-                actionsMasterDetail)).build());
+    public ActionContainer fetchRoleActionData(String tenantId, String roleCode) {
+        return roleActionsCache.get(tenantId + ":" + roleCode);
+    }
 
-        MasterDetail roleActionsMasterDetail = MasterDetail.builder().name(roleActionMaster).build();
-        moduleDetail.add(ModuleDetail.builder().moduleName(roleActionModule).masterDetails(Collections.singletonList(
-                roleActionsMasterDetail)).build());
+    private ActionContainer buildContainer(String tenantId, String roleCode) {
+        // actionsCache and rawRoleActionsCache loaders are also protected by cache2k:
+        // concurrent misses for the same tenantId result in exactly one MDMS call each.
+        List<Action> actions = actionsCache.get(tenantId);
+        List<RoleAction> roleActions = rawRoleActionsCache.get(tenantId);
 
+        Map<Long, String> actionUrlMap = actions.stream()
+                .collect(Collectors.toMap(Action::getId, Action::getUrl, (a, b) -> a));
 
+        ActionContainer container = new ActionContainer();
+        for (RoleAction ra : roleActions) {
+            if (!roleCode.equals(ra.getRoleCode())) continue;
+            String url = actionUrlMap.get(ra.getActionId());
+            if (url == null) continue;
+            if (Utils.isRegexUri(url))
+                container.getRegexUris().add(url);
+            else
+                container.getUris().add(url);
+        }
+        return container;
+    }
+
+    private List<Action> loadActionsFromMdms(String tenantId) {
+        log.debug("Loading actions from MDMS for tenant: {}", tenantId);
+        MasterDetail masterDetail = MasterDetail.builder().name(actionMaster).filter(actionFilter).build();
+        ModuleDetail moduleDetail = ModuleDetail.builder()
+                .moduleName(actionModule)
+                .masterDetails(Collections.singletonList(masterDetail))
+                .build();
+
+        Map<String, Map<String, List>> response = callMdms(tenantId, Collections.singletonList(moduleDetail));
+
+        if (isNull(response.get(actionModule)) || isNull(response.get(actionModule).get(actionMaster)))
+            throw new CustomException("DATA_NOT_AVAILABLE", "Actions data not available for tenant: " + tenantId);
+
+        return Arrays.asList(objectMapper.convertValue(response.get(actionModule).get(actionMaster), Action[].class));
+    }
+
+    private List<RoleAction> loadRawRoleActionsFromMdms(String tenantId) {
+        log.debug("Loading role-actions from MDMS for tenant: {}", tenantId);
+        MasterDetail masterDetail = MasterDetail.builder().name(roleActionMaster).build();
+        ModuleDetail moduleDetail = ModuleDetail.builder()
+                .moduleName(roleActionModule)
+                .masterDetails(Collections.singletonList(masterDetail))
+                .build();
+
+        Map<String, Map<String, List>> response = callMdms(tenantId, Collections.singletonList(moduleDetail));
+
+        if (isNull(response.get(roleActionModule)) || isNull(response.get(roleActionModule).get(roleActionMaster)))
+            throw new CustomException("DATA_NOT_AVAILABLE", "RoleActions data not available for tenant: " + tenantId);
+
+        return Arrays.asList(objectMapper.convertValue(response.get(roleActionModule).get(roleActionMaster), RoleAction[].class));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Map<String, List>> callMdms(String tenantId, List<ModuleDetail> moduleDetails) {
         MdmsCriteria mc = new MdmsCriteria();
         mc.setTenantId(tenantId);
-        mc.setModuleDetails(moduleDetail);
+        mc.setModuleDetails(moduleDetails);
 
         MdmsCriteriaReq mcq = new MdmsCriteriaReq();
-        mcq.setRequestInfo(requestInfo);
+        mcq.setRequestInfo(new RequestInfo());
         mcq.setMdmsCriteria(mc);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("tenantId", tenantId);
 
-        HttpEntity<MdmsCriteriaReq> request = new HttpEntity<>(mcq, headers);
-
-        @SuppressWarnings("unchecked")
-        Map<String, Map<String, List>> response = (Map<String, Map<String, List>>) restTemplate.postForObject(mdmsUrl, request,
-                Map.class).get("MdmsRes");
-
-        if(isNull(response.get(roleActionModule)) || isNull(response.get(roleActionModule).get(roleActionMaster))
-                || isNull(response.get(actionModule)) || isNull(response.get(actionModule).get(actionMaster)))
-            throw new CustomException("DATA_NOT_AVAILABLE", "Data not available for this tenant");
-
-
-        return transformMdmsResponse(response);
-
-//        Map<String, List<String>> map = Arrays.stream(roleActions)
-//                .filter( roleAction -> actionMap.containsKey(roleAction.getActionId()) )
-//                .collect(Collectors.groupingBy(
-//                        RoleAction::getRoleCode,
-//                        Collectors.mapping(roleAction -> actionMap.get(roleAction.getActionId()).get(0).getUrl(),
-//                                Collectors.toList())));
-//
-//        return map;
-
+        return (Map<String, Map<String, List>>) restTemplate
+                .postForObject(mdmsUrl, new HttpEntity<>(mcq, headers), Map.class)
+                .get("MdmsRes");
     }
-
-    private Map<String, ActionContainer> transformMdmsResponse(Map<String, Map<String, List>> rawResponse){
-        RoleAction[] roleActions = objectMapper.convertValue(rawResponse.get(roleActionModule).get(
-                roleActionMaster), RoleAction[].class);
-        Action[] actions = objectMapper.convertValue(rawResponse.get(actionModule).get(
-                actionMaster), Action[].class);
-
-
-        Map<Long,List<Action>> actionMap =
-                Arrays.stream(actions).collect(Collectors.groupingBy(Action::getId) );
-
-        Map<String, ActionContainer> finalMap = new HashMap<>();
-
-        for(RoleAction roleAction : roleActions){
-            if(actionMap.containsKey(roleAction.getActionId())){
-                if(finalMap.containsKey(roleAction.getRoleCode())){
-                    ActionContainer container = finalMap.get(roleAction.getRoleCode());
-                    String actionUrl = actionMap.get(roleAction.getActionId()).get(0).getUrl();
-                    if(Utils.isRegexUri(actionUrl))
-                        container.getRegexUris().add(actionUrl);
-                    else
-                        container.getUris().add(actionUrl);
-                } else{
-                    ActionContainer container = new ActionContainer();
-                    String actionUrl = actionMap.get(roleAction.getActionId()).get(0).getUrl();
-                    if(Utils.isRegexUri(actionUrl))
-                        container.getRegexUris().add(actionUrl);
-                    else
-                        container.getUris().add(actionUrl);
-
-                    finalMap.put(roleAction.getRoleCode(), container);
-
-                }
-            }
-        }
-
-        return finalMap;
-    }
-
-
 }
