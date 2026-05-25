@@ -82,7 +82,6 @@ public class BirthRegistrationService {
         // Validate whether the application that is being requested for update indeed exists
         BirthRegistrationApplication existingApplication = validator.validateApplicationExistence(birthRegistrationRequest.getBirthRegistrationApplications().get(0));
         existingApplication.setWorkflow(birthRegistrationRequest.getBirthRegistrationApplications().get(0).getWorkflow());
-        log.info(existingApplication.toString());
         birthRegistrationRequest.setBirthRegistrationApplications(Collections.singletonList(existingApplication));
 
         // Enrich application upon update

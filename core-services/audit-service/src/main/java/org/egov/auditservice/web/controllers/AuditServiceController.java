@@ -32,7 +32,7 @@ public class AuditServiceController {
 
     @RequestMapping(value="/v1/_create", method = RequestMethod.POST)
     public ResponseEntity<AuditLogResponse> create(@RequestBody @Valid AuditLogRequest auditLogRequest) {
-        log.info("Received request: " + auditLogRequest.toString());
+        log.info("Received audit log create request");
 //        List<Integer> responseHash = ingestService.ingestData(ingestRequest);
 //        //log.info("############ Completed before pushing data");
 //        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(ingestRequest.getRequestInfo(), true);

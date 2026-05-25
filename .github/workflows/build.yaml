@@ -31,6 +31,7 @@ on:
           - "egov-indexer"
           - "egov-localization"
           - "egov-location"
+          - "egov-malware-detection"
           - "egov-mdms-service"
           - "egov-notification-mail"
           - "egov-notification-sms"
@@ -61,9 +62,8 @@ on:
           - "zuul"
         default: "audit-service"
 
-env:
-  DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+permissions:
+  contents: read
 
 jobs:
   resolve-config:
@@ -84,8 +84,9 @@ jobs:
 
       - name: Determine Dockerfile path from build-config.yml
         id: pick_dockerfile
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
         run: |
-          SERVICE="${{ github.event.inputs.service }}"
           DEFAULT_DOCKERFILE="build/maven/Dockerfile"
 
           echo "Looking for service '$SERVICE' in build-config.yml..."
@@ -132,8 +133,11 @@ jobs:
 
       - name: Check for DB folder
         id: check-db-folder
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          SERVICE_FOLDER: ${{ github.event.inputs.service_folder }}
         run: |
-          BASE_PATH="${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}"
+          BASE_PATH="${SERVICE_FOLDER}/${SERVICE}"
       
           if [ -d "$BASE_PATH/src/main/resources/db" ]; then
             echo "folder_exists=true" >> "$GITHUB_OUTPUT"
@@ -153,8 +157,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Build & push ${{ matrix.arch }} image
         id: build_push_app
@@ -189,37 +193,45 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Create & push multi-arch manifest (application)
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          TAG: ${{ needs.resolve-config.outputs.tag }}
         run: |
           docker buildx imagetools create \
-            --tag egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }} \
-            egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-amd64 \
-            egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-arm64
+            --tag "egovio/${SERVICE}:${TAG}" \
+            "egovio/${SERVICE}:${TAG}-amd64" \
+            "egovio/${SERVICE}:${TAG}-arm64"
 
       - name: Create & push multi-arch manifest (database)
         if: ${{ needs.build-matrix.outputs.db_folder_exists == 'true' }}
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          TAG: ${{ needs.resolve-config.outputs.tag }}
         run: |
           docker buildx imagetools create \
-            --tag egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }} \
-            egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-amd64 \
-            egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-arm64
+            --tag "egovio/${SERVICE}-db:${TAG}" \
+            "egovio/${SERVICE}-db:${TAG}-amd64" \
+            "egovio/${SERVICE}-db:${TAG}-arm64"
 
       - name: Add all image tags to GitHub summary
         env:
           DB_EXISTS: ${{ needs.build-matrix.outputs.db_folder_exists }}
+          SERVICE: ${{ github.event.inputs.service }}
+          TAG: ${{ needs.resolve-config.outputs.tag }}
         run: |
           echo "## App Docker images" >> $GITHUB_STEP_SUMMARY
-          echo "- \`egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-amd64\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}-arm64\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **multi‑arch** \`egovio/${{ github.event.inputs.service }}:${{ needs.resolve-config.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`egovio/${SERVICE}:${TAG}-amd64\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`egovio/${SERVICE}:${TAG}-arm64\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **multi‑arch** \`egovio/${SERVICE}:${TAG}\`" >> $GITHUB_STEP_SUMMARY
 
           if [ "$DB_EXISTS" = "true" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "## DB Docker images" >> $GITHUB_STEP_SUMMARY
-            echo "- \`egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-amd64\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-arm64\`" >> $GITHUB_STEP_SUMMARY
-            echo "- **multi‑arch** \`egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`egovio/${SERVICE}-db:${TAG}-amd64\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`egovio/${SERVICE}-db:${TAG}-arm64\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **multi‑arch** \`egovio/${SERVICE}-db:${TAG}\`" >> $GITHUB_STEP_SUMMARY
           fi

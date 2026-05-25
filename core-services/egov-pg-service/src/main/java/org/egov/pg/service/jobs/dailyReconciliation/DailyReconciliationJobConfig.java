@@ -23,7 +23,6 @@ public class DailyReconciliationJobConfig {
     }
 
     @Bean
-    @Autowired
     CronTriggerFactoryBean processStatusUpdateTrigger(JobDetail processStatusUpdateJob) {
         CronTriggerFactoryBean cronTriggerFactoryBean = new CronTriggerFactoryBean();
         cronTriggerFactoryBean.setJobDetail(processStatusUpdateJob);

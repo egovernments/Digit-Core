@@ -48,7 +48,7 @@ public class GenericSMSServiceImpl extends BaseSMSService {
             }
 
         } catch (RestClientException e) {
-            log.error("Error occurred while sending SMS to " + sms.getMobileNumber(), e);
+            log.error("Error occurred while sending SMS", e);
             throw e;
         }
     }

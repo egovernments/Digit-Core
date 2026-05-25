@@ -19,7 +19,6 @@ public class MainConfig {
         return new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
-    @Autowired
     @Bean
     public JdbcTemplate template(DataSource dataSource) {
         return new JdbcTemplate(dataSource);

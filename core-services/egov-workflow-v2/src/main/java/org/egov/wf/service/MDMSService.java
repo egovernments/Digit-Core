@@ -29,7 +29,7 @@ import org.egov.wf.repository.ServiceRequestRepository;
 import org.egov.wf.util.WorkflowConstants;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import com.jayway.jsonpath.JsonPath;
@@ -62,7 +62,7 @@ public class MDMSService {
     }
 
 
-    @Bean
+    @PostConstruct
     public void stateLevelMapping(){
         Map<String, Boolean> stateLevelMapping = new HashMap<>();
 

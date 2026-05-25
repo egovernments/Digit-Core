@@ -19,6 +19,7 @@ import org.egov.filestore.domain.model.FileInfo;
 import org.egov.filestore.domain.model.FileLocation;
 import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.repository.ArtifactRepository;
+import org.egov.filestore.producer.MalwareScanRequestProducer;
 import org.egov.filestore.repository.CloudFilesManager;
 import org.egov.filestore.repository.impl.CloudFileMgrUtils;
 import org.egov.filestore.repository.impl.minio.MinioConfig;
@@ -55,6 +56,8 @@ public class StorageService {
 	
 	private MinioConfig minioConfig;
 
+	private MalwareScanRequestProducer malwareScanRequestProducer;
+
 	@Value("${filename.length}")
 	private Integer filenameLength;
 
@@ -64,26 +67,81 @@ public class StorageService {
 	@Value("${filename.usenumbers}")
 	private Boolean useNumbers;
 
+	@Value("${isAzureStorageEnabled}")
+	private Boolean isAzureStorageEnabled;
 
-	
-	
+	@Value("${source.azure.blob}")
+	private String azureBlobSource;
 
 	@Autowired
 	public StorageService(ArtifactRepository artifactRepository, IdGeneratorService idGeneratorService,
-			FileStoreConfig fileStoreConfig, StorageValidator storageValidator, FileStoreConfig configs, MinioConfig minioConfig) {
+			FileStoreConfig fileStoreConfig, StorageValidator storageValidator, FileStoreConfig configs,
+			MinioConfig minioConfig, MalwareScanRequestProducer malwareScanRequestProducer) {
 		this.artifactRepository = artifactRepository;
 		this.idGeneratorService = idGeneratorService;
 		this.fileStoreConfig = fileStoreConfig;
 		this.storageValidator = storageValidator;
 		this.minioConfig = minioConfig;
 		this.configs = configs;
+		this.malwareScanRequestProducer = malwareScanRequestProducer;
 	}
 
 	public List<String> save(List<MultipartFile> filesToStore, String module, String tag, String tenantId, RequestInfo requestInfo) {
+		log.info("[FILESTORE-SAVE] Received upload request - module: {}, tag: {}, tenantId: {}, fileCount: {}",
+				module, tag, tenantId, filesToStore.size());
 
-		log.info(UPLOAD_MESSAGE, module, tag, filesToStore.size());
 		List<Artifact> artifacts = mapFilesToArtifact(filesToStore, module, tag, tenantId);
-		return this.artifactRepository.save(artifacts, requestInfo);
+		List<String> fileStoreIds = this.artifactRepository.save(artifacts, requestInfo);
+		log.info("[FILESTORE-SAVE] Saved {} files, fileStoreIds: {}", fileStoreIds.size(), fileStoreIds);
+
+		// Publish malware scan requests asynchronously (fire-and-forget, never blocks)
+		if (malwareScanRequestProducer.isMalwareScanEnabled()) {
+			publishMalwareScanRequests(artifacts, fileStoreIds, requestInfo);
+		}
+
+		return fileStoreIds;
+	}
+
+	/**
+	 * Publishes malware scan requests to Kafka for each uploaded file.
+	 * This is completely async and non-blocking - file upload will complete
+	 * immediately regardless of Kafka availability.
+	 *
+	 * @param artifacts    The uploaded artifacts
+	 * @param fileStoreIds The generated filestore IDs
+	 * @param requestInfo  Request context containing user info
+	 */
+	private void publishMalwareScanRequests(List<Artifact> artifacts, List<String> fileStoreIds, RequestInfo requestInfo) {
+		try {
+			String uploadedBy = (requestInfo != null && requestInfo.getUserInfo() != null)
+					? requestInfo.getUserInfo().getUuid() : null;
+
+			for (int i = 0; i < artifacts.size() && i < fileStoreIds.size(); i++) {
+				Artifact artifact = artifacts.get(i);
+				String fileStoreId = fileStoreIds.get(i);
+				FileLocation fileLocation = artifact.getFileLocation();
+
+				// Determine file source based on storage backend
+				String fileSource = isAzureStorageEnabled ? azureBlobSource : fileLocation.getFileSource();
+
+				// Fire-and-forget async call - never blocks
+				malwareScanRequestProducer.publishScanRequest(
+						fileStoreId,
+						fileLocation.getTenantId(),
+						fileLocation.getModule(),
+						artifact.getMultipartFile().getOriginalFilename(),
+						artifact.getMultipartFile().getContentType(),
+						fileSource,
+						fileLocation.getFileName(),
+						uploadedBy,
+						System.currentTimeMillis()
+				);
+			}
+			log.debug("[FILESTORE-MALWARE] Queued {} malware scan requests", fileStoreIds.size());
+		} catch (Exception e) {
+			log.warn("[FILESTORE-MALWARE] Error queuing malware scan requests: {}", e.getMessage());
+			// Never throw - file upload must succeed regardless of malware scan status
+		}
 	}
 
 	private List<Artifact> mapFilesToArtifact(List<MultipartFile> files, String module, String tag, String tenantId) {

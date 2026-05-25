@@ -57,7 +57,6 @@ public class BirthApplicationEnrichment {
     public void enrichFatherApplicantOnSearch(BirthRegistrationApplication application) {
         UserDetailResponse fatherUserResponse = userService.searchUser(userUtils.getStateLevelTenant(application.getTenantId()),application.getFather().getUuid(),null);
         User fatherUser = fatherUserResponse.getUser().get(0);
-        log.info(fatherUser.toString());
         User fatherApplicant = User.builder()
                 .mobileNumber(fatherUser.getMobileNumber())
                 .id(fatherUser.getId())
@@ -72,7 +71,6 @@ public class BirthApplicationEnrichment {
     public void enrichMotherApplicantOnSearch(BirthRegistrationApplication application) {
         UserDetailResponse motherUserResponse = userService.searchUser(userUtils.getStateLevelTenant(application.getTenantId()),application.getMother().getUuid(),null);
         User motherUser = motherUserResponse.getUser().get(0);
-        log.info(motherUser.toString());
         User motherApplicant = User.builder()
                 .mobileNumber(motherUser.getMobileNumber())
                 .id(motherUser.getId())

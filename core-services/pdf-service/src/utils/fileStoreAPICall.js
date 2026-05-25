@@ -1,4 +1,3 @@
-import request from "request";
 import fs from "fs";
 import get from "lodash/get";
 import axios, { post } from "axios";

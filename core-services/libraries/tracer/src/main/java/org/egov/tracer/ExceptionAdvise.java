@@ -30,6 +30,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.dao.DataAccessException;
 import org.springframework.web.client.ResourceAccessException;
 
 import jakarta.servlet.ServletInputStream;
@@ -156,6 +157,15 @@ public class ExceptionAdvise {
                 List<String> params = new ArrayList<>();
                 params.add(exception.getParameterName());
                 error.setParams(params);
+                errors.add(error);
+                errorRes.setErrors(errors);
+            } else if (ex instanceof DataAccessException) {
+                DataAccessException dataAccessException = (DataAccessException) ex;
+                log.error("Database query execution failed", dataAccessException);
+                Error error = new Error();
+                error.setCode("QUERY_EXECUTION_ERROR");
+                error.setMessage("Database operation failed");
+                error.setDescription("An error occurred while processing the database request.");
                 errors.add(error);
                 errorRes.setErrors(errors);
             } else if (ex instanceof BindException) {

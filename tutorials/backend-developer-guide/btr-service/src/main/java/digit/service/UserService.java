@@ -96,7 +96,6 @@ public class UserService {
         UserDetailResponse userDetailResponse = searchUser(userUtils.getStateLevelTenant(tenantId),null, user.getUserName());
         if (!userDetailResponse.getUser().isEmpty()) {
             User userFromSearch = userDetailResponse.getUser().get(0);
-            log.info(userFromSearch.toString());
             if(!user.getUserName().equalsIgnoreCase(userFromSearch.getUserName())){
                 userServiceResponse = updateUser(requestInfo,user,userFromSearch);
             }
@@ -146,7 +145,6 @@ public class UserService {
                 .append(config.getUserCreateEndpoint());
 
         CreateUserRequest user = new CreateUserRequest(requestInfo, userInfo);
-        log.info(user.getUser().toString());
         UserDetailResponse userDetailResponse = userUtils.userCall(user, uri);
 
         return userDetailResponse.getUser().get(0);

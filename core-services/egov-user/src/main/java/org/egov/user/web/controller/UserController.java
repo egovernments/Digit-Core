@@ -78,7 +78,7 @@ public class UserController {
      */
     @PostMapping("/citizen/_create")
     public Object createCitizen(@RequestBody @Valid CreateUserRequest createUserRequest) {
-        log.info("Received Citizen Registration Request  " + createUserRequest);
+        log.info("Received Citizen Registration Request");
         User user = createUserRequest.toDomain(true);
 
         // Validate mobile number with country code using MDMS-v2
@@ -133,7 +133,7 @@ public class UserController {
     @PostMapping("/_search")
     public UserSearchResponse get(@RequestBody @Valid UserSearchRequest request, @RequestHeader HttpHeaders headers) {
 
-        log.info("Received User search Request  " + request);
+        log.info("Received User search Request");
         if (request.getActive() == null) {
             request.setActive(true);
         }

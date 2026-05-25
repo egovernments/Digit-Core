@@ -8,6 +8,8 @@ import org.egov.enc.models.AsymmetricKey;
 import org.egov.enc.models.MethodEnum;
 import org.egov.enc.models.SymmetricKey;
 import org.egov.enc.repository.KeyRepository;
+import org.egov.enc.utils.Constants;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -115,12 +117,20 @@ public class KeyStore implements ApplicationRunner {
 
     //Get currently active symmetric key for given tenanId
     public SymmetricKey getSymmetricKey(String tenantId) {
-        return getSymmetricKey(activeSymmetricKeys.get(tenantId));
+        Integer keyId = activeSymmetricKeys.get(tenantId);
+        if (keyId == null) {
+            throw new CustomException(tenantId + Constants.TENANT_NOT_FOUND, tenantId + Constants.TENANT_NOT_FOUND);
+        }
+        return getSymmetricKey(keyId);
     }
 
     //Get currently active asymmetric key for given tenanId
     public AsymmetricKey getAsymmetricKey(String tenantId) {
-        return getAsymmetricKey(activeAsymmetricKeys.get(tenantId));
+        Integer keyId = activeAsymmetricKeys.get(tenantId);
+        if (keyId == null) {
+            throw new CustomException(tenantId + Constants.TENANT_NOT_FOUND, tenantId + Constants.TENANT_NOT_FOUND);
+        }
+        return getAsymmetricKey(keyId);
     }
 
     //Get symmetric key based on given keyId

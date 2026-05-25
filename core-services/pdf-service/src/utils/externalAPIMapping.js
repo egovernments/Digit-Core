@@ -34,7 +34,8 @@ export const externalAPIMapping = async function (
   unregisteredLocalisationCodes,
   header
 ) {
-  var jp = require("jsonpath");
+  var { JSONPath } = require("jsonpath-plus");
+  var jp = { query: (obj, path) => JSONPath({ path, json: obj, wrap: true }) };
   var objectOfExternalAPI = getValue(
     jp.query(dataconfig, "$.DataConfigs.mappings.*.mappings.*.externalAPI.*"),
     [],

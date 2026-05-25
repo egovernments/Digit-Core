@@ -1,0 +1,29 @@
+version: 2
+updates:
+
+  - package-ecosystem: "npm"
+    directory: "/pdf-service"
+    schedule:
+      interval: "weekly"
+
+  # Covers all modules listed in root pom.xml
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Not in root pom.xml - need individual entries
+  - package-ecosystem: "maven"
+    directory: "/MDMS-v2"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "maven"
+    directory: "/egov-malware-detection"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "maven"
+    directory: "/egov-user"
+    schedule:
+      interval: "weekly"
