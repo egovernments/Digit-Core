@@ -108,7 +108,6 @@ public class ActionController {
 	@PostMapping(value = "_authorize")
 	public ResponseEntity<Void> authorize(@RequestBody @Valid AuthorizationRequestWrapper authorizationRequestWrapper,
 										  @RequestHeader Map<String,String> headers) {
-		System.out.println("header: "+headers);
 		boolean authorized = actionService.isAuthorized(authorizationRequestWrapper.getAuthorizationRequest());
 
 		if(authorized)

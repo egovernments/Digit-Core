@@ -74,10 +74,13 @@ public class MdmsRepository {
     @Value("${cache.local.entry.capacity:2000}")
     private long entryCapacity;
 
+    @Value("${cache.local.role.action.entry.capacity:10000}")
+    private long roleActionEntryCapacity;
+
     // key: tenantId — raw action list (id + url only), shared across all role lookups for the tenant
     private Cache<String, List<Action>> actionsCache;
 
-    // key: tenantId — raw role-action mappings, shared across all role lookups for the tenant
+    // key: tenantId:roleCode — raw role-action mappings for a specific (tenant, role) pair
     private Cache<String, List<RoleAction>> rawRoleActionsCache;
 
     // key: tenantId:roleCode — ready-to-use ActionContainer for the specific role
@@ -97,8 +100,11 @@ public class MdmsRepository {
                 .name("rawRoleActions-local")
                 .expiryPolicy((key, value, loadTime, oldEntry) -> jitterExpiryTime(loadTime, roleActionsExpiryMinutes))
                 .refreshAhead(true)
-                .entryCapacity(entryCapacity)
-                .loader(this::loadRawRoleActionsFromMdms)
+                .entryCapacity(roleActionEntryCapacity)
+                .loader(key -> {
+                    int sep = key.indexOf(':');
+                    return loadRawRoleActionsFromMdms(key.substring(0, sep), key.substring(sep + 1));
+                })
                 .build();
 
         // Loader splits the composite key and delegates to buildContainer.
@@ -108,7 +114,7 @@ public class MdmsRepository {
                 .name("roleActions-local")
                 .expiryPolicy((key, value, loadTime, oldEntry) -> jitterExpiryTime(loadTime, roleActionsExpiryMinutes))
                 .refreshAhead(true)
-                .entryCapacity(entryCapacity)
+                .entryCapacity(roleActionEntryCapacity)
                 .loader(key -> {
                     int sep = key.indexOf(':');
                     return buildContainer(key.substring(0, sep), key.substring(sep + 1));
@@ -141,17 +147,14 @@ public class MdmsRepository {
     }
 
     private ActionContainer buildContainer(String tenantId, String roleCode) {
-        // actionsCache and rawRoleActionsCache loaders are also protected by cache2k:
-        // concurrent misses for the same tenantId result in exactly one MDMS call each.
         List<Action> actions = actionsCache.get(tenantId);
-        List<RoleAction> roleActions = rawRoleActionsCache.get(tenantId);
+        List<RoleAction> roleActions = rawRoleActionsCache.get(tenantId + ":" + roleCode);
 
         Map<Long, String> actionUrlMap = actions.stream()
                 .collect(Collectors.toMap(Action::getId, Action::getUrl, (a, b) -> a));
 
         ActionContainer container = new ActionContainer();
         for (RoleAction ra : roleActions) {
-            if (!roleCode.equals(ra.getRoleCode())) continue;
             String url = actionUrlMap.get(ra.getActionId());
             if (url == null) continue;
             if (Utils.isRegexUri(url))
@@ -178,8 +181,8 @@ public class MdmsRepository {
         return Arrays.asList(objectMapper.convertValue(response.get(actionModule).get(actionMaster), Action[].class));
     }
 
-    private List<RoleAction> loadRawRoleActionsFromMdms(String tenantId) {
-        log.debug("Loading role-actions from MDMS for tenant: {}", tenantId);
+    private List<RoleAction> loadRawRoleActionsFromMdms(String tenantId, String roleCode) {
+        log.debug("Loading role-actions from MDMS for tenant: {} (pre-warming all roles)", tenantId);
         MasterDetail masterDetail = MasterDetail.builder().name(roleActionMaster).build();
         ModuleDetail moduleDetail = ModuleDetail.builder()
                 .moduleName(roleActionModule)
@@ -191,7 +194,19 @@ public class MdmsRepository {
         if (isNull(response.get(roleActionModule)) || isNull(response.get(roleActionModule).get(roleActionMaster)))
             throw new CustomException("DATA_NOT_AVAILABLE", "RoleActions data not available for tenant: " + tenantId);
 
-        return Arrays.asList(objectMapper.convertValue(response.get(roleActionModule).get(roleActionMaster), RoleAction[].class));
+        RoleAction[] all = objectMapper.convertValue(response.get(roleActionModule).get(roleActionMaster), RoleAction[].class);
+
+        // Group all roles and pre-warm the cache so subsequent role lookups for this
+        // tenant do not trigger additional MDMS calls.
+        Map<String, List<RoleAction>> byRole = Arrays.stream(all)
+                .collect(Collectors.groupingBy(RoleAction::getRoleCode));
+
+        byRole.forEach((role, roleActions) -> {
+            if (!role.equals(roleCode))
+                rawRoleActionsCache.put(tenantId + ":" + role, roleActions);
+        });
+
+        return byRole.getOrDefault(roleCode, Collections.emptyList());
     }
 
     @SuppressWarnings("unchecked")

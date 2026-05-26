@@ -1,14 +1,9 @@
 package org.egov.access.domain.service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.egov.access.domain.criteria.ActionSearchCriteria;
 import org.egov.access.domain.criteria.ValidateActionCriteria;
@@ -110,48 +105,31 @@ public class ActionService {
 	public boolean isAuthorized(AuthorizationRequest authorizeRequest){
 
 		String inputTenantId = authorizeRequest.getTenantIds().iterator().next();
-		List<String> roles = authorizeRequest.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
-		List<String> listOfMdmsTenantIdsToCheck = new ArrayList<>(fetchListOfTenantIdsForAuthorizationCheck(inputTenantId, roles));
-		Collections.sort(listOfMdmsTenantIdsToCheck, Collections.reverseOrder(Comparator.comparing(String::length)));
+		Set<String> applicableRoles = getApplicableRoles(authorizeRequest);
+		String[] tenantsToCheck = buildTenantCheckOrder(inputTenantId, applicableRoles);
 
-		boolean isAuthorized = false;
-
-		for(String tenantId : listOfMdmsTenantIdsToCheck) {
-			if(isAuthorizedOnGivenTenantLevel(authorizeRequest, tenantId)){
-				isAuthorized = true;
-				break;
-			}
+		for (String tenantId : tenantsToCheck) {
+			if (isAuthorizedOnGivenTenantLevel(authorizeRequest.getUri(), applicableRoles, tenantId))
+				return true;
 		}
 
-		return isAuthorized;
+		return false;
 	}
 
-	private Set<String> fetchListOfTenantIdsForAuthorizationCheck(String tenantId, List<String> roles){
-		
-		Set<String> listOfMdmsTenantIdsToCheck = new LinkedHashSet<>();
-		
-		/*
-		 *  Adding city specific tenant Id
-		 *  
-		 *  Then state Level tenant-id based on index from central instance configs
-		 *  
-		 *  Then index 0 for national level in case of central server deployment
-		 */
-		listOfMdmsTenantIdsToCheck.add(tenantId);
-		listOfMdmsTenantIdsToCheck.add(multiStateInstanceUtil.getStateLevelTenant(tenantId));
-		if (multiStateInstanceUtil.getIsEnvironmentCentralInstance()
-				&& roles.contains(AccessControlConstants.CITIZNE_ROLE_CODE))
-			listOfMdmsTenantIdsToCheck.add(tenantId.split("\\.")[0]);
+	private String[] buildTenantCheckOrder(String tenantId, Set<String> roleCodes) {
+		String stateLevelTenantId = multiStateInstanceUtil.getStateLevelTenant(tenantId);
+		boolean addNational = multiStateInstanceUtil.getIsEnvironmentCentralInstance()
+				&& roleCodes.contains(AccessControlConstants.CITIZNE_ROLE_CODE);
 
-		log.info("The list of tenants for auth" + listOfMdmsTenantIdsToCheck);
+		String[] tenants = addNational
+				? new String[]{ tenantId, stateLevelTenantId, tenantId.split("\\.")[0] }
+				: new String[]{ tenantId, stateLevelTenantId };
 
-		return listOfMdmsTenantIdsToCheck;
+		log.debug("Tenants for auth check: {}", (Object) tenants);
+		return tenants;
 	}
 
-	private boolean isAuthorizedOnGivenTenantLevel(AuthorizationRequest authorizeRequest, String tenantId){
-
-		String uriToBeAuthorized = authorizeRequest.getUri();
-		Set<String> applicableRoles = getApplicableRoles(authorizeRequest);
+	private boolean isAuthorizedOnGivenTenantLevel(String uriToBeAuthorized, Set<String> applicableRoles, String tenantId){
 
 		for (String roleCode : applicableRoles) {
 			ActionContainer container = mdmsRepository.fetchRoleActionData(tenantId, roleCode);
@@ -171,25 +149,23 @@ public class ActionService {
 	}
 
 	private Set<String> getApplicableRoles(AuthorizationRequest authorizationRequest){
-		
+
 		Set<String> requestTenantIds = authorizationRequest.getTenantIds();
 		String tenantId = requestTenantIds.iterator().next();
 		String centralInstanceLevelTenantId = getCentralInstanceLevelTenant(tenantId);
 		String stateLevelTenantId = multiStateInstanceUtil.getStateLevelTenant(tenantId);
 
 		Set<Role> roles = authorizationRequest.getRoles();
-		Set<Role> applicableRoles = new HashSet<>();
+		Set<String> applicableRoleCodes = new HashSet<>(roles.size() * 2);
 
-		for(Role role : roles){
-			if(requestTenantIds.contains(role.getTenantId()) || role.getTenantId().equalsIgnoreCase(stateLevelTenantId)){
-				applicableRoles.add(role);
-			}
-			if(!ObjectUtils.isEmpty(stateLevelTenantId) && role.getTenantId().equalsIgnoreCase(centralInstanceLevelTenantId)){
-				applicableRoles.add(role);
-			}
+		for (Role role : roles) {
+			if (requestTenantIds.contains(role.getTenantId()) || role.getTenantId().equalsIgnoreCase(stateLevelTenantId))
+				applicableRoleCodes.add(role.getCode());
+			if (!ObjectUtils.isEmpty(stateLevelTenantId) && role.getTenantId().equalsIgnoreCase(centralInstanceLevelTenantId))
+				applicableRoleCodes.add(role.getCode());
 		}
 
-		return applicableRoles.stream().map(Role::getCode).collect(Collectors.toSet());
+		return applicableRoleCodes;
 	}
 
 	private String getCentralInstanceLevelTenant(String tenantId){
