@@ -47,12 +47,6 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class UserServiceConstants {
 
-    @Value("${kafka.topics.user.status.change}")
-    private String userStatusChangeTopic;
-
-    @Value("${user.status.change.event.enabled}")
-    private boolean userStatusChangeEventEnabled;
-
     public static final String EMAIL_UPDATION_CODE = "EMAIL_UPDATED";
 
     public static final String DEFAULT_EMAIL_UPDATION_MESSAGE = "Dear Citizen, your e-mail has been updated from {oldEmail} to {newEmail}.\n\nEGOVS";

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
+import org.egov.user.config.UserConfig;
 import org.egov.user.domain.exception.AtleastOneRoleCodeException;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.InvalidUpdatePasswordRequestException;
@@ -114,6 +115,9 @@ public class UserService {
 
     @Autowired
     private org.egov.user.config.UserServiceConstants userServiceConstants;
+
+    @Autowired
+    private UserConfig userConfig;
 
     public UserService(UserRepository userRepository, OtpRepository otpRepository, FileStoreRepository fileRepository, UserUtils userUtils,
                        PasswordEncoder passwordEncoder, EncryptionDecryptionUtil encryptionDecryptionUtil, TokenStore tokenStore,
@@ -384,16 +388,16 @@ public class UserService {
             resetFailedLoginAttempts(user);
 
         // Check if active status has changed and feature flag is enabled
-        if (userServiceConstants.isUserStatusChangeEventEnabled() && existingUserActiveStatus != user.getActive()) {
+        if (userConfig.isUserStatusChangeEventEnabled() && existingUserActiveStatus != user.getActive()) {
             // Store user status change details in a map
             Map<String, String> userStatusChangeEvent = new HashMap<>();
             userStatusChangeEvent.put(USER_UUID_KEY, user.getUuid());
             userStatusChangeEvent.put(TENANT_ID_KEY, user.getTenantId());
             userStatusChangeEvent.put(ACTIVE_KEY, String.valueOf(user.getActive()));
-            userStatusChangeEvent.put(EFFECTIVE_DATE_KEY, String.valueOf(System.currentTimeMillis()));
+            userStatusChangeEvent.put(EFFECTIVE_DATE_KEY, String.valueOf(user.getLastModifiedDate().getTime()));
 
             // Publish user status change event to Kafka
-            userProducer.push(user.getTenantId(), userServiceConstants.getUserStatusChangeTopic(), user.getUuid(), userStatusChangeEvent);
+            userProducer.push(user.getTenantId(), userConfig.getUserStatusChangeTopic(), user.getUuid(), userStatusChangeEvent);
         }
 
         User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid(), user.getTenantId());
