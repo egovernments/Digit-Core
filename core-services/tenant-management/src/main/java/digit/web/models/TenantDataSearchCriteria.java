@@ -20,6 +20,9 @@ public class TenantDataSearchCriteria {
 
     @JsonProperty("code")
     private String code;
+    
+    @JsonProperty("email")
+    private String email;
 
     @JsonProperty("offset")
     private Integer offset;
