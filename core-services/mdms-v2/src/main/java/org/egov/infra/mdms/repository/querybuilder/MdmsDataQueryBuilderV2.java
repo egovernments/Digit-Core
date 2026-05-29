@@ -118,13 +118,21 @@ public class MdmsDataQueryBuilderV2 {
     private String getPaginatedQuery(String query, MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
         StringBuilder paginatedQuery = new StringBuilder(query);
 
-        // Append offset
+        boolean limitProvidedByApi = !ObjectUtils.isEmpty(mdmsCriteriaV2.getLimit());
+        boolean noLimitSchema = mdmsCriteriaV2.getSchemaCode() != null
+                && config.getNoLimitSchemaCodes().contains(mdmsCriteriaV2.getSchemaCode());
+
+        if (noLimitSchema && !limitProvidedByApi) {
+            // Whitelisted schema with no API-provided limit — omit LIMIT and OFFSET entirely
+            return paginatedQuery.toString();
+        }
+
         paginatedQuery.append(" OFFSET ? ");
         preparedStmtList.add(ObjectUtils.isEmpty(mdmsCriteriaV2.getOffset()) ? config.getDefaultOffset() : mdmsCriteriaV2.getOffset());
 
-        // Append limit
         paginatedQuery.append(" LIMIT ? ");
-        preparedStmtList.add(ObjectUtils.isEmpty(mdmsCriteriaV2.getLimit()) ? config.getDefaultLimit() : mdmsCriteriaV2.getLimit());
+        Integer requestedLimit = limitProvidedByApi ? mdmsCriteriaV2.getLimit() : config.getDefaultLimit();
+        preparedStmtList.add(noLimitSchema ? requestedLimit : Math.min(requestedLimit, config.getSearchResultLimit()));
 
         return paginatedQuery.toString();
     }

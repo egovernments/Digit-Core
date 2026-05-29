@@ -1,9 +1,11 @@
 package org.egov.infra.mdms.repository.querybuilder;
 
+import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.MdmsCriteria;
 import org.egov.infra.mdms.utils.QueryUtil;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -12,15 +14,13 @@ import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING
 @Component
 public class MdmsDataQueryBuilder {
 
+    @Autowired
+    private ApplicationConfig config;
+
     private static String SEARCH_MDMS_DATA_QUERY = "SELECT data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM " + SCHEMA_REPLACE_STRING + ".eg_mdms_data data ";
 
     private static final String MDMS_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc ";
-
-    // Safety cap: prevents unbounded heap usage when AC or others call V1 without filters.
-    // V1 response format has no pagination; this guards against OOM from full-table loads.
-    @Value("${mdms.v1.max.result.limit:10000}")
-    private int v1MaxResultLimit;
 
     /**
      * Method to handle request for fetching MDMS data search query
@@ -31,8 +31,17 @@ public class MdmsDataQueryBuilder {
     public String getMdmsDataSearchQuery(MdmsCriteria mdmsCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(mdmsCriteria, preparedStmtList);
         query = QueryUtil.addOrderByClause(query, MDMS_DATA_QUERY_ORDER_BY_CLAUSE);
-        query = query + " LIMIT " + v1MaxResultLimit;
+        if (!isNoLimitSchema(mdmsCriteria)) {
+            query = query + " LIMIT " + config.getSearchResultLimit();
+        }
         return query;
+    }
+
+    private boolean isNoLimitSchema(MdmsCriteria mdmsCriteria) {
+        Set<String> noLimitCodes = config.getNoLimitSchemaCodes();
+        Map<String, String> schemaCodeFilterMap = mdmsCriteria.getSchemaCodeFilterMap();
+        return !noLimitCodes.isEmpty() && !CollectionUtils.isEmpty(schemaCodeFilterMap)
+                && noLimitCodes.containsAll(schemaCodeFilterMap.keySet());
     }
 
     /**

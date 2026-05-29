@@ -2,6 +2,7 @@ package org.egov.infra.mdms.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
@@ -31,17 +32,20 @@ public class MDMSServiceV2 {
     private SchemaUtil schemaUtil;
     private MultiStateInstanceUtil multiStateInstanceUtil;
     private MdmsCacheService mdmsCacheService;
+    private ApplicationConfig config;
 
     @Autowired
     public MDMSServiceV2(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
                          MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil,
-                         MultiStateInstanceUtil multiStateInstanceUtil, MdmsCacheService mdmsCacheService) {
+                         MultiStateInstanceUtil multiStateInstanceUtil, MdmsCacheService mdmsCacheService,
+                         ApplicationConfig config) {
         this.mdmsDataValidator = mdmsDataValidator;
         this.mdmsDataEnricher = mdmsDataEnricher;
         this.mdmsDataRepository = mdmsDataRepository;
         this.schemaUtil = schemaUtil;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
         this.mdmsCacheService = mdmsCacheService;
+        this.config = config;
     }
 
     /**
@@ -139,9 +143,17 @@ public class MDMSServiceV2 {
 
     private List<Mdms> applyPagination(List<Mdms> data, MdmsCriteriaV2 criteria) {
         int offset = criteria.getOffset() != null ? criteria.getOffset() : 0;
-        int limit = criteria.getLimit() != null ? criteria.getLimit() : data.size();
+        int requestedLimit = criteria.getLimit() != null ? criteria.getLimit() : data.size();
+        int limit = resolveEffectiveLimit(criteria.getSchemaCode(), requestedLimit, data.size());
         if (offset == 0 && limit >= data.size()) return data;
         return data.stream().skip(offset).limit(limit).collect(Collectors.toList());
+    }
+
+    private int resolveEffectiveLimit(String schemaCode, int requestedLimit, int dataSize) {
+        if (schemaCode != null && config.getNoLimitSchemaCodes().contains(schemaCode)) {
+            return requestedLimit;
+        }
+        return Math.min(requestedLimit, config.getSearchResultLimit());
     }
 
     /**

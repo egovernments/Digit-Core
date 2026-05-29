@@ -7,6 +7,12 @@ import org.egov.common.utils.MultiStateInstanceUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Configuration
 @ToString
@@ -29,5 +35,19 @@ public class ApplicationConfig {
 
     @Value("${mdms.default.limit}")
     private Integer defaultLimit;
+
+    @Value("${mdms.search.result.limit:1000}")
+    private Integer searchResultLimit;
+
+    @Value("${mdms.no.limit.schema.codes:}")
+    private String noLimitSchemaCodesRaw;
+
+    public Set<String> getNoLimitSchemaCodes() {
+        if (!StringUtils.hasText(noLimitSchemaCodesRaw)) return Collections.emptySet();
+        return Arrays.stream(noLimitSchemaCodesRaw.split(","))
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toSet());
+    }
 
 }
