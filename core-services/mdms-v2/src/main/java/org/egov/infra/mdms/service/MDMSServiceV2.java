@@ -108,16 +108,24 @@ public class MDMSServiceV2 {
                 }
             }
 
-            // Full cache miss — single DB query across all tenant levels
-            List<Mdms> allData = mdmsDataRepository.searchV2ForTenants(criteria, subTenantList);
-
-            // Cache each level separately (including empty lists, to avoid repeated DB hits for missing tenants)
-            Map<String, List<Mdms>> byTenant = allData.stream()
-                    .collect(Collectors.groupingBy(Mdms::getTenantId));
-            for (String subTenantId : subTenantList) {
-                mdmsCacheService.putDataToCache(subTenantId, schemaCode,
-                        byTenant.getOrDefault(subTenantId, Collections.emptyList()));
-            }
+            // Full cache miss — singleflight ensures only one DB query fires even when
+            // many threads miss simultaneously; all waiters share the single result.
+            // Key uses "||" to avoid collision with tenantIds or schemaCodes that contain ":".
+            String inFlightKey = tenantId + "||" + schemaCode;
+            Map<String, List<Mdms>> byTenant = mdmsCacheService.loadWithSingleflight(inFlightKey, () -> {
+                List<Mdms> allData = mdmsDataRepository.searchV2ForTenants(criteria, subTenantList);
+                Map<String, List<Mdms>> grouped = allData.stream()
+                        .collect(Collectors.groupingBy(Mdms::getTenantId));
+                // Only cache non-empty results — empty entries are not stored so that
+                // the fallback loop can continue up the tenant hierarchy on next request.
+                for (String subTenantId : subTenantList) {
+                    List<Mdms> tenantData = grouped.get(subTenantId);
+                    if (!CollectionUtils.isEmpty(tenantData)) {
+                        mdmsCacheService.putDataToCache(subTenantId, schemaCode, tenantData);
+                    }
+                }
+                return grouped;
+            });
 
             // Return data from most-specific tenant that has results
             for (String subTenantId : subTenantList) {

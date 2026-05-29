@@ -1,5 +1,7 @@
 package org.egov.infra.mdms.config;
 
+import jakarta.annotation.PostConstruct;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -42,12 +44,23 @@ public class ApplicationConfig {
     @Value("${mdms.no.limit.schema.codes:}")
     private String noLimitSchemaCodesRaw;
 
+    @Setter(AccessLevel.NONE) // computed from noLimitSchemaCodesRaw at startup — must not be overwritten
+    private Set<String> noLimitSchemaCodes;
+
+    @PostConstruct
+    public void init() {
+        if (!StringUtils.hasText(noLimitSchemaCodesRaw)) {
+            noLimitSchemaCodes = Collections.emptySet();
+        } else {
+            noLimitSchemaCodes = Arrays.stream(noLimitSchemaCodesRaw.split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::hasText)
+                    .collect(Collectors.toUnmodifiableSet());
+        }
+    }
+
     public Set<String> getNoLimitSchemaCodes() {
-        if (!StringUtils.hasText(noLimitSchemaCodesRaw)) return Collections.emptySet();
-        return Arrays.stream(noLimitSchemaCodesRaw.split(","))
-                .map(String::trim)
-                .filter(StringUtils::hasText)
-                .collect(Collectors.toSet());
+        return noLimitSchemaCodes;
     }
 
 }
