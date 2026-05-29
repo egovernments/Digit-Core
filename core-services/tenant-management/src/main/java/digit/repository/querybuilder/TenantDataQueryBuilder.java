@@ -73,6 +73,13 @@ public class TenantDataQueryBuilder {
             builder.append(" data.name = ? ");
             preparedStmtList.add(tenantDataSearchCriteria.getName());
         }
+        
+        // Search by email
+        if (!Objects.isNull(tenantDataSearchCriteria.getEmail())) {
+            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
+            builder.append(" data.email = ? ");
+            preparedStmtList.add(tenantDataSearchCriteria.getEmail());
+        }
 
         return builder.toString();
 
