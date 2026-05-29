@@ -98,7 +98,9 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         }
         log.info("Mdms Data search query: {}", query);
         log.info("Mdms Data search query params: {}", preparedStmtList);
-        return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
+        List<Mdms> results = jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
+        log.info("Mdms Data searchV2 fetched {} rows from DB for tenantId={}, schemaCode={}", results.size(), mdmsCriteriaV2.getTenantId(), mdmsCriteriaV2.getSchemaCode());
+        return results;
     }
 
     /**
@@ -118,7 +120,9 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         }
         log.info("Mdms Data multi-tenant search query: {}", query);
         log.info("Mdms Data multi-tenant search query params: {}", preparedStmtList);
-        return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
+        List<Mdms> results = jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
+        log.info("Mdms Data searchV2ForTenants fetched {} rows from DB for tenantIds={}, schemaCode={}", results.size(), tenantIds, mdmsCriteriaV2.getSchemaCode());
+        return results;
     }
 
     /**
@@ -137,6 +141,12 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         }
         log.info("Mdms Data search query: {}", query);
         log.info("Mdms Data search query params: {}", preparedStmtList);
-        return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapper);
+        Map<String, Map<String, JSONArray>> result = jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapper);
+        int totalRows = 0;
+        for (Map<String, JSONArray> masterMap : result.values())
+            for (JSONArray arr : masterMap.values())
+                totalRows += arr.size();
+        log.info("Mdms Data search (V1) fetched {} total data rows from DB for tenantId={}", totalRows, mdmsCriteria.getTenantId());
+        return result;
     }
 }

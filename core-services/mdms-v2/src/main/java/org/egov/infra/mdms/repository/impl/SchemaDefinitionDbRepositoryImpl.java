@@ -88,7 +88,9 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
         log.info("Schema definition search query params: {}", preparedStatementList);
 
         // Query the database to fetch schema definitions
-        return jdbcTemplate.query(query, preparedStatementList.toArray(), rowMapper);
+        List<SchemaDefinition> results = jdbcTemplate.query(query, preparedStatementList.toArray(), rowMapper);
+        log.info("Schema definition search fetched {} rows from DB for tenantId={}", results.size(), schemaDefCriteria.getTenantId());
+        return results;
     }
 
     /**
