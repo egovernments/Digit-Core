@@ -11,6 +11,7 @@ import org.egov.infra.mdms.model.MdmsCriteriaV2;
 import org.egov.infra.mdms.model.MdmsRequest;
 import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
+import org.egov.infra.mdms.repository.querybuilder.FormConfigMdmsDataQueryBuilder;
 import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilder;
 import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilderV2;
 import org.egov.infra.mdms.repository.rowmapper.MdmsDataRowMapper;
@@ -35,6 +36,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     private final ApplicationConfig applicationConfig;
     private final MdmsDataQueryBuilder mdmsDataQueryBuilder;
     private final MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2;
+    private final FormConfigMdmsDataQueryBuilder formConfigMdmsDataQueryBuilder;
     private final MdmsDataRowMapperV2 mdmsDataRowMapperV2;
     private final MdmsDataRowMapper mdmsDataRowMapper;
     private final MultiStateInstanceUtil multiStateInstanceUtil;
@@ -56,6 +58,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
                                   ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
                                   MdmsDataRowMapperV2 mdmsDataRowMapperV2,
                                   MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2,
+                                  FormConfigMdmsDataQueryBuilder formConfigMdmsDataQueryBuilder,
                                   MdmsDataRowMapper mdmsDataRowMapper, MultiStateInstanceUtil multiStateInstanceUtil) {
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
@@ -64,6 +67,7 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         this.mdmsDataRowMapper = mdmsDataRowMapper;
         this.mdmsDataRowMapperV2 = mdmsDataRowMapperV2;
         this.mdmsDataQueryBuilderV2 = mdmsDataQueryBuilderV2;
+        this.formConfigMdmsDataQueryBuilder = formConfigMdmsDataQueryBuilder;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
@@ -99,6 +103,23 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         }
         log.info("Mdms Data search query: {}", query);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapperV2);
+    }
+
+    /**
+     * @param mdmsCriteria
+     * @return
+     */
+    @Override
+    public Map<String, Map<String, JSONArray>> searchFormConfig(MdmsCriteria mdmsCriteria) {
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = formConfigMdmsDataQueryBuilder.getMdmsDataSearchQuery(mdmsCriteria, preparedStmtList);
+        try {
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, mdmsCriteria.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(INVALID_TENANT_ID_ERR_CODE, e.getMessage());
+        }
+        log.info("FormConfig MDMS search query: {}", query);
+        return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapper);
     }
 
     /**

@@ -85,11 +85,22 @@ public class MDMSService {
 		Map<String, String> schemaCodes = getSchemaCodes(mdmsCriteriaReq.getMdmsCriteria());
 		mdmsCriteriaReq.getMdmsCriteria().setSchemaCodeFilterMap(schemaCodes);
 
-		// Make a call to the repository layer to fetch data as per given criteria
-		tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
+		boolean hasFormConfigFilter = schemaCodes.containsKey("HCM-ADMIN-CONSOLE.FormConfig")
+				&& schemaCodes.get("HCM-ADMIN-CONSOLE.FormConfig") != null;
 
-		// Apply filters to incoming data
-		tenantMasterMap = applyFilterToData(tenantMasterMap, mdmsCriteriaReq.getMdmsCriteria().getSchemaCodeFilterMap());
+		// Make a call to the repository layer to fetch data as per given criteria
+		if (hasFormConfigFilter) {
+			tenantMasterMap = mdmsDataRepository.searchFormConfig(mdmsCriteriaReq.getMdmsCriteria());
+		} else {
+			tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
+		}
+
+		// Apply in-memory JSONPath filters; skip FormConfig since filtering was already done at DB level
+		Map<String, String> inMemoryFilterMap = new HashMap<>(schemaCodes);
+		if (hasFormConfigFilter) {
+			inMemoryFilterMap.remove("HCM-ADMIN-CONSOLE.FormConfig");
+		}
+		tenantMasterMap = applyFilterToData(tenantMasterMap, inMemoryFilterMap);
 
 		// Perform fallback
 		Map<String, JSONArray> masterDataMap = FallbackUtil.backTrackTenantMasterDataMap(tenantMasterMap, tenantId);
