@@ -15,5 +15,7 @@ public class MDMSConstants {
     public static final String DOLLAR_DOT = "$.";
     public static final String FIELD_PATH_KEY = "fieldPath";
     public static final String SCHEMA_CODE_KEY = "schemaCode";
+    public static final String FORM_CONFIG_SCHEMA_CODE = "HCM-ADMIN-CONSOLE.FormConfig";
+    public static final String PROJECT_KEY = "project";
 
 }

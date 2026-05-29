@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.JsonPath;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.model.*;
+import org.egov.infra.mdms.repository.FormConfigCacheRepository;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
+import org.egov.infra.mdms.repository.querybuilder.FormConfigMdmsDataQueryBuilder;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
 import org.egov.infra.mdms.utils.FallbackUtil;
@@ -35,14 +37,18 @@ public class MDMSService {
 
 	private MultiStateInstanceUtil multiStateInstanceUtil;
 
+	private FormConfigCacheRepository formConfigCacheRepository;
+
 	@Autowired
 	public MDMSService(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-					   MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil) {
+					   MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil,
+					   FormConfigCacheRepository formConfigCacheRepository) {
 		this.mdmsDataValidator = mdmsDataValidator;
 		this.mdmsDataEnricher = mdmsDataEnricher;
 		this.mdmsDataRepository = mdmsDataRepository;
 		this.schemaUtil = schemaUtil;
 		this.multiStateInstanceUtil = multiStateInstanceUtil;
+		this.formConfigCacheRepository = formConfigCacheRepository;
 	}
 
 	/**
@@ -85,12 +91,12 @@ public class MDMSService {
 		Map<String, String> schemaCodes = getSchemaCodes(mdmsCriteriaReq.getMdmsCriteria());
 		mdmsCriteriaReq.getMdmsCriteria().setSchemaCodeFilterMap(schemaCodes);
 
-		boolean hasFormConfigFilter = schemaCodes.containsKey("HCM-ADMIN-CONSOLE.FormConfig")
-				&& schemaCodes.get("HCM-ADMIN-CONSOLE.FormConfig") != null;
+		boolean hasFormConfigFilter = schemaCodes.containsKey(FORM_CONFIG_SCHEMA_CODE)
+				&& schemaCodes.get(FORM_CONFIG_SCHEMA_CODE) != null;
 
 		// Make a call to the repository layer to fetch data as per given criteria
 		if (hasFormConfigFilter) {
-			tenantMasterMap = mdmsDataRepository.searchFormConfig(mdmsCriteriaReq.getMdmsCriteria());
+			tenantMasterMap = searchFormConfigWithCache(mdmsCriteriaReq.getMdmsCriteria(), schemaCodes, tenantId);
 		} else {
 			tenantMasterMap = mdmsDataRepository.search(mdmsCriteriaReq.getMdmsCriteria());
 		}
@@ -98,7 +104,7 @@ public class MDMSService {
 		// Apply in-memory JSONPath filters; skip FormConfig since filtering was already done at DB level
 		Map<String, String> inMemoryFilterMap = new HashMap<>(schemaCodes);
 		if (hasFormConfigFilter) {
-			inMemoryFilterMap.remove("HCM-ADMIN-CONSOLE.FormConfig");
+			inMemoryFilterMap.remove(FORM_CONFIG_SCHEMA_CODE);
 		}
 		tenantMasterMap = applyFilterToData(tenantMasterMap, inMemoryFilterMap);
 
@@ -107,6 +113,39 @@ public class MDMSService {
 
 		// Return response in MDMS v1 search response format for backward compatibility
 		return getModuleMasterMap(masterDataMap);
+	}
+
+	/**
+	 * Fetches FormConfig master data, serving it from the Redis cache when possible and
+	 * falling back to the database on a miss. Caching is applied only for FormConfig-only
+	 * requests (single master) carrying a project filter; mixed/multi-schema requests and
+	 * filters without a project bypass the cache and hit the database directly.
+	 *
+	 * @param mdmsCriteria the search criteria (tenantId already normalized to state level)
+	 * @param schemaCodes  schemaCode -> filter expression map derived from the request
+	 * @param cacheTenantId the exact incoming tenantId used as the cache key tenant segment
+	 */
+	private Map<String, Map<String, JSONArray>> searchFormConfigWithCache(MdmsCriteria mdmsCriteria,
+																		  Map<String, String> schemaCodes, String cacheTenantId) {
+		boolean isFormConfigOnly = schemaCodes.size() == 1 && schemaCodes.containsKey(FORM_CONFIG_SCHEMA_CODE);
+		String project = isFormConfigOnly
+				? FormConfigMdmsDataQueryBuilder.extractProject(schemaCodes.get(FORM_CONFIG_SCHEMA_CODE))
+				: null;
+
+		// Only requests scoped to a single FormConfig project are cacheable
+		if (project == null) {
+			return mdmsDataRepository.searchFormConfig(mdmsCriteria);
+		}
+
+		Map<String, Map<String, JSONArray>> cached =
+				formConfigCacheRepository.get(cacheTenantId, FORM_CONFIG_SCHEMA_CODE, project);
+		if (cached != null) {
+			return cached;
+		}
+
+		Map<String, Map<String, JSONArray>> tenantMasterMap = mdmsDataRepository.searchFormConfig(mdmsCriteria);
+		formConfigCacheRepository.put(cacheTenantId, FORM_CONFIG_SCHEMA_CODE, project, tenantMasterMap);
+		return tenantMasterMap;
 	}
 
 	private Map<String, Map<String, JSONArray>> applyFilterToData(Map<String, Map<String, JSONArray>> tenantMasterMap, Map<String, String> schemaCodeFilterMap) {

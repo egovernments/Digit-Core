@@ -1,8 +1,10 @@
 package org.egov.infra.mdms.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.model.*;
+import org.egov.infra.mdms.repository.FormConfigCacheRepository;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
@@ -16,6 +18,9 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.egov.infra.mdms.utils.MDMSConstants.FORM_CONFIG_SCHEMA_CODE;
+import static org.egov.infra.mdms.utils.MDMSConstants.PROJECT_KEY;
 
 @Slf4j
 @Service
@@ -31,14 +36,18 @@ public class MDMSServiceV2 {
 
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
+    private FormConfigCacheRepository formConfigCacheRepository;
+
     @Autowired
     public MDMSServiceV2(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil) {
+                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil,
+                         FormConfigCacheRepository formConfigCacheRepository) {
         this.mdmsDataValidator = mdmsDataValidator;
         this.mdmsDataEnricher = mdmsDataEnricher;
         this.mdmsDataRepository = mdmsDataRepository;
         this.schemaUtil = schemaUtil;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
+        this.formConfigCacheRepository = formConfigCacheRepository;
     }
 
     /**
@@ -110,7 +119,25 @@ public class MDMSServiceV2 {
         // Emit MDMS update event to be listened by persister
         mdmsDataRepository.update(mdmsRequest);
 
+        // Burst the FormConfig cache so stale form configs are not served post-update
+        bustFormConfigCache(mdmsRequest.getMdms());
+
         return Arrays.asList(mdmsRequest.getMdms());
+    }
+
+    /**
+     * Evicts the FormConfig cache entry corresponding to the updated record. Scoped to the
+     * HCM-ADMIN-CONSOLE.FormConfig schema; the cache key uses the record's own tenantId and
+     * the project field read from its data payload.
+     */
+    private void bustFormConfigCache(Mdms mdms) {
+        if (!FORM_CONFIG_SCHEMA_CODE.equals(mdms.getSchemaCode()))
+            return;
+
+        JsonNode data = mdms.getData();
+        String project = (data != null && data.hasNonNull(PROJECT_KEY)) ? data.get(PROJECT_KEY).asText() : null;
+        if (project != null)
+            formConfigCacheRepository.evict(mdms.getTenantId(), mdms.getSchemaCode(), project);
     }
 
 }

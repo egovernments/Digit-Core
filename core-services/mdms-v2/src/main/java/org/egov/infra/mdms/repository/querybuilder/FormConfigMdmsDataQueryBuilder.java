@@ -14,11 +14,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.egov.common.utils.MultiStateInstanceUtil.SCHEMA_REPLACE_STRING;
+import static org.egov.infra.mdms.utils.MDMSConstants.FORM_CONFIG_SCHEMA_CODE;
+import static org.egov.infra.mdms.utils.MDMSConstants.PROJECT_KEY;
 
 @Component
 public class FormConfigMdmsDataQueryBuilder {
-
-    private static final String FORM_CONFIG_SCHEMA_CODE = "HCM-ADMIN-CONSOLE.FormConfig";
 
     private static final Gson GSON = new Gson();
 
@@ -84,12 +84,24 @@ public class FormConfigMdmsDataQueryBuilder {
      * {@code {"project":"CMP-123","isSelected":true}}.
      */
     static String parseJsonPathToJsonbString(String filterExpression) {
+        return GSON.toJson(parseConditions(filterExpression));
+    }
+
+    /**
+     * Parses a JSONPath filter expression like
+     * {@code [?(@.project=='CMP-123' && @.isSelected==true)]} into a map of its
+     * equality conditions, e.g. {@code {"project":"CMP-123","isSelected":true}}.
+     */
+    static Map<String, Object> parseConditions(String filterExpression) {
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
+        if (filterExpression == null)
+            return jsonMap;
+
         String stripped = filterExpression.trim();
         if (stripped.startsWith("[?(") && stripped.endsWith(")]")) {
             stripped = stripped.substring(3, stripped.length() - 2);
         }
 
-        Map<String, Object> jsonMap = new LinkedHashMap<>();
         for (String condition : stripped.split("&&")) {
             Matcher matcher = CONDITION_PATTERN.matcher(condition.trim());
             if (matcher.find()) {
@@ -98,7 +110,16 @@ public class FormConfigMdmsDataQueryBuilder {
                 jsonMap.put(field, parseValue(raw));
             }
         }
-        return GSON.toJson(jsonMap);
+        return jsonMap;
+    }
+
+    /**
+     * Extracts the value of the {@code project} condition from a FormConfig JSONPath
+     * filter expression, or {@code null} if no project condition is present.
+     */
+    public static String extractProject(String filterExpression) {
+        Object project = parseConditions(filterExpression).get(PROJECT_KEY);
+        return project == null ? null : project.toString();
     }
 
     private static Object parseValue(String raw) {

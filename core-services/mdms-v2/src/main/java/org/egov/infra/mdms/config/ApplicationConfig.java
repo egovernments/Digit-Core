@@ -30,4 +30,10 @@ public class ApplicationConfig {
     @Value("${mdms.default.limit}")
     private Integer defaultLimit;
 
+    @Value("${mdms.formconfig.cache.enabled}")
+    private Boolean formConfigCacheEnabled;
+
+    @Value("${mdms.formconfig.cache.ttl.seconds}")
+    private Long formConfigCacheTtlSeconds;
+
 }
