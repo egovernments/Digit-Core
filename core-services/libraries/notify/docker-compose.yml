@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: notify
+      POSTGRES_USER: notify
+      POSTGRES_PASSWORD: notify
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notify"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  notify-app:
+    build:
+      context: .
+      dockerfile: notify-app/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notify
+      SPRING_DATASOURCE_USERNAME: notify
+      SPRING_DATASOURCE_PASSWORD: notify
+    volumes:
+      - ./providers:/providers
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
