@@ -60,7 +60,7 @@ http://editor.swagger.io/?url=https://raw.githubusercontent.com/egovernments/ego
 
 ## Mobile Number Validation with Country Code
 
-Mobile validation was enhanced on branch `mobile-validation-user-otp` to support international country codes driven entirely by MDMS-v2 configuration.
+Mobile validation was enhanced to support international country codes driven entirely by MDMS-v2 configuration.
 
 ### Overview
 
@@ -112,24 +112,25 @@ Return attributes.prefix as the resolved/normalized countryCode
 
 **Schema code:** `common-masters.UserValidation`
 
-Each active entry in MDMS must follow this structure:
+Each active entry in MDMS must follow this structure (schema and sample data are under `src/main/resources/common-masters.UserValidation.json` and `src/main/resources/common-masters.UserValidation.data.json`):
 
 ```json
 {
-  "tenantId": "pb",
+  "tenantId": "{tenantid}",
   "schemaCode": "common-masters.UserValidation",
   "isActive": true,
   "data": {
     "fieldType": "mobileNumber",
-    "default": false,
+    "zone": "IN",
+    "default": true,
     "attributes": {
       "prefix": "+91"
     },
     "rules": {
-      "pattern": "[0-9]{10}",
+      "pattern": "[6-9][0-9]{9}",
       "minLength": 10,
       "maxLength": 10,
-      "errorMessage": "Mobile number must be exactly 10 digits",
+      "errorMessage": "Mobile number must be exactly 10 digits and start with 6, 7, 8, or 9",
       "allowedStartingCharacters": ["6", "7", "8", "9"]
     }
   }
@@ -140,7 +141,8 @@ Each active entry in MDMS must follow this structure:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `data.attributes.prefix` | String | Country code used for matching, e.g. `+91`, `+1`, `+44` |
+| `data.zone` | String | Unique zone identifier for the entry, e.g. `IN`, `US`, `GB` |
+| `data.attributes.prefix` | String | Country dialing prefix used for matching, e.g. `+91`, `+1`, `+44` |
 | `data.default` | Boolean | When `true`, this entry is used as fallback when no prefix matches |
 | `data.rules.pattern` | String | Java regex applied against the local number (without country code) |
 | `data.rules.minLength` | Integer | Minimum digit count |
