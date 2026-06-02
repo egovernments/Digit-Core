@@ -37,7 +37,7 @@ public class NotificationUtil {
         String mobileNumber = existingUser.getMobileNumber();
         String locale = existingUser.getLocale();
 
-        String emailUpdationMessage = localizationUtil.getLocalizedMessage(EMAIL_UPDATION_CODE,locale,requestInfo);
+        String emailUpdationMessage = localizationUtil.getLocalizedMessage(EMAIL_UPDATION_CODE, locale, requestInfo, existingUser.getTenantId());
         emailUpdationMessage = emailUpdationMessage.replace("{oldEmail}",oldEmail);
         emailUpdationMessage = emailUpdationMessage.replace("{newEmail}",newEmail);
 
