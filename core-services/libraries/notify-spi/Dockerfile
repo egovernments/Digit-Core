@@ -10,7 +10,6 @@ COPY ${WORK_DIR}/pom.xml ./pom.xml
 COPY ${WORK_DIR}/settings.xml ./settings.xml
 COPY ${WORK_DIR}/src ./src
 
-RUN mvn -B -f /app/pom.xml deploy -Dmaven.test.skip=true -s settings.xml \
-    -Dnexus.user=${nexusUsername} -Dnexus.password=${nexusPassword}
+RUN mvn -B -f /app/pom.xml deploy -Dmaven.test.skip=true -s settings.xml -Dnexus.user=${nexusUsername} -Dnexus.password=${nexusPassword}
 
 FROM scratch
