@@ -160,7 +160,10 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.15.3</version>
+            <!-- 1.14.3: last version with Whitelist/Cleaner(Whitelist) API required by
+                 hibernate-validator 5.3.6.Final. Upgrade requires Spring Boot 2.x+ which
+                 ships hibernate-validator 6.x compatible with jsoup 1.15.x. -->
+            <version>1.14.3</version>
         </dependency>
     </dependencies>
     <repositories>

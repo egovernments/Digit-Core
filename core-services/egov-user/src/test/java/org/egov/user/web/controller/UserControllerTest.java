@@ -30,6 +30,7 @@ import java.util.TimeZone;
 import org.apache.commons.io.IOUtils;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.user.TestConfiguration;
+import org.egov.user.domain.service.MobileNumberValidator;
 import org.egov.user.domain.exception.InvalidUserSearchCriteriaException;
 import org.egov.user.domain.model.Action;
 import org.egov.user.domain.model.Address;
@@ -81,6 +82,9 @@ public class UserControllerTest {
 
     @MockBean
     private CustomAuthenticationKeyGenerator authenticationKeyGenerator;
+
+    @MockBean
+    private MobileNumberValidator mobileNumberValidator;
 
     @Test
     @WithMockUser

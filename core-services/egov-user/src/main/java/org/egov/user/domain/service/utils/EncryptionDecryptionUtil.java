@@ -93,6 +93,16 @@ public class EncryptionDecryptionUtil {
         }
     }
 
+    /**
+     * Tenant-aware decryption: accepts tenantId for symmetry with the tenant-aware
+     * encryptObject overload and to document tenant context at each call site.
+     * The underlying decryptJson does not require tenantId — the ciphertext is
+     * self-describing and the library resolves the key from it directly.
+     */
+    public <E, P> P decryptObject(Object objectToDecrypt, String key, Class<E> classType, RequestInfo requestInfo, String tenantId) {
+        return decryptObject(objectToDecrypt, key, classType, requestInfo);
+    }
+
     public <E, P> P decryptObject(Object objectToDecrypt, String key, Class<E> classType, RequestInfo requestInfo) {
 
         try {
