@@ -420,6 +420,11 @@ config:
       - work-dir: "core-services/libraries/services-common"
         image-name: "services-common"
 
+  - name: "builds/Digit-Core/core-services/libraries/notify-spi"
+    build:
+      - work-dir: "core-services/libraries/notify-spi"
+        image-name: "notify-spi"
+
   - name: "builds/Digit-Core/core-services/nlp-engine"
     build:
       - work-dir: "core-services/nlp-engine"
