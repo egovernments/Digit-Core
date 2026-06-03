@@ -16,7 +16,10 @@
     <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <lombok.version>1.18.22</lombok.version>
+    <!-- 1.18.22 throws NoSuchFieldError on JCTree.qualid when compiled
+         with JDK 21+ (Lombok internal API change). 1.18.30+ adds JDK 21
+         support; pinning to 1.18.34 (current stable). -->
+    <lombok.version>1.18.34</lombok.version>
   </properties>
   <dependencyManagement>
     <dependencies>
