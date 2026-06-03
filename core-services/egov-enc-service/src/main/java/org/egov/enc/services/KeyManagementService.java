@@ -142,6 +142,65 @@ public class KeyManagementService implements ApplicationRunner {
         return new RotateKeyResponse(true);
     }
 
+    /**
+     * Idempotently provision a symmetric + asymmetric key for a single tenantId.
+     *
+     * The default key-generation path (init() + checkIfTenantExists) only fires
+     * for tenants reachable via MDMS search under STATE_LEVEL_TENANT_ID — brand
+     * new state roots (which are not yet under any existing root's
+     * tenant.tenants list) get a "Tenant Id not found" 500 on first encrypt
+     * because no key exists for them.
+     *
+     * Callers that provision new tenants (e.g. MCP tenant_bootstrap) hit this
+     * BEFORE the first encrypt request for the new tenant. Re-issuing for an
+     * existing tenant is a no-op — the existing keyId is returned, no rotation.
+     *
+     * Synchronized to prevent two concurrent generates for the same fresh
+     * tenant from both inserting (the underlying generateKeys does not have
+     * an INSERT ... ON CONFLICT — duplicate rows would violate the keyId PK).
+     */
+    public synchronized org.egov.enc.web.models.GenerateKeyResponse generateKeyForTenant(String tenantId)
+            throws Exception {
+        if (tenantId == null || tenantId.trim().isEmpty()) {
+            throw new CustomException("INVALID_TENANT_ID", "tenantId must be non-empty");
+        }
+        final String normalized = tenantId.trim();
+
+        // Idempotency: if the tenant already has an active key in the store,
+        // return its keyId — do NOT generate a duplicate. This is the no-op
+        // path that lets callers issue this freely without worrying about state.
+        keyStore.refreshKeys();
+        if (keyStore.getTenantIds().contains(normalized)) {
+            org.egov.enc.models.SymmetricKey existing = keyStore.getSymmetricKey(normalized);
+            return org.egov.enc.web.models.GenerateKeyResponse.builder()
+                    .tenantId(normalized)
+                    .created(false)
+                    .keyId(existing != null ? existing.getId() : null)
+                    .build();
+        }
+
+        // Generate the key pair and persist. Reuses the same private path
+        // that init() and rotateAll() use — symmetric + asymmetric inserts
+        // in one shot; failure halfway throws and the caller can retry.
+        ArrayList<String> tenants = new ArrayList<>();
+        tenants.add(normalized);
+        generateKeys(tenants);
+
+        // Refresh in-memory caches so the next encrypt for this tenant
+        // resolves directly without going through the MDMS-discovery fallback.
+        keyStore.refreshKeys();
+        keyIdGenerator.refreshKeyIds();
+
+        org.egov.enc.models.SymmetricKey created = keyStore.getSymmetricKey(normalized);
+        log.info("Generated keys for tenantId={} (keyId={})", normalized,
+                created != null ? created.getId() : "?");
+        return org.egov.enc.web.models.GenerateKeyResponse.builder()
+                .tenantId(normalized)
+                .created(true)
+                .keyId(created != null ? created.getId() : null)
+                .build();
+    }
+
     public RotateKeyResponse rotateKey(RotateKeyRequest rotateKeyRequest) throws Exception {
         int status;
         status = keyRepository.deactivateSymmetricKeyForGivenTenant(rotateKeyRequest.getTenantId());
