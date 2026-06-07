@@ -42,31 +42,34 @@ public class SessionService {
 
     public ValidateSessionResponse validateSession(String username, String tenantId, String deviceToken) {
         // Step 1: Find active session and get user UUID
-        String userUuid = findActiveSessionUserUuid(username, tenantId);
-        if (userUuid == null) {
-            log.info("No active session found for user: {} on tenant: {}", username, tenantId);
-            return ValidateSessionResponse.builder()
-                    .isDuplicateLogin(false)
-                    .build();
-        }
-
-        // Step 2: Fetch existing device token from push notification service
-        String existingDeviceToken = fetchExistingDeviceToken(userUuid, tenantId);
-
-        // Step 3: Compare — if existing is null or same as client's token, not a duplicate
-        if (existingDeviceToken == null || existingDeviceToken.equals(deviceToken)) {
-            log.info("Device token matches or no existing token for user: {}", username);
-            return ValidateSessionResponse.builder()
-                    .isDuplicateLogin(false)
-                    .build();
-        }
-
-        // Step 4: Different device token — duplicate login from another device
-        log.info("Duplicate login detected for user: {} on tenant: {}", username, tenantId);
         return ValidateSessionResponse.builder()
-                .isDuplicateLogin(true)
-                .existingDeviceToken(existingDeviceToken)
+                .isDuplicateLogin(false)
                 .build();
+//        String userUuid = findActiveSessionUserUuid(username, tenantId);
+//        if (userUuid == null) {
+//            log.info("No active session found for user: {} on tenant: {}", username, tenantId);
+//            return ValidateSessionResponse.builder()
+//                    .isDuplicateLogin(false)
+//                    .build();
+//        }
+//
+//        // Step 2: Fetch existing device token from push notification service
+//        String existingDeviceToken = fetchExistingDeviceToken(userUuid, tenantId);
+//
+//        // Step 3: Compare — if existing is null or same as client's token, not a duplicate
+//        if (existingDeviceToken == null || existingDeviceToken.equals(deviceToken)) {
+//            log.info("Device token matches or no existing token for user: {}", username);
+//            return ValidateSessionResponse.builder()
+//                    .isDuplicateLogin(false)
+//                    .build();
+//        }
+//
+//        // Step 4: Different device token — duplicate login from another device
+//        log.info("Duplicate login detected for user: {} on tenant: {}", username, tenantId);
+//        return ValidateSessionResponse.builder()
+//                .isDuplicateLogin(true)
+//                .existingDeviceToken(existingDeviceToken)
+//                .build();
     }
 
     private String findActiveSessionUserUuid(String username, String tenantId) {
