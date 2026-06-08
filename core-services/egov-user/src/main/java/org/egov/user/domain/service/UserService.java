@@ -3,6 +3,10 @@ package org.egov.user.domain.service;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
+import static org.egov.user.config.UserServiceConstants.USER_UUID_KEY;
+import static org.egov.user.config.UserServiceConstants.TENANT_ID_KEY;
+import static org.egov.user.config.UserServiceConstants.ACTIVE_KEY;
+import static org.egov.user.config.UserServiceConstants.EFFECTIVE_DATE_KEY;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.util.Collection;
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
+import org.egov.user.config.UserConfig;
 import org.egov.user.domain.exception.AtleastOneRoleCodeException;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.InvalidUpdatePasswordRequestException;
@@ -62,8 +67,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class UserService {
-	
-	private UserUtils userUtils;
+
+    private UserUtils userUtils;
     private UserRepository userRepository;
     private OtpRepository otpRepository;
     private PasswordEncoder passwordEncoder;
@@ -104,6 +109,15 @@ public class UserService {
 
     @Autowired
     private NotificationUtil notificationUtil;
+
+    @Autowired
+    private org.egov.user.kafka.UserProducer userProducer;
+
+    @Autowired
+    private org.egov.user.config.UserServiceConstants userServiceConstants;
+
+    @Autowired
+    private UserConfig userConfig;
 
     public UserService(UserRepository userRepository, OtpRepository otpRepository, FileStoreRepository fileRepository, UserUtils userUtils,
                        PasswordEncoder passwordEncoder, EncryptionDecryptionUtil encryptionDecryptionUtil, TokenStore tokenStore,
@@ -196,19 +210,19 @@ public class UserService {
 
         searchCriteria.setTenantId(userUtils.getStateLevelTenantForCitizen(searchCriteria.getTenantId(), searchCriteria.getType()));
         /* encrypt here / encrypted searchcriteria will be used for search*/
-        
+
         String altmobnumber=null;
-        
+
         if(searchCriteria.getMobileNumber()!=null) {
-        	altmobnumber = searchCriteria.getMobileNumber();
+            altmobnumber = searchCriteria.getMobileNumber();
         }
 
         searchCriteria = encryptionDecryptionUtil.encryptObject(searchCriteria, "User", UserSearchCriteria.class);
-        
+
         if(altmobnumber!=null) {
-        	searchCriteria.setAlternatemobilenumber(altmobnumber);
+            searchCriteria.setAlternatemobilenumber(altmobnumber);
         }
-        
+
         List<org.egov.user.domain.model.User> list = userRepository.findAll(searchCriteria);
 
         /* decrypt here / final reponse decrypted*/
@@ -247,13 +261,13 @@ public class UserService {
     }
 
     private void validateUserUniqueness(User user) {
-    	
-		String tenantId = userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType());
-		Boolean isUserPresent = userRepository.isUserPresent(user.getUsername(), tenantId, user.getType());
-		if (isUserPresent)
-			throw new DuplicateUserNameException(UserSearchCriteria.builder().userName(user.getUsername())
-					.type(user.getType()).tenantId(user.getTenantId()).build());
-	}
+
+        String tenantId = userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType());
+        Boolean isUserPresent = userRepository.isUserPresent(user.getUsername(), tenantId, user.getType());
+        if (isUserPresent)
+            throw new DuplicateUserNameException(UserSearchCriteria.builder().userName(user.getUsername())
+                    .type(user.getType()).tenantId(user.getTenantId()).build());
+    }
 
     /**
      * api will create the citizen with otp
@@ -268,7 +282,7 @@ public class UserService {
 
 
     private void validateAndEnrichCitizen(User user) {
-    	
+
         log.info("Validating User........");
         if (isCitizenLoginOtpBased && !StringUtils.isNumeric(user.getUsername()))
             throw new UserNameNotValidException();
@@ -359,6 +373,7 @@ public class UserService {
     // TODO Fix date formats
     public User updateWithoutOtpValidation(User user, RequestInfo requestInfo) {
         final User existingUser = getUserByUuid(user.getUuid(), user.getTenantId());
+        boolean existingUserActiveStatus = existingUser.getActive();
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         validateUserRoles(user);
         user.validateUserModification();
@@ -371,6 +386,19 @@ public class UserService {
         // If user is being unlocked via update, reset failed login attempts
         if (user.getAccountLocked() != null && !user.getAccountLocked() && existingUser.getAccountLocked())
             resetFailedLoginAttempts(user);
+
+        // Check if active status has changed and feature flag is enabled
+        if (userConfig.isUserStatusChangeEventEnabled() && existingUserActiveStatus != user.getActive()) {
+            // Store user status change details in a map
+            Map<String, String> userStatusChangeEvent = new HashMap<>();
+            userStatusChangeEvent.put(USER_UUID_KEY, user.getUuid());
+            userStatusChangeEvent.put(TENANT_ID_KEY, user.getTenantId());
+            userStatusChangeEvent.put(ACTIVE_KEY, String.valueOf(user.getActive()));
+            userStatusChangeEvent.put(EFFECTIVE_DATE_KEY, String.valueOf(user.getLastModifiedDate().getTime()));
+
+            // Publish user status change event to Kafka
+            userProducer.push(user.getTenantId(), userConfig.getUserStatusChangeTopic(), user.getUuid(), userStatusChangeEvent);
+        }
 
         User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid(), user.getTenantId());
         User decryptedupdatedUserfromDB = encryptionDecryptionUtil.decryptObject(encryptedUpdatedUserfromDB, "UserSelf", User.class, requestInfo);
@@ -424,7 +452,7 @@ public class UserService {
         validatePassword(user.getPassword());
         userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
         User updatedUser = getUserByUuid(user.getUuid(), user.getTenantId());
-        
+
         /* decrypt here */
         existingUser = encryptionDecryptionUtil.decryptObject(existingUser, "UserSelf", User.class, requestInfo);
         updatedUser = encryptionDecryptionUtil.decryptObject(updatedUser, "UserSelf", User.class, requestInfo);
