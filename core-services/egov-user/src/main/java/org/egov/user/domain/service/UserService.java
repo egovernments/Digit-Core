@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import org.egov.user.domain.exception.PasswordMismatchException;
 import org.egov.user.domain.exception.UserNameNotValidException;
 import org.egov.user.domain.exception.UserNotFoundException;
 import org.egov.user.domain.exception.UserProfileUpdateDeniedException;
-import org.egov.user.domain.model.CountryCode;
 import org.egov.user.domain.model.LoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.NonLoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.User;
