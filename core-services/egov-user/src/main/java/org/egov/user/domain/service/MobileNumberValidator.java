@@ -150,7 +150,7 @@ public class MobileNumberValidator {
     private String selectRegex(List<MdmsV2Data> mdmsEntries, String countryCode) {
         String defaultRegex = null;
         for (MdmsV2Data entry : mdmsEntries) {
-            if (entry.getData() == null || !Boolean.TRUE.equals(entry.getIsActive())) {
+            if (entry.getData() == null || Boolean.FALSE.equals(entry.getIsActive())) {
                 continue;
             }
             JsonNode data = entry.getData();

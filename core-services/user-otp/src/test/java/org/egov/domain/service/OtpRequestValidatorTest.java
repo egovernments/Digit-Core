@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.domain.exception.InvalidOtpRequestException;
 import org.egov.domain.model.MobileValidationConfig;
 import org.egov.domain.model.OtpRequest;
@@ -28,6 +29,9 @@ public class OtpRequestValidatorTest {
 
     @Mock
     private MobileNumerValidationCacheRepository cacheRepository;
+
+    @Mock
+    private MultiStateInstanceUtil multiStateInstanceUtil;
 
     private OtpRequestValidator validator;
 
@@ -62,9 +66,14 @@ public class OtpRequestValidatorTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        validator = new OtpRequestValidator(mdmsRepository, cacheRepository);
+        validator = new OtpRequestValidator(mdmsRepository, cacheRepository, multiStateInstanceUtil);
         ReflectionTestUtils.setField(validator, "defaultCountryCode", "+91");
         ReflectionTestUtils.setField(validator, "defaultRegex", "^[6-9][0-9]{9}$");
+        ReflectionTestUtils.setField(validator, "multiStateInstanceUtil", multiStateInstanceUtil);
+        when(multiStateInstanceUtil.getStateLevelTenant(anyString())).thenAnswer(inv -> {
+            String t = (String) inv.getArguments()[0];
+            return t.contains(".") ? t.split("\\.")[0] : t;
+        });
         when(cacheRepository.getValidationRules(anyString(), anyString())).thenReturn(null);
     }
 

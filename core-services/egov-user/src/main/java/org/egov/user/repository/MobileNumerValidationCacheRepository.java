@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class MobileNumerValidationCacheRepository {
 
-    private static final String KEY_PREFIX = "mobile-validation:";
+    private static final String KEY_PREFIX = "egov-user:mobile-val:";
     private static final String DEFAULT_SUFFIX = "default";
 
     @Autowired
@@ -90,7 +90,7 @@ public class MobileNumerValidationCacheRepository {
 
     private String buildKey(String tenantId, String countryCode) {
         String suffix = StringUtils.hasText(countryCode)
-                ? countryCode.replaceAll("[^a-zA-Z0-9]", "")
+                ? countryCode.replace(":", "_")
                 : DEFAULT_SUFFIX;
         return KEY_PREFIX + tenantId + ":" + suffix;
     }

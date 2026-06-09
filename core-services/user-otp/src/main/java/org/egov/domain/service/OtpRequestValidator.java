@@ -1,6 +1,7 @@
 package org.egov.domain.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.domain.exception.InvalidOtpRequestException;
 import org.egov.domain.model.MobileValidationConfig;
 import org.egov.domain.model.OtpRequest;
@@ -29,7 +30,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class OtpRequestValidator {
 
     private final MdmsRepository mdmsRepository;
+    
     private final MobileNumerValidationCacheRepository cacheRepository;
+
+    private MultiStateInstanceUtil multiStateInstanceUtil;
 
     @Value("${egov.mobile.validation.default.country.code:+91}")
     private String defaultCountryCode;
@@ -39,10 +43,10 @@ public class OtpRequestValidator {
 
     @Autowired
     public OtpRequestValidator(MdmsRepository mdmsRepository,
-                               MobileNumerValidationCacheRepository cacheRepository) {
+                               MobileNumerValidationCacheRepository cacheRepository, MultiStateInstanceUtil multiStateInstanceUtil) {
         this.mdmsRepository = mdmsRepository;
         this.cacheRepository = cacheRepository;
-    }
+        this.multiStateInstanceUtil = multiStateInstanceUtil;    }
 
     /**
      * Validates the OTP request. Throws InvalidOtpRequestException on failure.
@@ -121,7 +125,7 @@ public class OtpRequestValidator {
         String tenantId = otpRequest.getTenantId();
         if (isEmpty(tenantId)) return;
 
-        String stateTenantId = tenantId.contains(".") ? tenantId.split("\\.")[0] : tenantId;
+        String stateTenantId = multiStateInstanceUtil.getStateLevelTenant(tenantId);
         String countryCode = otpRequest.getCountryCode();
         String cacheKey = StringUtils.hasText(countryCode) ? countryCode : "default";
 

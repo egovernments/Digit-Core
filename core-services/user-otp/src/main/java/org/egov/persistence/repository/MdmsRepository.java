@@ -34,12 +34,6 @@ public class MdmsRepository {
     @Value("${egov.mdms.master.name:MobileNumberValidation}")
     private String masterName;
 
-    @Value("${egov.mobile.validation.default.country.code:+91}")
-    private String defaultCountryCode;
-
-    @Value("${egov.mobile.validation.default.regex:^[6-9][0-9]{9}$}")
-    private String defaultRegex;
-
     @Autowired
     public MdmsRepository(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
@@ -77,14 +71,13 @@ public class MdmsRepository {
 
             List<MobileValidationConfig> configs = parseResponse(response);
             if (configs.isEmpty()) {
-                log.warn("No {} configs found in MDMS for tenantId: {}. Using application.properties fallback.", masterName, tenantId);
-                return Collections.singletonList(buildFallbackConfig());
+                log.warn("No {} configs found in MDMS for tenantId: {}.", masterName, tenantId);
             }
             return configs;
 
         } catch (Exception e) {
-            log.error("Error fetching {} from MDMS for tenantId: {}. Using fallback.", masterName, tenantId, e);
-            return Collections.singletonList(buildFallbackConfig());
+            log.error("Error fetching {} from MDMS for tenantId: {}.", masterName, tenantId, e);
+            return Collections.emptyList();
         }
     }
 
@@ -121,12 +114,4 @@ public class MdmsRepository {
         return configs;
     }
 
-    private MobileValidationConfig buildFallbackConfig() {
-        return MobileValidationConfig.builder()
-                .countryCode(defaultCountryCode)
-                .mobileNumberRegex(defaultRegex)
-                .isDefault(true)
-                .active(true)
-                .build();
-    }
 }

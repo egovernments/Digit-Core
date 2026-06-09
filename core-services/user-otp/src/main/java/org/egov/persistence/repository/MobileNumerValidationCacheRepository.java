@@ -12,20 +12,11 @@ import org.springframework.util.StringUtils;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Redis cache for MobileNumberValidation configs (user-otp).
- *
- * Uses individual string keys per (tenant, countryCode) so that:
- * - Each entry expires independently (no shared-hash TTL reset)
- * - Pod restarts do NOT wipe the cache (no @PostConstruct clear)
- *
- * Key: mobile-validation:{tenantId}:{sanitizedCountryCode}
- */
 @Repository
 @Slf4j
 public class MobileNumerValidationCacheRepository {
 
-    private static final String KEY_PREFIX = "mobile-validation:";
+    private static final String KEY_PREFIX = "user-otp:mobile-val:";
     private static final String DEFAULT_SUFFIX = "default";
 
     private final StringRedisTemplate stringRedisTemplate;
@@ -72,15 +63,13 @@ public class MobileNumerValidationCacheRepository {
         try {
             String key = buildKey(tenantId, countryCode);
             String value = objectMapper.writeValueAsString(config);
-			if (key != null && value != null) {
-				if (cacheTtlSeconds > 0) {
-					stringRedisTemplate.opsForValue().set(key, value, cacheTtlSeconds, TimeUnit.SECONDS);
-					log.debug("Cached config: key={} ttl={}s", key, cacheTtlSeconds);
-				} else {
-					stringRedisTemplate.opsForValue().set(key, value);
-					log.debug("Cached config (no TTL): key={}", key);
-				}
-			}
+            if (cacheTtlSeconds > 0) {
+                stringRedisTemplate.opsForValue().set(key, value, cacheTtlSeconds, TimeUnit.SECONDS);
+                log.debug("Cached config: key={} ttl={}s", key, cacheTtlSeconds);
+            } else {
+                stringRedisTemplate.opsForValue().set(key, value);
+                log.debug("Cached config (no TTL): key={}", key);
+            }
         } catch (JsonProcessingException e) {
             log.error("Cache serialization error for tenantId={} countryCode={}", tenantId, countryCode, e);
         } catch (Exception e) {
@@ -99,7 +88,7 @@ public class MobileNumerValidationCacheRepository {
 
     private String buildKey(String tenantId, String countryCode) {
         String suffix = StringUtils.hasText(countryCode)
-                ? countryCode.replaceAll("[^a-zA-Z0-9]", "")
+                ? countryCode.replace(":", "_")
                 : DEFAULT_SUFFIX;
         return KEY_PREFIX + tenantId + ":" + suffix;
     }
