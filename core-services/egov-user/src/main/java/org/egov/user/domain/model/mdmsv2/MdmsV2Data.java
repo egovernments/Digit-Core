@@ -1,6 +1,7 @@
 package org.egov.user.domain.model.mdmsv2;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +26,7 @@ public class MdmsV2Data {
     private String uniqueIdentifier;
 
     @JsonProperty("data")
-    private ValidationData data;
+    private JsonNode data;
 
     @JsonProperty("isActive")
     private Boolean isActive;

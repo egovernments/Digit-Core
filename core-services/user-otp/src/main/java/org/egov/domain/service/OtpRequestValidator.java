@@ -3,45 +3,53 @@ package org.egov.domain.service;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.domain.exception.InvalidOtpRequestException;
 import org.egov.domain.model.MobileValidationConfig;
-import org.egov.domain.model.MobileValidationRules;
 import org.egov.domain.model.OtpRequest;
 import org.egov.domain.model.OtpRequestType;
+import org.egov.persistence.repository.MdmsRepository;
+import org.egov.persistence.repository.MobileNumerValidationCacheRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
-import org.egov.persistence.repository.MdmsRepository;
-import org.egov.persistence.repository.ValidationRulesCacheRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.regex.PatternSyntaxException;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
- * Validator for OTP requests. Uses MDMS-based validation only.
- * Uses Redis cache for MDMS validation config to avoid repeated API calls.
+ * Validates OTP requests against MobileNumberValidation rules from MDMS.
+ * Validation uses mobileNumberRegex exclusively — no separate min/max length checks.
+ *
+ * Tenant resolution: strips to state-level tenant for cache keying.
+ * Fallback: if MDMS returns no config, application.properties default regex is used.
  */
 @Component
 @Slf4j
 public class OtpRequestValidator {
 
     private final MdmsRepository mdmsRepository;
-    private final ValidationRulesCacheRepository cacheRepository;
+    private final MobileNumerValidationCacheRepository cacheRepository;
+
+    @Value("${egov.mobile.validation.default.country.code:+91}")
+    private String defaultCountryCode;
+
+    @Value("${egov.mobile.validation.default.regex:^[6-9][0-9]{9}$}")
+    private String defaultRegex;
 
     @Autowired
     public OtpRequestValidator(MdmsRepository mdmsRepository,
-                               ValidationRulesCacheRepository cacheRepository) {
+                               MobileNumerValidationCacheRepository cacheRepository) {
         this.mdmsRepository = mdmsRepository;
         this.cacheRepository = cacheRepository;
     }
 
     /**
-     * Validates the OTP request. Fetches MDMS config and performs validation.
-     * Throws InvalidOtpRequestException if validation fails.
+     * Validates the OTP request. Throws InvalidOtpRequestException on failure.
      */
     public void validate(OtpRequest otpRequest) {
-        // Fetch and set MDMS validation config
         fetchAndSetMdmsValidationConfig(otpRequest);
 
-        // Perform validation
         if (isTenantIdAbsent(otpRequest)
                 || isMobileNumberAbsent(otpRequest)
                 || !isMobileNumberValid(otpRequest)
@@ -63,153 +71,101 @@ public class OtpRequestValidator {
     }
 
     /**
-     * Validates the mobile number using MDMS config.
-     * If no MDMS config is found, validation fails with an appropriate error message.
+     * Returns true if the mobile number passes validation.
+     * PASSWORD_RESET is always allowed (legacy users must still be able to reset).
+     * If no MDMS config is available, the application.properties default is used.
      */
     public boolean isMobileNumberValid(OtpRequest otpRequest) {
-
-        // Skip validation for PASSWORD_RESET type to allow existing users to reset password
-        // even if their mobile number doesn't conform to new validation rules
-        if (otpRequest.getType() != null
-                && OtpRequestType.PASSWORD_RESET.equals(otpRequest.getType())) {
+        if (OtpRequestType.PASSWORD_RESET.equals(otpRequest.getType())) {
             return true;
         }
 
-        MobileValidationConfig mdmsConfig = otpRequest.getMdmsValidationConfig();
+        MobileValidationConfig config = otpRequest.getMdmsValidationConfig();
 
-        // If no MDMS config found, validation fails
-        if (mdmsConfig == null || mdmsConfig.getRules() == null) {
-            String countryCode = otpRequest.getCountryCode();
-            if (countryCode != null && !countryCode.isEmpty()) {
-                otpRequest.setMdmsValidationErrorMessage(
-                        "Mobile number validation failed. No validation pattern found for country code "
-                                + countryCode + " and no default validation pattern is configured in MDMS");
-            } else {
-                otpRequest.setMdmsValidationErrorMessage(
-                        "Mobile number validation failed. No default validation pattern is configured in MDMS");
-            }
-            return false;
+        String regex;
+        if (config != null && StringUtils.hasText(config.getMobileNumberRegex())) {
+            regex = config.getMobileNumberRegex();
+        } else {
+            log.warn("No MDMS config available for tenantId: {}, countryCode: {}. Falling back to default regex.",
+                    otpRequest.getTenantId(), otpRequest.getCountryCode());
+            regex = defaultRegex;
         }
 
-        return validateWithMdmsConfig(otpRequest, mdmsConfig.getRules());
+        return matchesRegex(otpRequest, regex);
     }
 
-    /**
-     * Validates mobile number using MDMS configuration rules.
-     */
-    private boolean validateWithMdmsConfig(OtpRequest otpRequest, MobileValidationRules rules) {
-        String mobileNumber = otpRequest.getMobileNumber();
-
-        // Validate minimum length
-        if (rules.getMinLength() != null && mobileNumber.length() < rules.getMinLength()) {
-            otpRequest.setMdmsValidationErrorMessage(rules.getErrorMessage());
-            return false;
-        }
-
-        // Validate maximum length
-        if (rules.getMaxLength() != null && mobileNumber.length() > rules.getMaxLength()) {
-            otpRequest.setMdmsValidationErrorMessage(rules.getErrorMessage());
-            return false;
-        }
-
-        // Validate pattern (includes starting character validation via regex)
-        if (rules.getPattern() != null && !rules.getPattern().isEmpty()) {
-            if (!mobileNumber.matches(rules.getPattern())) {
-                otpRequest.setMdmsValidationErrorMessage(rules.getErrorMessage());
+    private boolean matchesRegex(OtpRequest otpRequest, String regex) {
+        String mobile = otpRequest.getMobileNumber();
+        try {
+            if (!mobile.matches(regex)) {
+                otpRequest.setMdmsValidationErrorMessage(
+                        "Mobile number does not match the configured validation pattern for country code: "
+                                + otpRequest.getCountryCode());
                 return false;
             }
+            return true;
+        } catch (PatternSyntaxException e) {
+            log.error("Invalid regex '{}' in MDMS config. Rejecting request to be safe.", regex, e);
+            otpRequest.setMdmsValidationErrorMessage("Invalid mobile number validation pattern configured.");
+            return false;
         }
-
-        return true;
     }
 
     /**
-     * Fetches validation config from cache first, falls back to MDMS API if not cached.
-     * Caches the result for subsequent requests (cache-aside pattern).
-     *
-     * Selection logic:
-     * - If countryCode is sent in request -> find config where attributes.countryCode matches
-     *   - If no match for that countryCode -> fall back to config where default=true
-     * - If countryCode is not sent -> find config where default=true
+     * Resolves the validation config for the request from cache → MDMS.
+     * Selection:
+     *   - countryCode present → find matching entry, fallback to default=true entry
+     *   - countryCode absent  → use default=true entry
      */
     private void fetchAndSetMdmsValidationConfig(OtpRequest otpRequest) {
         String tenantId = otpRequest.getTenantId();
+        if (isEmpty(tenantId)) return;
 
-        // Skip if tenantId is not provided
-        if (tenantId == null || tenantId.isEmpty()) {
-            log.debug("TenantId is null or empty, skipping MDMS config fetch");
-            return;
-        }
-
-        // Extract state-level tenant ID for caching (same as egov-user)
-        String stateLevelTenantId = tenantId;
-        if (tenantId.contains(".")) {
-            stateLevelTenantId = tenantId.split("\\.")[0];
-        }
-
+        String stateTenantId = tenantId.contains(".") ? tenantId.split("\\.")[0] : tenantId;
         String countryCode = otpRequest.getCountryCode();
-        String cacheKey = (countryCode != null && !countryCode.isEmpty()) ? countryCode : "default";
+        String cacheKey = StringUtils.hasText(countryCode) ? countryCode : "default";
 
         try {
-            // Check cache first
-            MobileValidationConfig cachedConfig = cacheRepository.getValidationRules(stateLevelTenantId, cacheKey);
-            if (cachedConfig != null) {
-                log.debug("Using cached validation config for tenantId: {}, countryCode: {}", stateLevelTenantId, cacheKey);
-                otpRequest.setMdmsValidationConfig(cachedConfig);
+            MobileValidationConfig cached = cacheRepository.getValidationRules(stateTenantId, cacheKey);
+            if (cached != null) {
+                otpRequest.setMdmsValidationConfig(cached);
                 return;
             }
 
-            // Cache miss - fetch all configs from MDMS
-            List<MobileValidationConfig> configs = mdmsRepository.fetchMobileValidationConfigs(
-                    tenantId, otpRequest.getRequestInfo());
+            List<MobileValidationConfig> configs =
+                    mdmsRepository.fetchMobileValidationConfigs(tenantId, otpRequest.getRequestInfo());
 
-            if (configs.isEmpty()) {
-                log.info("No MDMS mobile validation configs found for tenantId: {} and countryCode: {}", tenantId, cacheKey);
-                return;
-            }
-
-            // Select the right config based on countryCode
-            MobileValidationConfig selectedConfig = selectConfig(configs, countryCode);
-
-            if (selectedConfig != null) {
-                log.info("MDMS mobile validation config selected for tenantId: {}, countryCode: {}, caching...", tenantId, cacheKey);
-                cacheRepository.cacheValidationRules(stateLevelTenantId, cacheKey, selectedConfig);
-                otpRequest.setMdmsValidationConfig(selectedConfig);
-            } else {
-                log.info("No matching MDMS config found for tenantId: {} and countryCode: {}", tenantId, cacheKey);
+            MobileValidationConfig selected = selectConfig(configs, countryCode);
+            if (selected != null) {
+                cacheRepository.cacheValidationRules(stateTenantId, cacheKey, selected);
+                otpRequest.setMdmsValidationConfig(selected);
             }
         } catch (Exception e) {
-            log.warn("Failed to fetch MDMS validation config: {}", e.getMessage());
+            log.warn("Failed to fetch MDMS validation config for tenantId: {} countryCode: {} — {}",
+                    tenantId, countryCode, e.getMessage());
         }
     }
 
     /**
-     * Selects the appropriate validation config from the list.
-     * If countryCode is provided, selects the config where attributes.countryCode matches.
-     * If no match found for that countryCode, falls back to the default config.
-     * If countryCode is not provided, selects the config where default is true.
+     * Picks the best matching config.
+     * Priority: exact countryCode match > default=true entry.
      */
     private MobileValidationConfig selectConfig(List<MobileValidationConfig> configs, String countryCode) {
-        if (countryCode != null && !countryCode.isEmpty()) {
-            // Find config matching the given countryCode
-            MobileValidationConfig countryConfig = configs.stream()
-                    .filter(c -> c.getAttributes() != null
-                            && countryCode.equals(c.getAttributes().getCountryCode()))
-                    .findFirst()
-                    .orElse(null);
+        if (configs == null || configs.isEmpty()) return null;
 
-            if (countryConfig != null) {
-                return countryConfig;
+        MobileValidationConfig defaultConfig = null;
+        for (MobileValidationConfig cfg : configs) {
+            if (Boolean.TRUE.equals(cfg.getIsDefault()) && defaultConfig == null) {
+                defaultConfig = cfg;
             }
-
-            // CountryCode config not found, fall back to default
-            log.info("No MDMS config found for countryCode: {}, falling back to default config", countryCode);
+            if (StringUtils.hasText(countryCode) && countryCode.equals(cfg.getCountryCode())) {
+                return cfg;
+            }
         }
 
-        // Find the default config
-        return configs.stream()
-                .filter(c -> Boolean.TRUE.equals(c.getIsDefault()))
-                .findFirst()
-                .orElse(null);
+        if (StringUtils.hasText(countryCode) && defaultConfig != null) {
+            log.info("No MDMS config for countryCode: {}, falling back to default config.", countryCode);
+        }
+        return defaultConfig;
     }
 }
