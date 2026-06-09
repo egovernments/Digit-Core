@@ -39,6 +39,12 @@ public class OtpSMSRepository {
 
     @Autowired
     private MultiStateInstanceUtil centralInstanceUtil;
+    
+    @Value("${egov.localization.default.locale:en_IN}")
+    private String defaultLocale;
+    
+    @Value("${egov.localization.module}")
+    private String localizationModule;
 
     @Autowired
     public OtpSMSRepository(CustomKafkaTemplate<String, SMSRequest> kafkaTemplate,
@@ -62,10 +68,25 @@ public class OtpSMSRepository {
 
     private String getMessageFormat(OtpRequest otpRequest) {
         String tenantId = getRequiredTenantId(otpRequest.getTenantId());
-        Map<String, String> localisedMsgs = localizationService.getLocalisedMessages(tenantId, "en_IN", "egov-user");
+        String locale = defaultLocale;
+
+        if (otpRequest.getRequestInfo() != null 
+                && otpRequest.getRequestInfo().getMsgId() != null) {
+
+            String msgId = otpRequest.getRequestInfo().getMsgId();
+
+            if (msgId.contains("|")) {
+                String[] parts = msgId.split("\\|");
+                if (parts.length > 1 && parts[1] != null && !parts[1].isEmpty()) {
+                    locale = parts[1];
+                }
+            }
+        }
+
+        Map<String, String> localisedMsgs = localizationService.getLocalisedMessages(tenantId, locale, localizationModule);
         if (localisedMsgs.isEmpty()) {
             log.info("Localization Service didn't return any msgs so using default...");
-            localisedMsgs.put(LOCALIZATION_KEY_REGISTER_SMS, "Dear Citizen, Your OTP to complete your mSeva Registration is %s.");
+            localisedMsgs.put(LOCALIZATION_KEY_REGISTER_SMS, "Dear Citizen, Your OTP to complete your DIGIT Registration is %s.");
             localisedMsgs.put(LOCALIZATION_KEY_LOGIN_SMS, "Dear Citizen, Your Login OTP is %s.");
             localisedMsgs.put(LOCALIZATION_KEY_PWD_RESET_SMS, "Dear Citizen, Your OTP for recovering password is %s.");
         }

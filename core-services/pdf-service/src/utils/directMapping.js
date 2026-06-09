@@ -9,7 +9,8 @@ import {
   getValue
 } from "./commons";
 
-var jp = require("jsonpath");
+var { JSONPath } = require("jsonpath-plus");
+var jp = { query: (obj, path) => JSONPath({ path, json: obj, wrap: true }) };
 
 let externalHost = envVariables.EGOV_EXTERNAL_HOST;
 /**

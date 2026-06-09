@@ -19,6 +19,10 @@
 		<log4j2.version>2.17.1</log4j2.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<jackson-bom.version>2.18.6</jackson-bom.version>
+		<logback.version>1.5.25</logback.version>
+		<spring-framework.version>6.1.21</spring-framework.version>
+		<postgresql.version>42.7.11</postgresql.version>
 	</properties>
 	<dependencies>
 		<dependency>

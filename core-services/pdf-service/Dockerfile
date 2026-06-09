@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1.4
-FROM node:10 AS builder
+FROM node:22-alpine AS builder
 
 ARG WORK_DIR
 WORKDIR /app
 COPY ${WORK_DIR:-core-services/pdf-service}/ .
 RUN npm install
 
-FROM node:10
+FROM node:22-alpine
 WORKDIR /app
 COPY --from=builder /app /app
 

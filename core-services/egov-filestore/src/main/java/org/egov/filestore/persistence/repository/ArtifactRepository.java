@@ -118,7 +118,7 @@ public class ArtifactRepository {
 		 
       if(null!=resource)
 		return new Resource(artifact.getContentType(), artifact.getFileName(), resource, artifact.getTenantId(),
-				"" + resource.getFile().length() + " bytes");
+				"" + resource.contentLength() + " bytes");
       else
     	  return null;
 	}

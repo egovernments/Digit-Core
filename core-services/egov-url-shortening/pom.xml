@@ -15,8 +15,9 @@
 		<commons-lang-version>2.6</commons-lang-version>
 	    <tomcat.version>10.1.45</tomcat.version>
     <jackson-bom.version>2.18.6</jackson-bom.version>
+    <logback.version>1.5.25</logback.version>
     <spring-framework.version>6.2.11</spring-framework.version>
-    <postgresql.version>42.7.7</postgresql.version>
+    <postgresql.version>42.7.11</postgresql.version>
   </properties>
 	<build>
 		<plugins>
@@ -101,7 +102,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.7</version>
+			<version>${postgresql.version}</version>
 		</dependency>
         <dependency>
             <groupId>com.vaadin.external.google</groupId>

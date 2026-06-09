@@ -3,10 +3,8 @@ package org.egov.filestore.repository.impl.minio;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -14,9 +12,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
+import io.minio.GetObjectArgs;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.PutObjectArgs;
 import io.minio.errors.*;
 import org.apache.commons.io.FilenameUtils;
@@ -28,13 +29,12 @@ import org.egov.filestore.repository.impl.CloudFileMgrUtils;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.minio.MinioClient;
-import io.minio.PutObjectOptions;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -173,8 +173,8 @@ public class MinioRepository implements CloudFilesManager {
 				try {
 					signedUrl = setThumnailSignedURL(fileName, new StringBuilder(signedUrl));
 				} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException
-						| InsufficientDataException | InternalException | InvalidBucketNameException
-						| InvalidExpiresRangeException | InvalidResponseException | NoSuchAlgorithmException
+						| InsufficientDataException | InternalException
+						| InvalidResponseException | NoSuchAlgorithmException
 						| XmlParserException | IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -187,7 +187,7 @@ public class MinioRepository implements CloudFilesManager {
 		return mapOfIdAndSASUrls;
 	}
 		
-	private String setThumnailSignedURL(String fileName, StringBuilder url) throws InvalidKeyException, ErrorResponseException, IllegalArgumentException, InsufficientDataException, InternalException, InvalidBucketNameException, InvalidExpiresRangeException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException {
+	private String setThumnailSignedURL(String fileName, StringBuilder url) throws InvalidKeyException, ErrorResponseException, IllegalArgumentException, InsufficientDataException, InternalException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException {
 		String[] imageFormats = { fileStoreConfig.get_large(), fileStoreConfig.get_medium(), fileStoreConfig.get_small() };
 		for (String  format : Arrays.asList(imageFormats)) {
 			url.append(",");
@@ -202,12 +202,16 @@ public class MinioRepository implements CloudFilesManager {
 
 		String signedUrl = null;
 		try {
-			signedUrl = minioClient.getPresignedObjectUrl(io.minio.http.Method.GET, minioConfig.getBucketName(), fileName,
-					fileStoreConfig.getPreSignedUrlTimeOut(), new HashMap<String, String>());
+			signedUrl = minioClient.getPresignedObjectUrl(
+					GetPresignedObjectUrlArgs.builder()
+							.method(io.minio.http.Method.GET)
+							.bucket(minioConfig.getBucketName())
+							.object(fileName)
+							.expiry(fileStoreConfig.getPreSignedUrlTimeOut(), TimeUnit.SECONDS)
+							.build());
 		} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException | InsufficientDataException
-				| InternalException | InvalidBucketNameException | InvalidExpiresRangeException
-				| InvalidResponseException | NoSuchAlgorithmException | XmlParserException | ServerException | IOException e) {
-			// TODO Auto-generated catch block
+				| InternalException | InvalidResponseException | NoSuchAlgorithmException | XmlParserException
+				| ServerException | IOException e) {
 			e.printStackTrace();
 		}
         return signedUrl;
@@ -216,16 +220,25 @@ public class MinioRepository implements CloudFilesManager {
 	public Resource read(FileLocation fileLocation) {
 
 		Resource resource = null;
-		File f = new File(fileLocation.getFileStoreId());
 
 		if (fileLocation.getFileSource() == null || fileLocation.getFileSource().equals(minioConfig.getSource())) {
 			String fileName = fileLocation.getFileName().substring(fileLocation.getFileName().indexOf('/') + 1,
 					fileLocation.getFileName().length());
 
-			try {
-				minioClient.getObject(minioConfig.getBucketName(), fileName, f.getName());
+			try (InputStream stream = minioClient.getObject(
+					GetObjectArgs.builder()
+							.bucket(minioConfig.getBucketName())
+							.object(fileName)
+							.build())) {
+				byte[] buf = new byte[16384];
+				int bytesRead;
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				while ((bytesRead = stream.read(buf, 0, buf.length)) >= 0) {
+					out.write(buf, 0, bytesRead);
+				}
+				resource = new ByteArrayResource(out.toByteArray());
 			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException |
-                     InsufficientDataException | InternalException | InvalidBucketNameException |
+                     InsufficientDataException | InternalException |
                      InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException |
                      ServerException e) {
 				log.error("Error while downloading the file ", e);
@@ -233,11 +246,7 @@ public class MinioRepository implements CloudFilesManager {
 				map.put("ERROR_MINIO_DOWNLOAD",
 						"An error has occured while trying to download image from filestore system .");
 				throw new CustomException(map);
-
 			}
-
-			resource = new FileSystemResource(Paths.get(f.getPath()).toFile());
-
 		}
 		return resource;
 	}
