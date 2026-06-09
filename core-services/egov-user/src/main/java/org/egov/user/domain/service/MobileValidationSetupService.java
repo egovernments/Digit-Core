@@ -1,6 +1,5 @@
 package org.egov.user.domain.service;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +7,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.request.User;
 import org.egov.user.domain.model.mdmsv2.MdmsV2Data;
 import org.egov.user.domain.model.mdmsv2.MdmsV2Response;
 import org.egov.user.domain.model.mdmsv2.MdmsV2SearchCriteria;
@@ -151,17 +151,17 @@ public class MobileValidationSetupService {
             data.put("default", true);
             data.put("active", true);
 
-            Map<String, Object> mdmsDataEntry = new HashMap<>();
-            mdmsDataEntry.put("tenantId", stateLevelTenantId);
-            mdmsDataEntry.put("schemaCode", schemaCode);
-            mdmsDataEntry.put("isActive", true);
-            mdmsDataEntry.put("data", data);
+            Map<String, Object> mdmsEntry = new HashMap<>();
+            mdmsEntry.put("tenantId", stateLevelTenantId);
+            mdmsEntry.put("schemaCode", schemaCode);
+            mdmsEntry.put("isActive", true);
+            mdmsEntry.put("data", data);
 
             Map<String, Object> body = new HashMap<>();
             body.put("RequestInfo", requestInfo);
-            body.put("Mdms", Collections.singletonList(mdmsDataEntry));
+            body.put("Mdms", mdmsEntry);
 
-            restTemplate.postForObject(mdmsHost + dataCreateEndpoint, body, Object.class);
+            restTemplate.postForObject(mdmsHost + dataCreateEndpoint + "/" + schemaCode, body, Object.class);
             log.info("Created default MobileNumberValidation data in MDMS for tenantId: {} countryCode: {}",
                     stateLevelTenantId, defaultCountryCode);
         } catch (Exception e) {
@@ -170,10 +170,17 @@ public class MobileValidationSetupService {
     }
 
     private RequestInfo buildSystemRequestInfo() {
+        User systemUser = User.builder()
+                .uuid("egov-user-system")
+                .userName("egov-user-system")
+                .type("SYSTEM")
+                .tenantId(stateLevelTenantId)
+                .build();
         return RequestInfo.builder()
                 .apiId("egov-user")
                 .action("_setup")
                 .ver("1.0")
+                .userInfo(systemUser)
                 .build();
     }
 }
