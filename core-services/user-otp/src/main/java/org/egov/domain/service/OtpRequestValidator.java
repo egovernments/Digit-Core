@@ -103,8 +103,7 @@ public class OtpRequestValidator {
         try {
             if (!mobile.matches(regex)) {
                 otpRequest.setMdmsValidationErrorMessage(
-                        "Mobile number does not match the configured validation pattern for country code: "
-                                + otpRequest.getCountryCode());
+                        "Mobile number must match the configured pattern: " + regex);
                 return false;
             }
             return true;

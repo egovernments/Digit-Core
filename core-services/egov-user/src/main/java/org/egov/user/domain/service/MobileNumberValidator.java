@@ -108,7 +108,7 @@ public class MobileNumberValidator {
             if (!mobileNumber.matches(regex)) {
                 Map<String, String> errorMap = new HashMap<>();
                 errorMap.put("INVALID_MOBILE_NUMBER",
-                        "Mobile number '" + maskMobile(mobileNumber) + "' does not match the configured validation pattern.");
+                        "Mobile number must match the configured pattern: " + regex);
                 throw new CustomException(errorMap);
             }
         } catch (PatternSyntaxException ex) {
@@ -183,12 +183,4 @@ public class MobileNumberValidator {
         return defaultRegex;
     }
 
-    private String maskMobile(String mobile) {
-        if (mobile == null || mobile.length() <= 4) return "****";
-        int maskLen = mobile.length() - 4;
-        StringBuilder sb = new StringBuilder(mobile.length());
-        for (int i = 0; i < maskLen; i++) sb.append('*');
-        sb.append(mobile.substring(maskLen));
-        return sb.toString();
-    }
 }
