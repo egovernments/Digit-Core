@@ -6,8 +6,7 @@
     "data": {
       "countryCode": "+91",
       "mobileNumberRegex": "^[6-9][0-9]{9}$",
-      "default": true,
-      "active": true
+      "default": true
     }
   }
 ]

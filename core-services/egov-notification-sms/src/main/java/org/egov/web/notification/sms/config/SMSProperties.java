@@ -70,7 +70,7 @@ public class SMSProperties {
     private List<String> whitelistNumbers;
 
     @Value("${sms.provider.header.authorization}")
-    public boolean isHeaderAuthorization;
+    private boolean isHeaderAuthorization;
 
     @Setter(AccessLevel.PROTECTED) private List<Pattern> whitelistPatterns;
     @Setter(AccessLevel.PROTECTED) private List<Pattern> blacklistPatterns;

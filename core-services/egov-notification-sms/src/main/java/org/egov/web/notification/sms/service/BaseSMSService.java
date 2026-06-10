@@ -144,13 +144,21 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
                         break;
                     case "$mobileno":
                         String mobile = sms.getMobileNumber();
+                        String prefix = (sms.getCountryCode() != null && !sms.getCountryCode().isEmpty())
+                                ? sms.getCountryCode()
+                                : smsProperties.getMobileNumberPrefix();
                         if (mobile.startsWith("+")) {
                             map.add(key, mobile);
+                        } else if (!prefix.isEmpty()) {
+                            String numericPrefix = prefix.startsWith("+") ? prefix.substring(1) : prefix;
+                            if (!numericPrefix.isEmpty() && mobile.startsWith(numericPrefix)) {
+                                // Mobile already carries the numeric country code (e.g. "919876543210") — just add "+"
+                                map.add(key, "+" + mobile);
+                            } else {
+                                map.add(key, prefix + mobile);
+                            }
                         } else {
-                            String prefix = (sms.getCountryCode() != null && !sms.getCountryCode().isEmpty())
-                                    ? sms.getCountryCode()
-                                    : smsProperties.getMobileNumberPrefix();
-                            map.add(key, prefix + mobile);
+                            map.add(key, mobile);
                         }
                         break;
                     case "$message":

@@ -35,9 +35,6 @@ public class OtpRequestValidator {
 
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
-    @Value("${egov.mobile.validation.default.country.code:+91}")
-    private String defaultCountryCode;
-
     @Value("${egov.mobile.validation.default.regex:^[6-9][0-9]{9}$}")
     private String defaultRegex;
 
@@ -86,16 +83,19 @@ public class OtpRequestValidator {
 
         MobileValidationConfig config = otpRequest.getMdmsValidationConfig();
 
-        String regex;
-        if (config != null && StringUtils.hasText(config.getMobileNumberRegex())) {
-            regex = config.getMobileNumberRegex();
-        } else {
-            log.warn("No MDMS config available for tenantId: {}, countryCode: {}. Falling back to default regex.",
-                    otpRequest.getTenantId(), otpRequest.getCountryCode());
-            regex = defaultRegex;
+        if (config == null || !StringUtils.hasText(config.getMobileNumberRegex())) {
+            if (StringUtils.hasText(otpRequest.getCountryCode())) {
+                otpRequest.setMdmsValidationErrorMessage(
+                        "Mobile number validation configuration not found for country code: "
+                                + otpRequest.getCountryCode());
+                return false;
+            }
+            log.warn("No MDMS config available for tenantId: {}. Falling back to default regex.",
+                    otpRequest.getTenantId());
+            return matchesRegex(otpRequest, defaultRegex);
         }
 
-        return matchesRegex(otpRequest, regex);
+        return matchesRegex(otpRequest, config.getMobileNumberRegex());
     }
 
     private boolean matchesRegex(OtpRequest otpRequest, String regex) {

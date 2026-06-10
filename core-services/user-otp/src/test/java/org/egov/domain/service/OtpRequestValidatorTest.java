@@ -64,7 +64,6 @@ public class OtpRequestValidatorTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         validator = new OtpRequestValidator(mdmsRepository, cacheRepository, multiStateInstanceUtil);
-        ReflectionTestUtils.setField(validator, "defaultCountryCode", "+91");
         ReflectionTestUtils.setField(validator, "defaultRegex", "^[6-9][0-9]{9}$");
         ReflectionTestUtils.setField(validator, "multiStateInstanceUtil", multiStateInstanceUtil);
         when(multiStateInstanceUtil.getStateLevelTenant(anyString())).thenAnswer(inv -> {
@@ -159,10 +158,9 @@ public class OtpRequestValidatorTest {
                 .countryCode("+44").type(OtpRequestType.REGISTER).build());
     }
 
-    @Test
-    public void test_passes_when_countryCode_sent_no_matching_no_default_but_number_matches_fallback() {
-        // No matching countryCode +44, no default=true entry → application.properties fallback.
-        // "9123456789" matches ^[6-9][0-9]{9}$ → passes.
+    @Test(expected = InvalidOtpRequestException.class)
+    public void test_fails_when_countryCode_sent_no_matching_and_no_default() {
+        // No matching countryCode +44, no default=true entry → config not found error.
         when(mdmsRepository.fetchMobileValidationConfigs(anyString(), any()))
                 .thenReturn(Collections.singletonList(ethiopiaConfig())); // no default=true
         validator.validate(OtpRequest.builder()

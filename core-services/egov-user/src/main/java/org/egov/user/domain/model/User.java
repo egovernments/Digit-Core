@@ -230,14 +230,6 @@ public class User {
     }
 
     @JsonIgnore
-    public String getFullMobileNumber() {
-        if (countryCode != null && mobileNumber != null) {
-            return countryCode + mobileNumber;
-        }
-        return mobileNumber;
-    }
-
-    @JsonIgnore
     public List<Address> getPermanentAndCorrespondenceAddresses() {
         final ArrayList<Address> addresses = new ArrayList<>();
         if (correspondenceAddress != null && correspondenceAddress.isNotEmpty()) {
