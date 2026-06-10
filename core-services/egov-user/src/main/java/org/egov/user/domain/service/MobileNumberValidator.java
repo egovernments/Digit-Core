@@ -29,7 +29,6 @@ public class MobileNumberValidator {
     private static final String FIELD_COUNTRY_CODE = "countryCode";
     private static final String FIELD_REGEX = "mobileNumberRegex";
     private static final String FIELD_DEFAULT = "default";
-    private static final String FIELD_ACTIVE = "active";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -154,10 +153,6 @@ public class MobileNumberValidator {
                 continue;
             }
             JsonNode data = entry.getData();
-            boolean active = !data.has(FIELD_ACTIVE) || data.get(FIELD_ACTIVE).asBoolean(true);
-            if (!active) {
-                continue;
-            }
 
             String entryRegex = data.has(FIELD_REGEX) ? data.get(FIELD_REGEX).asText(null) : null;
             if (!StringUtils.hasText(entryRegex)) {

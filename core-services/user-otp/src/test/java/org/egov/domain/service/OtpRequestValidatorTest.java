@@ -41,7 +41,6 @@ public class OtpRequestValidatorTest {
                 .countryCode("+91")
                 .mobileNumberRegex("^[6-9][0-9]{9}$")
                 .isDefault(true)
-                .active(true)
                 .build();
     }
 
@@ -50,7 +49,6 @@ public class OtpRequestValidatorTest {
                 .countryCode("+251")
                 .mobileNumberRegex("^[79][0-9]{8}$")
                 .isDefault(false)
-                .active(true)
                 .build();
     }
 
@@ -59,7 +57,6 @@ public class OtpRequestValidatorTest {
                 .countryCode("+44")
                 .mobileNumberRegex("^7[0-9]{9}$")
                 .isDefault(false)
-                .active(true)
                 .build();
     }
 
@@ -223,17 +220,14 @@ public class OtpRequestValidatorTest {
                 .countryCode("+91").type(OtpRequestType.REGISTER).build());
     }
 
-    // -------- active flag --------
-
     @Test(expected = InvalidOtpRequestException.class)
-    public void test_inactive_config_is_skipped_and_falls_to_default_regex() {
-        MobileValidationConfig inactive = MobileValidationConfig.builder()
+    public void test_number_failing_configured_regex_throws() {
+        MobileValidationConfig config = MobileValidationConfig.builder()
                 .countryCode("+91").mobileNumberRegex("^[6-9][0-9]{9}$")
-                .isDefault(true).active(false).build();
+                .isDefault(true).build();
         when(mdmsRepository.fetchMobileValidationConfigs(anyString(), any()))
-                .thenReturn(Collections.singletonList(inactive));
-        // inactive entry is filtered out by MdmsRepository, so fallback regex applies
-        // "0000000000" fails the default regex ^[6-9][0-9]{9}$
+                .thenReturn(Collections.singletonList(config));
+        // "0000000000" starts with 0, fails ^[6-9][0-9]{9}$
         validator.validate(OtpRequest.builder()
                 .tenantId("pb").mobileNumber("0000000000")
                 .type(OtpRequestType.REGISTER).build());

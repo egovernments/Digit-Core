@@ -117,10 +117,6 @@ public class MobileValidationSetupService {
             defaultProp.put("type", "boolean");
             defaultProp.put("default", false);
             properties.set("default", defaultProp);
-            ObjectNode activeProp = objectMapper.createObjectNode();
-            activeProp.put("type", "boolean");
-            activeProp.put("default", true);
-            properties.set("active", activeProp);
             definition.set("properties", properties);
             definition.set("x-ref-schema", objectMapper.createArrayNode());
             definition.put("additionalProperties", false);
@@ -149,7 +145,6 @@ public class MobileValidationSetupService {
             data.put("countryCode", defaultCountryCode);
             data.put("mobileNumberRegex", defaultRegex);
             data.put("default", true);
-            data.put("active", true);
 
             Map<String, Object> mdmsEntry = new HashMap<>();
             mdmsEntry.put("tenantId", stateLevelTenantId);

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Flat representation of the common-masters.MobileNumberValidation MDMS master.
- * Fields map 1-to-1 with the schema: countryCode, mobileNumberRegex, default, active.
+ * Fields map 1-to-1 with the schema: countryCode, mobileNumberRegex, default.
  */
 @Data
 @Builder
@@ -26,7 +26,4 @@ public class MobileValidationConfig {
 
     @JsonProperty("default")
     private Boolean isDefault;
-
-    @JsonProperty("active")
-    private Boolean active;
 }

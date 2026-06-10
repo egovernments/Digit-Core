@@ -13,7 +13,7 @@ import java.util.*;
 
 /**
  * Fetches MobileNumberValidation configs from MDMS v1.
- * The master data is a flat list: [{countryCode, mobileNumberRegex, default, active}, ...].
+ * The master data is a flat list: [{countryCode, mobileNumberRegex, default}, ...].
  */
 @Repository
 @Slf4j
@@ -102,8 +102,7 @@ public class MdmsRepository {
         for (Object item : rawList) {
             try {
                 MobileValidationConfig cfg = objectMapper.convertValue(item, MobileValidationConfig.class);
-                if (cfg != null && cfg.getMobileNumberRegex() != null
-                        && !Boolean.FALSE.equals(cfg.getActive())) {
+                if (cfg != null && cfg.getMobileNumberRegex() != null) {
                     configs.add(cfg);
                 }
             } catch (Exception e) {
