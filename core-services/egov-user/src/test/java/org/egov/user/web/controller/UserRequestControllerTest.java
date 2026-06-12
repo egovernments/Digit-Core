@@ -28,6 +28,7 @@ import org.egov.user.domain.model.UserSearchCriteria;
 import org.egov.user.domain.model.enums.BloodGroup;
 import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.UserType;
+import org.egov.user.domain.service.MobileNumberValidator;
 import org.egov.user.domain.service.TokenService;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.security.CustomAuthenticationKeyGenerator;
@@ -63,6 +64,9 @@ public class UserRequestControllerTest {
 
     @MockBean
     private TokenService tokenService;
+
+    @MockBean
+    private MobileNumberValidator mobileNumberValidator;
 
     @MockBean
     private CustomAuthenticationKeyGenerator authenticationKeyGenerator;
