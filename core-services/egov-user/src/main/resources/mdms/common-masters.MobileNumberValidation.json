@@ -1,0 +1,32 @@
+{
+  "SchemaDefinition": {
+    "tenantId": "{tenantid}",
+    "code": "common-masters.MobileNumberValidation",
+    "description": "Mobile Number Validation Configuration",
+    "definition": {
+      "type": "object",
+      "title": "Mobile Number Validation",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "required": ["countryCode", "mobileNumberRegex"],
+      "x-unique": ["countryCode"],
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "countryCode": {
+          "type": "string"
+        },
+        "mobileNumberRegex": {
+          "type": "string"
+        },
+        "default": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "x-ref-schema": [],
+      "additionalProperties": false
+    },
+    "isActive": true
+  }
+}

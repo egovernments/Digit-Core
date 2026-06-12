@@ -1,36 +1,42 @@
 package org.egov.web.notification.sms.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.jayway.jsonpath.*;
-import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.*;
-import org.apache.hc.client5.http.classic.HttpClient;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.egov.web.notification.sms.config.*;
-import org.egov.web.notification.sms.models.*;
-import org.springframework.asm.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.core.*;
-import org.springframework.core.env.*;
-import org.springframework.http.*;
-import org.springframework.http.client.*;
-import org.springframework.http.converter.*;
-import org.springframework.http.converter.json.*;
-import org.springframework.util.*;
-import org.springframework.web.client.*;
+import org.egov.web.notification.sms.config.SMSProperties;
+import org.egov.web.notification.sms.models.Sms;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpOutputMessage;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.*;
-import java.io.*;
-import java.lang.reflect.Type;
-import java.net.*;
-import java.security.*;
-import java.util.*;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
@@ -70,12 +76,12 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
         }
 
         if (smsProperties.isNumberBlacklisted(sms.getMobileNumber())) {
-            log.error(String.format("Sms to %s is blacklisted", sms.getMobileNumber()));
+            log.error("Sms is blacklisted");
             return;
         }
 
         if (!smsProperties.isNumberWhitelisted(sms.getMobileNumber())) {
-            log.error(String.format("Sms to %s is not in whitelist", sms.getMobileNumber()));
+            log.error("Sms is not in whitelist");
             return;
         }
 
@@ -137,8 +143,23 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
                         map.add(key, smsProperties.getSenderid());
                         break;
                     case "$mobileno":
-                        String mobileNo = sms.getMobileNumber();
-                        map.add(key, mobileNo.startsWith("+") ? mobileNo : smsProperties.getMobileNumberPrefix() + mobileNo);
+                        String mobile = sms.getMobileNumber();
+                        String prefix = (sms.getCountryCode() != null && !sms.getCountryCode().isEmpty())
+                                ? sms.getCountryCode()
+                                : smsProperties.getMobileNumberPrefix();
+                        if (mobile.startsWith("+")) {
+                            map.add(key, mobile);
+                        } else if (!prefix.isEmpty()) {
+                            String numericPrefix = prefix.startsWith("+") ? prefix.substring(1) : prefix;
+                            if (!numericPrefix.isEmpty() && mobile.startsWith(numericPrefix)) {
+                                // Mobile already carries the numeric country code (e.g. "919876543210") — just add "+"
+                                map.add(key, "+" + mobile);
+                            } else {
+                                map.add(key, prefix + mobile);
+                            }
+                        } else {
+                            map.add(key, mobile);
+                        }
                         break;
                     case "$message":
                         map.add(key, sms.getMessage());
@@ -182,6 +203,9 @@ abstract public class BaseSMSService implements SMSService, SMSBodyBuilder {
     protected HttpHeaders getHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(smsProperties.getContentType()));
+        if (smsProperties.isHeaderAuthorization()) {
+        	headers.setBasicAuth(smsProperties.getUsername(), smsProperties.getPassword());
+        }
         return headers;
     }
 

@@ -4,22 +4,20 @@ import lombok.*;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-
 @Getter
+@Setter
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@Setter
 public class Sms {
 
+	private String countryCode;
     private String mobileNumber;
     private String message;
     private Category category;
     private Long expiryTime;
 
     public boolean isValid() {
-
         return isNotEmpty(mobileNumber) && isNotEmpty(message);
     }
 }
