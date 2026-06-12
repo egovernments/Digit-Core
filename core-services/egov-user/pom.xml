@@ -171,13 +171,8 @@
         </repository>
         <repository>
             <id>repo.egovernments.org.snapshots</id>
-            <name>eGov ERP Releases Repository</name>
+            <name>eGov ERP snapshot Repository</name>
             <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>repo.egovernments.org.public</id>
-            <name>eGov Public Repository Group</name>
-            <url>https://nexus-repo.digit.org/nexus/content/groups/public/</url>
         </repository>
     </repositories>
     <build>
@@ -185,13 +180,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
-                </configuration>
             </plugin>
         </plugins>
     </build>
