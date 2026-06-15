@@ -54,6 +54,20 @@ public class MobileNumberValidator {
     @Value("${egov.mobile.validation.default.regex:^[6-9][0-9]{9}$}")
     private String defaultMobileRegex;
 
+    /**
+     * Validates both the primary and alternate mobile numbers on a User, then sets
+     * the resolved country code back on the user object.
+     * Callers (services) use this instead of calling the lower-level methods directly.
+     */
+    public void validateAndSetMobileNumbers(org.egov.user.domain.model.User user, RequestInfo requestInfo) {
+        if (user == null) return;
+        String resolvedCountryCode = validateMobileNumberWithCountryCode(
+                user.getMobileNumber(), user.getCountryCode(), user.getTenantId(), requestInfo);
+        user.setCountryCode(resolvedCountryCode);
+        validateMobileNumberWithCountryCode(
+                user.getAlternateMobileNumber(), resolvedCountryCode, user.getTenantId(), requestInfo);
+    }
+
     public void validateMobileNumber(String mobileNumber, String tenantId, RequestInfo requestInfo) {
         validateMobileNumberWithCountryCode(mobileNumber, null, tenantId, requestInfo);
     }
@@ -66,6 +80,9 @@ public class MobileNumberValidator {
         mobileNumber = mobileNumber.trim();
         if (countryCode != null) {
             countryCode = countryCode.trim();
+            if (countryCode.isEmpty()) {
+                countryCode = null;  // treat empty string as absent — will fall back to default
+            }
         }
 
         log.info("Validating mobile number for countryCode: {} tenantId: {}", countryCode, tenantId);
