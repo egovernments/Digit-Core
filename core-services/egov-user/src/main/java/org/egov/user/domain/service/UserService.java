@@ -100,7 +100,7 @@ public class UserService {
     @Value("${egov.user.pwd.pattern.max.length}")
     private Integer pwdMaxLength;
 
-    @Value("${egov.user.countrycode.default:+91}")
+    @Value("${egov.mobile.validation.default.country.code:+91}")
     private String defaultCountryCode;
 
     @Autowired
