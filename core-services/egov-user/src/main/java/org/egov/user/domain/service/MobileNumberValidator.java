@@ -75,6 +75,10 @@ public class MobileNumberValidator {
     public String validateMobileNumberWithCountryCode(String mobileNumber, String countryCode,
                                                       String tenantId, RequestInfo requestInfo) {
         if (!StringUtils.hasText(mobileNumber)) {
+            // Mobile number is optional (e.g. alternateMobileNumber). When absent there is
+            // nothing to validate, but we still return the incoming countryCode so the caller
+            // can store it unchanged — skipping this field must not wipe out the code that was
+            // already resolved for the primary mobile number.
             return countryCode;
         }
         mobileNumber = mobileNumber.trim();
