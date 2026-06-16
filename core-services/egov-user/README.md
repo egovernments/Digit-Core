@@ -60,11 +60,11 @@ http://editor.swagger.io/?url=https://raw.githubusercontent.com/egovernments/ego
 
 ## Mobile Number Validation with Country Code
 
-Mobile validation was enhanced to support international country codes driven entirely by MDMS-v2 configuration.
+Mobile validation was enhanced to support international country codes driven by MDMS-v2 (`common-masters.MobileNumberValidation` schema).
 
 ### Overview
 
-Validation is performed by `MobileNumberValidator` (injected into `UserController`) on every create/update endpoint — for both the primary mobile number and the alternate mobile number.
+Validation is performed by `MobileNumberValidator` on every create/update endpoint — for both the primary and alternate mobile numbers.
 
 ### Validation Flow
 
@@ -77,100 +77,113 @@ MobileNumberValidator.validateMobileNumberWithCountryCode()
         ├── mobileNumber blank? ──► skip (mobile is optional)
         │
         ▼
+Derive stateTenantId (first segment of tenantId before ".")
+
 Check Redis cache
-  key: "validationRules" hash
-  field: "validation:{stateTenantId}:{sanitizedCountryCode}"
+  key: "egov-user:mobile-val:{stateTenantId}:{sanitizedCountryCode}"
+       (suffix = "default" when countryCode is null/empty)
         │
-        ├── Cache HIT ──► use cached ValidationData
+        ├── Cache HIT ──► use cached mobileNumberRegex string
         │
         ├── Cache MISS ──► call MDMS-v2 API
         │        POST {egov.mdms.v2.host}{egov.mdms.v2.search.endpoint}
-        │        schemaCode = common-masters.UserValidation
-        │        tenantId   = state-level tenant (first segment before ".")
+        │        schemaCode = common-masters.MobileNumberValidation
+        │        tenantId   = incoming tenantId
         │
-        │        Iterate MDMS response (isActive=true entries):
-        │          1. Match attributes.prefix == countryCode ──► use this entry
-        │          2. No match found ──► fall back to entry with isDefault=true
-        │          3. No default entry ──► return null ──► throw VALIDATION_CONFIG_MISSING
+        │        MDMS entry selection (isActive=true entries):
+        │          1. data.countryCode == request countryCode ──► use mobileNumberRegex
+        │          2. no exact match or null ──► use entry where data.default == true
+        │          3. no default found ──► use egov.mobile.validation.default.regex
         │
-        │        Cache result in Redis (TTL: egov.validation.cache.ttl.seconds, default 3600 s)
+        │        If no result AND tenantId != stateTenantId ──► retry with stateTenantId
+        │        If still no result ──► use egov.mobile.validation.default.regex
         │
-        ▼
-Apply ValidationRules:
-  - minLength check
-  - maxLength check
-  - regex pattern match (rules.pattern)
-        │
-        ├── Any failure ──► throw CustomException with error codes
+        │        Cache mobileNumberRegex string with TTL egov.validation.cache.ttl.seconds
         │
         ▼
-Return attributes.prefix as the resolved/normalized countryCode
-(caller sets user.countryCode = returned value)
+Apply regex: mobileNumber.matches(mobileNumberRegex)
+        │
+        ├── failure ──► CustomException INVALID_MOBILE_NUMBER
+        │
+        ▼
+Return countryCode (null input returns egov.mobile.validation.default.country.code)
 ```
 
-### MDMS-v2 Master Data Structure
+### MDMS-v2 Schema Definition
 
-**Schema code:** `common-masters.UserValidation`
+**Schema code:** `common-masters.MobileNumberValidation`
 
-Each active entry in MDMS must follow this structure (schema and sample data are under `src/main/resources/common-masters.UserValidation.json` and `src/main/resources/common-masters.UserValidation.data.json`):
+Register this schema once per environment in MDMS-v2:
 
 ```json
 {
   "tenantId": "{tenantid}",
-  "schemaCode": "common-masters.UserValidation",
+  "code": "common-masters.MobileNumberValidation",
+  "description": "Mobile Number Validation Configuration",
   "isActive": true,
-  "data": {
-    "fieldType": "mobileNumber",
-    "zone": "IN",
-    "default": true,
-    "attributes": {
-      "prefix": "+91"
+  "definition": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Mobile Number Validation",
+    "type": "object",
+    "required": ["countryCode", "mobileNumberRegex"],
+    "x-unique": ["countryCode"],
+    "properties": {
+      "countryCode":       { "type": "string" },
+      "mobileNumberRegex": { "type": "string" },
+      "default":           { "type": "boolean", "default": false }
     },
-    "rules": {
-      "pattern": "[6-9][0-9]{9}",
-      "minLength": 10,
-      "maxLength": 10,
-      "errorMessage": "Mobile number must be exactly 10 digits and start with 6, 7, 8, or 9",
-      "allowedStartingCharacters": ["6", "7", "8", "9"]
-    }
+    "x-ref-schema": [],
+    "additionalProperties": false
   }
 }
 ```
 
+### Sample Master Data
+
+One data record per supported country code. Mark exactly one record `"default": true` as the catch-all:
+
+```json
+[
+  {
+    "tenantId": "pg",
+    "data": {
+      "countryCode": "+91",
+      "mobileNumberRegex": "^[6-9][0-9]{9}$",
+      "default": true
+    }
+  }
+]
+```
+
 **Field descriptions:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `data.zone` | String | Unique zone identifier for the entry, e.g. `IN`, `US`, `GB` |
-| `data.attributes.prefix` | String | Country dialing prefix used for matching, e.g. `+91`, `+1`, `+44` |
-| `data.default` | Boolean | When `true`, this entry is used as fallback when no prefix matches |
-| `data.rules.pattern` | String | Java regex applied against the local number (without country code) |
-| `data.rules.minLength` | Integer | Minimum digit count |
-| `data.rules.maxLength` | Integer | Maximum digit count |
-| `data.rules.errorMessage` | String | Error message returned on pattern mismatch |
-| `data.rules.allowedStartingCharacters` | List\<String\> | (Informational) list of valid starting digits |
-| `isActive` | Boolean | Only `true` entries are considered |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `data.countryCode` | String | Yes | International dialling prefix, e.g. `+91`, `+1`, `+44` |
+| `data.mobileNumberRegex` | String | Yes | Java regex applied to the local number (without country code) |
+| `data.default` | Boolean | No | When `true`, used when no exact `countryCode` match is found; exactly one record should be `true` |
 
 ### Fallback / Default Behaviour
 
-1. **Country code provided and matched** — the matching MDMS entry's rules are applied and `attributes.prefix` is returned as the normalised country code.
-2. **Country code provided but no match** — the entry with `"default": true` is used. This allows a single catch-all config (e.g. India rules) to handle unknown country codes.
-3. **No country code in request** — treated as a null country code; the default entry is used.
-4. **No MDMS entry found at all** — `VALIDATION_CONFIG_MISSING` error is thrown.
-5. **MDMS service unavailable** — exception is caught and logged; `null` is returned, causing `VALIDATION_CONFIG_MISSING` to be thrown so the caller is informed.
+1. **Country code provided and matched** — the matching entry's `mobileNumberRegex` is applied and the input `countryCode` is returned normalised.
+2. **Country code provided but no exact match** — the entry with `"default": true` is used as a catch-all.
+3. **No country code in request** — treated as null; the default entry is used.
+4. **No MDMS data at all** — falls back to `egov.mobile.validation.default.regex` from `application.properties`.
+5. **MDMS unavailable** — exception is caught and logged; service falls back to `egov.mobile.validation.default.regex`.
 
 ### Caching
 
-Validation configurations are cached in Redis using a hash structure:
+Each (tenant, countryCode) pair is stored as an individual Redis string key whose value is the `mobileNumberRegex`. Keys expire independently — a pod restart does not clear the cache.
 
 | Property | Value |
 |----------|-------|
-| Redis hash key | `validationRules` |
-| Hash field format | `validation:{stateTenantId}:{sanitizedCountryCode}` |
-| Default TTL | `3600` seconds (configurable via `egov.validation.cache.ttl.seconds`) |
-| TTL = 0 | Entries cached indefinitely |
+| Key pattern | `egov-user:mobile-val:{stateTenantId}:{sanitizedCountryCode}` |
+| No-code suffix | `default` (when countryCode is null/empty) |
+| Cached value | `mobileNumberRegex` string |
+| Default TTL | `3600` s (configurable via `egov.validation.cache.ttl.seconds`) |
+| TTL = 0 | Cached indefinitely |
 
-Cache keys are keyed at the **state-level tenant** (first segment before `.`), so `pb.amritsar` and `pb.ludhiana` share the same cache entry under `pb`.
+Cache is scoped to **state-level tenant** so `pg.amritsar` and `pg.citya` share the same entry under `pg`.
 
 ### Application Properties
 
@@ -178,10 +191,11 @@ Cache keys are keyed at the **state-level tenant** (first segment before `.`), s
 |----------|---------|-------------|
 | `egov.mdms.v2.host` | `https://dev.digit.org` | MDMS-v2 host |
 | `egov.mdms.v2.search.endpoint` | `/mdms-v2/v2/_search` | MDMS-v2 search path |
-| `egov.mobile.validation.schema.code` | `common-masters.UserValidation` | MDMS schema code for validation rules |
-| `egov.validation.cache.ttl.seconds` | `3600` | Redis cache TTL in seconds |
-| `egov.user.countrycode.default` | `+91` | Default country code used internally (login/OTP flows) |
-| `mobile.number.validation.workaround.enabled` | `false` | Bypass mobile validation (legacy workaround) |
+| `egov.mobile.validation.schema.code` | `common-masters.MobileNumberValidation` | MDMS schema code |
+| `egov.mobile.validation.default.country.code` | `+91` | Returned when request carries no countryCode |
+| `egov.mobile.validation.default.regex` | `^[6-9][0-9]{9}$` | Fallback regex when MDMS has no matching data |
+| `egov.validation.cache.ttl.seconds` | `3600` | Redis cache TTL in seconds (0 = indefinite) |
+| `mobile.number.validation.workaround.enabled` | `false` | Bypass `MobileNumberValidator` entirely (legacy escape hatch) |
 
 ---
 
@@ -210,7 +224,7 @@ The `eg_user` table holds four mobile-related columns. Their current state and m
 
 ### MDMS-v2 master data
 
-Mobile validation rules are not stored in the DB; they live in the `common-masters.UserValidation` MDMS-v2 schema. Each active record holds the regex pattern, length bounds, and the country code prefix for one calling zone. See [MDMS-v2 Master Data Structure](#mdms-v2-master-data-structure) above for the full field reference.
+Mobile validation rules are not stored in the DB; they live in the `common-masters.MobileNumberValidation` MDMS-v2 schema. Each active record holds the `mobileNumberRegex` and the `countryCode` prefix for one calling zone. See [MDMS-v2 Schema Definition](#mdms-v2-schema-definition) above for the full reference.
 
 ---
 
@@ -218,11 +232,12 @@ Mobile validation rules are not stored in the DB; they live in the `common-maste
 
 | Concern | Behaviour |
 |---------|-----------|
-| `countrycode` column is `NULL` for all existing rows | The service treats `NULL` as `+91` at runtime — the MDMS default entry is used. No data-migration script is required. |
-| API callers that do not send `countryCode` | `countryCode` defaults to `null`; the MDMS default entry is applied, preserving current validation behaviour. |
-| `mobile.number.validation.workaround.enabled=true` | Completely bypasses `MobileNumberValidator`. Use only as a temporary escape hatch during migration — set to `false` once all callers are updated. |
-| `mobilenumber` field absent from request | Mobile is optional (`NOT NULL` was dropped in 2017); existing code that omits it is unaffected. |
+| `countrycode` column is `NULL` for all existing rows | The service treats `NULL` as the MDMS default entry at runtime — no data-migration script is required. The resolved code is written back on the next update of that user. |
+| API callers that do not send `countryCode` | `countryCode` defaults to `null`; the MDMS default entry is applied, preserving prior validation behaviour exactly. |
+| `mobile.number.validation.workaround.enabled=true` | Completely bypasses `MobileNumberValidator`. Use only as a temporary escape hatch during migration — revert to `false` once all callers are updated. |
+| `mobilenumber` field absent from request | Mobile is optional (`NOT NULL` dropped in 2017); callers that omit it are unaffected. |
 | `alternatemobilenumber` null in older records | `MobileNumberValidator` skips validation when the field is blank. |
+| MDMS unavailable or has no matching entry | Falls back to `egov.mobile.validation.default.regex` — validation never silently passes an invalid number. |
 
 ---
 
