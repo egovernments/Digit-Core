@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.4 - 2026-06-16
+- Added `countryCode` field to the `POST /_send` OTP request contract (`Otp.java`).
+- `countryCode` is forwarded alongside `mobileNumber` when dispatching OTP SMS events to Kafka topic `egov.core.notification.sms.otp`.
+- Added `MobileNumerValidationCacheRepository` — caches mobile validation configs from MDMS-v2 in Redis under key `user-otp:mobile-val:{tenantId}:{countryCode}`.
+- Cache TTL configurable via `egov.validation.cache.ttl.seconds` (default 3600 s); TTL = 0 caches indefinitely.
+- **Backward compatible**: `countryCode` is optional; omitting it preserves existing OTP dispatch behaviour.
+
 ## 2.9.3 - 2026-03-16
 - Upgraded Spring Boot version from 3.2.2 to 3.4.5 to fix HIGH/CRITICAL CVEs
 - Upgraded tracer library version

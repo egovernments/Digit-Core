@@ -37,7 +37,25 @@ This method send the OTP to user via sms or email based on the below parameter
 | `mobileNumber`                            | Mobile number of the user                                         | Yes        | String           |
 | `type`                                    | OTP type ex: login/register/password reset                        | Yes        | String           |
 | `userType`                                | Type of user ex: Citizen/Employee                                 | No         | String           |
+| `countryCode`                             | International dialling prefix, e.g. `+91`, `+1`. Defaults to the MDMS default entry when omitted. | No | String |
 
+
+## Mobile Number Validation Config Cache
+
+user-otp caches mobile validation configurations (fetched from MDMS-v2) in Redis so that repeated OTP requests do not hit MDMS on every call.
+
+| Property | Value |
+|----------|-------|
+| Cache key format | `user-otp:mobile-val:{tenantId}:{countryCode}` |
+| Fallback key suffix (no country code) | `user-otp:mobile-val:{tenantId}:default` |
+| Cache TTL | Configurable via `egov.validation.cache.ttl.seconds` (default `3600` s) |
+| TTL = 0 | Entry cached indefinitely |
+
+Stale or incomplete cache entries (missing `mobileNumberRegex`) are automatically evicted on read and re-fetched from MDMS.
+
+## Backward Compatibility
+
+`countryCode` is an optional field in the `POST /_send` request. Existing callers that do not send it continue to work — the service applies the MDMS default validation entry and dispatches the OTP as before.
 
 ### Kafka Consumers
 
@@ -46,5 +64,5 @@ This method send the OTP to user via sms or email based on the below parameter
 ### Kafka Producers
 
 - Following are the Producer topic.
-    - `egov.core.notification.sms.otp` :- This topic is used to send OTP to user mobile number.
+    - `egov.core.notification.sms.otp` :- This topic is used to send OTP to user mobile number. The Kafka message includes `countryCode` (optional) alongside `mobileNumber`.
     - `org.egov.core.notification.email` :- This topic is used to send OTP to user email id.

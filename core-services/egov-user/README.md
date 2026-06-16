@@ -185,6 +185,47 @@ Cache keys are keyed at the **state-level tenant** (first segment before `.`), s
 
 ---
 
+## DB Schema — Mobile Number Columns
+
+The `eg_user` table holds four mobile-related columns. Their current state and migration history is summarised below.
+
+### Current column definitions
+
+| Column | Type | Nullable | Added by migration |
+|--------|------|----------|--------------------|
+| `mobilenumber` | `varchar(150)` | YES | Initial table (expanded from `varchar(50)` by `V20190313165702`) |
+| `altcontactnumber` | `varchar(150)` | YES | Initial table (expanded from `varchar(50)` by `V20190313165702`) |
+| `alternatemobilenumber` | `varchar(50)` | YES | `V20210908231720` |
+| `countrycode` | `varchar(10)` | YES | `V20260309120000` |
+
+### Migration history (mobile-related)
+
+| Migration file | Change |
+|----------------|--------|
+| `V20170223150524` | Created `eg_user` with `mobilenumber varchar(50)` and `altcontactnumber varchar(50)` |
+| `V20170823203553` | Dropped `NOT NULL` constraint on `mobilenumber` — mobile is optional |
+| `V20190313165702` | Widened `mobilenumber` and `altcontactnumber` to `varchar(150)` to accommodate encrypted values |
+| `V20210908231720` | Added `alternatemobilenumber varchar(50)` — second mobile contact per user |
+| `V20260309120000` | Added `countrycode varchar(10)` — stores the normalised dialling prefix (e.g. `+91`) |
+
+### MDMS-v2 master data
+
+Mobile validation rules are not stored in the DB; they live in the `common-masters.UserValidation` MDMS-v2 schema. Each active record holds the regex pattern, length bounds, and the country code prefix for one calling zone. See [MDMS-v2 Master Data Structure](#mdms-v2-master-data-structure) above for the full field reference.
+
+---
+
+## Backward Compatibility
+
+| Concern | Behaviour |
+|---------|-----------|
+| `countrycode` column is `NULL` for all existing rows | The service treats `NULL` as `+91` at runtime — the MDMS default entry is used. No data-migration script is required. |
+| API callers that do not send `countryCode` | `countryCode` defaults to `null`; the MDMS default entry is applied, preserving current validation behaviour. |
+| `mobile.number.validation.workaround.enabled=true` | Completely bypasses `MobileNumberValidator`. Use only as a temporary escape hatch during migration — set to `false` once all callers are updated. |
+| `mobilenumber` field absent from request | Mobile is optional (`NOT NULL` was dropped in 2017); existing code that omits it is unaffected. |
+| `alternatemobilenumber` null in older records | `MobileNumberValidator` skips validation when the field is blank. |
+
+---
+
 ## API Details
 
 ### `POST /citizen/_create`
