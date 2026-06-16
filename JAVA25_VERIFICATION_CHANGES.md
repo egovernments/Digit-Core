@@ -70,3 +70,20 @@ plus the 3 pom edits above.
 ### Smoke-test definition
 - **RUNNING** = Spring Boot logs "Started …Application" and the port binds.
 - **HEALTH** = actuator health endpoint returns HTTP 200 `{"status":"UP"}`.
+
+### Runtime fix APPLIED (committed) — OpenTelemetry JDBC URL
+The OTel-driver/plain-URL mismatch is now fixed **in the source** (no launch override needed):
+- For the 15 DB services that use `driver-class-name=...OpenTelemetryDriver` **and** have a
+  `spring.datasource.url`, the URL was changed `jdbc:postgresql://...` → **`jdbc:otel:postgresql://...`**
+  so the OTel driver accepts it. OTel DB tracing is preserved.
+  (audit-service, boundary-service, egov-accesscontrol, egov-enc-service, egov-filestore, egov-idgen,
+  egov-indexer, egov-localization, egov-persister, egov-pg-service, egov-url-shortening, egov-user-event,
+  egov-workflow-v2, mdms-v2, service-request)
+- `spring.flyway.url` left as `jdbc:postgresql://...` on purpose — Flyway auto-detects the plain driver from
+  that prefix; `jdbc:otel:` is not a prefix Flyway recognizes.
+- **egov-location**: removed a duplicate/conflicting `driver-class-name` line (it had both OTel and plain;
+  plain won by last-wins). Now cleanly uses `org.postgresql.Driver` + `jdbc:postgresql://` like household.
+- The 4 OTel-driver services with **no** `datasource.url` (egov-mdms-service, egov-notification-mail,
+  egov-notification-sms, gateway) were left untouched — no URL to fix; they don't create a datasource here.
+- **Verified** (launched with no driver override): `egov-idgen` (shared datasource → Flyway) and
+  `egov-pg-service` (separate `flyway.url`) both boot, Flyway migrates, no "driver claims to not accept" error.
