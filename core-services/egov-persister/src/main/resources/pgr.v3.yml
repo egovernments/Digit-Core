@@ -1,5 +1,5 @@
 serviceMaps:
- serviceName: User Service
+ serviceName: PGR Service
  mappings:
  - version: 1.0
    name: PGR
