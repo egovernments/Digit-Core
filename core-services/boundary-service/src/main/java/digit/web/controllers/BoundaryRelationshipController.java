@@ -34,6 +34,23 @@ public class BoundaryRelationshipController {
     }
 
     /**
+     * Request handler for serving bulk boundary relationship create requests.
+     *
+     * <p>Processes a list of relationships, persists the valid ones synchronously and atomically,
+     * and returns a per-record outcome (successes and failures with reasons). Unlike the single
+     * create, this is a committed write, so the response is OK with the durable result rather than
+     * an asynchronous acceptance.</p>
+     *
+     * @param body bulk create request
+     * @return per-record success/failure response
+     */
+    @RequestMapping(value = "/bulk/_create", method = RequestMethod.POST)
+    public ResponseEntity<BulkBoundaryRelationshipResponse> bulkCreate(@Valid @RequestBody BulkBoundaryRelationshipRequest body) {
+        BulkBoundaryRelationshipResponse bulkBoundaryRelationshipResponse = boundaryRelationshipService.createBulkBoundaryRelationship(body);
+        return new ResponseEntity<>(bulkBoundaryRelationshipResponse, HttpStatus.OK);
+    }
+
+    /**
      * Request handler for serving boundary relationships search request.
      * @param boundaryRelationshipSearchCriteria
      * @param requestInfo

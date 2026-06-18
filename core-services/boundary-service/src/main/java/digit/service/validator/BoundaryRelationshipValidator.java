@@ -187,7 +187,12 @@ public class BoundaryRelationshipValidator {
                 throw new CustomException("HIERARCHY_ERROR", "Boundary relationship without defined parent should have root boundary hierarchy type.");
             }
         } else{
-            if(!body.getBoundaryRelationship().getBoundaryType().equals(hierarchyOrder.get(hierarchyOrder.indexOf(parentBoundaryType) + 1))) {
+            // Guard the index lookup: if the parent's boundary type is not in the hierarchy or is the
+            // leaf level, indexOf(...)+1 would otherwise throw IndexOutOfBounds (a plain RuntimeException
+            // that would escape the per-record bulk handling). Surface it as a recordable CustomException.
+            int parentIndex = hierarchyOrder.indexOf(parentBoundaryType);
+            if(parentIndex < 0 || parentIndex + 1 >= hierarchyOrder.size()
+                    || !body.getBoundaryRelationship().getBoundaryType().equals(hierarchyOrder.get(parentIndex + 1))) {
                 throw new CustomException("HIERARCHY_ERROR", "Hierarchy of child should be the direct descendant of parent's boundary hierarchy type.");
             }
         }
