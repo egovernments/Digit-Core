@@ -405,6 +405,11 @@ config:
       - work-dir: "core-services/libraries/tracer"
         image-name: "tracer"
         
+  - name: "builds/Digit-Core/core-services/libraries/tenant-migration"
+    build:
+      - work-dir: "core-services/libraries/tenant-migration"
+        image-name: "tenant-migration"  
+
   - name: "builds/Digit-Core/core-services/libraries/digit-client"
     build:
       - work-dir: "core-services/libraries/digit-client"
