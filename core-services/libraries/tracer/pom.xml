@@ -12,6 +12,14 @@
     <name>digit3-tracer</name>
     <description>Distributed tracing, observability, and PubSub library for DIGIT3 microservices</description>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>repo.digit.org</id>
+            <name>eGov ERP Snapshots Repository</name>
+            <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <java.version>25</java.version>
         <maven.compiler.source>25</maven.compiler.source>
