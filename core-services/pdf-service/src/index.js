@@ -51,7 +51,8 @@ import {
 import {
   convertFooterStringtoFunctionIfExist,
   findLocalisation,
-  getDateInRequiredFormat
+  getDateInRequiredFormat,
+  getCorrelationId
 } from "./utils/commons";
 
 
@@ -172,12 +173,14 @@ const createPdfBinary = async (
   headers,
   isconsolidated
 ) => {
+  let correlationId = getCorrelationId(null, headers);
   try {
     let noOfDefinitions = listDocDefinition.length;
 
     var jobid = `${key}${new Date().getTime()}`;
+    logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=createPdfBinary, PDF_KEY=${key}, JOB_ID=${jobid}, FILE_COUNT=${noOfDefinitions}`);
     if (noOfDefinitions == 0) {
-      logger.error("no file generated for pdf");
+      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=createPdfBinary, PDF_KEY=${key}, ERROR=no file generated for pdf`);
       errorCallback({
         message: " error: no file generated for pdf"
       });
@@ -210,6 +213,7 @@ const createPdfBinary = async (
       });
     }
   } catch (err) {
+    logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=createPdfBinary, PDF_KEY=${key}, ERROR=${typeof err === "string" ? err : err.message}`);
     logger.error(err.stack || err);
     errorCallback({
       message: ` error occured while creating pdf: ${
@@ -241,6 +245,7 @@ const uploadFiles = async (
 ) => {
   let convertedListDocDefinition = [];
   let listOfFilestoreIds = [];
+  let correlationId = getCorrelationId(null, headers);
 
   if (!isconsolidated) {
     listDocDefinition.forEach((docDefinition) => {
@@ -279,8 +284,10 @@ const uploadFiles = async (
     doc.on("end", function () {
       // console.log("enddddd "+cr++);
       var data = Buffer.concat(chunks);
+      logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=filestore, PDF_KEY=${key}, JOB_ID=${jobid}, FILENAME=${filename}, STATUS=uploading`);
       fileStoreAPICall(filename, tenantId, data, headers)
         .then((result) => {
+          logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=filestore, PDF_KEY=${key}, JOB_ID=${jobid}, FILESTORE_ID=${result}`);
           listOfFilestoreIds.push(result);
           if (!isconsolidated) {
             dbInsertSingleRecords.push({
@@ -344,6 +351,7 @@ const uploadFiles = async (
           }
         })
         .catch((err) => {
+          logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=filestore, PDF_KEY=${key}, JOB_ID=${jobid}, ERROR=upload failed: ${typeof err === "string" ? err : err.message}`);
           logger.error(err.stack || err);
           errorCallback({
             message: "error occurred while uploading pdf: " + (typeof err === "string") ?
@@ -360,13 +368,19 @@ app.post(
   "/pdf-service/v1/_create",
   asyncHandler(async (req, res) => {
     let requestInfo;
+    let correlationId;
+    let tenantId;
     try {
       requestInfo = get(req.body, "RequestInfo");
+      correlationId = getCorrelationId(requestInfo, req.headers);
+      tenantId = get(req.query || req, "tenantId") || null;
+      let reqKey = get(req, "pdfKey") || get(req.query || req, "key");
+      logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=request, ENDPOINT=_create, PDF_KEY=${reqKey}`);
       await createAndSave(
         req,
         res,
         (response) => {
-          // doc successfully created
+          logger.info(`TENANTID=${response.tenantid}, CORRELATION_ID=${correlationId}, STAGE=response, ENDPOINT=_create, PDF_KEY=${response.key}, FILESTORE_IDS=${JSON.stringify(response.filestoreIds)}, JOB_ID=${response.jobid}`);
           res.status(201);
           res.json({
             ResponseInfo: requestInfo,
@@ -383,8 +397,9 @@ app.post(
           });
         },
         (error) => {
+          logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=response, ENDPOINT=_create, ERROR=pdf creation failed: ${error.message}`);
+          logger.error(error.stack || error);
           res.status(400);
-          // doc creation error
           res.json({
             ResponseInfo: requestInfo,
             message: "error in createPdfBinary " + error.message,
@@ -393,11 +408,12 @@ app.post(
       );
       //
     } catch (error) {
+      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=_create, ERROR=${error.message}`);
       logger.error(error.stack || error);
       res.status(400);
       res.json({
         ResponseInfo: requestInfo,
-        message: "some unknown error while creating: " + error.message,
+        message: "error while creating pdf: " + error.message,
       });
     }
   })
@@ -407,10 +423,12 @@ app.post(
   "/pdf-service/v1/_createnosave",
   asyncHandler(async (req, res) => {
     let requestInfo;
+    let correlationId;
+    let tenantId;
     try {
       var starttime = new Date().getTime();
       let key = req.query.key;
-      let tenantId = req.query.tenantId;
+      tenantId = req.query.tenantId || null;
       var formatconfig = formatConfigMap[key];
       var dataconfig = dataConfigMap[key];
       var headers = JSON.parse(JSON.stringify(req.headers));
@@ -418,8 +436,9 @@ app.post(
         headers['tenantId']=headers.tenantid;
       }
 
-      logger.info("received createnosave request on key: " + key);
       requestInfo = get(req.body, "RequestInfo");
+      correlationId = getCorrelationId(requestInfo, headers);
+      logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=request, ENDPOINT=_createnosave, PDF_KEY=${key}`);
       //
       let isConsolidated = get(req.query, "isconsolidated");
       // Set isConsolidated true as default if it's not available because it's a test api
@@ -461,17 +480,18 @@ app.post(
             "Content-Length": data.length,
           });
           logger.info(
-            `createnosave success for pdf with key: ${key}, entityId ${entityIds}`
+            `TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=response, ENDPOINT=_createnosave, PDF_KEY=${key}, ENTITY_IDS=${JSON.stringify(entityIds)}`
           );
           res.end(Buffer.from(data, "binary"));
         });
         doc.end();
       }
     } catch (error) {
+      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=_createnosave, ERROR=${error.message}`);
       logger.error(error.stack || error);
       res.status(400);
       res.json({
-        message: "some unknown error while creating: " + error.message,
+        message: "error while creating pdf: " + error.message,
       });
     }
   })
@@ -877,6 +897,9 @@ export const createAndSave = async (
     };
   }
 
+  let correlationId = getCorrelationId(requestInfo, headers);
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=configLoad, PDF_KEY=${key}, FORMAT_CONFIG_FOUND=${formatconfig != null}, DATA_CONFIG_FOUND=${dataconfig != null}, MODULE_NAME=${moduleName}`);
+
   var valid = validateRequest(req, res, key, tenantId, requestInfo);
   if (valid) {
     let [formatConfigByFile, totalobjectcount, entityIds] = await prepareBegin(
@@ -890,17 +913,14 @@ export const createAndSave = async (
       isConsolidated
     );
 
-    // logger.info(`Applied templating engine on ${moduleObjectsArray.length} objects output will be in ${formatConfigByFile.length} files`);
     logger.info(
-      `Applied templating engine on ${totalobjectcount} objects output will be in ${formatConfigByFile.length} files`
+      `TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=render, PDF_KEY=${key}, TEMPLATED_OBJECTS=${totalobjectcount}, FILE_COUNT=${formatConfigByFile.length}`
     );
-    // var util = require('util');
-    // fs.writeFileSync('./data.txt', util.inspect(JSON.stringify(formatconfig)) , 'utf-8');
-    //function to download pdf automatically
-    
+
     let formatconfigCopy = JSON.parse(JSON.stringify(formatconfig));
 
-    let locale = requestInfo.msgId.split('|')[1];
+    let msgId = get(requestInfo, "msgId");
+    let locale = (msgId && typeof msgId === "string") ? msgId.split('|')[1] : null;
     if(!locale)
       locale = envVariables.DEFAULT_LOCALISATION_LOCALE;
 
@@ -923,6 +943,7 @@ export const createAndSave = async (
       headers,
       isConsolidated
     ).catch((err) => {
+      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=createPdfBinary, ERROR=${err.message || err}`);
       logger.error(err.stack || err);
       errorCallback({
         message: "error occurred in createPdfBinary call: " + (typeof err === "string") ?
@@ -1106,6 +1127,9 @@ const generateQRCodes = async (
     "$.DataConfigs.mappings.*.mappings.*.qrcodeConfig.*"
   );
 
+  if (qrcodeMappings.length > 0)
+    logger.info(`TENANTID=null, CORRELATION_ID=null, STAGE=qrCodes, QR_CODE_COUNT=${qrcodeMappings.length}`);
+
   for (var i = 0, len = qrcodeMappings.length; i < len; i++) {
     let qrmapping = qrcodeMappings[i];
     let varname = qrmapping.variable;
@@ -1187,15 +1211,24 @@ const prepareBegin = async (
   headers,
   isConsolidated
 ) => {
+  let correlationId = getCorrelationId(requestInfo, headers);
+  let tenantId = get(requestInfo, "userInfo.tenantId") || null;
   var baseKeyPath = get(dataconfig, "DataConfigs.baseKeyPath");
   var entityIdPath = get(dataconfig, "DataConfigs.entityIdPath");
   if (baseKeyPath == null) {
-    logger.error("baseKeyPath is absent in config");
+    logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=dataPrep, PDF_KEY=${key}, ERROR=baseKeyPath is absent in config`);
     throw {
-      message: `baseKeyPath is absent in config`
+      message: `baseKeyPath is absent in config for PDF_KEY=${key}`
     };
   }
-  
+  if (entityIdPath == null) {
+    logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=dataPrep, PDF_KEY=${key}, ERROR=entityIdPath is absent in config`);
+    throw {
+      message: `entityIdPath is absent in config for PDF_KEY=${key}`
+    };
+  }
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=dataPrep, PDF_KEY=${key}, BASE_KEY_PATH=${baseKeyPath}, ENTITY_ID_PATH=${entityIdPath}`);
+
   return await prepareBulk(
     key,
     dataconfig,
@@ -1220,6 +1253,9 @@ const handlelogic = async (
   headers
 ) => {
   let variableTovalueMap = {};
+  let correlationId = getCorrelationId(requestInfo, headers);
+  let tenantId = get(requestInfo, "userInfo.tenantId") || null;
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=mapping, PDF_KEY=${key}, STATUS=start`);
   //direct mapping service
   await Promise.all([
     directMapping(
@@ -1246,6 +1282,7 @@ const handlelogic = async (
   formatObject = fillValues(variableTovalueMap, formatObject);
   if (isCommonTableBorderRequired === true)
     formatObject = updateBorderlayout(formatObject);
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=mapping, PDF_KEY=${key}, STATUS=done`);
   return formatObject;
 };
 
@@ -1274,6 +1311,8 @@ const prepareBulk = async (
   let totalobjectcount = 0;
   let entityIds = [];
   let countOfObjectsInCurrentFile = 0;
+  let correlationId = getCorrelationId(requestInfo, headers);
+  let tenantId = get(requestInfo, "userInfo.tenantId") || null;
   let moduleObjectsArray = getValue(
     jp.query(req.body || req, baseKeyPath),
     [],
@@ -1281,6 +1320,7 @@ const prepareBulk = async (
   );
   if (Array.isArray(moduleObjectsArray) && moduleObjectsArray.length > 0) {
     totalobjectcount = moduleObjectsArray.length;
+    logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=bulk, PDF_KEY=${key}, MODULE_OBJECT_COUNT=${totalobjectcount}`);
     for (var i = 0, len = moduleObjectsArray.length; i < len; i++) {
       let moduleObject = moduleObjectsArray[i];
       let entityKey = getValue(
@@ -1320,8 +1360,9 @@ const prepareBulk = async (
         i + 1 == len
       ) {
         let formatconfigCopy = JSON.parse(JSON.stringify(formatconfig));
-        
-        let locale = requestInfo.msgId.split('|')[1];
+
+        let msgId = get(requestInfo, "msgId");
+        let locale = (msgId && typeof msgId === "string") ? msgId.split('|')[1] : null;
         if(!locale)
           locale = envVariables.DEFAULT_LOCALISATION_LOCALE;
 
@@ -1337,7 +1378,7 @@ const prepareBulk = async (
     return [formatConfigByFile, totalobjectcount, entityIds];
   } else {
     logger.error(
-      `could not find property of type array in request body with name ${baseKeyPath}`
+      `TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=bulk, PDF_KEY=${key}, ERROR=could not find property of type array in request body with name ${baseKeyPath}`
     );
     throw {
       message: `could not find property of type array in request body with name ${baseKeyPath}`,

@@ -123,14 +123,16 @@ export const insertStoreIds = (
     topic: createJobKafkaTopic,
     messages: JSON.stringify({ jobs: dbInsertRecords })
   });
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, RECORD_COUNT=${dbInsertRecords ? dbInsertRecords.length : 0}, TOPIC=${createJobKafkaTopic}`);
   producer.send(payloads, function(err, data) {
     if (err) {
+      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, ERROR=publish to kafka failed: ${err.message}`);
       logger.error(err.stack || err);
       errorCallback({
         message: `error while publishing to kafka: ${err.message}`
       });
     } else {
-      logger.info("jobid: " + jobid + ": published to kafka successfully");
+      logger.info(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, STATUS=published to kafka`);
       successCallback({
         message: "Success",
         jobid: jobid,

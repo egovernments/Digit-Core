@@ -5,7 +5,9 @@ import {
   getLocalisationkey,
   findLocalisation,
   getDateInRequiredFormat,
-  getValue
+  getValue,
+  getStateLevelTenant,
+  getCorrelationId
 } from "./commons";
 import logger from "../config/logger";
 /**
@@ -57,6 +59,10 @@ export const externalAPIMapping = async function (
 
   var responses = [];
   var responsePromises = [];
+
+  let correlationId = getCorrelationId(requestInfo);
+  let tenantId = get(requestInfo, "userInfo.tenantId") || null;
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=externalAPI, PDF_KEY=${pdfKey}, EXTERNAL_API_COUNT=${externalAPIArray.length}`);
 
   for (let i = 0; i < externalAPIArray.length; i++) {
     let temp1 = "";
@@ -168,7 +174,9 @@ export const externalAPIMapping = async function (
       accept: "application/json, text/plain"
     };*/
 
-    header.TENANTID = getStateLevelTenant(get(requestInfo, "userInfo.tenantId"));
+    let tenantForCall = get(requestInfo, "userInfo.tenantId") || (header && (header.tenantId || header.TENANTID));
+    header.TENANTID = getStateLevelTenant(tenantForCall);
+    logger.info(`TENANTID=${header.TENANTID}, CORRELATION_ID=${correlationId}, STAGE=externalAPI, PDF_KEY=${pdfKey}, URI=${externalAPIArray[i].uri}`);
 
     let headerConfig = {
       headers: header
@@ -196,13 +204,15 @@ export const externalAPIMapping = async function (
   try {
     responses = await Promise.all(responsePromises)
   } catch (error) {
+    logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=externalAPI, PDF_KEY=${pdfKey}, ERROR=external service call failed: ${error.message}`);
     logger.error(error.stack || error);
     let errorMessage = (error.response && error.response.data && error.response.data.Errors
         && error.response.data.Errors[0] && error.response.data.Errors[0].message) || error.message;
     throw{
-      message: `Error in external service call: ${errorMessage}`
+      message: `[externalAPIMapping] Error in external service call for PDF_KEY=${pdfKey}: ${errorMessage}`
     };
   }
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=externalAPI, PDF_KEY=${pdfKey}, STATUS=done, RESPONSE_COUNT=${responses.length}`);
   
   for (let i = 0; i < externalAPIArray.length; i++) {
     let res = responses[i].data

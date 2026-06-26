@@ -1,6 +1,7 @@
 import axios from "axios";
 import envVariables from "../EnvironmentVariables";
 import get from "lodash/get";
+import logger from "../config/logger";
 const NodeCache = require("node-cache");
 var moment = require("moment-timezone");
 
@@ -52,8 +53,16 @@ export const getTransformedLocale = (label) => {
     return cacheData;
   }
   else{
+    let correlationId = getCorrelationId(requestInfo);
     let requestInfoTenant = get(requestInfo, "userInfo.tenantId", defaultTenant);
     let statetenantid = getStateLevelTenant(requestInfoTenant);
+
+    if (!statetenantid) {
+      logger.error(`TENANTID=${requestInfoTenant}, CORRELATION_ID=${correlationId}, STAGE=localisation, PDF_KEY=${pdfKey}, ERROR=resolved TENANTID is empty`);
+      throw { message: `unable to resolve TENANTID for localisation, PDF_KEY=${pdfKey}` };
+    }
+
+    logger.info(`TENANTID=${statetenantid}, CORRELATION_ID=${correlationId}, STAGE=localisation, PDF_KEY=${pdfKey}, LOCALE=${locale}, CODE_COUNT=${codeList ? codeList.length : 0}`);
 
     let url = egovLocHost + egovLocSearchCall;
 
@@ -83,6 +92,8 @@ export const getTransformedLocale = (label) => {
       
     })
     .catch((error) => {
+      logger.error(`TENANTID=${statetenantid}, CORRELATION_ID=${correlationId}, STAGE=localisation, ERROR=call to ${url} failed: ${error.message}`);
+      logger.error(error.stack || error);
       throw error
      });
     if(pdfKey!=null)
@@ -245,7 +256,10 @@ export const getStateSchemaIndexPositionInTenantId = () => {
  * @returns {string} state-level tenant
  */
 export const getStateLevelTenant = (tenantId) => {
-  if (!tenantId) return defaultTenant;
+  if (!tenantId) {
+    logger.info(`TENANTID=${defaultTenant}, CORRELATION_ID=null, STAGE=resolveTenant, INPUT_TENANTID=null, IS_CENTRAL_INSTANCE=${isEnvironmentCentralInstance()}`);
+    return defaultTenant;
+  }
 
   let tenantArray = tenantId.split(".");
   let stateTenant = tenantArray[0];
@@ -261,7 +275,19 @@ export const getStateLevelTenant = (tenantId) => {
     }
   }
 
+  logger.info(`TENANTID=${stateTenant}, CORRELATION_ID=null, STAGE=resolveTenant, INPUT_TENANTID=${tenantId}, IS_CENTRAL_INSTANCE=${isEnvironmentCentralInstance()}`);
   return stateTenant;
+}
+
+export const getCorrelationId = (requestInfo, headers) => {
+  let cid = get(requestInfo, "correlationId");
+  if (!cid && headers) {
+    cid = headers["x-correlation-id"] || headers["correlation-id"];
+  }
+  if (!cid) {
+    cid = get(requestInfo, "msgId");
+  }
+  return cid || null;
 }
 
 

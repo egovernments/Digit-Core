@@ -4,6 +4,7 @@ import get from "lodash/get";
 import axios, { post } from "axios";
 var FormData = require("form-data");
 import envVariables from "../EnvironmentVariables";
+import logger from "../config/logger";
 
 let egovFileHost = envVariables.EGOV_FILESTORE_SERVICE_HOST;
 let externalHost = envVariables.EGOV_EXTERNAL_HOST;
@@ -20,15 +21,27 @@ export const fileStoreAPICall = async function(filename, tenantId, fileData, hea
     filename: filename,
     contentType: "application/pdf"
   });
-  let headers = { header };
-  let response = await axios.post(url, form, {
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity,
-    headers: {
-      ...form.getHeaders()
-    }
-  });
-  return get(response.data, "files[0].fileStoreId");
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=filestore, FILENAME=${filename}, STATUS=posting`);
+  let response;
+  try {
+    response = await axios.post(url, form, {
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+      headers: {
+        ...form.getHeaders()
+      }
+    });
+  } catch (error) {
+    logger.error(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=filestore, FILENAME=${filename}, ERROR=filestore call failed: ${error.message}`);
+    logger.error(error.stack || error);
+    throw { message: `filestore upload failed for TENANTID=${tenantId}: ${error.message}` };
+  }
+  let fileStoreId = get(response.data, "files[0].fileStoreId");
+  if (!fileStoreId) {
+    logger.error(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=filestore, FILENAME=${filename}, ERROR=no fileStoreId returned by filestore`);
+    throw { message: `filestore did not return a fileStoreId for TENANTID=${tenantId}` };
+  }
+  return fileStoreId;
 };
 
 export async function getFilestoreUrl(filestoreid, tenantId){

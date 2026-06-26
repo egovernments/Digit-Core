@@ -6,7 +6,8 @@ import {
   getLocalisationkey,
   findLocalisation,
   getDateInRequiredFormat,
-  getValue
+  getValue,
+  getCorrelationId
 } from "./commons";
 
 var jp = require("jsonpath");
@@ -40,6 +41,9 @@ export const directMapping = async (
   var localisationCodes = [];
   var localisationModules = [];
   var variableToModuleMap = {};
+  let correlationId = getCorrelationId(requestInfo);
+  let tenantId = get(requestInfo, "userInfo.tenantId") || null;
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=directMapping, PDF_KEY=${pdfKey}, STATUS=start`);
   // using jp-jsonpath because loadash can not handele '*'
   var objectOfDirectMapping = jp.query(
     dataconfig,
@@ -104,6 +108,7 @@ export const directMapping = async (
           Buffer.from(response.data).toString("base64");
         //  logger.info("loaded image: "+directArr[i].url);
       } catch (error) {
+        logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=directMapping, PDF_KEY=${pdfKey}, ERROR=loading image from ${directArr[i].url} failed: ${error.message}`);
         logger.error(error.stack || error);
         throw {
           message: `error while loading image from: ${directArr[i].url}`
@@ -351,6 +356,7 @@ export const directMapping = async (
     });
   }
   catch (error) {
+    logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=directMapping, PDF_KEY=${pdfKey}, ERROR=localisation service call failed: ${error.message}`);
     logger.error(error.stack || error);
     let errorMessage = (error.response && error.response.data && error.response.data.Errors
         && error.response.data.Errors[0] && error.response.data.Errors[0].message) || error.message;
@@ -396,9 +402,10 @@ export const directMapping = async (
             }
           }
         });
-      });    
+      });
     }
 
   });
-  
+
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=directMapping, PDF_KEY=${pdfKey}, STATUS=done`);
 };
