@@ -94,8 +94,14 @@ export const directMapping = async (
       variableTovalueMap[directArr[i].jPath] = externalHost;
     }
     else if (directArr[i].type == "function") {
-      var fun = Function("type", directArr[i].format);
-      variableTovalueMap[directArr[i].jPath] = fun(directArr[i].val[0]);
+      let input = directArr[i].val && directArr[i].val[0];
+      try {
+        var fun = Function("type", directArr[i].format);
+        variableTovalueMap[directArr[i].jPath] = fun(input);
+      } catch (error) {
+        logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=directMapping, PDF_KEY=${pdfKey}, ERROR=function mapping failed for VARIABLE=${directArr[i].jPath}, SOURCE_PATH=${directArr[i].valJsonPath}, INPUT=${JSON.stringify(input)}, FORMAT=${directArr[i].format}: ${error.message}`);
+        variableTovalueMap[directArr[i].jPath] = "NA";
+      }
     } else if (directArr[i].type == "image") {
       try {
         var response = await axios.get(directArr[i].url, {

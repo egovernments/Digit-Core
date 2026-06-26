@@ -92,6 +92,10 @@ let formatConfigMap = {};
 
 let topicKeyMap = {};
 var topic = [];
+if (!dataConfigUrls || !formatConfigUrls) {
+  logger.error(`[pdf] STAGE=startup, ERROR=missing required env: DATA_CONFIG_URLS and FORMAT_CONFIG_URLS must be set`);
+  process.exit(1);
+}
 var datafileLength = dataConfigUrls.split(",").length;
 let unregisteredLocalisationCodes = [];
 
