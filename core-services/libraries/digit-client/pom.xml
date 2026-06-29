@@ -104,7 +104,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
-            <version>3.4.5</version>
+            <version>4.0.0</version>
             <optional>true</optional>
         </dependency>
 

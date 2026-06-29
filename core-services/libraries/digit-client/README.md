@@ -19,7 +19,7 @@ A Java Spring client library for Digit platform microservices. Provides strongly
 <dependency>
     <groupId>org.digit.services</groupId>
     <artifactId>digit-client</artifactId>
-    <version>1.0.14-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
