@@ -19,6 +19,9 @@ public class BoundarySearchResponse {
     private List<HierarchyRelation> tenantBoundary;
 
     @JsonIgnoreProperties(ignoreUnknown=true)
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EnrichedBoundary {
         @JsonProperty(value="id")
         private String id;
@@ -33,6 +36,9 @@ public class BoundarySearchResponse {
     }
 
     @JsonIgnoreProperties(ignoreUnknown=true)
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class HierarchyRelation {
         @JsonProperty(value="hierarchyType")
         private String hierarchyType;
