@@ -4,6 +4,7 @@ import org.digit.exception.DigitClientErrorHandler;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.Duration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +27,8 @@ public class ApiConfig {
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(this.apiProperties.getConnectTimeout());
-        factory.setReadTimeout(this.apiProperties.getReadTimeout());
+        factory.setConnectTimeout(Duration.ofMillis(this.apiProperties.getConnectTimeout()));
+        factory.setReadTimeout(Duration.ofMillis(this.apiProperties.getReadTimeout()));
         restTemplate.setRequestFactory((ClientHttpRequestFactory)factory);
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         converter.setObjectMapper(this.objectMapper());
