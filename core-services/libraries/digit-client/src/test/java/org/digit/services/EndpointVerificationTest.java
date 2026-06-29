@@ -277,6 +277,70 @@ class EndpointVerificationTest {
         assertEquals(BASE + "/boundary/v3/relationship", urlCaptor.getValue());
     }
 
+    @Test
+    void boundary_isValidBoundariesByCodes_usesRelationshipEndpointWithHierarchyType() {
+        var client = new BoundaryClient(restTemplate, props);
+        var enriched = new BoundarySearchResponse.EnrichedBoundary("id1", "B1", "DISTRICT", null, null);
+        var relation = new BoundarySearchResponse.HierarchyRelation("ADMIN", List.of(enriched));
+        var response = BoundarySearchResponse.builder().tenantBoundary(List.of(relation)).build();
+
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(BoundarySearchResponse.class)))
+                .thenReturn(ResponseEntity.ok(response));
+
+        boolean valid = client.isValidBoundariesByCodes(List.of("B1"), "ADMIN");
+
+        assertTrue(valid);
+        var urlCaptor = ArgumentCaptor.forClass(String.class);
+        verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(BoundarySearchResponse.class));
+        String url = urlCaptor.getValue();
+        assertTrue(url.startsWith(BASE + "/boundary/v3/relationship"));
+        assertTrue(url.contains("hierarchyType=ADMIN"));
+        assertTrue(url.contains("codes=B1"));
+    }
+
+    @Test
+    void boundary_isValidBoundariesByCodes_returnsFalseWhenCodesMissing() {
+        var client = new BoundaryClient(restTemplate, props);
+        var enriched = new BoundarySearchResponse.EnrichedBoundary("id1", "B1", "DISTRICT", null, null);
+        var relation = new BoundarySearchResponse.HierarchyRelation("ADMIN", List.of(enriched));
+        var response = BoundarySearchResponse.builder().tenantBoundary(List.of(relation)).build();
+
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(BoundarySearchResponse.class)))
+                .thenReturn(ResponseEntity.ok(response));
+
+        boolean valid = client.isValidBoundariesByCodes(List.of("B1", "B2"), "ADMIN");
+
+        assertFalse(valid);
+    }
+
+    @Test
+    void boundarySearchResponse_innerClassesDeserializeCorrectly() throws Exception {
+        String json = """
+                {
+                  "tenantBoundary": [{
+                    "hierarchyType": "ADMIN",
+                    "boundary": [{
+                      "id": "id1",
+                      "code": "B1",
+                      "boundaryType": "DISTRICT",
+                      "children": []
+                    }]
+                  }]
+                }
+                """;
+        BoundarySearchResponse response = objectMapper.readValue(json, BoundarySearchResponse.class);
+
+        assertNotNull(response.getTenantBoundary());
+        assertEquals(1, response.getTenantBoundary().size());
+        BoundarySearchResponse.HierarchyRelation relation = response.getTenantBoundary().get(0);
+        assertEquals("ADMIN", relation.getHierarchyType());
+        assertNotNull(relation.getBoundary());
+        assertEquals(1, relation.getBoundary().size());
+        BoundarySearchResponse.EnrichedBoundary boundary = relation.getBoundary().get(0);
+        assertEquals("B1", boundary.getCode());
+        assertEquals("DISTRICT", boundary.getBoundaryType());
+    }
+
     // ── Notification ──────────────────────────────────────────────────────────
     // Spec: POST /notification/v3/email/send
     // Spec: POST /notification/v3/sms/send
