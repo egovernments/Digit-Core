@@ -13,6 +13,8 @@ import org.digit.services.boundary.model.BoundaryRequest;
 import org.digit.services.boundary.model.BoundaryResponse;
 import org.digit.services.boundary.model.BoundarySearchResponse;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -79,22 +81,31 @@ public class BoundaryClient {
         }
     }
 
-    public boolean isValidBoundariesByCodes(List<String> codes) {
+    public boolean isValidBoundariesByCodes(List<String> codes, String hierarchyType) {
         if (codes == null || codes.isEmpty()) {
             throw new DigitClientException("Codes list cannot be null or empty");
         }
+        if (hierarchyType == null || hierarchyType.trim().isEmpty()) {
+            throw new DigitClientException("Hierarchy type cannot be null or empty");
+        }
         try {
-            log.debug("Validating boundaries with codes: {}", codes);
-            StringBuilder urlBuilder = new StringBuilder(this.apiProperties.getBoundaryServiceUrl() + "/boundary/v3/boundaries?");
+            log.debug("Validating boundaries with codes: {} in hierarchyType: {}", codes, hierarchyType);
+            StringBuilder urlBuilder = new StringBuilder(this.apiProperties.getBoundaryServiceUrl() + "/boundary/v3/relationship?");
+            urlBuilder.append("hierarchyType=").append(hierarchyType);
             for (String code : codes) {
-                urlBuilder.append("codes=").append(code).append("&");
+                urlBuilder.append("&codes=").append(code);
             }
-            String url = urlBuilder.toString().replaceAll("&$", "");
-            ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), BoundaryResponse.class, new Object[0]);
-            List<Boundary> boundaries = response.getBody() != null ? ((BoundaryResponse)response.getBody()).getBoundary() : null;
-            int validCount = boundaries != null ? boundaries.size() : 0;
-            boolean allValid = validCount == codes.size();
-            log.debug("Boundary validation result: {} ({} out of {} found)", new Object[]{allValid ? "valid" : "invalid", validCount, codes.size()});
+            ResponseEntity response = this.restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET, new HttpEntity(new HttpHeaders()), BoundarySearchResponse.class, new Object[0]);
+            BoundarySearchResponse body = response.getBody() != null ? (BoundarySearchResponse) response.getBody() : null;
+            Set<String> foundCodes = body != null && body.getTenantBoundary() != null
+                ? body.getTenantBoundary().stream()
+                    .filter(r -> r.getBoundary() != null)
+                    .flatMap(r -> r.getBoundary().stream())
+                    .map(BoundarySearchResponse.EnrichedBoundary::getCode)
+                    .collect(Collectors.toSet())
+                : java.util.Collections.emptySet();
+            boolean allValid = foundCodes.containsAll(codes);
+            log.debug("Boundary validation result: {} ({} out of {} found in hierarchy {})", new Object[]{allValid ? "valid" : "invalid", foundCodes.size(), codes.size(), hierarchyType});
             return allValid;
         }
         catch (Exception e) {
