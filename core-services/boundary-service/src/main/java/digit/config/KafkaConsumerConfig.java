@@ -1,6 +1,7 @@
 package digit.config;
 
 import digit.kafka.Producer;
+import digit.kafka.TransientRelationshipException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -63,6 +64,13 @@ public class KafkaConsumerConfig {
         // Non-blocking backoff: pause the partition between attempts (keeps the consumer polling).
         BackOffHandler backOffHandler = new ContainerPausingBackOffHandler(new ListenerContainerPauseService(registry, kafkaBackOffScheduler));
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, new FixedBackOff(RETRY_INTERVAL_MS, MAX_RETRY_ATTEMPTS), backOffHandler);
+        // Only transient failures (TransientRelationshipException) should be retried with backoff — see
+        // the class javadoc. defaultFalse() flips the classifier so every OTHER (permanent) exception is
+        // non-retryable and goes straight to the recoverer/error topic on first occurrence, instead of
+        // pausing the partition for the full ~5-minute ceiling. addRetryableExceptions alone would be a
+        // no-op here because the framework default already retries everything.
+        handler.defaultFalse();
+        handler.addRetryableExceptions(TransientRelationshipException.class);
         handler.setCommitRecovered(true);
         return handler;
     }

@@ -6,6 +6,7 @@ import digit.service.enrichment.BoundaryRelationshipEnricher;
 import digit.service.validator.BoundaryRelationshipValidator;
 import digit.util.HierarchyUtil;
 import digit.web.models.*;
+import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.egov.tracer.model.CustomException;
@@ -18,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class BoundaryRelationshipService {
 
     private BoundaryRelationshipValidator boundaryRelationshipValidator;
@@ -109,6 +111,16 @@ public class BoundaryRelationshipService {
                         .errorCode(e.getCode())
                         .errorMessage(e.getMessage())
                         .build());
+            } catch (TransientDataAccessException | RecoverableDataAccessException e) {
+                // Validation/enrichment issues DB reads (entity/duplicate/parent lookups). A transient
+                // data-access failure here is NOT bad data — classify it as retryable (the same code the
+                // consumer's RETRYABLE set recognises) so the Kafka path redelivers the whole job instead
+                // of treating a dependency outage as permanent and dead-lettering valid records.
+                failedRelationships.add(FailedBoundaryRelationship.builder()
+                        .boundaryRelationship(boundaryRelationship)
+                        .errorCode(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE)
+                        .errorMessage(withCause(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG, e))
+                        .build());
             } catch (Exception e) {
                 // A non-business RuntimeException (e.g. null userInfo during enrichment, a malformed
                 // hierarchy definition) must not unwind the whole job; record it as a per-record
@@ -196,11 +208,16 @@ public class BoundaryRelationshipService {
     }
 
     /**
-     * Combines the stable, human-readable error message for a code with the specific underlying cause
-     * (when present), so failure records carry both the documented category and the concrete detail.
+     * Returns the stable, caller-facing message for a failure and logs the underlying cause separately.
+     * The concrete exception text is deliberately NOT folded into the returned message: that string is
+     * surfaced in the HTTP response payload and republished to the Kafka error topic, so raw
+     * SQL/driver/internal details must not leak into it.
      */
     private String withCause(String message, Throwable cause) {
-        return (cause != null && cause.getMessage() != null) ? message + " : " + cause.getMessage() : message;
+        if (cause != null) {
+            log.warn("{} (cause: {})", message, cause.toString(), cause);
+        }
+        return message;
     }
 
     /**
