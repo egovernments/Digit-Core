@@ -11,12 +11,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <lombok.version>1.18.34</lombok.version>
         <keycloak.version>25.0.1</keycloak.version>
-        <jackson.version>2.17.2</jackson.version>
+        <!-- Pinned to the Jackson that Keycloak ${keycloak.version} bundles -->
+        <jackson.version>2.17.0</jackson.version>
     </properties>
 
     <dependencies>
@@ -42,25 +43,14 @@
         </dependency>
 
         <!--
-            Apache HttpClient 4.x — provided by Keycloak's own classpath.
-            Declared as "provided" so it is available at compile time but
-            NOT bundled in the fat-jar (avoids classpath conflicts).
-        -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.14</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--
-            Jackson — Keycloak bundles its own Jackson but the version may
-            differ. Shade it in to guarantee compatibility with our DTOs.
+            Jackson — provided by Keycloak at runtime, version pinned to match.
+            Compile-time only; NOT packaged in the jar (no shading needed).
         -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Lombok — annotation processor only, not in the jar -->
@@ -84,29 +74,24 @@
 
     <build>
         <plugins>
+            <!--
+                Declare Lombok as an explicit annotation processor. Required on
+                JDK 23+ (implicit classpath processor discovery is disabled there)
+                and silences the deprecation warning on JDK 21/22.
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals><goal>shade</goal></goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>

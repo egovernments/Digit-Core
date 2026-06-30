@@ -23,7 +23,7 @@ public class SmsOtpAuthenticatorFactory extends OtpAuthenticatorFactory {
 
 	@Override
 	protected ChannelConfig channelConfig(OtpConfig config) {
-		return config.getSms();   // length, destinationType="phone", purpose
+		return config.getSms();   // purpose
 	}
 
 	@Override

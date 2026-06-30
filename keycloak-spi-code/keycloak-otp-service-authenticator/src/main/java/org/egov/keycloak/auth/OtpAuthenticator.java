@@ -112,32 +112,29 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 	// -----------------------------------------------------------------------
 
 	/**
-	 * Calls /otp/v3/generate and stores request_id in the auth session.
-	 * Idempotent — skips if request_id already present (browser reload).
+	 * Calls /otp/v3/generate and stores referenceId in the auth session.
+	 * Idempotent — skips if referenceId already present (browser reload).
 	 */
 	private void generateOtp(AuthenticationFlowContext context) {
 		AuthenticationSessionModel session = context.getAuthenticationSession();
-		if (session.getAuthNote(OtpConstants.SESSION_REQUEST_ID) != null) {
+		if (session.getAuthNote(OtpConstants.SESSION_REFERENCE_ID) != null) {
 			log.debug("OTP already generated for this session – skipping.");
 			return;
 		}
 
 		try {
 			GenerateOtpRequest req = GenerateOtpRequest.builder()
-					.destination(resolveDestination(context))
-					.destinationType(channelConfig.destinationType())   // from injected channel
+					.identifier(resolveDestination(context))            // raw email/phone; service infers type
 					.purpose(channelConfig.purpose())                   // from injected channel
-					.otpLength(channelConfig.length())                  // from injected channel
 					.build();
 
 			GenerateOtpResponse res = otpClient.generate(context.getRealm().getName(), req);
 
-			session.setAuthNote(OtpConstants.SESSION_REQUEST_ID, res.getRequestId());
-			session.setAuthNote(OtpConstants.SESSION_EXPIRES_AT,
-					res.getExpiresAt() != null ? res.getExpiresAt() : "");
+			session.setAuthNote(OtpConstants.SESSION_REFERENCE_ID, res.getReferenceId());
+			session.setAuthNote(OtpConstants.SESSION_EXPIRES_AT, String.valueOf(res.getExpiresIn()));
 
-			log.infof("OTP generated – request_id=%s  destType=%s  user=%s",
-					res.getRequestId(), channelConfig.destinationType(),
+			log.infof("OTP generated – referenceId=%s  purpose=%s  user=%s",
+					res.getReferenceId(), channelConfig.purpose(),
 					context.getUser().getUsername());
 
 		} catch (OtpClientException e) {
@@ -156,9 +153,9 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 	// -----------------------------------------------------------------------
 
 	private void handleResend(AuthenticationFlowContext context) {
-		String requestId = getRequestId(context);
+		String referenceId = getReferenceId(context);
 
-		if (requestId == null) {
+		if (referenceId == null) {
 			// Session lost — generate a fresh OTP
 			clearSession(context);
 			generateOtp(context);
@@ -168,18 +165,18 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 
 		try {
 			otpClient.resend(context.getRealm().getName(),
-					ResendOtpRequest.builder().requestId(requestId).build());
+					ResendOtpRequest.builder().referenceId(referenceId).build());
 
-			log.infof("OTP resent – request_id=%s  user=%s",
-					requestId, context.getUser().getUsername());
+			log.infof("OTP resent – referenceId=%s  user=%s",
+					referenceId, context.getUser().getUsername());
 
 		} catch (OtpClientException e) {
 			// 429 = too soon; surface a message but stay on the form
-			log.warnf(e, "Resend failed HTTP %d for request_id=%s", e.getStatusCode(), requestId);
+			log.warnf(e, "Resend failed HTTP %d for referenceId=%s", e.getStatusCode(), referenceId);
 			showForm(context, "otpResendFailed", null);
 			return;
 		} catch (Exception e) {
-			log.errorf(e, "Resend unexpected error for request_id=%s", requestId);
+			log.errorf(e, "Resend unexpected error for referenceId=%s", referenceId);
 			showForm(context, "otpResendFailed", null);
 			return;
 		}
@@ -192,19 +189,18 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 	// -----------------------------------------------------------------------
 
 	private void handleCancel(AuthenticationFlowContext context) {
-		String requestId = getRequestId(context);
+		String referenceId = getReferenceId(context);
 
-		if (requestId != null) {
+		if (referenceId != null) {
 			try {
 				otpClient.invalidate(context.getRealm().getName(),
 						InvalidateOtpRequest.builder()
-								.requestId(requestId)
-								.reason("user_cancelled")
+								.referenceId(referenceId)
 								.build());
-				log.infof("OTP invalidated – request_id=%s  user=%s",
-						requestId, context.getUser().getUsername());
+				log.infof("OTP invalidated – referenceId=%s  user=%s",
+						referenceId, context.getUser().getUsername());
 			} catch (Exception e) {
-				log.warnf(e, "Failed to invalidate OTP request_id=%s – resetting flow anyway.", requestId);
+				log.warnf(e, "Failed to invalidate OTP referenceId=%s – resetting flow anyway.", referenceId);
 			}
 		}
 
@@ -220,9 +216,9 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 	// -----------------------------------------------------------------------
 
 	private void verifyBrowserFlow(AuthenticationFlowContext context, String otp) {
-		String requestId = getRequestId(context);
+		String referenceId = getReferenceId(context);
 
-		if (requestId == null) {
+		if (referenceId == null) {
 			// Auth session lost (e.g. idle timeout)
 			clearSession(context);
 			context.getEvent().user(context.getUser()).error(Errors.EXPIRED_CODE);
@@ -234,34 +230,45 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 
 		try {
 			VerifyOtpResponse res = otpClient.verify(context.getRealm().getName(),
-					VerifyOtpRequest.builder().requestId(requestId).otp(otp).build());
+					VerifyOtpRequest.builder()
+							.referenceId(referenceId)
+							.otp(otp)
+							.purpose(channelConfig.purpose())
+							.build());
 
-			if ("VERIFIED".equalsIgnoreCase(res.getStatus())) {
+			if (res.isVerified()) {
 				clearSession(context);
-				log.infof("OTP verified – request_id=%s  user=%s",
-						requestId, context.getUser().getUsername());
+				log.infof("OTP verified – referenceId=%s  user=%s",
+						referenceId, context.getUser().getUsername());
 				context.success();
-
-			} else if ("EXPIRED".equalsIgnoreCase(res.getStatus())) {
-				clearSession(context);
-				context.getEvent().user(context.getUser()).error(Errors.EXPIRED_CODE);
-				Response cr = errorForm(context,
-						Messages.EXPIRED_ACTION_TOKEN_SESSION_EXISTS, OtpConstants.PARAM_OTP);
-				context.failureChallenge(AuthenticationFlowError.EXPIRED_CODE, cr);
-
 			} else {
-				// Wrong code — keep session alive so user can retry or resend
+				// HTTP 200 without verified=true is unexpected — treat as a wrong code
 				context.getEvent().user(context.getUser()).error(Errors.INVALID_USER_CREDENTIALS);
 				Response cr = errorForm(context, Messages.INVALID_ACCESS_CODE, OtpConstants.PARAM_OTP);
 				context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, cr);
 			}
 
 		} catch (OtpClientException e) {
-			log.errorf(e, "Verify failed HTTP %d for request_id=%s", e.getStatusCode(), requestId);
-			Response cr = errorForm(context, Messages.UNEXPECTED_ERROR_HANDLING_REQUEST, null);
-			context.failureChallenge(AuthenticationFlowError.INTERNAL_ERROR, cr);
+			int sc = e.getStatusCode();
+			if (sc == 410 || sc == 423) {
+				// 410 expired, 423 locked — terminal, drop the session
+				clearSession(context);
+				context.getEvent().user(context.getUser()).error(Errors.EXPIRED_CODE);
+				Response cr = errorForm(context,
+						Messages.EXPIRED_ACTION_TOKEN_SESSION_EXISTS, OtpConstants.PARAM_OTP);
+				context.failureChallenge(AuthenticationFlowError.EXPIRED_CODE, cr);
+			} else if (sc == 400 || sc == 404 || sc == 422) {
+				// 400 bad/malformed code, 404 not found, 422 wrong code — keep session so user can retry or resend
+				context.getEvent().user(context.getUser()).error(Errors.INVALID_USER_CREDENTIALS);
+				Response cr = errorForm(context, Messages.INVALID_ACCESS_CODE, OtpConstants.PARAM_OTP);
+				context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, cr);
+			} else {
+				log.errorf(e, "Verify failed HTTP %d for referenceId=%s", sc, referenceId);
+				Response cr = errorForm(context, Messages.UNEXPECTED_ERROR_HANDLING_REQUEST, null);
+				context.failureChallenge(AuthenticationFlowError.INTERNAL_ERROR, cr);
+			}
 		} catch (Exception e) {
-			log.errorf(e, "Verify unexpected error for request_id=%s", requestId);
+			log.errorf(e, "Verify unexpected error for referenceId=%s", referenceId);
 			Response cr = errorForm(context, Messages.UNEXPECTED_ERROR_HANDLING_REQUEST, null);
 			context.failureChallenge(AuthenticationFlowError.INTERNAL_ERROR, cr);
 		}
@@ -276,10 +283,10 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 				context.getHttpRequest().getDecodedFormParameters();
 
 		String enteredOtp = params.getFirst(OtpConstants.PARAM_OTP);
-		String requestId = params.getFirst("request_id");
+		String referenceId = params.getFirst("referenceId");
 
 		boolean hasOtp = enteredOtp != null && !enteredOtp.isBlank();
-		boolean hasRequestId = requestId != null && !requestId.isBlank();
+		boolean hasReferenceId = referenceId != null && !referenceId.isBlank();
 
 		// -------------------------------
 		// ROUND 1 → Generate OTP
@@ -288,15 +295,15 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 
 			generateOtp(context);
 
-			String generatedRequestId = getRequestId(context);
+			String generatedReferenceId = getReferenceId(context);
 
 			context.getEvent().user(context.getUser()).error(Errors.INVALID_USER_CREDENTIALS);
 
 			context.failure(AuthenticationFlowError.INVALID_CREDENTIALS,
 					Response.status(Response.Status.BAD_REQUEST)
 							.entity(String.format(
-									"{\"error\":\"otp_required\",\"request_id\":\"%s\",\"error_description\":\"OTP sent. Retry with otp and request_id\"}",
-									generatedRequestId))
+									"{\"error\":\"otp_required\",\"referenceId\":\"%s\",\"error_description\":\"OTP sent. Retry with otp and referenceId\"}",
+									generatedReferenceId))
 							.type("application/json")
 							.build());
 
@@ -304,13 +311,13 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 		}
 
 		// -------------------------------
-		// ROUND 2 → Validate request_id
+		// ROUND 2 → Validate referenceId
 		// -------------------------------
-		if (!hasRequestId) {
+		if (!hasReferenceId) {
 			context.failure(AuthenticationFlowError.INVALID_CREDENTIALS,
 					jsonError(Response.Status.BAD_REQUEST,
 							"invalid_request",
-							"request_id is required"));
+							"referenceId is required"));
 			return;
 		}
 
@@ -320,24 +327,17 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 		try {
 			VerifyOtpResponse res = otpClient.verify(context.getRealm().getName(),
 					VerifyOtpRequest.builder()
-							.requestId(requestId)
+							.referenceId(referenceId)
 							.otp(enteredOtp)
+							.purpose(channelConfig.purpose())
 							.build());
 
-			if ("VERIFIED".equalsIgnoreCase(res.getStatus())) {
+			if (res.isVerified()) {
 
-				log.infof("OTP verified (direct grant) – request_id=%s user=%s",
-						requestId, context.getUser().getUsername());
+				log.infof("OTP verified (direct grant) – referenceId=%s user=%s",
+						referenceId, context.getUser().getUsername());
 
 				context.success();
-
-			} else if ("EXPIRED".equalsIgnoreCase(res.getStatus())) {
-
-				context.getEvent().user(context.getUser()).error(Errors.EXPIRED_CODE);
-
-				context.failure(AuthenticationFlowError.EXPIRED_CODE,
-						jsonError(Response.Status.BAD_REQUEST,
-								"otp_expired", "OTP expired"));
 
 			} else {
 
@@ -350,16 +350,36 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 
 		} catch (OtpClientException e) {
 
-			log.errorf(e, "Direct grant verify failed HTTP %d for request_id=%s",
-					e.getStatusCode(), requestId);
+			int sc = e.getStatusCode();
+			if (sc == 410 || sc == 423) {
 
-			context.failure(AuthenticationFlowError.INTERNAL_ERROR,
-					jsonError(Response.Status.INTERNAL_SERVER_ERROR,
-							"server_error", "OTP verification failed"));
+				context.getEvent().user(context.getUser()).error(Errors.EXPIRED_CODE);
+
+				context.failure(AuthenticationFlowError.EXPIRED_CODE,
+						jsonError(Response.Status.BAD_REQUEST,
+								"otp_expired", "OTP expired"));
+
+			} else if (sc == 400 || sc == 404 || sc == 422) {
+
+				context.getEvent().user(context.getUser()).error(Errors.INVALID_USER_CREDENTIALS);
+
+				context.failure(AuthenticationFlowError.INVALID_CREDENTIALS,
+						jsonError(Response.Status.BAD_REQUEST,
+								"invalid_otp", "Invalid OTP"));
+
+			} else {
+
+				log.errorf(e, "Direct grant verify failed HTTP %d for referenceId=%s",
+						sc, referenceId);
+
+				context.failure(AuthenticationFlowError.INTERNAL_ERROR,
+						jsonError(Response.Status.INTERNAL_SERVER_ERROR,
+								"server_error", "OTP verification failed"));
+			}
 
 		} catch (Exception e) {
 
-			log.errorf(e, "Direct grant verify unexpected error for request_id=%s", requestId);
+			log.errorf(e, "Direct grant verify unexpected error for referenceId=%s", referenceId);
 
 			context.failure(AuthenticationFlowError.INTERNAL_ERROR,
 					jsonError(Response.Status.INTERNAL_SERVER_ERROR,
@@ -449,14 +469,14 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 	public void close() {
 	}
 
-	private String getRequestId(AuthenticationFlowContext context) {
+	private String getReferenceId(AuthenticationFlowContext context) {
 		return context.getAuthenticationSession()
-				.getAuthNote(OtpConstants.SESSION_REQUEST_ID);
+				.getAuthNote(OtpConstants.SESSION_REFERENCE_ID);
 	}
 
 	private void clearSession(AuthenticationFlowContext context) {
 		AuthenticationSessionModel s = context.getAuthenticationSession();
-		s.removeAuthNote(OtpConstants.SESSION_REQUEST_ID);
+		s.removeAuthNote(OtpConstants.SESSION_REFERENCE_ID);
 		s.removeAuthNote(OtpConstants.SESSION_EXPIRES_AT);
 	}
 

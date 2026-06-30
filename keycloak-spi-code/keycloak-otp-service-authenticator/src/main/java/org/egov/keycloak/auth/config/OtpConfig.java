@@ -33,6 +33,10 @@ public class OtpConfig {
 	private final String emailDestinationAttr;
 	private final String smsDestinationAttr;
 
+	// HTTP client transport timeouts (milliseconds)
+	private final int connectTimeoutMs;
+	private final int requestTimeoutMs;
+
 	public OtpConfig() {
 		this.otpHost = getEnv("OTP_HOST", "http://localhost:8081");
 		this.otpGeneratePath = getEnv("OTP_GENERATE_PATH", "/otp/v3/generate");
@@ -40,33 +44,23 @@ public class OtpConfig {
 		this.otpVerifyPath = getEnv("OTP_VERIFY_PATH", "/otp/v3/verify");
 		this.otpInvalidatePath = getEnv("OTP_INVALIDATE_PATH", "/otp/v3/invalidate");
 
-		this.email = new ChannelConfig(
-				getEnvInt("OTP_EMAIL_LENGTH", 6),
-				getEnv("OTP_EMAIL_DESTINATION_TYPE", "email"),
-				getEnv("OTP_EMAIL_PURPOSE", "login")
-		);
-
-		this.sms = new ChannelConfig(
-				getEnvInt("OTP_SMS_LENGTH", 6),
-				getEnv("OTP_SMS_DESTINATION_TYPE", "phone"),
-				getEnv("OTP_SMS_PURPOSE", "login")
-		);
+		this.email = new ChannelConfig(getEnv("OTP_EMAIL_PURPOSE", "login"));
+		this.sms = new ChannelConfig(getEnv("OTP_SMS_PURPOSE", "login"));
 
 		this.emailDestinationAttr = getEnv("KEYCLOAK_EMAIL_DESTINATION_ATTRIBUTE", "email");
 		this.smsDestinationAttr = getEnv("KEYCLOAK_SMS_DESTINATION_ATTRIBUTE", "mobileNumber");
 
-		log.infof("OtpConfig loaded: host=%s emailLen=%d smsLen=%d",
-				otpHost, email.length(), sms.length());
+		this.connectTimeoutMs = getEnvInt("HTTP_CLIENT_CONNECT_TIMEOUT_MS", 3000);
+		this.requestTimeoutMs = getEnvInt("HTTP_CLIENT_REQUEST_TIMEOUT_MS", 5000);
+
+		log.infof("OtpConfig loaded: host=%s emailPurpose=%s smsPurpose=%s connectTimeoutMs=%d requestTimeoutMs=%d",
+				otpHost, email.purpose(), sms.purpose(), connectTimeoutMs, requestTimeoutMs);
 	}
 
 	private static String getEnv(String name, String defaultValue) {
 		String v = System.getenv(name);
 		return (v != null && !v.isBlank()) ? v.trim() : defaultValue;
 	}
-
-	// -----------------------------------------------------------------------
-	// Private helpers — only this class reads env vars
-	// -----------------------------------------------------------------------
 
 	private static int getEnvInt(String name, int defaultValue) {
 		String v = System.getenv(name);
@@ -82,10 +76,9 @@ public class OtpConfig {
 	/**
 	 * Immutable per-channel settings.
 	 *
-	 * @param length          number of OTP digits
-	 * @param destinationType value forwarded to the OTP service (e.g. "email", "phone")
-	 * @param purpose         value forwarded to the OTP service (e.g. "login")
+	 * @param purpose value forwarded to the OTP service (e.g. "login"). OTP length
+	 *                and destination type are now decided by the OTP service itself.
 	 */
-	public record ChannelConfig(int length, String destinationType, String purpose) {
+	public record ChannelConfig(String purpose) {
 	}
 }

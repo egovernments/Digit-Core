@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InvalidateOtpRequest {
 
-	@JsonProperty("request_id")
-	public String requestId;
-
-	@JsonProperty("reason")
-	public String reason;
+	@JsonProperty("referenceId")
+	public String referenceId;
 }

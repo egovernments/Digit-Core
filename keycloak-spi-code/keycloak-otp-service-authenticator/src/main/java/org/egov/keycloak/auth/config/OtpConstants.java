@@ -11,7 +11,7 @@ import lombok.experimental.UtilityClass;
 public class OtpConstants {
 
 	// Auth-session note keys
-	public static final String SESSION_REQUEST_ID           = "otpRequestId";
+	public static final String SESSION_REFERENCE_ID         = "otpReferenceId";
 	public static final String SESSION_RESEND_ALLOWED_AFTER = "otpResendAllowedAfter";
 	public static final String SESSION_EXPIRES_AT           = "otpExpiresAt";
 

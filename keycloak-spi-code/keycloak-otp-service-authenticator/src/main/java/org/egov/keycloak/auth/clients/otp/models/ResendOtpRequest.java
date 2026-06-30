@@ -16,9 +16,9 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResendOtpRequest {
 
-	@JsonProperty("request_id")
-	public String requestId;
+	@JsonProperty("referenceId")
+	public String referenceId;
 
-	@JsonProperty("client_metadata")
-	public Map<String, Object> clientMetadata;
+	@JsonProperty("metadata")
+	public Map<String, String> metadata;
 }

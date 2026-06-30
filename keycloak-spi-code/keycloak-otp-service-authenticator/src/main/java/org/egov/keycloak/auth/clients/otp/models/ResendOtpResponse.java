@@ -1,21 +1,24 @@
 package org.egov.keycloak.auth.clients.otp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ResendOtpResponse {
 
-	@JsonProperty("request_id")
-	public String requestId;
+	@JsonProperty("referenceId")
+	public String referenceId;
 
-	@JsonProperty("resend_count")
-	public int resendCount;
+	@JsonProperty("expiresIn")
+	public int expiresIn;
 
-	@JsonProperty("resend_allowed_after")
-	public String resendAllowedAfter;
+	@JsonProperty("cooldownSeconds")
+	public int cooldownSeconds;
 
-	@JsonProperty("expires_at")
-	public String expiresAt;
-
-	@JsonProperty("status")
-	public String status;
+	@JsonProperty("purpose")
+	public String purpose;
 }

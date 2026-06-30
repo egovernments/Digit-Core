@@ -10,15 +10,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VerifyOtpResponse {
 
-	@JsonProperty("request_id")
-	public String requestId;
+	@JsonProperty("verified")
+	public boolean verified;
 
-	@JsonProperty("status")
-	public String status;
-
-	@JsonProperty("verified_at")
-	public String verifiedAt;
-
-	@JsonProperty("message")
-	public String message;
+	@JsonProperty("purpose")
+	public String purpose;
 }

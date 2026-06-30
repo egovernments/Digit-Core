@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,12 +14,15 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VerifyOtpRequest {
 
-	@JsonProperty("request_id")
-	public String requestId;
+	@JsonProperty("referenceId")
+	public String referenceId;
+
+	@JsonProperty("purpose")
+	public String purpose;
 
 	@JsonProperty("otp")
 	public String otp;
 
-	@JsonProperty("client_metadata")
-	public Map<String, Object> clientMetadata;
+	@JsonProperty("sessionId")
+	public String sessionId;
 }

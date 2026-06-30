@@ -17,21 +17,13 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GenerateOtpRequest {
 
-	@JsonProperty("destination")
-	public String destination;
-
-	@JsonProperty("destination_type")
-	public String destinationType;
+	/** Raw destination (email or phone) — the service infers the type. */
+	@JsonProperty("identifier")
+	public String identifier;
 
 	@JsonProperty("purpose")
 	public String purpose;
 
-	@JsonProperty("otp_length")
-	public Integer otpLength;
-
-	@JsonProperty("otp_charset")
-	public String otpCharset;
-
-	@JsonProperty("client_metadata")
-	public Map<String, Object> clientMetadata;
+	@JsonProperty("metadata")
+	public Map<String, String> metadata;
 }

@@ -23,7 +23,7 @@ public class EmailOtpAuthenticatorFactory extends OtpAuthenticatorFactory {
 
 	@Override
 	protected ChannelConfig channelConfig(OtpConfig config) {
-		return config.getEmail();   // length, destinationType="email", purpose
+		return config.getEmail();   // purpose
 	}
 
 	@Override

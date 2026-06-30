@@ -1,8 +1,6 @@
 package org.egov.keycloak.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.egov.keycloak.auth.clients.otp.OtpClient;
 import org.egov.keycloak.auth.clients.otp.OtpClientImpl;
 import org.egov.keycloak.auth.config.OtpConfig;
@@ -16,6 +14,8 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.credential.OTPCredentialModel;
 import org.keycloak.provider.ProviderConfigProperty;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -64,7 +64,9 @@ public abstract class OtpAuthenticatorFactory implements AuthenticatorFactory {
 	@Override
 	public void init(Config.Scope scope) {
 		OtpConfig config = new OtpConfig();
-		CloseableHttpClient hc = HttpClients.createDefault();
+		HttpClient hc = HttpClient.newBuilder()
+				.connectTimeout(Duration.ofMillis(config.getConnectTimeoutMs()))
+				.build();
 		OtpClient client = new OtpClientImpl(config, hc, new ObjectMapper());
 
 		// Each factory instantiates the same authenticator class but injects

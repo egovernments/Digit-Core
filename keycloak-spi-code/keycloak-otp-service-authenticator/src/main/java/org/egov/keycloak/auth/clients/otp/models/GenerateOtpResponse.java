@@ -10,21 +10,12 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GenerateOtpResponse {
 
-	@JsonProperty("request_id")
-	public String requestId;
+	@JsonProperty("referenceId")
+	public String referenceId;
 
-	@JsonProperty("destination")
-	public String destination;
+	@JsonProperty("expiresIn")
+	public int expiresIn;
 
-	@JsonProperty("resend_allowed_after")
-	public String resendAllowedAfter;
-
-	@JsonProperty("expires_at")
-	public String expiresAt;
-
-	@JsonProperty("status")
-	public String status;
-
-	@JsonProperty("message")
-	public String message;
+	@JsonProperty("cooldownSeconds")
+	public int cooldownSeconds;
 }

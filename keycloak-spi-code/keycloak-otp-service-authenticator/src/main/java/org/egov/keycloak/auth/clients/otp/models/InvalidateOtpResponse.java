@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InvalidateOtpResponse {
 
-	@JsonProperty("request_id")
-	public String requestId;
+	@JsonProperty("invalidated")
+	public boolean invalidated;
 
-	@JsonProperty("status")
-	public String status;
+	@JsonProperty("purpose")
+	public String purpose;
 }
