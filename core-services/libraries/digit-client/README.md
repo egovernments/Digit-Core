@@ -305,13 +305,37 @@ Endpoint base: configured via `digit.services.boundary.base-url`
 |--------|----------|-------------|
 | `createBoundaries(List<Boundary>)` | `POST /boundary/v3/boundaries` | Create boundary records |
 | `searchBoundariesByCodes(List<String> codes)` | `GET /boundary/v3/boundaries?codes=...` | Search boundaries by codes |
-| `isValidBoundariesByCodes(List<String> codes)` | `GET /boundary/v3/boundaries?codes=...` | Validate that all codes exist |
+| `isValidBoundariesByCodes(List<String> codes, String hierarchyType)` | `GET /boundary/v3/relationship?hierarchyType=...&codes=...` | Validate that all codes exist in the given hierarchy |
 | `updateBoundary(String boundaryId, Boundary)` | `PUT /boundary/v3/boundaries/{id}` | Update a boundary |
 | `createBoundaryHierarchy(BoundaryHierarchy)` | `POST /boundary/v3/hierarchy` | Create hierarchy definition |
 | `searchBoundaryHierarchy(String hierarchyType)` | `GET /boundary/v3/hierarchy?hierarchyType=...` | Find hierarchy by type |
 | `createBoundaryRelationship(BoundaryRelationship)` | `POST /boundary/v3/relationship` | Create parent-child relationship |
 | `searchBoundaryRelationships(String hierarchyType, String boundaryType, boolean includeChildren)` | `GET /boundary/v3/relationship?...` | Search relationships |
 | `updateBoundaryRelationship(String relationshipId, BoundaryRelationship)` | `PUT /boundary/v3/relationship/{id}` | Update a relationship |
+
+#### Usage
+
+The `hierarchyType` parameter in `isValidBoundariesByCodes` must match the hierarchy registered in the boundary service for your tenant (e.g. `ADMIN`). Inject it from config rather than hardcoding:
+
+```java
+@Value("${your-service.boundary.hierarchy-type}")
+private String boundaryHierarchyType;
+
+// Validate that a boundary code exists in the hierarchy before accepting user input
+boolean valid = boundaryClient.isValidBoundariesByCodes(
+    List.of("TENANT-BOUNDARIES_BOUNDARY_002"), boundaryHierarchyType);
+
+// Search boundaries by code
+BoundarySearchResponse result = boundaryClient.searchBoundariesByCodes(
+    List.of("TENANT-BOUNDARIES_BOUNDARY_001", "TENANT-BOUNDARIES_BOUNDARY_002"));
+```
+
+Add to your `application.properties`:
+
+```properties
+# Must match the hierarchyType registered in the boundary service for your tenant
+your-service.boundary.hierarchy-type=ADMIN
+```
 
 ---
 
@@ -405,6 +429,10 @@ digit.propagate.headers.prefixes=x-ctx-,x-trace-
 
 This means **you never need to pass `tenantId` as a method parameter** — it flows automatically via `X-Tenant-ID`.
 
+> **Important — Keycloak users:** The library resolves tenant ID by checking the `X-Tenant-ID` request header first. If the header is absent, it falls back to extracting a `realm` claim from the JWT token. Keycloak does **not** include a `realm` claim in its tokens (the realm is encoded in the `iss` URL, not as a standalone claim). This means any method that requires tenant context internally — such as `updateRegistryData` — will throw `DigitClientException: Tenant ID (realm) not found in JWT token` unless `X-Tenant-ID` is present on the incoming request.
+>
+> Always pass `X-Tenant-ID: <tenant>` on every request to your service when using Keycloak. Create and search operations are unaffected; update operations will fail without it.
+
 ---
 
 ## Redis Caching (Registry)
@@ -416,6 +444,22 @@ When `spring.cache.type=redis` is configured, `RegistryClient` caches `{registry
 - **Cache key format**: `registry:{schemaCode}:{tenantId}:{key}:{value}`
 
 If Redis is not configured the client falls back to the original search-before-update behavior.
+
+> **Spring Boot 4 — conditional `CacheManager` beans:** Spring Boot 4 fails fast if a `RedisCacheManager` bean is present but no Redis connection is available, even when `spring.cache.type=simple`. If your service defines its own `@Configuration` class that creates a `CacheManager` bean, make the Redis variant conditional:
+>
+> ```java
+> @Bean
+> @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
+> public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) { ... }
+>
+> @Bean
+> @ConditionalOnMissingBean(CacheManager.class)
+> public CacheManager simpleCacheManager() {
+>     return new ConcurrentMapCacheManager(...);
+> }
+> ```
+>
+> Without this, setting `spring.cache.type=simple` in `application.properties` has no effect and the app fails to start if Redis is not running.
 
 ---
 
