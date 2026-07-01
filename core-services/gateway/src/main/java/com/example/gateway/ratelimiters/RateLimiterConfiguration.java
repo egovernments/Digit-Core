@@ -34,7 +34,11 @@ public class RateLimiterConfiguration {
     @Bean
     @Primary
     public KeyResolver ipKeyResolver() {
-        return exchange -> Mono.just(Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getAddress().getHostAddress());
+        return exchange -> {
+            String routeId = exchange.getAttribute("org.springframework.cloud.gateway.support.ServerWebExchangeUtils.gatewayPredicateMatchedPathRouteIdAttr");
+            String ip = Objects.requireNonNull(exchange.getRequest().getRemoteAddress().getAddress().getHostAddress());
+            return Mono.just(routeId + ":" + ip);
+        };
     }
 
 
@@ -46,12 +50,14 @@ public class RateLimiterConfiguration {
     public KeyResolver userKeyResolver() {
 
         return exchange -> {
+            String routeId = exchange.getAttribute("org.springframework.cloud.gateway.support.ServerWebExchangeUtils.gatewayPredicateMatchedPathRouteIdAttr");
+
             return Mono.just(modifyRequestBodyFilter.apply(
                     new ModifyRequestBodyGatewayFilterFactory
                             .Config()
                             .setRewriteFunction(Map.class, String.class, (serverWebExchange, s) -> {
                                 RequestInfo requestInfo = objectMapper.convertValue(s.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-                                return Mono.just(requestInfo.getUserInfo().getUuid());
+                                return Mono.just(routeId+ ":" + requestInfo.getUserInfo().getUuid());
                             })).toString());
         };
     }
