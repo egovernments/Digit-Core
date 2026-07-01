@@ -1,30 +1,39 @@
-
-
 # Changelog
+
 All notable changes to this module will be documented in this file.
 
+## 2.10.1 - 2026-07-01
+
+- Upgraded tracer version to handle DataAccessException errors through `@ControllerAdvice`
+
 ## 2.10.0 - 2025-05-27
+
 - Fixed Flyway migration issue by removing hardcoded `public` schema name (requires manual deletion of existing row in `public.egov_enc_service_schema`)
 
 ## 2.9.1 - 2025-05-21
+
 - Upgraded tracer version from 2.9.0 to 2.9.1
 - added variables in application.properties required for opentelemetry
 
 ## 2.9.0 - 2024-02-29
+
 - Upgraded spring boot version from 2.2.13.RELEASE to 3.2.2
 - Upgraded java version from 1.8 to 17
 - Upgraded postgresql version to 42.7.1
 - Upgraded lombok version from 1.18.8 to 1.18.22
 
 ## 1.1.4 - 2023-08-11
+
 - Central Instance Library Integration
 
 ## 1.1.3 - 2022007016
-- Fixed: In a multi pod cluster, the service now checks if another deployment of the service has added a new key to the 
+
+- Fixed: In a multi pod cluster, the service now checks if another deployment of the service has added a new key to the
   database,
-  before throwing the key not found error. 
+  before throwing the key not found error.
 
 ## 1.1.2 - 2022-01-13
+
 - Updated to log4j2 version 2.17.1
 
 ## 1.1.1 - 2021-02-26
