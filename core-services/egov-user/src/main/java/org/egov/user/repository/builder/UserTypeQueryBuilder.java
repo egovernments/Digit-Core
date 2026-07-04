@@ -119,7 +119,9 @@ public class UserTypeQueryBuilder {
         if (CollectionUtils.isEmpty(userSearchCriteria.getId()) && userSearchCriteria.getUserName() == null
                 && userSearchCriteria.getName() == null && userSearchCriteria.getEmailId() == null
                 && userSearchCriteria.getActive() == null && userSearchCriteria.getTenantId() == null
-                && userSearchCriteria.getType() == null && userSearchCriteria.getUuid() == null)
+                && userSearchCriteria.getType() == null && userSearchCriteria.getUuid() == null
+                && CollectionUtils.isEmpty(userSearchCriteria.getUserNames())
+                && CollectionUtils.isEmpty(userSearchCriteria.getMobileNumbers()))
             return;
 
         selectQuery.append(" WHERE");
@@ -141,6 +143,13 @@ public class UserTypeQueryBuilder {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.username = ?");
             preparedStatementValues.add(userSearchCriteria.getUserName().trim());
+        }
+
+        if (!isEmpty(userSearchCriteria.getUserNames())) {
+            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
+            selectQuery.append(" userdata.username IN (")
+                    .append(getQueryForCollection(userSearchCriteria.getUserNames(), preparedStatementValues))
+                    .append(" )");
         }
 
         if (!userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getName() != null) {
@@ -179,6 +188,13 @@ public class UserTypeQueryBuilder {
         	isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.mobilenumber = ? ");
             preparedStatementValues.add(userSearchCriteria.getMobileNumber().trim());
+        }
+
+        if (!isEmpty(userSearchCriteria.getMobileNumbers())) {
+            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
+            selectQuery.append(" userdata.mobilenumber IN (")
+                    .append(getQueryForCollection(userSearchCriteria.getMobileNumbers(), preparedStatementValues))
+                    .append(" )");
         }
 
 //        if (userSearchCriteria.getPan() != null) {

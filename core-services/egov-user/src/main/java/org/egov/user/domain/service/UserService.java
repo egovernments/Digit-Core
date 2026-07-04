@@ -196,20 +196,48 @@ public class UserService {
         String tenantId = searchCriteria.getTenantId();
 
         searchCriteria.setTenantId(userUtils.getStateLevelTenantForCitizen(searchCriteria.getTenantId(), searchCriteria.getType()));
+
+        // List precedence: if a bulk list is set alongside its scalar counterpart,
+        // the list wins and the scalar is cleared (with a warning). Prevents
+        // ambiguous "AND-them-together" behaviour when a caller sets both.
+        if (!isEmpty(searchCriteria.getUserNames()) && searchCriteria.getUserName() != null) {
+            log.warn("Both userName and userNames set on search — using userNames, dropping scalar userName");
+            searchCriteria.setUserName(null);
+        }
+        if (!isEmpty(searchCriteria.getMobileNumbers()) && searchCriteria.getMobileNumber() != null) {
+            log.warn("Both mobileNumber and mobileNumbers set on search — using mobileNumbers, dropping scalar mobileNumber");
+            searchCriteria.setMobileNumber(null);
+        }
+
         /* encrypt here / encrypted searchcriteria will be used for search*/
-        
+
         String altmobnumber=null;
-        
+
         if(searchCriteria.getMobileNumber()!=null) {
         	altmobnumber = searchCriteria.getMobileNumber();
         }
 
+        // Bulk-encrypt the list fields first (one HTTP call per non-empty list).
+        // The wrapped User objects go through the same SecurityPolicy
+        // ("User" → deterministic on username/mobileNumber), so ciphertext matches
+        // what the DB column already stores.
+        List<String> encryptedUserNames = encryptStringListAsUserField(
+                tenantId, searchCriteria.getUserNames(), UserField.USERNAME);
+        List<String> encryptedMobileNumbers = encryptStringListAsUserField(
+                tenantId, searchCriteria.getMobileNumbers(), UserField.MOBILE_NUMBER);
+
         searchCriteria = encryptionDecryptionUtil.encryptObject(tenantId, searchCriteria, "User", UserSearchCriteria.class);
-        
+
+        // Put the bulk-encrypted lists back on the criteria after the object-level
+        // encryption call (that call ignores our two new list fields since they're
+        // not part of the "User" security policy).
+        searchCriteria.setUserNames(encryptedUserNames);
+        searchCriteria.setMobileNumbers(encryptedMobileNumbers);
+
         if(altmobnumber!=null) {
         	searchCriteria.setAlternatemobilenumber(altmobnumber);
         }
-        
+
         List<org.egov.user.domain.model.User> list = userRepository.findAll(searchCriteria);
 
         /* decrypt here / final reponse decrypted*/
@@ -670,5 +698,36 @@ public class UserService {
         }
     }
 
+    private enum UserField { USERNAME, MOBILE_NUMBER }
+
+    /**
+     * Bulk-encrypt a list of plaintext values (usernames or mobile numbers)
+     * by wrapping them into transient User objects and passing the list
+     * through {@link EncryptionDecryptionUtil#encryptObject} — which detects
+     * the Collection and issues ONE HTTP call to enc-service for the whole
+     * list. Since the "User" SecurityPolicy uses deterministic encryption
+     * for both fields, the resulting ciphertexts match what's stored in
+     * eg_user and can be used directly in a WHERE ... IN (...) clause.
+     */
+    @SuppressWarnings("unchecked")
+    private List<String> encryptStringListAsUserField(String tenantId, List<String> values, UserField field) {
+        if (values == null || values.isEmpty()) return values;
+
+        List<User> wrappers = values.stream()
+                .map(v -> {
+                    User u = User.builder().build();
+                    if (field == UserField.USERNAME) u.setUsername(v);
+                    else u.setMobileNumber(v);
+                    return u;
+                })
+                .collect(Collectors.toList());
+
+        List<User> encrypted = (List<User>) encryptionDecryptionUtil
+                .encryptObject(tenantId, wrappers, "User", User.class);
+
+        return encrypted.stream()
+                .map(u -> field == UserField.USERNAME ? u.getUsername() : u.getMobileNumber())
+                .collect(Collectors.toList());
+    }
 
 }

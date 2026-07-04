@@ -114,10 +114,146 @@ public class UserServiceTest {
         List<org.egov.user.domain.model.User> expectedListOfUsers = new ArrayList<org.egov.user.domain.model.User>();
         when(userSearch.getTenantId()).thenReturn(TENANT_ID);
         when(userRepository.findAll(userSearch)).thenReturn(expectedListOfUsers);
+        when(encryptionDecryptionUtil.encryptObject(TENANT_ID, userSearch, "User", UserSearchCriteria.class)).thenReturn(userSearch);
         when(encryptionDecryptionUtil.decryptObject(TENANT_ID, expectedListOfUsers, null, User.class, getValidRequestInfo())).thenReturn(expectedListOfUsers);
         userService.searchUsers(userSearch, true, getValidRequestInfo());
 
         verify(userSearch).validate(true);
+    }
+
+    // --- Bulk search: list criteria are bulk-encrypted in one call each ---
+
+    @Test
+    public void test_bulk_userNames_are_bulk_encrypted_and_set_back_on_criteria() {
+        List<String> plaintextUserNames = Arrays.asList("emp_1", "emp_2", "emp_3");
+        List<String> encryptedUserNames = Arrays.asList("ct_1", "ct_2", "ct_3");
+
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .tenantId("os.osun")
+                .type(UserType.EMPLOYEE)
+                .userNames(new ArrayList<>(plaintextUserNames))
+                .build();
+
+        // wrapper encrypt call for the userNames list
+        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+                .thenAnswer(inv -> encryptedUserNames.stream()
+                        .map(ct -> User.builder().username(ct).build())
+                        .collect(java.util.stream.Collectors.toList()));
+
+        // criteria-object encrypt call (returns same criteria unchanged for the test)
+        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+
+        when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
+        when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
+        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+                .thenReturn(Collections.emptyList());
+
+        userService.searchUsers(criteria, true, getValidRequestInfo());
+
+        // list on criteria after the call must be the encrypted values
+        assertThat(criteria.getUserNames()).containsExactlyElementsOf(encryptedUserNames);
+        // wrapper encrypt call fired exactly once for the list
+        verify(encryptionDecryptionUtil).encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class));
+        // and criteria-level encrypt fired exactly once
+        verify(encryptionDecryptionUtil).encryptObject(criteria, "User", UserSearchCriteria.class);
+    }
+
+    @Test
+    public void test_bulk_mobileNumbers_are_bulk_encrypted_and_set_back_on_criteria() {
+        List<String> plaintextMobileNumbers = Arrays.asList("9111234567", "9222345678");
+        List<String> encryptedMobileNumbers = Arrays.asList("ct_9111", "ct_9222");
+
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .tenantId("os.osun")
+                .type(UserType.EMPLOYEE)
+                .mobileNumbers(new ArrayList<>(plaintextMobileNumbers))
+                .build();
+
+        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+                .thenAnswer(inv -> encryptedMobileNumbers.stream()
+                        .map(ct -> User.builder().mobileNumber(ct).build())
+                        .collect(java.util.stream.Collectors.toList()));
+        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
+        when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
+        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+                .thenReturn(Collections.emptyList());
+
+        userService.searchUsers(criteria, true, getValidRequestInfo());
+
+        assertThat(criteria.getMobileNumbers()).containsExactlyElementsOf(encryptedMobileNumbers);
+    }
+
+    @Test
+    public void test_scalar_userName_dropped_when_userNames_list_also_set() {
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .tenantId("os.osun")
+                .type(UserType.EMPLOYEE)
+                .userName("scalar_ignored")
+                .userNames(new ArrayList<>(Arrays.asList("emp_1", "emp_2")))
+                .build();
+
+        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+                .thenAnswer(inv -> Arrays.asList(
+                        User.builder().username("ct_1").build(),
+                        User.builder().username("ct_2").build()));
+        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
+        when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
+        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+                .thenReturn(Collections.emptyList());
+
+        userService.searchUsers(criteria, true, getValidRequestInfo());
+
+        // scalar cleared, list retained (encrypted)
+        assertThat(criteria.getUserName()).isNull();
+        assertThat(criteria.getUserNames()).containsExactly("ct_1", "ct_2");
+    }
+
+    @Test
+    public void test_scalar_mobileNumber_dropped_when_mobileNumbers_list_also_set() {
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .tenantId("os.osun")
+                .type(UserType.EMPLOYEE)
+                .mobileNumber("9999999999")
+                .mobileNumbers(new ArrayList<>(Arrays.asList("9111234567")))
+                .build();
+
+        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+                .thenAnswer(inv -> Arrays.asList(User.builder().mobileNumber("ct_9111").build()));
+        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
+        when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
+        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+                .thenReturn(Collections.emptyList());
+
+        userService.searchUsers(criteria, true, getValidRequestInfo());
+
+        assertThat(criteria.getMobileNumber()).isNull();
+        assertThat(criteria.getMobileNumbers()).containsExactly("ct_9111");
+    }
+
+    @Test
+    public void test_empty_list_criteria_skip_bulk_encryption() {
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .tenantId("os.osun")
+                .type(UserType.EMPLOYEE)
+                .userName("plain_only")
+                .build();
+
+        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
+        when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
+        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+                .thenReturn(Collections.emptyList());
+
+        userService.searchUsers(criteria, true, getValidRequestInfo());
+
+        // Only the criteria-object encrypt should fire — no wrapper list-encrypt.
+        // (any(List.class) does not filter by runtime type in Mockito 1.x, so
+        //  use isA() which checks the instanceof at runtime.)
+        verify(encryptionDecryptionUtil, never())
+                .encryptObject(Mockito.isA(List.class), Mockito.eq("User"), Mockito.eq(User.class));
     }
 
     @Test

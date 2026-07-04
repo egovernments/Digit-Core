@@ -8,6 +8,10 @@ All notable changes to this module will be documented in this file.
 - Updated method signatures and constructors for tenant context and new dependencies.
 - Updated test classes for new dependencies 
 - Implemented multi-schema migration scripts and utilities for schema handling.
+### Added
+- **v2 bulk create endpoint** `POST /users/v2/_create` — creates up to N users (configurable via `egov.user.bulk.max`, default 100) in a single request. Amortises the per-user overheads: one enc-service call for PII encryption, one SQL for uniqueness check, parallel BCrypt via a fixed-size pool (`egov.user.bulk.bcrypt.threads`, default 4), batch INSERT for `eg_user` and `eg_userrole_v1`. v1 endpoints are untouched. See [v2 Bulk User Create](#v2-bulk-user-create) in README.
+- **Bulk criteria on user search** — `POST /_search` and `/v1/_search` accept new `userNames` and `mobileNumbers` list fields. When populated, the query switches from `WHERE username = ?` to `WHERE username IN (?, ?, ...)` (same for `mobilenumber`). Encryption of list values is bulk-batched — one enc-service call per non-empty list — so HRMS's per-employee existence check collapses from N HTTP round-trips into one. Backward compatible: scalar `userName`/`mobileNumber` still work; if both scalar and list forms are set for the same field, the list wins and a warning is logged.
+
 
 ## 1.2.8 - 2023-03-15
 - Added fallback to default message if user email update localization messages are not configured.

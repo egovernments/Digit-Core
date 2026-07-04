@@ -41,6 +41,14 @@ public class UserSearchRequest {
     @JsonProperty("mobileNumber")
     private String mobileNumber;
 
+    // Bulk criteria — take precedence over the scalar userName/mobileNumber
+    // when both are set. Values IN (?, ?, ...).
+    @JsonProperty("userNames")
+    private List<String> userNames;
+
+    @JsonProperty("mobileNumbers")
+    private List<String> mobileNumbers;
+
     @Size(max = 20)
     @JsonProperty("aadhaarNumber")
     private String aadhaarNumber;
@@ -88,6 +96,8 @@ public class UserSearchRequest {
                 .userName(userName)
                 .name(name)
                 .mobileNumber(mobileNumber)
+                .userNames(userNames)
+                .mobileNumbers(mobileNumbers)
 //				.pan(pan)
                 .emailId(emailId)
                 .fuzzyLogic(fuzzyLogic)

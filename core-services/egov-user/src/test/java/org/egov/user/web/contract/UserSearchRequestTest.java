@@ -41,4 +41,37 @@ public class UserSearchRequestTest {
         assertThat(userSearch.getSort()).isEqualTo(Collections.singletonList("name"));
         assertThat(userSearch.getType()).isEqualTo(UserType.CITIZEN);
     }
+
+    @Test
+    public void test_to_domain_carries_bulk_list_fields() {
+        List<String> userNames = Arrays.asList("emp_1", "emp_2", "emp_3");
+        List<String> mobileNumbers = Arrays.asList("9111234567", "9222345678");
+
+        UserSearchRequest request = new UserSearchRequest();
+        request.setTenantId("os.osun");
+        request.setUserNames(userNames);
+        request.setMobileNumbers(mobileNumbers);
+        request.setUserType("EMPLOYEE");
+
+        UserSearchCriteria criteria = request.toDomain();
+
+        assertThat(criteria.getUserNames()).containsExactlyElementsOf(userNames);
+        assertThat(criteria.getMobileNumbers()).containsExactlyElementsOf(mobileNumbers);
+        assertThat(criteria.getUserName()).isNull();
+        assertThat(criteria.getMobileNumber()).isNull();
+    }
+
+    @Test
+    public void test_to_domain_null_list_fields_stay_null() {
+        UserSearchRequest request = new UserSearchRequest();
+        request.setTenantId("os.osun");
+        request.setUserName("scalar_only");
+        request.setUserType("EMPLOYEE");
+
+        UserSearchCriteria criteria = request.toDomain();
+
+        assertThat(criteria.getUserNames()).isNull();
+        assertThat(criteria.getMobileNumbers()).isNull();
+        assertThat(criteria.getUserName()).isEqualTo("scalar_only");
+    }
 }
