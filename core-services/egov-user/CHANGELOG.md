@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.3.0 - 2026-07-03
+### Added
+- **v2 bulk create endpoint** `POST /users/v2/_create` — creates up to N users (configurable via `egov.user.bulk.max`, default 100) in a single request. Amortises the per-user overheads: one enc-service call for PII encryption, one SQL for uniqueness check, parallel BCrypt via a fixed-size pool (`egov.user.bulk.bcrypt.threads`, default 4), batch INSERT for `eg_user` and `eg_userrole_v1`. v1 endpoints are untouched. See [v2 Bulk User Create](#v2-bulk-user-create) in README.
+- **Bulk criteria on user search** — `POST /_search` and `/v1/_search` accept new `userNames` and `mobileNumbers` list fields. When populated, the query switches from `WHERE username = ?` to `WHERE username IN (?, ?, ...)` (same for `mobilenumber`). Encryption of list values is bulk-batched — one enc-service call per non-empty list — so HRMS's per-employee existence check collapses from N HTTP round-trips into one. Backward compatible: scalar `userName`/`mobileNumber` still work; if both scalar and list forms are set for the same field, the list wins and a warning is logged.
+
+### Changed
+- Removed `countrycode` from `SELECT_USER_QUERY` and from `UserResultSetExtractor`. Aligns with the deployed tenant-DB schema, which does not have the column. **Behavioural impact**: search responses no longer populate `countryCode`. Callers that read `countryCode` from search results will see `null`.
+
 ## 1.2.9 - 2026-06-16
 - Added international mobile number validation driven by MDMS-v2 (`common-masters.MobileNumberValidation` schema).
 - Added `countryCode` field to user create/update contracts; stored in new `countrycode varchar(10)` column (Flyway `V20260309120000`).

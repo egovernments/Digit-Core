@@ -60,7 +60,7 @@ public class UserTypeQueryBuilder {
     private RoleRepository roleRepository;
 
     private static final String SELECT_USER_QUERY = "SELECT userdata.title, userdata.salutation, userdata.dob, userdata.locale, userdata.username, userdata" +
-            ".password, userdata.pwdexpirydate,  userdata.mobilenumber, userdata.countrycode, userdata.altcontactnumber, userdata.emailid, userdata.createddate, userdata" +
+            ".password, userdata.pwdexpirydate,  userdata.mobilenumber, userdata.altcontactnumber, userdata.emailid, userdata.createddate, userdata" +
             ".lastmodifieddate,  userdata.createdby, userdata.lastmodifiedby, userdata.active, userdata.name, userdata.gender, userdata.pan, userdata.aadhaarnumber, userdata" +
             ".type,  userdata.version, userdata.guardian, userdata.guardianrelation, userdata.signature, userdata.accountlocked, userdata.accountlockeddate, userdata" +
             ".bloodgroup, userdata.photo, userdata.identificationmark,  userdata.tenantid, userdata.id, userdata.uuid, userdata.alternatemobilenumber, addr.id as addr_id, addr.type as " +
@@ -118,7 +118,9 @@ public class UserTypeQueryBuilder {
         if (CollectionUtils.isEmpty(userSearchCriteria.getId()) && userSearchCriteria.getUserName() == null
                 && userSearchCriteria.getName() == null && userSearchCriteria.getEmailId() == null
                 && userSearchCriteria.getActive() == null && userSearchCriteria.getTenantId() == null
-                && userSearchCriteria.getType() == null && userSearchCriteria.getUuid() == null)
+                && userSearchCriteria.getType() == null && userSearchCriteria.getUuid() == null
+                && CollectionUtils.isEmpty(userSearchCriteria.getUserNames())
+                && CollectionUtils.isEmpty(userSearchCriteria.getMobileNumbers()))
             return;
 
         selectQuery.append(" WHERE");
@@ -140,6 +142,13 @@ public class UserTypeQueryBuilder {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.username = ?");
             preparedStatementValues.add(userSearchCriteria.getUserName().trim());
+        }
+
+        if (!isEmpty(userSearchCriteria.getUserNames())) {
+            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
+            selectQuery.append(" userdata.username IN (")
+                    .append(getQueryForCollection(userSearchCriteria.getUserNames(), preparedStatementValues))
+                    .append(" )");
         }
 
         if (!userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getName() != null) {
@@ -178,6 +187,13 @@ public class UserTypeQueryBuilder {
         	isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.mobilenumber = ? ");
             preparedStatementValues.add(userSearchCriteria.getMobileNumber().trim());
+        }
+
+        if (!isEmpty(userSearchCriteria.getMobileNumbers())) {
+            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
+            selectQuery.append(" userdata.mobilenumber IN (")
+                    .append(getQueryForCollection(userSearchCriteria.getMobileNumbers(), preparedStatementValues))
+                    .append(" )");
         }
 
 //        if (userSearchCriteria.getPan() != null) {
