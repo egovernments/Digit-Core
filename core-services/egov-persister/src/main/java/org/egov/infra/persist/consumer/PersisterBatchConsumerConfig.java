@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.infra.persist.web.contract.TopicMap;
-import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,6 +18,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.BatchMessageListener;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -37,9 +37,6 @@ import java.util.stream.Collectors;
         matchIfMissing = false)
 public class PersisterBatchConsumerConfig {
 
-    /*@Autowired
-    private StoppingErrorHandler stoppingErrorHandler;*/
-
     @Autowired
     private BatchMessageListener batchMessageListener;
 
@@ -50,13 +47,22 @@ public class PersisterBatchConsumerConfig {
     private KafkaProperties kafkaProperties;
 
     @Autowired
-    private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+    private DefaultErrorHandler persisterErrorHandler;
 
     @Value("${persister.batch.size}")
     private Integer batchSize;
 
     @Value("${persister.batch.topics:}")
     private String batchTopicsConfig;
+
+    @Value("${persister.kafka.partition.assignment.strategy:org.apache.kafka.clients.consumer.CooperativeStickyAssignor,org.apache.kafka.clients.consumer.RangeAssignor}")
+    private String partitionAssignmentStrategy;
+
+    @Value("${persister.kafka.group.instance.id:}")
+    private String groupInstanceId;
+
+    @Value("${persister.kafka.session.timeout.ms:}")
+    private String sessionTimeoutMsOverride;
 
     @Getter
     private Set<String> batchTopics = new HashSet<>();
@@ -104,14 +110,18 @@ public class PersisterBatchConsumerConfig {
             properties.setAckMode(ContainerProperties.AckMode.BATCH);
 
             batchContainer = new KafkaMessageListenerContainer<>(createConsumerFactory(), properties);
-            batchContainer.setCommonErrorHandler(kafkaConsumerErrorHandler);
+            batchContainer.setCommonErrorHandler(persisterErrorHandler);
             batchContainer.setBeanName("batchContainer");
             batchContainer.start();
 
             log.info("Started batch container for {} topics: {}", batchTopics.size(), batchTopics);
 
         } catch (Exception e) {
-            log.error("Failed to create batch container", e);
+            // Fail loud (consistent with EgovPersistApplication.loadConfigs): a persister that silently
+            // starts with no batch consumer accrues unbounded Kafka lag with no signal - the exact RCA
+            // failure mode. Abort startup so the orchestrator restarts the pod instead of running blind.
+            log.error("Failed to create batch container - aborting startup", e);
+            throw new IllegalStateException("Failed to start batch container for topics: " + batchTopics, e);
         }
     }
 
@@ -119,8 +129,16 @@ public class PersisterBatchConsumerConfig {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
 
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG,
+                StringUtils.hasText(sessionTimeoutMsOverride) ? sessionTimeoutMsOverride : "30000");
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batchSize);
+
+        // Cooperative rebalancing + optional static membership — same rationale and rolling-deploy
+        // safety as PersisterConsumerConfig; "-batch" suffix because both containers share group.id.
+        props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partitionAssignmentStrategy);
+        if (StringUtils.hasText(groupInstanceId)) {
+            props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, groupInstanceId + "-batch");
+        }
 
 
         JsonDeserializer<Object> jsonDeserializer = new JsonDeserializer<>(Object.class, false);

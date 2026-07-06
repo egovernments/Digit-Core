@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.egov.infra.persist.web.contract.TopicMap;
-import org.egov.tracer.KafkaConsumerErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +18,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -40,9 +40,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PersisterConsumerConfig {
 
-   /* @Autowired
-    private StoppingErrorHandler stoppingErrorHandler;*/
-
     @Autowired
     private PersisterMessageListener indexerMessageListener;
 
@@ -53,7 +50,7 @@ public class PersisterConsumerConfig {
     private KafkaProperties kafkaProperties;
 
     @Autowired
-    private KafkaConsumerErrorHandler kafkaConsumerErrorHandler;
+    private DefaultErrorHandler persisterErrorHandler;
 
     private Set<String> topics = new HashSet<>();
 
@@ -75,7 +72,20 @@ public class PersisterConsumerConfig {
     @Value("${tracer.errorsTopic}")
     private String deadLetterErrorTopic;
 
+    @Value("${persister.kafka.partition.assignment.strategy:org.apache.kafka.clients.consumer.CooperativeStickyAssignor,org.apache.kafka.clients.consumer.RangeAssignor}")
+    private String partitionAssignmentStrategy;
+
+    @Value("${persister.kafka.group.instance.id:}")
+    private String groupInstanceId;
+
+    @Value("${persister.kafka.session.timeout.ms:}")
+    private String sessionTimeoutMsOverride;
+
     private Set<String> configuredBatchTopics = new HashSet<>();
+
+    // The single started container, held so the DB-health monitor can pause/resume the LIVE consumer
+    // (not rebuild a fresh one). Assigned once in startContainer().
+    private KafkaMessageListenerContainer<String, String> listenerContainer;
 
     @PostConstruct
     public void setTopics() {
@@ -104,8 +114,23 @@ public class PersisterConsumerConfig {
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
 
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
+        // Honour spring.kafka.consumer.enable-auto-commit=false: the container commits the offset only
+        // after the listener returns (record persisted, or durably dead-lettered) — never on a timer.
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG,
+                StringUtils.hasText(sessionTimeoutMsOverride) ? sessionTimeoutMsOverride : "15000");
+
+        // Cooperative rebalancing: only the partitions that actually move are revoked, so the other
+        // members keep consuming straight through a rebalance instead of stopping the world. Listing
+        // RangeAssignor second keeps the group on the eager protocol until every member in the group
+        // runs this build, which makes a single rolling deploy safe.
+        props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partitionAssignmentStrategy);
+
+        // Static membership: a member that restarts and returns within the session timeout reclaims
+        // its partitions with no rebalance at all. Suffixed per container type — the single and batch
+        // containers share group.id, and duplicate instance ids fence each other out of the group.
+        if (StringUtils.hasText(groupInstanceId)) {
+            props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, groupInstanceId + "-single");
+        }
 
         JsonDeserializer<String> jsonDeserializer = new JsonDeserializer<>(Object.class,false);
 
@@ -122,7 +147,7 @@ public class PersisterConsumerConfig {
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
-        factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
+        factory.setCommonErrorHandler(persisterErrorHandler);
 
         log.info("Custom KafkaListenerContainerFactory built...");
         return factory;
@@ -133,6 +158,8 @@ public class PersisterConsumerConfig {
     public KafkaMessageListenerContainer<String, String> container() throws Exception {
         ContainerProperties properties = new ContainerProperties(this.topics.toArray(new String[topics.size()]));
         properties.setMessageListener(indexerMessageListener);
+        // Per-record manual ack: offset advances only after the record is durably handled.
+        properties.setAckMode(ContainerProperties.AckMode.RECORD);
         if (customExecutorEnabled) {
             ExecutorService executorService = Executors.newFixedThreadPool(maxPoolSize);
             AsyncTaskExecutor taskExecutor = new ConcurrentTaskExecutor(executorService);
@@ -142,50 +169,41 @@ public class PersisterConsumerConfig {
         log.info("Custom KafkaListenerContainer built...");
 
         KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
-        container.setCommonErrorHandler(kafkaConsumerErrorHandler);
+        container.setCommonErrorHandler(persisterErrorHandler);
         return container;
     }
 
     @Bean
     public boolean startContainer(){
-        KafkaMessageListenerContainer<String, String> container = null;
         try {
-            container = container();
+            listenerContainer = container();
         } catch (Exception e) {
             log.error("Container couldn't be started: ",e);
             return false;
         }
-        container.start();
+        listenerContainer.start();
         log.info("Custom KakfaListenerContainer STARTED...");
         return true;
 
     }
 
+    /** Pause consumption on the LIVE container (keeps partition assignment; no rebalance). Idempotent. */
     public boolean pauseContainer(){
-        KafkaMessageListenerContainer<String, String> container = null;
-        try {
-            container = container();
-        } catch (Exception e) {
-            log.error("Container couldn't be started: ",e);
+        if (listenerContainer == null || !listenerContainer.isRunning() || listenerContainer.isContainerPaused()) {
             return false;
         }
-        container.stop();
-        log.info("Custom KakfaListenerContainer STOPPED...");
-
+        listenerContainer.pause();
+        log.warn("Persister consumer PAUSED (datasource unavailable)");
         return true;
     }
 
+    /** Resume consumption on the LIVE container. Idempotent. */
     public boolean resumeContainer(){
-        KafkaMessageListenerContainer<String, String> container = null;
-        try {
-            container = container();
-        } catch (Exception e) {
-            log.error("Container couldn't be started: ",e);
+        if (listenerContainer == null || !listenerContainer.isContainerPaused()) {
             return false;
         }
-        container.start();
-        log.info("Custom KakfaListenerContainer STARTED...");
-
+        listenerContainer.resume();
+        log.info("Persister consumer RESUMED (datasource healthy)");
         return true;
     }
 

@@ -6,9 +6,11 @@ import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.querybuilder.BoundaryRelationshipQueryBuilder;
 import digit.repository.rowmapper.BoundaryRelationshipRowMapper;
 import digit.web.models.*;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,41 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
         // Push to event bus for creating asynchronously
         producer.push(applicationProperties.getCreateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
+    }
+
+    /**
+     * Persists the given validated and enriched boundary relationships through egov-persister rather than
+     * a direct JDBC write. Each relationship is published as its OWN message to the SAME topic the single
+     * create uses ({@code save-boundary-relationship}) via {@link #create}, so both paths write identical
+     * rows through the identical, idempotent
+     * {@code INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING} mapping.
+     *
+     * <p>Reusing that topic (instead of a dedicated {@code -batch} topic) is deliberate for
+     * deployment-safety: {@code save-boundary-relationship} is always consumed by the persister's normal
+     * listener, so bulk creation works on any persister deployment with no extra configuration. Adding
+     * {@code save-boundary-relationship} to the persister's {@code persister.batch.topics} (with
+     * {@code persister.bulk.enabled=true}) is a pure, optional throughput optimization: its batch listener
+     * then aggregates a poll into one multi-row insert. A dedicated {@code -batch} topic, by contrast, is
+     * dropped by the normal listener and would be silently orphaned if batch mode were not enabled.</p>
+     *
+     * <p>One message per record (rather than one message carrying the whole batch) preserves per-record
+     * isolation on either listener: a single un-insertable record fails/dead-letters on its own without
+     * affecting the rest. Because the insert is idempotent, at-least-once redelivery is a safe no-op.</p>
+     *
+     * @param boundaryRelationships validated and enriched relationships to persist
+     * @param requestInfo request info propagated onto each published message
+     */
+    @Override
+    public void createBulk(List<BoundaryRelation> boundaryRelationships, RequestInfo requestInfo) {
+        if (CollectionUtils.isEmpty(boundaryRelationships))
+            return;
+
+        for (BoundaryRelation boundaryRelationship : boundaryRelationships) {
+            create(BoundaryRelationshipRequest.builder()
+                    .requestInfo(requestInfo)
+                    .boundaryRelationship(boundaryRelationship)
+                    .build());
+        }
     }
 
     /**

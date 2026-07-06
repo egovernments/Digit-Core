@@ -99,6 +99,11 @@ public class ApplicationProperties {
     @Value("${kafka.topics.update.boundary.relationship}")
     private String updateBoundaryRelationshipTopic;
 
+    // Upper bound on records accepted by POST /boundary-relationships/bulk/_create. Enforced in the
+    // service (bean validation is not active in this deployment). Keep in sync with the caller's chunk size.
+    @Value("${boundary.bulk.max.size:100}")
+    private Integer bulkCreateMaxSize;
+
     @Value("${boundary.default.offset}")
     private Integer defaultOffset;
 

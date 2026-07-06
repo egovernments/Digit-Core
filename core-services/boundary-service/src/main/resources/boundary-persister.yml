@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: create-boundary-entity
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO boundary (id, tenantId, code, geometry, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO boundary (id, tenantId, code, geometry, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (code, tenantId) DO NOTHING;
           basePath: $.Boundary.*
           jsonMaps:
             - jsonPath: $.Boundary.*.id
@@ -54,7 +54,7 @@ serviceMaps:
       fromTopic: save-boundary-hierarchy-definition
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO boundary_hierarchy (id, tenantId, hierarchyType, boundaryHierarchy, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO boundary_hierarchy (id, tenantId, hierarchyType, boundaryHierarchy, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantId, hierarchyType) DO NOTHING;
           basePath: $.BoundaryHierarchy
           jsonMaps:
             - jsonPath: $.BoundaryHierarchy.id
@@ -79,7 +79,7 @@ serviceMaps:
       fromTopic: save-boundary-relationship
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO boundary_relationship (id, tenantId, code, hierarchyType, boundaryType, parent, ancestralMaterializedPath, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO boundary_relationship (id, tenantId, code, hierarchyType, boundaryType, parent, ancestralMaterializedPath, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING;
           basePath: $.BoundaryRelationship
           jsonMaps:
             - jsonPath: $.BoundaryRelationship.id
