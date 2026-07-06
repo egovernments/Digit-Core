@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: save-mdms-schema-definition
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_mdms_schema_definition (id ,tenantid, code, description, definition, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantid, code) DO NOTHING;
+        - query: INSERT INTO eg_mdms_schema_definition (id ,tenantid, code, description, definition, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.SchemaDefinition
           jsonMaps:
             - jsonPath: $.SchemaDefinition.id
@@ -37,7 +37,7 @@ serviceMaps:
       fromTopic: save-mdms-data
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_mdms_data (tenantid, uniqueidentifier, schemacode, data, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantid, schemacode, uniqueidentifier) DO NOTHING;
+        - query: INSERT INTO eg_mdms_data (tenantid, uniqueidentifier, schemacode, data, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.Mdms
           jsonMaps:
             - jsonPath: $.Mdms.tenantId
