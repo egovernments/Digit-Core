@@ -80,40 +80,44 @@ public class BulkUserServiceTest {
 
     @Test
     public void empty_list_returns_empty_list_without_touching_repository() {
-        List<User> result = service.createUsersBulk(Collections.emptyList(), requestInfo());
+        BulkUserService.Result result = service.createUsersBulk(Collections.emptyList(), requestInfo());
 
-        assertThat(result).isEmpty();
+        assertThat(result.users).isEmpty();
+        assertThat(result.errors).isEmpty();
         verify(bulkUserRepository, never()).findExistingUsernames(anyList(), anyString());
         verify(bulkUserRepository, never()).createBulk(anyList());
     }
 
     @Test
     public void null_input_returns_empty_list() {
-        List<User> result = service.createUsersBulk(null, requestInfo());
+        BulkUserService.Result result = service.createUsersBulk(null, requestInfo());
 
-        assertThat(result).isEmpty();
+        assertThat(result.users).isEmpty();
+        assertThat(result.errors).isEmpty();
     }
 
     @Test
-    public void oversize_batch_throws_IllegalArgument() {
+    public void oversize_batch_throws_coded_exception() {
         ReflectionTestUtils.setField(service, "maxBulkSize", 3);
         List<User> tooMany = Arrays.asList(user("a"), user("b"), user("c"), user("d"));
 
         assertThatThrownBy(() -> service.createUsersBulk(tooMany, requestInfo()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("exceeds max");
+                .isInstanceOf(org.egov.tracer.model.CustomException.class)
+                .hasMessageContaining("EGOV_USER_V2_BULK_SIZE_EXCEEDED")
+                .hasMessageContaining("exceeds configured maximum of 3");
     }
 
     @Test
     public void happy_path_creates_all_users_and_assigns_ids() {
         List<User> incoming = Arrays.asList(user("emp_1"), user("emp_2"), user("emp_3"));
 
-        List<User> result = service.createUsersBulk(incoming, requestInfo());
+        BulkUserService.Result result = service.createUsersBulk(incoming, requestInfo());
 
         // all three inserted
         verify(bulkUserRepository).createBulk(anyList());
-        assertThat(result).hasSize(3);
-        for (User u : result) {
+        assertThat(result.users).hasSize(3);
+        assertThat(result.errors).isEmpty();
+        for (User u : result.users) {
             assertThat(u.getId()).isNotNull();
         }
     }
@@ -126,16 +130,22 @@ public class BulkUserServiceTest {
 
         List<User> incoming = Arrays.asList(user("emp_1"), user("emp_2"), user("emp_3"));
 
-        List<User> result = service.createUsersBulk(incoming, requestInfo());
+        BulkUserService.Result result = service.createUsersBulk(incoming, requestInfo());
 
         // response order: survivors first (populated), then failures (id=null)
-        assertThat(result).hasSize(3);
-        long successes = result.stream().filter(u -> u.getId() != null).count();
-        long failures = result.stream().filter(u -> u.getId() == null).count();
+        assertThat(result.users).hasSize(3);
+        long successes = result.users.stream().filter(u -> u.getId() != null).count();
+        long failures = result.users.stream().filter(u -> u.getId() == null).count();
         assertThat(successes).isEqualTo(2);
         assertThat(failures).isEqualTo(1);
-        User failed = result.stream().filter(u -> u.getId() == null).findFirst().get();
+        User failed = result.users.stream().filter(u -> u.getId() == null).findFirst().get();
         assertThat(failed.getUsername()).isEqualTo("emp_2");
+        // error info is attached with a specific code identifying the dedup reason
+        assertThat(result.errors).hasSize(1);
+        java.util.Map<String, Object> err = result.errors.get(0);
+        assertThat(err.get("username")).isEqualTo("emp_2");
+        assertThat(err.get("code")).isEqualTo("EGOV_USER_V2_BULK_USERNAME_ALREADY_EXISTS_IN_DB");
+        assertThat((String) err.get("message")).contains("already exists");
     }
 
     @Test
@@ -146,14 +156,15 @@ public class BulkUserServiceTest {
                 user("emp_1"),  // in-batch duplicate
                 user("emp_3"));
 
-        List<User> result = service.createUsersBulk(incoming, requestInfo());
+        BulkUserService.Result result = service.createUsersBulk(incoming, requestInfo());
 
         // Only 3 unique usernames → 3 users go through the INSERT.
-        // Response correlates by username, so the second emp_1 in the input is
-        // mapped to the same successful record (the caller can't tell which
-        // physical duplicate "won").
-        long successes = result.stream().filter(u -> u.getId() != null).count();
+        long successes = result.users.stream().filter(u -> u.getId() != null).count();
         assertThat(successes).isEqualTo(3);
+        // 1 in-batch duplicate error
+        assertThat(result.errors).hasSize(1);
+        assertThat(result.errors.get(0).get("code"))
+                .isEqualTo("EGOV_USER_V2_BULK_USERNAME_DUPLICATE_IN_REQUEST");
     }
 
     @Test

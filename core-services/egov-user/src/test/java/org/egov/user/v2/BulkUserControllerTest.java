@@ -97,7 +97,8 @@ public class BulkUserControllerTest {
         List<User> saved = Arrays.asList(
                 User.builder().id(1L).username("emp_1").type(UserType.EMPLOYEE).build(),
                 User.builder().id(2L).username("emp_2").type(UserType.EMPLOYEE).build());
-        when(bulkUserService.createUsersBulk(anyList(), any())).thenReturn(saved);
+        when(bulkUserService.createUsersBulk(anyList(), any()))
+                .thenReturn(new org.egov.user.v2.BulkUserService.Result(saved, java.util.Collections.emptyList()));
 
         String body = mapper.writeValueAsString(new java.util.HashMap<String, Object>() {{
             put("RequestInfo", new java.util.HashMap<String, Object>() {{ put("apiId", "t"); }});
@@ -129,7 +130,12 @@ public class BulkUserControllerTest {
         List<User> saved = Arrays.asList(
                 User.builder().id(1L).username("emp_1").type(UserType.EMPLOYEE).build(),
                 User.builder().id(null).username("emp_dup").type(UserType.EMPLOYEE).build());
-        when(bulkUserService.createUsersBulk(anyList(), any())).thenReturn(saved);
+        java.util.Map<String, Object> err = new java.util.HashMap<>();
+        err.put("username", "emp_dup");
+        err.put("code", "EGOV_USER_V2_BULK_USERNAME_ALREADY_EXISTS_IN_DB");
+        err.put("message", "A user with this username, type and tenantId already exists in eg_user.");
+        when(bulkUserService.createUsersBulk(anyList(), any()))
+                .thenReturn(new org.egov.user.v2.BulkUserService.Result(saved, java.util.Collections.singletonList(err)));
 
         String body = "{\"RequestInfo\":{\"apiId\":\"t\"},\"users\":[" +
                 "{\"username\":\"emp_1\",\"type\":\"EMPLOYEE\",\"tenantId\":\"os.osun\"}," +
