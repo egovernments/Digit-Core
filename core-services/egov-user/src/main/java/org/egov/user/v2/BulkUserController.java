@@ -67,27 +67,33 @@ public class BulkUserController {
                 new TypeReference<List<User>>() {});
 
         if (users == null || users.isEmpty()) {
-            return response(requestInfo, Collections.emptyList(), true);
+            return response(requestInfo, Collections.emptyList(), Collections.emptyList(), true);
         }
 
         log.info("v2 bulk create received: {} users, tenantId={}",
                 users.size(),
                 users.get(0).getTenantId());
 
-        List<User> saved = bulkUserService.createUsersBulk(users, requestInfo);
+        BulkUserService.Result result = bulkUserService.createUsersBulk(users, requestInfo);
 
-        long successes = saved.stream().filter(u -> u.getId() != null).count();
-        log.info("v2 bulk create completed: {}/{} succeeded", successes, saved.size());
+        long successes = result.users.stream().filter(u -> u.getId() != null).count();
+        log.info("v2 bulk create completed: {}/{} succeeded, {} errors",
+                successes, result.users.size(), result.errors.size());
 
-        return response(requestInfo, saved, successes > 0);
+        return response(requestInfo, result.users, result.errors, successes > 0);
     }
 
-    private Map<String, Object> response(RequestInfo requestInfo, List<User> users, boolean success) {
+    private Map<String, Object> response(RequestInfo requestInfo,
+                                         List<User> users,
+                                         List<Map<String, Object>> errors,
+                                         boolean success) {
         ResponseInfo responseInfo = responseInfoFactory
                 .createResponseInfoFromRequestInfo(requestInfo, success);
         Map<String, Object> body = new HashMap<>();
         body.put("ResponseInfo", responseInfo);
         body.put("users", users);
+        // Per-user failure info — code + message + username. Callers correlate by username.
+        body.put("errors", errors);
         return body;
     }
 }
