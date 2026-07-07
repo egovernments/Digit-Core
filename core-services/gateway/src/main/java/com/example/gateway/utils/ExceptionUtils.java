@@ -26,8 +26,6 @@ import java.util.UUID;
 import static com.example.gateway.constants.GatewayConstants.CORRELATION_ID_KEY;
 import static com.example.gateway.constants.GatewayConstants.CURRENT_REQUEST_START_TIME;
 import static com.example.gateway.constants.GatewayConstants.CURRENT_REQUEST_TENANTID;
-import static com.example.gateway.constants.GatewayConstants.ERROR_LOG_EXCEPTION_MESSAGE;
-import static com.example.gateway.constants.GatewayConstants.ERROR_LOG_EXCEPTION_NAME;
 
 @Component
 public class ExceptionUtils {
@@ -68,10 +66,6 @@ public class ExceptionUtils {
             String exceptionName = e.getClass().getSimpleName();
             String exceptionMessage = e.getMessage();
 
-            exchange.getAttributes().put(ERROR_LOG_EXCEPTION_NAME, exceptionName);
-            if (exceptionMessage != null)
-                exchange.getAttributes().put(ERROR_LOG_EXCEPTION_MESSAGE, exceptionMessage);
-
             if (exceptionName.equalsIgnoreCase("HttpHostConnectException") ||
                     exceptionName.equalsIgnoreCase("ResourceAccessException")) {
                 return _setExceptionBody(exchange,HttpStatus.BAD_GATEWAY, getErrorInfoObject(exceptionName, "The backend service is unreachable", null));
@@ -105,13 +99,13 @@ public class ExceptionUtils {
 
     private Mono<Void> _setExceptionBody(ServerWebExchange exchange , HttpStatus status, Object body) throws JsonProcessingException {
         exchange.getResponse().setStatusCode(status);
-        pushErrorEvent(exchange, status);
+        pushErrorEvent(exchange, status, body);
         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
                 .bufferFactory().wrap(getObjectJSONString(body).getBytes())));
 
     }
 
-    private void pushErrorEvent(ServerWebExchange exchange, HttpStatus status) {
+    private void pushErrorEvent(ServerWebExchange exchange, HttpStatus status, Object body) {
         try {
             if (!errorLogEnabled)
                 return;
@@ -123,9 +117,6 @@ public class ExceptionUtils {
                 return;
 
             String id = UUID.randomUUID().toString();
-
-            String exceptionName = exchange.getAttribute(ERROR_LOG_EXCEPTION_NAME);
-            String exceptionMessage = exchange.getAttribute(ERROR_LOG_EXCEPTION_MESSAGE);
 
             Long startTime = exchange.getAttribute(CURRENT_REQUEST_START_TIME);
             long endTime = System.currentTimeMillis();
@@ -142,7 +133,7 @@ public class ExceptionUtils {
                     .correlationId(exchange.getAttribute(CORRELATION_ID_KEY))
                     .tenantId(exchange.getAttribute(CURRENT_REQUEST_TENANTID))
                     .requestDuration(duration)
-                    .responseBody(getErrorInfoObject(exceptionName, exceptionMessage, exceptionMessage))
+                    .responseBody(body)
                     .build();
 
             producer.push(errorLogTopic, event);

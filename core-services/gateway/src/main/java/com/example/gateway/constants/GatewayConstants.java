@@ -36,8 +36,5 @@ public class GatewayConstants {
     public static final String TENANT_ID_KEY = "TENANT_ID";
     public static final String OPEN_ENDPOINT_MESSAGE = "Routing to an open endpoint: {}";
 
-    public static final String ERROR_LOG_EXCEPTION_NAME = "error.log.exception.name";
-    public static final String ERROR_LOG_EXCEPTION_MESSAGE = "error.log.exception.message";
-
 
 }
