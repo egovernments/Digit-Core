@@ -26,6 +26,8 @@ import static com.example.gateway.constants.GatewayConstants.*;
 public class EventLogRequest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    String id;
+
     Object requestBody;
 
     Object responseBody;

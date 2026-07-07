@@ -1,13 +1,18 @@
 package com.example.gateway.utils;
 
+import com.example.gateway.model.EventLogRequest;
+import com.example.gateway.producer.Producer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.tracer.model.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -16,15 +21,32 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_NAME_PASCAL_CASE;
+import static com.example.gateway.constants.GatewayConstants.CORRELATION_ID_KEY;
+import static com.example.gateway.constants.GatewayConstants.CURRENT_REQUEST_START_TIME;
+import static com.example.gateway.constants.GatewayConstants.CURRENT_REQUEST_TENANTID;
+import static com.example.gateway.constants.GatewayConstants.ERROR_LOG_EXCEPTION_MESSAGE;
+import static com.example.gateway.constants.GatewayConstants.ERROR_LOG_EXCEPTION_NAME;
 
+@Component
 public class ExceptionUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionUtils.class);
 
-    public static Mono<Void> raiseErrorFilterException(ServerWebExchange exchange , Throwable e) {
+    @Autowired
+    private Producer producer;
+
+    @Value("${errorlog.enabled:false}")
+    private boolean errorLogEnabled;
+
+    @Value("${errorlog.topic:springGateway.errorlog}")
+    private String errorLogTopic;
+
+    @Value("#{'${errorlog.urls.blacklist:}'.split(',')}")
+    private List<String> errorLogUrlsBlacklist;
+
+    public Mono<Void> raiseErrorFilterException(ServerWebExchange exchange , Throwable e) {
 
         try {
             if (e == null) {
@@ -45,6 +67,10 @@ public class ExceptionUtils {
 
             String exceptionName = e.getClass().getSimpleName();
             String exceptionMessage = e.getMessage();
+
+            exchange.getAttributes().put(ERROR_LOG_EXCEPTION_NAME, exceptionName);
+            if (exceptionMessage != null)
+                exchange.getAttributes().put(ERROR_LOG_EXCEPTION_MESSAGE, exceptionMessage);
 
             if (exceptionName.equalsIgnoreCase("HttpHostConnectException") ||
                     exceptionName.equalsIgnoreCase("ResourceAccessException")) {
@@ -77,11 +103,52 @@ public class ExceptionUtils {
         return null;
     }
 
-    private static Mono<Void> _setExceptionBody(ServerWebExchange exchange , HttpStatus status, Object body) throws JsonProcessingException {
+    private Mono<Void> _setExceptionBody(ServerWebExchange exchange , HttpStatus status, Object body) throws JsonProcessingException {
         exchange.getResponse().setStatusCode(status);
+        pushErrorEvent(exchange, status);
         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
                 .bufferFactory().wrap(getObjectJSONString(body).getBytes())));
 
+    }
+
+    private void pushErrorEvent(ServerWebExchange exchange, HttpStatus status) {
+        try {
+            if (!errorLogEnabled)
+                return;
+
+            String requestPath = exchange.getRequest().getPath().value();
+            boolean blacklisted = errorLogUrlsBlacklist.stream()
+                    .anyMatch(prefix -> !prefix.isEmpty() && requestPath.startsWith(prefix));
+            if (blacklisted)
+                return;
+
+            String id = UUID.randomUUID().toString();
+
+            String exceptionName = exchange.getAttribute(ERROR_LOG_EXCEPTION_NAME);
+            String exceptionMessage = exchange.getAttribute(ERROR_LOG_EXCEPTION_MESSAGE);
+
+            Long startTime = exchange.getAttribute(CURRENT_REQUEST_START_TIME);
+            long endTime = System.currentTimeMillis();
+            Long duration = (startTime != null) ? (endTime - startTime) : null;
+
+            EventLogRequest event = EventLogRequest.builder()
+                    .id(id)
+                    .method(exchange.getRequest().getMethod() != null ? exchange.getRequest().getMethod().toString() : null)
+                    .url(exchange.getRequest().getURI().toString())
+                    .queryParams(exchange.getRequest().getQueryParams().toString())
+                    .referer(exchange.getRequest().getHeaders().getFirst("referer"))
+                    .statusCode(status != null ? status.value() : 0)
+                    .timestamp(String.valueOf(endTime))
+                    .correlationId(exchange.getAttribute(CORRELATION_ID_KEY))
+                    .tenantId(exchange.getAttribute(CURRENT_REQUEST_TENANTID))
+                    .requestDuration(duration)
+                    .responseBody(getErrorInfoObject(exceptionName, exceptionMessage, exceptionMessage))
+                    .build();
+
+            producer.push(errorLogTopic, event);
+        } catch (Exception ex) {
+            logger.error("Exception while pushing gateway error event to kafka: " + ex.getMessage());
+        }
     }
 
     private static String getObjectJSONString(Object obj) throws JsonProcessingException {
