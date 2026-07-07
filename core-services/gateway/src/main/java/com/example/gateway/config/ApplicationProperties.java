@@ -33,6 +33,10 @@ public class ApplicationProperties {
     @Value("${egov.authorize.access.control.host}${egov.authorize.access.control.uri}")
     private String authorizationUrl;
 
+    // propagate tenantId for tracing regardless of central-instance (default on)
+    @Value("${egov.gateway.tenant.propagation.enabled:true}")
+    private boolean tenantPropagationEnabled;
+
     private List<String> encryptedUrlSet;
 
     private List<String> openEndpointsWhitelist;

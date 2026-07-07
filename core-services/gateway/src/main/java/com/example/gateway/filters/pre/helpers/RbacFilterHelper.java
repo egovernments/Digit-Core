@@ -74,10 +74,12 @@ public class RbacFilterHelper implements RewriteFunction<Map, Map> {
         /*
          * Adding tenantId to header for tracer logging with correlation-id
          */
-        if (centralInstanceUtil.getIsEnvironmentCentralInstance() && StringUtils.isEmpty(exchange.getAttributes().get(TENANTID_MDC))) {
+        if (StringUtils.isEmpty(exchange.getAttributes().get(TENANTID_MDC))) {
             String singleTenantId = commonUtils.getLowLevelTenantIdFromSet(tenantIds);
-            MDC.put(TENANTID_MDC, singleTenantId);
-            exchange.getAttributes().put(TENANTID_MDC, singleTenantId);
+            if (!StringUtils.isEmpty(singleTenantId)) {
+                MDC.put(TENANTID_MDC, singleTenantId);
+                exchange.getAttributes().put(TENANTID_MDC, singleTenantId);
+            }
         }
 
         exchange.getAttributes().put(CURRENT_REQUEST_TENANTID, String.join(",", tenantIds));
@@ -104,7 +106,7 @@ public class RbacFilterHelper implements RewriteFunction<Map, Map> {
 
         headers.add(CORRELATION_ID_HEADER_NAME, (String) exchange.getAttributes().get(CORRELATION_ID_KEY));
 
-        if (centralInstanceUtil.getIsEnvironmentCentralInstance())
+        if (!StringUtils.isEmpty(exchange.getAttributes().get(TENANTID_MDC)))
             headers.add(REQUEST_TENANT_ID_KEY, (String) exchange.getAttributes().get(TENANTID_MDC));
 
         final HttpEntity<Object> httpEntity = new HttpEntity<>(authorizationRequestWrapper, headers);

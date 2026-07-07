@@ -83,7 +83,8 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map,Map> {
         exchange.getRequest().mutate()
                 .headers(httpHeaders -> {
                     httpHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId);
-                    if (centralInstanceUtil.getIsEnvironmentCentralInstance()) {
+                    // tenantId header whenever a tenant was resolved
+                    if (!ObjectUtils.isEmpty(TenantId)) {
                         httpHeaders.add(REQUEST_TENANT_ID_KEY, TenantId);
                     }
                 });

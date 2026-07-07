@@ -69,6 +69,9 @@ public class CorrelationIdFilterHelper implements RewriteFunction<Map, Map> {
 
         }
 
+        if (applicationProperties.isTenantPropagationEnabled())
+            commonUtils.resolveTenantForTracing(exchange, body);
+
         String correlationId = UUID.randomUUID().toString();
         MDC.put(CORRELATION_ID_KEY, correlationId);
         exchange.getAttributes().put(CORRELATION_ID_KEY, correlationId);

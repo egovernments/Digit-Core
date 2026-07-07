@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.egov.tracer.model.CustomException;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +18,12 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import static com.example.gateway.constants.GatewayConstants.*;
 
+@Slf4j
 @Component
 public class CommonUtils {
 
@@ -144,6 +149,43 @@ public class CommonUtils {
             throw new CustomException("TENANT_ID_MANDATORY", "TenantId is mandatory in URL for non json requests");
         }
 
+    }
+
+    /** Best-effort tenant resolution for tracing only; never throws, never overrides an already-set tenant. */
+    public void resolveTenantForTracing(ServerWebExchange exchange, Map body) {
+        // don't override an already-set tenant
+        if (!ObjectUtils.isEmpty(exchange.getAttributes().get(TENANTID_MDC)))
+            return;
+
+        try {
+            Set<String> tenantIds = new HashSet<>();
+            if (HttpMethod.GET.equals(exchange.getRequest().getMethod()) || ObjectUtils.isEmpty(body)) {
+                // read query params directly (setTenantIdsFromQueryParams throws when absent)
+                MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+                if (!CollectionUtils.isEmpty(queryParams) && queryParams.containsKey(REQUEST_TENANT_ID_KEY)
+                        && !CollectionUtils.isEmpty(queryParams.get(REQUEST_TENANT_ID_KEY))) {
+                    String tenantId = queryParams.getFirst(REQUEST_TENANT_ID_KEY);
+                    if (tenantId != null && tenantId.contains(","))
+                        tenantIds.addAll(Arrays.asList(tenantId.split(",")));
+                    else if (tenantId != null)
+                        tenantIds.add(tenantId);
+                }
+            } else {
+                // may throw when no tenant; swallowed below
+                tenantIds = getTenantIdsFromRequest(exchange.getRequest(), body);
+            }
+
+            if (!CollectionUtils.isEmpty(tenantIds)) {
+                String tenantId = getLowLevelTenantIdFromSet(tenantIds);
+                if (!ObjectUtils.isEmpty(tenantId)) {
+                    MDC.put(TENANTID_MDC, tenantId);
+                    exchange.getAttributes().put(TENANTID_MDC, tenantId);
+                }
+            }
+        } catch (Exception e) {
+            // best-effort: never fail the request
+            log.debug("Could not resolve tenantId for tracing: {}", e.getMessage());
+        }
     }
 
 }

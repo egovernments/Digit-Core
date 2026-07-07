@@ -70,6 +70,9 @@ public class CorrIdFormDataFilterHelper implements RewriteFunction<MultiValueMap
 
         }
 
+        if (applicationProperties.isTenantPropagationEnabled())
+            commonUtils.resolveTenantForTracing(exchange, body == null ? null : body.toSingleValueMap());
+
         String correlationId = UUID.randomUUID().toString();
         MDC.put(CORRELATION_ID_KEY, correlationId);
         exchange.getAttributes().put(CORRELATION_ID_KEY, correlationId);

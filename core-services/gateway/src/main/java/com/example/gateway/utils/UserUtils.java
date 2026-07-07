@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -60,7 +61,7 @@ public class UserUtils {
 
         final HttpHeaders headers = new HttpHeaders();
         headers.add(CORRELATION_ID_HEADER_NAME, correlationId);
-        if (multiStateInstanceUtil.getIsEnvironmentCentralInstance())
+        if (!StringUtils.isEmpty(tenantId))
             headers.add(REQUEST_TENANT_ID_KEY, tenantId);
         final HttpEntity<Object> httpEntity = new HttpEntity<>(userSearchRequest, headers);
 
