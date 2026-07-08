@@ -77,7 +77,8 @@ public class CorrelationIdFilterHelper implements RewriteFunction<Map, Map> {
         exchange.getAttributes().put(CORRELATION_ID_KEY, correlationId);
         log.debug(RECEIVED_REQUEST_MESSAGE, requestURI);
 
-        return Mono.just(body);
+        // ModifyRequestBody invokes this with a null body for empty-body requests (e.g. GET) -> guard Mono.just
+        return body == null ? Mono.empty() : Mono.just(body);
     }
 
     private Set<String> getTenantIdsFromRequest(ServerHttpRequest request, Map body) throws CustomException {

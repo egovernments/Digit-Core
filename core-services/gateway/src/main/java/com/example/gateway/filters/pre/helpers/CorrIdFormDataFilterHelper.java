@@ -78,7 +78,8 @@ public class CorrIdFormDataFilterHelper implements RewriteFunction<MultiValueMap
         exchange.getAttributes().put(CORRELATION_ID_KEY, correlationId);
         log.debug(RECEIVED_REQUEST_MESSAGE, requestURI);
 
-        return Mono.just(body);
+        // guard Mono.just against a null body (empty-body form requests)
+        return body == null ? Mono.empty() : Mono.just(body);
     }
 
 }
