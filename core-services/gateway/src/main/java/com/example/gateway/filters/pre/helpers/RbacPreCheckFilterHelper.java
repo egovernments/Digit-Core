@@ -39,6 +39,6 @@ public class RbacPreCheckFilterHelper implements RewriteFunction<Map,Map> {
         else {
             serverWebExchange.getAttributes().put(RBAC_BOOLEAN_FLAG_NAME, true);
         }
-        return Mono.just(map);
+        return map == null ? Mono.empty() : Mono.just(map);
     }
 }

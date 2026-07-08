@@ -51,12 +51,15 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
         if (openEndpointsWhitelist.contains(endPointPath)) {
             exchange.getAttributes().put(AUTH_BOOLEAN_FLAG_NAME, Boolean.FALSE);
             log.info(OPEN_ENDPOINT_MESSAGE, endPointPath);
-            return Mono.just(body);
+            return body == null ? Mono.empty() : Mono.just(body);
         }
 
         try {
-            RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-            authToken = requestInfo.getAuthToken();
+            // Empty-body (e.g. GET) requests arrive with a null body; treat as "no auth token"
+            // so the existing empty-token handling below applies (401 for protected endpoints).
+            Object requestInfoBody = body == null ? null : body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE);
+            RequestInfo requestInfo = objectMapper.convertValue(requestInfoBody, RequestInfo.class);
+            authToken = requestInfo == null ? null : requestInfo.getAuthToken();
         } catch (Exception e) {
             log.error(AUTH_TOKEN_RETRIEVE_FAILURE_MESSAGE, e);
             throw new CustomException(AUTH_TOKEN_RETRIEVE_FAILURE_MESSAGE, e.getMessage());
@@ -79,6 +82,6 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
 
         }
 
-        return Mono.just(body);
+        return body == null ? Mono.empty() : Mono.just(body);
     }
 }

@@ -29,6 +29,10 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
 
     @Override
     public Publisher<Map> apply(ServerWebExchange serverWebExchange, Map body) {
+        // Empty-body (e.g. GET) requests arrive with a null body; nothing to enrich, pass through.
+        if (body == null) {
+            return Mono.empty();
+        }
         try {
             RequestInfo requestInfo = objectMapper.convertValue(body.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
             requestInfo.setUserInfo(userUtils.getUser(requestInfo.getAuthToken()));

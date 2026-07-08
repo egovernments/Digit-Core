@@ -56,14 +56,15 @@ public class RbacFilterHelper implements RewriteFunction<Map, Map> {
     public Publisher<Map> apply(ServerWebExchange serverWebExchange, Map map) {
 
         isIncomingURIInAuthorizedActionList(serverWebExchange,map);
-        return Mono.just(map);
+        return map == null ? Mono.empty() : Mono.just(map);
     }
 
     private void isIncomingURIInAuthorizedActionList(ServerWebExchange exchange, Map map) {
 
         String requestUri = exchange.getRequest().getURI().getPath();
-        RequestInfo requestInfo = objectMapper.convertValue(map.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
-        User user = requestInfo.getUserInfo();
+        // Empty-body requests arrive with a null map; treat as "no user info" so the check below rejects them.
+        RequestInfo requestInfo = map == null ? null : objectMapper.convertValue(map.get(REQUEST_INFO_FIELD_NAME_PASCAL_CASE), RequestInfo.class);
+        User user = requestInfo == null ? null : requestInfo.getUserInfo();
 
         if (user == null) {
             throw new RuntimeException("User information not found. Can't execute RBAC filter");
