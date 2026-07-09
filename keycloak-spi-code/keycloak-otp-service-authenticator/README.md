@@ -175,7 +175,7 @@ OTP service must have a config for that tenant + purpose.
 
 ## Build
 
-Requires **JDK 21** and Maven. Targets **Keycloak 25.0.1**.
+Requires **JDK 21** and Maven. Targets **Keycloak 25.0.6**.
 
 ```bash
 mvn clean install
@@ -215,3 +215,85 @@ auth/
     ├── OtpClientException.java        # carries HTTP status + parsed error
     └── models/                        # request/response DTOs (v3 contract)
 ```
+
+---
+
+## Mobile self-registration flow (passwordless)
+
+Two additional authenticators implement an OTP-only **self-registration** flow:
+the user enters a mobile number, receives an OTP, and on verification a
+**passwordless** account is created (username = mobile number, `mobileNumber`
+attribute set, `enabled=true`, `emailVerified=false`, **no password credential**).
+Realm default roles/groups apply automatically.
+
+| Display name | Provider ID | Purpose |
+|---|---|---|
+| **Registration – Mobile Number** | `registration-mobile-number` | Step A: mobile form → uniqueness check → send OTP |
+| **Registration – Mobile OTP Verify** | `registration-mobile-otp-verify` | Step B: verify OTP → create user |
+
+Both reuse the same `OtpClient` / `OtpConfig` as the login flow — there is no
+second OTP integration. The OTP `purpose` sent to the service is configured via:
+
+| Env var | Default |
+|---|---|
+| `OTP_REGISTRATION_PURPOSE` | `registration` |
+
+All other settings (`OTP_HOST`, paths, timeouts, `KEYCLOAK_SMS_DESTINATION_ATTRIBUTE`)
+are shared with the login authenticators. Resend cooldown, expiry, and rate
+limiting are enforced by the OTP service, exactly as in the login flow.
+
+Templates shipped in the jar: `register-mobile.ftl`, `register-mobile-otp.ftl`
+(rendered through the active login theme's `template.ftl` — no theme changes needed).
+
+> **Mobile format:** validation is currently a permissive sanity check
+> (`^\+?\d{7,15}$`, spaces/dashes stripped). Country-code normalization is
+> intentionally deferred — see `MobileRegistrationAuthenticator.MOBILE_PATTERN`.
+
+### Build & deploy
+
+```bash
+mvn clean package
+cp target/keycloak-otp-service-authenticator-1.0-SNAPSHOT.jar $KEYCLOAK_HOME/providers/
+$KEYCLOAK_HOME/bin/kc.sh build     # not needed with start-dev (auto-builds on start)
+# restart Keycloak
+```
+
+### Flow wiring (Admin Console, Keycloak 25)
+
+1. **Authentication → Flows** → row `registration` → ⋮ → **Duplicate** → name it
+   `registration mobile otp`.
+2. In the copy, **delete** (or set to *Disabled*) the `registration mobile otp
+   registration form` step (the `registration-page-form` sub-flow containing
+   *User Profile Creation* / *Password Validation*).
+3. **Add step** → **Registration – Mobile Number** → set to **Required**.
+4. **Add step** → **Registration – Mobile OTP Verify** → set to **Required**
+   (must be *after* Step A, at the same level).
+5. ⋮ on the flow → **Bind flow** → **Registration flow**.
+6. **Realm settings → Login** → ensure **User registration** is ON (this shows
+   the "Register" link on the login page).
+
+### Realm prerequisites (verify these — the flow can't override them)
+
+- **Realm settings → Login**: **"Email as username" must be OFF** — the username
+  is the mobile number.
+- **Realm settings → User profile**: the default profile marks `email` as
+  *required for user*. User creation here bypasses profile validation, but any
+  later profile update (account console / admin edit) will fail for email-less
+  users — set `email` to not-required (or required for admin only).
+- **Authentication → Required actions**: neither **Update Password** nor
+  **Verify Email** may be marked *Default action* — either would trap these
+  passwordless, email-less accounts right after registration.
+- **Browser flow**: for these users to log in afterwards, the browser flow must
+  reach **OTP – SMS** without requiring a password (e.g. Username Form →
+  OTP – SMS). A *Required* Password step makes these accounts unable to log in.
+
+### Behaviour details
+
+- **Duplicate check** matches both username and the `mobileNumber` attribute;
+  a concurrent registration between the two steps is caught via
+  `ModelDuplicateException` and surfaced as "already registered".
+- **Resend** relays to `/otp/v3/resend`; a 429 (cooldown) keeps the user on the
+  form with a message. After a terminal expiry (410/423) the stored
+  `referenceId` is dropped and **Resend Code** generates a fresh OTP.
+- **Change Number** (cancel) invalidates the outstanding OTP and restarts the
+  flow at the mobile-number step.

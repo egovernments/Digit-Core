@@ -28,6 +28,7 @@ public class OtpConfig {
 	// Per-channel configs
 	private final ChannelConfig email;
 	private final ChannelConfig sms;
+	private final ChannelConfig registration;
 
 	// Keycloak user attribute names
 	private final String emailDestinationAttr;
@@ -46,6 +47,7 @@ public class OtpConfig {
 
 		this.email = new ChannelConfig(getEnv("OTP_EMAIL_PURPOSE", "login"));
 		this.sms = new ChannelConfig(getEnv("OTP_SMS_PURPOSE", "login"));
+		this.registration = new ChannelConfig(getEnv("OTP_REGISTRATION_PURPOSE", "registration"));
 
 		this.emailDestinationAttr = getEnv("KEYCLOAK_EMAIL_DESTINATION_ATTRIBUTE", "email");
 		this.smsDestinationAttr = getEnv("KEYCLOAK_SMS_DESTINATION_ATTRIBUTE", "mobileNumber");
@@ -53,8 +55,8 @@ public class OtpConfig {
 		this.connectTimeoutMs = getEnvInt("HTTP_CLIENT_CONNECT_TIMEOUT_MS", 3000);
 		this.requestTimeoutMs = getEnvInt("HTTP_CLIENT_REQUEST_TIMEOUT_MS", 5000);
 
-		log.infof("OtpConfig loaded: host=%s emailPurpose=%s smsPurpose=%s connectTimeoutMs=%d requestTimeoutMs=%d",
-				otpHost, email.purpose(), sms.purpose(), connectTimeoutMs, requestTimeoutMs);
+		log.infof("OtpConfig loaded: host=%s emailPurpose=%s smsPurpose=%s registrationPurpose=%s connectTimeoutMs=%d requestTimeoutMs=%d",
+				otpHost, email.purpose(), sms.purpose(), registration.purpose(), connectTimeoutMs, requestTimeoutMs);
 	}
 
 	private static String getEnv(String name, String defaultValue) {
