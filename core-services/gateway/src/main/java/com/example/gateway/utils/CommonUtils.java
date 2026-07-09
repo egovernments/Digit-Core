@@ -80,6 +80,38 @@ public class CommonUtils {
         }
     }
 
+    /**
+     * Puts the resolved tenantId into MDC and the exchange
+     * attribute so it appears in gateway and downstream logs even on non-central-instance environments
+     * No-op if a tenantId is already resolved for this exchange.
+     */
+    public void resolveTenantForTracing(ServerWebExchange exchange, Map body) {
+        if (!ObjectUtils.isEmpty(exchange.getAttributes().get(TENANTID_MDC)))
+            return;
+        try {
+            Set<String> tenantIds = new HashSet<>();
+            if (HttpMethod.GET.equals(exchange.getRequest().getMethod()) || ObjectUtils.isEmpty(body)) {
+                MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+                if (!CollectionUtils.isEmpty(queryParams) && !CollectionUtils.isEmpty(queryParams.get(REQUEST_TENANT_ID_KEY))) {
+                    String tenantId = queryParams.getFirst(REQUEST_TENANT_ID_KEY);
+                    if (tenantId != null && tenantId.contains(","))
+                        tenantIds.addAll(Arrays.asList(tenantId.split(",")));
+                    else if (tenantId != null)
+                        tenantIds.add(tenantId);
+                }
+            } else {
+                tenantIds = getTenantIdsFromRequest(exchange.getRequest(), body);
+            }
+            String tenantId = getLowLevelTenantIdFromSet(tenantIds);
+            if (!ObjectUtils.isEmpty(tenantId)) {
+                MDC.put(TENANTID_MDC, tenantId);
+                exchange.getAttributes().put(TENANTID_MDC, tenantId);
+            }
+        } catch (Exception ex) {
+            log.debug("resolveTenantForTracing: could not resolve tenantId (ignored): {}", ex.getMessage());
+        }
+    }
+
     private static String getRequestMethod(ServerHttpRequest serverHttpRequest) {
         return serverHttpRequest.getMethod().toString();
     }

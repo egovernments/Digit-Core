@@ -39,6 +39,9 @@ public class CorrelationIdFilterHelper implements RewriteFunction<Map, Map> {
 
         // enriches tenantIds in MDC
         commonUtils.handleCentralInstanceLogic(exchange, requestURI, isOpenRequest, isMixModeRequest, body);
+        // propagate tenantId for tracing on non-central-instance envs too (best-effort, never throws)
+        if (applicationProperties.isTenantPropagationEnabled())
+            commonUtils.resolveTenantForTracing(exchange, body);
         String correlationId = UUID.randomUUID().toString();
         MDC.put(CORRELATION_ID_KEY, correlationId);
         exchange.getAttributes().put(CORRELATION_ID_KEY, correlationId);
