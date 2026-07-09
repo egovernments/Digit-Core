@@ -57,6 +57,7 @@ public class PersisterMessageListener implements MessageListener<String, Object>
         String topic = data.topic();
         boolean fromDlq = Objects.equals(topic, deadLetterTopic);
         Object body = null;
+        String json = null;
         int attempts = 0;
 
         try {
@@ -76,16 +77,11 @@ public class PersisterMessageListener implements MessageListener<String, Object>
             // Batch-originated envelopes carry body as a pre-serialized JSON String; the single path
             // carries a structured object. Re-serialize ONLY the latter, otherwise the String would be
             // double-encoded and PersistService would silently extract no rows.
-            String json = (body instanceof String) ? (String) body : objectMapper.writeValueAsString(body);
+            json = (body instanceof String) ? (String) body : objectMapper.writeValueAsString(body);
             persistService.persist(topic, json);
             log.info("Message from topic {} persisted in {} ms.", topic, System.currentTimeMillis() - startTime);
         } catch (Exception e) {
             DbExceptionClassifier.Kind kind = DbExceptionClassifier.classify(e);
-            if (kind == DbExceptionClassifier.Kind.BENIGN) {
-                // Row already present (redelivery / DLQ replay) -> idempotent success; never dead-letter it.
-                log.info("Record for topic {} already present (duplicate) - idempotent success.", topic);
-                return;
-            }
             if (kind == DbExceptionClassifier.Kind.TRANSIENT) {
                 // DB/infra momentarily unavailable. The record is GOOD, so it must not be dead-lettered or
                 // parked: rethrow so the container error handler retries it in place (offset NOT committed)
@@ -94,6 +90,21 @@ public class PersisterMessageListener implements MessageListener<String, Object>
                 // poison-retry budget and never strands good data.
                 log.warn("Transient failure persisting record from topic {} - retrying in place (not dead-lettered)", topic, e);
                 throw new TransientPersistException("Transient DB failure persisting topic " + topic, e);
+            }
+            // Bulk producers publish a whole list as ONE message, and the whole-message transaction has
+            // rolled back - so a failure here must be isolated to the offending RECORD(s), never shared
+            // by the good siblings (R1 at record granularity). This also covers BENIGN on a mixed batch:
+            // a duplicate row aborts the array insert with unique_violation, and treating that as a
+            // message-level idempotent success would silently drop the not-yet-persisted siblings.
+            List<String> records = RecordSplitter.split(json);
+            if (records != null) {
+                persistRecordsIndividually(topic, records, fromDlq, attempts);
+                return;
+            }
+            if (kind == DbExceptionClassifier.Kind.BENIGN) {
+                // Single row already present (redelivery / DLQ replay) -> idempotent success; never dead-letter it.
+                log.info("Record for topic {} already present (duplicate) - idempotent success.", topic);
+                return;
             }
             // PERMANENT (bad data): bounded dead-letter reprocessing, then terminal parking (R3 + R4).
             if (!fromDlq) {
@@ -121,6 +132,45 @@ public class PersisterMessageListener implements MessageListener<String, Object>
                 log.error("Audit send failed for topic {} (record already persisted; NOT dead-lettered)", topic, e);
             }
         }
+    }
+
+    /**
+     * Record-level isolation for a failed multi-record message: each record is persisted in its own
+     * transaction; duplicates are idempotent successes; only genuinely bad records continue on the
+     * bounded DLQ -> park path (with the message's remaining retry budget). A transient failure
+     * mid-sweep aborts and rethrows so the ORIGINAL message retries in place once the DB recovers -
+     * records persisted before the abort then come back BENIGN, so the sweep converges.
+     */
+    private void persistRecordsIndividually(String topic, List<String> records, boolean fromDlq, int attempts) {
+        int persisted = 0;
+        int duplicates = 0;
+        int deadLettered = 0;
+        int parked = 0;
+        for (String record : records) {
+            try {
+                persistService.persist(topic, record);
+                persisted++;
+            } catch (Exception e) {
+                DbExceptionClassifier.Kind kind = DbExceptionClassifier.classify(e);
+                if (kind == DbExceptionClassifier.Kind.BENIGN) {
+                    duplicates++;
+                } else if (kind == DbExceptionClassifier.Kind.TRANSIENT) {
+                    log.warn("Transient failure during record-level isolation for topic {} - retrying whole message in place", topic, e);
+                    throw new TransientPersistException("Transient DB failure isolating record for topic " + topic, e);
+                } else if (!fromDlq) {
+                    sendToDlq(topic, record, 1, e);
+                    deadLettered++;
+                } else if (attempts < maxRetries) {
+                    sendToDlq(topic, record, attempts + 1, e);
+                    deadLettered++;
+                } else {
+                    sendToParking(topic, record, attempts, e);
+                    parked++;
+                }
+            }
+        }
+        log.warn("Record-level isolation for topic {}: {} record(s) -> {} persisted, {} duplicate(s), {} dead-lettered, {} parked",
+                topic, records.size(), persisted, duplicates, deadLettered, parked);
     }
 
     /** Awaited dead-letter publish; rethrows on failure so the record is not silently dropped. */

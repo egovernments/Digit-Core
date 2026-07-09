@@ -14,7 +14,9 @@ import java.util.LinkedHashMap;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -110,6 +112,107 @@ class PersisterMessageListenerTest {
 
         // Terminal park, and NOT re-queued to the DLQ -> no infinite loop (R4).
         verify(kafkaTemplate).send(eq(PARK), any());
+        verify(kafkaTemplate, never()).send(eq(DLQ), any());
+    }
+
+    @Test
+    void permanentPoisonInBulkArrayIsIsolatedAndGoodSiblingsPersist() {
+        doAnswer(inv -> {
+            String json = inv.getArgument(1);
+            if (json.contains("bad")) {
+                throw dbError("23502"); // not_null_violation - fails the whole array, then only [bad]
+            }
+            return null;
+        }).when(persistService).persist(anyString(), anyString());
+
+        listener.onMessage(record("orig", "[{\"id\":\"g1\"},{\"id\":\"bad\"},{\"id\":\"g2\"}]"));
+
+        // Whole array first, then each of the 3 records individually.
+        verify(persistService).persist("orig", "[{\"id\":\"g1\"},{\"id\":\"bad\"},{\"id\":\"g2\"}]");
+        verify(persistService).persist("orig", "[{\"id\":\"g1\"}]");
+        verify(persistService).persist("orig", "[{\"id\":\"bad\"}]");
+        verify(persistService).persist("orig", "[{\"id\":\"g2\"}]");
+        // Exactly ONE dead-letter: the poison record alone; nothing parked.
+        verify(kafkaTemplate).send(eq(DLQ), argThat(payload ->
+                ((java.util.Map<?, ?>) payload).get("body").toString().contains("bad")
+                        && !((java.util.Map<?, ?>) payload).get("body").toString().contains("g1")));
+        verify(kafkaTemplate, never()).send(eq(PARK), any());
+    }
+
+    /**
+     * A duplicate row inside a bulk array aborts the whole-array insert with unique_violation
+     * (BENIGN). Treating that as a message-level idempotent success would silently drop the
+     * not-yet-persisted siblings - they must be persisted individually instead.
+     */
+    @Test
+    void benignDuplicateInBulkArrayDoesNotSilentlyDropSiblings() {
+        doAnswer(inv -> {
+            String json = inv.getArgument(1);
+            if (json.contains("dup")) {
+                throw dbError("23505"); // unique_violation on the duplicate row
+            }
+            return null;
+        }).when(persistService).persist(anyString(), anyString());
+
+        listener.onMessage(record("orig", "[{\"id\":\"new1\"},{\"id\":\"dup\"},{\"id\":\"new2\"}]"));
+
+        // The two new records are persisted individually; the duplicate is an idempotent success.
+        verify(persistService).persist("orig", "[{\"id\":\"new1\"}]");
+        verify(persistService).persist("orig", "[{\"id\":\"new2\"}]");
+        // Nothing is dead-lettered or parked for a duplicate.
+        verify(kafkaTemplate, never()).send(eq(DLQ), any());
+        verify(kafkaTemplate, never()).send(eq(PARK), any());
+    }
+
+    /** A transient failure mid-isolation must abort the sweep and retry the ORIGINAL message in place. */
+    @Test
+    void transientFailureDuringIsolationRethrowsAndNothingIsDeadLettered() {
+        doAnswer(inv -> {
+            String json = inv.getArgument(1);
+            if (json.contains("bad") && json.contains("slow")) {
+                throw dbError("23502"); // full array fails permanent -> triggers isolation
+            }
+            if (json.contains("slow")) {
+                throw dbError("08006"); // DB dies when this record is retried individually
+            }
+            if (json.contains("bad")) {
+                throw dbError("23502");
+            }
+            return null;
+        }).when(persistService).persist(anyString(), anyString());
+
+        assertThrows(TransientPersistException.class,
+                () -> listener.onMessage(record("orig", "[{\"id\":\"slow\"},{\"id\":\"bad\"}]")));
+
+        // The outage must not burn the retry budget of any record.
+        verify(kafkaTemplate, never()).send(anyString(), any());
+    }
+
+    /**
+     * A multi-record body replayed from the DLQ at the retry ceiling: only the still-failing record
+     * is parked; its sibling persists (no wholesale parking of good data).
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    void multiRecordDlqBodyAtCeilingParksOnlyTheOffendingRecord() {
+        doAnswer(inv -> {
+            String json = inv.getArgument(1);
+            if (json.contains("bad")) {
+                throw dbError("23502");
+            }
+            return null;
+        }).when(persistService).persist(anyString(), anyString());
+
+        LinkedHashMap<String, Object> envelope = new LinkedHashMap<>();
+        envelope.put("source", "orig");
+        envelope.put("body", "[{\"id\":\"good\"},{\"id\":\"bad\"}]");
+        envelope.put("attempts", MAX_RETRIES); // budget already spent
+
+        listener.onMessage(record(DLQ, envelope));
+
+        verify(persistService).persist("orig", "[{\"id\":\"good\"}]");
+        verify(kafkaTemplate).send(eq(PARK), argThat(payload ->
+                ((java.util.Map<?, ?>) payload).get("body").toString().contains("bad")));
         verify(kafkaTemplate, never()).send(eq(DLQ), any());
     }
 

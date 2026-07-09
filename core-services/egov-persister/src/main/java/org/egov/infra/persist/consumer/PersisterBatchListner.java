@@ -175,14 +175,37 @@ public class PersisterBatchListner implements BatchMessageListener<String, Objec
                     persisted.add(message);
                 } catch (Exception ex) {
                     DbExceptionClassifier.Kind kind = DbExceptionClassifier.classify(ex);
-                    if (kind == DbExceptionClassifier.Kind.BENIGN) {
-                        persisted.add(message); // already present (duplicate) -> idempotent success
-                    } else if (kind == DbExceptionClassifier.Kind.TRANSIENT) {
+                    if (kind == DbExceptionClassifier.Kind.TRANSIENT) {
                         // DB went down partway through isolation: abort and retry the whole batch rather
                         // than parking the remaining good records as if they were poison.
                         throw new TransientPersistException("Transient DB failure isolating record for topic " + topic, ex);
+                    }
+                    // A bulk producer publishes a whole list as ONE message, so isolate WITHIN the
+                    // message (R1 at record granularity): good sibling rows must not share a poison
+                    // row's dead-letter, and a BENIGN duplicate must not absorb not-yet-persisted
+                    // siblings (the array insert aborts on the duplicate before reaching them).
+                    List<String> records = RecordSplitter.split(message);
+                    if (records != null) {
+                        for (String record : records) {
+                            try {
+                                persistService.persist(topic, Collections.singletonList(record));
+                                persisted.add(record);
+                            } catch (Exception rex) {
+                                DbExceptionClassifier.Kind recordKind = DbExceptionClassifier.classify(rex);
+                                if (recordKind == DbExceptionClassifier.Kind.BENIGN) {
+                                    persisted.add(record); // already present -> idempotent success
+                                } else if (recordKind == DbExceptionClassifier.Kind.TRANSIENT) {
+                                    throw new TransientPersistException("Transient DB failure isolating record for topic " + topic, rex);
+                                } else {
+                                    sendToDlq(topic, record, 0, rex); // only the offending record
+                                    failed++;
+                                }
+                            }
+                        }
+                    } else if (kind == DbExceptionClassifier.Kind.BENIGN) {
+                        persisted.add(message); // single already-present record -> idempotent success
                     } else {
-                        sendToDlq(topic, message, 0, ex); // isolate only the offending (bad-data) record
+                        sendToDlq(topic, message, 0, ex); // unsplittable payload: message-level isolation
                         failed++;
                     }
                 }
