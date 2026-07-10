@@ -1,4 +1,5 @@
 org.egov.keycloak.auth.EmailOtpAuthenticatorFactory
 org.egov.keycloak.auth.SmsOtpAuthenticatorFactory
+org.egov.keycloak.auth.MobileLoginAuthenticatorFactory
 org.egov.keycloak.registration.MobileRegistrationAuthenticatorFactory
 org.egov.keycloak.registration.MobileOtpVerifyAuthenticatorFactory

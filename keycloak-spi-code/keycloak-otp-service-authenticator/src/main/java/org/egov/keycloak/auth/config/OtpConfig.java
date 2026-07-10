@@ -3,6 +3,12 @@ package org.egov.keycloak.auth.config;
 import lombok.Getter;
 import lombok.extern.jbosslog.JBossLog;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
 /**
  * Runtime configuration resolved from environment variables.
  * <p>
@@ -34,6 +40,9 @@ public class OtpConfig {
 	private final String emailDestinationAttr;
 	private final String smsDestinationAttr;
 
+	// Realm roles granted to users created by the mobile self-registration flow
+	private final List<String> registrationRoles;
+
 	// HTTP client transport timeouts (milliseconds)
 	private final int connectTimeoutMs;
 	private final int requestTimeoutMs;
@@ -52,6 +61,12 @@ public class OtpConfig {
 		this.emailDestinationAttr = getEnv("KEYCLOAK_EMAIL_DESTINATION_ATTRIBUTE", "email");
 		this.smsDestinationAttr = getEnv("KEYCLOAK_SMS_DESTINATION_ATTRIBUTE", "mobileNumber");
 
+		this.registrationRoles = Arrays.stream(
+						getEnvOrProp("OTP_REGISTRATION_ROLES", "otp.registration.roles", "CITIZEN").split(","))
+				.map(String::trim)
+				.filter(s -> !s.isEmpty())
+				.toList();
+
 		this.connectTimeoutMs = getEnvInt("HTTP_CLIENT_CONNECT_TIMEOUT_MS", 3000);
 		this.requestTimeoutMs = getEnvInt("HTTP_CLIENT_REQUEST_TIMEOUT_MS", 5000);
 
@@ -59,8 +74,30 @@ public class OtpConfig {
 				otpHost, email.purpose(), sms.purpose(), registration.purpose(), connectTimeoutMs, requestTimeoutMs);
 	}
 
+	/** application.properties bundled in this jar — fallback source for config values. */
+	private static final Properties FILE_PROPS = loadFileProps();
+
+	private static Properties loadFileProps() {
+		Properties p = new Properties();
+		try (InputStream in = OtpConfig.class.getClassLoader()
+				.getResourceAsStream("application.properties")) {
+			if (in != null) p.load(in);
+		} catch (IOException e) {
+			log.warn("Could not read application.properties from classpath", e);
+		}
+		return p;
+	}
+
 	private static String getEnv(String name, String defaultValue) {
 		String v = System.getenv(name);
+		return (v != null && !v.isBlank()) ? v.trim() : defaultValue;
+	}
+
+	/** Resolution order: environment variable → application.properties → default. */
+	private static String getEnvOrProp(String envName, String propName, String defaultValue) {
+		String v = System.getenv(envName);
+		if (v != null && !v.isBlank()) return v.trim();
+		v = FILE_PROPS.getProperty(propName);
 		return (v != null && !v.isBlank()) ? v.trim() : defaultValue;
 	}
 

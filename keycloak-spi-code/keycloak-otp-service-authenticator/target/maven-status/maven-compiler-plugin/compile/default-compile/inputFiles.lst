@@ -1,4 +1,6 @@
 /home/admin1/license/Licenses-and-Permits/keycloak-25.0.6/keycloak-otp-service-authenticator/src/main/java/org/egov/keycloak/auth/EmailOtpAuthenticatorFactory.java
+/home/admin1/license/Licenses-and-Permits/keycloak-25.0.6/keycloak-otp-service-authenticator/src/main/java/org/egov/keycloak/auth/MobileLoginAuthenticator.java
+/home/admin1/license/Licenses-and-Permits/keycloak-25.0.6/keycloak-otp-service-authenticator/src/main/java/org/egov/keycloak/auth/MobileLoginAuthenticatorFactory.java
 /home/admin1/license/Licenses-and-Permits/keycloak-25.0.6/keycloak-otp-service-authenticator/src/main/java/org/egov/keycloak/auth/OtpAuthenticator.java
 /home/admin1/license/Licenses-and-Permits/keycloak-25.0.6/keycloak-otp-service-authenticator/src/main/java/org/egov/keycloak/auth/OtpAuthenticatorFactory.java
 /home/admin1/license/Licenses-and-Permits/keycloak-25.0.6/keycloak-otp-service-authenticator/src/main/java/org/egov/keycloak/auth/SmsOtpAuthenticatorFactory.java

@@ -16,12 +16,14 @@ org/egov/keycloak/auth/clients/otp/models/VerifyOtpRequest.class
 org/egov/keycloak/auth/clients/otp/models/ResendOtpRequest$ResendOtpRequestBuilder.class
 org/egov/keycloak/registration/MobileRegistrationAuthenticator.class
 org/egov/keycloak/auth/clients/otp/models/InvalidateOtpResponse.class
+org/egov/keycloak/auth/MobileLoginAuthenticatorFactory.class
 org/egov/keycloak/registration/RegistrationConstants.class
 org/egov/keycloak/auth/OtpAuthenticator.class
 org/egov/keycloak/registration/MobileOtpVerifyAuthenticatorFactory.class
 org/egov/keycloak/auth/clients/otp/models/ResendOtpResponse.class
 org/egov/keycloak/auth/clients/otp/models/InvalidateOtpRequest$InvalidateOtpRequestBuilder.class
 org/egov/keycloak/auth/EmailOtpAuthenticatorFactory.class
+org/egov/keycloak/auth/MobileLoginAuthenticator.class
 org/egov/keycloak/auth/clients/otp/models/VerifyOtpRequest$VerifyOtpRequestBuilder.class
 org/egov/keycloak/auth/clients/otp/models/GenerateOtpRequest$GenerateOtpRequestBuilder.class
 org/egov/keycloak/auth/clients/otp/models/GenerateOtpResponse.class

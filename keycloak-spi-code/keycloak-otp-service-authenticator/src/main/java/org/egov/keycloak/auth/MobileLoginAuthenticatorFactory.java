@@ -1,8 +1,5 @@
-package org.egov.keycloak.registration;
+package org.egov.keycloak.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.egov.keycloak.auth.clients.otp.OtpClient;
-import org.egov.keycloak.auth.clients.otp.OtpClientImpl;
 import org.egov.keycloak.auth.config.OtpConfig;
 import org.keycloak.Config;
 import org.keycloak.authentication.Authenticator;
@@ -12,22 +9,20 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-import java.net.http.HttpClient;
-import java.time.Duration;
 import java.util.List;
 
 /**
- * Registers "Registration – Mobile OTP Verify" in the Keycloak flow editor.
+ * Registers "Login – Mobile Number" in the Keycloak flow editor.
  * <p>
- * Step B of the mobile self-registration flow: verifies the OTP sent by
- * Step A and creates the passwordless user (username = mobile number).
- * Must be placed directly after "Registration – Mobile Number".
+ * A username-form replacement that asks for a mobile number instead.
+ * Use it as the identification step in a passwordless browser flow,
+ * directly before "OTP – SMS".
  */
-public class MobileOtpVerifyAuthenticatorFactory implements AuthenticatorFactory {
+public class MobileLoginAuthenticatorFactory implements AuthenticatorFactory {
 
-	public static final String PROVIDER_ID = "registration-mobile-otp-verify";
+	public static final String PROVIDER_ID = "login-mobile-number";
 
-	private MobileOtpVerifyAuthenticator authenticator;
+	private MobileLoginAuthenticator authenticator;
 
 	@Override
 	public String getId() {
@@ -36,28 +31,18 @@ public class MobileOtpVerifyAuthenticatorFactory implements AuthenticatorFactory
 
 	@Override
 	public String getDisplayType() {
-		return "Registration – Mobile OTP Verify";
+		return "Login – Mobile Number";
 	}
 
 	@Override
 	public String getHelpText() {
-		return "Verifies the OTP sent to the mobile number and creates a passwordless user (username = mobile number).";
+		return "Identifies the user by mobile number (username or mobile attribute). Renders a mobile-number field instead of the standard username form.";
 	}
 
 	@Override
 	public void init(Config.Scope scope) {
 		OtpConfig config = new OtpConfig();
-		HttpClient hc = HttpClient.newBuilder()
-				.connectTimeout(Duration.ofMillis(config.getConnectTimeoutMs()))
-				.build();
-		OtpClient client = new OtpClientImpl(config, hc, new ObjectMapper());
-
-		this.authenticator = new MobileOtpVerifyAuthenticator(
-				client,
-				config.getRegistration().purpose(),
-				config.getSmsDestinationAttr(),
-				config.getRegistrationRoles()
-		);
+		this.authenticator = new MobileLoginAuthenticator(config.getSmsDestinationAttr());
 	}
 
 	@Override

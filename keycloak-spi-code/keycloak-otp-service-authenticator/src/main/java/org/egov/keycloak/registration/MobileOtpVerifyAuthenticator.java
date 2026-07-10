@@ -16,7 +16,10 @@ import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ModelDuplicateException;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
+
+import java.util.List;
 import org.keycloak.models.utils.FormMessage;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.sessions.AuthenticationSessionModel;
@@ -44,11 +47,14 @@ public class MobileOtpVerifyAuthenticator implements Authenticator {
 	private final OtpClient otpClient;
 	private final String purpose;
 	private final String mobileAttr;
+	private final List<String> rolesToGrant;
 
-	public MobileOtpVerifyAuthenticator(OtpClient otpClient, String purpose, String mobileAttr) {
+	public MobileOtpVerifyAuthenticator(OtpClient otpClient, String purpose, String mobileAttr,
+	                                    List<String> rolesToGrant) {
 		this.otpClient = otpClient;
 		this.purpose = purpose;
 		this.mobileAttr = mobileAttr;
+		this.rolesToGrant = rolesToGrant;
 	}
 
 	@Override
@@ -234,6 +240,17 @@ public class MobileOtpVerifyAuthenticator implements Authenticator {
 			user.setEmailVerified(false);
 			user.setSingleAttribute(mobileAttr, mobile);
 			// Intentionally NO password credential — this account is OTP-only
+
+			// Grant configured realm roles (OTP_REGISTRATION_ROLES, default: CITIZEN)
+			for (String roleName : rolesToGrant) {
+				RoleModel role = context.getRealm().getRole(roleName);
+				if (role != null) {
+					user.grantRole(role);
+				} else {
+					log.warnf("Realm role '%s' not found in realm '%s' – not granted to user %s",
+							roleName, context.getRealm().getName(), mobile);
+				}
+			}
 
 			context.setUser(user);
 			context.getEvent()
