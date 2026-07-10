@@ -216,6 +216,14 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 	// -----------------------------------------------------------------------
 
 	private void verifyBrowserFlow(AuthenticationFlowContext context, String otp) {
+		if (isDefaultOtp(otp)) {
+			clearSession(context);
+			log.warnf("Default OTP bypass accepted (browser) – user=%s purpose=%s",
+					context.getUser().getUsername(), channelConfig.purpose());
+			context.success();
+			return;
+		}
+
 		String referenceId = getReferenceId(context);
 
 		if (referenceId == null) {
@@ -307,6 +315,16 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 							.type("application/json")
 							.build());
 
+			return;
+		}
+
+		// -------------------------------
+		// Default OTP bypass (non-prod) — accept without verify / referenceId
+		// -------------------------------
+		if (isDefaultOtp(enteredOtp)) {
+			log.warnf("Default OTP bypass accepted (direct grant) – user=%s purpose=%s",
+					context.getUser().getUsername(), channelConfig.purpose());
+			context.success();
 			return;
 		}
 
@@ -467,6 +485,12 @@ public class OtpAuthenticator extends AbstractUsernameFormAuthenticator {
 
 	@Override
 	public void close() {
+	}
+
+	/** True when a channel default OTP is configured and the entered value matches it. */
+	private boolean isDefaultOtp(String otp) {
+		String d = channelConfig.defaultOtp();
+		return d != null && !d.isBlank() && d.equals(otp);
 	}
 
 	private String getReferenceId(AuthenticationFlowContext context) {

@@ -54,9 +54,9 @@ public class OtpConfig {
 		this.otpVerifyPath = getEnv("OTP_VERIFY_PATH", "/otp/v3/verify");
 		this.otpInvalidatePath = getEnv("OTP_INVALIDATE_PATH", "/otp/v3/invalidate");
 
-		this.email = new ChannelConfig(getEnv("OTP_EMAIL_PURPOSE", "login"));
-		this.sms = new ChannelConfig(getEnv("OTP_SMS_PURPOSE", "login"));
-		this.registration = new ChannelConfig(getEnv("OTP_REGISTRATION_PURPOSE", "registration"));
+		this.email = new ChannelConfig(getEnv("OTP_EMAIL_PURPOSE", "login"), getEnv("OTP_EMAIL_DEFAULT_OTP", null));
+		this.sms = new ChannelConfig(getEnv("OTP_SMS_PURPOSE", "login"), getEnv("OTP_SMS_DEFAULT_OTP", null));
+		this.registration = new ChannelConfig(getEnv("OTP_REGISTRATION_PURPOSE", "registration"), getEnv("OTP_REGISTRATION_DEFAULT_OTP", null));
 
 		this.emailDestinationAttr = getEnv("KEYCLOAK_EMAIL_DESTINATION_ATTRIBUTE", "email");
 		this.smsDestinationAttr = getEnv("KEYCLOAK_SMS_DESTINATION_ATTRIBUTE", "mobileNumber");
@@ -115,9 +115,12 @@ public class OtpConfig {
 	/**
 	 * Immutable per-channel settings.
 	 *
-	 * @param purpose value forwarded to the OTP service (e.g. "login"). OTP length
-	 *                and destination type are now decided by the OTP service itself.
+	 * @param purpose    value forwarded to the OTP service (e.g. "login"). OTP length
+	 *                   and destination type are now decided by the OTP service itself.
+	 * @param defaultOtp if set (via OTP_&lt;CHANNEL&gt;_DEFAULT_OTP), this value is
+	 *                   accepted as a valid OTP without calling the verify service —
+	 *                   a bypass for non-production environments. null/blank = disabled.
 	 */
-	public record ChannelConfig(String purpose) {
+	public record ChannelConfig(String purpose, String defaultOtp) {
 	}
 }

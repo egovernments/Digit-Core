@@ -48,13 +48,15 @@ public class MobileOtpVerifyAuthenticator implements Authenticator {
 	private final String purpose;
 	private final String mobileAttr;
 	private final List<String> rolesToGrant;
+	private final String defaultOtp;
 
 	public MobileOtpVerifyAuthenticator(OtpClient otpClient, String purpose, String mobileAttr,
-	                                    List<String> rolesToGrant) {
+	                                    List<String> rolesToGrant, String defaultOtp) {
 		this.otpClient = otpClient;
 		this.purpose = purpose;
 		this.mobileAttr = mobileAttr;
 		this.rolesToGrant = rolesToGrant;
+		this.defaultOtp = defaultOtp;
 	}
 
 	@Override
@@ -179,6 +181,12 @@ public class MobileOtpVerifyAuthenticator implements Authenticator {
 	// -----------------------------------------------------------------------
 
 	private void verify(AuthenticationFlowContext context, String mobile, String otp) {
+		if (isDefaultOtp(otp)) {
+			log.warnf("Default OTP bypass accepted (registration) – mobile=%s purpose=%s", mobile, purpose);
+			createUser(context, mobile);
+			return;
+		}
+
 		String referenceId = referenceId(context);
 
 		if (referenceId == null) {
@@ -305,6 +313,11 @@ public class MobileOtpVerifyAuthenticator implements Authenticator {
 	// -----------------------------------------------------------------------
 	// Session helpers
 	// -----------------------------------------------------------------------
+
+	/** True when a registration default OTP is configured and the entered value matches it. */
+	private boolean isDefaultOtp(String otp) {
+		return defaultOtp != null && !defaultOtp.isBlank() && defaultOtp.equals(otp);
+	}
 
 	private String pendingMobile(AuthenticationFlowContext context) {
 		return context.getAuthenticationSession()

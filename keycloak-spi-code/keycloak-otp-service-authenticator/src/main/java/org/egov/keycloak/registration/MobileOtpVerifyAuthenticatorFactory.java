@@ -56,7 +56,8 @@ public class MobileOtpVerifyAuthenticatorFactory implements AuthenticatorFactory
 				client,
 				config.getRegistration().purpose(),
 				config.getSmsDestinationAttr(),
-				config.getRegistrationRoles()
+				config.getRegistrationRoles(),
+				config.getRegistration().defaultOtp()
 		);
 	}
 
