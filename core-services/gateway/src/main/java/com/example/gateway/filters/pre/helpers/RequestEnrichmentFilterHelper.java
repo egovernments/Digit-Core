@@ -1,5 +1,6 @@
 package com.example.gateway.filters.pre.helpers;
 
+import com.example.gateway.config.ApplicationProperties;
 import com.example.gateway.utils.CommonUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +35,8 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
     private MultiStateInstanceUtil centralInstanceUtil;
 
     private CommonUtils commonUtils;
+
+    private ApplicationProperties applicationProperties;
     private static final String FAILED_TO_ENRICH_REQUEST_BODY_MESSAGE = "Failed to enrich request body";
     private static final String USER_SERIALIZATION_MESSAGE = "Failed to serialize user";
     private static final String SKIPPED_BODY_ENRICHMENT_DUE_TO_NO_KNOWN_FIELD_MESSAGE = "Skipped enriching request body since request info field is not present.";
@@ -47,10 +50,11 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
     private static final String PASS_THROUGH_GATEWAY_HEADER_VALUE = "true";
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public RequestEnrichmentFilterHelper(MultiStateInstanceUtil centralInstanceUtil, CommonUtils commonUtils, ObjectMapper objectMapper) {
+    public RequestEnrichmentFilterHelper(MultiStateInstanceUtil centralInstanceUtil, CommonUtils commonUtils, ObjectMapper objectMapper, ApplicationProperties applicationProperties) {
         this.centralInstanceUtil = centralInstanceUtil;
         this.commonUtils = commonUtils;
         this.objectMapper = objectMapper;
+        this.applicationProperties = applicationProperties;
     }
 
     @Override
@@ -58,6 +62,10 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
 
         // Enrich User Info and Correlation Id in the request
         modifyRequestBody(exchange, body);
+
+        // re-resolve tenantId here so it lands on the forwarding exchange; idempotent, never throws
+        if (applicationProperties.isTenantPropagationEnabled())
+            commonUtils.resolveTenantForTracing(exchange, body);
 
         // Add User_Info and Correlation Id in the header
         addRequestHeaders(exchange, body);

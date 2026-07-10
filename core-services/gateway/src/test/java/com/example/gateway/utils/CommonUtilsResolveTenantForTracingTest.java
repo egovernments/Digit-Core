@@ -7,6 +7,9 @@ import org.slf4j.MDC;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.example.gateway.constants.GatewayConstants.TENANTID_MDC;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,5 +62,21 @@ class CommonUtilsResolveTenantForTracingTest {
         MockServerWebExchange exchange = get("/some/secured/_search?tenantId=dev,dev.city");
         commonUtils.resolveTenantForTracing(exchange, null);
         assertEquals("dev.city", exchange.getAttributes().get(TENANTID_MDC));
+    }
+
+    // POST-body path: tenantId lives in the JSON body (not a query param) and must land in the attribute
+    @Test
+    void postWithTenantInBody_setsTenantAttribute() {
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.post("/some/secured/_create")
+                        .header("Content-Type", "application/json").build());
+        Map<String, Object> individual = new HashMap<>();
+        individual.put("tenantId", "dev");
+        Map<String, Object> body = new HashMap<>();
+        body.put("Individual", individual);
+
+        commonUtils.resolveTenantForTracing(exchange, body);
+
+        assertEquals("dev", exchange.getAttributes().get(TENANTID_MDC));
     }
 }
