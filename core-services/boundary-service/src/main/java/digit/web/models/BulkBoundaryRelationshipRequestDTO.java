@@ -14,10 +14,12 @@ import java.util.List;
  *
  * <p>The whole validated list is published as a single message under the {@code BoundaryRelationship}
  * key (an ARRAY here, whereas the single-create {@link BoundaryRelationshipRequestDTO} publishes the
- * same key as a single object). The persister's {@code save-boundary-relationship} mapping reads this
- * with an array base path ({@code $.BoundaryRelationship.*}) so {@code PersistRepository.getRows}
- * emits one row per element and the listener does ONE {@code jdbcTemplate.batchUpdate} for the whole
- * message.</p>
+ * same key as a single object). It goes to the DEDICATED bulk topic
+ * ({@code boundary-relationship-bulk-create-job}), whose persister mapping reads it with an array base
+ * path ({@code $.BoundaryRelationship.*}) so {@code PersistRepository.getRows} emits one row per element
+ * and the listener does ONE {@code jdbcTemplate.batchUpdate} for the whole message. It must NOT share the
+ * single-create topic {@code save-boundary-relationship}: a persister queryMap has one base path, and an
+ * array shape and a single-object shape cannot both be read by the same mapping.</p>
  *
  * <p>{@code RequestInfo} is retained at the top level so the persister's version filter
  * ({@code $.RequestInfo.ver}) still selects the mapping exactly as it does for the single message.</p>

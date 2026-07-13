@@ -29,13 +29,14 @@ import static org.mockito.Mockito.verify;
  *
  * <p>The batch change must publish the WHOLE validated list as EXACTLY ONE Kafka message (previously it
  * looped and published one message per record). These tests pin that contract: one push per bulk call,
- * carrying an array whose size equals the input size, on the unchanged topic, with the enriched
+ * carrying an array whose size equals the input size, on the dedicated bulk topic
+ * (boundary-relationship-bulk-create-job, separate from the single-create topic), with the enriched
  * ancestralMaterializedPath preserved and the batch keyed by the shared parent.</p>
  */
 @ExtendWith(MockitoExtension.class)
 class BoundaryRelationshipRepositoryImplBulkTest {
 
-    private static final String TOPIC = "save-boundary-relationship";
+    private static final String TOPIC = "boundary-relationship-bulk-create-job";
 
     @Mock
     private Producer producer;
@@ -66,7 +67,7 @@ class BoundaryRelationshipRepositoryImplBulkTest {
 
     @Test
     void createBulk_publishesExactlyOneMessageCarryingTheWholeList() {
-        lenient().when(applicationProperties.getCreateBoundaryRelationshipTopic()).thenReturn(TOPIC);
+        lenient().when(applicationProperties.getBulkCreateBoundaryRelationshipJobTopic()).thenReturn(TOPIC);
 
         List<BoundaryRelation> input = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -83,7 +84,7 @@ class BoundaryRelationshipRepositoryImplBulkTest {
         verify(producer, times(1)).push(topicCaptor.capture(), keyCaptor.capture(), valueCaptor.capture());
         verify(producer, never()).push(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
 
-        assertEquals(TOPIC, topicCaptor.getValue(), "topic must be unchanged save-boundary-relationship");
+        assertEquals(TOPIC, topicCaptor.getValue(), "bulk batch must go to the dedicated boundary-relationship-bulk-create-job topic, NOT save-boundary-relationship");
         assertEquals("P1", keyCaptor.getValue(), "batch keyed by the shared parent code");
 
         Object value = valueCaptor.getValue();
@@ -103,7 +104,7 @@ class BoundaryRelationshipRepositoryImplBulkTest {
 
     @Test
     void createBulk_mixedParents_fallsBackToKeylessPush() {
-        lenient().when(applicationProperties.getCreateBoundaryRelationshipTopic()).thenReturn(TOPIC);
+        lenient().when(applicationProperties.getBulkCreateBoundaryRelationshipJobTopic()).thenReturn(TOPIC);
 
         List<BoundaryRelation> input = new ArrayList<>();
         input.add(relation("V0", "P1", "R1|P1"));

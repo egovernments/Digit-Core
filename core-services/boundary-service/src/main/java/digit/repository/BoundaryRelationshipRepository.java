@@ -14,13 +14,17 @@ public interface BoundaryRelationshipRepository {
 
     /**
      * Persists the given validated and enriched boundary relationships through egov-persister (no direct
-     * DB write): the WHOLE list is published as ONE message to the same save-boundary-relationship topic
-     * the single {@link #create} uses, carrying the relationships as an array under the same
-     * {@code BoundaryRelationship} key. The publish is blocking (it returns once the broker has accepted
-     * the message); egov-persister reads the array (array base path) and writes it as a single
-     * batchUpdate through the idempotent INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING,
-     * so redelivery is a safe no-op and duplicates are skipped without aborting the batch. Batching is
-     * WITHIN the one message, so it needs no persister.batch.topics / persister.bulk.enabled configuration.
+     * DB write): the WHOLE list is published as ONE message to the DEDICATED bulk topic
+     * {@code boundary-relationship-bulk-create-job} (NOT the single {@link #create} topic
+     * {@code save-boundary-relationship}), carrying the relationships as an array under the
+     * {@code BoundaryRelationship} key. A dedicated topic is required because the persister maps this one
+     * with an array base path ({@code $.BoundaryRelationship.*}) while single-create stays single-object
+     * ({@code $.BoundaryRelationship}) — one queryMap has one base path, so the two shapes cannot share a
+     * topic. The publish is blocking (it returns once the broker has accepted the message); egov-persister
+     * reads the array and writes it as a single batchUpdate through the idempotent
+     * INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING, so redelivery is a safe no-op and
+     * duplicates are skipped without aborting the batch. Batching is WITHIN the one message, so it needs no
+     * persister.batch.topics / persister.bulk.enabled configuration.
      *
      * @param boundaryRelationships validated and enriched relationships to persist
      * @param requestInfo request info propagated onto the published message

@@ -53,22 +53,25 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
     /**
      * Persists the given validated and enriched boundary relationships through egov-persister rather than
-     * a direct JDBC write. The WHOLE validated list is published as ONE message to the SAME topic the
-     * single create uses ({@code save-boundary-relationship}), under the same {@code BoundaryRelationship}
-     * key but carrying an ARRAY (whereas single-create carries one object). The persister's mapping reads
-     * it with an array base path ({@code $.BoundaryRelationship.*}), so {@code PersistRepository.getRows}
-     * emits one row per element and the listener performs ONE {@code jdbcTemplate.batchUpdate} for the
-     * whole message through the same idempotent
-     * {@code INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING} query. One message per
-     * batch (instead of one message per record) is what restores batched throughput while keeping the
-     * write owned by the persister.
+     * a direct JDBC write. The WHOLE validated list is published as ONE message — an ARRAY under the
+     * {@code BoundaryRelationship} key — to the DEDICATED bulk topic
+     * ({@code boundary-relationship-bulk-create-job}). The persister maps that topic with an array base
+     * path ({@code $.BoundaryRelationship.*}), so {@code PersistRepository.getRows} emits one row per
+     * element and the listener performs ONE {@code jdbcTemplate.batchUpdate} for the whole message through
+     * the idempotent {@code INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING} query. One
+     * message per batch (instead of one message per record) is what restores batched throughput while
+     * keeping the write owned by the persister.
      *
-     * <p>Reusing that topic (instead of a dedicated {@code -batch} topic) is deliberate for
-     * deployment-safety: {@code save-boundary-relationship} is always consumed by the persister's normal
-     * single-record listener. Batching here is WITHIN a single message (the array), so it does not depend
-     * on {@code persister.bulk.enabled}: the normal listener maps the array to N rows and batch-inserts
-     * them in one transaction. Because the insert is idempotent, at-least-once redelivery is a safe no-op;
-     * duplicates within/across messages are silently skipped by ON CONFLICT and never abort the batch.</p>
+     * <p>A DEDICATED topic (NOT the single-create {@code save-boundary-relationship}) is required for
+     * correctness: single-create publishes {@code BoundaryRelationship} as a single OBJECT, bulk publishes
+     * it as an ARRAY. A persister queryMap has exactly one base path, so the two shapes cannot share a
+     * topic — an array mapping ({@code .*}) mis-reads a single object (JsonPath {@code .*} over an object
+     * yields its property values, not one row) and a single mapping mis-reads an array. Each shape
+     * therefore gets its own topic + queryMap. Batching is WITHIN a single message (the array), so it does
+     * not depend on {@code persister.bulk.enabled}: the normal listener maps the array to N rows and
+     * batch-inserts them in one transaction. Because the insert is idempotent, at-least-once redelivery is
+     * a safe no-op; duplicates within/across messages are silently skipped by ON CONFLICT and never abort
+     * the batch.</p>
      *
      * <p>The message is keyed by the batch's parent code (callers batch siblings under one already-persisted
      * parent), so batches for the same parent stay ordered on the same partition. A null/mixed parent falls
@@ -95,8 +98,8 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
                 .boundaryRelationship(boundaryRelationshipDTOs)
                 .build();
 
-        // Publish the whole validated list as ONE message to the unchanged topic.
-        producer.push(applicationProperties.getCreateBoundaryRelationshipTopic(), resolveBatchKey(boundaryRelationships), batchMessage);
+        // Publish the whole validated list as ONE message to the dedicated bulk topic.
+        producer.push(applicationProperties.getBulkCreateBoundaryRelationshipJobTopic(), resolveBatchKey(boundaryRelationships), batchMessage);
     }
 
     /**
