@@ -49,8 +49,8 @@ public class EnrichmentService {
 	void enrichCreateTransaction(Transaction txn, String tenantId, String userId) {
 		txn.setTenantId(tenantId);
 
-//		BankAccount bankAccount = getBankAccount(tenantId, userId);
-//		txn.setAdditionalFields(singletonMap(TransactionAdditionalFields.BANK_ACCOUNT_NUMBER, bankAccount.getAccountNumber()));
+		BankAccount bankAccount = getBankAccount(tenantId, userId);
+		txn.setAdditionalFields(singletonMap(TransactionAdditionalFields.BANK_ACCOUNT_NUMBER, bankAccount.getAccountNumber()));
 
 		// Generate ID from ID Gen service and assign to txn object
 		String txnId = idGenClient.generateId(tenantId, appProperties.getIdGenTxnIdTemplateCode(), Map.of("TENANTID", tenantId));
