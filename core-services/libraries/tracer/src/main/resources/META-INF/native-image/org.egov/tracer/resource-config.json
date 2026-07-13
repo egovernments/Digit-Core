@@ -1,0 +1,9 @@
+{
+  "resources": {
+    "includes": [
+      {"pattern": "tracer.properties"},
+      {"pattern": "logback-spring.xml"},
+      {"pattern": "logback-spring-json.xml.bak"}
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "interfaces": ["jakarta.servlet.http.HttpServletRequest"]
+  },
+  {
+    "interfaces": ["jakarta.servlet.http.HttpServletResponse"]
+  },
+  {
+    "interfaces": ["javax.servlet.http.HttpServletRequest"]
+  },
+  {
+    "interfaces": ["javax.servlet.http.HttpServletResponse"]
+  }
+]
