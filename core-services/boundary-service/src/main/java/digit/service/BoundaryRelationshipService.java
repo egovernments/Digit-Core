@@ -158,14 +158,14 @@ public class BoundaryRelationshipService {
             }
         }
 
-        // Persistence is delegated to egov-persister (no direct DB write from this service): each
-        // validated + enriched record is published, one message per record, to the save-boundary-relationship
-        // topic, which egov-persister writes via an idempotent INSERT ... ON CONFLICT DO NOTHING. Publishing
-        // is blocking (CustomKafkaTemplate.send().get()); a publish failure (broker unreachable within
-        // max.block.ms, serialization) is reported transient so the caller retries the affected records —
-        // re-publishing is a safe no-op because the insert is idempotent. One message per record preserves
-        // per-record isolation on the persister side regardless of whether it runs the normal or the
-        // (optional) batch listener.
+        // Persistence is delegated to egov-persister (no direct DB write from this service): the whole
+        // validated + enriched list is published as ONE message (relationships as an array) to the
+        // save-boundary-relationship topic, which egov-persister maps to N rows and writes in a single
+        // batchUpdate via the idempotent INSERT ... ON CONFLICT DO NOTHING. Publishing is blocking
+        // (CustomKafkaTemplate.send().get()); a publish failure (broker unreachable within max.block.ms,
+        // serialization) is reported transient so the caller retries the batch — re-publishing is a safe
+        // no-op because the insert is idempotent and duplicates are skipped by ON CONFLICT without
+        // aborting the batch.
         List<BoundaryRelation> successfulRelationships = validatedRelationships;
         if (!CollectionUtils.isEmpty(validatedRelationships)) {
             try {

@@ -53,37 +53,80 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
     /**
      * Persists the given validated and enriched boundary relationships through egov-persister rather than
-     * a direct JDBC write. Each relationship is published as its OWN message to the SAME topic the single
-     * create uses ({@code save-boundary-relationship}) via {@link #create}, so both paths write identical
-     * rows through the identical, idempotent
-     * {@code INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING} mapping.
+     * a direct JDBC write. The WHOLE validated list is published as ONE message to the SAME topic the
+     * single create uses ({@code save-boundary-relationship}), under the same {@code BoundaryRelationship}
+     * key but carrying an ARRAY (whereas single-create carries one object). The persister's mapping reads
+     * it with an array base path ({@code $.BoundaryRelationship.*}), so {@code PersistRepository.getRows}
+     * emits one row per element and the listener performs ONE {@code jdbcTemplate.batchUpdate} for the
+     * whole message through the same idempotent
+     * {@code INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING} query. One message per
+     * batch (instead of one message per record) is what restores batched throughput while keeping the
+     * write owned by the persister.
      *
      * <p>Reusing that topic (instead of a dedicated {@code -batch} topic) is deliberate for
      * deployment-safety: {@code save-boundary-relationship} is always consumed by the persister's normal
-     * listener, so bulk creation works on any persister deployment with no extra configuration. Adding
-     * {@code save-boundary-relationship} to the persister's {@code persister.batch.topics} (with
-     * {@code persister.bulk.enabled=true}) is a pure, optional throughput optimization: its batch listener
-     * then aggregates a poll into one multi-row insert. A dedicated {@code -batch} topic, by contrast, is
-     * dropped by the normal listener and would be silently orphaned if batch mode were not enabled.</p>
+     * single-record listener. Batching here is WITHIN a single message (the array), so it does not depend
+     * on {@code persister.bulk.enabled}: the normal listener maps the array to N rows and batch-inserts
+     * them in one transaction. Because the insert is idempotent, at-least-once redelivery is a safe no-op;
+     * duplicates within/across messages are silently skipped by ON CONFLICT and never abort the batch.</p>
      *
-     * <p>One message per record (rather than one message carrying the whole batch) preserves per-record
-     * isolation on either listener: a single un-insertable record fails/dead-letters on its own without
-     * affecting the rest. Because the insert is idempotent, at-least-once redelivery is a safe no-op.</p>
+     * <p>The message is keyed by the batch's parent code (callers batch siblings under one already-persisted
+     * parent), so batches for the same parent stay ordered on the same partition. A null/mixed parent falls
+     * back to the keyless behaviour of the single path.</p>
      *
      * @param boundaryRelationships validated and enriched relationships to persist
-     * @param requestInfo request info propagated onto each published message
+     * @param requestInfo request info propagated onto the published message
      */
     @Override
     public void createBulk(List<BoundaryRelation> boundaryRelationships, RequestInfo requestInfo) {
         if (CollectionUtils.isEmpty(boundaryRelationships))
             return;
 
+        // Convert each validated+enriched contract POJO to the DTO that exposes ancestralMaterializedPath
+        // on the wire (it is @JsonIgnore on BoundaryRelation but @JsonProperty on the DTO), mirroring the
+        // single-create serialization so both paths persist identical rows.
+        List<BoundaryRelationshipDTO> boundaryRelationshipDTOs = new ArrayList<>(boundaryRelationships.size());
         for (BoundaryRelation boundaryRelationship : boundaryRelationships) {
-            create(BoundaryRelationshipRequest.builder()
-                    .requestInfo(requestInfo)
-                    .boundaryRelationship(boundaryRelationship)
-                    .build());
+            boundaryRelationshipDTOs.add(convertRelationPOJOToDTO(boundaryRelationship));
         }
+
+        BulkBoundaryRelationshipRequestDTO batchMessage = BulkBoundaryRelationshipRequestDTO.builder()
+                .requestInfo(requestInfo)
+                .boundaryRelationship(boundaryRelationshipDTOs)
+                .build();
+
+        // Publish the whole validated list as ONE message to the unchanged topic.
+        producer.push(applicationProperties.getCreateBoundaryRelationshipTopic(), resolveBatchKey(boundaryRelationships), batchMessage);
+    }
+
+    /**
+     * Kafka key for a batch: the shared parent code when every record in the batch has the same
+     * (non-null) parent, else null (keyless, i.e. the single-create default-partitioner behaviour).
+     * Keying by parent keeps sibling batches under one parent ordered on the same partition; a mixed or
+     * root batch must not be forced onto one partition, so it falls back to keyless.
+     */
+    private String resolveBatchKey(List<BoundaryRelation> boundaryRelationships) {
+        String firstParent = boundaryRelationships.get(0).getParent();
+        if (firstParent == null)
+            return null;
+        for (BoundaryRelation boundaryRelationship : boundaryRelationships) {
+            if (!firstParent.equals(boundaryRelationship.getParent()))
+                return null;
+        }
+        return firstParent;
+    }
+
+    /**
+     * Copies a validated+enriched {@link BoundaryRelation} into a {@link BoundaryRelationshipDTO},
+     * carrying over the enriched {@code ancestralMaterializedPath} explicitly (it is not copied by
+     * BeanUtils onto the wire because it is {@code @JsonIgnore} on the source). Mirrors the field copy
+     * that {@link #convertContractPOJOToDTO} performs for the single-create path.
+     */
+    private BoundaryRelationshipDTO convertRelationPOJOToDTO(BoundaryRelation boundaryRelationship) {
+        BoundaryRelationshipDTO boundaryRelationshipDTO = new BoundaryRelationshipDTO();
+        BeanUtils.copyProperties(boundaryRelationship, boundaryRelationshipDTO);
+        boundaryRelationshipDTO.setAncestralMaterializedPath(boundaryRelationship.getAncestralMaterializedPath());
+        return boundaryRelationshipDTO;
     }
 
     /**

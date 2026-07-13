@@ -14,15 +14,16 @@ public interface BoundaryRelationshipRepository {
 
     /**
      * Persists the given validated and enriched boundary relationships through egov-persister (no direct
-     * DB write): each record is published, one message per record, to the same save-boundary-relationship
-     * topic the single {@link #create} uses. The publish is blocking (it returns once the broker has
-     * accepted each record); egov-persister then writes each via an idempotent
-     * INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING, so redelivery is a safe no-op and
-     * one un-insertable record never fails the others. Optionally listing that topic in the persister's
-     * persister.batch.topics lets it aggregate a poll into one multi-row insert for throughput.
+     * DB write): the WHOLE list is published as ONE message to the same save-boundary-relationship topic
+     * the single {@link #create} uses, carrying the relationships as an array under the same
+     * {@code BoundaryRelationship} key. The publish is blocking (it returns once the broker has accepted
+     * the message); egov-persister reads the array (array base path) and writes it as a single
+     * batchUpdate through the idempotent INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING,
+     * so redelivery is a safe no-op and duplicates are skipped without aborting the batch. Batching is
+     * WITHIN the one message, so it needs no persister.batch.topics / persister.bulk.enabled configuration.
      *
      * @param boundaryRelationships validated and enriched relationships to persist
-     * @param requestInfo request info propagated onto each published message
+     * @param requestInfo request info propagated onto the published message
      */
     public void createBulk(List<BoundaryRelation> boundaryRelationships, RequestInfo requestInfo);
 
