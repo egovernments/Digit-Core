@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Query filters for GET /individuals as per the individual-3.0 spec.
+ * Only documented parameters are accepted by the service — unknown
+ * parameters return 400.
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,10 +21,10 @@ public class IndividualSearchCriteria {
 	private List<String> id;
 	private List<String> individualId;
 	private String givenName;
-	private List<String> mobileNumber;
+	private String mobileNumber;
 	private String gender;
 	private String dateOfBirth;
-	private Integer limit;
-	private Integer offset;
 	private Boolean includeDeleted;
+	private Integer page;
+	private Integer size;
 }

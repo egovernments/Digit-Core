@@ -1,7 +1,9 @@
 package org.egov.pg.clients.individual;
 
 import lombok.extern.slf4j.Slf4j;
-import org.egov.pg.clients.individual.models.*;
+import org.egov.pg.clients.individual.models.Individual;
+import org.egov.pg.clients.individual.models.IndividualSearchCriteria;
+import org.egov.pg.clients.individual.models.IndividualSearchResponse;
 import org.egov.pg.config.AppProperties;
 import org.egov.tracer.model.CustomException;
 import org.egov.tracer.model.ServiceCallException;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -31,26 +34,22 @@ public class IndividualClientImpl implements IndividualClient {
 	@Override
 	public Individual create(String tenantId, String userId, Individual individual) {
 
-		IndividualRequest requestBody = IndividualRequest.builder()
-				.individual(individual)
-				.build();
-
 		try {
-			IndividualResponse response = restClient.post()
+			Individual created = restClient.post()
 					.uri(appProperties.getIndividualHost() + appProperties.getIndividualCreatePath())
 					.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 					.header("X-Tenant-ID", tenantId)
 					.header("X-User-ID", userId)
-					.body(requestBody)
+					.body(individual)
 					.retrieve()
-					.body(IndividualResponse.class);
+					.body(Individual.class);
 
-			if (response == null || response.getIndividual() == null) {
+			if (created == null || created.getId() == null) {
 				throw new CustomException("INDIVIDUAL_CREATE_ERROR", "Individual creation returned empty response");
 			}
 
-			log.info("Individual created with id: {}", response.getIndividual().getId());
-			return response.getIndividual();
+			log.info("Individual created with id: {}", created.getId());
+			return created;
 
 		} catch (HttpClientErrorException e) {
 			log.error("Individual client error creating individual: status={}", e.getStatusCode(), e);
@@ -76,11 +75,11 @@ public class IndividualClientImpl implements IndividualClient {
 		if (!CollectionUtils.isEmpty(params.getIndividualId()))
 			params.getIndividualId().forEach(id -> uriBuilder.queryParam("individualId", id));
 
-		if (params.getGivenName() != null)
+		if (StringUtils.hasText(params.getGivenName()))
 			uriBuilder.queryParam("givenName", params.getGivenName());
 
-		if (!CollectionUtils.isEmpty(params.getMobileNumber()))
-			params.getMobileNumber().forEach(mn -> uriBuilder.queryParam("mobileNumber", mn));
+		if (StringUtils.hasText(params.getMobileNumber()))
+			uriBuilder.queryParam("mobileNumber", params.getMobileNumber());
 
 		if (params.getGender() != null)
 			uriBuilder.queryParam("gender", params.getGender());
@@ -88,14 +87,14 @@ public class IndividualClientImpl implements IndividualClient {
 		if (params.getDateOfBirth() != null)
 			uriBuilder.queryParam("dateOfBirth", params.getDateOfBirth());
 
-		if (params.getLimit() != null)
-			uriBuilder.queryParam("limit", params.getLimit());
-
-		if (params.getOffset() != null)
-			uriBuilder.queryParam("offset", params.getOffset());
-
 		if (params.getIncludeDeleted() != null)
 			uriBuilder.queryParam("includeDeleted", params.getIncludeDeleted());
+
+		if (params.getPage() != null)
+			uriBuilder.queryParam("page", params.getPage());
+
+		if (params.getSize() != null)
+			uriBuilder.queryParam("size", params.getSize());
 
 		String uri = uriBuilder.build().toUriString();
 
