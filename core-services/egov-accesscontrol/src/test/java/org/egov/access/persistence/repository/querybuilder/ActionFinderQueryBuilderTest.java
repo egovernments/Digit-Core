@@ -22,7 +22,8 @@ public class ActionFinderQueryBuilderTest {
 				+ "a_url, a.servicecode AS a_servicecode, a.queryparams AS a_queryparams, a.parentmodule AS a_parentmodule, a.displayname AS a_displayname, a.enabled AS a_enabled, "
 				+ " a.createdby AS a_createdby, a.createddate AS a_createddate, a.lastmodifiedby"
 				+ " AS a_lastmodifiedby, a.lastmodifieddate AS a_lastmodifieddate,a.ordernumber AS a_ordernumber, ra.tenantid AS ra_tenantid, "
-				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
+				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode, a.method AS a_method, a.resource AS a_resource, a.condition AS a_condition "
+				+ "FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
 				+ " WHERE ra.tenantid = 'ap.public' AND ra.rolecode in ('CITIZEN','EMPLOYEE') ORDER BY a.name";
 		assertEquals(expectedQuery, builder.build());
 	}
@@ -37,7 +38,8 @@ public class ActionFinderQueryBuilderTest {
 				+ "a_url, a.servicecode AS a_servicecode, a.queryparams AS a_queryparams, a.parentmodule AS a_parentmodule, a.displayname AS a_displayname, a.enabled AS a_enabled, "
 				+ " a.createdby AS a_createdby, a.createddate AS a_createddate, a.lastmodifiedby"
 				+ " AS a_lastmodifiedby, a.lastmodifieddate AS a_lastmodifieddate,a.ordernumber AS a_ordernumber, ra.tenantid AS ra_tenantid, "
-				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
+				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode, a.method AS a_method, a.resource AS a_resource, a.condition AS a_condition "
+				+ "FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
 				+ " WHERE ra.rolecode in ('CITIZEN') ORDER BY a.name";
 		assertEquals(expectedQuery, builder.build());
 	}
@@ -51,7 +53,8 @@ public class ActionFinderQueryBuilderTest {
 				+ "a_url, a.servicecode AS a_servicecode, a.queryparams AS a_queryparams, a.parentmodule AS a_parentmodule, a.displayname AS a_displayname, a.enabled AS a_enabled, "
 				+ " a.createdby AS a_createdby, a.createddate AS a_createddate, a.lastmodifiedby"
 				+ " AS a_lastmodifiedby, a.lastmodifieddate AS a_lastmodifieddate,a.ordernumber AS a_ordernumber, ra.tenantid AS ra_tenantid, "
-				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
+				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode, a.method AS a_method, a.resource AS a_resource, a.condition AS a_condition "
+				+ "FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
 				+ " WHERE ra.tenantid = 'ap.public' ORDER BY a.name";
 		assertEquals(expectedQuery, builder.build());
 	}
@@ -65,7 +68,8 @@ public class ActionFinderQueryBuilderTest {
 				+ "a_url, a.servicecode AS a_servicecode, a.queryparams AS a_queryparams, a.parentmodule AS a_parentmodule, a.displayname AS a_displayname, a.enabled AS a_enabled, "
 				+ " a.createdby AS a_createdby, a.createddate AS a_createddate, a.lastmodifiedby"
 				+ " AS a_lastmodifiedby, a.lastmodifieddate AS a_lastmodifieddate,a.ordernumber AS a_ordernumber, ra.tenantid AS ra_tenantid, "
-				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
+				+ "ra.actionid AS ra_action, ra.rolecode AS ra_rolecode, a.method AS a_method, a.resource AS a_resource, a.condition AS a_condition "
+				+ "FROM eg_action AS a JOIN eg_roleaction AS ra ON a.id = ra.actionid"
 				+ " ORDER BY a.name";
 		assertEquals(expectedQuery, builder.build());
 	}

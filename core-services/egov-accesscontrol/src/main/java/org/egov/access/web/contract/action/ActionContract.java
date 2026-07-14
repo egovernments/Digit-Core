@@ -33,6 +33,12 @@ public class ActionContract {
 
 	private Long lastModifiedBy;
 
+	private String method;
+
+	private Object resource;
+
+	private Object condition;
+
 	public List<ActionContract> getActions(List<Action> actions) {
 		List<ActionContract> actionsContractList = new ArrayList<ActionContract>();
 		for (Action action : actions) {
@@ -41,7 +47,9 @@ public class ActionContract {
 					.lastModifiedBy(action.getLastModifiedBy()).lastModifiedDate(action.getLastModifiedDate())
 					.url(action.getUrl()).queryParams(action.getQueryParams()).orderNumber(action.getOrderNumber())
 					.parentModule(action.getParentModule()).serviceCode(action.getServiceCode())
-					.displayName(action.getDisplayName()).enabled(action.isEnabled()).build();
+					.displayName(action.getDisplayName()).enabled(action.isEnabled())
+					.method(action.getMethod()).resource(action.getResource()).condition(action.getCondition())
+					.build();
 			actionsContractList.add(actionContract);
 		}
 

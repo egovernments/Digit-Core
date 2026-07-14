@@ -75,6 +75,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 
 @Repository
@@ -119,6 +120,25 @@ public class ActionRepository {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	/**
+	 * Serializes the optional resource/condition fields to JSON text for storage in the
+	 * {@code text} columns backing them. Null stays null (additive/opt-in, no behavior change
+	 * for actions that don't set these).
+	 */
+	private String toJson(Object value) {
+		if (value == null)
+			return null;
+		try {
+			return objectMapper.writeValueAsString(value);
+		} catch (Exception e) {
+			LOGGER.error("Failed to serialize action policy field to JSON: " + e.getMessage());
+			return null;
+		}
+	}
+
 	public List<Action> createAction(final ActionRequest actionRequest) {
 
 		LOGGER.info("Create Action Repository::" + actionRequest);
@@ -135,7 +155,9 @@ public class ActionRepository {
 					.addValue("createdby", Long.valueOf(actionRequest.getRequestInfo().getUserInfo().getId()))
 					.addValue("lastmodifiedby", Long.valueOf(actionRequest.getRequestInfo().getUserInfo().getId()))
 					.addValue("createddate", new Date(new java.util.Date().getTime()))
-					.addValue("lastmodifieddate", new Date(new java.util.Date().getTime())).getValues());
+					.addValue("lastmodifieddate", new Date(new java.util.Date().getTime()))
+					.addValue("method", action.getMethod()).addValue("resource", toJson(action.getResource()))
+					.addValue("condition", toJson(action.getCondition())).getValues());
 		}
 
 		namedParameterJdbcTemplate.batchUpdate(actionInsert, batchValues.toArray(new Map[actions.size()]));
@@ -157,6 +179,8 @@ public class ActionRepository {
 					.addValue("displayname", action.getDisplayName()).addValue("enabled", action.isEnabled())
 					.addValue("lastmodifiedby", Long.valueOf(actionRequest.getRequestInfo().getUserInfo().getId()))
 					.addValue("lastmodifieddate", new Date(new java.util.Date().getTime()))
+					.addValue("method", action.getMethod()).addValue("resource", toJson(action.getResource()))
+					.addValue("condition", toJson(action.getCondition()))
 					.addValue("name", action.getName()).getValues());
 		}
 
@@ -210,7 +234,7 @@ public class ActionRepository {
 		parametersMap.put("code", actionRequest.getRoleCodes());
 		parametersMap.put("tenantid", actionRequest.getTenantId());
 
-		String query = "select id,name,displayname,servicecode,url,queryparams,enabled,parentmodule,ordernumber from eg_action action where id IN(select actionid from eg_roleaction roleaction where roleaction.rolecode IN ( select code from eg_ms_role where code in (:code)) and roleaction.tenantid =:tenantid and action.id = roleaction.actionid )";
+		String query = "select id,name,displayname,servicecode,url,queryparams,enabled,parentmodule,ordernumber,method,resource,condition from eg_action action where id IN(select actionid from eg_roleaction roleaction where roleaction.rolecode IN ( select code from eg_ms_role where code in (:code)) and roleaction.tenantid =:tenantid and action.id = roleaction.actionid )";
 
 		if (actionRequest.getEnabled() != null) {
 			query = query + " and enabled =:enabled ORDER BY id ASC";
@@ -673,7 +697,31 @@ private List<Action> convertToAction(ActionRequest actionRequest,JSONArray actio
 		if(actionsArray.getJSONObject(i).has("rightIcon")){
 		act.setRightIcon(actionsArray.getJSONObject(i).getString("rightIcon"));
 		} else {act.setRightIcon("");}
-		
+
+		if(actionsArray.getJSONObject(i).has("method")){
+		act.setMethod(actionsArray.getJSONObject(i).getString("method"));
+		}
+		if(actionsArray.getJSONObject(i).has("resource")){
+			try {
+				// "resource" may be either the legacy flat string array (["complaint"]) or the
+				// newer JSON object keyed by resource type -> field path -> {condition, onDeny};
+				// accesscontrol treats it as opaque JSON either way (only the consuming service
+				// interprets/validates the shape), so parse generically rather than assuming array.
+				act.setResource(objectMapper.readValue(
+						actionsArray.getJSONObject(i).get("resource").toString(), Object.class));
+			} catch (Exception e) {
+				LOGGER.error("Failed to parse action 'resource' from MDMS: " + e.getMessage());
+			}
+		}
+		if(actionsArray.getJSONObject(i).has("condition")){
+			try {
+				act.setCondition(objectMapper.readValue(
+						actionsArray.getJSONObject(i).getJSONObject("condition").toString(), Object.class));
+			} catch (Exception e) {
+				LOGGER.error("Failed to parse action 'condition' from MDMS: " + e.getMessage());
+			}
+		}
+
 		act.setTenantId(actionRequest.getTenantId());
 		actionList.add(act);
 	}

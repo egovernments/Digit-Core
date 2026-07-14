@@ -135,6 +135,14 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- Without this, Surefire's auto-detected JUnit Platform provider (pulled in
+             transitively by spring-boot-starter-test) silently runs zero of this module's
+             JUnit 4 (org.junit.Test/@RunWith) tests. -->
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.flywaydb</groupId>

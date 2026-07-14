@@ -52,9 +52,32 @@ public class Action {
 	private Long lastModifiedBy;
 
 	private String path;
-	
+
 	private String navigationURL;
 	private String leftIcon;
 	private String rightIcon;
+
+	/**
+	 * Optional HTTP method this action applies to. Null = any method (legacy URL-only behavior).
+	 */
+	@Size(max = 20)
+	private String method;
+
+	/**
+	 * Optional resource descriptor: a JSON object keyed by resource type (e.g. "complaint"), each
+	 * holding a "attributes" object keyed by field path, each an independent
+	 * {"condition": <JsonLogic>, "onDeny": {"strategy": ...}} rule — supports any number (N) of
+	 * per-field visibility conditions per resource type. Legacy flat string-array shape
+	 * (["complaint"]) is also accepted upstream and treated as "type only, no attribute rules".
+	 * Null = no resource needed (legacy URL-only behavior). accesscontrol stores/returns this
+	 * opaque JSON as-is; only the consuming service (e.g. pgr-services) interprets and validates
+	 * its shape.
+	 */
+	private Object resource;
+
+	/**
+	 * Optional JsonLogic condition evaluated at runtime. Null = URL-match only (legacy behavior).
+	 */
+	private Object condition;
 
 }
