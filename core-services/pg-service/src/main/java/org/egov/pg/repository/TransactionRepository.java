@@ -71,8 +71,8 @@ public class TransactionRepository {
 					txn.getAdditionalDetails() != null ? txn.getAdditionalDetails().toString() : null,
 					txn.getAuditDetails().getCreatedBy(),
 					txn.getAuditDetails().getCreatedTime(),
-					txn.getAuditDetails().getLastModifiedBy(),
-					txn.getAuditDetails().getLastModifiedTime(),
+					txn.getAuditDetails().getModifiedBy(),
+					txn.getAuditDetails().getModifiedTime(),
 					requestId
 			);
 		} catch (DataAccessException e) {
@@ -91,8 +91,8 @@ public class TransactionRepository {
 					txn.getGatewayStatusCode(),
 					txn.getGatewayStatusMsg(),
 					txn.getReceipt(),
-					txn.getAuditDetails().getLastModifiedBy(),
-					txn.getAuditDetails().getLastModifiedTime(),
+					txn.getAuditDetails().getModifiedBy(),
+					txn.getAuditDetails().getModifiedTime(),
 					requestId,
 					txn.getTxnId(),
 					txn.getTenantId()
@@ -111,8 +111,8 @@ public class TransactionRepository {
 					toJson(dump.getTxnResponse()),
 					dump.getAuditDetails().getCreatedBy(),
 					dump.getAuditDetails().getCreatedTime(),
-					dump.getAuditDetails().getLastModifiedBy(),
-					dump.getAuditDetails().getLastModifiedTime(),
+					dump.getAuditDetails().getModifiedBy(),
+					dump.getAuditDetails().getModifiedTime(),
 					requestId
 			);
 		} catch (DataAccessException e) {
@@ -125,8 +125,8 @@ public class TransactionRepository {
 		try {
 			jdbcTemplate.update(UPDATE_TXN_DUMP,
 					toJson(dump.getTxnResponse()),
-					dump.getAuditDetails().getLastModifiedBy(),
-					dump.getAuditDetails().getLastModifiedTime(),
+					dump.getAuditDetails().getModifiedBy(),
+					dump.getAuditDetails().getModifiedTime(),
 					requestId,
 					dump.getTxnId()
 			);

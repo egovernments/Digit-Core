@@ -2,7 +2,7 @@ package org.egov.pg.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.egov.tracer.model.AuditDetails;
+
 
 @Getter
 @Setter
@@ -20,8 +20,8 @@ public class TransactionDump {
     @JsonProperty("txnResponse")
     private Object txnResponse;
 
-    @JsonProperty("auditDetails")
-    private AuditDetails auditDetails;
+    @JsonProperty("auditDetail")
+    private AuditDetail auditDetails;
 
 
 }

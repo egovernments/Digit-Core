@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import org.egov.pg.models.TaxAndPayment;
 import org.egov.pg.models.Transaction;
 import org.egov.pg.models.User;
-import org.egov.tracer.model.AuditDetails;
+import org.egov.pg.models.AuditDetail;
 import org.egov.tracer.model.CustomException;
 import org.postgresql.util.PGobject;
 import org.springframework.jdbc.core.RowMapper;
@@ -28,11 +28,12 @@ public class TransactionRowMapper implements RowMapper<Transaction> {
 	@Override
 	public Transaction mapRow(ResultSet resultSet, int i) throws SQLException {
 
-		AuditDetails auditDetails = new AuditDetails(
-				resultSet.getString("created_by"),
-				resultSet.getString("last_modified_by"),
-				resultSet.getLong("created_time"),
-				resultSet.getLong("last_modified_time"));
+		AuditDetail auditDetails = AuditDetail.builder()
+				.createdBy(resultSet.getString("created_by"))
+				.createdTime(resultSet.getLong("created_time"))
+				.modifiedBy(resultSet.getString("last_modified_by"))
+				.modifiedTime(resultSet.getLong("last_modified_time"))
+				.build();
 
 		User user = User.builder()
 				.uuid(resultSet.getString("user_uuid"))

@@ -12,7 +12,7 @@ import org.egov.pg.constants.PgConstants;
 import org.egov.pg.constants.TransactionAdditionalFields;
 import org.egov.pg.models.BankAccount;
 import org.egov.pg.models.Transaction;
-import org.egov.tracer.model.AuditDetails;
+import org.egov.pg.models.AuditDetail;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,7 +76,7 @@ public class EnrichmentService {
 				.toUriString();
 		txn.setCallbackUrl(uri);
 
-		AuditDetails auditDetails = AuditDetails.builder()
+		AuditDetail auditDetails = AuditDetail.builder()
 				.createdBy(userId)
 				.createdTime(System.currentTimeMillis())
 				.build();
@@ -84,11 +84,11 @@ public class EnrichmentService {
 	}
 
 	void enrichUpdateTransaction(Transaction currentTxnStatus, Transaction newTxn, String userId) {
-		AuditDetails auditDetails = AuditDetails.builder()
+		AuditDetail auditDetails = AuditDetail.builder()
 				.createdBy(currentTxnStatus.getAuditDetails().getCreatedBy())
 				.createdTime(currentTxnStatus.getAuditDetails().getCreatedTime())
-				.lastModifiedBy(userId)
-				.lastModifiedTime(System.currentTimeMillis()).build();
+				.modifiedBy(userId)
+				.modifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
 
 		newTxn.setTxnId(currentTxnStatus.getTxnId());

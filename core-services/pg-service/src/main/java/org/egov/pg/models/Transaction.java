@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.egov.pg.constants.TransactionAdditionalFields;
-import org.egov.tracer.model.AuditDetails;
 
 import java.util.List;
 import java.util.Map;
@@ -162,8 +161,8 @@ public class Transaction {
 	@JsonProperty("receipt")
 	private String receipt;
 
-	@JsonProperty("auditDetails")
-	private AuditDetails auditDetails;
+	@JsonProperty("auditDetail")
+	private AuditDetail auditDetails;
 
 	@JsonProperty("additionalDetails")
 	private Object additionalDetails;

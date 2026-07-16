@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.egov.pg.clients.billing.models.enums.InstrumentStatus;
 import org.egov.pg.clients.billing.models.enums.PaymentMode;
 import org.egov.pg.clients.billing.models.enums.PaymentStatus;
-import org.egov.tracer.model.AuditDetails;
+import org.egov.pg.models.AuditDetail;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -76,6 +76,6 @@ public class Payment {
 	@JsonProperty("metadata")
 	private Map<String, Object> metadata;
 
-	@JsonProperty("auditDetails")
-	private AuditDetails auditDetails;
+	@JsonProperty("auditDetail")
+	private AuditDetail auditDetails;
 }

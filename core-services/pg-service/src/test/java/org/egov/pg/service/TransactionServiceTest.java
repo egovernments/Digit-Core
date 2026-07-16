@@ -11,7 +11,7 @@ import org.egov.pg.repository.TransactionRepository;
 import org.egov.pg.validator.TransactionValidator;
 import org.egov.pg.web.models.TransactionCriteria;
 import org.egov.pg.web.models.TransactionRequest;
-import org.egov.tracer.model.AuditDetails;
+import org.egov.pg.models.AuditDetail;
 import org.egov.tracer.model.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,7 +65,7 @@ class TransactionServiceTest {
     void initiateTransaction_gatewayFlow_persistsDumpAndPublishesEvent() throws Exception {
         Transaction txn = baseTransaction("100.00", Transaction.TxnStatusEnum.PENDING);
         txn.setTxnId("TXN-1");
-        txn.setAuditDetails(new AuditDetails("u", "u", 1L, 1L));
+        txn.setAuditDetails(new AuditDetail("u", 1L, "u", 1L));
         TransactionRequest request = TransactionRequest.builder().transaction(txn).build();
         when(gatewayService.initiateTxn(txn)).thenReturn(new URI("https://gateway.test/redirect"));
         when(appProperties.getMessageBrokerEnabled()).thenReturn(true);
@@ -91,7 +91,7 @@ class TransactionServiceTest {
     void initiateTransaction_zeroAmount_skipsGatewayAndRegistersPayment() {
         Transaction txn = baseTransaction("0", Transaction.TxnStatusEnum.PENDING);
         txn.setTxnId("TXN-2");
-        txn.setAuditDetails(new AuditDetails("u", "u", 1L, 1L));
+        txn.setAuditDetails(new AuditDetail("u", 1L, "u", 1L));
         TransactionRequest request = TransactionRequest.builder().transaction(txn).build();
         when(appProperties.getMessageBrokerEnabled()).thenReturn(false);
 
@@ -122,7 +122,7 @@ class TransactionServiceTest {
         Transaction existing = baseTransaction("0", Transaction.TxnStatusEnum.SUCCESS);
         existing.setTxnId("TXN-4");
         existing.setTenantId("pb.tenant");
-        existing.setAuditDetails(new AuditDetails("u", "u", 1L, 1L));
+        existing.setAuditDetails(new AuditDetail("u", 1L, "u", 1L));
 
         when(validator.validateUpdateTxn(any())).thenReturn(existing);
         when(appProperties.getMessageBrokerEnabled()).thenReturn(false);
@@ -146,7 +146,7 @@ class TransactionServiceTest {
 
         Transaction fromGateway = baseTransaction("100.00", Transaction.TxnStatusEnum.SUCCESS);
         fromGateway.setTxnId("TXN-5");
-        fromGateway.setAuditDetails(new AuditDetails("u", "u", 1L, 2L));
+        fromGateway.setAuditDetails(new AuditDetail("u", 1L, "u", 2L));
         fromGateway.setResponseJson(Map.of("status", "ok"));
 
         when(validator.validateUpdateTxn(any())).thenReturn(previous);

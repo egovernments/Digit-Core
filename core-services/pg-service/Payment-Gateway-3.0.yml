@@ -1,10 +1,12 @@
 openapi: 3.0.3
+
 info:
-  title: Payment Gateway Service
+  title: Payment Gateway Service API
   version: 3.0.0
   description: |
     pg-service acts as a liaison between eGov modules and external payment gateways.
     It supports transaction creation, status update, search, and active gateway discovery.
+    Transaction create and update endpoints require X-Tenant-ID and X-User-ID headers.
   contact:
     name: Egovernments Foundation
     email: contact@egovernments.org
@@ -20,19 +22,32 @@ security:
 
 tags:
   - name: Transaction
+    description: Create, update and search payment transactions
+
   - name: Gateway
+    description: Discover active payment gateways
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────────────────────
 
 paths:
+
+  # ── TRANSACTION ──────────────────────────────────────────────────────────
+
   /transaction/v3/_create:
     post:
       summary: Initiate a payment transaction
+      description: |
+        Creates a payment transaction and returns a redirect URL to the payment
+        gateway (for non-zero amount transactions).
       operationId: initiateTransaction
       tags: [Transaction]
-      description: Creates a payment transaction and returns redirect URL (for non-zero amount transactions).
       parameters:
         - $ref: '#/components/parameters/RequestIdHeader'
         - $ref: '#/components/parameters/CorrelationIdHeader'
         - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
         - $ref: '#/components/parameters/TenantIdHeader'
         - $ref: '#/components/parameters/ForwardedForHeader'
         - $ref: '#/components/parameters/ClientId'
@@ -45,9 +60,26 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/TransactionRequest'
+            example:
+              Transaction:
+                txnAmount: "1000.00"
+                billId: "550e8400-e29b-41d4-a716-446655440000"
+                module: PT
+                consumerCode: PT-107-001278
+                taxAndPayments:
+                  - billId: "550e8400-e29b-41d4-a716-446655440000"
+                    taxAmount: 1000
+                    amountPaid: 1000
+                productInfo: Property Tax Payment for FY-2025-26
+                gateway: STRIPE
+                callbackUrl: https://ui.example.com/payment/response
+                user:
+                  name: John Doe
+                  mobileNumber: "9999999999"
+                  tenantId: pb.amritsar
       responses:
         '200':
-          description: Payment Initiated successfully, gateway redirection triggered.
+          description: Payment initiated successfully, gateway redirection triggered.
           headers:
             X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
             X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
@@ -60,25 +92,40 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TransactionCreateResponse'
+                $ref: '#/components/schemas/TransactionCreateResponse'
         '400':
-          description: Payment initiation failed
+          description: Validation error.
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
+                $ref: '#/components/schemas/ErrorRes'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
 
   /transaction/v3/_search:
     get:
       summary: Search transactions
+      description: |
+        Returns transactions matching the given criteria, capped at the 5 most
+        recent matches. Reflects the status recorded in this service; it does not
+        guarantee live payment gateway status.
       operationId: searchTransactions
-      tags: [ Transaction ]
+      tags: [Transaction]
       parameters:
         - $ref: '#/components/parameters/RequestIdHeader'
         - $ref: '#/components/parameters/CorrelationIdHeader'
         - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
         - $ref: '#/components/parameters/TenantIdHeader'
         - $ref: '#/components/parameters/ForwardedForHeader'
         - $ref: '#/components/parameters/ClientId'
@@ -88,83 +135,47 @@ paths:
           in: query
           required: false
           description: Transaction id generated by the service during creation.
-          schema: { type: string }
+          schema:
+            type: string
+            example: PB_PG_2025_07_16_000123
         - name: billId
           in: query
           required: false
           description: Unique module based ID for which the transaction is being initiated, if billId is used, module should be included.
-          schema: { type: string }
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000"
         - name: userUuid
           in: query
           required: false
-          description: User ID of the user as registered in user service, for whom the transaction was  carried out.
-          schema: { type: string }
+          description: User ID of the user as registered in user service, for whom the transaction was carried out.
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000"
         - name: receipt
           in: query
           required: false
-          description: Receipt ID generated for this payment
-          schema: { type: string }
+          description: Receipt ID generated for this payment.
+          schema:
+            type: string
+            example: RCPT-2025-000456
         - name: consumerCode
           in: query
           required: false
-          description: Unique identifier in the module for which the transaction is being initiated
-          schema: { type: string }
+          description: Unique identifier in the module for which the transaction is being initiated.
+          schema:
+            type: string
+            example: PT-107-001278
         - name: txnStatus
           in: query
           required: false
-          description: Current status of the transaction
-          schema: { type: string }
-          enum: [ SUCCESS, FAILURE, PENDING ]
+          description: Current status of the transaction.
+          schema:
+            type: string
+            enum: [SUCCESS, FAILURE, PENDING]
       responses:
         '200':
-          description: Matching transactions
-          headers:
-            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
-            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
-            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
-            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
-            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
-            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
-            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
-            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TransactionResponse'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
-
-  /transaction/v3/_update:
-    put:
-      summary: Update transaction from gateway callback params
-      operationId: updateTransactions
-      tags: [ Transaction ]
-      description: |
-        Updates transaction status based on callback/query params received from payment gateway.
-        Transaction ID is read from gateway-specific transaction-id parameter keys.
-      parameters:
-        - $ref: '#/components/parameters/RequestIdHeader'
-        - $ref: '#/components/parameters/CorrelationIdHeader'
-        - $ref: '#/components/parameters/UserAgentHeader'
-        - $ref: '#/components/parameters/TenantIdHeader'
-        - $ref: '#/components/parameters/ForwardedForHeader'
-        - $ref: '#/components/parameters/ClientId'
-        - $ref: '#/components/parameters/ClientSecret'
-        - $ref: '#/components/parameters/TimeStamp'
-        - name: transactionId
-          in: query
-          required: false
-          schema: {type: string}
-          description: Example transaction-id key used by some gateways. Other gateway-specific keys are also accepted.
-      responses:
-        '200':
-          description: Transaction updated
+          description: Matching transactions.
           headers:
             X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
             X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
@@ -179,49 +190,169 @@ paths:
               schema:
                 $ref: '#/components/schemas/TransactionResponse'
         '400':
-          description: Bad Request
+          description: Bad request.
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
+                $ref: '#/components/schemas/ErrorRes'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+
+  /transaction/v3/_update:
+    put:
+      summary: Update transaction from gateway callback params
+      description: |
+        Updates transaction status based on callback/query params received from
+        the payment gateway. Transaction ID is read from gateway-specific
+        transaction-id parameter keys.
+      operationId: updateTransactions
+      tags: [Transaction]
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/CorrelationIdHeader'
+        - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ForwardedForHeader'
+        - $ref: '#/components/parameters/ClientId'
+        - $ref: '#/components/parameters/ClientSecret'
+        - $ref: '#/components/parameters/TimeStamp'
+        - name: transactionId
+          in: query
+          required: false
+          description: Example transaction-id key used by some gateways. Other gateway-specific keys are also accepted.
+          schema:
+            type: string
+            example: PB_PG_2025_07_16_000123
+      responses:
+        '200':
+          description: Transaction updated.
+          headers:
+            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
+            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
+            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
+            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
+            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
+            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
+            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
+            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+
+  # ── GATEWAY ──────────────────────────────────────────────────────────────
 
   /gateway/v3/_search:
     get:
       summary: Fetch active gateways
+      description: |
+        Returns the list of active payment gateways that can be used for payments.
       operationId: fetchActiveGateways
-      tags: [ Gateway ]
+      tags: [Gateway]
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/CorrelationIdHeader'
+        - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ForwardedForHeader'
+        - $ref: '#/components/parameters/ClientId'
+        - $ref: '#/components/parameters/ClientSecret'
+        - $ref: '#/components/parameters/TimeStamp'
       responses:
         '200':
-          description: Active payment gateways
+          description: Active payment gateways.
+          headers:
+            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
+            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
+            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
+            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
+            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
+            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
+            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
+            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
           content:
             application/json:
               schema:
                 type: array
                 items:
                   type: string
+                example: [STRIPE, PAYTM, PHONEPE]
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────────────────────
 
 components:
+
+  # ── Security ─────────────────────────────────────────────────────────────
+
   securitySchemes:
     BearerAuth:
-      $ref: 'https://raw.githubusercontent.com/egovernments/DIGIT-3.0/master/common-3.0.0.yaml#/components/securitySchemes/BearerAuth'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/securitySchemes/BearerAuth'
+
+  # ── Parameters ───────────────────────────────────────────────────────────
 
   parameters:
     RequestIdHeader:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/RequestIdHeader'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/RequestIdHeader'
     CorrelationIdHeader:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/CorrelationIdHeader'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/CorrelationIdHeader'
     UserAgentHeader:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/UserAgentHeader'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/UserAgentHeader'
+    UserIdHeader:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/UserIdHeader'
     TenantIdHeader:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/TenantIdHeader'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/TenantIdHeader'
     ForwardedForHeader:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/ForwardedForHeader'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/ForwardedForHeader'
     ClientId:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/ClientId'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/ClientId'
     ClientSecret:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/ClientSecret'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/ClientSecret'
     TimeStamp:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/parameters/TimeStamp'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/TimeStamp'
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -232,28 +363,73 @@ components:
         minLength: 8
         maxLength: 128
 
+  # ── Response Headers ─────────────────────────────────────────────────────
+
   headers:
     X-Response-Time:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Response-Time'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Response-Time'
     X-Response-Timestamp:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Response-Timestamp'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Response-Timestamp'
     X-Request-ID:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Request-ID'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Request-ID'
     X-Correlation-ID:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Correlation-ID'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Correlation-ID'
     X-Tenant-ID:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Tenant-ID'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Tenant-ID'
     X-Rate-Limit:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Rate-Limit'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Rate-Limit'
     X-Rate-Limit-Remaining:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Rate-Limit-Remaining'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Rate-Limit-Remaining'
     X-Rate-Limit-Reset:
-      $ref: 'https://raw.githubusercontent.com/digitnxt/digit3/refs/heads/master/docs/services/common/Common-3.0.0.yaml#/components/headers/X-Rate-Limit-Reset'
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Rate-Limit-Reset'
+
+  # ── Schemas ──────────────────────────────────────────────────────────────
+
   schemas:
+
+    # ── Error Schemas ────────────────────────────────────────────────────
+
+    ErrorRes:
+      type: object
+      description: Returned in case of failure, carrying one or more Error objects.
+      properties:
+        Errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+
+    Error:
+      type: object
+      description: Error object returned whenever request processing fails.
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Module-specific error code.
+          example: BANK_ACCOUNT_FETCH_ERROR
+        message:
+          type: string
+          description: Readable error message.
+          example: Unable to fetch related bank account
+        description:
+          type: string
+          description: Optional long description of the error to help clients take remedial action.
+        params:
+          type: array
+          description: Replaceable field values providing more context to the message.
+          items:
+            type: string
+
+    # ── Common refs ──────────────────────────────────────────────────────
+
+    AuditDetail:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/schemas/AuditDetail'
+
+    # ── Transaction Request / Response Schemas ───────────────────────────
+
     TransactionRequest:
       type: object
-      required:
-        - Transaction
+      required: [Transaction]
       properties:
         Transaction:
           $ref: '#/components/schemas/Transaction'
@@ -288,19 +464,27 @@ components:
         tenantId:
           type: string
           readOnly: true
+          description: Tenant for which the transaction was created, taken from the X-Tenant-ID header.
+          example: pb.amritsar
         txnAmount:
           type: string
-          description: Transaction Amount, preferably rounded off to two decimal places
+          description: Transaction amount, preferably rounded off to two decimal places.
           minLength: 1
+          example: "1000.00"
         billId:
           type: string
-          description: Unique bill ID associated with the transaction
+          description: Unique bill ID associated with the transaction.
+          example: "550e8400-e29b-41d4-a716-446655440000"
         module:
           type: string
-          description: Module business code for which the transaction is being initiated, ex PT, WS, PGR etc
+          description: Module business code for which the transaction is being initiated, ex PT, WS, PGR etc.
+          example: PT
         consumerCode:
           type: string
-          description: Unique identifier in the module for which the transaction is being initiated
+          description: Unique identifier in the module for which the transaction is being initiated.
+          minLength: 1
+          maxLength: 128
+          example: PT-107-001278
         taxAndPayments:
           type: array
           items:
@@ -308,99 +492,114 @@ components:
         productInfo:
           type: string
           description: Brief description for which the transaction is being carried out.
+          minLength: 1
+          maxLength: 512
+          example: Property Tax Payment for FY-2025-26
         gateway:
           type: string
-          description: Gateway to be used, from the available list, such as PAYTM, PHONEPE.
+          description: Gateway to be used, from the available list, such as STRIPE, PAYTM, PHONEPE.
+          example: STRIPE
         callbackUrl:
           type: string
-          description: URL to which control has to be redirected to from the gateway
+          format: uri
+          description: URL to which control has to be redirected to from the gateway.
+          example: https://ui.example.com/payment/response
+        redirectUrl:
+          type: string
+          format: uri
+          readOnly: true
+          description: Payment gateway URL to redirect the user to, returned on transaction creation for non-zero amounts.
+          example: https://checkout.stripe.com/c/pay/cs_test_abc123
         txnId:
-         type: string
-         readOnly: true
-         description: Transaction ID of the payment, generated by the gateway service
+          type: string
+          readOnly: true
+          description: Transaction ID of the payment, generated by the gateway service.
+          example: PB_PG_2025_07_16_000123
         user:
           $ref: '#/components/schemas/User'
         txnStatus:
-         type: string
-         readOnly: true
-         description: Current status of the transaction
-         enum:
-          - SUCCESS
-          - FAILURE
-          - PENDING
+          type: string
+          readOnly: true
+          description: Current status of the transaction.
+          enum: [SUCCESS, FAILURE, PENDING]
         txnStatusMsg:
           type: string
           readOnly: true
-          description: Brief status message for the transaction
+          description: Brief status message for the transaction.
+          example: Transaction successful
         gatewayTxnId:
           type: string
           readOnly: true
-          description: Transaction ID returned by the gateway, for reference
+          description: Transaction ID returned by the gateway, for reference.
+          example: pi_3NqXYZ2eZvKYlo2C0abcdefg
         gatewayPaymentMode:
           type: string
           readOnly: true
-          description: Mode of payment used at the gateway
+          description: Mode of payment used at the gateway.
+          example: CARD
         gatewayStatusCode:
           type: string
           readOnly: true
-          description: Payment Gateway Specific RAW status code
+          description: Payment gateway specific RAW status code.
+          example: "200"
         gatewayStatusMsg:
           type: string
           readOnly: true
-          description: Payment Gateway Specific RAW status message
+          description: Payment gateway specific RAW status message.
+          example: succeeded
         receipt:
           type: string
           readOnly: true
-          description: Receipt ID generated for this payment
+          description: Receipt ID generated for this payment.
+          example: RCPT-2025-000456
         additionalDetails:
           type: object
-        auditDetails:
-          $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/AuditDetails'
+          description: Free-form additional details for the transaction.
+        auditDetail:
+          $ref: '#/components/schemas/AuditDetail'
 
     TaxAndPayment:
       type: object
-      required:
-        - billId
-        - amountPaid
+      required: [billId, amountPaid]
       properties:
         billId:
           type: string
+          description: Bill ID against which the amount is being paid.
+          example: "550e8400-e29b-41d4-a716-446655440000"
         taxAmount:
           type: number
+          description: Tax amount component of the bill.
+          example: 1000
         amountPaid:
           type: number
+          description: Amount being paid against the bill.
+          example: 1000
 
     User:
       type: object
-      readOnly: true
-      required:
-        - uuid
-        - userName
-        - name
-        - mobileNumber
-        - tenantId
+      required: [name, mobileNumber, tenantId]
       properties:
         tenantId:
           type: string
-          description: Unique Identifier of the tenant to which user primarily belongs
+          description: Unique identifier of the tenant to which user primarily belongs.
+          example: pb.amritsar
         uuid:
           type: string
           description: UUID for the user.
+          example: "550e8400-e29b-41d4-a716-446655440000"
         userName:
           type: string
-          description: The unique username used of the user - this will be used for user login. This needs to be unique within the tenant.
-          minLength: 4
-          maxLength: 64
+          description: The unique username of the user - this will be used for user login. This needs to be unique within the tenant.
+          example: john.doe
         name:
           type: string
           description: The full name of the user.
-          minLength: 3
-          maxLength: 100
+          example: John Doe
         mobileNumber:
           type: string
-          description: Mobile number of the user
-          maxLength: 10
+          description: Mobile number of the user.
+          example: "9999999999"
         emailId:
           type: string
-          description: Email address of the user
-          maxLength: 128
+          description: Email address of the user.
+          example: john.doe@example.com

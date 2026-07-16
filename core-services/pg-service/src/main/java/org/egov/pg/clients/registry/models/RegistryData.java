@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.egov.tracer.model.AuditDetails;
+import org.egov.pg.models.AuditDetail;
 
 @Data
 @NoArgsConstructor
@@ -37,6 +37,6 @@ public class RegistryData {
 	@JsonProperty("effectiveTo")
 	private String effectiveTo;
 
-	@JsonProperty("auditDetails")
-	private AuditDetails auditDetails;
+	@JsonProperty("auditDetail")
+	private AuditDetail auditDetails;
 }
