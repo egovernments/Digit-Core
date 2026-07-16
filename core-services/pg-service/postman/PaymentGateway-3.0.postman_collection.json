@@ -21,14 +21,14 @@
 						"type": "text"
 					},
 					{
-						"key": "X-Client-ID",
+						"key": "X-User-ID",
 						"value": "initiate-txn",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Transaction\": {\n        \"txnAmount\": \"100.00\",\n        \"billId\": \"a5558f16-23d9-4959-8533-fbd11fb1b148\",\n        \"module\": \"PT\",\n        \"consumerCode\": \"PG-PT-0100\",\n        \"taxAndPayments\": [\n            {\n                \"billId\": \"a5558f16-23d9-4959-8533-fbd11fb1b148\",\n                \"taxAmount\": 100.0,\n                \"amountPaid\": 100.0\n            }\n        ],\n        \"productInfo\": \"Property Tax Payment\",\n        \"gateway\": \"AXIS\",\n        \"callbackUrl\": \"https://my-app.example.org/payment/callback\",\n        \"user\": {\n            \"uuid\": \"8d2a34df-7f65-4b9b-bf5e-cf0d2a23fb9b\",\n            \"name\": \"Test Citizen\",\n            \"userName\": \"test.citizen\",\n            \"mobileNumber\": \"+919999999999\",\n            \"emailId\": \"test@example.org\",\n            \"tenantId\": \"pb\"\n        }\n    }\n}"
+					"raw": "{\n    \"Transaction\": {\n        \"txnAmount\": \"700.00\",\n        \"billId\": \"9701079a-8dce-4527-b238-7b85ae72625e\",\n        \"module\": \"PT\",\n        \"consumerCode\": \"PG-PT-1001\",\n        \"taxAndPayments\": [\n            {\n                \"billId\": \"9701079a-8dce-4527-b238-7b85ae72625e\",\n                \"taxAmount\": 1500.0,\n                \"amountPaid\": 700.0\n            }\n        ],\n        \"productInfo\": \"Property Tax Payment\",\n        \"gateway\": \"STRIPE\",\n        \"callbackUrl\": \"https://example.com/success?stripe_session_id={CHECKOUT_SESSION_ID}\",\n        \"user\": {\n            \"uuid\": \"8d2a34df-7f65-4b9b-bf5e-cf0d2a23fb9b\",\n            \"name\": \"Test Citizen\",\n            \"userName\": \"test.citizen\",\n            \"mobileNumber\": \"+919999999999\",\n            \"emailId\": \"test@example.org\",\n            \"tenantId\": \"pb\"\n        }\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:9000/pg-service/transaction/v3/_create",
@@ -57,7 +57,7 @@
 						"value": "application/json"
 					},
 					{
-						"key": "X-Client-ID",
+						"key": "X-User-ID",
 						"value": "update-txn",
 						"type": "text"
 					},
@@ -72,7 +72,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:9000/pg-service/transaction/v3/_update?transactionId=pg-PG-2026-03-17-0008-IX",
+					"raw": "http://localhost:9000/pg-service/transaction/v3/_update?transactionId=pg-PG-2026-07-16-0013-XL",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -87,7 +87,7 @@
 					"query": [
 						{
 							"key": "transactionId",
-							"value": "pg-PG-2026-03-17-0008-IX"
+							"value": "pg-PG-2026-07-16-0013-XL"
 						}
 					]
 				}
@@ -117,7 +117,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:9000/pg-service/transaction/v3/_search?txnId=pg-PG-2026-03-17-0008-IX&billId=a5558f16-23d9-4959-8533-fbd11fb1b148&userUuid=8d2a34df-7f65-4b9b-bf5e-cf0d2a23fb9b&receipt=&consumerCode=PG-PT-0100&txnStatus=PENDING",
+					"raw": "http://localhost:9000/pg-service/transaction/v3/_search?txnId=pg-PG-2026-03-17-0008-IX&billId=a5558f16-23d9-4959-8533-fbd11fb1b148&userUuid=8d2a34df-7f65-4b9b-bf5e-cf0d2a23fb9b&receipt=test&consumerCode=PG-PT-1001&txnStatus=PENDING",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -144,11 +144,11 @@
 						},
 						{
 							"key": "receipt",
-							"value": ""
+							"value": "test"
 						},
 						{
 							"key": "consumerCode",
-							"value": "PG-PT-0100"
+							"value": "PG-PT-1001"
 						},
 						{
 							"key": "txnStatus",
