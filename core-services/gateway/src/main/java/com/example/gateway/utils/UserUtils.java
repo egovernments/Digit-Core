@@ -52,7 +52,7 @@ public class UserUtils {
         String authURL = String.format("%s%s%s", applicationProperties.getAuthServiceHost(), applicationProperties.getAuthUri(), authToken);
         final HttpHeaders headers = new HttpHeaders();
         headers.add(CORRELATION_ID_HEADER_NAME, (String) exchange.getAttributes().get(CORRELATION_ID_KEY));
-        if (multiStateInstanceUtil.getIsEnvironmentCentralInstance())
+        if (exchange.getAttributes().get(TENANTID_MDC) != null)
             headers.add(REQUEST_TENANT_ID_KEY, (String) exchange.getAttributes().get(TENANTID_MDC));
         final HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
 
@@ -77,7 +77,7 @@ public class UserUtils {
 
         final HttpHeaders headers = new HttpHeaders();
         headers.add(CORRELATION_ID_HEADER_NAME, correlationId);
-        if (multiStateInstanceUtil.getIsEnvironmentCentralInstance())
+        if (tenantId != null && !tenantId.isEmpty())
             headers.add(REQUEST_TENANT_ID_KEY, tenantId);
         final HttpEntity<Object> httpEntity = new HttpEntity<>(userSearchRequest, headers);
 

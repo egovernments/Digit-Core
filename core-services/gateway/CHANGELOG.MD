@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.0.5 - 2026-07-17
+- Forwarded the resolved tenantId (and correlationId) to downstream services by rebuilding the exchange in RequestEnrichmentFilter — a bare request mutate was silently discarded by Spring Cloud Gateway
+- Resolved tenantId for tracing from the query param or request body, so it propagates on non-central-instance environments
+- Added feature flag `egov.gateway.tenant.propagation.enabled` (default true) to toggle tenantId forwarding
+
 ## 1.0.4 - 2026-05-04
 - Handled GET & form content type separately in all necessary filters
 

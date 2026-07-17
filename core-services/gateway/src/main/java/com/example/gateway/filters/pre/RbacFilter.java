@@ -126,7 +126,7 @@ public class RbacFilter implements GlobalFilter, Ordered {
 
         headers.add(CORRELATION_ID_HEADER_NAME, (String) exchange.getAttributes().get(CORRELATION_ID_KEY));
 
-        if (centralInstanceUtil.getIsEnvironmentCentralInstance())
+        if (!StringUtils.isEmpty(exchange.getAttributes().get(TENANTID_MDC)))
             headers.add(REQUEST_TENANT_ID_KEY, (String) exchange.getAttributes().get(TENANTID_MDC));
 
         final HttpEntity<Object> httpEntity = new HttpEntity<>(authorizationRequestWrapper, headers);

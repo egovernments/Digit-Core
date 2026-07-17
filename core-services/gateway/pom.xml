@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>org.egov</groupId>
 	<artifactId>gateway</artifactId>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.5-SNAPSHOT</version>
 	<name>gateway</name>
 	<description>API Gateway for Spring Boot</description>
 	<properties>
@@ -116,6 +116,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-reactor-netty</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
