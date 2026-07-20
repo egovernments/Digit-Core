@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.repository.querybuilder.BusinessServiceQueryBuilder;
 import org.egov.wf.repository.rowmapper.BusinessServiceRowMapper;
@@ -44,6 +45,9 @@ class BusinessServiceRepositoryTest {
     
     @MockBean
     private WorkflowUtil workflowUtil;
+
+    @MockBean
+    private MultiStateInstanceUtil centralInstanceUtil;
 
 
     @Test
