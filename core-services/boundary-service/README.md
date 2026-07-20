@@ -28,12 +28,12 @@ All endpoints are `POST`. Base URL: `http://<host>:8081/boundary-service`.
 
 ### Single vs. bulk relationship create
 
-Both paths validate + enrich a relationship (assign `id`, audit details, and the ancestral materialized path) and then **publish it to the `save-boundary-relationship` topic**, which `egov-persister` writes with an idempotent `INSERT … ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING`. Neither path writes to the database directly.
+Both paths validate + enrich a relationship (assign `id`, audit details, and the ancestral materialized path) before anything is placed on Kafka, and `egov-persister` writes every record with an idempotent `INSERT … ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING`. Neither path writes to the database directly. The two paths use **different topics** because the message shapes differ:
 
-- The **single** `_create` validates one record and publishes it, returning `202 Accepted` (acceptance, not a committed write).
-- The **bulk** `_create` validates + enriches every record in the request **synchronously**, publishes the valid ones (one message per record), and returns `200 OK` with a **per-record outcome** so the caller learns immediately which records were accepted and which failed validation, and with what reason.
+- The **single** `_create` validates one record and publishes it as a single object to the **`save-boundary-relationship`** topic, returning `202 Accepted` (acceptance, not a committed write).
+- The **bulk** `_create` validates + enriches every record in the request **synchronously**, then publishes the *whole validated batch as ONE array message* (the `BoundaryRelationship` field is a JSON array) to the dedicated **`boundary-relationship-bulk-create-job`** topic — keyed by the batch's shared parent code (keyless when parents differ or the batch is root) — and returns `200 OK` with a **per-record outcome** so the caller learns immediately which records were accepted and which failed validation, and with what reason.
 
-See [`docs/Bulk-Boundary-Relationship-Creation-Design.docx`](docs/Bulk-Boundary-Relationship-Creation-Design.docx) for the design rationale and [`docs/Bulk-Boundary-Relationship-Flow.docx`](docs/Bulk-Boundary-Relationship-Flow.docx) for the end-to-end flow.
+The design rationale and end-to-end flow for bulk creation are documented in the sections below.
 
 ---
 
@@ -41,13 +41,13 @@ See [`docs/Bulk-Boundary-Relationship-Creation-Design.docx`](docs/Bulk-Boundary-
 
 `POST /boundary-relationships/bulk/_create`
 
-Creates many relationships in one request with a **per-record outcome**. Validation and enrichment happen synchronously on the request thread **before anything is placed on Kafka**; each valid record is then published to `save-boundary-relationship` for `egov-persister` to write. Individual record failures do **not** fail the whole request.
+Creates many relationships in one request with a **per-record outcome**. Validation and enrichment happen synchronously on the request thread **before anything is placed on Kafka**; the valid records are then published together as one array message to the dedicated `boundary-relationship-bulk-create-job` topic for `egov-persister` to write. Individual record failures do **not** fail the whole request.
 
 ### Semantics
 
 - **Request guards.** `RequestInfo.userInfo` must be present, and the request must carry `1 … boundary.bulk.max.size` (default `100`) relationships. These are enforced in-service (bean validation is not active in this deployment) and return a structured `400` (`BULK_REQUEST_INFO_MISSING` / `BULK_REQUEST_EMPTY` / `BULK_REQUEST_SIZE_EXCEEDED`).
 - **Per-record validation.** Each record runs the same business rules as the single create (boundary entity exists, no duplicate, parent exists, correct hierarchy level; `code`/`tenantId`/`hierarchyType` must not contain the reserved `|` path delimiter). A record that fails validation is reported in `failedBoundaryRelationships`; the rest continue.
-- **Persistence via egov-persister.** Validated + enriched records are published, **one message per record**, to `save-boundary-relationship`. The publish is blocking (it returns once the broker has accepted each record). `egov-persister` writes each with `INSERT … ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING`, so redelivery / re-submission is a safe no-op and one un-insertable record never fails the others. A record accepted here is reported in `successfulBoundaryRelationships` ("accepted for persistence", not "already committed").
+- **Persistence via egov-persister.** The validated + enriched records are published as **ONE array message** (`BoundaryRelationship` is a JSON array, keyed by the batch's shared parent code) to the dedicated `boundary-relationship-bulk-create-job` topic. The publish is blocking (it returns once the broker has accepted the batch message). `egov-persister` maps that array (`$.BoundaryRelationship.*`) to N rows and writes them in a single `jdbcTemplate.batchUpdate` via `INSERT … ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING`, so redelivery / re-submission is a safe no-op and an already-present (conflicting) row is skipped without failing the others. A record whose batch message is accepted here is reported in `successfulBoundaryRelationships` ("accepted for persistence", not "already committed").
 - **Transient failures are retryable, not fatal.** A parent/entity not yet persisted, a transient DB error, or a publish failure (broker unreachable within `max.block.ms`) is reported with a retryable code (`PARENT_NOT_FOUND`, `BOUNDARY_ENTITY_DOES_NOT_EXIST`, `BULK_RELATIONSHIP_PERSIST_TRANSIENT`) rather than aborting; the caller retries only those records.
 - **Intra-request de-duplication.** Two records with the same `(tenantId, hierarchyType, code)` in one request are rejected (`DUPLICATE_RECORD_IN_REQUEST`).
 
@@ -63,7 +63,7 @@ The endpoint expects each batch to be a set of **siblings whose parent is alread
 
 - **Horizontal scale** is by running more boundary-service replicas behind the load balancer (a stateless HTTP path) and by the caller submitting chunks concurrently — there is no Kafka consumer group to size and no per-partition head-of-line blocking.
 - **Idempotency** comes from `INSERT … ON CONFLICT (tenantid, code, hierarchytype) DO NOTHING`, so a parent that is briefly late simply causes its children to be retried by the caller until it lands; ordering across levels is *not* required.
-- **DB-write reliability** (per-record isolation of an un-insertable row, transient-DB retry, dead-lettering) is owned by `egov-persister`. Because it is one message per record, a bad record is isolated on its own regardless of whether the persister runs its normal listener or the optional batch listener.
+- **DB-write reliability** (transient-DB retry, dead-lettering) is owned by `egov-persister`. The batch is one array message written in a single `batchUpdate`; a row that already exists is isolated via `ON CONFLICT … DO NOTHING` — it is skipped without aborting the rest of the batch, and no per-record Kafka message or optional batch listener is involved.
 
 ### Request
 
@@ -142,7 +142,7 @@ mvn clean install
 # Run (after configuring datasource & kafka in application.properties)
 mvn spring-boot:run
 # or
-java -jar target/boundary-service-1.0.1.jar
+java -jar target/boundary-service-1.0.2.jar
 ```
 
 ### Key configuration (`src/main/resources/application.properties`)
@@ -154,17 +154,20 @@ java -jar target/boundary-service-1.0.1.jar
 | `spring.flyway.enabled` | `false` | Enable to run DB migrations on startup |
 | `spring.kafka.bootstrap-servers` | `localhost:9092` | Kafka brokers used by the producer. In DIGIT deployments the common Helm chart injects `SPRING_KAFKA_BOOTSTRAP_SERVERS`. |
 | `spring.kafka.producer.properties.max.block.ms` | `15000` | Bounds how long a synchronous publish blocks if the broker is unreachable, so an outage fails fast (as a transient error the caller retries) instead of tying up request threads. |
-| `kafka.topics.create.boundary.relationship` | `save-boundary-relationship` | Topic for **both** single and bulk relationship create, consumed by `egov-persister`. |
+| `kafka.topics.create.boundary.relationship` | `save-boundary-relationship` | Topic for **single** relationship create only (single-object payload), consumed by `egov-persister`. |
+| `kafka.topics.bulk.create.boundary.relationship.job` | `boundary-relationship-bulk-create-job` | **Dedicated** topic for `/bulk/_create`; carries one **array** message per batch (`$.BoundaryRelationship.*`), kept separate from the single-create topic because the array and single-object shapes cannot share a topic. |
 | `boundary.bulk.max.size` | `100` | Max records accepted by `/bulk/_create` (enforced in-service; keep ≥ the caller's chunk size). |
 | `boundary.default.limit` / `boundary.max.default.limit` | `50` / `300` | Search paging defaults |
 
-> Bulk creation writes through `egov-persister`, not directly to PostgreSQL, so the request path is not gated by the DB connection pool for writes. To make the persister aggregate high-volume creates into batched multi-row inserts, add `save-boundary-relationship` to the persister's `persister.batch.topics` (with `persister.bulk.enabled=true`); this is an **optional throughput optimization** — the topic is otherwise consumed one record at a time by the persister's normal listener, so bulk creation works on any persister deployment with no extra configuration.
+> Bulk creation writes through `egov-persister`, not directly to PostgreSQL, so the request path is not gated by the DB connection pool for writes. Batching is **within the one array message** — the persister maps `$.BoundaryRelationship.*` to N rows and writes them in a single `jdbcTemplate.batchUpdate` on its **normal** listener. It therefore needs **no** `persister.batch.topics` / `persister.bulk.enabled` configuration; the dedicated `boundary-relationship-bulk-create-job` topic plus the array queryMap does the batched multi-row insert on any persister deployment with no extra tuning.
 
 ---
 
 ## Database
 
-Relationships are stored in `boundary_relationship` (`tenantId, code, hierarchyType` primary key; `ancestralMaterializedPath` holds the `|`-delimited ancestor chain used for subtree search). All writes go through the `egov-persister` mapping in `src/main/resources/boundary-persister.yml`, which uses `INSERT … ON CONFLICT (tenantid, code, hierarchytype) DO NOTHING` so at-least-once redelivery and caller re-submission are idempotent.
+Relationships are stored in `boundary_relationship` (`tenantId, code, hierarchyType` primary key; `ancestralMaterializedPath` holds the `|`-delimited ancestor chain used for subtree search). All writes go through the `egov-persister` mapping in `src/main/resources/boundary-persister.yml`.
+
+That mapping has **two separate relationship queryMaps**: one for the single-create topic `save-boundary-relationship` (single-object base path `$.BoundaryRelationship`) and a dedicated one for the bulk topic `boundary-relationship-bulk-create-job` (array base path `$.BoundaryRelationship.*`, written as a single `batchUpdate`). Both, together with the boundary-entity and boundary-hierarchy inserts, are now idempotent — every insert uses `ON CONFLICT … DO NOTHING` (`(code, tenantId)` for `boundary`, `(tenantId, hierarchyType)` for `boundary_hierarchy`, `(tenantId, code, hierarchyType)` for `boundary_relationship`), so at-least-once redelivery and caller re-submission are safe no-ops. Bulk messages are keyed by the batch's shared parent code, so sibling batches under one parent stay ordered on the same partition.
 
 ### Search indexes
 
