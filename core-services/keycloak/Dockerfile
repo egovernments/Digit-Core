@@ -8,6 +8,9 @@ WORKDIR /opt/keycloak
 # Copy custom provider JARs from root context
 COPY --chown=keycloak:keycloak core-services/keycloak/providers/ /opt/keycloak/providers/
 
+# Copy custom login themes (e.g. "digit") from root context
+COPY --chown=keycloak:keycloak core-services/keycloak/themes/ /opt/keycloak/themes/
+
 # Run Keycloak build to optimize the server with custom providers
 RUN /opt/keycloak/bin/kc.sh build
 
