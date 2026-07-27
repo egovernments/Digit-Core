@@ -16,10 +16,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -107,6 +109,7 @@ public class GenerateMojo extends AbstractMojo {
         }
 
         Map<String, String> switchFlags = computeSwitchFlags(serviceSpecs);
+        warnOnPropertyConflicts(serviceSpecs, spec);
 
         Path bundleDir = repoRoot.resolve(bundlesDir).resolve(name);
         try {
@@ -162,6 +165,72 @@ public class GenerateMojo extends AbstractMojo {
             }
         }
         return flags;
+    }
+
+    /**
+     * Warn on any property key set with different values across two or more services'
+     * defaults files. In monolith mode Spring Boot loads imports in declared order, so
+     * the LAST-listed service wins silently — this makes those clashes visible at
+     * generate-time so the user can decide.
+     *
+     * If the bundle's package.yaml `properties:` block already sets the key, it's
+     * considered explicitly resolved and no warning is emitted (application-&lt;profile&gt;
+     * .properties overrides all imports anyway).
+     */
+    private void warnOnPropertyConflicts(List<Map<String, Object>> serviceSpecs, Map<String, Object> bundleSpec) {
+        Map<String, Object> bundleOverrides = asMap(bundleSpec.get("properties"));
+        Set<String> resolved = bundleOverrides == null ? Set.of() : bundleOverrides.keySet();
+
+        // Preserve declared order — index of each service in the include: list.
+        List<String> orderedServices = new ArrayList<>();
+        Map<String, Map<String, String>> keyOccurrences = new LinkedHashMap<>();
+
+        for (Map<String, Object> svc : serviceSpecs) {
+            String svcName = str(svc.get("name"), "<unknown>");
+            orderedServices.add(svcName);
+            String defaultsFile = str(svc.get("defaults-file"), null);
+            String svcDir = str(svc.get("__dir"), null);
+            if (defaultsFile == null || svcDir == null) continue;
+            Path defaultsPath = Path.of(svcDir, "src", "main", "resources", defaultsFile);
+            if (!Files.exists(defaultsPath)) continue;
+            Properties p = new Properties();
+            try (InputStream in = Files.newInputStream(defaultsPath)) {
+                p.load(in);
+            } catch (IOException e) {
+                getLog().warn("Could not read " + defaultsPath + ": " + e.getMessage());
+                continue;
+            }
+            for (String key : p.stringPropertyNames()) {
+                keyOccurrences.computeIfAbsent(key, k -> new LinkedHashMap<>())
+                        .put(svcName, p.getProperty(key));
+            }
+        }
+
+        int conflicts = 0;
+        for (Map.Entry<String, Map<String, String>> e : keyOccurrences.entrySet()) {
+            Map<String, String> occurrences = e.getValue();
+            if (occurrences.size() < 2) continue;
+            if (new HashSet<>(occurrences.values()).size() < 2) continue; // same value everywhere
+            if (resolved.contains(e.getKey())) continue; // bundle explicitly overrides
+
+            String winner = null;
+            for (String svcName : orderedServices) {
+                if (occurrences.containsKey(svcName)) winner = svcName;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Property conflict: '").append(e.getKey()).append("'");
+            for (Map.Entry<String, String> occ : occurrences.entrySet()) {
+                sb.append("\n    ").append(occ.getKey()).append(" = ").append(occ.getValue());
+            }
+            sb.append("\n    -> effective value: from ").append(winner)
+                    .append(" (last in include order). Override in package.yaml `properties:` to silence.");
+            getLog().warn(sb.toString());
+            conflicts++;
+        }
+        if (conflicts > 0) {
+            getLog().warn(conflicts + " property conflict(s) detected across included services' defaults files.");
+        }
     }
 
     private void writePom(Path out, String bundleName, Map<String, Map<String, Object>> serviceCoords) throws IOException {
