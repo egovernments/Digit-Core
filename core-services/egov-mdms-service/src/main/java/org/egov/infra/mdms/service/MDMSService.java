@@ -162,7 +162,15 @@ public class MDMSService {
 		}
 
 		log.info("ModuleName.... " + moduleName + " : MasterName.... " + masterName);
-		return jsonArray;
+		// Defensive copy: the cached JSONArray lives inside the static TenantMap and is
+		// shared across every request in the JVM. Under HTTP the JSON serialization
+		// gave callers isolated copies for free; in-process (LocalMdmsClient) they'd
+		// alias the cache — a caller-side add/remove/set would corrupt master data
+		// process-wide. Shallow copy is enough to break list-level aliasing.
+		if (jsonArray == null) return null;
+		JSONArray copy = new JSONArray();
+		copy.addAll(jsonArray);
+		return copy;
 	}
 
 	/*
