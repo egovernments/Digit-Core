@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,38 +35,25 @@ public class DecryptionPolicyConfiguration {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Map<String, List<Attribute>> modelAttributeAccessMap;
+    // Per state-tenant decryption policy, loaded lazily on the first decrypt request for that tenant.
+    private final Map<String, DecryptionPolicy> tenantDecryptionPolicyMap = new ConcurrentHashMap<>();
 
-    private Map<String, Map<String, List<AttributeAccess>>> modelRoleBasedDecryptionPolicyMap;
-
-    private Map<String, UniqueIdentifier> uniqueIdentifierMap;
-
-
-    void initializeModelAttributeAccessMap(List<SecurityPolicy> modelRoleAttributeAccessList) {
-        modelAttributeAccessMap = modelRoleAttributeAccessList.stream()
-                .collect(Collectors.toMap(SecurityPolicy::getModel,
-                        SecurityPolicy::getAttributes));
+    // Holds the three model-keyed maps derived from one tenant's SecurityPolicy master.
+    private static class DecryptionPolicy {
+        Map<String, List<Attribute>> modelAttributeAccessMap;
+        Map<String, Map<String, List<AttributeAccess>>> modelRoleBasedDecryptionPolicyMap;
+        Map<String, UniqueIdentifier> uniqueIdentifierMap;
     }
 
-    void initializeRoleBasedDecryptionPolicyMap(List<SecurityPolicy> modelRoleAttributeAccessList) {
-        modelRoleBasedDecryptionPolicyMap = new HashMap<>();
-        for (SecurityPolicy securityPolicy : modelRoleAttributeAccessList) {
-            modelRoleBasedDecryptionPolicyMap.put(securityPolicy.getModel(),
-                    makeRoleAttributeAccessMapping(securityPolicy.getRoleBasedDecryptionPolicy()));
-        }
+    private DecryptionPolicy getPolicy(String tenantId) {
+        String cacheKey = tenantId == null ? "" : tenantId;
+        return tenantDecryptionPolicyMap.computeIfAbsent(cacheKey, k -> loadPolicy(tenantId));
     }
 
-    void initializeUniqueIdentifierMap(List<SecurityPolicy> modelRoleAttributeAccessList) {
-        uniqueIdentifierMap = modelRoleAttributeAccessList.stream()
-                .collect(Collectors.toMap(SecurityPolicy::getModel,
-                        SecurityPolicy::getUniqueIdentifier));
-    }
-
-    @PostConstruct
-    void initializeModelAttributeAccessMapFromMdms() {
-        List<SecurityPolicy> securityPolicyList = null;
+    private DecryptionPolicy loadPolicy(String tenantId) {
+        List<SecurityPolicy> securityPolicyList;
         try {
-            JSONArray securityPolicyJson = mdmsFetcher.getSecurityMdmsForFilter(null);
+            JSONArray securityPolicyJson = mdmsFetcher.getSecurityMdmsForFilter(null, tenantId);
             ObjectReader reader = objectMapper.readerFor(objectMapper.getTypeFactory().constructCollectionType(List.class,
                     SecurityPolicy.class));
             securityPolicyList = reader.readValue(securityPolicyJson.toString());
@@ -75,21 +62,38 @@ public class DecryptionPolicyConfiguration {
             throw new CustomException(ErrorConstants.SECURITY_POLICY_READING_ERROR, ErrorConstants.SECURITY_POLICY_READING_ERROR_MESSAGE);
         }
 
-        initializeModelAttributeAccessMap(securityPolicyList);
-        initializeRoleBasedDecryptionPolicyMap(securityPolicyList);
-        initializeUniqueIdentifierMap(securityPolicyList);
+        DecryptionPolicy policy = new DecryptionPolicy();
+        policy.modelAttributeAccessMap = securityPolicyList.stream()
+                .collect(Collectors.toMap(SecurityPolicy::getModel, SecurityPolicy::getAttributes));
+        policy.modelRoleBasedDecryptionPolicyMap = new HashMap<>();
+        for (SecurityPolicy securityPolicy : securityPolicyList) {
+            policy.modelRoleBasedDecryptionPolicyMap.put(securityPolicy.getModel(),
+                    makeRoleAttributeAccessMapping(securityPolicy.getRoleBasedDecryptionPolicy()));
+        }
+        policy.uniqueIdentifierMap = securityPolicyList.stream()
+                .collect(Collectors.toMap(SecurityPolicy::getModel, SecurityPolicy::getUniqueIdentifier));
+        return policy;
     }
 
     public UniqueIdentifier getUniqueIdentifierForModel(String model) {
-        return uniqueIdentifierMap.get(model);
+        return getUniqueIdentifierForModel(model, null);
+    }
+
+    public UniqueIdentifier getUniqueIdentifierForModel(String model, String tenantId) {
+        return getPolicy(tenantId).uniqueIdentifierMap.get(model);
     }
 
     public Map<Attribute, Visibility> getRoleAttributeAccessListForModel(RequestInfo requestInfo, String model, List<String> roles) {
+        return getRoleAttributeAccessListForModel(requestInfo, model, roles, null);
+    }
+
+    public Map<Attribute, Visibility> getRoleAttributeAccessListForModel(RequestInfo requestInfo, String model, List<String> roles, String tenantId) {
         Map<Attribute, Visibility> mapping = new HashMap<>();
         try {
-            List<Attribute> attributesList = modelAttributeAccessMap.get(model);
+            DecryptionPolicy policy = getPolicy(tenantId);
+            List<Attribute> attributesList = policy.modelAttributeAccessMap.get(model);
             Map<String, List<AttributeAccess>> roleAttributeAccessMap =
-                    modelRoleBasedDecryptionPolicyMap.get(model);
+                    policy.modelRoleBasedDecryptionPolicyMap.get(model);
 
             boolean isAttributeListEmpty = CollectionUtils.isEmpty(attributesList);
             boolean isRoleAttributeAccessMapEmpty = CollectionUtils.isEmpty(roleAttributeAccessMap);
@@ -175,7 +179,11 @@ public class DecryptionPolicyConfiguration {
     }
 
     public UniqueIdentifier getSecurityPolicyUniqueIdentifier(String model) {
-        return uniqueIdentifierMap.get(model);
+        return getSecurityPolicyUniqueIdentifier(model, null);
+    }
+
+    public UniqueIdentifier getSecurityPolicyUniqueIdentifier(String model, String tenantId) {
+        return getPolicy(tenantId).uniqueIdentifierMap.get(model);
     }
 
     private void getDefaultVisibilityMapping(List<Attribute> attributesList, Map<Attribute, Visibility> mapping, List<String> attributesToAvoidlist) {

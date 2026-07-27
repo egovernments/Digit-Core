@@ -12,9 +12,12 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.MDC;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -30,26 +33,73 @@ public class MdmsFetcher {
 
     public static final String TENANTID_MDC_STRING = "TENANTID";
 
+    // Caches the MDMS master per derived state tenant, keyed by "<stateTenant>|<masterName>".
+    // Only successful, non-empty fetches are cached; lives for the lifetime of the pod.
+    private final ConcurrentHashMap<String, JSONArray> mdmsCache = new ConcurrentHashMap<>();
+
+    // Original entry points - preserved so existing client services need no change.
     public JSONArray getSecurityMdmsForFilter(String filter) {
-        return getMdmsForFilter(filter, EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME);
+        return getSecurityMdmsForFilter(filter, null);
     }
 
     public JSONArray getMaskingMdmsForFilter(String filter) {
-        return getMdmsForFilter(filter, EncClientConstants.MDMS_MASKING_PATTERN_MASTER_NAME);
+        return getMaskingMdmsForFilter(filter, null);
     }
 
     public JSONArray getMdmsForFilter(String filter, String masterName) {
+        return getMdmsForFilter(filter, masterName, null);
+    }
+
+    public JSONArray getSecurityMdmsForFilter(String filter, String tenantId) {
+        return getMdmsForFilter(filter, EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME, tenantId);
+    }
+
+    public JSONArray getMaskingMdmsForFilter(String filter, String tenantId) {
+        return getMdmsForFilter(filter, EncClientConstants.MDMS_MASKING_PATTERN_MASTER_NAME, tenantId);
+    }
+
+    public JSONArray getMdmsForFilter(String filter, String masterName, String tenantId) {
+        // Derive the state-level anchor from the request tenantId; fall back to the configured tenant.
+        String stateTenant = StringUtils.hasText(tenantId)
+                ? multiStateInstanceUtil.getStateLevelTenant(tenantId)
+                : encProperties.getStateLevelTenantId();
+
+        String cacheKey = stateTenant + "|" + masterName;
+
+        JSONArray cached = mdmsCache.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
+        JSONArray result = fetchFromMdms(filter, masterName, stateTenant);
+
+        // Do not cache empty results. SecurityPolicy is required, so an empty master is an error;
+        // MaskingPatterns may legitimately be empty and is returned as-is without caching.
+        if (CollectionUtils.isEmpty(result)) {
+            if (EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME.equals(masterName)) {
+                throw new CustomException(ErrorConstants.POLICY_NOT_FOUND_ERROR,
+                        masterName + ErrorConstants.POLICY_NOT_FOUND_ERROR_MESSAGE + stateTenant);
+            }
+            log.warn("{}{}{}", masterName, ErrorConstants.POLICY_NOT_FOUND_ERROR_MESSAGE, stateTenant);
+            return result;
+        }
+
+        mdmsCache.put(cacheKey, result);
+        return result;
+    }
+
+    private JSONArray fetchFromMdms(String filter, String masterName, String stateTenant) {
         MasterDetail masterDetail = MasterDetail.builder().name(masterName)
                 .filter(filter).build();
         ModuleDetail moduleDetail = ModuleDetail.builder().moduleName(EncClientConstants.MDMS_MODULE_NAME)
                 .masterDetails(Arrays.asList(masterDetail)).build();
-        MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(encProperties.getStateLevelTenantId())
+        MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(stateTenant)
                 .moduleDetails(Arrays.asList(moduleDetail)).build();
 
         MdmsCriteriaReq mdmsCriteriaReq = MdmsCriteriaReq.builder().requestInfo(RequestInfo.builder().build())
                 .mdmsCriteria(mdmsCriteria).build();
         if(multiStateInstanceUtil.getIsEnvironmentCentralInstance()){
-            MDC.put(TENANTID_MDC_STRING, encProperties.getStateLevelTenantId());
+            MDC.put(TENANTID_MDC_STRING, stateTenant);
         }
 
         try {

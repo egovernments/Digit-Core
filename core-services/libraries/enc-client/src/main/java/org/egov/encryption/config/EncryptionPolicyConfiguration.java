@@ -1,6 +1,5 @@
 package org.egov.encryption.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +11,10 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,16 +26,16 @@ public class EncryptionPolicyConfiguration {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Map<String, List<Attribute>> encryptionPolicyAttributesMap;
+    // Per state-tenant cache of model -> attributes, loaded lazily on first request for that tenant.
+    private final Map<String, Map<String, List<Attribute>>> tenantEncryptionPolicyAttributesMap = new ConcurrentHashMap<>();
 
-    @PostConstruct
-    void initializeEncryptionPolicyAttributesMapFromMdms() throws JsonProcessingException {
+    private Map<String, List<Attribute>> loadEncryptionPolicyAttributesMap(String tenantId) {
         try {
-            JSONArray attributesDetailsJSON = mdmsFetcher.getSecurityMdmsForFilter(null);
+            JSONArray attributesDetailsJSON = mdmsFetcher.getSecurityMdmsForFilter(null, tenantId);
             ObjectReader reader = objectMapper.readerFor(objectMapper.getTypeFactory().constructCollectionType(List.class,
                     SecurityPolicy.class));
             List<SecurityPolicy> securityPolicies = reader.readValue(attributesDetailsJSON.toString());
-            encryptionPolicyAttributesMap = securityPolicies.stream()
+            return securityPolicies.stream()
                     .collect(Collectors.toMap(SecurityPolicy::getModel, SecurityPolicy::getAttributes));
         } catch (IOException e) {
             log.error(ErrorConstants.SECURITY_POLICY_READING_ERROR_MESSAGE, e);
@@ -45,12 +44,20 @@ public class EncryptionPolicyConfiguration {
     }
 
     public List<Attribute> getAttributeDetailsForModel(String modelName) {
+        return getAttributeDetailsForModel(modelName, null);
+    }
+
+    public List<Attribute> getAttributeDetailsForModel(String modelName, String tenantId) {
         try {
-            return encryptionPolicyAttributesMap.get(modelName);
+            String cacheKey = tenantId == null ? "" : tenantId;
+            Map<String, List<Attribute>> attributesMap =
+                    tenantEncryptionPolicyAttributesMap.computeIfAbsent(cacheKey, k -> loadEncryptionPolicyAttributesMap(tenantId));
+            return attributesMap.get(modelName);
+        } catch (CustomException e) {
+            throw e;
         } catch (Exception e) {
             throw new CustomException("DECRYPTION_ERROR", "Error in retrieving MDMS data");
         }
-
     }
 
 }

@@ -19,14 +19,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
 public class MaskingService {
 
-    Map<String, String> maskingPatternMap = new HashMap<>();
+    // Per state-tenant masking patterns (patternId -> pattern), loaded lazily on first request.
+    private final Map<String, Map<String, String>> tenantMaskingPatternMap = new ConcurrentHashMap<>();
     @Autowired
     private EncProperties encProperties;
     @Autowired
@@ -36,10 +37,15 @@ public class MaskingService {
     @Autowired
     private MdmsFetcher mdmsFetcher;
 
-    @PostConstruct
-    private void initMaskingPatternMap() {
+    private Map<String, String> getMaskingPatternMap(String tenantId) {
+        String cacheKey = tenantId == null ? "" : tenantId;
+        return tenantMaskingPatternMap.computeIfAbsent(cacheKey, k -> loadMaskingPatternMap(tenantId));
+    }
+
+    private Map<String, String> loadMaskingPatternMap(String tenantId) {
+        Map<String, String> maskingPatternMap = new HashMap<>();
         try {
-            JSONArray maskingPatternListJSON = mdmsFetcher.getMaskingMdmsForFilter(null);
+            JSONArray maskingPatternListJSON = mdmsFetcher.getMaskingMdmsForFilter(null, tenantId);
             for (int i = 0; i < maskingPatternListJSON.size(); i++) {
                 Map<String, String> obj = objectMapper.convertValue(maskingPatternListJSON.get(i), Map.class);
                 maskingPatternMap.put(obj.get("patternId"), obj.get("pattern"));
@@ -48,23 +54,28 @@ public class MaskingService {
             log.error(ErrorConstants.MASKING_PATTER_READING_ERROR_MESSAGE, e);
             throw new CustomException(ErrorConstants.MASKING_PATTERN_READING_ERROR, ErrorConstants.MASKING_PATTER_READING_ERROR_MESSAGE);
         }
+        return maskingPatternMap;
     }
 
-    public <T> T maskData(T data, Attribute attribute) {
+    public <T> T maskData(T data, Attribute attribute, String tenantId) {
         String value = String.valueOf(data);
         String patternId = attribute.getPatternId();
-        String maskingRegex = maskingPatternMap.get(patternId);
+        String maskingRegex = getMaskingPatternMap(tenantId).get(patternId);
         value = value.replaceAll(maskingRegex, "*");
 
         return (T) value;
     }
 
     public JsonNode maskData(JsonNode decryptedNode, List<Attribute> attributes, UniqueIdentifier uniqueIdentifier, RequestInfo requestInfo) {
+        return maskData(decryptedNode, attributes, uniqueIdentifier, requestInfo, null);
+    }
+
+    public JsonNode maskData(JsonNode decryptedNode, List<Attribute> attributes, UniqueIdentifier uniqueIdentifier, RequestInfo requestInfo, String tenantId) {
         JsonNode maskedNode = decryptedNode.deepCopy();
         for (Attribute attribute : attributes) {
             JsonNode jsonNode = JacksonUtils.filterJsonNodeForPaths(maskedNode,
                     JsonPathConverter.convertToArrayJsonPaths(Arrays.asList(attribute.getJsonPath())));
-            jsonNode = JSONBrowseUtil.mapValues(jsonNode, value -> maskData(value, attribute));
+            jsonNode = JSONBrowseUtil.mapValues(jsonNode, value -> maskData(value, attribute, tenantId));
             maskedNode = JacksonUtils.merge(jsonNode, maskedNode);
         }
         if (requestInfo.getPlainAccessRequest() != null && requestInfo.getPlainAccessRequest().getRecordId() != null) {

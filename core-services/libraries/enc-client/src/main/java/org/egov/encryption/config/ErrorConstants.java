@@ -17,4 +17,8 @@ public class ErrorConstants {
     public static final String MASKING_PATTER_READING_ERROR_MESSAGE
             = "Error occurred while reading Masking Pattern from MDMS Config";
 
+    public static final String POLICY_NOT_FOUND_ERROR = "POLICY_NOT_FOUND_ERROR";
+    public static final String POLICY_NOT_FOUND_ERROR_MESSAGE
+            = " is not present in MDMS for tenant: ";
+
 }

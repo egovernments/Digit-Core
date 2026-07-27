@@ -61,7 +61,7 @@ public class CryptoApiController{
     @RequestMapping(value = "/crypto/v1/_rotateallkeys", method=RequestMethod.POST)
     public ResponseEntity<RotateKeyResponse> cryptoRotateAllKeys(@Valid @RequestBody RotateKeyRequest rotateKeyRequest)
             throws Exception {
-        return new ResponseEntity<RotateKeyResponse>(keyManagementService.rotateAllKeys(), HttpStatus.OK);
+        return new ResponseEntity<RotateKeyResponse>(keyManagementService.rotateAllKeys(rotateKeyRequest), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/crypto/v1/_rotatekey", method=RequestMethod.POST)

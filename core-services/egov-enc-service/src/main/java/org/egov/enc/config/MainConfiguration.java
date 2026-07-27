@@ -2,6 +2,7 @@ package org.egov.enc.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,7 @@ import jakarta.annotation.PostConstruct;
 import java.util.TimeZone;
 
 
-@Import({TracerConfiguration.class})
+@Import({TracerConfiguration.class, MultiStateInstanceUtil.class})
 public class MainConfiguration {
 
     @Value("${app.timezone}")

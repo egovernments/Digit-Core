@@ -1,6 +1,7 @@
 package org.egov.enc.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.enc.keymanagement.KeyGenerator;
 import org.egov.enc.keymanagement.KeyIdGenerator;
 import org.egov.enc.keymanagement.KeyStore;
@@ -33,6 +34,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import org.egov.enc.utils.Constants;
+
 import static org.egov.enc.utils.Constants.TENANTID_MDC_STRING;
 
 @Slf4j
@@ -45,7 +48,7 @@ public class KeyManagementService implements ApplicationRunner {
     @Value("${egov.mdms.search.endpoint}")
     private String mdmsEndpoint;
 
-    @Value(("${egov.state.level.tenant.id}"))
+    @Value("${egov.state.level.tenant.id:}")
     private String stateLevelTenantId;
 
     @Autowired
@@ -56,21 +59,38 @@ public class KeyManagementService implements ApplicationRunner {
     private KeyStore keyStore;
     @Autowired
     private KeyIdGenerator keyIdGenerator;
+    @Autowired
+    private MultiStateInstanceUtil multiStateInstanceUtil;
 
 
     //Initialize active tenant id list and Check for any new tenants
     private void init() throws Exception {
+        // In a central instance keys are provisioned lazily per request, so skip the startup crawl.
+        if (Boolean.TRUE.equals(multiStateInstanceUtil.getIsEnvironmentCentralInstance())) {
+            keyStore.refreshKeys();
+            keyIdGenerator.refreshKeyIds();
+            return;
+        }
+        if (stateLevelTenantId == null || stateLevelTenantId.isEmpty()) {
+            log.warn("egov.state.level.tenant.id is not configured and central instance is off; " +
+                    "skipping startup key crawl. Keys will be provisioned on demand per request tenant.");
+            keyStore.refreshKeys();
+            keyIdGenerator.refreshKeyIds();
+            return;
+        }
         // Adding in MDC so that tracer can add it in header
         MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
-        generateKeyForNewTenants();
+        generateKeyForNewTenants(stateLevelTenantId);
     }
 
-    //Check if a given tenantId exists
+    //Check if a given tenantId exists; provisions its key on demand using the state anchor
+    //derived from the request tenantId
     public boolean checkIfTenantExists(String tenant) throws Exception {
         if(keyStore.getTenantIds().contains(tenant)) {
             return true;
         }
-        generateKeyForNewTenants();
+        String stateAnchor = multiStateInstanceUtil.getStateLevelTenant(tenant);
+        generateKeyForNewTenants(stateAnchor);
         return keyStore.getTenantIds().contains(tenant);
     }
 
@@ -97,11 +117,11 @@ public class KeyManagementService implements ApplicationRunner {
 
     //Generate keys if there are any new tenants
     //Returns the number of tenants for which the keys have been generated
-    private int generateKeyForNewTenants() throws Exception {
+    private int generateKeyForNewTenants(String stateAnchor) throws Exception {
         keyStore.refreshKeys();
         keyIdGenerator.refreshKeyIds();
 
-        Collection<String> tenantIdsFromMdms = makeComprehensiveListOfTenantIds();
+        Collection<String> tenantIdsFromMdms = makeComprehensiveListOfTenantIds(stateAnchor);
         tenantIdsFromMdms.removeAll(keyStore.getTenantIds());
 
         if(tenantIdsFromMdms.size() != 0) {
@@ -114,8 +134,8 @@ public class KeyManagementService implements ApplicationRunner {
         return tenantIdsFromMdms.size();
     }
 
-    private Set<String> makeComprehensiveListOfTenantIds() {
-        ArrayList<String> tenantIds = getTenantIds();
+    private Set<String> makeComprehensiveListOfTenantIds(String stateAnchor) {
+        ArrayList<String> tenantIds = getTenantIds(stateAnchor);
         Set<String> comprehensiveTenantIdsSet = new HashSet<>(tenantIds);
 
         for (String tenantId: tenantIds) {
@@ -136,9 +156,10 @@ public class KeyManagementService implements ApplicationRunner {
     }
 
     //Deactivate old keys and generate new keys for every tenantId
-    public RotateKeyResponse rotateAllKeys() throws Exception {
+    public RotateKeyResponse rotateAllKeys(RotateKeyRequest rotateKeyRequest) throws Exception {
         deactivateOldKeys();
-        generateKeyForNewTenants();
+        String stateAnchor = multiStateInstanceUtil.getStateLevelTenant(rotateKeyRequest.getTenantId());
+        generateKeyForNewTenants(stateAnchor);
         return new RotateKeyResponse(true);
     }
 
@@ -155,21 +176,22 @@ public class KeyManagementService implements ApplicationRunner {
             throw new CustomException("DB Exception", "DB Exception");
         }
 
-        generateKeyForNewTenants();
+        String stateAnchor = multiStateInstanceUtil.getStateLevelTenant(rotateKeyRequest.getTenantId());
+        generateKeyForNewTenants(stateAnchor);
 
         return new RotateKeyResponse(true);
     }
 
 
 
-    private ArrayList<String> getTenantIds() throws JSONException {
+    private ArrayList<String> getTenantIds(String stateAnchor) throws JSONException {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(TENANTID_MDC_STRING,stateLevelTenantId);
+        headers.set(TENANTID_MDC_STRING, stateAnchor);
 
-        String requestJson = "{\"RequestInfo\":{},\"MdmsCriteria\":{\"tenantId\":\"" + stateLevelTenantId + "\"," +
+        String requestJson = "{\"RequestInfo\":{},\"MdmsCriteria\":{\"tenantId\":\"" + stateAnchor + "\"," +
                 "\"moduleDetails\":[{\"moduleName\":\"tenant\",\"masterDetails\":[{\"name\":\"tenants\"," +
                 "\"filter\":\"$.*.code\"}]}]}}";
 
@@ -178,8 +200,18 @@ public class KeyManagementService implements ApplicationRunner {
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
 
-        JSONObject jsonObject = new JSONObject(response.getBody());
-        JSONArray jsonArray = jsonObject.getJSONObject("MdmsRes").getJSONObject("tenant").getJSONArray("tenants");
+        // Null-safe parsing: if the tenant/tenants master is not present in MDMS for this
+        // tenant, surface a clear, tenant-specific error instead of a raw NPE/JSONException.
+        JSONObject mdmsRes = response.getBody() != null
+                ? new JSONObject(response.getBody()).optJSONObject("MdmsRes") : null;
+        JSONObject tenantModule = mdmsRes != null ? mdmsRes.optJSONObject("tenant") : null;
+        JSONArray jsonArray = tenantModule != null ? tenantModule.optJSONArray("tenants") : null;
+
+        if (jsonArray == null || jsonArray.length() == 0) {
+            String message = String.format(Constants.MDMS_TENANTS_NOT_FOUND_MESSAGE, stateAnchor);
+            log.error(message);
+            throw new CustomException(Constants.MDMS_DATA_NOT_FOUND_CODE, message);
+        }
 
         ArrayList<String> tenantIds = new ArrayList<>();
         for(int i = 0; i < jsonArray.length(); i++) {
