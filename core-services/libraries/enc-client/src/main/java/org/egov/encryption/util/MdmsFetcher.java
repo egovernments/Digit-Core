@@ -37,19 +37,6 @@ public class MdmsFetcher {
     // Only successful, non-empty fetches are cached; lives for the lifetime of the pod.
     private final ConcurrentHashMap<String, JSONArray> mdmsCache = new ConcurrentHashMap<>();
 
-    // Original entry points - preserved so existing client services need no change.
-    public JSONArray getSecurityMdmsForFilter(String filter) {
-        return getSecurityMdmsForFilter(filter, null);
-    }
-
-    public JSONArray getMaskingMdmsForFilter(String filter) {
-        return getMaskingMdmsForFilter(filter, null);
-    }
-
-    public JSONArray getMdmsForFilter(String filter, String masterName) {
-        return getMdmsForFilter(filter, masterName, null);
-    }
-
     public JSONArray getSecurityMdmsForFilter(String filter, String tenantId) {
         return getMdmsForFilter(filter, EncClientConstants.MDMS_SECURITY_POLICY_MASTER_NAME, tenantId);
     }
@@ -59,10 +46,12 @@ public class MdmsFetcher {
     }
 
     public JSONArray getMdmsForFilter(String filter, String masterName, String tenantId) {
-        // Derive the state-level anchor from the request tenantId; fall back to the configured tenant.
-        String stateTenant = StringUtils.hasText(tenantId)
-                ? multiStateInstanceUtil.getStateLevelTenant(tenantId)
-                : encProperties.getStateLevelTenantId();
+        // The request tenantId is mandatory - MDMS data is always resolved from it (no property fallback).
+        if (!StringUtils.hasText(tenantId)) {
+            throw new CustomException(ErrorConstants.TENANT_ID_REQUIRED_ERROR,
+                    ErrorConstants.TENANT_ID_REQUIRED_ERROR_MESSAGE);
+        }
+        String stateTenant = multiStateInstanceUtil.getStateLevelTenant(tenantId);
 
         String cacheKey = stateTenant + "|" + masterName;
 

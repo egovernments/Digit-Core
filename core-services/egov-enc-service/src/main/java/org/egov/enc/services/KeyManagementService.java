@@ -48,9 +48,6 @@ public class KeyManagementService implements ApplicationRunner {
     @Value("${egov.mdms.search.endpoint}")
     private String mdmsEndpoint;
 
-    @Value("${egov.state.level.tenant.id:}")
-    private String stateLevelTenantId;
-
     @Autowired
     private KeyRepository keyRepository;
     @Autowired
@@ -63,24 +60,11 @@ public class KeyManagementService implements ApplicationRunner {
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
 
-    //Initialize active tenant id list and Check for any new tenants
+    //Load existing keys into memory at startup. Keys are provisioned lazily per request tenant
+    //(the state anchor is always derived from the request tenantId), so no MDMS crawl is done here.
     private void init() throws Exception {
-        // In a central instance keys are provisioned lazily per request, so skip the startup crawl.
-        if (Boolean.TRUE.equals(multiStateInstanceUtil.getIsEnvironmentCentralInstance())) {
-            keyStore.refreshKeys();
-            keyIdGenerator.refreshKeyIds();
-            return;
-        }
-        if (stateLevelTenantId == null || stateLevelTenantId.isEmpty()) {
-            log.warn("egov.state.level.tenant.id is not configured and central instance is off; " +
-                    "skipping startup key crawl. Keys will be provisioned on demand per request tenant.");
-            keyStore.refreshKeys();
-            keyIdGenerator.refreshKeyIds();
-            return;
-        }
-        // Adding in MDC so that tracer can add it in header
-        MDC.put(TENANTID_MDC_STRING, stateLevelTenantId);
-        generateKeyForNewTenants(stateLevelTenantId);
+        keyStore.refreshKeys();
+        keyIdGenerator.refreshKeyIds();
     }
 
     //Check if a given tenantId exists; provisions its key on demand using the state anchor

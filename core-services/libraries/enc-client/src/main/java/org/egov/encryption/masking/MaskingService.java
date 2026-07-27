@@ -38,8 +38,7 @@ public class MaskingService {
     private MdmsFetcher mdmsFetcher;
 
     private Map<String, String> getMaskingPatternMap(String tenantId) {
-        String cacheKey = tenantId == null ? "" : tenantId;
-        return tenantMaskingPatternMap.computeIfAbsent(cacheKey, k -> loadMaskingPatternMap(tenantId));
+        return tenantMaskingPatternMap.computeIfAbsent(tenantId, k -> loadMaskingPatternMap(tenantId));
     }
 
     private Map<String, String> loadMaskingPatternMap(String tenantId) {
@@ -64,10 +63,6 @@ public class MaskingService {
         value = value.replaceAll(maskingRegex, "*");
 
         return (T) value;
-    }
-
-    public JsonNode maskData(JsonNode decryptedNode, List<Attribute> attributes, UniqueIdentifier uniqueIdentifier, RequestInfo requestInfo) {
-        return maskData(decryptedNode, attributes, uniqueIdentifier, requestInfo, null);
     }
 
     public JsonNode maskData(JsonNode decryptedNode, List<Attribute> attributes, UniqueIdentifier uniqueIdentifier, RequestInfo requestInfo, String tenantId) {

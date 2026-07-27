@@ -1,11 +1,14 @@
 package org.egov.enc;
 
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "org.egov.enc", "org.egov.enc.web.controllers" , "org.egov.enc.config"})
+@Import({MultiStateInstanceUtil.class})
 public class Main {
 
     public static void main(String[] args) throws Exception {

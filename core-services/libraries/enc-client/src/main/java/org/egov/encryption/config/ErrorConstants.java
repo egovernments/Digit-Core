@@ -21,4 +21,8 @@ public class ErrorConstants {
     public static final String POLICY_NOT_FOUND_ERROR_MESSAGE
             = " is not present in MDMS for tenant: ";
 
+    public static final String TENANT_ID_REQUIRED_ERROR = "TENANT_ID_REQUIRED";
+    public static final String TENANT_ID_REQUIRED_ERROR_MESSAGE
+            = "tenantId is required to resolve MDMS data (SecurityPolicy / MaskingPatterns)";
+
 }

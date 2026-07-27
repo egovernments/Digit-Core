@@ -126,14 +126,9 @@ public class EncryptionServiceImpl implements EncryptionService {
             decryptNode = maskingService.maskData(decryptNode, attributesToBeMasked, uniqueIdentifier, requestInfo, tenantId);
         }
 
-        auditService.audit(decryptNode, model, purpose, requestInfo);
+        auditService.audit(decryptNode, model, purpose, requestInfo, tenantId);
 
         return decryptNode;
-    }
-
-    @Override
-    public JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose) throws IOException {
-        return decryptJson(requestInfo, ciphertextJson, model, purpose, (String) null);
     }
 
     @Override
@@ -145,11 +140,6 @@ public class EncryptionServiceImpl implements EncryptionService {
         JsonNode decryptedNode = decryptJson(requestInfo, ciphertextJson, attributesVisibilityMap, model, purpose, uniqueIdentifier, tenantId);
 
         return decryptedNode;
-    }
-
-    public <E, P> P decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose
-            , Class<E> valueType) throws IOException {
-        return ConvertClass.convertTo(decryptJson(requestInfo, ciphertextJson, model, purpose), valueType);
     }
 
     @Override

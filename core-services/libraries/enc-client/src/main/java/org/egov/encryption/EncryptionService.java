@@ -13,12 +13,6 @@ public interface EncryptionService {
     public <E, P> P encryptJson(Object plaintextJson, String model, String tenantId, Class<E> valueType) throws IOException;
 
     public JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model,
-                                String purpose) throws IOException;
-
-    public <E, P> P decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose,
-                                Class<E> valueType) throws IOException;
-
-    public JsonNode decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model,
                                 String purpose, String tenantId) throws IOException;
 
     public <E, P> P decryptJson(RequestInfo requestInfo, Object ciphertextJson, String model, String purpose,

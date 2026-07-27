@@ -46,8 +46,7 @@ public class DecryptionPolicyConfiguration {
     }
 
     private DecryptionPolicy getPolicy(String tenantId) {
-        String cacheKey = tenantId == null ? "" : tenantId;
-        return tenantDecryptionPolicyMap.computeIfAbsent(cacheKey, k -> loadPolicy(tenantId));
+        return tenantDecryptionPolicyMap.computeIfAbsent(tenantId, k -> loadPolicy(tenantId));
     }
 
     private DecryptionPolicy loadPolicy(String tenantId) {
@@ -75,16 +74,8 @@ public class DecryptionPolicyConfiguration {
         return policy;
     }
 
-    public UniqueIdentifier getUniqueIdentifierForModel(String model) {
-        return getUniqueIdentifierForModel(model, null);
-    }
-
     public UniqueIdentifier getUniqueIdentifierForModel(String model, String tenantId) {
         return getPolicy(tenantId).uniqueIdentifierMap.get(model);
-    }
-
-    public Map<Attribute, Visibility> getRoleAttributeAccessListForModel(RequestInfo requestInfo, String model, List<String> roles) {
-        return getRoleAttributeAccessListForModel(requestInfo, model, roles, null);
     }
 
     public Map<Attribute, Visibility> getRoleAttributeAccessListForModel(RequestInfo requestInfo, String model, List<String> roles, String tenantId) {
@@ -176,10 +167,6 @@ public class DecryptionPolicyConfiguration {
             atrributesMap.put(filedName, attribute);
         }
         return atrributesMap;
-    }
-
-    public UniqueIdentifier getSecurityPolicyUniqueIdentifier(String model) {
-        return getSecurityPolicyUniqueIdentifier(model, null);
     }
 
     public UniqueIdentifier getSecurityPolicyUniqueIdentifier(String model, String tenantId) {

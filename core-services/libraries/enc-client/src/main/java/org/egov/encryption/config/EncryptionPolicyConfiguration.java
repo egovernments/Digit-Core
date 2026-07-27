@@ -43,15 +43,10 @@ public class EncryptionPolicyConfiguration {
         }
     }
 
-    public List<Attribute> getAttributeDetailsForModel(String modelName) {
-        return getAttributeDetailsForModel(modelName, null);
-    }
-
     public List<Attribute> getAttributeDetailsForModel(String modelName, String tenantId) {
         try {
-            String cacheKey = tenantId == null ? "" : tenantId;
             Map<String, List<Attribute>> attributesMap =
-                    tenantEncryptionPolicyAttributesMap.computeIfAbsent(cacheKey, k -> loadEncryptionPolicyAttributesMap(tenantId));
+                    tenantEncryptionPolicyAttributesMap.computeIfAbsent(tenantId, k -> loadEncryptionPolicyAttributesMap(tenantId));
             return attributesMap.get(modelName);
         } catch (CustomException e) {
             throw e;

@@ -21,8 +21,6 @@ public class EncProperties {
     @Value("${egov.mdms.search.endpoint}")
     private String egovMdmsSearchEndpoint;
 
-    @Value("${state.level.tenant.id}")
-    private String stateLevelTenantId;
     @Value("${default.encrypt.data.type}")
     private String defaultEncryptDataType;
 

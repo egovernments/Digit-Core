@@ -28,7 +28,7 @@ public class AuditService {
     @Autowired
     private DecryptionPolicyConfiguration decryptionPolicyConfiguration;
 
-    public void audit(JsonNode json, String model, String purpose, RequestInfo requestInfo) {
+    public void audit(JsonNode json, String model, String purpose, RequestInfo requestInfo, String tenantId) {
         User user = requestInfo.getUserInfo();
 
         AuditObject auditObject = AuditObject.builder().build();
@@ -43,7 +43,7 @@ public class AuditService {
         }
 
         UniqueIdentifier uniqueIdentifier =
-                decryptionPolicyConfiguration.getUniqueIdentifierForModel(model);
+                decryptionPolicyConfiguration.getUniqueIdentifierForModel(model, tenantId);
         List<String> entityIds = new ArrayList<>();
         for (JsonNode node : json) {
             String nodeUuid = node.at(uniqueIdentifier.getJsonPath()).asText();
