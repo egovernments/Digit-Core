@@ -1,0 +1,25 @@
+schema-version: 1
+
+# Bundles declare which services get composed into which deployable artifacts.
+# The digit-bundler-maven-plugin reads this file and generates bundles/<name>/
+# containing a Spring Boot pom + main class + application.properties.
+bundles:
+
+  # A monolith bundling idgen + mdms into one Spring Boot process.
+  # The bundler auto-sets egov.mdms.mode=local because both consumer (idgen)
+  # and provider (egov-mdms-service) live in the same bundle.
+  idgen-monolith:
+    type: monolith
+    include: [egov-idgen, egov-mdms-service]
+    spring-profiles: [monolith]
+    server:
+      port: 8080
+    properties:
+      egov.mdms.conf.path: file:///Users/aniket/Documents/egov-mdms-data/data/pb
+      masters.config.url: file:///Users/aniket/Documents/egov-mdms-data/master-config.json
+      spring.datasource.url: jdbc:postgresql://localhost:5432/rainmaker_new
+      spring.datasource.username: postgres
+      spring.datasource.password: postgres
+      spring.datasource.driver-class-name: org.postgresql.Driver
+      otel.traces.exporter: none
+      otel.instrumentation.kafka.enabled: false

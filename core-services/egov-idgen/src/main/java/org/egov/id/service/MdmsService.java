@@ -1,6 +1,5 @@
 package org.egov.id.service;
 
-import java.io.IOException;
 import java.util.*;
 
 import lombok.extern.log4j.Log4j2;
@@ -11,7 +10,7 @@ import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.MdmsResponse;
 import org.egov.mdms.model.ModuleDetail;
-import org.egov.mdms.service.MdmsClientService;
+import org.egov.mdms.service.MdmsClient;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ import lombok.extern.log4j.Log4j;
 public class MdmsService {
 
     @Autowired
-    MdmsClientService mdmsClientService;
+    MdmsClient mdmsClient;
 
     // 'tenants' & 'citymodule' are the JSON files inside the folder 'tenant'.
     private static final String tenantMaster = "tenants";
@@ -43,9 +42,9 @@ public class MdmsService {
 
         MdmsResponse mdmsResponse = null;
         try {
-            mdmsResponse = mdmsClientService.getMaster(RequestInfo.toCommonRequestInfo(requestInfo), tenantId,
+            mdmsResponse = mdmsClient.getMaster(RequestInfo.toCommonRequestInfo(requestInfo), tenantId,
                     masterDetails);
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             log.error("Error occurred while fetching MDMS data", e);
         }

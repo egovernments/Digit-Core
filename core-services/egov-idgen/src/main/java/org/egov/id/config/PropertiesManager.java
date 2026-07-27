@@ -86,7 +86,7 @@ public class PropertiesManager {
 	}
 
 	public String getServerContextpath() {
-		return environment.getProperty("server.context-path");
+		return "/egov-idgen";
 	}
 
     public String getCityCodeNotFound() {

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Pavan Kumar Kamma
  */
 @RestController
-@RequestMapping(path = "/id/")
+@RequestMapping(path = "/egov-idgen/id/")
 public class IdGenerationController {
 
 	@Autowired

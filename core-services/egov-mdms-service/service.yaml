@@ -1,0 +1,13 @@
+schema-version: 1
+name: egov-mdms-service
+scan-base-packages:
+  - org.egov
+  - org.egov.infra.mdms
+context-path: /egov-mdms-service
+main-class-hint: org.egov.MDMSApplication
+defaults-file: mdms-defaults.properties
+provides:
+  - capability: mdms
+    local-value: local
+    http-value: http
+consumes: []

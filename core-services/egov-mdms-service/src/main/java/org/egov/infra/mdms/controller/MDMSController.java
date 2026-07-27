@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/egov-mdms-service/v1")
 public class MDMSController {
 
     @Autowired

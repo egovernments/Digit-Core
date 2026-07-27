@@ -35,6 +35,7 @@
         <module>mdms-v2</module>
         <module>service-request</module>
         <module>user-otp</module>
+        <module>tools/bundler</module>
     </modules>
 
 </project>

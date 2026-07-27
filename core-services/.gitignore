@@ -192,5 +192,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# digit-bundler generated bundle modules
+bundles/
+
 mvnw.cmd
 .mvn/

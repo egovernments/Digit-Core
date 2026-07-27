@@ -4,7 +4,7 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.id.model.IdRequest;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsResponse;
-import org.egov.mdms.service.MdmsClientService;
+import org.egov.mdms.service.MdmsClient;
 import org.egov.tracer.model.CustomException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 class MdmsServiceTest {
     @MockBean
-    private MdmsClientService mdmsClientService;
+    private MdmsClient mdmsClientService;
 
     @Autowired
     private MdmsService mdmsService;

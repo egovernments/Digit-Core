@@ -1,0 +1,12 @@
+schema-version: 1
+name: egov-idgen
+scan-base-packages:
+  - org.egov
+  - org.egov.id
+context-path: /egov-idgen
+main-class-hint: org.egov.PtIdGenerationApplication
+defaults-file: idgen-defaults.properties
+provides: []
+consumes:
+  - capability: mdms
+    switch-property: egov.mdms.mode
