@@ -332,6 +332,53 @@ Spring Boot loads config data in this order (low → high precedence):
 
 Bundle-level overrides from `package.yaml`'s `properties:` block go into `application-monolith.properties`, so they always beat both defaults files. The bundler surfaces silent conflicts at generation time via the property-conflict warning.
 
+### 6.3 Bean-collision safety — FQN name generator
+
+Two services sharing a scan root (as ours do — both live under `org.egov`) can, in principle, ship classes with identical simple names. Spring's default bean-name generator uses the *simple* class name (lowercased first letter), so two `NotificationService` classes in different packages would both resolve to bean name `notificationService` — a `BeanDefinitionOverrideException` at startup. To defend against this, the bundler emits a main class configured with `FullyQualifiedAnnotationBeanNameGenerator` and an exclude filter that removes any transitive `@SpringBootConfiguration` class from the scan.
+
+Generated shape (`IdgenMonolithApplication.java`):
+
+```java
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan(
+    basePackages = { "org.egov" },
+    nameGenerator = FullyQualifiedAnnotationBeanNameGenerator.class,
+    excludeFilters = @ComponentScan.Filter(
+        type = FilterType.ANNOTATION,
+        classes = SpringBootConfiguration.class
+    )
+)
+public class IdgenMonolithApplication { ... }
+```
+
+Three deliberate choices, each fixing a specific failure mode we hit on the way:
+
+**a. `FullyQualifiedAnnotationBeanNameGenerator` instead of the default.** Every component-scanned bean is registered under its full class FQN (e.g. `org.egov.infra.mdms.service.LocalMdmsClient`) rather than the lower-camel simple name (`localMdmsClient`). Two services can each ship a class with the same simple name without collision — the packages disambiguate at Spring's bean name level, matching what Java's `import` statements already give at compile time. Type-based autowiring (`@Autowired MdmsClient mdmsClient`) is unaffected because the type match happens *before* the name lookup.
+
+**b. `@SpringBootConfiguration` unrolled from `@SpringBootApplication` + explicit `@ComponentScan`.** `@SpringBootApplication` meta-annotates `@ComponentScan(...)` with default arguments (scan the class's own package). When you also put an explicit `@ComponentScan` on the same class, Spring processes both — running two scans, one under FQN naming (the explicit one), one under default naming (the meta one). That silently double-registers every bean. Splitting `@SpringBootApplication` into its three parts (`@SpringBootConfiguration`, `@EnableAutoConfiguration`, `@ComponentScan`) leaves exactly one scan directive on the class.
+
+**c. `excludeFilters` for `@SpringBootConfiguration`.** Any `@SpringBootConfiguration`-annotated class on the classpath (each included service's main class plus any transitive library's — for us, `mdms-client.jar` ships an `org.egov.MdmsClientApplication`) carries its *own* meta-annotated `@ComponentScan` with default naming. If Spring picks these up as `@Configuration` beans, those secondary scans fire with default naming, re-registering every scanned class under both FQN and simple names. Filtering on `@SpringBootConfiguration` (which is meta-annotated by `@SpringBootApplication`) catches all of them generically.
+
+**d. Overlap-free scan roots.** The bundler applies `minimalCovering()` on the union of `scan-base-packages` from all included services — if `org.egov` is present, `org.egov.id` and `org.egov.infra.mdms` are dropped. Overlapping scan roots can otherwise cause the same class to be visited multiple times by a single scan directive.
+
+#### 6.3.1 What the FQN generator does NOT fix
+
+Bean-name uniqueness is one specific correctness property. Other Spring context problems that FQN naming can't help with:
+
+| Scenario | Fixed by FQN generator? | Actual fix |
+|---|---|---|
+| Two `@Service`/`@Component` classes with same simple name, different packages | Yes | — |
+| Autowire-by-type in each service's own code | Works unchanged | — |
+| Cross-service explicit reference by FQN type | Works | — |
+| `@Qualifier("simpleName")` on the colliding class | Breaks — string no longer resolves | Either drop the qualifier (let type-based match), rename to full name (`@Qualifier("org.egov.…")`), or force a short name at declaration with `@Service("simpleName")` |
+| Programmatic `context.getBean("simpleName", …)` calls | Breaks — same reason | Use `getBean(Type.class)` (type-based) or the full name |
+| Interface-typed autowiring with multiple impls | Not fixed — ambiguity is at the interface level, not name | `@Primary`, `@Qualifier`, or `@ConditionalOnProperty` (what we use for `MdmsClient`) |
+| Two `@Bean` methods with the same method name in two `@Configuration` classes | Not fixed — FQN generator only affects component scans, not `@Bean` names | Rename the method, or add `name = "..."` on one of the `@Bean` annotations |
+| `@ConfigurationProperties(prefix = "same.prefix")` in two services | Not fixed — bindings silently overwrite | Namespace the prefix (`app.service-a.security` vs `app.service-b.security`) |
+
+**How each service knows which bean to use in practice.** The Java `import` statement is already the disambiguator. `import org.egov.user.service.NotificationService` at the top of a file declares the type of every `NotificationService` reference below. Spring autowires by *type* first, name only as a tiebreaker — and because different packages produce different Java types, ambiguity never arises at type-based injection sites. FQN naming is essentially about making the Spring container agree with what Java already knew.
+
 ---
 
 ## 7. Runtime — What Happens on One Request
@@ -709,7 +756,9 @@ Both are OTEL metadata leaks (not correctness bugs) — easy fix in `package.yam
 - **Auto-discovery** of new services from filesystem — bundler currently requires each service to have a hand-written `service.yaml`.
 - **Third-service inclusion**. Pattern is proven with two services; extending to (say) `egov-user`, `egov-workflow-v2` requires: bump Spring Boot to 3.4.5, add controller `@RequestMapping`, add `service.yaml`, and split property files — same recipe.
 - **Same-JVM property collisions.** Truly shared infra keys (e.g., `otel.service.name`, `server.port`, `spring.datasource.url`) can have only one value per JVM in a monolith. The bundler flags conflicts; humans must decide the value.
-- **Runtime bean-collision safety**. Both services register into the same Spring context under `org.egov` scan root. No collisions in the current pair, but a future addition could clash on bean names — worth a plan-B `scanBasePackages` isolation strategy if it happens.
+- **Bean-name collisions across services (handled).** Every bundle generated by the plugin uses `FullyQualifiedAnnotationBeanNameGenerator` plus a `@ComponentScan.Filter` excluding all `@SpringBootConfiguration` classes on the classpath — see Section 6.3 for the mechanism and the failure modes (`@Bean` method-name clashes, `@Qualifier` string references, shared `@ConfigurationProperties` prefixes) that FQN naming *doesn't* cover. Those remaining cases are Spring-context issues, not bundler concerns; developers apply the standard fixes (rename `@Bean`, drop or update `@Qualifier`, namespace the properties prefix).
+
+    A future bundler enhancement could go a step further and *statically* scan each included service's classes at `generate` time to warn about duplicate `@Service` / `@Component` / `@Bean` names — surfacing the risk at build time before it becomes a runtime surprise. Mirrors the property-conflict warning already implemented. Not built yet.
 
 ---
 

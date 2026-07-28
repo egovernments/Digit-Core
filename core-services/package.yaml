@@ -15,7 +15,10 @@ bundles:
     server:
       port: 8080
     properties:
-      egov.mdms.conf.path: file:///Users/aniket/Documents/egov-mdms-data/data/pb
+      # NOTE: egov.mdms.conf.path is consumed via `new File(path)` — must be a plain
+      # filesystem path, NOT a file:// URI (unlike masters.config.url which uses Spring's
+      # ResourceLoader and does accept file:// URIs).
+      egov.mdms.conf.path: /Users/aniket/Documents/egov-mdms-data/data/pb
       masters.config.url: file:///Users/aniket/Documents/egov-mdms-data/master-config.json
       spring.datasource.url: jdbc:postgresql://localhost:5432/rainmaker_new
       spring.datasource.username: postgres
@@ -23,3 +26,8 @@ bundles:
       spring.datasource.driver-class-name: org.postgresql.Driver
       otel.traces.exporter: none
       otel.instrumentation.kafka.enabled: false
+      # idgen: allow auto-creation of Postgres sequences referenced by
+      # MDMS-driven IdFormat entries. Without this, generateSequenceNumber
+      # returns an empty list on missing sequences and getFormattedId's
+      # subsequent .get(0) throws IndexOutOfBoundsException.
+      autocreate.new.seq: true
