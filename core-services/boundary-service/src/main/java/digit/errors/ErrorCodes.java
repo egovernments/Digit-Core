@@ -44,5 +44,9 @@ public class ErrorCodes {
     public static final String BULK_REQUEST_INFO_MISSING_MSG = "Bulk boundary relationship request is missing RequestInfo.userInfo.";
     public static final String INVALID_BOUNDARY_CODE_CODE = "INVALID_BOUNDARY_CODE";
     public static final String INVALID_BOUNDARY_CODE_MSG = "code, tenantId and hierarchyType must not contain the '|' character, which is reserved as the ancestral materialized-path delimiter.";
+    // Distinct code (not reused from INVALID_HIERARCHY_DEFINITION) so the UI can render a specific,
+    // actionable message for this case rather than a generic hierarchy-definition failure.
+    public static final String INVALID_HIERARCHY_TYPE_SEPARATOR_CODE = "INVALID_HIERARCHY_TYPE_SEPARATOR";
+    public static final String INVALID_HIERARCHY_TYPE_SEPARATOR_MSG = "hierarchyType must not contain separator characters. The characters '.', ':', '-', '/', '_' and any whitespace are all normalized to '_' when deriving the localisation module name and the boundary code prefix, so two hierarchy types differing only by these characters would silently collide. Offending character(s): ";
 
 }
