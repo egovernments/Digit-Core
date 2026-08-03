@@ -457,3 +457,36 @@ body.kc-digit::before { display: none !important; } /* kill PF bg image */
   flex: 1;
   border-radius: 0 4px 4px 0;
 }
+
+/* ---- OTP screen secondary actions (Resend Code / Change Number) -------- */
+
+/* lay the three OTP buttons out as a block: primary full-width on top,
+   the two secondary actions side-by-side below */
+.kc-form-side form div:has(> input[name="resend"]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.kc-form-side form div:has(> input[name="resend"]) input[name="login"] {
+  flex: 1 1 100%;
+}
+
+.kc-form-side input[type="submit"][name="resend"],
+.kc-form-side input[type="submit"][name="cancel"] {
+  flex: 1 1 calc(50% - 8px);
+  height: 40px;
+  background: var(--kc-primary-soft);
+  color: var(--kc-primary);
+  border: 1px solid var(--kc-primary);
+  border-radius: var(--kc-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.kc-form-side input[type="submit"][name="resend"]:hover,
+.kc-form-side input[type="submit"][name="cancel"]:hover {
+  background: var(--kc-primary);
+  color: #fff;
+}

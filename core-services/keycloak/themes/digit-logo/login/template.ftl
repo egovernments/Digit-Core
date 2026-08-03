@@ -379,14 +379,19 @@
                 input.value = input.value.slice(prefix.length);
             }
 
-            // on submit, send prefix + local number as one value
+            // the visible input keeps only the local number; a hidden field carries
+            // prefix + local number to the server, so the input never changes on submit
             var form = input.form;
             if (form) {
+                var hidden = document.createElement("input");
+                hidden.type = "hidden";
+                hidden.name = "mobileNumber";
+                form.appendChild(hidden);
+                input.removeAttribute("name");
+
                 form.addEventListener("submit", function () {
                     var v = input.value.replace(/[\s-]/g, "");
-                    if (v && v.indexOf(prefix) !== 0) {
-                        input.value = prefix + v;
-                    }
+                    hidden.value = (v && v.indexOf(prefix) !== 0) ? prefix + v : v;
                 });
             }
         }
