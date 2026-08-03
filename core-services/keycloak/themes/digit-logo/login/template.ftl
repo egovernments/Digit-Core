@@ -336,7 +336,7 @@
 
 <#-- Dynamic tenant config (single call):
      GET /accounts/v3/config (x-tenant-id: realm name)
-       - configKey "loginlogoid"  -> configValue IS the logo URL (S3) -> swap brand logo
+       - configKey "loginLogoUrl" -> configValue IS the logo URL (S3) -> swap brand logo
        - configKey "mobilePrefix" -> configValue is the country prefix (e.g. "+91")
          -> shown as a badge on the mobile-number field; prepended to the value on submit
      On any failure the default logo stays and the plain input keeps working. -->
@@ -394,7 +394,7 @@
         fetch("/accounts/v3/config", { headers: { "x-tenant-id": tenant } })
             .then(function (r) { if (!r.ok) throw new Error("config " + r.status); return r.json(); })
             .then(function (data) {
-                applyLogo(findConfig(data, "loginlogoid"));
+                applyLogo(findConfig(data, "loginLogoUrl"));
                 applyPrefix(findConfig(data, "mobilePrefix"));
             })
             .catch(function (e) {
