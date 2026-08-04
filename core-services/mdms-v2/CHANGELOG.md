@@ -3,6 +3,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.3.6 - 2026-07-27
+- Bumped tracer to 2.9.3-SNAPSHOT for end-to-end correlationId + tenantId propagation across HTTP↔Kafka (HCM flow tracing)
+
 ## 1.3.5 - 2026-03-16
 - Upgraded Spring Boot version from 3.2.2 to 3.4.5 to fix HIGH/CRITICAL CVEs
 - Upgraded tracer, services-common library versions
