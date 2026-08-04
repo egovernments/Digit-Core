@@ -31,3 +31,21 @@ bundles:
       # returns an empty list on missing sequences and getFormattedId's
       # subsequent .get(0) throws IndexOutOfBoundsException.
       autocreate.new.seq: true
+      # Kafka — no broker running for this PoC. spring-kafka auto-config is on the
+      # classpath (bundler pulled it in because both services declared kafka-consumer),
+      # but disable admin/health probes so absent broker doesn't fail startup. Real
+      # deployments would point spring.kafka.bootstrap-servers at a live cluster.
+      spring.kafka.bootstrap-servers: localhost:9092
+      spring.kafka.admin.fail-fast: false
+      spring.kafka.listener.missing-topics-fatal: false
+      management.health.kafka.enabled: false
+      # Per-service consumer group ids — read by the bundler-generated
+      # MonolithKafkaConfig via @Value on the corresponding container-factory bean.
+      # Consumer group IDs — deliberately service-scoped so they're visually
+      # distinct in Kafka's broker view, kafka-consumer-groups CLI, etc.
+      idgen.kafka.group-id: egov-idgen-consumers
+      mdms.kafka.group-id: egov-mdms-service-consumers
+      # Enable the demo Kafka listeners shipped by each service. Standalone runs
+      # leave this off, so no broker connection is attempted when the service
+      # boots alone.
+      egov.kafka.demo: true

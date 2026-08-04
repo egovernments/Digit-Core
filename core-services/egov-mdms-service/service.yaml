@@ -11,3 +11,10 @@ provides:
     local-value: local
     http-value: http
 consumes: []
+
+# Hypothetical — same rationale as idgen's; mdms doesn't ship a real @KafkaListener
+# yet. Bundler emits a distinct container factory + group.id for any future listener
+# under org.egov.infra.mdms.*.
+kafka-consumer:
+  package-prefix: org.egov.infra.mdms
+  group-id-property: mdms.kafka.group-id
