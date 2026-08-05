@@ -21,6 +21,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static java.util.Objects.isNull;
 
@@ -47,8 +48,8 @@ public class PersistRepository {
         try {
             if( ! rows.isEmpty()) {
                 log.info("Executing query : "+ query);
-                jdbcTemplate.batchUpdate(query, rows);
-                log.info("Persisted {} row(s) to DB!", rows.size());
+                int[] affected = jdbcTemplate.batchUpdate(query, rows);
+                logAffectedRows(query, rows.size(), affected);
             }
         } catch (Exception ex) {
             log.error("Failed to persist {} row(s) using query: {}", rows.size(), query, ex);
@@ -63,12 +64,132 @@ public class PersistRepository {
         try {
             if( ! rows.isEmpty()) {
                 log.info("Executing query : "+ query);
-                jdbcTemplate.batchUpdate(query, rows);
-                log.info("Persisted {} row(s) to DB!", rows.size(), baseJsonPath);
+                int[] affected = jdbcTemplate.batchUpdate(query, rows);
+                logAffectedRows(query, rows.size(), affected);
             }
         } catch (Exception ex) {
             log.error("Failed to persist {} row(s) using query: {}", rows.size(), query, ex);
             throw ex;
+        }
+    }
+
+    /**
+     * How the counts the database reported compare with what was submitted.
+     */
+    enum PersistOutcome {
+        /** Everything submitted changed a row (or more rows changed than submitted). */
+        HEALTHY,
+        /** The driver returned no affected-row counts, so nothing can be judged either way. */
+        COUNTS_UNAVAILABLE,
+        /** Rows were suppressed by an "ON CONFLICT ... DO NOTHING" - a by-design no-op, not a loss. */
+        DUPLICATE_SUPPRESSED,
+        /** Some submitted rows changed nothing, and the statement is not a by-design no-op. */
+        PARTIAL_PERSIST,
+        /** Nothing at all changed, and the statement is not a by-design no-op. */
+        SILENT_WRITE_LOSS
+    }
+
+    /** Tally of one JDBC batch result. */
+    record BatchTally(int changed, int unknown, int failed) {}
+
+    /**
+     * "INSERT ... ON CONFLICT ... DO NOTHING" (with or without a conflict target / ON CONSTRAINT
+     * clause, across line breaks). Anchored on INSERT and kept inside one statement ([^;]) so a
+     * mapping that ends in a plain UPDATE cannot be excused by a DO NOTHING elsewhere in the string.
+     */
+    private static final Pattern INSERT_CONFLICT_DO_NOTHING = Pattern.compile(
+            "insert\\b[^;]*?\\bon\\s+conflict\\b[^;]*?\\bdo\\s+nothing\\b",
+            Pattern.CASE_INSENSITIVE);
+
+    /**
+     * True when the statement is allowed to change fewer rows than were submitted.
+     *
+     * "INSERT ... ON CONFLICT ... DO NOTHING" is used to make a create mapping idempotent under
+     * Kafka redelivery: the duplicate is suppressed and Postgres reports 0 affected rows. That is
+     * the fix working, not a write loss, and reporting it as one would train operators to ignore
+     * the very signal that makes real write loss visible. "DO UPDATE" is deliberately NOT included:
+     * an upsert always reports one row per submitted row, so 0 there still means the statement
+     * matched nothing and is still worth an ERROR.
+     */
+    static boolean suppressesDuplicates(String query) {
+        return query != null && INSERT_CONFLICT_DO_NOTHING.matcher(query).find();
+    }
+
+    /** Count what the database reported. A null/empty result is tallied as all-zero. */
+    static BatchTally tally(int[] affected) {
+        int changed = 0;
+        int unknown = 0;
+        int failed = 0;
+        if (affected != null) {
+            for (int count : affected) {
+                if (count == java.sql.Statement.SUCCESS_NO_INFO)
+                    unknown++;
+                else if (count == java.sql.Statement.EXECUTE_FAILED)
+                    failed++;
+                else
+                    changed += count;
+            }
+        }
+        return new BatchTally(changed, unknown, failed);
+    }
+
+    /**
+     * Decide what a batchUpdate result means. Kept free of logging so it can be asserted directly.
+     *
+     * batchUpdate returns one count per submitted row. Discarding it makes an UPDATE whose WHERE
+     * clause matched nothing indistinguishable from a successful write, which is how a mapping keyed
+     * on a column that can legitimately be NULL becomes an undetectable write loss.
+     */
+    static PersistOutcome classify(String query, int submitted, int[] affected) {
+        // No counts at all: JdbcTemplate sizes the result array to the batch, so this is only
+        // reachable defensively (a null from a stub / a mock). Judge nothing.
+        if (affected == null || affected.length == 0)
+            return PersistOutcome.COUNTS_UNAVAILABLE;
+
+        BatchTally tally = tally(affected);
+
+        if (tally.unknown() > 0 && tally.changed() == 0)
+            return PersistOutcome.COUNTS_UNAVAILABLE;
+        if (tally.changed() >= submitted)
+            return PersistOutcome.HEALTHY;
+        // A failed statement is never excused by the mapping being idempotent.
+        if (tally.failed() == 0 && suppressesDuplicates(query))
+            return PersistOutcome.DUPLICATE_SUPPRESSED;
+        return tally.changed() == 0 ? PersistOutcome.SILENT_WRITE_LOSS : PersistOutcome.PARTIAL_PERSIST;
+    }
+
+    /**
+     * Report what the database actually changed, not how many parameter rows were submitted.
+     *
+     * The healthy case keeps the original "Persisted {} row(s) to DB!" wording so existing log
+     * scraping and throughput measurement keep working.
+     */
+    private void logAffectedRows(String query, int submitted, int[] affected) {
+        // Defensive: nothing was reported, so keep the original wording rather than invent an alarm.
+        if (affected == null || affected.length == 0) {
+            log.info("Persisted {} row(s) to DB!", submitted);
+            return;
+        }
+
+        BatchTally tally = tally(affected);
+
+        if (tally.failed() > 0)
+            log.error("Persist reported {} failed statement(s) of {} submitted for query: {}",
+                    tally.failed(), submitted, query);
+
+        switch (classify(query, submitted, affected)) {
+            case COUNTS_UNAVAILABLE -> log.info("Persisted {} row(s) to DB! (driver returned no " +
+                    "affected-row counts, so whether rows changed is unknown)", submitted);
+            case SILENT_WRITE_LOSS -> log.error("SILENT WRITE LOSS: {} row(s) submitted but the " +
+                    "database changed 0 row(s). The statement matched nothing - check the WHERE " +
+                    "clause against columns that can be NULL. Query: {}", submitted, query);
+            case PARTIAL_PERSIST -> log.warn("PARTIAL PERSIST: {} row(s) submitted but the database " +
+                    "changed only {} row(s). Query: {}", submitted, tally.changed(), query);
+            case DUPLICATE_SUPPRESSED -> log.info("Persisted {} of {} row(s) to DB; {} row(s) " +
+                    "suppressed by ON CONFLICT ... DO NOTHING (already present - idempotent replay, " +
+                    "not a write loss). Query: {}",
+                    tally.changed(), submitted, submitted - tally.changed(), query);
+            default -> log.info("Persisted {} row(s) to DB!", tally.changed());
         }
     }
 
