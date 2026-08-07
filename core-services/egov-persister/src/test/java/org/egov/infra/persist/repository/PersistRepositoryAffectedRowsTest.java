@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -99,6 +100,13 @@ class PersistRepositoryAffectedRowsTest {
     }
 
     @Test
+    void aFanOutUpdateCannotHideOtherZeroRowStatements() {
+        assertEquals(PersistOutcome.PARTIAL_PERSIST,
+                PersistRepository.classify(PLAIN_UPDATE, 3, new int[]{3, 0, 0}));
+    }
+
+
+    @Test
     void successNoInfoIsTreatedAsHealthyNotAsLoss() {
         assertEquals(PersistOutcome.COUNTS_UNAVAILABLE,
                 PersistRepository.classify(PLAIN_UPDATE, 1, new int[]{Statement.SUCCESS_NO_INFO}));
@@ -108,6 +116,8 @@ class PersistRepositoryAffectedRowsTest {
         // a driver that reports some counts and declines others still shows the rows it did change
         assertEquals(PersistOutcome.PARTIAL_PERSIST,
                 PersistRepository.classify(PLAIN_UPDATE, 3, new int[]{Statement.SUCCESS_NO_INFO, 1, 0}));
+        assertEquals(PersistOutcome.COUNTS_UNAVAILABLE,
+                PersistRepository.classify(PLAIN_UPDATE, 2, new int[]{Statement.SUCCESS_NO_INFO, 1}));
     }
 
     @Test
@@ -115,7 +125,7 @@ class PersistRepositoryAffectedRowsTest {
         int[] affected = {Statement.EXECUTE_FAILED, 1};
         assertEquals(PersistOutcome.PARTIAL_PERSIST, PersistRepository.classify(PLAIN_UPDATE, 2, affected));
         assertEquals(1, PersistRepository.tally(affected).failed());
-        assertEquals(1, PersistRepository.tally(affected).changed());
+        assertEquals(1, PersistRepository.tally(affected).successful());
         assertEquals(0, PersistRepository.tally(affected).unknown());
     }
 
@@ -123,7 +133,7 @@ class PersistRepositoryAffectedRowsTest {
     void noCountsAtAllRaisesNoAlarm() {
         assertEquals(PersistOutcome.COUNTS_UNAVAILABLE, PersistRepository.classify(PLAIN_UPDATE, 2, null));
         assertEquals(PersistOutcome.COUNTS_UNAVAILABLE, PersistRepository.classify(PLAIN_UPDATE, 2, new int[0]));
-        assertEquals(new PersistRepository.BatchTally(0, 0, 0), PersistRepository.tally(null));
+        assertEquals(new PersistRepository.BatchTally(0, 0, 0, 0, 0), PersistRepository.tally(null));
     }
 
     // ------------------------------------------- ON CONFLICT DO NOTHING is a by-design no-op
@@ -188,24 +198,29 @@ class PersistRepositoryAffectedRowsTest {
     }
 
     @Test
-    void silentWriteLossIsLoggedAtError() {
-        persist(PLAIN_UPDATE, 1, new int[]{0});
+    void silentWriteLossRollsBackAndIsLoggedAtError() {
+        UnexpectedAffectedRowsException exception = assertThrows(UnexpectedAffectedRowsException.class,
+                () -> persist(PLAIN_UPDATE, 1, new int[]{0}));
+        assertEquals(PersistOutcome.SILENT_WRITE_LOSS, exception.getOutcome());
 
-        ILoggingEvent event = lastEvent();
-        assertEquals(Level.ERROR, event.getLevel());
+        ILoggingEvent event = appender.list.stream()
+                .filter(e -> e.getFormattedMessage().contains("SILENT WRITE LOSS"))
+                .findFirst().orElseThrow();
         assertTrue(event.getFormattedMessage().contains("SILENT WRITE LOSS"), event.getFormattedMessage());
         assertTrue(event.getFormattedMessage().contains(PLAIN_UPDATE), event.getFormattedMessage());
     }
 
     @Test
-    void partialPersistIsLoggedAtWarn() {
-        persist(PLAIN_UPDATE, 3, new int[]{1, 0, 1});
+    void partialPersistRollsBackAndIsLoggedAtError() {
+        UnexpectedAffectedRowsException exception = assertThrows(UnexpectedAffectedRowsException.class,
+                () -> persist(PLAIN_UPDATE, 3, new int[]{1, 0, 1}));
+        assertEquals(PersistOutcome.PARTIAL_PERSIST, exception.getOutcome());
 
-        ILoggingEvent event = lastEvent();
-        assertEquals(Level.WARN, event.getLevel());
-        assertTrue(event.getFormattedMessage().contains("PARTIAL PERSIST"), event.getFormattedMessage());
+        ILoggingEvent event = appender.list.stream()
+                .filter(e -> e.getFormattedMessage().contains("PARTIAL PERSIST"))
+                .findFirst().orElseThrow();
         assertTrue(event.getFormattedMessage().contains("3 row(s) submitted"), event.getFormattedMessage());
-        assertTrue(event.getFormattedMessage().contains("changed only 2 row(s)"), event.getFormattedMessage());
+        assertTrue(event.getFormattedMessage().contains("only 2 statement(s)"), event.getFormattedMessage());
     }
 
     @Test
@@ -242,13 +257,15 @@ class PersistRepositoryAffectedRowsTest {
 
     @Test
     void failedStatementIsStillReportedAtError() {
-        persist(PLAIN_UPDATE, 2, new int[]{Statement.EXECUTE_FAILED, 1});
+        assertThrows(UnexpectedAffectedRowsException.class,
+                () -> persist(PLAIN_UPDATE, 2, new int[]{Statement.EXECUTE_FAILED, 1}));
 
         assertTrue(appender.list.stream().anyMatch(e -> e.getLevel() == Level.ERROR
                         && e.getFormattedMessage().contains("1 failed statement(s) of 2 submitted")),
                 messages());
-        ILoggingEvent event = lastEvent();
-        assertEquals(Level.WARN, event.getLevel());
+        ILoggingEvent event = appender.list.stream()
+                .filter(e -> e.getFormattedMessage().contains("PARTIAL PERSIST"))
+                .findFirst().orElseThrow();
         assertTrue(event.getFormattedMessage().contains("PARTIAL PERSIST"), event.getFormattedMessage());
     }
 

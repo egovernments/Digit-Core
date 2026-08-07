@@ -113,29 +113,30 @@ public class PersistService {
 				// Aggregate rows from all documents for this QueryMap
 				// Preserves document order: first message's rows appear first
 				List<Object[]> aggregatedRows = new ArrayList<>();
-				int skippedDocuments = 0;
+				int emptyDocuments = 0;
 
 				for (Object document : documents) {
 					try {
 						List<Object[]> rows = persistRepository.getRows(jsonMaps, document, basePath);
 						if (rows.isEmpty()) {
-							skippedDocuments++;
+							emptyDocuments++;
 						}
 						aggregatedRows.addAll(rows);
 					} catch (Exception e) {
-						skippedDocuments++;
-						log.warn("Failed to extract rows for basePath '{}': {}", basePath, e.getMessage());
+						log.error("Failed to extract rows for basePath '{}'; aborting the aggregate so the listener can isolate the bad record",
+								basePath, e);
+						throw new IllegalArgumentException("Failed to extract rows for basePath " + basePath, e);
 					}
 				}
 
 				// Single batchUpdate for all aggregated rows
 				if (!aggregatedRows.isEmpty()) {
 					log.info("Executing aggregated batch: {} rows for query (skipped {} docs, basePath: {})",
-							aggregatedRows.size(), skippedDocuments, basePath);
+							aggregatedRows.size(), emptyDocuments, basePath);
 					persistRepository.persist(query, aggregatedRows);
-				} else if (skippedDocuments > 0) {
-					log.warn("No rows to persist for basePath '{}' - all {} documents were skipped",
-							basePath, skippedDocuments);
+				} else if (emptyDocuments > 0) {
+					log.debug("No mapped rows to persist for basePath '{}' in {} document(s)",
+							basePath, emptyDocuments);
 				}
 			}
 		}

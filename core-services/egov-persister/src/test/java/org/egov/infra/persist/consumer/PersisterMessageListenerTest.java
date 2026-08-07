@@ -68,13 +68,13 @@ class PersisterMessageListenerTest {
     }
 
     @Test
-    void benignDuplicateIsIdempotentSuccessAndNotDeadLettered() {
+    void unhandledUniqueViolationIsDeadLettered() {
         doThrow(dbError("23505")).when(persistService).persist(anyString(), anyString());
 
         listener.onMessage(record("orig", "{\"id\":\"1\"}"));
 
-        // No dead-letter, no park, no audit: a duplicate is a silent idempotent success.
-        verify(kafkaTemplate, never()).send(anyString(), any());
+        verify(kafkaTemplate).send(eq(DLQ), any());
+        verify(kafkaTemplate, never()).send(eq(PARK), any());
     }
 
     @Test
@@ -140,12 +140,12 @@ class PersisterMessageListenerTest {
     }
 
     /**
-     * A duplicate row inside a bulk array aborts the whole-array insert with unique_violation
-     * (BENIGN). Treating that as a message-level idempotent success would silently drop the
-     * not-yet-persisted siblings - they must be persisted individually instead.
+     * A unique violation inside a bulk array must not absorb its not-yet-persisted siblings.
+     * The conflicting record is isolated and dead-lettered because SQLState 23505 alone cannot
+     * prove which unique constraint failed.
      */
     @Test
-    void benignDuplicateInBulkArrayDoesNotSilentlyDropSiblings() {
+    void uniqueViolationInBulkArrayDoesNotSilentlyDropSiblings() {
         doAnswer(inv -> {
             String json = inv.getArgument(1);
             if (json.contains("dup")) {
@@ -156,11 +156,11 @@ class PersisterMessageListenerTest {
 
         listener.onMessage(record("orig", "[{\"id\":\"new1\"},{\"id\":\"dup\"},{\"id\":\"new2\"}]"));
 
-        // The two new records are persisted individually; the duplicate is an idempotent success.
+        // The two new records persist individually and only the conflicting record is dead-lettered.
         verify(persistService).persist("orig", "[{\"id\":\"new1\"}]");
         verify(persistService).persist("orig", "[{\"id\":\"new2\"}]");
-        // Nothing is dead-lettered or parked for a duplicate.
-        verify(kafkaTemplate, never()).send(eq(DLQ), any());
+        verify(kafkaTemplate).send(eq(DLQ), any());
+        // The bounded DLQ flow decides whether it later reaches parking.
         verify(kafkaTemplate, never()).send(eq(PARK), any());
     }
 

@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 import static org.egov.infra.persist.consumer.DbExceptionClassifier.Kind;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class DbExceptionClassifierTest {
 
@@ -17,9 +17,9 @@ class DbExceptionClassifierTest {
     }
 
     @Test
-    void uniqueViolationIsBenign() {
-        assertEquals(Kind.BENIGN, DbExceptionClassifier.classify(sqlState("23505")));
-        assertTrue(DbExceptionClassifier.isBenign(sqlState("23505")));
+    void uniqueViolationIsPermanentUnlessSqlSuppressedIt() {
+        assertEquals(Kind.PERMANENT, DbExceptionClassifier.classify(sqlState("23505")));
+        assertFalse(DbExceptionClassifier.isBenign(sqlState("23505")));
     }
 
     @Test
@@ -47,7 +47,7 @@ class DbExceptionClassifierTest {
         // A real failure is wrapped several layers deep (JdbcTemplate -> DataAccessException -> SQLException).
         Throwable wrapped = new RuntimeException("outer",
                 new DataIntegrityViolationException("mid", sqlState("23505")));
-        assertEquals(Kind.BENIGN, DbExceptionClassifier.classify(wrapped));
+        assertEquals(Kind.PERMANENT, DbExceptionClassifier.classify(wrapped));
     }
 
     @Test

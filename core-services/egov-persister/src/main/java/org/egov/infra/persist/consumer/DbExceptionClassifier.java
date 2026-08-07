@@ -10,8 +10,9 @@ import java.sql.SQLException;
  * are filed on Spring's NON-transient branch and would otherwise be misclassified as permanent.</p>
  *
  * <ul>
- *   <li>BENIGN    — unique_violation (23505): the row already exists; under at-least-once redelivery
- *                   or DLQ replay this is an idempotent success, not a failure.</li>
+ *   <li>BENIGN    — reserved for an explicitly proven idempotent outcome.</li>
+ *   <li>PERMANENT 23505 — an unhandled unique violation may be a business-key conflict; idempotent
+ *                   mappings must suppress replay duplicates in SQL with ON CONFLICT DO NOTHING.</li>
  *   <li>TRANSIENT — connection / serialization / deadlock / resource failures: retrying may succeed.</li>
  *   <li>PERMANENT — constraint / data / grammar errors: retrying will always fail the same way.</li>
  * </ul>
@@ -25,7 +26,9 @@ public final class DbExceptionClassifier {
     public static Kind classify(Throwable t) {
         String sqlState = sqlState(t);
         if ("23505".equals(sqlState)) {
-            return Kind.BENIGN; // unique_violation
+            // The SQLState does not identify which constraint failed. Treating every 23505 as an
+            // idempotent replay can acknowledge a row that was rejected by a different unique key.
+            return Kind.PERMANENT;
         }
         if (sqlState != null && (
                 sqlState.startsWith("08")   // connection exception

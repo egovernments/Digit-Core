@@ -73,7 +73,7 @@ class PersisterBatchListnerRecordIsolationTest {
         return records;
     }
 
-    /** Route persist failures by payload content: "bad" -> permanent, "slow" -> transient, "dup" -> benign. */
+    /** Route persist failures by payload content: "bad"/"dup" -> permanent, "slow" -> transient. */
     private void routeByContent() {
         doAnswer(inv -> {
             List<String> jsons = inv.getArgument(1);
@@ -110,14 +110,14 @@ class PersisterBatchListnerRecordIsolationTest {
 
     /** A duplicate inside the array must not absorb its not-yet-persisted siblings (silent-loss hole). */
     @Test
-    void benignDuplicateInsideBulkMessageDoesNotSilentlyDropSiblings() {
+    void uniqueViolationInsideBulkMessageDoesNotSilentlyDropSiblings() {
         routeByContent();
 
         listener.onMessage(poll("[{\"id\":\"new1\"},{\"id\":\"dup\"},{\"id\":\"new2\"}]"));
 
         verify(persistService).persist(TOPIC, Collections.singletonList("[{\"id\":\"new1\"}]"));
         verify(persistService).persist(TOPIC, Collections.singletonList("[{\"id\":\"new2\"}]"));
-        verify(kafkaTemplate, never()).send(eq(DLQ), any());
+        verify(kafkaTemplate).send(eq(DLQ), any());
     }
 
     /** Transient mid-sweep -> abort and rethrow for in-place retry; nothing dead-lettered. */

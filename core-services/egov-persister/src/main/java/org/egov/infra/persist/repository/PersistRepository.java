@@ -51,6 +51,8 @@ public class PersistRepository {
                 int[] affected = jdbcTemplate.batchUpdate(query, rows);
                 logAffectedRows(query, rows.size(), affected);
             }
+        } catch (UnexpectedAffectedRowsException ex) {
+            throw ex;
         } catch (Exception ex) {
             log.error("Failed to persist {} row(s) using query: {}", rows.size(), query, ex);
             throw ex;
@@ -67,6 +69,8 @@ public class PersistRepository {
                 int[] affected = jdbcTemplate.batchUpdate(query, rows);
                 logAffectedRows(query, rows.size(), affected);
             }
+        } catch (UnexpectedAffectedRowsException ex) {
+            throw ex;
         } catch (Exception ex) {
             log.error("Failed to persist {} row(s) using query: {}", rows.size(), query, ex);
             throw ex;
@@ -90,7 +94,7 @@ public class PersistRepository {
     }
 
     /** Tally of one JDBC batch result. */
-    record BatchTally(int changed, int unknown, int failed) {}
+    record BatchTally(int successful, int unchanged, int unknown, int failed, int changedRows) {}
 
     /**
      * "INSERT ... ON CONFLICT ... DO NOTHING" (with or without a conflict target / ON CONSTRAINT
@@ -117,20 +121,26 @@ public class PersistRepository {
 
     /** Count what the database reported. A null/empty result is tallied as all-zero. */
     static BatchTally tally(int[] affected) {
-        int changed = 0;
+        int successful = 0;
+        int unchanged = 0;
         int unknown = 0;
         int failed = 0;
+        int changedRows = 0;
         if (affected != null) {
             for (int count : affected) {
                 if (count == java.sql.Statement.SUCCESS_NO_INFO)
                     unknown++;
                 else if (count == java.sql.Statement.EXECUTE_FAILED)
                     failed++;
-                else
-                    changed += count;
+                else if (count == 0)
+                    unchanged++;
+                else if (count > 0) {
+                    successful++;
+                    changedRows += count;
+                }
             }
         }
-        return new BatchTally(changed, unknown, failed);
+        return new BatchTally(successful, unchanged, unknown, failed, changedRows);
     }
 
     /**
@@ -148,14 +158,24 @@ public class PersistRepository {
 
         BatchTally tally = tally(affected);
 
-        if (tally.unknown() > 0 && tally.changed() == 0)
+        int unreported = Math.max(0, submitted - affected.length);
+
+        // A failed/unreported statement is never excused by an idempotent mapping.
+        if (tally.failed() > 0 || unreported > 0) {
+            return tally.successful() == 0 && tally.unknown() == 0
+                    ? PersistOutcome.SILENT_WRITE_LOSS : PersistOutcome.PARTIAL_PERSIST;
+        }
+        if (tally.unchanged() > 0) {
+            if (suppressesDuplicates(query))
+                return PersistOutcome.DUPLICATE_SUPPRESSED;
+            return tally.successful() == 0 && tally.unknown() == 0
+                    ? PersistOutcome.SILENT_WRITE_LOSS : PersistOutcome.PARTIAL_PERSIST;
+        }
+        // SUCCESS_NO_INFO means the statement succeeded but the driver cannot say how many rows it
+        // changed. It must not be confused with a known zero-row result.
+        if (tally.unknown() > 0)
             return PersistOutcome.COUNTS_UNAVAILABLE;
-        if (tally.changed() >= submitted)
-            return PersistOutcome.HEALTHY;
-        // A failed statement is never excused by the mapping being idempotent.
-        if (tally.failed() == 0 && suppressesDuplicates(query))
-            return PersistOutcome.DUPLICATE_SUPPRESSED;
-        return tally.changed() == 0 ? PersistOutcome.SILENT_WRITE_LOSS : PersistOutcome.PARTIAL_PERSIST;
+        return PersistOutcome.HEALTHY;
     }
 
     /**
@@ -173,23 +193,32 @@ public class PersistRepository {
 
         BatchTally tally = tally(affected);
 
+        PersistOutcome outcome = classify(query, submitted, affected);
         if (tally.failed() > 0)
             log.error("Persist reported {} failed statement(s) of {} submitted for query: {}",
                     tally.failed(), submitted, query);
 
-        switch (classify(query, submitted, affected)) {
+        switch (outcome) {
             case COUNTS_UNAVAILABLE -> log.info("Persisted {} row(s) to DB! (driver returned no " +
                     "affected-row counts, so whether rows changed is unknown)", submitted);
-            case SILENT_WRITE_LOSS -> log.error("SILENT WRITE LOSS: {} row(s) submitted but the " +
-                    "database changed 0 row(s). The statement matched nothing - check the WHERE " +
-                    "clause against columns that can be NULL. Query: {}", submitted, query);
-            case PARTIAL_PERSIST -> log.warn("PARTIAL PERSIST: {} row(s) submitted but the database " +
-                    "changed only {} row(s). Query: {}", submitted, tally.changed(), query);
+            case SILENT_WRITE_LOSS -> {
+                String message = String.format("SILENT WRITE LOSS: %d row(s) submitted but no " +
+                        "statement changed a row. Query: %s", submitted, query);
+                log.error(message);
+                throw new UnexpectedAffectedRowsException(outcome, message);
+            }
+            case PARTIAL_PERSIST -> {
+                String message = String.format("PARTIAL PERSIST: %d row(s) submitted but only %d " +
+                                "statement(s) definitely changed rows (%d affected row(s) reported). Query: %s",
+                        submitted, tally.successful(), tally.changedRows(), query);
+                log.error(message);
+                throw new UnexpectedAffectedRowsException(outcome, message);
+            }
             case DUPLICATE_SUPPRESSED -> log.info("Persisted {} of {} row(s) to DB; {} row(s) " +
                     "suppressed by ON CONFLICT ... DO NOTHING (already present - idempotent replay, " +
                     "not a write loss). Query: {}",
-                    tally.changed(), submitted, submitted - tally.changed(), query);
-            default -> log.info("Persisted {} row(s) to DB!", tally.changed());
+                    tally.successful(), submitted, tally.unchanged(), query);
+            default -> log.info("Persisted {} row(s) to DB!", tally.changedRows());
         }
     }
 

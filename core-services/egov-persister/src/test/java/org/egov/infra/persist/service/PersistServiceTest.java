@@ -67,5 +67,31 @@ class PersistServiceTest {
         verify(this.utils).getSemVer((String) any());
         verify(this.topicMap).getTopicMap();
     }
+
+    @Test
+    void batchExtractionFailureIsPropagatedForRecordIsolation() {
+        org.egov.infra.persist.web.contract.Mapping mapping = mock(org.egov.infra.persist.web.contract.Mapping.class);
+        org.egov.infra.persist.web.contract.QueryMap queryMap = mock(org.egov.infra.persist.web.contract.QueryMap.class);
+        java.util.List<org.egov.infra.persist.web.contract.JsonMap> jsonMaps = java.util.List.of();
+
+        when(topicMap.getTopicMap()).thenReturn(java.util.Map.of("topic", java.util.List.of(mapping)));
+        when(utils.getSemVer(anyString())).thenReturn(Version.forIntegers(1));
+        when(mapping.getName()).thenReturn("mapping");
+        when(mapping.getVersion()).thenReturn(">=1.0.0");
+        when(mapping.getQueryMaps()).thenReturn(java.util.List.of(queryMap));
+        when(queryMap.getQuery()).thenReturn("INSERT INTO example(id) VALUES (?)");
+        when(queryMap.getBasePath()).thenReturn("$.items.*");
+        when(queryMap.getJsonMaps()).thenReturn(jsonMaps);
+        doThrow(new IllegalArgumentException("bad extraction"))
+                .when(persistRepository).getRows(eq(jsonMaps), any(), eq("$.items.*"));
+
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class,
+                        () -> persistService.persist("topic", java.util.List.of("{}")));
+
+        org.junit.jupiter.api.Assertions.assertTrue(exception.getMessage().contains("$.items.*"));
+        verify(persistRepository, never())
+                .persist(eq("INSERT INTO example(id) VALUES (?)"), anyList());
+    }
 }
 
