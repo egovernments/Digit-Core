@@ -1,0 +1,31 @@
+@import url("../index.scss");
+
+.digit-bread-crumb {
+  @extend .light-text-color-secondary;
+  font-size: 14px;
+  display: flex;
+  margin-bottom: 10px;
+}
+.digit-bread-crumb--item {
+  margin-left: 5px;
+
+  &:not(:last-child):after {
+    content: "  /";
+  }
+
+  button {
+    outline: none;
+  }
+
+  .last {
+    @extend .light-text-color-primary;
+  }
+
+  span {
+    cursor: pointer;
+  }
+}
+ol,
+ul {
+  list-style: none;
+}

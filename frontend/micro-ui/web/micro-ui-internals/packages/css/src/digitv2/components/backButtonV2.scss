@@ -1,0 +1,26 @@
+@import url("../index.scss");
+
+.digit-back-button {
+  @extend .light-text-color-primary;
+  @extend .light-input-border;
+  width: fit-content;
+  @apply flex items-center cursor-pointer border-b font-rc text-text-btn ml-sm mb-md;
+
+  img {
+    @apply flex;
+  }
+
+  svg {
+    @apply flex;
+  }
+
+  p {
+    @apply flex;
+  }
+}
+
+@screen dt {
+  .digit-back-button {
+    margin-left: 0;
+  }
+}

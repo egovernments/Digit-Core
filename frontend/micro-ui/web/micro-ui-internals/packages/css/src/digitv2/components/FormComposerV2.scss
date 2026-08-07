@@ -1,0 +1,120 @@
+@import url("../index.scss");
+
+.field-container {
+  display: flex;
+  align-items: center;
+  max-width: 540px;
+  @apply flex  items-center;
+
+  .component-in-front {
+    @apply flex justify-center items-center;
+    @extend .light-background;
+    @extend .light-input-border;
+    margin-top: 0;
+    border: 1px solid;
+    border-right: none;
+    padding: 7px;
+  }
+}
+
+.card-date-input {
+  @apply absolute top-0 left-0 w-3/4 bg-white pl-sm border border-input-border border-solid border-r-0;
+  outline: transparent solid 1px;
+  height: 2.5rem;
+  @extend .light-input-border;
+}
+.text-input-width {
+  max-width: 540px;
+}
+
+.text-input {
+  @apply relative w-full;
+  input {
+    background-color: transparent;
+    &:hover {
+      @apply border-2 border-solid border-primary-main;
+      @extend .light-input-border;
+    }
+  }
+}
+.employee-card-input-error {
+  @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-error border-solid bg-white leading-10 text-form-field text-text-primary;
+  @extend .light-input-border;
+  @extend .alert-error;
+}
+.card-input-error {
+  @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-error border-solid bg-white leading-10 text-form-field text-text-primary;
+  @extend .light-input-border;
+  @extend .alert-error;
+}
+
+.employee-card-input {
+  @apply mb-lg pl-sm outline-none block border w-full h-10 border-input-border border-solid bg-white leading-10 text-form-field text-text-primary;
+  @extend .light-input-border;
+}
+.employee-card-input:disabled {
+  @apply border-grey-dark text-grey-dark !important;
+  pointer-events: none !important;
+  @extend .light-input-border;
+  @extend .light-text-color-disabled;
+}
+.employee-card-input--front {
+  width: fit-content !important;
+  display: flex;
+  align-items: center;
+  /* background: theme(colors.grey.mid); */
+  @extend .light-background;
+  border-right: 0;
+  padding-right: 5px;
+}
+.employee-card-input-error {
+  @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-error border-solid bg-white leading-10 text-form-field text-text-primary;
+  @extend .light-input-border;
+  @extend .alert-error;
+}
+
+.card-textarea,
+.employee-card-textarea {
+  @apply block outline-none mt-md mb-lg border w-full border-input-border border-solid bg-white h-24 text-form-field text-text-primary p-sm;
+  @extend .light-input-border;
+}
+.employee-card-textarea {
+  @apply w-full;
+}
+
+.citizen-card-input {
+  @apply mb-lg pl-sm outline-none block border w-full h-10 border-input-border border-solid bg-white leading-10 text-form-field text-text-primary;
+  @extend .light-input-border;
+}
+.citizen-card-input--front {
+  @extend .light-background;
+  width: fit-content !important;
+  display: flex;
+  align-items: center;
+  /* background: theme(colors.grey.mid); */
+  border-right: 0;
+  padding-right: 5px;
+}
+
+.break-line {
+  @extend .light-input-border;
+  @apply border-border my-lg;
+}
+
+.primary-label-btn {
+  @apply flex;
+  gap: 10px;
+
+  svg {
+    fill: theme(colors.primary.main);
+  }
+
+  @extend .light-primary;
+  cursor: pointer;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.digit-form-composer-header{
+   font-size:theme(digitv2.fontSize.heading-l-dt);
+}
