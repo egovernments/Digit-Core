@@ -156,9 +156,17 @@ public class OtpRequestValidator {
      * matched (typically its "default" entry) so downstream consumers — e.g. the SMS request built
      * from this OtpRequest — send with the country code MDMS is configured for, rather than falling
      * through to egov-notification-sms's own static prefix default.
+     *
+     * Only backfills when the config carries a usable regex: isMobileNumberValid() branches on
+     * whether otpRequest.getCountryCode() is set to decide between "reject as country-specific
+     * misconfiguration" and "fall back to the application.properties default regex". Backfilling
+     * from a config with a blank regex would flip that decision and reject a request that should
+     * have fallen back to the default regex instead.
      */
     private void resolveCountryCode(OtpRequest otpRequest, MobileValidationConfig config) {
-        if (!StringUtils.hasText(otpRequest.getCountryCode()) && StringUtils.hasText(config.getCountryCode())) {
+        if (!StringUtils.hasText(otpRequest.getCountryCode())
+                && StringUtils.hasText(config.getCountryCode())
+                && StringUtils.hasText(config.getMobileNumberRegex())) {
             otpRequest.setCountryCode(config.getCountryCode());
         }
     }

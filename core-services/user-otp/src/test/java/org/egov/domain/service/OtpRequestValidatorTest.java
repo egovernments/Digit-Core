@@ -278,4 +278,21 @@ public class OtpRequestValidatorTest {
         validator.validate(req);
         assertEquals("+91", req.getCountryCode());
     }
+
+    // A default=true entry with no regex configured must NOT be backfilled onto otpRequest — doing
+    // so would make isMobileNumberValid() take the "reject as country-specific misconfiguration"
+    // branch instead of falling back to the application.properties default regex, rejecting a
+    // request that should have passed.
+    @Test
+    public void test_does_not_backfill_countryCode_when_default_config_has_no_regex() {
+        MobileValidationConfig blankRegexDefault = MobileValidationConfig.builder()
+                .countryCode("+251").mobileNumberRegex(null).isDefault(true).build();
+        when(mdmsRepository.fetchMobileValidationConfigs(anyString(), any()))
+                .thenReturn(Collections.singletonList(blankRegexDefault));
+        OtpRequest req = OtpRequest.builder()
+                .tenantId("pb").mobileNumber("9123456789")
+                .type(OtpRequestType.REGISTER).build();
+        validator.validate(req);
+        assertEquals(null, req.getCountryCode());
+    }
 }
