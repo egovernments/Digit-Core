@@ -45,12 +45,14 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.egov.access.domain.model.Action;
+import org.egov.access.domain.model.MdmsAction;
 import org.egov.access.persistence.repository.querybuilder.ActionQueryBuilder;
 import org.egov.access.persistence.repository.rowmapper.ActionSearchRowMapper;
 import org.egov.access.persistence.repository.rowmapper.ModuleSearchRowMapper;
@@ -65,6 +67,7 @@ import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.ModuleDetail;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -628,11 +631,11 @@ private void getMdmsActionCriteria(ActionRequest actionRequest, String actionFil
 	actionmcq.setMdmsCriteria(actionmc);
 }
 
-private List<Action> convertToAction(ActionRequest actionRequest,JSONArray actionsArray)
+List<Action> convertToAction(ActionRequest actionRequest,JSONArray actionsArray)
 		throws JSONException {
 	List<Action> actionList = new ArrayList<Action>();
 	for (int i = 0; i < actionsArray.length(); i++) {
-		Action act = new Action();
+		MdmsAction act = new MdmsAction();
 		if(actionsArray.getJSONObject(i).has("displayName")){
 		act.setDisplayName(actionsArray.getJSONObject(i).getString("displayName"));
 		} else {act.setDisplayName("");}
@@ -673,12 +676,41 @@ private List<Action> convertToAction(ActionRequest actionRequest,JSONArray actio
 		if(actionsArray.getJSONObject(i).has("rightIcon")){
 		act.setRightIcon(actionsArray.getJSONObject(i).getString("rightIcon"));
 		} else {act.setRightIcon("");}
+
+		JSONObject actionJson = actionsArray.getJSONObject(i);
+		if (actionJson.has("method") && !actionJson.isNull("method"))
+			act.setMethod(actionJson.getString("method"));
+		if (actionJson.has("resource") && !actionJson.isNull("resource"))
+			act.setResource(toPlainJsonValue(actionJson.get("resource")));
+		if (actionJson.has("condition") && !actionJson.isNull("condition"))
+			act.setCondition(toPlainJsonValue(actionJson.get("condition")));
 		
 		act.setTenantId(actionRequest.getTenantId());
 		actionList.add(act);
 	}
  
 	 return actionList;
+}
+
+private Object toPlainJsonValue(Object value) throws JSONException {
+	if (value instanceof JSONObject) {
+		JSONObject object = (JSONObject) value;
+		Map<String, Object> result = new LinkedHashMap<>();
+		Iterator<String> keys = object.keys();
+		while (keys.hasNext()) {
+			String key = keys.next();
+			result.put(key, toPlainJsonValue(object.get(key)));
+		}
+		return result;
+	}
+	if (value instanceof JSONArray) {
+		JSONArray array = (JSONArray) value;
+		List<Object> result = new ArrayList<>(array.length());
+		for (int i = 0; i < array.length(); i++)
+			result.add(toPlainJsonValue(array.get(i)));
+		return result;
+	}
+	return value == JSONObject.NULL ? null : value;
 }
     
 	public static RequestInfo getRInfo()
