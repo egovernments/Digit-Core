@@ -4,7 +4,6 @@ All notable changes to this library will be documented in this file.
 ## 2.9.3 - 2026-07-17
 - Propagated correlationId and tenantId across Kafka — stamp both onto message headers on produce and rebuild the MDC from them on consume, so consumer/async logs carry the same IDs
 - Added MdcRecordInterceptor (auto-attached to the default Kafka listener container factory), KafkaTemplateLoggingInterceptors, and TracerKafkaMdcUtil helper
-- Added kill-switch `tracer.kafka.mdc.enabled` (default true)
 
 ## 2.9.2 - 2026-03-10
 - Addition of Data Access Exception Handling in ExceptionAdvice.

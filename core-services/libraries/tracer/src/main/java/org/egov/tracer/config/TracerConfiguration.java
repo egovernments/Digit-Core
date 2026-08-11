@@ -42,8 +42,9 @@ public class TracerConfiguration {
 
     // MDC rebuild + cleanup from Kafka headers. Boot auto-applies to the autoconfig record-listener
     // factory; custom-factory or batch-listener services must wire it manually.
+    // Not conditional: propagation itself lives in the Kafka client interceptor, so gating this bean
+    // only dropped per-record cleanup and left MDC values leaking across records in a poll.
     @Bean
-    @ConditionalOnProperty(name = "tracer.kafka.mdc.enabled", havingValue = "true", matchIfMissing = true)
     public RecordInterceptor<Object, Object> mdcRecordInterceptor() {
         return new MdcRecordInterceptor<>();
     }

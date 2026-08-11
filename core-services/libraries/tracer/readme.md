@@ -41,9 +41,11 @@ Map<String, String> map = new HashMap<>();
 The logging of the http request/response body and Kakfa message body can be toggled on/off using
 "tracer.detailed.tracing.enabled" application property.
 
-The per-record Kafka MDC rebuild + cleanup (see "Setting the correlation id in the MDC") can be
-toggled on/off using the "tracer.kafka.mdc.enabled" application property. It defaults to true; set it
-to false to disable registration of the record interceptor.
+The per-record Kafka MDC rebuild + cleanup (see "Setting the correlation id in the MDC") is not
+toggleable. Correlation/tenant propagation over Kafka lives in the client interceptor registered by
+"spring.kafka.properties.interceptor.classes", so disabling the record interceptor would have left
+propagation running while dropping per-record cleanup — mis-attributing every record in a poll to the
+last one. Remove the client interceptor property if the Kafka hop must be switched off entirely.
 
 ###### Correlation id retrieval and forwarding -
 
