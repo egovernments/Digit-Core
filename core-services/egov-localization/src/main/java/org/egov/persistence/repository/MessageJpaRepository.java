@@ -43,4 +43,12 @@ public interface MessageJpaRepository extends JpaRepository<Message, String> {
 	@Query("select m.id from Message m where m.tenantId = :tenantId and m.locale = :locale and m.module = :module and m.code = :code")
 	List<Message> find(@Param("tenantId") String tenantId, @Param("locale") String locale,
 			@Param("module") String module, @Param("code") String code);
+
+    /**
+     * Cheap guard for the module-absent path (index message_locale_tenant covers it).
+     * Counting first lets the service refuse an impossible request instead of dying on it
+     * and taking every other caller down.
+     */
+    @Query("select count(m) from Message m where m.tenantId = :tenantId and m.locale = :locale")
+    long countByTenantIdAndLocale(@Param("tenantId") String tenantId, @Param("locale") String locale);
 }

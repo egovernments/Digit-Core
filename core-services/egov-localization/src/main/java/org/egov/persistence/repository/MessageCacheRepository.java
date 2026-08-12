@@ -19,6 +19,10 @@ public class MessageCacheRepository {
 
 	private static final String MESSAGES_HASH_KEY = "messages";
 	private static final String COMPUTED_MESSAGES_HASH_KEY = "computedMessages";
+	/** Largest serialised cache entry to read or write, in bytes. 0 disables the cap. */
+	@org.springframework.beans.factory.annotation.Value("${localization.cache.max.entry.bytes:10485760}")
+	private long maxCacheEntryBytes;
+
 	private StringRedisTemplate stringRedisTemplate;
 	private ObjectMapper objectMapper;
     public static final Logger logger = LoggerFactory.getLogger(MessageCacheRepository.class);
@@ -104,6 +108,25 @@ public class MessageCacheRepository {
 
 	private List<Message> getMessages(String locale, Tenant tenant, String hashKey, String module) {
 		String messageKey = getKey(locale, tenant.getTenantId(), module);
+
+		// Check the SIZE before reading the value. The cached entry is itself the hazard:
+		// on unified-uat 2026-08-12 the module-absent entry fr_IN:mz had reached
+		// 132,149,947 bytes, and merely deserialising it exhausted a 6 GB heap - the pod
+		// was OOMKilled/137. HSTRLEN is O(1) and does not transfer the value.
+		// An oversized entry is evicted (TTL is -1 on these hashes, so it is otherwise
+		// permanent) and treated as a miss, handing control to the row-count guard on the
+		// DB path. This makes the fix self-healing: no manual Redis flush at deployment.
+		if (maxCacheEntryBytes > 0) {
+			final Long size = stringRedisTemplate.opsForHash().lengthOfValue(hashKey, messageKey);
+			if (size != null && size > maxCacheEntryBytes) {
+				logger.warn("Refusing to deserialise oversized localisation cache entry {} in {}: "
+						+ "{} bytes exceeds the {} byte limit; evicting", messageKey, hashKey, size,
+						maxCacheEntryBytes);
+				stringRedisTemplate.opsForHash().delete(hashKey, messageKey);
+				return null;
+			}
+		}
+
 		final String entry = (String) stringRedisTemplate.opsForHash().get(hashKey, messageKey);
 		if (entry != null) {
 			final MessageCacheEntry messageCacheEntry;
@@ -122,6 +145,13 @@ public class MessageCacheRepository {
 		final MessageCacheEntry messageCacheEntry = new MessageCacheEntry(messages);
 		try {
 			final String cacheEntry = objectMapper.writeValueAsString(messageCacheEntry);
+			final long sizeBytes = cacheEntry.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+			if (maxCacheEntryBytes > 0 && sizeBytes > maxCacheEntryBytes) {
+				// Never create the hazard in the first place.
+				logger.warn("Not caching localisation entry {} in {}: {} bytes exceeds the {} byte limit",
+						messageKey, hashKey, sizeBytes, maxCacheEntryBytes);
+				return;
+			}
 			stringRedisTemplate.opsForHash().put(hashKey, messageKey, cacheEntry);
 		} catch (JsonProcessingException e) {
 			logger.error("Exception occurred while processing JSON: " + e.getMessage());

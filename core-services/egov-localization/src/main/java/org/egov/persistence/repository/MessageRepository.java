@@ -5,10 +5,14 @@ import org.egov.domain.model.Message;
 import org.egov.domain.model.Tenant;
 import org.egov.tracer.model.CustomException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +22,30 @@ import java.util.stream.Collectors;
 @Service
 public class MessageRepository {
 
+	/** Max rows a module-absent search may load. 0 disables the guard. */
+	@org.springframework.beans.factory.annotation.Value("${localization.search.module.absent.max.messages:200000}")
+	private long moduleAbsentMaxMessages;
+
+	/**
+	 * Atomic upsert. Conflict target is the unique_message_entry constraint
+	 * (tenantid, locale, module, code) - the same one the old select-then-insert path
+	 * raced against. createdby/createddate are preserved on conflict; only the message
+	 * text and the lastmodified audit fields move.
+	 */
+	private static final String UPSERT_SQL =
+			"INSERT INTO message (id, code, message, module, locale, tenantid, createdby, createddate, "
+			+ "lastmodifiedby, lastmodifieddate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+			+ "ON CONFLICT (tenantid, locale, module, code) DO UPDATE SET "
+			+ "message = EXCLUDED.message, lastmodifiedby = EXCLUDED.lastmodifiedby, "
+			+ "lastmodifieddate = EXCLUDED.lastmodifieddate";
+
+	private final JdbcTemplate jdbcTemplate;
+
 	private final MessageJpaRepository messageJpaRepository;
 
-	public MessageRepository(MessageJpaRepository messageJpaRepository) {
+	public MessageRepository(MessageJpaRepository messageJpaRepository, JdbcTemplate jdbcTemplate) {
 		this.messageJpaRepository = messageJpaRepository;
+		this.jdbcTemplate = jdbcTemplate;
 	}
 
     @Transactional(readOnly = true)
@@ -29,6 +53,14 @@ public class MessageRepository {
 
         // If no module given → fallback to old logic
         if (module == null || module.trim().isEmpty()) {
+            // GUARD: this is the query that killed unified-uat on 2026-08-12. ONE _search
+            // without a module, out of 22,425 queries the pod served, ran
+            // WHERE tenantid=? AND locale=? over fr_IN/mz, hung 57 s, threw
+            // OutOfMemoryError twice and the pod was OOMKilled/137 on a 6 GB heap.
+            // Streaming (already present above) bounds the driver's buffering but not the
+            // materialised result, so the row count is bounded here too. No heap size
+            // fixes an unbounded read; refusing it keeps the pod alive for everyone else.
+            guardModuleAbsentRead(tenant, locale);
             return messageJpaRepository.find(tenant.getTenantId(), locale)
                 .map(org.egov.persistence.entity.Message::toDomain)
                 .collect(Collectors.toList());
@@ -44,6 +76,19 @@ public class MessageRepository {
             .collect(Collectors.toList());
     }
 
+
+	private void guardModuleAbsentRead(Tenant tenant, String locale) {
+		if (moduleAbsentMaxMessages <= 0) {
+			return;
+		}
+		final long count = messageJpaRepository.countByTenantIdAndLocale(tenant.getTenantId(), locale);
+		if (count > moduleAbsentMaxMessages) {
+			throw new CustomException("LOCALIZATION_MODULE_REQUIRED", String.format(
+					"Refusing an unbounded localisation search: tenant=%s locale=%s has %d messages, "
+							+ "above the limit of %d. Pass a 'module' parameter to scope the request.",
+					tenant.getTenantId(), locale, count, moduleAbsentMaxMessages));
+		}
+	}
 
 	public List<Message> findAllMessage(Tenant tenant, String locale, String module, String code) {
 		return messageJpaRepository.find(tenant.getTenantId(), locale, module, code).stream()
@@ -87,19 +132,54 @@ public class MessageRepository {
 		updateMessages(domainMessages, entityMessages, authenticatedUser);
 	}
 
+	/**
+	 * Atomic upsert. One batched statement per chunk, no read-modify-write.
+	 *
+	 * <p>REPLACES a select-then-insert sequence that had a time-of-check/time-of-use race:
+	 * two concurrent writers of the same (tenantid, locale, module, code) both saw "not
+	 * present", both inserted, and the loser took a 23505 unique violation which rejected
+	 * its ENTIRE chunk with a 400. Measured on the old path: 12 concurrent requests
+	 * carrying the same 400 codes produced 2 failed requests and 6 constraint violations.
+	 *
+	 * <p>{@code ON CONFLICT ... DO UPDATE} makes the operation atomic in the database, so
+	 * the race is not serialised away - it cannot occur. That is strictly stronger than
+	 * funnelling writes through a single consumer thread, because it also holds across
+	 * replicas, rebalances and any number of concurrent writers.
+	 *
+	 * <p>It also removes the per-row existence SELECT. The unified-uat census showed 22,136
+	 * such selects sitting next to 22,136 inserts; this halves the round trips.
+	 */
+	@Transactional
 	public void upsert(String tenant, String locale, String module, List<Message> domainMessages,
 			AuthenticatedUser authenticatedUser) {
-		final List<String> codes = getCodes(domainMessages);
-		final List<org.egov.persistence.entity.Message> entityMessages = fetchMatchEntityMessages(tenant, locale,
-				module, codes);
-		List<String> newCodes = getNewCodes(entityMessages);
-		List<Message> newMsgList = domainMessages.stream().filter(msg -> !newCodes.contains(msg.getCode()))
-				.collect(Collectors.toList());
-		save(newMsgList, authenticatedUser);
+		if (CollectionUtils.isEmpty(domainMessages)) {
+			return;
+		}
+		final Date now = new Date();
+		final Long userId = authenticatedUser.getUserId();
+		jdbcTemplate.batchUpdate(UPSERT_SQL, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				final Message m = domainMessages.get(i);
+				ps.setString(1, UUID.randomUUID().toString());
+				ps.setString(2, m.getCode());
+				ps.setString(3, m.getMessage());
+				ps.setString(4, m.getModule());
+				ps.setString(5, m.getLocale());
+				ps.setString(6, m.getTenant());
+				ps.setLong(7, userId);
+				ps.setTimestamp(8, new java.sql.Timestamp(now.getTime()));
+				ps.setLong(9, userId);
+				ps.setTimestamp(10, new java.sql.Timestamp(now.getTime()));
+			}
 
-		updateMessages(domainMessages, entityMessages, authenticatedUser);
-
+			@Override
+			public int getBatchSize() {
+				return domainMessages.size();
+			}
+		});
 	}
+
 
 
 	private void setAuditFieldsForCreate(AuthenticatedUser authenticatedUser,
@@ -145,7 +225,4 @@ public class MessageRepository {
 		return messages.stream().map(Message::getCode).collect(Collectors.toList());
 	}
 
-	private List<String> getNewCodes(List<org.egov.persistence.entity.Message> messages) {
-		return messages.stream().map(org.egov.persistence.entity.Message::getCode).collect(Collectors.toList());
-	}
 }
