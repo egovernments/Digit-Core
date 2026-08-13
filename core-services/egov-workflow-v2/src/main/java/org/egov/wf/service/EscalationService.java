@@ -1,5 +1,6 @@
 package org.egov.wf.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.wf.config.WorkflowConfig;
 import org.egov.wf.producer.Producer;
@@ -16,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class EscalationService {
 
@@ -75,36 +77,59 @@ public class EscalationService {
 
         for(String tenantId: tenantIds){
 
+            try {
 
-            String stateUUID = escalationUtil.getStatusUUID(escalation.getStatus(), tenantId, escalation.getBusinessService());
+                String stateUUID = escalationUtil.getStatusUUID(escalation.getStatus(), tenantId, escalation.getBusinessService());
 
-            EscalationSearchCriteria criteria = EscalationSearchCriteria.builder().tenantId(tenantId)
-                                                .status(stateUUID)
-                                                .businessService(escalation.getBusinessService())
-                                                .businessSlaExceededBy(escalation.getBusinessSlaExceededBy())
-                                                .stateSlaExceededBy(escalation.getStateSlaExceededBy())
-                                                .build();
+                EscalationSearchCriteria criteria = EscalationSearchCriteria.builder().tenantId(tenantId)
+                                                    .status(stateUUID)
+                                                    .businessService(escalation.getBusinessService())
+                                                    .businessSlaExceededBy(escalation.getBusinessSlaExceededBy())
+                                                    .stateSlaExceededBy(escalation.getStateSlaExceededBy())
+                                                    .build();
 
 
 
-            List<String> businessIds = escalationRepository.getBusinessIds(criteria);
-            Integer numberOfBusinessIds = businessIds.size();
-            Integer batchSize = config.getEscalationBatchSize();
+                List<String> businessIds = escalationRepository.getBusinessIds(criteria);
+                Integer numberOfBusinessIds = businessIds.size();
+                Integer batchSize = config.getEscalationBatchSize();
 
-            for(int i = 0; i < numberOfBusinessIds; i = i + batchSize){
+                for(int i = 0; i < numberOfBusinessIds; i = i + batchSize){
 
-                // Processing the businessIds in batches
-                Integer start = i;
-                Integer end = ((i + batchSize) < numberOfBusinessIds ? (i + batchSize) : numberOfBusinessIds) ;
+                    // Processing the businessIds in batches
+                    Integer start = i;
+                    Integer end = ((i + batchSize) < numberOfBusinessIds ? (i + batchSize) : numberOfBusinessIds) ;
+                    List<String> batchBusinessIds = businessIds.subList(start, end);
 
-                List<ProcessInstance> processInstances = escalationUtil.getProcessInstances(tenantId, businessIds.subList(start,end), escalation);
-                processInstances = workflowService.transition(new ProcessInstanceRequest(requestInfo, processInstances));
-                producer.push(processInstances.get(0).getTenantId(), escalation.getTopic(),new ProcessInstanceRequest(requestInfo, processInstances));
+                    try {
+                        transitionBatch(requestInfo, tenantId, batchBusinessIds, escalation);
+                    } catch (Exception e) {
+                        // transition() validates the whole batch before persisting, so retry item-by-item
+                        // to isolate the actually-bad businessId(s) instead of blocking the whole batch.
+                        log.error("Escalation batch failed for businessService: {}, tenantId: {}, retrying individually", escalation.getBusinessService(), tenantId, e);
+                        for (String businessId : batchBusinessIds) {
+                            try {
+                                transitionBatch(requestInfo, tenantId, java.util.Collections.singletonList(businessId), escalation);
+                            } catch (Exception e2) {
+                                log.error("Escalation failed for businessService: {}, tenantId: {}, businessId: {}, skipping", escalation.getBusinessService(), tenantId, businessId, e2);
+                            }
+                        }
+                    }
 
+                }
+
+            } catch (Exception e) {
+                log.error("Escalation failed for businessService: {}, tenantId: {}, skipping to next tenant", escalation.getBusinessService(), tenantId, e);
             }
 
         }
 
+    }
+
+    private void transitionBatch(RequestInfo requestInfo, String tenantId, List<String> businessIds, Escalation escalation){
+        List<ProcessInstance> processInstances = escalationUtil.getProcessInstances(tenantId, businessIds, escalation);
+        processInstances = workflowService.transition(new ProcessInstanceRequest(requestInfo, processInstances));
+        producer.push(processInstances.get(0).getTenantId(), escalation.getTopic(), new ProcessInstanceRequest(requestInfo, processInstances));
     }
 
     /**
@@ -140,30 +165,35 @@ public class EscalationService {
 
         for(String tenantId: tenantIds){
 
+            try {
 
-            String stateUUID = escalationUtil.getStatusUUID(escalation.getStatus(), tenantId, escalation.getBusinessService());
+                String stateUUID = escalationUtil.getStatusUUID(escalation.getStatus(), tenantId, escalation.getBusinessService());
 
-            EscalationSearchCriteria criteria = EscalationSearchCriteria.builder().tenantId(tenantId)
-                    .status(stateUUID)
-                    .businessService(escalation.getBusinessService())
-                    .businessSlaExceededBy(escalation.getBusinessSlaExceededBy())
-                    .stateSlaExceededBy(escalation.getStateSlaExceededBy())
-                    .build();
+                EscalationSearchCriteria criteria = EscalationSearchCriteria.builder().tenantId(tenantId)
+                        .status(stateUUID)
+                        .businessService(escalation.getBusinessService())
+                        .businessSlaExceededBy(escalation.getBusinessSlaExceededBy())
+                        .stateSlaExceededBy(escalation.getStateSlaExceededBy())
+                        .build();
 
 
 
-            List<String> businessIds = escalationRepository.getBusinessIds(criteria);
-            Integer numberOfBusinessIds = businessIds.size();
-            Integer batchSize = config.getEscalationBatchSize();
+                List<String> businessIds = escalationRepository.getBusinessIds(criteria);
+                Integer numberOfBusinessIds = businessIds.size();
+                Integer batchSize = config.getEscalationBatchSize();
 
-            for(int i = 0; i < numberOfBusinessIds; i = i + batchSize){
+                for(int i = 0; i < numberOfBusinessIds; i = i + batchSize){
 
-                // Processing the businessIds in batches
-                Integer start = i;
-                Integer end = ((i + batchSize) < numberOfBusinessIds ? (i + batchSize) : numberOfBusinessIds) ;
+                    // Processing the businessIds in batches
+                    Integer start = i;
+                    Integer end = ((i + batchSize) < numberOfBusinessIds ? (i + batchSize) : numberOfBusinessIds) ;
 
-                List<ProcessInstance> processInstances = escalationUtil.getProcessInstances(tenantId, businessIds.subList(start,end), escalation);
-                ids.addAll(processInstances.stream().map(ProcessInstance::getBusinessId).collect(Collectors.toList()));
+                    List<ProcessInstance> processInstances = escalationUtil.getProcessInstances(tenantId, businessIds.subList(start,end), escalation);
+                    ids.addAll(processInstances.stream().map(ProcessInstance::getBusinessId).collect(Collectors.toList()));
+                }
+
+            } catch (Exception e) {
+                log.error("Escalation test failed for businessService: {}, tenantId: {}, skipping to next tenant", escalation.getBusinessService(), tenantId, e);
             }
 
         }
