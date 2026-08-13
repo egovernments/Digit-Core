@@ -27,7 +27,7 @@ public class ResponseUtil {
         return response;
     }
 
-    public static MdmsCountResponseV2 getMasterDataV2CountResponse(RequestInfo requestInfo, Integer totalCount){
+    public static MdmsCountResponseV2 getMasterDataV2CountResponse(RequestInfo requestInfo, Long totalCount){
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
         MdmsCountResponseV2 response = MdmsCountResponseV2.builder().totalCount(totalCount).responseInfo(responseInfo).build();
         return response;

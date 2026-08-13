@@ -20,5 +20,5 @@ public class MdmsCountResponseV2 {
     private ResponseInfo responseInfo = null;
 
     @JsonProperty("totalCount")
-    private Integer totalCount = null;
+    private Long totalCount = null;
 }

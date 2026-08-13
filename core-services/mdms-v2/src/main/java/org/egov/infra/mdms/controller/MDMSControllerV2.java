@@ -54,7 +54,7 @@ public class MDMSControllerV2 {
      */
     @RequestMapping(value="_count", method = RequestMethod.POST)
     public ResponseEntity<MdmsCountResponseV2> count(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
-        Integer totalCount = mdmsServiceV2.count(masterDataSearchCriteria);
+        Long totalCount = mdmsServiceV2.count(masterDataSearchCriteria);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2CountResponse(RequestInfo.builder().build(), totalCount), HttpStatus.OK);
     }
 

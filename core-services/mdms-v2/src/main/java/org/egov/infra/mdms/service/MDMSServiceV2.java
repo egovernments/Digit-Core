@@ -81,7 +81,7 @@ public class MDMSServiceV2 {
      * @param mdmsCriteriaReqV2
      * @return
      */
-    public Integer count(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
+    public Long count(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
         return resolveFallbackTenant(mdmsCriteriaReqV2.getMdmsCriteria());
     }
 
@@ -92,10 +92,10 @@ public class MDMSServiceV2 {
      * @param mdmsCriteriaV2
      * @return the count of master data at the resolved tenant level
      */
-    private Integer resolveFallbackTenant(MdmsCriteriaV2 mdmsCriteriaV2) {
+    private Long resolveFallbackTenant(MdmsCriteriaV2 mdmsCriteriaV2) {
         List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(mdmsCriteriaV2.getTenantId());
 
-        Integer count = 0;
+        Long count = 0L;
         for (String subTenantId : subTenantListForFallback) {
             mdmsCriteriaV2.setTenantId(subTenantId);
             count = mdmsDataRepository.countV2(mdmsCriteriaV2);
