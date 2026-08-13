@@ -11,9 +11,7 @@ import org.egov.infra.mdms.utils.SchemaUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -70,25 +68,43 @@ public class MDMSServiceV2 {
      */
     public List<Mdms> search(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
 
-        /*
-         * Set incoming tenantId as state level tenantId for fallback in case master data for
-         * concrete tenantId does not exist.
-         */
-        String tenantId = mdmsCriteriaReqV2.getMdmsCriteria().getTenantId();
+        // Resolve the tenant level (concrete tenant or a fallback ancestor) that actually
+        // has matching master data, so search results and count() agree on the same tenant.
+        resolveFallbackTenant(mdmsCriteriaReqV2.getMdmsCriteria());
 
-        List<Mdms> masterDataList = new ArrayList<>();
-        List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(tenantId);
+        return mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
+    }
 
-        // Make a call to repository and get list of master data
-        for(String subTenantId : subTenantListForFallback) {
-            mdmsCriteriaReqV2.getMdmsCriteria().setTenantId(subTenantId);
-            masterDataList = mdmsDataRepository.searchV2(mdmsCriteriaReqV2.getMdmsCriteria());
+    /**
+     * This method processes the requests that come for master data count, using the same
+     * criteria model (MdmsCriteriaReqV2) as search.
+     * @param mdmsCriteriaReqV2
+     * @return
+     */
+    public Integer count(MdmsCriteriaReqV2 mdmsCriteriaReqV2) {
+        return resolveFallbackTenant(mdmsCriteriaReqV2.getMdmsCriteria());
+    }
 
-            if(!CollectionUtils.isEmpty(masterDataList))
+    /**
+     * Walks the tenant fallback chain (concrete tenantId up to state level) and mutates
+     * mdmsCriteriaV2's tenantId to the first level that has matching master data, so that
+     * search() and count() resolve to the exact same tenant for identical criteria.
+     * @param mdmsCriteriaV2
+     * @return the count of master data at the resolved tenant level
+     */
+    private Integer resolveFallbackTenant(MdmsCriteriaV2 mdmsCriteriaV2) {
+        List<String> subTenantListForFallback = FallbackUtil.getSubTenantListForFallBack(mdmsCriteriaV2.getTenantId());
+
+        Integer count = 0;
+        for (String subTenantId : subTenantListForFallback) {
+            mdmsCriteriaV2.setTenantId(subTenantId);
+            count = mdmsDataRepository.countV2(mdmsCriteriaV2);
+
+            if (count > 0)
                 break;
         }
 
-        return masterDataList;
+        return count;
     }
 
     /**

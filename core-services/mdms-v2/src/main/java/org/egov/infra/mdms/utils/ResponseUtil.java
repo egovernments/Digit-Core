@@ -4,6 +4,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.egov.infra.mdms.model.Mdms;
+import org.egov.infra.mdms.model.MdmsCountResponseV2;
 import org.egov.infra.mdms.model.MdmsResponseV2;
 import org.egov.infra.mdms.model.SchemaDefinition;
 import org.egov.infra.mdms.model.SchemaDefinitionResponse;
@@ -23,6 +24,12 @@ public class ResponseUtil {
     public static MdmsResponseV2 getMasterDataV2Response(RequestInfo requestInfo, List<Mdms> masterDataList){
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
         MdmsResponseV2 response = MdmsResponseV2.builder().mdms(masterDataList).responseInfo(responseInfo).build();
+        return response;
+    }
+
+    public static MdmsCountResponseV2 getMasterDataV2CountResponse(RequestInfo requestInfo, Integer totalCount){
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
+        MdmsCountResponseV2 response = MdmsCountResponseV2.builder().totalCount(totalCount).responseInfo(responseInfo).build();
         return response;
     }
 
