@@ -216,7 +216,12 @@ public class MinioRepository implements CloudFilesManager {
 								.bucket(minioConfig.getBucketName())
 								.object(fileName)
 								.build());
-				resource = new InputStreamResource(stream);
+				resource = new InputStreamResource(stream) {
+					@Override
+					public long contentLength() {
+						return -1; // prevents Spring from pre-reading the stream to determine length
+					}
+				};
 			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException |
                      InsufficientDataException | InternalException |
                      InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException |
