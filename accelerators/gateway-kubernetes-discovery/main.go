@@ -16,6 +16,7 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -71,7 +72,7 @@ func getKubeConnection() (clientset *kubernetes.Clientset) {
 func listAllServices(clientset *kubernetes.Clientset, namespace string) (s *v1.ServiceList) {
 	sc := clientset.CoreV1().Services(namespace)
 
-	s, err := sc.List(metav1.ListOptions{})
+	s, err := sc.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}

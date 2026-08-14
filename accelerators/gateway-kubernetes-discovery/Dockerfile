@@ -1,10 +1,12 @@
 
-FROM golang:1.13-alpine as build
+FROM --platform=$BUILDPLATFORM golang:1.25.13-alpine AS build
 
 ENV GO111MODULE=on
 ENV GOCACHE=/tmp
 
 ARG WORK_DIR
+ARG TARGETOS
+ARG TARGETARCH
 WORKDIR /app
 
 COPY ${WORK_DIR}/go.mod .
@@ -14,18 +16,16 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build
 
 
 # Create runtime image
-FROM alpine:3
+FROM gcr.io/distroless/static-debian12:nonroot
 
 WORKDIR /opt/egov
 
-RUN addgroup -S egov && adduser -S -G egov egov 
-COPY --chown=egov:egov --from=build /app/zuul-kubernetes-discovery /opt/egov/
+COPY --chown=nonroot:nonroot --from=build /app/zuul-kubernetes-discovery /opt/egov/
 
-RUN chmod +x /opt/egov/zuul-kubernetes-discovery 
+USER nonroot:nonroot
 
 CMD ["/opt/egov/zuul-kubernetes-discovery"]
-# USER egov
