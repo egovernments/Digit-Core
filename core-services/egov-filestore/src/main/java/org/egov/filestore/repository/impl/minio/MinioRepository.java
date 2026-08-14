@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.springframework.core.io.InputStreamResource;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -80,9 +81,8 @@ public class MinioRepository implements CloudFilesManager {
 
 	private void push(MultipartFile multipartFile, String fileNameWithPath) {
 		try {
-			byte[] fileBytes = multipartFile.getBytes();
-			long fileSize = fileBytes.length;
-			InputStream is = new ByteArrayInputStream(fileBytes);
+			InputStream is = multipartFile.getInputStream();
+			long fileSize = multipartFile.getSize();
 
 			PutObjectArgs args = PutObjectArgs.builder()
 					.bucket(minioConfig.getBucketName())
@@ -210,18 +210,13 @@ public class MinioRepository implements CloudFilesManager {
 			String fileName = fileLocation.getFileName().substring(fileLocation.getFileName().indexOf('/') + 1,
 					fileLocation.getFileName().length());
 
-			try (InputStream stream = minioClient.getObject(
-					GetObjectArgs.builder()
-							.bucket(minioConfig.getBucketName())
-							.object(fileName)
-							.build())) {
-				byte[] buf = new byte[16384];
-				int bytesRead;
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				while ((bytesRead = stream.read(buf, 0, buf.length)) >= 0) {
-					out.write(buf, 0, bytesRead);
-				}
-				resource = new ByteArrayResource(out.toByteArray());
+			try {
+				InputStream stream = minioClient.getObject(
+						GetObjectArgs.builder()
+								.bucket(minioConfig.getBucketName())
+								.object(fileName)
+								.build());
+				resource = new InputStreamResource(stream);
 			} catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException |
                      InsufficientDataException | InternalException |
                      InvalidResponseException | NoSuchAlgorithmException | XmlParserException | IOException |
