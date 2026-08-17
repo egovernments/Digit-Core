@@ -135,17 +135,17 @@ public class UserServiceTest {
                 .build();
 
         // wrapper encrypt call for the userNames list
-        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+        when(encryptionDecryptionUtil.encryptObject(anyString(), any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
                 .thenAnswer(inv -> encryptedUserNames.stream()
                         .map(ct -> User.builder().username(ct).build())
                         .collect(java.util.stream.Collectors.toList()));
 
         // criteria-object encrypt call (returns same criteria unchanged for the test)
-        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(encryptionDecryptionUtil.encryptObject("os.osun", criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
 
         when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
         when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
-        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+        when(encryptionDecryptionUtil.decryptObject("os.osun", Collections.emptyList(), null, User.class, getValidRequestInfo()))
                 .thenReturn(Collections.emptyList());
 
         userService.searchUsers(criteria, true, getValidRequestInfo());
@@ -153,9 +153,9 @@ public class UserServiceTest {
         // list on criteria after the call must be the encrypted values
         assertThat(criteria.getUserNames()).containsExactlyElementsOf(encryptedUserNames);
         // wrapper encrypt call fired exactly once for the list
-        verify(encryptionDecryptionUtil).encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class));
+        verify(encryptionDecryptionUtil).encryptObject(anyString(), any(List.class), Mockito.eq("User"), Mockito.eq(User.class));
         // and criteria-level encrypt fired exactly once
-        verify(encryptionDecryptionUtil).encryptObject(criteria, "User", UserSearchCriteria.class);
+        verify(encryptionDecryptionUtil).encryptObject("os.osun", criteria, "User", UserSearchCriteria.class);
     }
 
     @Test
@@ -169,14 +169,14 @@ public class UserServiceTest {
                 .mobileNumbers(new ArrayList<>(plaintextMobileNumbers))
                 .build();
 
-        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+        when(encryptionDecryptionUtil.encryptObject(anyString(), any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
                 .thenAnswer(inv -> encryptedMobileNumbers.stream()
                         .map(ct -> User.builder().mobileNumber(ct).build())
                         .collect(java.util.stream.Collectors.toList()));
-        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(encryptionDecryptionUtil.encryptObject("os.osun", criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
         when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
         when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
-        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+        when(encryptionDecryptionUtil.decryptObject("os.osun", Collections.emptyList(), null, User.class, getValidRequestInfo()))
                 .thenReturn(Collections.emptyList());
 
         userService.searchUsers(criteria, true, getValidRequestInfo());
@@ -193,14 +193,14 @@ public class UserServiceTest {
                 .userNames(new ArrayList<>(Arrays.asList("emp_1", "emp_2")))
                 .build();
 
-        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+        when(encryptionDecryptionUtil.encryptObject(anyString(), any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
                 .thenAnswer(inv -> Arrays.asList(
                         User.builder().username("ct_1").build(),
                         User.builder().username("ct_2").build()));
-        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(encryptionDecryptionUtil.encryptObject("os.osun", criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
         when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
         when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
-        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+        when(encryptionDecryptionUtil.decryptObject("os.osun", Collections.emptyList(), null, User.class, getValidRequestInfo()))
                 .thenReturn(Collections.emptyList());
 
         userService.searchUsers(criteria, true, getValidRequestInfo());
@@ -219,12 +219,12 @@ public class UserServiceTest {
                 .mobileNumbers(new ArrayList<>(Arrays.asList("9111234567")))
                 .build();
 
-        when(encryptionDecryptionUtil.encryptObject(any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
+        when(encryptionDecryptionUtil.encryptObject(anyString(), any(List.class), Mockito.eq("User"), Mockito.eq(User.class)))
                 .thenAnswer(inv -> Arrays.asList(User.builder().mobileNumber("ct_9111").build()));
-        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(encryptionDecryptionUtil.encryptObject("os.osun", criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
         when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
         when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
-        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+        when(encryptionDecryptionUtil.decryptObject("os.osun", Collections.emptyList(), null, User.class, getValidRequestInfo()))
                 .thenReturn(Collections.emptyList());
 
         userService.searchUsers(criteria, true, getValidRequestInfo());
@@ -241,10 +241,10 @@ public class UserServiceTest {
                 .userName("plain_only")
                 .build();
 
-        when(encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
+        when(encryptionDecryptionUtil.encryptObject("os.osun", criteria, "User", UserSearchCriteria.class)).thenReturn(criteria);
         when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenReturn("os.osun");
         when(userRepository.findAll(criteria)).thenReturn(Collections.emptyList());
-        when(encryptionDecryptionUtil.decryptObject(Collections.emptyList(), null, User.class, getValidRequestInfo()))
+        when(encryptionDecryptionUtil.decryptObject("os.osun", Collections.emptyList(), null, User.class, getValidRequestInfo()))
                 .thenReturn(Collections.emptyList());
 
         userService.searchUsers(criteria, true, getValidRequestInfo());
@@ -253,7 +253,7 @@ public class UserServiceTest {
         // (any(List.class) does not filter by runtime type in Mockito 1.x, so
         //  use isA() which checks the instanceof at runtime.)
         verify(encryptionDecryptionUtil, never())
-                .encryptObject(Mockito.isA(List.class), Mockito.eq("User"), Mockito.eq(User.class));
+                .encryptObject(anyString(), Mockito.isA(List.class), Mockito.eq("User"), Mockito.eq(User.class));
     }
 
     @Test

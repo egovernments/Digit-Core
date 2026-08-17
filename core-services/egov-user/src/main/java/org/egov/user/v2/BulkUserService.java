@@ -104,10 +104,20 @@ public class BulkUserService {
                             + "Split the request into batches of at most " + maxBulkSize + " users.");
         }
 
+        // The whole batch is written with one SQL statement, so it resolves to a single schema.
+        // A mixed batch would silently write one tenant's rows into another tenant's schema.
+        String batchTenantId = incoming.get(0).getTenantId();
+        for (User u : incoming) {
+            if (u.getTenantId() == null || !u.getTenantId().equals(batchTenantId)) {
+                throw new CustomException("EGOV_USER_V2_BULK_MULTIPLE_TENANTS",
+                        "All users in a bulk create request must share one non-null tenantId");
+            }
+        }
+
         long t0 = System.currentTimeMillis();
 
         // 1. sanitize + enrichCreate: server owns id/uuid/audit; caller cannot set them.
-        String stateTenant = multiStateInstanceUtil.getStateLevelTenant(incoming.get(0).getTenantId());
+        String stateTenant = multiStateInstanceUtil.getStateLevelTenant(batchTenantId);
         Long loggedInUserId = requestInfo != null && requestInfo.getUserInfo() != null
                 ? requestInfo.getUserInfo().getId() : null;
         String loggedInUserUuid = requestInfo != null && requestInfo.getUserInfo() != null
@@ -127,9 +137,13 @@ public class BulkUserService {
             }
         }
 
+        // Read after the enrichment loop, so citizens are encrypted under the same state-level
+        // tenant v1 uses (validateAndEnrichCitizen flattens before createUser reads it).
+        String encTenantId = incoming.get(0).getTenantId();
+
         // 2. bulk PII encrypt. encryptionDecryptionUtil.encryptObject already handles Collections<T>.
         List<User> encrypted = (List<User>) encryptionDecryptionUtil
-                .encryptObject(incoming, "User", User.class);
+                .encryptObject(encTenantId, incoming, "User", User.class);
         long tEnc = System.currentTimeMillis();
 
         // 3. bulk uniqueness check: one SQL for the whole batch, then also
@@ -140,25 +154,28 @@ public class BulkUserService {
 
         Set<String> takenKeys = new HashSet<>();
         List<User> survivors = new ArrayList<>();
-        // dedupReasonByEncryptedUsername: encrypted username -> [code, dedupReasonTag]
-        // The final message (including the plaintext username value) is built later
-        // where the plaintext is available. See error-construction block below.
-        java.util.Map<String, String[]> dedupReasonByEncryptedUsername = new HashMap<>();
-        for (User u : encrypted) {
+        List<Integer> survivorIndexes = new ArrayList<>();
+        // Reasons are tracked per INDEX, not per username: an in-batch duplicate shares its
+        // username with the surviving first occurrence, so a username-keyed map cannot tell
+        // the dropped row apart from the kept one.
+        String[][] dedupReasonByIndex = new String[encrypted.size()][];
+        for (int i = 0; i < encrypted.size(); i++) {
+            User u = encrypted.get(i);
             if (existingUsernames.contains(u.getUsername())) {
                 log.debug("Skipping duplicate (already exists in DB): {}", u.getUsername());
-                dedupReasonByEncryptedUsername.put(u.getUsername(),
-                        new String[]{"EGOV_USER_V2_BULK_USERNAME_ALREADY_EXISTS_IN_DB", "DB_DUP"});
+                dedupReasonByIndex[i] =
+                        new String[]{"EGOV_USER_V2_BULK_USERNAME_ALREADY_EXISTS_IN_DB", "DB_DUP"};
                 continue;
             }
             String key = keyOf(u);
             if (!takenKeys.add(key)) {
                 log.debug("Skipping duplicate within batch: {}", u.getUsername());
-                dedupReasonByEncryptedUsername.put(u.getUsername(),
-                        new String[]{"EGOV_USER_V2_BULK_USERNAME_DUPLICATE_IN_REQUEST", "BATCH_DUP"});
+                dedupReasonByIndex[i] =
+                        new String[]{"EGOV_USER_V2_BULK_USERNAME_DUPLICATE_IN_REQUEST", "BATCH_DUP"};
                 continue;
             }
             survivors.add(u);
+            survivorIndexes.add(i);
         }
 
         // 4. Password preparation: generate random if missing, then hash IN PARALLEL.
@@ -180,28 +197,20 @@ public class BulkUserService {
 
         // 6. bulk PII decrypt for response.
         List<User> decryptedSurvivors = (List<User>) encryptionDecryptionUtil
-                .decryptObject(survivors, "UserSelf", User.class, requestInfo);
+                .decryptObject(encTenantId, survivors, "UserSelf", User.class, requestInfo);
         long tDec = System.currentTimeMillis();
 
         // Build response: preserve original order and count. Failed users have id=null,
         // and each failed row has a matching entry in `errors` describing WHY.
-        Set<String> savedUsernames = decryptedSurvivors.stream()
-                .map(User::getUsername).collect(Collectors.toSet());
+        Set<Integer> savedIndexes = new HashSet<>(survivorIndexes);
         List<User> response = new ArrayList<>(incoming.size());
         List<java.util.Map<String, Object>> errors = new ArrayList<>();
         response.addAll(decryptedSurvivors);
-        // Reverse-index encrypted -> plaintext so we can attach the reason using
-        // the plaintext username (that's what callers correlate by).
-        java.util.Map<String, String> plaintextByEncrypted = new HashMap<>();
-        for (int i = 0; i < incoming.size() && i < encrypted.size(); i++) {
-            plaintextByEncrypted.put(encrypted.get(i).getUsername(), incoming.get(i).getUsername());
-        }
         for (int i = 0; i < incoming.size(); i++) {
             User original = incoming.get(i);
-            if (!savedUsernames.contains(original.getUsername())) {
+            if (!savedIndexes.contains(i)) {
                 response.add(original);  // id remains null → caller sees this row failed
-                String encUsername = i < encrypted.size() ? encrypted.get(i).getUsername() : null;
-                String[] reason = encUsername != null ? dedupReasonByEncryptedUsername.get(encUsername) : null;
+                String[] reason = i < dedupReasonByIndex.length ? dedupReasonByIndex[i] : null;
                 String plaintextUsername = original.getUsername();
                 String tenantId = original.getTenantId();
                 String type = original.getType() != null ? original.getType().toString() : "null";

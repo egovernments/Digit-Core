@@ -6,7 +6,6 @@ import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.user.TestConfiguration;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
-import org.egov.user.domain.service.MobileNumberValidator;
 import org.egov.user.domain.service.TokenService;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.security.CustomAuthenticationKeyGenerator;
@@ -63,9 +62,6 @@ public class BulkUserControllerTest {
 
     @MockBean
     private TokenService tokenService;
-
-    @MockBean
-    private MobileNumberValidator mobileNumberValidator;
 
     @MockBean
     private CustomAuthenticationKeyGenerator authenticationKeyGenerator;

@@ -62,10 +62,10 @@ public class BulkUserServiceTest {
         when(userUtils.getStateLevelTenantForCitizen(anyString(), any())).thenAnswer(inv -> inv.getArguments()[0]);
         // encryption is a passthrough for the tests — leaves usernames untouched so
         // we can assert on plaintext values.
-        when(encryptionDecryptionUtil.encryptObject(anyList(), eq("User"), eq(User.class)))
-                .thenAnswer(inv -> inv.getArguments()[0]);
-        when(encryptionDecryptionUtil.decryptObject(anyList(), eq("UserSelf"), eq(User.class), any(RequestInfo.class)))
-                .thenAnswer(inv -> inv.getArguments()[0]);
+        when(encryptionDecryptionUtil.encryptObject(anyString(), anyList(), eq("User"), eq(User.class)))
+                .thenAnswer(inv -> inv.getArguments()[1]);
+        when(encryptionDecryptionUtil.decryptObject(anyString(), anyList(), eq("UserSelf"), eq(User.class), any(RequestInfo.class)))
+                .thenAnswer(inv -> inv.getArguments()[1]);
         when(passwordEncoder.encode(anyString())).thenAnswer(inv -> "hashed-" + inv.getArguments()[0]);
         // uniqueness: default = no existing users in DB
         when(bulkUserRepository.findExistingUsernames(anyList(), anyString())).thenReturn(Collections.emptySet());
@@ -103,7 +103,7 @@ public class BulkUserServiceTest {
 
         assertThatThrownBy(() -> service.createUsersBulk(tooMany, requestInfo()))
                 .isInstanceOf(org.egov.tracer.model.CustomException.class)
-                .hasMessageContaining("EGOV_USER_V2_BULK_SIZE_EXCEEDED")
+                .hasFieldOrPropertyWithValue("code", "EGOV_USER_V2_BULK_SIZE_EXCEEDED")
                 .hasMessageContaining("exceeds configured maximum of 3");
     }
 
@@ -212,7 +212,7 @@ public class BulkUserServiceTest {
         service.createUsersBulk(incoming, requestInfo());
 
         // exactly one encrypt call for the whole list
-        verify(encryptionDecryptionUtil, times(1)).encryptObject(anyList(), eq("User"), eq(User.class));
+        verify(encryptionDecryptionUtil, times(1)).encryptObject(anyString(), anyList(), eq("User"), eq(User.class));
         // exactly one uniqueness SQL for the whole list
         verify(bulkUserRepository, times(1)).findExistingUsernames(anyList(), anyString());
         // exactly one bulk INSERT

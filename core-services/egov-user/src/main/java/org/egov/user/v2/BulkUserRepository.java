@@ -18,6 +18,7 @@ import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.GuardianRelation;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.repository.builder.RoleQueryBuilder;
+import org.egov.user.utils.DatabaseSchemaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -26,6 +27,8 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
 
 /**
  * Batch DB operations for v2 bulk-create.
@@ -40,18 +43,19 @@ public class BulkUserRepository {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcTemplate jdbcTemplate;
+    private final DatabaseSchemaUtils databaseSchemaUtils;
 
     private static final String SELECT_EXISTING_USERNAMES =
-            "SELECT username FROM eg_user " +
+            "SELECT username FROM " + SCHEMA_REPLACE_STRING + ".eg_user " +
             "WHERE tenantid = :tenantId AND type = :type AND username IN (:usernames)";
 
     private static final String SELECT_N_SEQUENCES =
-            "SELECT nextval('seq_eg_user') FROM generate_series(1, ?)";
+            "SELECT nextval('" + SCHEMA_REPLACE_STRING + ".seq_eg_user') FROM generate_series(1, ?)";
 
     // v2's own INSERT SQL — matches the actual eg_user schema in tenant DBs
     // (independent of v1's UserTypeQueryBuilder, which may drift out of sync).
     private static final String INSERT_USER_SQL =
-            "INSERT INTO eg_user (" +
+            "INSERT INTO " + SCHEMA_REPLACE_STRING + ".eg_user (" +
             "id, uuid, tenantid, salutation, dob, locale, username, password, pwdexpirydate, " +
             "mobilenumber, altcontactnumber, emailid, active, name, gender, pan, aadhaarnumber, " +
             "type, guardian, guardianrelation, signature, accountlocked, bloodgroup, photo, " +
@@ -67,9 +71,11 @@ public class BulkUserRepository {
 
     @Autowired
     public BulkUserRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
-                              JdbcTemplate jdbcTemplate) {
+                              JdbcTemplate jdbcTemplate,
+                              DatabaseSchemaUtils databaseSchemaUtils) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.jdbcTemplate = jdbcTemplate;
+        this.databaseSchemaUtils = databaseSchemaUtils;
     }
 
     /**
@@ -91,8 +97,12 @@ public class BulkUserRepository {
                 .addValue("type", type)
                 .addValue("usernames", usernames);
 
+        // Schema always resolves from the stored tenant, as v1 UserRepository does, so both
+        // statements in a bulk call target the same schema.
         List<String> matches = namedParameterJdbcTemplate.queryForList(
-                SELECT_EXISTING_USERNAMES, params, String.class);
+                databaseSchemaUtils.replaceSchemaPlaceholder(
+                        SELECT_EXISTING_USERNAMES, users.get(0).getTenantId()),
+                params, String.class);
 
         return new HashSet<>(matches);
     }
@@ -104,8 +114,12 @@ public class BulkUserRepository {
     public void createBulk(List<User> users) {
         if (users == null || users.isEmpty()) return;
 
+        String tenantId = users.get(0).getTenantId();
+
         // 1. Reserve N sequence values in one round-trip.
-        List<Long> ids = jdbcTemplate.queryForList(SELECT_N_SEQUENCES, Long.class, users.size());
+        List<Long> ids = jdbcTemplate.queryForList(
+                databaseSchemaUtils.replaceSchemaPlaceholder(SELECT_N_SEQUENCES, tenantId),
+                Long.class, users.size());
         for (int i = 0; i < users.size(); i++) {
             users.get(i).setId(ids.get(i));
         }
@@ -114,7 +128,8 @@ public class BulkUserRepository {
         SqlParameterSource[] userRows = users.stream()
                 .map(this::toUserParams)
                 .toArray(SqlParameterSource[]::new);
-        namedParameterJdbcTemplate.batchUpdate(INSERT_USER_SQL, userRows);
+        namedParameterJdbcTemplate.batchUpdate(
+                databaseSchemaUtils.replaceSchemaPlaceholder(INSERT_USER_SQL, tenantId), userRows);
 
         // 3. Batch INSERT eg_userrole_v1 — flatten users × roles.
         List<SqlParameterSource> roleRows = new ArrayList<>();
@@ -133,7 +148,7 @@ public class BulkUserRepository {
         }
         if (!roleRows.isEmpty()) {
             namedParameterJdbcTemplate.batchUpdate(
-                    RoleQueryBuilder.INSERT_USER_ROLES,
+                    databaseSchemaUtils.replaceSchemaPlaceholder(RoleQueryBuilder.INSERT_USER_ROLES, tenantId),
                     roleRows.toArray(new SqlParameterSource[0]));
         }
 
