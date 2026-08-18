@@ -14,7 +14,7 @@ Master Data Management Service is a core service that is made available on the D
 Please refer to the  below Swagger API contarct for MDMS service to understand the structure of APIs and to have visualization of all internal APIs.
 http://editor.swagger.io/?url=https://raw.githubusercontent.com/egovernments/egov-services/master/docs/mdms/contract/v1-0-0.yml#!/
 
-For the MDMS V2 APIs (`/mdms-v2/v2/_search`, `_count`, `_create`, `_update`), refer to the contract checked into this repo:
+For the MDMS V2 APIs (schema `/mdms-v2/schema/v1/_create`, `_search`, `_update` and master data `/mdms-v2/v2/_search`, `_count`, `_create`, `_update`), refer to the contract checked into this repo:
 [`core-services/docs/mdms-v2-contract.yml`](../docs/mdms-v2-contract.yml). It can be pasted into http://editor.swagger.io/ for a visual walkthrough of the requests/responses.
 
 

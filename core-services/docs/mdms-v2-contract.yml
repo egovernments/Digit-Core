@@ -4,10 +4,11 @@ info:
   title: eGov MDMS V2 Service.
   description: |
     APIs for Master Data Management V2 service. This service reads/writes generic master data (validated against a registered JSON schema) and exposes it via REST API. This module handles the below functionality.
-    1. Create master data against a registered schema
-    2. Search master data using a common criteria model, with tenant-level fallback
-    3. Update existing master data
-    4. Count master data matching a search criteria, without fetching the actual records
+    1. Register/search JSON schema definitions that master data is validated against
+    2. Create master data against a registered schema
+    3. Search master data using a common criteria model, with tenant-level fallback
+    4. Update existing master data
+    5. Count master data matching a search criteria, without fetching the actual records
   contact:
     name: eGovernments Foundation
     email: contacts@egovernments.org
@@ -17,6 +18,69 @@ basePath: /mdms-v2
 x-api-id: org.egov.infra.mdms.service
 x-common-path: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml'
 paths:
+  /schema/v1/_create:
+    post:
+      summary: Register a new JSON schema definition.
+      description: |
+        Registers a new schema definition (a JSON schema keyed by a unique `code`) that master data records are validated against on create/update via /v2/_create/{schemaCode} and /v2/_update/{schemaCode}.
+      parameters:
+        - name: SchemaDefinitionRequest
+          in: body
+          description: Details for the new schema definition + RequestInfo meta data.
+          required: true
+          schema:
+            $ref: '#/definitions/SchemaDefinitionRequest'
+      responses:
+        '202':
+          description: ResponseInfo with schema definition accepted for creation.
+          schema:
+            $ref: '#/definitions/SchemaDefinitionResponse'
+        '400':
+          description: Schema definition creation failed.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2 Schema
+  /schema/v1/_search:
+    post:
+      summary: Search registered JSON schema definitions.
+      description: |
+        Fetches schema definitions matching SchemaDefCriteria (tenantId, codes), with pagination via offset/limit.
+      parameters:
+        - name: SchemaDefSearchRequest
+          in: body
+          description: RequestInfo meta data + SchemaDefCriteria to search schema definitions by.
+          required: true
+          schema:
+            $ref: '#/definitions/SchemaDefSearchRequest'
+      responses:
+        '202':
+          description: Schema definitions retrieved successfully.
+          schema:
+            $ref: '#/definitions/SchemaDefinitionResponse'
+        '400':
+          description: Invalid input.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2 Schema
+  /schema/v1/_update:
+    post:
+      summary: Update an existing JSON schema definition. Not yet implemented.
+      description: |
+        Reserved for updating an existing schema definition. Currently returns HTTP 501 (Not Implemented).
+      parameters:
+        - name: SchemaDefinitionRequest
+          in: body
+          description: Details of the schema definition to update + RequestInfo meta data.
+          required: true
+          schema:
+            $ref: '#/definitions/SchemaDefinitionRequest'
+      responses:
+        '501':
+          description: Not implemented.
+      tags:
+        - MDMS V2 Schema
   /v2/_create/{schemaCode}:
     post:
       summary: Create new master data for a given schema.
@@ -125,6 +189,104 @@ paths:
         - MDMS V2
 
 definitions:
+  SchemaDefinition:
+    type: object
+    description: A registered JSON schema that master data records are validated against.
+    properties:
+      id:
+        type: string
+        description: Unique identifier (UUID) of the schema definition.
+        minLength: 2
+        maxLength: 128
+        readOnly: true
+      tenantId:
+        type: string
+        description: Unique Identifier of ULB/tenant the schema definition belongs to.
+        minLength: 2
+        maxLength: 128
+      code:
+        type: string
+        description: Unique code identifying the schema (e.g. 'common-masters.Department'), referenced as schemaCode by /v2/_create, /v2/_search, /v2/_count and /v2/_update.
+        minLength: 2
+        maxLength: 128
+      description:
+        type: string
+        description: Human readable description of the schema.
+        minLength: 2
+        maxLength: 512
+      definition:
+        type: object
+        description: The JSON schema (draft) definition itself, used to validate master data payloads.
+      isActive:
+        type: boolean
+        description: Denotes whether the schema definition is active.
+        default: true
+      auditDetails:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/AuditDetails'
+    required:
+      - tenantId
+      - code
+      - definition
+
+  SchemaDefinitionRequest:
+    type: object
+    description: Contract class to receive create/update requests for a single SchemaDefinition.
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      SchemaDefinition:
+        $ref: '#/definitions/SchemaDefinition'
+    required:
+      - RequestInfo
+      - SchemaDefinition
+
+  SchemaDefCriteria:
+    type: object
+    description: Search criteria for schema definitions.
+    properties:
+      tenantId:
+        type: string
+        description: Unique Identifier of ULB/tenant to search schema definitions for.
+        minLength: 1
+        maxLength: 100
+      codes:
+        type: array
+        description: List of schema codes to filter by.
+        items:
+          type: string
+      offset:
+        type: integer
+        description: Number of records to skip.
+      limit:
+        type: integer
+        description: Maximum number of records to return.
+    required:
+      - tenantId
+
+  SchemaDefSearchRequest:
+    type: object
+    description: Contract class to receive schema definition search requests.
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      SchemaDefCriteria:
+        $ref: '#/definitions/SchemaDefCriteria'
+    required:
+      - RequestInfo
+      - SchemaDefCriteria
+
+  SchemaDefinitionResponse:
+    type: object
+    description: Contract class to send the response for schema definition create/search.
+    properties:
+      ResponseInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ResponseInfo'
+      SchemaDefinitions:
+        type: array
+        description: List of schema definitions.
+        items:
+          $ref: '#/definitions/SchemaDefinition'
+
   Mdms:
     type: object
     description: A single master data record, validated against a registered JSON schema.
