@@ -4,7 +4,41 @@ Master Data Management Service is a core service that is made available on the D
 
 ### DB UML Diagram
 
-- NA
+MDMS V2 persists to two Postgres tables (see `src/main/resources/db/migration/main/`). There is no enforced foreign key between them - `eg_mdms_data.schemacode` is only logically validated against `eg_mdms_schema_definition.code` at the application layer (schema validation on create/update), not via a DB constraint.
+
+```mermaid
+erDiagram
+    EG_MDMS_SCHEMA_DEFINITION {
+        varchar_64 id "NOT NULL"
+        varchar_255 tenantid PK "NOT NULL"
+        varchar_255 code PK "NOT NULL"
+        varchar_512 description
+        jsonb definition "NOT NULL"
+        boolean isactive "NOT NULL"
+        varchar_64 createdby
+        varchar_64 lastmodifiedby
+        bigint createdtime
+        bigint lastmodifiedtime
+    }
+
+    EG_MDMS_DATA {
+        varchar_64 id UK "NOT NULL"
+        varchar_255 tenantid PK "NOT NULL"
+        varchar_255 schemacode PK "NOT NULL"
+        varchar_255 uniqueidentifier PK "NOT NULL"
+        jsonb data "NOT NULL"
+        boolean isactive "NOT NULL"
+        varchar_64 createdby
+        varchar_64 lastmodifiedby
+        bigint createdtime
+        bigint lastmodifiedtime
+    }
+
+    EG_MDMS_SCHEMA_DEFINITION ||--o{ EG_MDMS_DATA : "validates data against (schemacode = code, app-level only)"
+```
+
+- `eg_mdms_schema_definition` - one row per registered JSON schema, keyed by `(tenantid, code)`. `definition` holds the JSON schema used to validate master data.
+- `eg_mdms_data` - one row per master data record, keyed by `(tenantid, schemacode, uniqueidentifier)`, with a separate unique `id` (UUID) used as the external identifier in `/v2/_update/{schemaCode}` requests. `data` holds the actual master data payload.
 
 ### Service Dependencies
 - NA
