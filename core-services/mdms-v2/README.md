@@ -94,7 +94,7 @@ flag is `true` in [mdms-masters-config.json](https://raw.githubusercontent.com/e
 
 `BasePath` /mdms/v1/[API endpoint]
 
-##### Method
+#### Method
 a) `POST /_search`
 
 This method fetches a list of masters for a specified module and tenantId.
@@ -121,7 +121,7 @@ This method fetches a list of masters for a specified module and tenantId.
 
 Full contract: [`core-services/docs/mdms-v2-contract.yml`](../docs/mdms-v2-contract.yml)
 
-##### Method
+#### Method
 a) `POST /_search`
 
 Fetches master data matching a `MdmsCriteria` (with tenant-level fallback and offset/limit pagination). Request: `MdmsCriteriaReqV2` (RequestInfo + MdmsCriteria). Response: `MdmsResponseV2` (ResponseInfo + list of `mdms`).
