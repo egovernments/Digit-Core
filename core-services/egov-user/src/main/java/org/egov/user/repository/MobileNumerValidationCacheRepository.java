@@ -20,22 +20,17 @@ import java.util.concurrent.TimeUnit;
  * resets the expiry for every entry, and ensures that a pod restart does NOT
  * clear the cache (since there is no @PostConstruct wipe — the TTL drives expiry).
  *
- * Key pattern: egov-user:mobile-val:v2:{tenantId}:{sanitizedCountryCode}
+ * Key pattern: egov-user:mobile-val:{tenantId}:{sanitizedCountryCode}
  * Value:       {@link MobileValidationRule} serialized as JSON, carrying both the regex and the
  *              resolved entry's own countryCode — so a lookup keyed by a null/absent incoming
  *              countryCode can still recover the countryCode MDMS's own "default" entry is
  *              configured for, on a cache HIT and not just on a fresh MDMS fetch.
- *
- *              The key is versioned ("v2") because the pre-existing key pattern held a bare regex
- *              string; reusing it would let an old pod (running the pre-JSON jar, mid rolling
- *              deploy) read a JSON value back as a "regex" and silently reject every valid mobile
- *              number until the entry expired.
  */
 @Repository
 @Slf4j
 public class MobileNumerValidationCacheRepository {
 
-    private static final String KEY_PREFIX = "egov-user:mobile-val:v2:";
+    private static final String KEY_PREFIX = "egov-user:mobile-val:";
     private static final String DEFAULT_SUFFIX = "default";
 
     @Autowired
