@@ -354,10 +354,10 @@ definitions:
       uniqueIdentifiers:
         type: array
         description: List of business unique identifiers to filter by.
+        minItems: 1
+        maxItems: 64
         items:
           type: string
-          minLength: 1
-          maxLength: 64
       schemaCode:
         type: string
         description: Schema code to filter master data by (e.g. 'common-masters.Department').
@@ -380,7 +380,9 @@ definitions:
 
   MdmsCriteriaReqV2:
     type: object
-    description: Contract class to receive search/count requests, shared unchanged between /v2/_search and /v2/_count.
+    description: |
+      Contract class to receive search/count requests, shared unchanged between /v2/_search and /v2/_count.
+      Note: MdmsCriteria is functionally required (its absence causes a NullPointerException downstream) but is not enforced by bean validation - the field carries only @Valid, not @NotNull.
     properties:
       RequestInfo:
         $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
