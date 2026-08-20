@@ -77,6 +77,18 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     }
 
     /**
+     * @param mdmsCriteriaV2
+     * @return
+     */
+    @Override
+    public Long countV2(MdmsCriteriaV2 mdmsCriteriaV2) {
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = mdmsDataQueryBuilderV2.getMdmsDataCountQuery(mdmsCriteriaV2, preparedStmtList);
+        log.info(query);
+        return jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Long.class);
+    }
+
+    /**
      * @param mdmsCriteria
      * @return
      */

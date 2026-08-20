@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
+import org.egov.user.domain.model.MobileValidationRule;
 import org.egov.user.domain.model.mdmsv2.MdmsV2Data;
 import org.egov.user.domain.model.mdmsv2.MdmsV2Response;
 import org.egov.user.repository.MobileNumerValidationCacheRepository;
@@ -54,7 +55,7 @@ public class MobileNumberValidatorTest {
             String t = (String) inv.getArguments()[0];
             return t.contains(".") ? t.split("\\.")[0] : t;
         });
-        when(cacheRepository.getMobileRegex(anyString(), any())).thenReturn(null);
+        when(cacheRepository.getRule(anyString(), any())).thenReturn(null);
     }
 
     // -------- skip validation for blank mobile --------
@@ -128,7 +129,7 @@ public class MobileNumberValidatorTest {
 
     @Test
     public void test_uses_cached_regex_without_calling_mdms() {
-        when(cacheRepository.getMobileRegex("pb", "+91")).thenReturn("^[6-9][0-9]{9}$");
+        when(cacheRepository.getRule("pb", "+91")).thenReturn(new MobileValidationRule("^[6-9][0-9]{9}$", "+91"));
         validator.validateMobileNumberWithCountryCode("9123456789", "+91", "pb", requestInfo);
         verifyZeroInteractions(restTemplate);
     }
@@ -137,7 +138,7 @@ public class MobileNumberValidatorTest {
     public void test_caches_regex_after_mdms_fetch() {
         stubMdmsResponse("pb", "+91", "^[6-9][0-9]{9}$", true, true);
         validator.validateMobileNumberWithCountryCode("9123456789", "+91", "pb", requestInfo);
-        verify(cacheRepository).cacheMobileRegex(eq("pb"), eq("+91"), eq("^[6-9][0-9]{9}$"));
+        verify(cacheRepository).cacheRule(eq("pb"), eq("+91"), eq(new MobileValidationRule("^[6-9][0-9]{9}$", "+91")));
     }
 
     // -------- countryCode resolution --------
@@ -154,6 +155,25 @@ public class MobileNumberValidatorTest {
         stubMdmsResponse("pb", "+91", "^[6-9][0-9]{9}$", true, true);
         String result = validator.validateMobileNumberWithCountryCode("9123456789", null, "pb", requestInfo);
         assertEquals("+91", result);
+    }
+
+    // MDMS's own "default" entry must win over the application.properties default whenever MDMS
+    // has an answer at all — the properties value is a last resort for when MDMS has NOTHING, not
+    // a value MDMS is expected to agree with. Java default here ("+91") deliberately differs from
+    // MDMS's configured default ("+251") so the test fails if the priority order regresses.
+    @Test
+    public void test_mdms_default_countryCode_wins_over_application_properties_default() {
+        stubMdmsResponse("et", "+251", "^[79][0-9]{8}$", true, true);
+        String result = validator.validateMobileNumberWithCountryCode("712345678", null, "et", requestInfo);
+        assertEquals("+251", result);
+    }
+
+    @Test
+    public void test_mdms_default_countryCode_wins_on_cache_hit_too() {
+        when(cacheRepository.getRule("et", null)).thenReturn(new MobileValidationRule("^[79][0-9]{8}$", "+251"));
+        String result = validator.validateMobileNumberWithCountryCode("712345678", null, "et", requestInfo);
+        assertEquals("+251", result);
+        verifyZeroInteractions(restTemplate);
     }
 
     // -------- inactive entry skipped --------
