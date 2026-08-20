@@ -2,7 +2,9 @@ package org.egov.infra.persist.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +33,13 @@ public class PersistRepository {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private static final Configuration LENIENT_VALUE_READ =
+            Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL);
+
+    private <T> T readValue(Object jsonObj, String jsonPath) {
+        return JsonPath.using(LENIENT_VALUE_READ).parse(jsonObj).read(jsonPath);
+    }
 
 
     public void persist(String query, List<Object[]> rows) {
@@ -68,16 +77,27 @@ public class PersistRepository {
 
         List<LinkedHashMap<String, Object>> dataSource = extractData(baseJsonPath, jsonObj);
 
+        if (dataSource == null || dataSource.isEmpty()) {
+            log.debug("No data found for basePath: {}", baseJsonPath);
+            return new ArrayList<>();
+        }
+
         List<Object[]> rows = new ArrayList<>();
+        int nullRecords = 0;
+        int emptyChildRecords = 0;
 
         for (int i = 0; i < dataSource.size(); i++) {
             LinkedHashMap<String, Object> rawDataRecord = dataSource.get(i);
 
-            if (rawDataRecord == null)
+            if (rawDataRecord == null) {
+                nullRecords++;
                 continue;
+            }
 
-            if (isChildObjectEmpty(baseJsonPath, rawDataRecord))
+            if (isChildObjectEmpty(baseJsonPath, rawDataRecord)) {
+                emptyChildRecords++;
                 continue;
+            }
 
 
             List<Object> row = new ArrayList<>();
@@ -98,7 +118,7 @@ public class PersistRepository {
                 if (jsonPath.contains("{")) {
                     String attribute = jsonPath.substring(jsonPath.indexOf("{") + 1, jsonPath.indexOf("}"));
                     jsonPath = jsonPath.replace("{".concat(attribute).concat("}"), "\"" + rawDataRecord.get(attribute).toString() + "\"");
-                    JSONArray jsonArray = JsonPath.read(jsonObj, jsonPath);
+                    JSONArray jsonArray = readValue(jsonObj, jsonPath);
                     row.add(jsonArray.get(0));
 
                     continue;
@@ -114,7 +134,7 @@ public class PersistRepository {
                 }
 
                 else if ((type.equals(TypeEnum.ARRAY)) && dbType.equals(TypeEnum.STRING)) {
-                    List<Object> list1 = JsonPath.read(jsonObj, jsonPath);
+                    List<Object> list1 = readValue(jsonObj, jsonPath);
                     if (CollectionUtils.isEmpty(list1)) {
                         value = null;
                     } else {
@@ -129,7 +149,7 @@ public class PersistRepository {
                 }
 
                 else if (!(type.equals(TypeEnum.CURRENTDATE) || jsonPath.startsWith("default"))) {
-                    value = JsonPath.read(jsonObj, jsonPath);
+                    value = readValue(jsonObj, jsonPath);
                 }
 
                 if (jsonPath.startsWith("default"))
@@ -185,6 +205,12 @@ public class PersistRepository {
             }
             rows.add(row.toArray());
         }
+
+        if (nullRecords > 0 || emptyChildRecords > 0) {
+            log.debug("getRows for basePath '{}': {} rows extracted, {} null records skipped, {} empty child records skipped",
+                    baseJsonPath, rows.size(), nullRecords, emptyChildRecords);
+        }
+
         return rows;
 
     }

@@ -6,9 +6,11 @@ import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.querybuilder.BoundaryRelationshipQueryBuilder;
 import digit.repository.rowmapper.BoundaryRelationshipRowMapper;
 import digit.web.models.*;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,87 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
         // Push to event bus for creating asynchronously
         producer.push(applicationProperties.getCreateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
+    }
+
+    /**
+     * Persists the given validated and enriched boundary relationships through egov-persister rather than
+     * a direct JDBC write. The WHOLE validated list is published as ONE message — an ARRAY under the
+     * {@code BoundaryRelationship} key — to the DEDICATED bulk topic
+     * ({@code boundary-relationship-bulk-create-job}). The persister maps that topic with an array base
+     * path ({@code $.BoundaryRelationship.*}), so {@code PersistRepository.getRows} emits one row per
+     * element and the listener performs ONE {@code jdbcTemplate.batchUpdate} for the whole message through
+     * the idempotent {@code INSERT ... ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING} query. One
+     * message per batch (instead of one message per record) is what restores batched throughput while
+     * keeping the write owned by the persister.
+     *
+     * <p>A DEDICATED topic (NOT the single-create {@code save-boundary-relationship}) is required for
+     * correctness: single-create publishes {@code BoundaryRelationship} as a single OBJECT, bulk publishes
+     * it as an ARRAY. A persister queryMap has exactly one base path, so the two shapes cannot share a
+     * topic — an array mapping ({@code .*}) mis-reads a single object (JsonPath {@code .*} over an object
+     * yields its property values, not one row) and a single mapping mis-reads an array. Each shape
+     * therefore gets its own topic + queryMap. Batching is WITHIN a single message (the array), so it does
+     * not depend on {@code persister.bulk.enabled}: the normal listener maps the array to N rows and
+     * batch-inserts them in one transaction. Because the insert is idempotent, at-least-once redelivery is
+     * a safe no-op; duplicates within/across messages are silently skipped by ON CONFLICT and never abort
+     * the batch.</p>
+     *
+     * <p>The message is keyed by the batch's parent code (callers batch siblings under one already-persisted
+     * parent), so batches for the same parent stay ordered on the same partition. A null/mixed parent falls
+     * back to the keyless behaviour of the single path.</p>
+     *
+     * @param boundaryRelationships validated and enriched relationships to persist
+     * @param requestInfo request info propagated onto the published message
+     */
+    @Override
+    public void createBulk(List<BoundaryRelation> boundaryRelationships, RequestInfo requestInfo) {
+        if (CollectionUtils.isEmpty(boundaryRelationships))
+            return;
+
+        // Convert each validated+enriched contract POJO to the DTO that exposes ancestralMaterializedPath
+        // on the wire (it is @JsonIgnore on BoundaryRelation but @JsonProperty on the DTO), mirroring the
+        // single-create serialization so both paths persist identical rows.
+        List<BoundaryRelationshipDTO> boundaryRelationshipDTOs = new ArrayList<>(boundaryRelationships.size());
+        for (BoundaryRelation boundaryRelationship : boundaryRelationships) {
+            boundaryRelationshipDTOs.add(convertRelationPOJOToDTO(boundaryRelationship));
+        }
+
+        BulkBoundaryRelationshipRequestDTO batchMessage = BulkBoundaryRelationshipRequestDTO.builder()
+                .requestInfo(requestInfo)
+                .boundaryRelationship(boundaryRelationshipDTOs)
+                .build();
+
+        // Publish the whole validated list as ONE message to the dedicated bulk topic.
+        producer.push(applicationProperties.getBulkCreateBoundaryRelationshipJobTopic(), resolveBatchKey(boundaryRelationships), batchMessage);
+    }
+
+    /**
+     * Kafka key for a batch: the shared parent code when every record in the batch has the same
+     * (non-null) parent, else null (keyless, i.e. the single-create default-partitioner behaviour).
+     * Keying by parent keeps sibling batches under one parent ordered on the same partition; a mixed or
+     * root batch must not be forced onto one partition, so it falls back to keyless.
+     */
+    private String resolveBatchKey(List<BoundaryRelation> boundaryRelationships) {
+        String firstParent = boundaryRelationships.get(0).getParent();
+        if (firstParent == null)
+            return null;
+        for (BoundaryRelation boundaryRelationship : boundaryRelationships) {
+            if (!firstParent.equals(boundaryRelationship.getParent()))
+                return null;
+        }
+        return firstParent;
+    }
+
+    /**
+     * Copies a validated+enriched {@link BoundaryRelation} into a {@link BoundaryRelationshipDTO},
+     * carrying over the enriched {@code ancestralMaterializedPath} explicitly (it is not copied by
+     * BeanUtils onto the wire because it is {@code @JsonIgnore} on the source). Mirrors the field copy
+     * that {@link #convertContractPOJOToDTO} performs for the single-create path.
+     */
+    private BoundaryRelationshipDTO convertRelationPOJOToDTO(BoundaryRelation boundaryRelationship) {
+        BoundaryRelationshipDTO boundaryRelationshipDTO = new BoundaryRelationshipDTO();
+        BeanUtils.copyProperties(boundaryRelationship, boundaryRelationshipDTO);
+        boundaryRelationshipDTO.setAncestralMaterializedPath(boundaryRelationship.getAncestralMaterializedPath());
+        return boundaryRelationshipDTO;
     }
 
     /**

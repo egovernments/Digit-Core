@@ -99,6 +99,17 @@ public class ApplicationProperties {
     @Value("${kafka.topics.update.boundary.relationship}")
     private String updateBoundaryRelationshipTopic;
 
+    // Dedicated topic for the batched bulk-create path: createBulk publishes ONE array message here, mapped by
+    // the persister with an array base path ($.BoundaryRelationship.*). Kept separate from the single-create
+    // topic because a single object and an array cannot share one persister queryMap.
+    @Value("${kafka.topics.bulk.create.boundary.relationship.job}")
+    private String bulkCreateBoundaryRelationshipJobTopic;
+
+    // Upper bound on records accepted by POST /boundary-relationships/bulk/_create. Enforced in the
+    // service (bean validation is not active in this deployment). Keep in sync with the caller's chunk size.
+    @Value("${boundary.bulk.max.size:100}")
+    private Integer bulkCreateMaxSize;
+
     @Value("${boundary.default.offset}")
     private Integer defaultOffset;
 

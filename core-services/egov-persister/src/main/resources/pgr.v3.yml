@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: save-pgr-service
    isTransaction: true
    queryMaps:
-    - query: INSERT INTO eg_pgr_service(tenantid, servicecode, servicerequestid, description, lat, "long", addressid, address, email, deviceid, accountid, firstname, lastname, phone, attributes, status, source, expectedtime, rating, feedback, landmark, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_pgr_service(tenantid, servicecode, servicerequestid, description, lat, "long", addressid, address, email, deviceid, accountid, firstname, lastname, phone, attributes, status, source, expectedtime, rating, feedback, landmark, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantid, servicerequestid) DO NOTHING;
 
       basePath: services.*
       jsonMaps:
@@ -66,7 +66,7 @@ serviceMaps:
        - jsonPath: $.services.*.auditDetails.lastModifiedTime
 
 
-    - query: INSERT INTO eg_pgr_action(uuid, by, "when", action, status, comments, media, assignee, isinternal, tenantid, businesskey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_pgr_action(uuid, by, "when", action, status, comments, media, assignee, isinternal, tenantid, businesskey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid, tenantid) DO NOTHING;
 
       basePath: actionInfo.*
       jsonMaps:
@@ -96,7 +96,7 @@ serviceMaps:
        - jsonPath: $.actionInfo.*.businessKey
        
        
-    - query: INSERT INTO eg_pgr_address(uuid, housenoandstreetname, mohalla, landmark, latitude, longitude, city, tenantid, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_pgr_address(uuid, housenoandstreetname, mohalla, landmark, latitude, longitude, city, tenantid, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantid, uuid) DO NOTHING;
 
       basePath: services.*
       jsonMaps:
@@ -185,7 +185,7 @@ serviceMaps:
        - jsonPath: $.services.*.serviceRequestId
 
 
-    - query: INSERT INTO eg_pgr_action(uuid, by, "when", action, status, comments, media, assignee, isinternal, tenantid, businesskey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_pgr_action(uuid, by, "when", action, status, comments, media, assignee, isinternal, tenantid, businesskey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid, tenantid) DO NOTHING;
 
       basePath: actionInfo.*
       jsonMaps:

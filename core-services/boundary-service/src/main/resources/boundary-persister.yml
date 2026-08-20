@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: create-boundary-entity
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO boundary (id, tenantId, code, geometry, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO boundary (id, tenantId, code, geometry, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (code, tenantId) DO NOTHING;
           basePath: $.Boundary.*
           jsonMaps:
             - jsonPath: $.Boundary.*.id
@@ -54,7 +54,7 @@ serviceMaps:
       fromTopic: save-boundary-hierarchy-definition
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO boundary_hierarchy (id, tenantId, hierarchyType, boundaryHierarchy, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO boundary_hierarchy (id, tenantId, hierarchyType, boundaryHierarchy, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantId, hierarchyType) DO NOTHING;
           basePath: $.BoundaryHierarchy
           jsonMaps:
             - jsonPath: $.BoundaryHierarchy.id
@@ -75,11 +75,11 @@ serviceMaps:
 
             - jsonPath: $.BoundaryHierarchy.auditDetails.lastModifiedBy
     - version: 1.0
-      description: Persists the boundary relationship data
+      description: Persists a SINGLE boundary relationship (POST /boundary-relationships/_create -> object payload)
       fromTopic: save-boundary-relationship
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO boundary_relationship (id, tenantId, code, hierarchyType, boundaryType, parent, ancestralMaterializedPath, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO boundary_relationship (id, tenantId, code, hierarchyType, boundaryType, parent, ancestralMaterializedPath, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING;
           basePath: $.BoundaryRelationship
           jsonMaps:
             - jsonPath: $.BoundaryRelationship.id
@@ -103,6 +103,35 @@ serviceMaps:
             - jsonPath: $.BoundaryRelationship.auditDetails.lastModifiedTime
 
             - jsonPath: $.BoundaryRelationship.auditDetails.lastModifiedBy
+    - version: 1.0
+      description: Persists a BATCH of boundary relationships published as ONE array message (POST /boundary-relationships/bulk/_create -> array payload)
+      fromTopic: boundary-relationship-bulk-create-job
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary_relationship (id, tenantId, code, hierarchyType, boundaryType, parent, ancestralMaterializedPath, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantId, code, hierarchyType) DO NOTHING;
+          basePath: $.BoundaryRelationship.*
+          jsonMaps:
+            - jsonPath: $.BoundaryRelationship.*.id
+
+            - jsonPath: $.BoundaryRelationship.*.tenantId
+
+            - jsonPath: $.BoundaryRelationship.*.code
+
+            - jsonPath: $.BoundaryRelationship.*.hierarchyType
+
+            - jsonPath: $.BoundaryRelationship.*.boundaryType
+
+            - jsonPath: $.BoundaryRelationship.*.parent
+
+            - jsonPath: $.BoundaryRelationship.*.ancestralMaterializedPath
+
+            - jsonPath: $.BoundaryRelationship.*.auditDetails.createdTime
+
+            - jsonPath: $.BoundaryRelationship.*.auditDetails.createdBy
+
+            - jsonPath: $.BoundaryRelationship.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryRelationship.*.auditDetails.lastModifiedBy
     - version: 1.0
       description: Updates boundary relationship data
       fromTopic: update-boundary-relationship
