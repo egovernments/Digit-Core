@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
+import org.egov.user.domain.model.MobileValidationRule;
 import org.egov.user.domain.model.mdmsv2.MdmsV2Data;
 import org.egov.user.domain.model.mdmsv2.MdmsV2Response;
 import org.egov.user.domain.model.mdmsv2.MdmsV2SearchCriteria;
@@ -94,33 +95,47 @@ public class MobileNumberValidator {
         String stateTenantId = multiStateInstanceUtil.getStateLevelTenant(tenantId);
 
         // 1. Try cache
-        String regex = cacheRepository.getMobileRegex(stateTenantId, countryCode);
+        MobileValidationRule rule = cacheRepository.getRule(stateTenantId, countryCode);
 
-        if (regex == null) {
+        if (rule == null) {
             // 2. Try incoming tenantId in MDMS
-            regex = fetchRegexFromMdms(countryCode, tenantId, requestInfo);
+            rule = fetchRuleFromMdms(countryCode, tenantId, requestInfo);
 
             // 3. Fallback to state tenant if incoming returned nothing
-            if (regex == null && !tenantId.equals(stateTenantId)) {
+            if (rule == null && !tenantId.equals(stateTenantId)) {
                 log.info("No MDMS config for tenantId: {}, retrying with stateTenant: {}", tenantId, stateTenantId);
-                regex = fetchRegexFromMdms(countryCode, stateTenantId, requestInfo);
+                rule = fetchRuleFromMdms(countryCode, stateTenantId, requestInfo);
             }
 
-            if (regex != null) {
-                cacheRepository.cacheMobileRegex(stateTenantId, countryCode, regex);
+            if (rule != null) {
+                cacheRepository.cacheRule(stateTenantId, countryCode, rule);
             }
         }
 
-        // 4. Fallback to application.properties default
-        if (regex == null) {
+        String regex;
+        String resolvedCountryCode = countryCode;
+        if (rule == null) {
+            // 4. MDMS has no usable config at all (unreachable, or no matching/default entry) —
+            // only NOW fall back to the application.properties default.
             log.warn("No MDMS validation config found for tenantId: {} countryCode: {}. Using application.properties default.",
                     tenantId, countryCode);
             regex = defaultMobileRegex;
+            if (resolvedCountryCode == null) {
+                resolvedCountryCode = defaultCountryCode;
+            }
+        } else {
+            regex = rule.getRegex();
+            // MDMS is configured and answered: when the caller didn't pass a countryCode, prefer
+            // the countryCode carried by the MDMS entry we matched (or its "default" entry) over
+            // the application.properties fallback — MDMS wins whenever it has an answer.
+            if (resolvedCountryCode == null) {
+                resolvedCountryCode = StringUtils.hasText(rule.getCountryCode()) ? rule.getCountryCode() : defaultCountryCode;
+            }
         }
 
         applyRegexValidation(mobileNumber, regex);
-        log.info("Mobile validation successful for countryCode: {}", countryCode);
-        return countryCode != null ? countryCode : defaultCountryCode;
+        log.info("Mobile validation successful for countryCode: {}", resolvedCountryCode);
+        return resolvedCountryCode;
     }
 
     private void applyRegexValidation(String mobileNumber, String regex) {
@@ -139,7 +154,7 @@ public class MobileNumberValidator {
         }
     }
 
-    private String fetchRegexFromMdms(String countryCode, String tenantId, RequestInfo requestInfo) {
+    private MobileValidationRule fetchRuleFromMdms(String countryCode, String tenantId, RequestInfo requestInfo) {
         try {
             String url = mdmsHost + mdmsV2SearchEndpoint;
             MdmsV2SearchRequest searchRequest = MdmsV2SearchRequest.builder()
@@ -159,7 +174,7 @@ public class MobileNumberValidator {
                 return null;
             }
 
-            return selectRegex(response.getMdms(), countryCode);
+            return selectRule(response.getMdms(), countryCode);
 
         } catch (Exception e) {
             log.error("Error fetching validation config from MDMS-v2 for tenantId: {} countryCode: {}", tenantId, countryCode, e);
@@ -167,8 +182,8 @@ public class MobileNumberValidator {
         }
     }
 
-    private String selectRegex(List<MdmsV2Data> mdmsEntries, String countryCode) {
-        String defaultRegex = null;
+    private MobileValidationRule selectRule(List<MdmsV2Data> mdmsEntries, String countryCode) {
+        MobileValidationRule defaultRule = null;
         for (MdmsV2Data entry : mdmsEntries) {
             if (entry.getData() == null || Boolean.FALSE.equals(entry.getIsActive())) {
                 continue;
@@ -183,20 +198,20 @@ public class MobileNumberValidator {
             boolean isDefault = data.has(FIELD_DEFAULT) && data.get(FIELD_DEFAULT).asBoolean(false);
             String entryCountryCode = data.has(FIELD_COUNTRY_CODE) ? data.get(FIELD_COUNTRY_CODE).asText(null) : null;
 
-            if (isDefault && defaultRegex == null) {
-                defaultRegex = entryRegex;
+            if (isDefault && defaultRule == null) {
+                defaultRule = new MobileValidationRule(entryRegex, entryCountryCode);
             }
 
             if (StringUtils.hasText(countryCode) && countryCode.equals(entryCountryCode)) {
                 log.info("Found MDMS MobileNumberValidation entry for countryCode: {}", countryCode);
-                return entryRegex;
+                return new MobileValidationRule(entryRegex, entryCountryCode);
             }
         }
 
-        if (defaultRegex != null) {
+        if (defaultRule != null) {
             log.info("No MDMS entry for countryCode: {}, using default entry regex.", countryCode);
         }
-        return defaultRegex;
+        return defaultRule;
     }
 
 }
