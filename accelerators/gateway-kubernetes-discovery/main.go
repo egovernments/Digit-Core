@@ -21,6 +21,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -160,6 +161,8 @@ func writeTemplate(r *[]Route) {
 
 func logRoutes(routes []Route) {
 	log.Printf("Total routes configured: %d", len(routes))
+
+	rows := make([][5]string, 0, len(routes))
 	for i, r := range routes {
 		host := "-"
 		if r.Host != "" {
@@ -169,8 +172,38 @@ func logRoutes(routes []Route) {
 		if r.RateLimiter {
 			rateLimit = fmt.Sprintf("replenishRate=%s burstCapacity=%s", r.ReplenishRate, r.BurstCapacity)
 		}
-		log.Printf("[%d] id=%-s | uri=%s | host=%s | rateLimit=%s",
-			i, r.Path+"-"+r.Namespace, r.ServiceURL, host, rateLimit)
+		rows = append(rows, [5]string{strconv.Itoa(i), routeID(r), r.ServiceURL, host, rateLimit})
+	}
+
+	header := [5]string{"#", "ID", "URI", "HOST", "RATE LIMIT"}
+	widths := [5]int{}
+	for c, h := range header {
+		widths[c] = len(h)
+	}
+	for _, row := range rows {
+		for c, v := range row {
+			if len(v) > widths[c] {
+				widths[c] = len(v)
+			}
+		}
+	}
+
+	formatRow := func(row [5]string) string {
+		cells := make([]string, len(row))
+		for c, v := range row {
+			cells[c] = fmt.Sprintf("%-*s", widths[c], v)
+		}
+		return strings.TrimRight(strings.Join(cells, " | "), " ")
+	}
+
+	log.Print(formatRow(header))
+	sep := make([]string, len(widths))
+	for c, w := range widths {
+		sep[c] = strings.Repeat("-", w)
+	}
+	log.Print(strings.Join(sep, "-+-"))
+	for _, row := range rows {
+		log.Print(formatRow(row))
 	}
 }
 
