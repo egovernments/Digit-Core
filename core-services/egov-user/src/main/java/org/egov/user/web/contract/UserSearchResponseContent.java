@@ -27,6 +27,7 @@ public class UserSearchResponseContent {
     private String name;
     private String gender;
     private String mobileNumber;
+    private String countryCode;
     private String emailId;
     private String altContactNumber;
     private String pan;
@@ -76,6 +77,7 @@ public class UserSearchResponseContent {
         this.name = user.getName();
         this.gender = user.getGender() != null ? user.getGender().toString() : null;
         this.mobileNumber = user.getMobileNumber();
+        this.countryCode = user.getCountryCode();
         this.emailId = user.getEmailId();
         this.altContactNumber = user.getAltContactNumber();
         this.pan = user.getPan();

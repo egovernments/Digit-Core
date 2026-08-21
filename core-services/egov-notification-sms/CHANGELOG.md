@@ -2,6 +2,11 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.4 - 2026-06-16
+- Added `countryCode` field to `SMSRequest` Kafka contract and `Sms` domain model.
+- `countryCode` is carried through from the Kafka message to the outbound SMS provider call, enabling per-number country-code routing.
+- **Backward compatible**: `countryCode` is optional in the Kafka message; existing producers that do not set it continue to work; the `sms.mobile.prefix` prefix behaviour is unchanged for such messages.
+
 ## 2.9.3 - 2026-03-16
 - Upgraded Spring Boot version from 3.2.2 to 3.4.5 to fix HIGH/CRITICAL CVEs
 - Upgraded tracer, services-common, mdms-client, enc-client library versions

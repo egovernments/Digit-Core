@@ -22,18 +22,22 @@ public class OtpService {
     private OtpSMSRepository otpSMSSender;
     private OtpEmailRepository otpEmailRepository;
     private UserRepository userRepository;
+    private OtpRequestValidator otpRequestValidator;
 
     @Autowired
     public OtpService(OtpRepository otpRepository, OtpSMSRepository otpSMSSender, OtpEmailRepository otpEmailRepository,
-                      UserRepository userRepository) {
+                      UserRepository userRepository, OtpRequestValidator otpRequestValidator) {
         this.otpRepository = otpRepository;
         this.otpSMSSender = otpSMSSender;
         this.otpEmailRepository = otpEmailRepository;
         this.userRepository = userRepository;
+        this.otpRequestValidator = otpRequestValidator;
     }
 
     public void sendOtp(OtpRequest otpRequest) {
-        otpRequest.validate();
+        // Validate the OTP request (includes fetching MDMS config)
+        otpRequestValidator.validate(otpRequest);
+
         if (otpRequest.isRegistrationRequestType() || otpRequest.isLoginRequestType()) {
             sendOtpForUserRegistration(otpRequest);
         } else {

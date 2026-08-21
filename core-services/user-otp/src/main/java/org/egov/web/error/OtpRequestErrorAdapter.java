@@ -24,14 +24,9 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
 	private static final String TYPE_INVALID_CODE = "OTP.REQUEST_TYPE_MANDATORY";
 	private static final String TYPE_INVALID_MESSAGE = "Request type (register, passwordreset,login) is mandatory";
 	private static final String TYPE_FIELD = "otp.type";
-	
-	private static final String MOBILE_INVALID_CODE = "OTP.MOBILE_NUMBER_INVALID";
-	private static final String MOBILE_INVALID_MESSAGE = "Mobile number field should be numeric.";
-	private static final String MOBILE_INVALID_FIELD = "otp.mobileNumber";
 
-	private static final String MOBILE_INVALIDLENGTH_CODE = "OTP.MOBILE_NUMBER_INVALIDLENGTH";
-	private static final String MOBILE_INVALIDLENGTH_MESSAGE = "Mobile number length should be min 10 and max 13 digits";
-	private static final String MOBILE_INVALIDLENGTH_FIELD = "otp.mobileNumber";
+	private static final String MOBILE_MDMS_VALIDATION_CODE = "OTP.MOBILE_NUMBER_VALIDATION_FAILED";
+	private static final String MOBILE_MDMS_VALIDATION_FIELD = "otp.mobileNumber";
 
     @Override
     public ErrorResponse adapt(OtpRequest model) {
@@ -53,8 +48,9 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
         addTenantIdValidationErrors(model, errorFields);
         addMobileNumberValidationErrors(model, errorFields);
         addRequestTypeValidationErrors(model, errorFields);
-        addMobileNumberInvalidValidationErrors(model, errorFields);
-		addMobileNumberValidLengthValidationError(model, errorFields);
+        if (model.hasMdmsValidationError()) {
+            addMdmsValidationError(model, errorFields);
+        }
         return errorFields;
     }
 
@@ -62,54 +58,45 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
 		if (!model.isInvalidType()) {
 			return;
 		}
-		final ErrorField latitudeErrorField = ErrorField.builder()
+		final ErrorField errorField = ErrorField.builder()
 				.code(TYPE_INVALID_CODE)
 				.message(TYPE_INVALID_MESSAGE)
 				.field(TYPE_FIELD)
 				.build();
-		errorFields.add(latitudeErrorField);
+		errorFields.add(errorField);
 	}
 
 	private void addMobileNumberValidationErrors(OtpRequest model, List<ErrorField> errorFields) {
         if (!model.isMobileNumberAbsent()) {
             return;
         }
-        final ErrorField latitudeErrorField = ErrorField.builder()
+        final ErrorField errorField = ErrorField.builder()
                 .code(MOBILE_MANDATORY_CODE)
                 .message(MOBILE_MANDATORY_MESSAGE)
                 .field(MOBILE_FIELD)
                 .build();
-        errorFields.add(latitudeErrorField);
+        errorFields.add(errorField);
     }
 
     private void addTenantIdValidationErrors(OtpRequest model, List<ErrorField> errorFields) {
         if (!model.isTenantIdAbsent()) {
             return;
         }
-        final ErrorField longitudeErrorField = ErrorField.builder()
+        final ErrorField errorField = ErrorField.builder()
                 .code(TENANT_MANDATORY_CODE)
                 .message(TENANT_MANDATORY_MESSAGE)
                 .field(TENANT_FIELD)
                 .build();
-        errorFields.add(longitudeErrorField);
+        errorFields.add(errorField);
     }
-    
-	private void addMobileNumberValidLengthValidationError(OtpRequest model, List<ErrorField> errorFields) {
-		if (!model.isMobileNumberValidLength()) {
-			return;
-		}
-		final ErrorField latitudeErrorField = ErrorField.builder().code(MOBILE_INVALIDLENGTH_CODE)
-				.message(MOBILE_INVALIDLENGTH_MESSAGE).field(MOBILE_INVALIDLENGTH_FIELD).build();
-		errorFields.add(latitudeErrorField);
-	}
 
-	private void addMobileNumberInvalidValidationErrors(OtpRequest model, List<ErrorField> errorFields) {
-		if (!model.isMobileNumberNumeric()) {
-			return;
-		}
-		final ErrorField latitudeErrorField = ErrorField.builder().code(MOBILE_INVALID_CODE)
-				.message(MOBILE_INVALID_MESSAGE).field(MOBILE_INVALID_FIELD).build();
-		errorFields.add(latitudeErrorField);
+	private void addMdmsValidationError(OtpRequest model, List<ErrorField> errorFields) {
+		final ErrorField errorField = ErrorField.builder()
+				.code(MOBILE_MDMS_VALIDATION_CODE)
+				.message(model.getMdmsValidationErrorMessage())
+				.field(MOBILE_MDMS_VALIDATION_FIELD)
+				.build();
+		errorFields.add(errorField);
 	}
 
 }

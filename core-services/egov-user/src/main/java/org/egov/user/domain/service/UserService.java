@@ -36,6 +36,7 @@ import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.domain.service.utils.NotificationUtil;
 import org.egov.user.domain.service.utils.UserUtils;
+import org.egov.user.domain.service.MobileNumberValidator;
 import org.egov.user.persistence.dto.FailedLoginAttempt;
 import org.egov.user.persistence.repository.FileStoreRepository;
 import org.egov.user.persistence.repository.OtpRepository;
@@ -99,11 +100,20 @@ public class UserService {
     @Value("${egov.user.pwd.pattern.max.length}")
     private Integer pwdMaxLength;
 
+    @Value("${egov.mobile.validation.default.country.code:+91}")
+    private String defaultCountryCode;
+
     @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
     private NotificationUtil notificationUtil;
+
+    @Autowired
+    private MobileNumberValidator mobileNumberValidator;
+
+    @Value("${egov.user.search.default.size:50}")
+    private Integer defaultSearchSize;
 
     public UserService(UserRepository userRepository, OtpRepository otpRepository, FileStoreRepository fileRepository, UserUtils userUtils,
                        PasswordEncoder passwordEncoder, EncryptionDecryptionUtil encryptionDecryptionUtil, TokenStore tokenStore,
@@ -191,6 +201,12 @@ public class UserService {
     public List<org.egov.user.domain.model.User> searchUsers(UserSearchCriteria searchCriteria,
                                                              boolean isInterServiceCall, RequestInfo requestInfo) {
 
+        if (!isInterServiceCall && isEmpty(searchCriteria.getId()) && isEmpty(searchCriteria.getUuid())) {
+            if (searchCriteria.getLimit() <= 0 || searchCriteria.getLimit() > defaultSearchSize) {
+                searchCriteria.setLimit(defaultSearchSize);
+            }
+        }
+
         searchCriteria.validate(isInterServiceCall);
 
         searchCriteria.setTenantId(userUtils.getStateLevelTenantForCitizen(searchCriteria.getTenantId(), searchCriteria.getType()));
@@ -225,6 +241,7 @@ public class UserService {
      * @return
      */
     public User createUser(User user, RequestInfo requestInfo) {
+        mobileNumberValidator.validateAndSetMobileNumbers(user, requestInfo);
         user.setUuid(UUID.randomUUID().toString());
         user.validateNewUser(createUserValidateName);
         conditionallyValidateOtp(user);
@@ -357,6 +374,7 @@ public class UserService {
      */
     // TODO Fix date formats
     public User updateWithoutOtpValidation(User user, RequestInfo requestInfo) {
+        mobileNumberValidator.validateAndSetMobileNumbers(user, requestInfo);
         final User existingUser = getUserByUuid(user.getUuid());
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         validateUserRoles(user);
@@ -414,6 +432,7 @@ public class UserService {
      * @return
      */
     public User partialUpdate(User user, RequestInfo requestInfo) {
+        mobileNumberValidator.validateAndSetMobileNumbers(user, requestInfo);
         /* encrypt here */
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
 
@@ -662,6 +681,15 @@ public class UserService {
         if (!CollectionUtils.isEmpty(errorMap.keySet())) {
             throw new CustomException(errorMap);
         }
+    }
+
+    /**
+     * Get default country code
+     *
+     * @return default country code
+     */
+    public String getDefaultCountryCode() {
+        return defaultCountryCode;
     }
 
 

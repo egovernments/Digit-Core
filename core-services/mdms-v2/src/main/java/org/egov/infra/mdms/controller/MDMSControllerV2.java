@@ -48,6 +48,17 @@ public class MDMSControllerV2 {
     }
 
     /**
+     * Request handler for serving count requests, using the same criteria model as search
+     * @param masterDataSearchCriteria
+     * @return
+     */
+    @RequestMapping(value="_count", method = RequestMethod.POST)
+    public ResponseEntity<MdmsCountResponseV2> count(@Valid @RequestBody MdmsCriteriaReqV2 masterDataSearchCriteria) {
+        Long totalCount = mdmsServiceV2.count(masterDataSearchCriteria);
+        return new ResponseEntity<>(ResponseUtil.getMasterDataV2CountResponse(RequestInfo.builder().build(), totalCount), HttpStatus.OK);
+    }
+
+    /**
      * Request handler for serving update requests
      * @param mdmsRequest
      * @param schemaCode

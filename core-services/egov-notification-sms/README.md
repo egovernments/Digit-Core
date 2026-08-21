@@ -15,7 +15,21 @@ Notification SMS service consumes SMS from the kafka notification topic and proc
 
 ## Service Details
 
-This service is a consumer, which means it reads from the kafka queue and doesn’t provide facility to be accessed through API calls, there’s no REST layer here. The producers willing to integrate with this consumer will be posting a JSON  onto the topic configured at ‘kafka.topics.notification.sms.name’.
+This service is a consumer, which means it reads from the kafka queue and doesn’t provide facility to be accessed through API calls, there’s no REST layer here. The producers willing to integrate with this consumer will be posting a JSON onto the topic configured at `kafka.topics.notification.sms.name`.
+
+### Kafka Message Schema
+
+The following fields are recognised in each Kafka message. All fields except `mobileNumber` and `message` are optional.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `mobileNumber` | String | Destination phone number (local format, without prefix) |
+| `countryCode` | String | International dialling prefix, e.g. `+91`, `+1`. Optional — see [Backward Compatibility](#backward-compatibility) below. |
+| `message` | String | SMS body text (max 1000 characters) |
+| `category` | String | Message category used for `sms.category.map` routing (defaults to `OTHERS`) |
+| `expiryTime` | Long | Unix epoch ms after which the message is considered expired |
+| `locale` | String | Locale hint (informational) |
+| `tenantId` | String | Tenant identifier (informational) |
 The notification-sms service reads from the queue and sends the sms to the mentioned phone number using one of the SMS providers configured. 
 
 The implementation of the consumer is present in the directory `src/main/java/org/egov/web/notification/sms/service/impl`.
@@ -106,6 +120,10 @@ In an event of a failure to send SMS, if `kafka.topics.backup.sms` is specified,
 Any SMS which expire due to kafka lags, or some other internal issues, they will be passed to topic configured in `kafka.topics.expiry.sms`
 
 If a `backup` topic has not been configured, then in an event of an error the same will be delivered to `kafka.topics.error.sms`
+
+## Backward Compatibility
+
+`countryCode` is an optional field in the Kafka message. Existing producers that do not include it continue to work without any change — the service applies the `sms.mobile.prefix` prefix (if configured) to `mobileNumber` as before. When `countryCode` is present it is available to custom `SMSProvider` implementations for per-number routing logic; the built-in Generic and MSDG providers currently use `sms.mobile.prefix` for prefixing regardless.
 
 ### Kafka Consumers
 `egov.core.notification.sms` : egov-notification-sms listens to this topic to get the data

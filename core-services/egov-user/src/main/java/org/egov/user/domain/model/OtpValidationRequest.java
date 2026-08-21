@@ -12,5 +12,6 @@ import lombok.Getter;
 public class OtpValidationRequest {
     private String otpReference;
     private String mobileNumber;
+    private String countryCode;
     protected String tenantId;
 }
