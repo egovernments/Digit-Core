@@ -16,6 +16,7 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -77,7 +78,7 @@ func getKubeConnection() (clientset *kubernetes.Clientset) {
 func listAllServices(clientset *kubernetes.Clientset, namespace string) (s *v1.ServiceList) {
 	sc := clientset.CoreV1().Services(namespace)
 
-	s, err := sc.List(metav1.ListOptions{})
+	s, err := sc.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -129,11 +130,6 @@ func getRoutes(s *v1.ServiceList, defaultInternalGatewayService string) (r *[]Ro
 
 				namespace := s.Namespace
 				routes = append(routes, Route{host, path, namespace, url, rateLimiter, keyResolver, replenishRate, burstCapacity})
-				if host != "" {
-					log.Printf("Configuring service %s with host %s routing to service URL %s \n", path, host, url)
-				} else {
-					log.Printf("Configuring service %s routing to service URL %s \n", path, url)
-				}
 			}
 		}
 	}
@@ -160,6 +156,114 @@ func writeTemplate(r *[]Route) {
 	}
 
 	f.Close()
+}
+
+func logRoutes(routes []Route) {
+	log.Printf("Total routes configured: %d", len(routes))
+	for i, r := range routes {
+		host := "-"
+		if r.Host != "" {
+			host = r.Host
+		}
+		rateLimit := "-"
+		if r.RateLimiter {
+			rateLimit = fmt.Sprintf("replenishRate=%s burstCapacity=%s", r.ReplenishRate, r.BurstCapacity)
+		}
+		log.Printf("[%d] id=%-s | uri=%s | host=%s | rateLimit=%s",
+			i, r.Path+"-"+r.Namespace, r.ServiceURL, host, rateLimit)
+	}
+}
+
+func routeID(r Route) string {
+	return r.Path + "-" + r.Namespace
+}
+
+type shadowFinding struct {
+	index      int
+	shadowedBy int
+}
+
+func pathCovers(a, b string) bool {
+	return a == b || strings.HasPrefix(b, a+"/")
+}
+
+func hostMatches(pattern, host string) bool {
+	if pattern == host {
+		return true
+	}
+	if strings.HasPrefix(pattern, "*.") {
+		return strings.HasSuffix(host, pattern[1:])
+	}
+	return false
+}
+
+func hostCovers(a, b string) bool {
+	if a == "" {
+		return true
+	}
+	if b == "" {
+		return false
+	}
+	patterns := strings.Split(a, ",")
+	for _, h := range strings.Split(b, ",") {
+		h = strings.TrimSpace(h)
+		covered := false
+		for _, p := range patterns {
+			if hostMatches(strings.TrimSpace(p), h) {
+				covered = true
+				break
+			}
+		}
+		if !covered {
+			return false
+		}
+	}
+	return true
+}
+
+func routeCovers(a, b Route) bool {
+	return pathCovers(a.Path, b.Path) && hostCovers(a.Host, b.Host)
+}
+
+func findShadowedRoutes(routes []Route) []shadowFinding {
+	findings := []shadowFinding{}
+	for j := 1; j < len(routes); j++ {
+		for i := 0; i < j; i++ {
+			if routeCovers(routes[i], routes[j]) {
+				findings = append(findings, shadowFinding{j, i})
+				break
+			}
+		}
+	}
+	return findings
+}
+
+func runRouteValidation(routes []Route) {
+	mode := strings.ToLower(os.Getenv("ROUTE_VALIDATION_MODE"))
+	if mode == "" {
+		mode = "warn"
+	}
+	if mode != "warn" && mode != "strict" {
+		log.Printf("Unknown ROUTE_VALIDATION_MODE %q, defaulting to warn (expected warn|strict)", mode)
+		mode = "warn"
+	}
+
+	log.Printf("Validating %d routes for unreachable (shadowed) routes (mode=%s)", len(routes), mode)
+	findings := findShadowedRoutes(routes)
+	shadowedIDs := []string{}
+	for _, f := range findings {
+		shadowed := routes[f.index]
+		by := routes[f.shadowedBy]
+		log.Printf("UNREACHABLE ROUTE id=%s (index %d) shadowed by id=%s (index %d): every request matching Path=/%s/** Host=%q is consumed first by Path=/%s/** Host=%q",
+			routeID(shadowed), f.index, routeID(by), f.shadowedBy,
+			shadowed.Path, shadowed.Host, by.Path, by.Host)
+		shadowedIDs = append(shadowedIDs, routeID(shadowed))
+	}
+	log.Printf("Route validation result: %d/%d routes unreachable", len(findings), len(routes))
+
+	if len(findings) > 0 && mode == "strict" {
+		log.Panicf("Route validation failed: %d unreachable route(s): %s", len(findings), strings.Join(shadowedIDs, ", "))
+	}
 }
 
 // Get all kubernetes services in the cluster using config serviceaccount
@@ -203,5 +307,7 @@ func main() {
 		return false
 	})
 
+	logRoutes(routes)
 	writeTemplate(&routes)
+	runRouteValidation(routes)
 }

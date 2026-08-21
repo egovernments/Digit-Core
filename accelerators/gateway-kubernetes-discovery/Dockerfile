@@ -1,31 +1,21 @@
-
-FROM golang:1.13-alpine as build
-
-ENV GO111MODULE=on
-ENV GOCACHE=/tmp
+FROM golang:1.25-alpine AS build
 
 ARG WORK_DIR
 WORKDIR /app
 
-COPY ${WORK_DIR}/go.mod .
-COPY ${WORK_DIR}/go.sum .
-
+COPY ${WORK_DIR}/go.mod ${WORK_DIR}/go.sum ./
 RUN go mod download
 
-COPY . .
+COPY ${WORK_DIR}/ ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+ARG TARGETOS
+ARG TARGETARCH
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags="-s -w"
 
-
-# Create runtime image
-FROM alpine:3
+FROM scratch
 
 WORKDIR /opt/egov
-
-RUN addgroup -S egov && adduser -S -G egov egov 
-COPY --chown=egov:egov --from=build /app/zuul-kubernetes-discovery /opt/egov/
-
-RUN chmod +x /opt/egov/zuul-kubernetes-discovery 
+COPY --from=build --chmod=0755 /app/zuul-kubernetes-discovery /opt/egov/
+USER 10001:10001
 
 CMD ["/opt/egov/zuul-kubernetes-discovery"]
-# USER egov
