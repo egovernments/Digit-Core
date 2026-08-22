@@ -6,10 +6,15 @@ import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.querybuilder.BoundaryRelationshipQueryBuilder;
 import digit.repository.rowmapper.BoundaryRelationshipRowMapper;
 import digit.web.models.*;
+import org.egov.common.contract.models.AuditDetails;
 import org.springframework.beans.BeanUtils;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +52,73 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
         // Push to event bus for creating asynchronously
         producer.push(applicationProperties.getCreateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
+    }
+
+    /**
+     * Synchronously persists the given validated and enriched boundary relationships using a single
+     * JDBC batch insert. The method is transactional so the batch is committed atomically: if any
+     * row in the batch cannot be inserted, the transaction rolls back and no row is persisted. This
+     * provides a deterministic, committed write (in contrast to the asynchronous Kafka path used by
+     * {@link #create}) so the caller can be told exactly which records are durably created.
+     *
+     * @param boundaryRelationships validated and enriched relationships to persist
+     */
+    @Override
+    @Transactional
+    public void createBulk(List<BoundaryRelation> boundaryRelationships) {
+        if (boundaryRelationships == null || boundaryRelationships.isEmpty())
+            return;
+
+        jdbcTemplate.batchUpdate(boundaryRelationshipQueryBuilder.getBoundaryRelationshipBulkInsertQuery(),
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        BoundaryRelation boundaryRelationship = boundaryRelationships.get(i);
+                        AuditDetails auditDetails = boundaryRelationship.getAuditDetails();
+
+                        ps.setString(1, boundaryRelationship.getId());
+                        ps.setString(2, boundaryRelationship.getTenantId());
+                        ps.setString(3, boundaryRelationship.getCode());
+                        ps.setString(4, boundaryRelationship.getHierarchyType());
+                        ps.setString(5, boundaryRelationship.getBoundaryType());
+                        ps.setString(6, boundaryRelationship.getParent());
+                        ps.setString(7, boundaryRelationship.getAncestralMaterializedPath());
+                        ps.setObject(8, auditDetails.getCreatedTime());
+                        ps.setString(9, auditDetails.getCreatedBy());
+                        ps.setObject(10, auditDetails.getLastModifiedTime());
+                        ps.setString(11, auditDetails.getLastModifiedBy());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return boundaryRelationships.size();
+                    }
+                });
+    }
+
+    /**
+     * Persists a single relationship in its own transaction — the per-record fallback used when an
+     * atomic {@link #createBulk} aborts on a row-level error. Reuses the same idempotent
+     * INSERT ... ON CONFLICT DO NOTHING, so a row that already exists is a no-op rather than an error.
+     *
+     * @param boundaryRelationship a validated and enriched relationship to persist
+     */
+    @Override
+    @Transactional
+    public void createOne(BoundaryRelation boundaryRelationship) {
+        AuditDetails auditDetails = boundaryRelationship.getAuditDetails();
+        jdbcTemplate.update(boundaryRelationshipQueryBuilder.getBoundaryRelationshipBulkInsertQuery(),
+                boundaryRelationship.getId(),
+                boundaryRelationship.getTenantId(),
+                boundaryRelationship.getCode(),
+                boundaryRelationship.getHierarchyType(),
+                boundaryRelationship.getBoundaryType(),
+                boundaryRelationship.getParent(),
+                boundaryRelationship.getAncestralMaterializedPath(),
+                auditDetails.getCreatedTime(),
+                auditDetails.getCreatedBy(),
+                auditDetails.getLastModifiedTime(),
+                auditDetails.getLastModifiedBy());
     }
 
     /**
