@@ -192,8 +192,12 @@ export async function insertRecords(bulkPdfJobId, totalPdfRecords, currentPdfRec
   } 
 }
 
-export async function mergePdf(bulkPdfJobId, tenantId, userid, numberOfFiles, mobileNumber){
+export async function mergePdf(bulkPdfJobId, tenantId, userid, numberOfFiles, mobileNumber, errorCallback){
 
+  const notifyError =
+    typeof errorCallback === "function"
+      ? errorCallback
+      : (e) => logger.error((e && e.message) || e);
   try {
     const updateResult = await pool.query('select * from egov_bulk_pdf_info where jobid = $1', [bulkPdfJobId]);
     var recordscompleted = parseInt(updateResult.rows[0].recordscompleted);
@@ -225,9 +229,13 @@ export async function mergePdf(bulkPdfJobId, tenantId, userid, numberOfFiles, mo
             const updateQuery = 'UPDATE egov_bulk_pdf_info SET filestoreid = $1, lastmodifiedby = $2, lastmodifiedtime = $3, status = $5 WHERE jobid = $4';
             const curentTimeStamp = new Date().getTime();
             const status = 'DONE';
-            pool.query(updateQuery,[filestoreid, userid, curentTimeStamp, bulkPdfJobId, status]);
-            sendNoitification(filestoreid, mobileNumber, tenantId);
-        
+            pool.query(updateQuery,[filestoreid, userid, curentTimeStamp, bulkPdfJobId, status]).catch((err) => {
+              logger.error(err.stack || err);
+            });
+            sendNoitification(filestoreid, mobileNumber, tenantId).catch((err) => {
+              logger.error(err.stack || err);
+            });
+
           }).catch((err) => {
             logger.error(err.stack || err);
           });
@@ -256,15 +264,20 @@ export async function mergePdf(bulkPdfJobId, tenantId, userid, numberOfFiles, mo
           producer.send(errorPlayloads, function(err, data) {
             if (err) {
               logger.error(err.stack || err);
-              errorCallback({
+              notifyError({
                 message: `error while publishing to kafka: ${err.message}`
               });
-            } 
+            }
           });
         }
-        
 
-      })();
+
+      })().catch((err) => {
+        logger.error(err.stack || err);
+        notifyError({
+          message: `error while merging bulk pdf JOB_ID=${bulkPdfJobId}: ${(err && err.message) || err}`
+        });
+      });
     }
   } catch (err) {
     logger.error(err.stack || err);
@@ -286,9 +299,9 @@ export async function sendNoitification(filestoreid, mobileNumber, tenantId){
 
   producer.send(payloads, function(err, data) {
     if (!err) {
-      console.log(data);
+      logger.info(`notification published for FILESTOREID=${filestoreid}, TENANTID=${tenantId}`);
     } else {
-      console.log(err);
+      logger.error(err.stack || err);
     }
   });
 }

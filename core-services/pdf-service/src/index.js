@@ -35,7 +35,7 @@ import envVariables from "./EnvironmentVariables";
 import QRCode from "qrcode";
 import {
   getStateSchemaIndexPositionInTenantId,
-  getValue, isEnvironmentCentralInstance
+  getValue, isEnvironmentCentralInstance, sanitizeImages
 } from "./utils/commons";
 import {
   getFileStoreIds,
@@ -68,6 +68,16 @@ var jp = require("jsonpath");
 //create binary
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 var pdfMakePrinter = require("pdfmake/src/printer");
+
+process.on("unhandledRejection", (reason) => {
+  logger.error(`STAGE=unhandledRejection, ERROR=${(reason && reason.message) || reason}`);
+  logger.error((reason && reason.stack) || reason);
+});
+
+process.on("uncaughtException", (err) => {
+  logger.error(`STAGE=uncaughtException, ERROR=${(err && err.message) || err}`);
+  logger.error((err && err.stack) || err);
+});
 
 let app = express();
 app.use(express.static(path.join(__dirname, "public")));
@@ -213,7 +223,15 @@ const createPdfBinary = async (
             documentType,
             moduleName,
             headers
-          )
+          ).catch((err) => {
+            logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=createPdfBinary, PDF_KEY=${key}, JOB_ID=${jobid}, ERROR=${(err && err.message) || err}`);
+            logger.error((err && err.stack) || err);
+            errorCallback({
+              message: ` error occured while creating pdf: ${
+                typeof err === "string" ? err : err.message
+              }`,
+            });
+          });
       });
     }
   } catch (err) {
@@ -250,6 +268,12 @@ const uploadFiles = async (
   let convertedListDocDefinition = [];
   let listOfFilestoreIds = [];
   let correlationId = getCorrelationId(null, headers);
+  let errorResponseSent = false;
+  const sendErrorOnce = (message) => {
+    if (errorResponseSent) return;
+    errorResponseSent = true;
+    errorCallback({ message });
+  };
 
   if (!isconsolidated) {
     listDocDefinition.forEach((docDefinition) => {
@@ -264,14 +288,23 @@ const uploadFiles = async (
   }
 
   convertedListDocDefinition.forEach(function (docDefinition, i) {
-    // making copy because createPdfKitDocument function modifies passed object and this object is used
-    // in multiple places
-    var objectCopy = JSON.parse(JSON.stringify(docDefinition));
-    // restoring footer because JSON.stringify destroys function() values
-    objectCopy.footer = convertFooterStringtoFunctionIfExist(
-      formatconfig.footer
-    );
-    const doc = printer.createPdfKitDocument(objectCopy);
+    var doc;
+    try {
+      // making copy because createPdfKitDocument function modifies passed object and this object is used
+      // in multiple places
+      var objectCopy = JSON.parse(JSON.stringify(docDefinition));
+      sanitizeImages(objectCopy, key, tenantId, correlationId);
+      // restoring footer because JSON.stringify destroys function() values
+      objectCopy.footer = convertFooterStringtoFunctionIfExist(
+        formatconfig.footer
+      );
+      doc = printer.createPdfKitDocument(objectCopy);
+    } catch (err) {
+      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=render, PDF_KEY=${key}, JOB_ID=${jobid}, ERROR=pdf render failed: ${(err && err.message) || err}`);
+      logger.error((err && err.stack) || err);
+      sendErrorOnce(`error while rendering pdf: ${(err && err.message) || err}`);
+      return;
+    }
     let fileNameAppend = "-" + new Date().getTime();
     // let filename="src/pdfs/"+key+" "+fileNameAppend+".pdf"
     let filename = key + "" + fileNameAppend + ".pdf";
@@ -357,11 +390,10 @@ const uploadFiles = async (
         .catch((err) => {
           logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=filestore, PDF_KEY=${key}, JOB_ID=${jobid}, ERROR=upload failed: ${typeof err === "string" ? err : err.message}`);
           logger.error(err.stack || err);
-          errorCallback({
-            message: "error occurred while uploading pdf: " + (typeof err === "string") ?
-              err :
-              err.message,
-          });
+          sendErrorOnce(
+            "error occurred while uploading pdf: " +
+              (typeof err === "string" ? err : err.message)
+          );
         });
     });
     doc.end();
@@ -385,6 +417,7 @@ app.post(
         res,
         (response) => {
           logger.info(`TENANTID=${response.tenantid}, CORRELATION_ID=${correlationId}, STAGE=response, ENDPOINT=_create, PDF_KEY=${response.key}, FILESTORE_IDS=${JSON.stringify(response.filestoreIds)}, JOB_ID=${response.jobid}`);
+          if (res.headersSent) return;
           res.status(201);
           res.json({
             ResponseInfo: requestInfo,
@@ -403,6 +436,7 @@ app.post(
         (error) => {
           logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=response, ENDPOINT=_create, ERROR=pdf creation failed: ${error.message}`);
           logger.error(error.stack || error);
+          if (res.headersSent) return;
           res.status(400);
           res.json({
             ResponseInfo: requestInfo,
@@ -465,6 +499,7 @@ app.post(
           headers,
           isConsolidated
         );
+        sanitizeImages(formatConfigByFile[0], key, tenantId, correlationId);
         // restoring footer function
         formatConfigByFile[0].footer = convertFooterStringtoFunctionIfExist(formatconfig.footer);
         const doc = printer.createPdfKitDocument(formatConfigByFile[0]);
@@ -519,6 +554,7 @@ app.post(
           ResponseInfo: requestInfo,
           message: error,
         });
+        return;
       }
       else if(isEnvironmentCentralInstance() && tenantid.split('.').length < getStateSchemaIndexPositionInTenantId()){
         let error = {"PDF_INVALID_SEARCH":" TenantId should be mandatorily " + getStateSchemaIndexPositionInTenantId() + " levels for search"};
@@ -527,6 +563,7 @@ app.post(
           ResponseInfo: requestInfo,
           message: error,
         });
+        return;
       }
 
       if (
@@ -1015,6 +1052,7 @@ export const createNoSave = async (
         headers,
         isConsolidated
       );
+      sanitizeImages(formatConfigByFile[0], key, tenantId, null);
       // restoring footer function
       formatConfigByFile[0].footer = convertFooterStringtoFunctionIfExist(formatconfig.footer);
       const doc = printer.createPdfKitDocument(formatConfigByFile[0]);
@@ -1045,8 +1083,11 @@ export const createNoSave = async (
         );
         (async () => {
           await insertRecords(bulkPdfJobId, totalPdfRecords, currentPdfRecords, userid, tenantId, locality, bussinessService, consumerCode, isConsolidated);
-          await mergePdf(bulkPdfJobId, tenantId, userid, numberOfFiles, mobileNumber);
-        })();
+          await mergePdf(bulkPdfJobId, tenantId, userid, numberOfFiles, mobileNumber, errorCallback);
+        })().catch((err) => {
+          logger.error(`TENANTID=${tenantId}, STAGE=createnosave, PDF_KEY=${key}, JOB_ID=${bulkPdfJobId}, ERROR=post-render processing failed: ${(err && err.message) || err}`);
+          logger.error((err && err.stack) || err);
+        });
       });
       doc.end();
 

@@ -6,7 +6,10 @@ const Producer = kafka.Producer;
 let client;
 // if (process.env.NODE_ENV === "development") {
 // client = new kafka.Client();
-client = new kafka.KafkaClient({ kafkaHost: envVariables.KAFKA_BROKER_HOST, connectRetryOptions: {retries: 1} });
+client = new kafka.KafkaClient({ kafkaHost: envVariables.KAFKA_BROKER_HOST, connectRetryOptions: {retries: 3} });
+// concurrent producer.send calls each park a once-'ready' listener on the shared client;
+// bulk jobs exceed Node's default 10-listener heuristic and emit MaxListenersExceededWarning
+client.setMaxListeners(100);
 //   console.log("local - ");
 // } else {
 //   client = new kafka.KafkaClient({ kafkaHost: envVariables.KAFKA_BROKER_HOST });

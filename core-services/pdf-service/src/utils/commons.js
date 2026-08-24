@@ -4,6 +4,8 @@ import get from "lodash/get";
 import logger from "../config/logger";
 const NodeCache = require("node-cache");
 var moment = require("moment-timezone");
+const zlib = require("zlib");
+const fsForImages = require("fs");
 
 const cache = new NodeCache({ stdTTL: 300 });
 
@@ -14,6 +16,95 @@ let defaultLocale = envVariables.DEFAULT_LOCALISATION_LOCALE;
 let defaultTenant = envVariables.DEFAULT_LOCALISATION_TENANT;
 export const getTransformedLocale = (label) => {
   return label.toUpperCase().replace(/[.:-\s\/]/g, "_");
+};
+
+const validatePngBuffer = (buffer) => {
+  const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  if (!buffer.slice(0, 8).equals(pngSignature)) return "not a png";
+  let pos = 8;
+  let idat = Buffer.alloc(0);
+  while (pos + 12 <= buffer.length) {
+    const length = buffer.readUInt32BE(pos);
+    const type = buffer.slice(pos + 4, pos + 8).toString("ascii");
+    if (pos + 12 + length > buffer.length) return `truncated chunk ${type}`;
+    if (type === "IDAT") idat = Buffer.concat([idat, buffer.slice(pos + 8, pos + 8 + length)]);
+    if (type === "IEND") break;
+    pos += 12 + length;
+  }
+  if (idat.length === 0) return "no IDAT chunk";
+  try {
+    // pdfkit's png-js inflates IDAT in an async zlib callback and throws uncatchably on
+    // corrupt streams; inflating here synchronously rejects such images before render
+    zlib.inflateSync(idat);
+  } catch (err) {
+    return `corrupt IDAT stream: ${err.message}`;
+  }
+  return null;
+};
+
+const getImageProblem = (value, imagesDict) => {
+  if (typeof value !== "string" || value.trim() === "") return "empty or non-string value";
+  if (imagesDict && imagesDict[value] !== undefined) return null;
+  if (value.startsWith("data:")) {
+    const base64Marker = ";base64,";
+    const markerIndex = value.indexOf(base64Marker);
+    if (markerIndex < 0) return "data url without base64 payload";
+    let buffer;
+    try {
+      buffer = Buffer.from(value.substring(markerIndex + base64Marker.length), "base64");
+    } catch (err) {
+      return `invalid base64: ${err.message}`;
+    }
+    if (buffer.length === 0) return "empty base64 payload";
+    if (buffer[0] === 0xff && buffer[1] === 0xd8) return null;
+    return validatePngBuffer(buffer);
+  }
+  if (!fsForImages.existsSync(value)) return "no such local file";
+  return "nonDataUrl";
+};
+
+export const sanitizeImages = (docDefinition, key, tenantId, correlationId) => {
+  const warn = (status, detail, name) => {
+    logger.warn(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=imageSanitize, PDF_KEY=${key}, STATUS=${status}${name ? `, IMAGE_NAME=${name}` : ""}, DETAIL=${detail}`);
+  };
+  const badImageNames = new Set();
+  if (docDefinition && typeof docDefinition.images === "object" && docDefinition.images !== null) {
+    Object.keys(docDefinition.images).forEach((name) => {
+      const problem = getImageProblem(docDefinition.images[name], null);
+      if (problem && problem !== "nonDataUrl") {
+        warn("skipped", problem, name);
+        delete docDefinition.images[name];
+        badImageNames.add(name);
+      } else if (problem === "nonDataUrl") {
+        warn("nonDataUrl", String(docDefinition.images[name]).substring(0, 150), name);
+      }
+    });
+  }
+  const walk = (node) => {
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+    if (!node || typeof node !== "object") return;
+    if ("image" in node) {
+      const value = node.image;
+      const problem = badImageNames.has(value)
+        ? "references removed image entry"
+        : getImageProblem(value, docDefinition.images);
+      if (problem && problem !== "nonDataUrl") {
+        warn("skipped", `${problem}, VALUE=${String(value).substring(0, 80)}`);
+        delete node.image;
+        node.text = "";
+      } else if (problem === "nonDataUrl") {
+        warn("nonDataUrl", String(value).substring(0, 150));
+      }
+    }
+    Object.keys(node).forEach((childKey) => {
+      if (childKey !== "images") walk(node[childKey]);
+    });
+  };
+  walk(docDefinition);
+  return docDefinition;
 };
 
 /**

@@ -46,11 +46,20 @@ export const fileStoreAPICall = async function(filename, tenantId, fileData, hea
 
 export async function getFilestoreUrl(filestoreid, tenantId){
   var url = `${egovFileHost}/filestore/v1/files/url?tenantId=${tenantId}&fileStoreIds=${filestoreid}`;
-  let response = await axios.get(url);
-  let data = response.data;
-  var fileURL = data['fileStoreIds'][0]['url'].split(",");
-  var shorteningUrl = getShortneningUrl(fileURL[0]);
-  return shorteningUrl;
+  try {
+    let response = await axios.get(url);
+    let data = response.data;
+    let fileEntry = get(data, "fileStoreIds[0].url");
+    if (!fileEntry) {
+      throw new Error(`filestore returned no url for FILESTOREID=${filestoreid}`);
+    }
+    var fileURL = fileEntry.split(",");
+    return await getShortneningUrl(fileURL[0]);
+  } catch (error) {
+    logger.error(`TENANTID=${tenantId}, STAGE=filestoreUrl, FILESTOREID=${filestoreid}, ERROR=${error.message}`);
+    logger.error(error.stack || error);
+    throw new Error(`filestore url fetch failed for FILESTOREID=${filestoreid}, TENANTID=${tenantId}: ${error.message}`);
+  }
 }
 
 export async function getShortneningUrl(actualUrl){
@@ -65,7 +74,12 @@ export async function getShortneningUrl(actualUrl){
     }
   };
 
-  let response = await axios.post(url,request, headers);
-  let shortUrl = response.data;
-  return shortUrl;
+  try {
+    let response = await axios.post(url,request, headers);
+    return response.data;
+  } catch (error) {
+    logger.error(`STAGE=urlShortening, URL=${actualUrl}, ERROR=${error.message}`);
+    logger.error(error.stack || error);
+    throw new Error(`url shortening failed: ${error.message}`);
+  }
 }

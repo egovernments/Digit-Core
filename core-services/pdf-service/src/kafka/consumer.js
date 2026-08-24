@@ -37,6 +37,10 @@ var consumerGroup = new kafka.ConsumerGroup(options, topicList);
 var q = async.queue(function(data, cb) {
    createNoSave(data,null,() => {},() => {}).then(function(ep) {
   cb(); //this marks the completion of the processing by the worker
+  }).catch(function(err) {
+    logger.error("error while processing consumer record: " + ((err && err.message) || err));
+    logger.error((err && err.stack) || err);
+    cb();
   });
 }, 1);
 
@@ -81,11 +85,13 @@ consumerGroup.on("message", function(message) {
 });
 
 consumerGroup.on("error", function(err) {
-  console.log("Error:", err);
+  logger.error("consumer error: " + ((err && err.message) || err));
+  logger.error((err && err.stack) || err);
 });
 
 consumerGroup.on("offsetOutOfRange", function(err) {
-  console.log("offsetOutOfRange:", err);
+  logger.error("consumer offsetOutOfRange: " + ((err && err.message) || err));
+  logger.error((err && err.stack) || err);
 });
 
 }
