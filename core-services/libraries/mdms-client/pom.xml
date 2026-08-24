@@ -23,7 +23,8 @@
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.version>3.3.9</maven.version>
-    <lombok.version>1.18.22</lombok.version>
+    <!-- lombok version comes from spring-boot-dependencies (1.18.38) -->
+
     <commons-lang-version>2.6</commons-lang-version>
       <tomcat.version>10.1.45</tomcat.version>
     <jackson-bom.version>2.18.6</jackson-bom.version>
@@ -107,6 +108,12 @@
           <target>17</target>
           <release>17</release>
           <verbose>true</verbose>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
     </plugins>

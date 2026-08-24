@@ -6,8 +6,8 @@ schema-version: 1
 bundles:
 
   # A monolith bundling idgen + mdms into one Spring Boot process.
-  # The bundler auto-sets egov.mdms.mode=local because both consumer (idgen)
-  # and provider (egov-mdms-service) live in the same bundle.
+  # idgen calls MDMS over HTTP even when co-bundled — mdms.service.host below
+  # is a loopback URL back into this same JVM.
   idgen-monolith:
     type: monolith
     include: [egov-idgen, egov-mdms-service]
@@ -20,6 +20,8 @@ bundles:
       # ResourceLoader and does accept file:// URIs).
       egov.mdms.conf.path: /Users/aniket/Documents/egov-mdms-data/data/pb
       masters.config.url: file:///Users/aniket/Documents/egov-mdms-data/master-config.json
+      # In-JVM HTTP loopback for idgen → MDMS. Same port as the bundle's Tomcat.
+      mdms.service.host: http://localhost:8080/
       spring.datasource.url: jdbc:postgresql://localhost:5432/rainmaker_new
       spring.datasource.username: postgres
       spring.datasource.password: postgres
