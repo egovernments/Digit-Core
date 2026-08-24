@@ -7,7 +7,7 @@ import { fileStoreAPICall, getFilestoreUrl } from "./utils/fileStoreAPICall";
 import fs, {
   exists
 } from "fs";
-import { getStateSchemaIndexPositionInTenantId, isEnvironmentCentralInstance } from "./utils/commons";
+import { getStateSchemaIndexPositionInTenantId, isEnvironmentCentralInstance, getCorrelationId } from "./utils/commons";
 
 var ssl = envVariables.DB_SSL;
 if(typeof ssl =="string")
@@ -123,16 +123,17 @@ export const insertStoreIds = (
     topic: createJobKafkaTopic,
     messages: JSON.stringify({ jobs: dbInsertRecords })
   });
-  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, RECORD_COUNT=${dbInsertRecords ? dbInsertRecords.length : 0}, TOPIC=${createJobKafkaTopic}`);
+  const correlationId = getCorrelationId();
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, RECORD_COUNT=${dbInsertRecords ? dbInsertRecords.length : 0}, TOPIC=${createJobKafkaTopic}`);
   producer.send(payloads, function(err, data) {
     if (err) {
-      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, ERROR=publish to kafka failed: ${err.message}`);
+      logger.error(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, ERROR=publish to kafka failed: ${err.message}`);
       logger.error(err.stack || err);
       errorCallback({
         message: `error while publishing to kafka: ${err.message}`
       });
     } else {
-      logger.info(`TENANTID=${tenantId}, CORRELATION_ID=null, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, STATUS=published to kafka`);
+      logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, STAGE=dbInsert, KEY=${key}, JOB_ID=${jobid}, STATUS=published to kafka`);
       successCallback({
         message: "Success",
         jobid: jobid,

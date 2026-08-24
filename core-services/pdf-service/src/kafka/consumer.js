@@ -2,6 +2,9 @@ const kafka = require("kafka-node");
 import envVariables from "../EnvironmentVariables";
 import logger from "../config/logger";
 import { createNoSave } from "../index";
+import { runWithContext } from "../utils/requestContext";
+const uuidv4 = require("uuid/v4");
+const get = require("lodash/get");
 var async = require('async'); 
 
 
@@ -33,14 +36,26 @@ var options = {
 };
 
 var consumerGroup = new kafka.ConsumerGroup(options, topicList);
+// ConsumerGroup owns a private KafkaClient; every in-flight long-poll fetch parks a
+// once-'<broker>-longpolling-ready' listener on it, tripping Node's 10-listener heuristic
+if (consumerGroup.client && typeof consumerGroup.client.setMaxListeners === "function") {
+  consumerGroup.client.setMaxListeners(100);
+}
 
 var q = async.queue(function(data, cb) {
-   createNoSave(data,null,() => {},() => {}).then(function(ep) {
-  cb(); //this marks the completion of the processing by the worker
-  }).catch(function(err) {
-    logger.error("error while processing consumer record: " + ((err && err.message) || err));
-    logger.error((err && err.stack) || err);
-    cb();
+  const correlationId =
+    get(data, "RequestInfo.correlationId") ||
+    get(data, "requestInfo.correlationId") ||
+    uuidv4();
+  const tenantId = get(data, "RequestInfo.userInfo.tenantId") || null;
+  runWithContext({ CORRELATION_ID: correlationId, TENANTID: tenantId }, function() {
+    createNoSave(data,null,() => {},() => {}).then(function(ep) {
+      cb(); //this marks the completion of the processing by the worker
+    }).catch(function(err) {
+      logger.error("error while processing consumer record: " + ((err && err.message) || err));
+      logger.error((err && err.stack) || err);
+      cb();
+    });
   });
 }, 1);
 

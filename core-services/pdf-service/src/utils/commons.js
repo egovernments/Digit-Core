@@ -6,6 +6,7 @@ const NodeCache = require("node-cache");
 var moment = require("moment-timezone");
 const zlib = require("zlib");
 const fsForImages = require("fs");
+import { getContext } from "./requestContext";
 
 const cache = new NodeCache({ stdTTL: 300 });
 
@@ -348,7 +349,7 @@ export const getStateSchemaIndexPositionInTenantId = () => {
  */
 export const getStateLevelTenant = (tenantId) => {
   if (!tenantId) {
-    logger.info(`TENANTID=${defaultTenant}, CORRELATION_ID=null, STAGE=resolveTenant, INPUT_TENANTID=null, IS_CENTRAL_INSTANCE=${isEnvironmentCentralInstance()}`);
+    logger.info(`TENANTID=${defaultTenant}, CORRELATION_ID=${getCorrelationId()}, STAGE=resolveTenant, INPUT_TENANTID=null, IS_CENTRAL_INSTANCE=${isEnvironmentCentralInstance()}`);
     return defaultTenant;
   }
 
@@ -366,7 +367,7 @@ export const getStateLevelTenant = (tenantId) => {
     }
   }
 
-  logger.info(`TENANTID=${stateTenant}, CORRELATION_ID=null, STAGE=resolveTenant, INPUT_TENANTID=${tenantId}, IS_CENTRAL_INSTANCE=${isEnvironmentCentralInstance()}`);
+  logger.info(`TENANTID=${stateTenant}, CORRELATION_ID=${getCorrelationId()}, STAGE=resolveTenant, INPUT_TENANTID=${tenantId}, IS_CENTRAL_INSTANCE=${isEnvironmentCentralInstance()}`);
   return stateTenant;
 }
 
@@ -377,6 +378,9 @@ export const getCorrelationId = (requestInfo, headers) => {
   }
   if (!cid) {
     cid = get(requestInfo, "msgId");
+  }
+  if (!cid) {
+    cid = getContext().CORRELATION_ID;
   }
   return cid || null;
 }

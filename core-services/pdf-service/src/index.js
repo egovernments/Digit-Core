@@ -32,6 +32,10 @@ import {
   externalAPIMapping
 } from "./utils/externalAPIMapping";
 import envVariables from "./EnvironmentVariables";
+import {
+  runWithContext,
+  registerAxiosCorrelationInterceptor
+} from "./utils/requestContext";
 import QRCode from "qrcode";
 import {
   getStateSchemaIndexPositionInTenantId,
@@ -90,6 +94,25 @@ app.use(bodyParser.urlencoded({
   extended: true,
   parameterLimit:50000
 }));
+
+registerAxiosCorrelationInterceptor();
+
+const filterSkipPattern = new RegExp(envVariables.TRACER_FILTER_SKIP_PATTERN);
+
+app.use((req, res, next) => {
+  if (filterSkipPattern.test(req.path)) return next();
+  const correlationId =
+    req.headers["x-correlation-id"] ||
+    get(req.body, "RequestInfo.correlationId") ||
+    get(req.body, "requestInfo.correlationId") ||
+    uuidv4();
+  const tenantId = req.query.tenantId || req.headers["tenantId"] || req.headers["tenantid"] || null;
+  logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, Received request URI: ${req.originalUrl}`);
+  res.on("finish", () => {
+    logger.info(`TENANTID=${tenantId}, CORRELATION_ID=${correlationId}, Response code sent: ${res.statusCode}, URI=${req.originalUrl}`);
+  });
+  runWithContext({ CORRELATION_ID: correlationId, TENANTID: tenantId }, () => next());
+});
 
 let maxPagesAllowed = envVariables.MAX_NUMBER_PAGES;
 let serverport = envVariables.SERVER_PORT;

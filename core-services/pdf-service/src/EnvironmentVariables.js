@@ -7,6 +7,8 @@ const envVariables = {
   EGOV_FILESTORE_SERVICE_HOST:
     process.env.EGOV_FILESTORE_SERVICE_HOST || "http://egov-filestore:8080",
   SERVER_PORT: process.env.SERVER_PORT || 8080,
+  TRACER_FILTER_SKIP_PATTERN:
+    process.env.TRACER_FILTER_SKIP_PATTERN || "^/(health|actuator)",
 
   KAFKA_BROKER_HOST: process.env.KAFKA_BROKER_HOST || "localhost:9092",
   KAFKA_CREATE_JOB_TOPIC:
