@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoundaryHierarchyRequest {
-    @JsonProperty(value="boundaryHierarchy")
+    // The service binds this under "hierarchy". Sending "boundaryHierarchy" left it with the empty
+    // BoundaryHierarchy its field initialises to, so creation failed validation every time.
+    @JsonProperty(value="hierarchy")
     private BoundaryHierarchy boundaryHierarchy;
 }

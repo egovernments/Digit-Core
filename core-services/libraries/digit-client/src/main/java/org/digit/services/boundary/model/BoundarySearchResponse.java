@@ -20,6 +20,7 @@ public class BoundarySearchResponse {
 
     @JsonIgnoreProperties(ignoreUnknown=true)
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class EnrichedBoundary {
@@ -37,9 +38,12 @@ public class BoundarySearchResponse {
 
     @JsonIgnoreProperties(ignoreUnknown=true)
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HierarchyRelation {
+        @JsonProperty(value="tenantId")
+        private String tenantId;
         @JsonProperty(value="hierarchyType")
         private String hierarchyType;
         @JsonProperty(value="boundary")

@@ -1,12 +1,12 @@
 package org.digit.util;
 
 import org.digit.exception.DigitClientException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import java.util.Base64;
 
 public class JwtTokenUtil {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = DigitJson.shared();
 
     public static String extractTenantId(String authToken) {
         if (authToken == null || authToken.trim().isEmpty()) {

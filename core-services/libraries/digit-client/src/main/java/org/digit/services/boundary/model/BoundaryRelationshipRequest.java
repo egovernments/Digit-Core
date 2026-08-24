@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoundaryRelationshipRequest {
-    @JsonProperty(value="boundaryRelationship")
+    // The service binds this under "relationship" and validates the required code, hierarchyType and
+    // boundaryType by reading that key, so "boundaryRelationship" produced a guaranteed 400.
+    @JsonProperty(value="relationship")
     private BoundaryRelationship boundaryRelationship;
 }

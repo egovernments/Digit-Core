@@ -1,39 +1,40 @@
 package org.digit.services.billing.model;
 
+import java.util.UUID;
+import org.digit.services.common.model.AuditDetails;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaxHead {
     @JsonProperty(value="id")
-    private String id;
+    private UUID id;
     @JsonProperty(value="businessServiceCode")
     private String businessServiceCode;
     @JsonProperty(value="code")
     private String code;
     @JsonProperty(value="name")
     private String name;
-    @JsonProperty(value="description")
-    private String description;
     @JsonProperty(value="order")
-    private Integer order;
+    private int order;
     @JsonProperty(value="category")
-    private String category;
+    private TaxHeadCategory category;
     @JsonProperty(value="isActive")
-    private Boolean isActive;
+    private boolean isActive;
     @JsonProperty(value="effectiveFrom")
-    private Long effectiveFrom;
+    private long effectiveFrom;
     @JsonProperty(value="effectiveTo")
     private Long effectiveTo;
     @JsonProperty(value="version")
-    private Integer version;
-    @JsonProperty(value="metadata")
-    private Map<String, Object> metadata;
+    private int version;
+    @JsonProperty(value="auditDetail")
+    private AuditDetails auditDetail;
 }

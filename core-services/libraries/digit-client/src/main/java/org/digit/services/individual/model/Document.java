@@ -22,6 +22,8 @@ public class Document {
     private String fileStoreId;
     @JsonProperty(value="documentUid")
     private String documentUid;
+    @JsonProperty("requestId")
+    private String requestId;
     @JsonProperty("auditDetail")
     private AuditDetails auditDetail;
 }

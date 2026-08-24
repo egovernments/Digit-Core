@@ -31,24 +31,29 @@ implements ResponseErrorHandler {
         String errorMessage = String.format("HTTP %d %s: %s", statusCode.value(), statusText, responseBody);
         int code = statusCode.value();
         if (code == 404) {
-            throw new DigitClientException("Resource not found: " + responseBody, statusCode, "RESOURCE_NOT_FOUND");
+            throw new DigitClientException("Resource not found: " + responseBody, statusCode, "RESOURCE_NOT_FOUND", responseBody);
         }
         if (code == 400) {
-            throw new DigitClientException("Bad request: " + responseBody, statusCode, "BAD_REQUEST");
+            throw new DigitClientException("Bad request: " + responseBody, statusCode, "BAD_REQUEST", responseBody);
         }
         if (code == 401) {
-            throw new DigitClientException("Unauthorized access", statusCode, "UNAUTHORIZED");
+            throw new DigitClientException("Unauthorized access", statusCode, "UNAUTHORIZED", responseBody);
         }
         if (code == 403) {
-            throw new DigitClientException("Access forbidden", statusCode, "FORBIDDEN");
+            throw new DigitClientException("Access forbidden", statusCode, "FORBIDDEN", responseBody);
+        }
+        if (code == 422) {
+            // Billing uses 422 for a bulk request whose every item failed on a referential check
+            // (unknown business service or tax head), as distinct from 400 for malformed input.
+            throw new DigitClientException("Unprocessable entity: " + responseBody, statusCode, "UNPROCESSABLE_ENTITY", responseBody);
         }
         if (code == 500) {
-            throw new DigitClientException("Internal server error: " + responseBody, statusCode, "INTERNAL_SERVER_ERROR");
+            throw new DigitClientException("Internal server error: " + responseBody, statusCode, "INTERNAL_SERVER_ERROR", responseBody);
         }
         if (code == 503) {
-            throw new DigitClientException("Service unavailable", statusCode, "SERVICE_UNAVAILABLE");
+            throw new DigitClientException("Service unavailable", statusCode, "SERVICE_UNAVAILABLE", responseBody);
         }
-        throw new DigitClientException(errorMessage, statusCode, "HTTP_ERROR");
+        throw new DigitClientException(errorMessage, statusCode, "HTTP_ERROR", responseBody);
     }
 }
 

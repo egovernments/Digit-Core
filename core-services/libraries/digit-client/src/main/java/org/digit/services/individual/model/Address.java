@@ -46,6 +46,8 @@ public class Address {
     private Double longitude;
     @JsonProperty("locationAccuracy")
     private Double locationAccuracy;
+    @JsonProperty("requestId")
+    private String requestId;
     @JsonProperty("auditDetail")
     private AuditDetails auditDetail;
 }

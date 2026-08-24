@@ -1,7 +1,9 @@
 package org.digit.services.individual.model;
 
 import org.digit.services.common.model.AuditDetails;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +12,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Mirrors the individual service's {@code IndividualDTO}. Field types follow that DTO exactly,
+ * including its primitives.
+ */
 @JsonIgnoreProperties(ignoreUnknown=true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,10 +27,10 @@ public class Individual {
     private String id;
     @JsonProperty("individualId")
     private String individualId;
-    @JsonProperty("tenantId")
-    private String tenantId;
+    // No tenantId: the service takes the tenant from the X-Tenant-ID header, its DTO declares no
+    // such field, and it parses writes with a mapper that rejects unknown keys.
     @JsonProperty("givenName")
-    private String name;
+    private String givenName;
     @JsonProperty("familyName")
     private String familyName;
     @JsonProperty("otherNames")
@@ -37,13 +44,13 @@ public class Individual {
     @JsonProperty("mobileNumber")
     private String mobileNumber;
     @JsonProperty("mobileNumberVerified")
-    private Boolean mobileNumberVerified;
+    private boolean mobileNumberVerified;
     @JsonProperty("altContactNumber")
     private String altContactNumber;
     @JsonProperty("email")
     private String email;
     @JsonProperty("emailVerified")
-    private Boolean emailVerified;
+    private boolean emailVerified;
     @JsonProperty("locale")
     private String locale;
     @JsonProperty("fatherName")
@@ -55,15 +62,24 @@ public class Individual {
     @JsonProperty("userId")
     private String userId;
     @JsonProperty("isActive")
-    private Boolean isActive;
+    private boolean isActive;
     @JsonProperty("version")
-    private Integer version;
+    private int version;
+    @JsonProperty("requestId")
+    private String requestId;
+    /** Serialized as {@code address}, matching the service, whose field is likewise plural. */
     @JsonProperty("address")
     private List<Address> address;
+    @JsonProperty("identifiers")
+    private List<Identifier> identifiers;
     @JsonProperty("documents")
     private List<Document> documents;
     @JsonProperty("auditDetail")
     private AuditDetails auditDetail;
+    /**
+     * Values are arbitrary JSON, not strings: the service declares {@code Map<String, Object>}, so a
+     * nested object or a number here previously failed to deserialize.
+     */
     @JsonProperty("additionalAttributes")
-    private Map<String, String> additionalAttributes;
+    private Map<String, Object> additionalAttributes;
 }

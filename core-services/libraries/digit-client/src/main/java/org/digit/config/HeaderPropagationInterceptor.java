@@ -1,8 +1,10 @@
 package org.digit.config;
 
-import org.digit.util.HeaderStore;
 import java.io.IOException;
 import java.util.Map;
+import org.digit.util.DigitContextHolder;
+import org.digit.util.DigitRequestContext;
+import org.digit.util.HeaderStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +13,17 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
+/**
+ * Supplies tenant, user and correlation headers on outbound calls.
+ *
+ * <p>Resolution order, highest precedence first:
+ * <ol>
+ *   <li>headers already set on the request — a client that set one explicitly is never overridden;</li>
+ *   <li>an explicit {@link DigitRequestContext} from {@link DigitContextHolder}, for calls made
+ *       outside a servlet request;</li>
+ *   <li>the inbound servlet request, filtered by {@link PropagationProperties}.</li>
+ * </ol>
+ */
 public class HeaderPropagationInterceptor
 implements ClientHttpRequestInterceptor {
     private static final Logger log = LoggerFactory.getLogger(HeaderPropagationInterceptor.class);
@@ -20,40 +33,48 @@ implements ClientHttpRequestInterceptor {
         this.propagationProperties = propagationProperties;
     }
 
+    @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        System.out.println("\ud83d\udd0d HeaderPropagationInterceptor called for request: " + String.valueOf(request.getMethod()) + " " + String.valueOf(request.getURI()));
         try {
-            Map<String, String> headersToPropagate = HeaderStore.getHeadersToPropagate(this.propagationProperties);
-            System.out.println("\ud83d\udd0d Headers to propagate: " + String.valueOf(headersToPropagate));
-            System.out.println("\ud83d\udd0d PropagationProperties allow list: " + String.valueOf(this.propagationProperties.getAllow()));
-            System.out.println("\ud83d\udd0d PropagationProperties prefixes: " + String.valueOf(this.propagationProperties.getPrefixes()));
-            System.out.println("\ud83d\udd0d PropagationProperties object: " + String.valueOf(this.propagationProperties));
-            System.out.println("\ud83d\udd0d PropagationProperties class: " + String.valueOf(this.propagationProperties.getClass()));
-            if (headersToPropagate != null && !headersToPropagate.isEmpty()) {
-                HttpHeaders headers = request.getHeaders();
-                int propagatedCount = 0;
-                for (Map.Entry<String, String> entry : headersToPropagate.entrySet()) {
-                    String headerName = entry.getKey();
-                    String headerValue = entry.getValue();
-                    System.out.println("\ud83d\udd0d Checking header: " + headerName + " = " + headerValue);
-                    System.out.println("\ud83d\udd0d Should propagate? " + this.propagationProperties.shouldPropagate(headerName));
-                    if (this.propagationProperties.shouldPropagate(headerName)) {
-                        headers.add(headerName, headerValue);
-                        ++propagatedCount;
-                        System.out.println("\u2705 Added header: " + headerName + " = " + headerValue);
-                        continue;
-                    }
-                    System.out.println("\u274c Skipped header: " + headerName + " (not in allow list)");
-                }
-                System.out.println("\ud83d\udd0d Propagated " + propagatedCount + " headers to outbound request to " + String.valueOf(request.getURI()));
+            HttpHeaders headers = request.getHeaders();
+            DigitRequestContext context = DigitContextHolder.get();
+            if (context != null) {
+                // Not filtered by the allow list: that list governs which *inbound* headers may be
+                // forwarded onwards, whereas this context was constructed deliberately by the caller.
+                applyIfAbsent(headers, context.toHeaders(), false);
             } else {
-                System.out.println("\u26a0\ufe0f No headers to propagate found in request context");
+                applyIfAbsent(headers, HeaderStore.getHeadersToPropagate(this.propagationProperties), true);
             }
         }
         catch (Exception e) {
-            log.error("\ud83d\udd0d Failed to propagate headers: {}", (Object)e.getMessage(), (Object)e);
+            // A failure here means the call goes out without context headers and the service
+            // rejects it; log the cause rather than letting it surface as an opaque 400.
+            log.error("Failed to resolve DIGIT context headers for {} {}", request.getMethod(), request.getURI(), e);
         }
         return execution.execute(request, body);
     }
-}
 
+    /**
+     * Adds the resolved headers, skipping any the caller already set. Uses {@code set} rather than
+     * {@code add} so a re-used request or a doubly registered interceptor cannot produce a header
+     * with two values, which the gateway and the services do not expect.
+     */
+    private void applyIfAbsent(HttpHeaders headers, Map<String, String> resolved, boolean applyAllowList) {
+        if (resolved == null || resolved.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, String> entry : resolved.entrySet()) {
+            String name = entry.getKey();
+            if (applyAllowList && !this.propagationProperties.shouldPropagate(name)) {
+                continue;
+            }
+            if (headers.containsHeader(name)) {
+                continue;
+            }
+            headers.set(name, entry.getValue());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Applied DIGIT context headers: {}", resolved.keySet());
+        }
+    }
+}

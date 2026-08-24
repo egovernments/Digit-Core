@@ -22,7 +22,6 @@ import org.digit.services.registry.model.RegistryDataResponse;
 import org.digit.services.workflow.model.WorkflowProcessResponse;
 import org.digit.services.workflow.model.WorkflowTransitionRequest;
 import org.digit.services.individual.model.Individual;
-import org.digit.services.individual.model.IndividualResponse;
 import org.digit.services.individual.model.IndividualSearchResponse;
 import org.digit.services.notification.model.SendEmailRequest;
 import org.digit.services.notification.model.SendEmailResponse;
@@ -30,8 +29,13 @@ import org.digit.services.notification.model.SendSMSRequest;
 import org.digit.services.billing.model.*;
 import org.digit.services.boundary.model.*;
 import org.digit.services.registry.model.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.digit.util.DigitContextHolder;
+import org.digit.util.DigitRequestContext;
+import org.springframework.http.HttpStatus;
+import org.digit.services.filestore.model.FileSearchResponse;
+import tools.jackson.databind.JsonNode;
+import org.digit.util.DigitJson;
+import tools.jackson.databind.ObjectMapper;
 import org.digit.services.notification.model.SendSMSResponse;
 import org.digit.services.workflow.model.WorkflowTransitionResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +66,7 @@ class EndpointVerificationTest {
     @Mock RestTemplate restTemplate;
 
     ApiProperties props;
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = DigitJson.mapper();
 
     @BeforeEach
     void setup() {
@@ -144,13 +148,14 @@ class EndpointVerificationTest {
     void billing_createDemand_usesCorrectEndpoint() {
         var client = new BillingClient(restTemplate, props, objectMapper);
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(JsonNode.class)))
-                .thenReturn(ResponseEntity.ok(objectMapper.createObjectNode()));
+        // The endpoint takes an array, so the client goes through exchange() with a list body.
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(JsonNode.class)))
+                .thenReturn(new ResponseEntity<>(objectMapper.createArrayNode(), HttpStatus.CREATED));
 
-        client.createDemand(new DemandCreate());
+        client.createDemands(List.of(new DemandCreate()));
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
-        verify(restTemplate).postForEntity(urlCaptor.capture(), any(), eq(JsonNode.class));
+        verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.POST), any(), eq(JsonNode.class));
         assertEquals(BASE + "/billing/v3/demands", urlCaptor.getValue());
     }
 
@@ -323,9 +328,14 @@ class EndpointVerificationTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(MdmsResponseV2.class)))
                 .thenReturn(ResponseEntity.ok(null));
 
-        try {
-            client.searchMdmsData("common-masters.PropertyType", Set.of("RESIDENTIAL"));
-        } catch (Exception ignored) {}
+        // MDMS is the one service that demands X-Client-ID, and nothing upstream supplies it, so the
+        // client requires a resolvable client id rather than sending the call without one.
+        DigitContextHolder.run(DigitRequestContext.builder().tenantId("TEST3").clientId("svc-test").build(),
+                () -> {
+                    try {
+                        client.searchMdmsData("common-masters.PropertyType", Set.of("RESIDENTIAL"));
+                    } catch (Exception ignored) {}
+                });
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(MdmsResponseV2.class));
@@ -431,16 +441,32 @@ class EndpointVerificationTest {
         assertTrue(urlCaptor.getValue().contains("givenName=John"));
     }
     // ── Filestore ─────────────────────────────────────────────────────────────
-    // Spec: POST /filestore/v3/files/metadata?fileStoreId=...&tenantId=...
+    // Spec: GET /filestore/v3/files?fileStoreIds=...
+    // Spec: GET /filestore/v3/files/{fileStoreId}   (streams the bytes)
 
     @Test
-    void filestore_isFileAvailable_usesCorrectEndpoint() {
+    void filestore_isFileAvailable_checksMetadataRatherThanDownloading() {
         var client = new FilestoreClient(restTemplate, props, new PropagationProperties());
 
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(byte[].class)))
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(FileSearchResponse.class)))
                 .thenReturn(ResponseEntity.ok(null));
 
         client.isFileAvailable("file-abc");
+
+        // The by-id endpoint streams the whole object, so an existence check must not use it.
+        var urlCaptor = ArgumentCaptor.forClass(String.class);
+        verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(FileSearchResponse.class));
+        assertEquals(BASE + "/filestore/v3/files?fileStoreIds=file-abc", urlCaptor.getValue());
+    }
+
+    @Test
+    void filestore_downloadFile_usesTheByIdEndpoint() {
+        var client = new FilestoreClient(restTemplate, props, new PropagationProperties());
+
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(byte[].class)))
+                .thenReturn(ResponseEntity.ok(new byte[]{1, 2, 3}));
+
+        assertEquals(3, client.downloadFile("file-abc").length);
 
         var urlCaptor = ArgumentCaptor.forClass(String.class);
         verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(), eq(byte[].class));

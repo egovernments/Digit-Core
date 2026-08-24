@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 public class BoundaryRelationship {
     @JsonProperty(value="id")
     private String id;
+    @JsonProperty(value="tenantId")
+    private String tenantId;
     @JsonProperty(value="code")
     private String code;
     @JsonProperty(value="hierarchyType")
@@ -31,28 +33,4 @@ public class BoundaryRelationship {
     private String requestId;
     @JsonProperty(value="auditDetails")
     private AuditDetails auditDetails;
-
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    public static class HierarchyRelation {
-        @JsonProperty(value="tenantId")
-        private String tenantId;
-        @JsonProperty(value="hierarchyType")
-        private String hierarchyType;
-        @JsonProperty(value="boundary")
-        private List<EnrichedBoundary> boundary;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    public static class EnrichedBoundary {
-        @JsonProperty(value="id")
-        private String id;
-        @JsonProperty(value="code")
-        private String code;
-        @JsonProperty(value="boundaryType")
-        private String boundaryType;
-        @JsonProperty(value="children")
-        private List<EnrichedBoundary> children;
-        @JsonProperty(value="auditDetails")
-        private AuditDetails auditDetails;
-    }
 }

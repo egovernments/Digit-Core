@@ -16,30 +16,28 @@ public class HeaderStore {
 
     public static HeaderStore fromRequestContext(PropagationProperties props) {
         RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
-        if (!(attrs instanceof ServletRequestAttributes)) {
+        if (!(attrs instanceof ServletRequestAttributes sra)) {
             return new HeaderStore();
         }
-        ServletRequestAttributes sra = (ServletRequestAttributes)attrs;
         HttpServletRequest req = sra.getRequest();
         HeaderStore store = new HeaderStore();
-        Enumeration names = req.getHeaderNames();
+        Enumeration<String> names = req.getHeaderNames();
         if (names == null) {
             return store;
         }
         while (names.hasMoreElements()) {
-            String name = (String)names.nextElement();
+            String name = names.nextElement();
             if (!props.shouldPropagate(name)) continue;
-            Collections.list(req.getHeaders(name)).forEach(value -> store.add(name, (String)value));
+            Collections.list(req.getHeaders(name)).forEach(value -> store.add(name, value));
         }
         return store;
     }
 
     public static String extractTenantId() {
         RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
-        if (!(attrs instanceof ServletRequestAttributes)) {
+        if (!(attrs instanceof ServletRequestAttributes sra)) {
             return null;
         }
-        ServletRequestAttributes sra = (ServletRequestAttributes)attrs;
         HttpServletRequest req = sra.getRequest();
         String tenantId = req.getHeader("X-Tenant-ID");
         if (tenantId != null && !tenantId.trim().isEmpty()) {
@@ -55,10 +53,9 @@ public class HeaderStore {
 
     public static String extractClientId() {
         RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
-        if (!(attrs instanceof ServletRequestAttributes)) {
+        if (!(attrs instanceof ServletRequestAttributes sra)) {
             return null;
         }
-        ServletRequestAttributes sra = (ServletRequestAttributes)attrs;
         HttpServletRequest req = sra.getRequest();
         String clientId = req.getHeader("X-Client-Id");
         if (clientId != null && !clientId.trim().isEmpty()) {
@@ -86,10 +83,10 @@ public class HeaderStore {
 
     public static Map<String, String> getHeadersToPropagate(PropagationProperties props) {
         HeaderStore store = HeaderStore.fromRequestContext(props);
-        HashMap<String, String> result = new HashMap<String, String>();
+        HashMap<String, String> result = new HashMap<>();
         store.getHeaders().forEach((name, values) -> {
             if (!values.isEmpty()) {
-                result.put((String)name, (String)values.get(0));
+                result.put(name, values.get(0));
             }
         });
         return result;

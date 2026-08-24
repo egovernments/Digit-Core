@@ -1,12 +1,15 @@
 package org.digit.services.billing.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.math.BigDecimal;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,9 +18,9 @@ public class LineItemCreate {
     @JsonProperty(value="taxHeadCode")
     private String taxHeadCode;
     @JsonProperty(value="amount")
-    private Double amount;
+    private BigDecimal amount;
     @JsonProperty(value="collectedAmount")
-    private Double collectedAmount;
+    private BigDecimal collectedAmount;
     @JsonProperty(value="metadata")
     private Map<String, Object> metadata;
 }

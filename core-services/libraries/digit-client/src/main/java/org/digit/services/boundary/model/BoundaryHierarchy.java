@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 public class BoundaryHierarchy {
     @JsonProperty(value="id")
     private String id;
+    @JsonProperty(value="tenantId")
+    private String tenantId;
     @JsonProperty(value="hierarchyType")
     private String hierarchyType;
     @JsonProperty(value="boundaryHierarchy")
@@ -27,6 +29,10 @@ public class BoundaryHierarchy {
     private AuditDetails auditDetails;
 
     @JsonIgnoreProperties(ignoreUnknown=true)
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class BoundaryTypeHierarchy {
         @JsonProperty(value="id")
         private String id;
