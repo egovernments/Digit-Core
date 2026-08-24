@@ -17,6 +17,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -82,11 +83,35 @@ public class OtpClient {
         return response.getBody();
     }
 
-    /** Whether the code matched. */
-    public boolean isOtpValid(String referenceId, String otp) {
-        VerifyOtpResponse response = verifyOtp(
-                VerifyOtpRequest.builder().referenceId(referenceId).otp(otp).build());
-        return response != null && response.isVerified();
+    /**
+     * Whether {@code otp} is the code currently outstanding for {@code referenceId}.
+     *
+     * <p>{@code purpose} is required, and is why this takes three arguments: the service rejects a
+     * verify without it, so the previous two-argument form failed every call with
+     * {@code purpose is required} and could never return a result. One of {@code login},
+     * {@code transaction}, {@code forgot-password}, {@code phone-verify} or {@code registration}.
+     */
+    public boolean isOtpValid(String referenceId, String purpose, String otp) {
+        try {
+            VerifyOtpResponse response = verifyOtp(VerifyOtpRequest.builder()
+                    .referenceId(referenceId)
+                    .purpose(purpose)
+                    .otp(otp)
+                    .build());
+            return response != null && response.isVerified();
+        } catch (DigitClientException e) {
+            // An unknown referenceId answers 404. For a boolean probe that is simply "not valid",
+            // and returning it matches how isFileAvailable and the individual exists* probes behave;
+            // throwing here would make a caller branching on the boolean handle an exception for the
+            // ordinary case of an expired or already-consumed code. Callers that need to tell "no
+            // such reference" from "wrong code" apart should use verifyOtp directly.
+            if (e.getHttpStatus() != null
+                    && e.getHttpStatus().value() == HttpStatus.NOT_FOUND.value()) {
+                log.debug("OTP reference {} not found: {}", referenceId, e.getMessage());
+                return false;
+            }
+            throw e;
+        }
     }
 
     /** Re-sends a code. Subject to the purpose's cooldown and hourly resend cap. */

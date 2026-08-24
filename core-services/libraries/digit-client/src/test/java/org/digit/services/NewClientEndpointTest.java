@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -67,6 +68,37 @@ class NewClientEndpointTest {
         assertTrue(url.contains("name=Punjab"), url);
         assertTrue(url.contains("email=admin@pb.gov.in"), url);
         assertTrue(url.contains("page=2") && url.contains("size=50"), url);
+    }
+
+    @Test
+    void account_searchTenants_filtersOnCode() {
+        var client = new AccountClient(restTemplate, props);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(TenantListResponse.class)))
+                .thenReturn(ResponseEntity.ok(null));
+
+        client.searchTenants("TEST3", null, null, null, null);
+
+        // The parameter has to reach the URL. That is the whole assertion: the service accepted a
+        // code filter long before the client sent one, and a dropped query parameter still returns a
+        // perfectly plausible unfiltered page.
+        String url = capture(TenantListResponse.class, HttpMethod.GET);
+        assertTrue(url.contains("code=TEST3"), url);
+        assertFalse(url.contains("name=") || url.contains("email="), url);
+    }
+
+    @Test
+    void account_getTenantByCode_matchesExactlyRatherThanTakingTheFirstHit() {
+        var client = new AccountClient(restTemplate, props);
+        TenantListResponse page = TenantListResponse.builder()
+                .tenants(List.of(Tenant.builder().code("TEST30").name("Decoy").build(),
+                                 Tenant.builder().code("TEST3").name("Wanted").build()))
+                .build();
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(TenantListResponse.class)))
+                .thenReturn(ResponseEntity.ok(page));
+
+        // The service filter is a partial match, so TEST3 also matches TEST30; the client must pick
+        // the exact code rather than the first row it is handed.
+        assertEquals("Wanted", client.getTenantByCode("TEST3").getName());
     }
 
     @Test

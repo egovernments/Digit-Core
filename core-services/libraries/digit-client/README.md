@@ -438,7 +438,8 @@ Endpoint base: `digit.services.account.base-url`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `searchTenants()` / `searchTenants(name, email, page, size)` | `GET /accounts/v3/tenants` | List or filter tenants |
+| `searchTenants()` / `searchTenants(name, email, page, size)` / `searchTenants(code, name, email, page, size)` | `GET /accounts/v3/tenants` | List or filter tenants |
+| `getTenantByCode(code)` | `GET /accounts/v3/tenants?code=` | Exact-code lookup. `code` identifies a tenant, so prefer this over the name and email variants |
 | `getTenantByName(name)` | `GET /accounts/v3/tenants?name=` | Exact-name lookup — the service filter is partial, so this picks the exact match |
 | `getTenantByEmail(email)` | `GET /accounts/v3/tenants?email=` | Exact-email lookup |
 | `createTenantConfig(request)` | `POST /accounts/v3/config` | Add a config entry for the tenant in context |

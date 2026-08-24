@@ -51,7 +51,19 @@ public class AccountClient {
      * parameters fall back to the service's own defaults when null.
      */
     public TenantListResponse searchTenants(String name, String email, Integer page, Integer size) {
+        return searchTenants(null, name, email, page, size);
+    }
+
+    /**
+     * Searches tenants by code, name and/or email.
+     *
+     * <p>{@code code} is the tenant's identifier — {@code TEST3} and the like — so it is the precise
+     * filter of the three, where name and email are descriptive. All are optional; omit them to list.
+     */
+    public TenantListResponse searchTenants(String code, String name, String email,
+                                            Integer page, Integer size) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(tenantsUrl());
+        addIfText(builder, "code", code);
         addIfText(builder, "name", name);
         addIfText(builder, "email", email);
         addIfPositive(builder, "page", page);
@@ -59,6 +71,19 @@ public class AccountClient {
         ResponseEntity<TenantListResponse> response = this.restTemplate.exchange(
                 builder.toUriString(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), TenantListResponse.class);
         return response.getBody();
+    }
+
+    /**
+     * The tenant with this exact code, or null when there is none.
+     *
+     * <p>Preferred over the name and email lookups: a code identifies a tenant, so this is the one of
+     * the three that cannot match the wrong row. Matched case-sensitively, as tenant codes are.
+     */
+    public Tenant getTenantByCode(String code) {
+        requireText(code, "code is required");
+        TenantListResponse response = searchTenants(code, null, null, null, null);
+        return firstMatch(response == null ? null : response.getTenants(),
+                tenant -> code.equals(tenant.getCode()));
     }
 
     /** The tenant with this exact name, or null when there is none. */

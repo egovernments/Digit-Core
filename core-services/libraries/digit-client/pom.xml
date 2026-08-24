@@ -36,23 +36,7 @@
     <properties>
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- The live suite talks to real services, so it must never run as part of a normal build:
-             it would turn an offline machine or a down environment into a failing unit-test run.
-             The live profile below inverts these two. -->
-        <test.excluded.groups>live</test.excluded.groups>
-        <test.included.groups/>
     </properties>
-
-    <profiles>
-        <profile>
-            <!-- mvn test -Plive, or e2e/run-live-tests.sh, which also loads the credentials. -->
-            <id>live</id>
-            <properties>
-                <test.excluded.groups/>
-                <test.included.groups>live</test.included.groups>
-            </properties>
-        </profile>
-    </profiles>
 
     <dependencies>
         <!-- Spring Framework -->
@@ -161,8 +145,6 @@
                          alongside it is gone: the suite passes without it, because nothing here
                          mocks a JDK type. -->
                     <argLine>-XX:+EnableDynamicAgentLoading</argLine>
-                    <excludedGroups>${test.excluded.groups}</excludedGroups>
-                    <groups>${test.included.groups}</groups>
                 </configuration>
             </plugin>
         </plugins>

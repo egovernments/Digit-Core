@@ -160,8 +160,16 @@ public class IndividualClient {
         return individualExists(IndividualSearchCriteria.builder().mobileNumber(mobileNumber).build());
     }
 
+    /**
+     * Whether an individual with this {@code individualId} exists.
+     *
+     * <p>Searches by {@code individualId} — the IND-prefixed business key — and not by {@code id},
+     * the UUID primary key, despite having previously delegated to {@link #existsById}. The service
+     * validates {@code id} as a UUID, so passing the very value this parameter is named after failed
+     * with {@code field 'id' failed 'uuid' validation}. Use {@link #existsById} for the UUID.
+     */
     public boolean isIndividualExist(String individualId) {
-        return existsById(individualId);
+        return existsByIndividualId(individualId);
     }
 
     // ── Tenant config ────────────────────────────────────────────────────────
