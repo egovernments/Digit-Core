@@ -5,10 +5,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Demo Kafka listener for verifying per-service consumer-group routing in the
- * monolith bundle. Lives inside idgen's own package (org.egov.id.*), so the
- * bundler-generated router assigns it to egovIdgenKafkaFactory
- * (group.id = idgen-monolith-idgen).
+ * Demo Kafka listener. Group id is set directly on the annotation, so this
+ * consumer joins "egov-idgen-consumers" regardless of whether idgen runs
+ * standalone or inside a monolith bundle with other services.
  *
  * Gated with @ConditionalOnProperty so standalone idgen doesn't try to
  * connect to a Kafka broker unless demo mode is explicitly enabled.
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "egov.kafka.demo", havingValue = "true")
 public class IdgenDummyListener {
 
-    @KafkaListener(topics = "demo-topic")
+    @KafkaListener(topics = "demo-topic", groupId = "egov-idgen-consumers")
     public void onMessage(String payload) {
         System.out.println("[IdgenDummyListener] received: " + payload);
     }

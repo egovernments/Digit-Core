@@ -111,27 +111,18 @@ public class GenerateMojo extends AbstractMojo {
         Map<String, String> switchFlags = computeSwitchFlags(serviceSpecs);
         warnOnPropertyConflicts(serviceSpecs, spec);
 
-        List<Map<String, Object>> kafkaConsumerSpecs = collectKafkaConsumers(serviceSpecs);
-        boolean kafkaEnabled = !kafkaConsumerSpecs.isEmpty();
-
         Path bundleDir = repoRoot.resolve(bundlesDir).resolve(name);
         try {
             Files.createDirectories(bundleDir.resolve("src/main/java/org/egov/bundle"));
             Files.createDirectories(bundleDir.resolve("src/main/resources"));
 
             String appClassName = toClassName(name) + "Application";
-            writePom(bundleDir.resolve("pom.xml"), name, serviceCoords, kafkaEnabled);
+            writePom(bundleDir.resolve("pom.xml"), name, serviceCoords);
             writeMainClass(bundleDir.resolve("src/main/java/org/egov/bundle/" + appClassName + ".java"),
                     appClassName, scanPackages);
             writeAppProps(bundleDir.resolve("src/main/resources/application.properties"),
                     spec, serviceSpecs, switchFlags);
             writeProfileOverrides(bundleDir.resolve("src/main/resources"), spec);
-            if (kafkaEnabled) {
-                writeKafkaConfig(bundleDir.resolve("src/main/java/org/egov/bundle/MonolithKafkaConfig.java"),
-                        kafkaConsumerSpecs);
-                writeRoutingFactory(bundleDir.resolve(
-                        "src/main/java/org/egov/bundle/RoutingKafkaListenerContainerFactory.java"));
-            }
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to write bundle files for " + name, e);
         }
@@ -143,31 +134,7 @@ public class GenerateMojo extends AbstractMojo {
         getLog().info("  services      = " + include);
         getLog().info("  scan-packages = " + scanPackages);
         getLog().info("  switch flags  = " + switchFlags);
-        if (kafkaEnabled) {
-            getLog().info("  kafka routing = " + kafkaConsumerSpecs.stream()
-                    .map(k -> k.get("service") + "→" + k.get("package-prefix"))
-                    .toList());
-        }
         getLog().info("  output        = " + bundleDir);
-    }
-
-    /**
-     * Extract kafka-consumer blocks from each included service.yaml.
-     * Each entry (once collected) carries: service name, package-prefix, group-id-property.
-     * Empty list → no bundle-level Kafka config is emitted.
-     */
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> collectKafkaConsumers(List<Map<String, Object>> serviceSpecs) {
-        List<Map<String, Object>> out = new ArrayList<>();
-        for (Map<String, Object> svc : serviceSpecs) {
-            Object raw = svc.get("kafka-consumer");
-            if (raw instanceof Map<?, ?>) {
-                Map<String, Object> entry = new LinkedHashMap<>((Map<String, Object>) raw);
-                entry.put("service", str(svc.get("name"), "<unknown>"));
-                out.add(entry);
-            }
-        }
-        return out;
     }
 
     /**
@@ -266,22 +233,13 @@ public class GenerateMojo extends AbstractMojo {
         }
     }
 
-    private void writePom(Path out, String bundleName, Map<String, Map<String, Object>> serviceCoords,
-                           boolean kafkaEnabled) throws IOException {
+    private void writePom(Path out, String bundleName, Map<String, Map<String, Object>> serviceCoords) throws IOException {
         StringBuilder deps = new StringBuilder();
         for (Map<String, Object> c : serviceCoords.values()) {
             deps.append("        <dependency>\n")
                     .append("            <groupId>").append(c.get("groupId")).append("</groupId>\n")
                     .append("            <artifactId>").append(c.get("artifactId")).append("</artifactId>\n")
                     .append("            <version>").append(c.get("version")).append("</version>\n")
-                    .append("        </dependency>\n");
-        }
-        if (kafkaEnabled) {
-            // spring-kafka pulls spring-boot autoconfig for KafkaProperties + ConsumerFactory.
-            // Version managed by spring-boot-starter-parent.
-            deps.append("        <dependency>\n")
-                    .append("            <groupId>org.springframework.kafka</groupId>\n")
-                    .append("            <artifactId>spring-kafka</artifactId>\n")
                     .append("        </dependency>\n");
         }
         String pom = """
@@ -446,187 +404,6 @@ public class GenerateMojo extends AbstractMojo {
         extraProps.forEach((k, v) -> sb.append(k).append("=").append(v).append("\n"));
         // Overwrite (never append) — regeneration is idempotent by design.
         Files.writeString(out, sb.toString());
-    }
-
-    /**
-     * Emit MonolithKafkaConfig.java — per-service ConcurrentKafkaListenerContainerFactory
-     * beans + a routing bean registered under the default name "kafkaListenerContainerFactory"
-     * that Spring Kafka's @KafkaListener processor uses by convention.
-     */
-    private void writeKafkaConfig(Path out, List<Map<String, Object>> kafkaSpecs) throws IOException {
-        StringBuilder beans = new StringBuilder();
-        StringBuilder qualifiers = new StringBuilder();
-        StringBuilder routeMap = new StringBuilder();
-        for (Map<String, Object> k : kafkaSpecs) {
-            String svc = str(k.get("service"), null);
-            String pkgPrefix = str(k.get("package-prefix"), null);
-            String groupProp = str(k.get("group-id-property"), null);
-            if (svc == null || pkgPrefix == null || groupProp == null) continue;
-
-            String beanName = camel(svc) + "KafkaFactory";
-            beans.append("""
-
-                        @Bean("%s")
-                        public ConcurrentKafkaListenerContainerFactory<Object, Object> %s(
-                                KafkaProperties bootProps,
-                                @Value("${%s}") String groupId) {
-                            return buildFactory(bootProps, groupId);
-                        }
-                    """.formatted(beanName, beanName, groupProp));
-
-            qualifiers.append("            @Qualifier(\"").append(beanName).append("\") ")
-                    .append("KafkaListenerContainerFactory<?> ").append(beanName).append(",\n");
-
-            routeMap.append("            byPackage.put(\"").append(pkgPrefix).append("\", ")
-                    .append(beanName).append(");\n");
-        }
-        // Trim trailing separators.
-        String qualifiersOut = qualifiers.length() > 0
-                ? qualifiers.substring(0, qualifiers.length() - 2)   // strip final ",\n"
-                : "";
-
-        String body = """
-                package org.egov.bundle;
-
-                import java.util.HashMap;
-                import java.util.Map;
-
-                import org.apache.kafka.clients.consumer.ConsumerConfig;
-                import org.springframework.beans.factory.annotation.Qualifier;
-                import org.springframework.beans.factory.annotation.Value;
-                import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-                import org.springframework.context.annotation.Bean;
-                import org.springframework.context.annotation.Configuration;
-                import org.springframework.context.annotation.Primary;
-                import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-                import org.springframework.kafka.config.KafkaListenerContainerFactory;
-                import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-                import org.springframework.kafka.listener.MessageListenerContainer;
-
-                /**
-                 * Generated by digit-bundler. Do not edit.
-                 *
-                 * Per-service Kafka container factories with distinct group.id values, plus a
-                 * routing bean at the default name "kafkaListenerContainerFactory" that Spring
-                 * Kafka's @KafkaListener processor picks up by convention. The router inspects
-                 * each listener endpoint's declaring class package and delegates to the matching
-                 * service-specific factory — so both services can share one JVM without their
-                 * consumers colliding into the same consumer group.
-                 */
-                @Configuration
-                public class MonolithKafkaConfig {
-                %s
-                    @Bean(name = "kafkaListenerContainerFactory")
-                    @Primary
-                    public KafkaListenerContainerFactory<MessageListenerContainer> kafkaListenerContainerFactory(
-                %s) {
-                        Map<String, KafkaListenerContainerFactory<?>> byPackage = new HashMap<>();
-                %s
-                        return new RoutingKafkaListenerContainerFactory(byPackage);
-                    }
-
-                    private ConcurrentKafkaListenerContainerFactory<Object, Object> buildFactory(
-                            KafkaProperties bootProps, String groupId) {
-                        Map<String, Object> consumerCfg = new HashMap<>(bootProps.buildConsumerProperties());
-                        consumerCfg.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-                        ConcurrentKafkaListenerContainerFactory<Object, Object> factory =
-                                new ConcurrentKafkaListenerContainerFactory<>();
-                        factory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(consumerCfg));
-                        return factory;
-                    }
-                }
-                """.formatted(beans.toString(), qualifiersOut, routeMap.toString());
-        Files.writeString(out, body);
-    }
-
-    /** Emit RoutingKafkaListenerContainerFactory.java into the bundle package. */
-    private void writeRoutingFactory(Path out) throws IOException {
-        String body = """
-                package org.egov.bundle;
-
-                import java.util.Map;
-                import java.util.regex.Pattern;
-
-                import org.springframework.aop.support.AopUtils;
-                import org.springframework.kafka.config.KafkaListenerContainerFactory;
-                import org.springframework.kafka.config.KafkaListenerEndpoint;
-                import org.springframework.kafka.config.MethodKafkaListenerEndpoint;
-                import org.springframework.kafka.listener.MessageListenerContainer;
-                import org.springframework.kafka.support.TopicPartitionOffset;
-
-                /**
-                 * Generated by digit-bundler. Do not edit.
-                 *
-                 * Routes each @KafkaListener endpoint to a per-service KafkaListenerContainerFactory
-                 * based on the declaring class's package (longest-prefix match). Registered under
-                 * the default bean name "kafkaListenerContainerFactory" so vanilla @KafkaListener
-                 * annotations (no containerFactory attribute) pick it up automatically.
-                 */
-                public class RoutingKafkaListenerContainerFactory
-                        implements KafkaListenerContainerFactory<MessageListenerContainer> {
-
-                    private final Map<String, KafkaListenerContainerFactory<?>> byPackage;
-
-                    public RoutingKafkaListenerContainerFactory(
-                            Map<String, KafkaListenerContainerFactory<?>> byPackage) {
-                        this.byPackage = byPackage;
-                    }
-
-                    @Override
-                    public MessageListenerContainer createListenerContainer(KafkaListenerEndpoint endpoint) {
-                        Object bean = ((MethodKafkaListenerEndpoint<?, ?>) endpoint).getBean();
-                        String pkg = AopUtils.getTargetClass(bean).getPackageName();
-                        KafkaListenerContainerFactory<?> delegate = longestPrefixMatch(pkg);
-                        if (delegate == null) {
-                            throw new IllegalStateException(
-                                "No Kafka factory routed for listener package: " + pkg
-                                + " (available: " + byPackage.keySet() + ")");
-                        }
-                        return delegate.createListenerContainer(endpoint);
-                    }
-
-                    @Override
-                    public MessageListenerContainer createContainer(TopicPartitionOffset... partitions) {
-                        throw new UnsupportedOperationException(
-                            "Programmatic containers cannot be routed — use a specific factory directly.");
-                    }
-
-                    @Override
-                    public MessageListenerContainer createContainer(String... topics) {
-                        throw new UnsupportedOperationException(
-                            "Programmatic containers cannot be routed — use a specific factory directly.");
-                    }
-
-                    @Override
-                    public MessageListenerContainer createContainer(Pattern topicPattern) {
-                        throw new UnsupportedOperationException(
-                            "Programmatic containers cannot be routed — use a specific factory directly.");
-                    }
-
-                    private KafkaListenerContainerFactory<?> longestPrefixMatch(String pkg) {
-                        String best = null;
-                        for (String prefix : byPackage.keySet()) {
-                            if (pkg.equals(prefix) || pkg.startsWith(prefix + ".")) {
-                                if (best == null || prefix.length() > best.length()) best = prefix;
-                            }
-                        }
-                        return best == null ? null : byPackage.get(best);
-                    }
-                }
-                """;
-        Files.writeString(out, body);
-    }
-
-    /** Convert "egov-idgen" → "egovIdgen". */
-    private String camel(String hyphenated) {
-        String[] parts = hyphenated.split("[-_]");
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < parts.length; i++) {
-            if (parts[i].isEmpty()) continue;
-            if (i == 0) sb.append(parts[i]);
-            else sb.append(Character.toUpperCase(parts[i].charAt(0))).append(parts[i].substring(1));
-        }
-        return sb.toString();
     }
 
     private void registerModuleInRootPom(Path rootPom, String modulePath) {

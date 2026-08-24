@@ -10,10 +10,3 @@ provides: []
 consumes:
   - capability: mdms
     switch-property: egov.mdms.mode
-
-# Hypothetical — idgen doesn't have real @KafkaListener today, but the declaration
-# proves the bundler wires per-service consumer groups. When idgen adds a listener
-# under org.egov.id.*, it will land in this group.
-kafka-consumer:
-  package-prefix: org.egov.id
-  group-id-property: idgen.kafka.group-id

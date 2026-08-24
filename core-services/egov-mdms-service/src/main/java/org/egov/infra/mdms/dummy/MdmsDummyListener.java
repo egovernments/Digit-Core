@@ -5,10 +5,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Demo Kafka listener for verifying per-service consumer-group routing in the
- * monolith bundle. Lives inside mdms's own package (org.egov.infra.mdms.*), so
- * the bundler-generated router assigns it to egovMdmsServiceKafkaFactory
- * (group.id = idgen-monolith-mdms).
+ * Demo Kafka listener. Group id is set directly on the annotation, so this
+ * consumer joins "egov-mdms-service-consumers" regardless of whether mdms
+ * runs standalone or inside a monolith bundle with other services.
  *
  * Gated with @ConditionalOnProperty so standalone mdms doesn't try to
  * connect to a Kafka broker unless demo mode is explicitly enabled.
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "egov.kafka.demo", havingValue = "true")
 public class MdmsDummyListener {
 
-    @KafkaListener(topics = "demo-topic")
+    @KafkaListener(topics = "demo-topic", groupId = "egov-mdms-service-consumers")
     public void onMessage(String payload) {
         System.out.println("[MdmsDummyListener] received: " + payload);
     }
