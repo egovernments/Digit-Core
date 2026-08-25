@@ -19,6 +19,7 @@ public class Otp {
     private String type;
     private String userType;
     private String countryCode;
+    private String userName;
 
     @JsonIgnore
     public OtpRequestType getTypeOrDefault() {

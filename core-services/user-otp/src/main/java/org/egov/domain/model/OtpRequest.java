@@ -31,6 +31,9 @@ public class OtpRequest {
     private String countryCode;
 
 	@Setter
+	private String userName;
+
+	@Setter
 	private MobileValidationConfig mdmsValidationConfig;
 
 	@Setter
@@ -56,6 +59,10 @@ public class OtpRequest {
     public boolean isMobileNumberAbsent() {
         return isEmpty(mobileNumber);
     }
+
+	public boolean isUserNameAbsent() {
+		return isEmpty(userName);
+	}
 
 	public boolean hasMdmsValidationError() {
 		return mdmsValidationErrorMessage != null && !mdmsValidationErrorMessage.isEmpty();

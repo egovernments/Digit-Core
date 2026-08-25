@@ -52,11 +52,23 @@ public class OtpRequestValidator {
         fetchAndSetMdmsValidationConfig(otpRequest);
 
         if (isTenantIdAbsent(otpRequest)
-                || isMobileNumberAbsent(otpRequest)
-                || !isMobileNumberValid(otpRequest)
+                || !isUserNameOrMobileNumberValid(otpRequest)
                 || isInvalidType(otpRequest)) {
             throw new InvalidOtpRequestException(otpRequest);
         }
+    }
+
+    /**
+     * A mobileNumber, when present, must still pass MDMS/regex validation.
+     * A request with no mobileNumber is allowed through only if a userName was
+     * supplied instead (e.g. employee forgot-password flows that search by
+     * username rather than phone number).
+     */
+    public boolean isUserNameOrMobileNumberValid(OtpRequest otpRequest) {
+        if (!isMobileNumberAbsent(otpRequest)) {
+            return isMobileNumberValid(otpRequest);
+        }
+        return !otpRequest.isUserNameAbsent();
     }
 
     public boolean isTenantIdAbsent(OtpRequest otpRequest) {
