@@ -2,6 +2,7 @@ package org.egov.tracer.config;
 
 import org.egov.tracer.http.RestTemplateLoggingInterceptor;
 import org.egov.tracer.http.filters.TracerFilter;
+import org.egov.tracer.kafka.MdcRecordInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.kafka.listener.RecordInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -36,6 +38,15 @@ public class TracerConfiguration {
                 })
                 .interceptors(new RestTemplateLoggingInterceptor(tracerProperties))
                 .build();
+    }
+
+    // MDC rebuild + cleanup from Kafka headers. Boot auto-applies to the autoconfig record-listener
+    // factory; custom-factory or batch-listener services must wire it manually.
+    // Not conditional: propagation itself lives in the Kafka client interceptor, so gating this bean
+    // only dropped per-record cleanup and left MDC values leaking across records in a poll.
+    @Bean
+    public RecordInterceptor<Object, Object> mdcRecordInterceptor() {
+        return new MdcRecordInterceptor<>();
     }
 
     /**
