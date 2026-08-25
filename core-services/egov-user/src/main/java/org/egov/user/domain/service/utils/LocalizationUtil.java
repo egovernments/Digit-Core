@@ -3,6 +3,7 @@ package org.egov.user.domain.service.utils;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,8 @@ public class LocalizationUtil {
     private String defaultLocale;
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private MultiStateInstanceUtil centralInstanceUtil;
 
     public String getLocalizedMessage(String code, String locale, RequestInfo requestInfo) {
         if(locale == null)
@@ -52,6 +55,29 @@ public class LocalizationUtil {
 
     String getUri(String locale) {
         return localizationServiceHost + localizationServiceSearchPath + "?locale=" + locale + "&tenantId=" + tenantId + "&module=" + module;
+    }
+
+    /**
+     * Tenant-aware localization: derives the state-level tenant dynamically from the
+     * provided tenantId instead of using the hardcoded configuration property.
+     */
+    public String getLocalizedMessage(String code, String locale, RequestInfo requestInfo, String userTenantId) {
+        if(locale == null)
+            locale = defaultLocale;
+        String resolvedTenantId = (userTenantId != null)
+                ? centralInstanceUtil.getStateLevelTenant(userTenantId)
+                : tenantId;
+        String uri = localizationServiceHost + localizationServiceSearchPath + "?locale=" + locale + "&tenantId=" + resolvedTenantId + "&module=" + module;
+        Object responseobj = restTemplate.postForObject(uri, requestInfo, Map.class);
+        Object object = JsonPath.read(responseobj,
+                "$.messages[?(@.code==\"" + code + "\")].message");
+        List<String> messages = (ArrayList<String>) object;
+        if(CollectionUtils.isEmpty(messages)){
+            log.warn("No localization messages returned for locale: " + locale +" . Continuing with english language");
+            messages.add(DEFAULT_EMAIL_UPDATION_MESSAGE);
+        }
+        String message = messages.get(0);
+        return message;
     }
 
 }
