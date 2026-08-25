@@ -31,6 +31,13 @@ public class OtpEmailRepository {
 	private static final String PWD_RESET_BODY_EMAIL = "Your OTP for recovering password is %s.";
 	private static final String LOGIN_SUBJECT_EMAIL = "Login OTP";
 	private static final String LOGIN_BODY_EMAIL = "Dear Citizen, Your Login OTP is %s.";
+	private static final String DIGIT_STUDIO_LOGIN_BODY_EMAIL = "Dear User,<br><br>"
+			+ "To complete creation of your DIGIT Studio Account, please enter the below OTP:<br><br>"
+			+ "<b style='font-size: 24px; color: #000;'>%s</b><br><br>"
+			+ "Your exclusive login URL is <a href='https://unified-uat.digit.org/digit-studio/citizen/login'>https://unified-uat.digit.org/digit-studio/citizen/login</a><br><br>"
+			+ "Please bookmark and use this URL for future access to DIGIT Studio.<br><br>"
+			+ "If you did not initiate this action, please contact <a href='mailto:support@digit.org'>support@digit.org</a><br><br>"
+			+ "Regards,<br>DIGIT Studio Team";
     private CustomKafkaTemplate<String, EmailRequest> kafkaTemplate;
     private String emailTopic;
 
@@ -46,6 +53,9 @@ public class OtpEmailRepository {
 	
 	@Value("${egov.localization.module}")
     private String localizationModule;
+
+	@Value("${flag.digitstudio.url:false}")
+	private Boolean enableDigitStudioUrl;
 
     @Autowired
     public OtpEmailRepository(CustomKafkaTemplate<String, EmailRequest> kafkaTemplate,
@@ -125,7 +135,7 @@ public class OtpEmailRepository {
 		else {
 			body = getMessages(otpRequest, LOCALIZATION_KEY_LOGIN_BODY_EMAIL);
 			if(ObjectUtils.isEmpty(body))
-				body = LOGIN_BODY_EMAIL;
+				body = Boolean.TRUE.equals(enableDigitStudioUrl) ? DIGIT_STUDIO_LOGIN_BODY_EMAIL : LOGIN_BODY_EMAIL;
             body = format(body, otpNumber);
 		}
 		return body;
