@@ -15,6 +15,20 @@ import java.sql.SQLException;
  *   <li>TRANSIENT — connection / serialization / deadlock / resource failures: retrying may succeed.</li>
  *   <li>PERMANENT — constraint / data / grammar errors: retrying will always fail the same way.</li>
  * </ul>
+ *
+ * <p><b>Note on 25006 (read_only_sql_transaction).</b> SQLSTATE class 25 is "Invalid Transaction
+ * State" and is normally a programming error, so only this one member of the class is treated as
+ * transient — not the class as a whole. A managed Postgres instance can turn the whole server
+ * read-only for a bounded window (failover, maintenance, a storage-full condition), during which
+ * every write fails with 25006 and every one of them succeeds again once the window closes.
+ * Observed on ng-central-dev / mhbase on 2026-08-25: the server flipped read-only repeatedly and
+ * a single ~35s window dead-lettered 4,521 records, logged as 46 consecutive batches of
+ * "100 record(s) -&gt; 0 persisted, 0 duplicate(s), 100 dead-lettered, 0 parked". Whole batches
+ * failing identically is the signature of an environmental fault, not of per-record corruption.
+ * Note this path is reached only when the driver exception carries the SQLSTATE: the same outage's
+ * connection kills arrived as DataAccessResourceFailureException and were already classified
+ * TRANSIENT by the cause-chain scan below, but the read-only writes arrived as
+ * UncategorizedSQLException, which that scan does not match.</p>
  */
 public final class DbExceptionClassifier {
 
@@ -29,7 +43,14 @@ public final class DbExceptionClassifier {
         }
         if (sqlState != null && (
                 sqlState.startsWith("08")   // connection exception
-                || sqlState.startsWith("57") // operator intervention (e.g. admin shutdown, query cancel)
+                // Operator intervention: admin/crash shutdown, cannot_connect_now, database_dropped.
+                // The server is going away, so the in-place retry path (paired with the pause-on-DB-health
+                // backstop) is right. EXCLUDING 57014 query_canceled, which is a per-statement
+                // cancellation or timeout, not an outage: the next attempt is likely to be cancelled the
+                // same way, so retrying it in place can loop indefinitely. It must fall through to the
+                // bounded DLQ / parking flow instead.
+                || (sqlState.startsWith("57") && !"57014".equals(sqlState))
+                || "25006".equals(sqlState)  // read_only_sql_transaction — see note below
                 || "40001".equals(sqlState)  // serialization_failure
                 || "40P01".equals(sqlState)  // deadlock_detected
                 || "53300".equals(sqlState)  // too_many_connections

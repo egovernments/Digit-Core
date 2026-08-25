@@ -46,11 +46,33 @@ public class DbHealthMonitor {
         }
     }
 
+    /**
+     * Healthy means "a write would be accepted", not merely "the server answers".
+     *
+     * <p>A read-only Postgres serves SELECTs perfectly, so a bare {@code SELECT 1} reports healthy
+     * throughout a read-only window while every INSERT/UPDATE fails. Observed on ng-central-dev /
+     * mhbase on 2026-08-25: the server flipped read-only repeatedly, this monitor never paused, and
+     * the consumer kept pulling work it could not persist. Both a hot standby and a server carrying
+     * {@code default_transaction_read_only=on} (how a managed instance signals failover, maintenance
+     * or a storage-full condition) report {@code transaction_read_only = on}, so that setting is the
+     * probe. {@code pg_is_in_recovery()} is checked too as a belt-and-braces signal for standby.
+     * Both are cheap, side-effect free, and need no write.</p>
+     */
     private boolean isHealthy() {
         try {
-            jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            String readOnly = jdbcTemplate.queryForObject("SHOW transaction_read_only", String.class);
+            if ("on".equalsIgnoreCase(readOnly)) {
+                log.debug("Datasource probe: server is read-only (transaction_read_only=on)");
+                return false;
+            }
+            Boolean inRecovery = jdbcTemplate.queryForObject("SELECT pg_is_in_recovery()", Boolean.class);
+            if (Boolean.TRUE.equals(inRecovery)) {
+                log.debug("Datasource probe: server is in recovery (standby)");
+                return false;
+            }
             return true;
         } catch (Exception e) {
+            // Covers unreachable/down as well - the probe itself throws.
             log.debug("Datasource probe failed: {}", e.getMessage());
             return false;
         }
