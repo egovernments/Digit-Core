@@ -1,0 +1,11 @@
+.digit-card-textarea,
+.digit-employee-card-textarea {
+  @apply block outline-none mt-md mb-lg border w-full border-input-border border-solid bg-white h-24 text-form-field text-text-primary p-sm;
+  @extend .light-input-border;
+}
+.digit-employee-card-textarea {
+  @apply w-full;
+}
+.digit-cell-text {
+  color: theme(colors.text.secondary);
+}

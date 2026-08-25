@@ -1,0 +1,168 @@
+@import url("./components/actionbarV2.scss");
+/* 
+    TODO NABEEL/ANIL Removed these since it creates issues in search screen and home screen
+@import url("./components/cardV2.scss");
+*/
+
+@import url("./components/checkboxV2.scss");
+@import url("./components/FormComposerV2.scss");
+@import url("./components/radiobtnV2.scss");
+@import url("./components/selectdropdownV2.scss");
+@import url("./typography.scss");
+@import url("./components/actionLinkV2.scss");
+@import url("./components/appContainerV2.scss");
+@import url("./components/bodyContainerV2.scss");
+@import url("./components/breadCrumbV2.scss");
+@import url("./components/bannerV2.scss");
+@import url("./components/breakLineV2.scss");
+@import url("./components/loaderV2.scss");
+@import url("./components/headerV2.scss");
+@import url("./components/checkpointV2.scss");
+@import url("./components/backButtonV2.scss");
+@import url("./components/buttonsV2.scss");
+@import url("./components/infoBannerV2.scss");
+@import url("./components/displayPhotosV2.scss");
+@import url("./components/collapseAndExpandGroups.scss");
+@import url("./components/dateWrapV2.scss");
+@import url("./components/ErrorMessage.scss");
+@import url("./components/ratingV2.scss");
+@import url("./components/noresultsfoundV2.scss");
+@import url("./components/mobileNumberV2.scss");
+@import url("./components/tagV2.scss");
+@import url("./components/popUpV2.scss");
+@import url("./components/telephoneV2.scss");
+@import url("./components/textareaV2.scss");
+@import url("./components/textInputV2.scss");
+@import url("./components/otpInputV2.scss");
+@import url("./components/multiSelectDropdownV2.scss");
+@import url("./components/uploadFileV2.scss");
+
+/* pages */
+@import url("./pages/employee/index.scss");
+
+/* important to be remove after fixing the components */
+.light {
+  &-primary {
+    color: theme(digitv2.lightTheme.primary) !important;
+
+    &-button {
+      background-color: theme(digitv2.lightTheme.primary) !important;
+    }
+
+    &-bg {
+      background-color: theme(digitv2.lightTheme.primary-bg) !important;
+    }
+  }
+
+  &-text-color {
+    &-primary {
+      color: theme(digitv2.lightTheme.text-color-primary) !important;
+    }
+
+    &-secondary {
+      color: theme(digitv2.lightTheme.text-color-secondary) !important;
+    }
+
+    &-disabled {
+      color: theme(digitv2.lightTheme.text-color-disabled) !important;
+    }
+  }
+
+  &-background {
+    background-color: theme(digitv2.lightTheme.background) !important;
+  }
+
+  &-paper {
+    &-primary {
+      background-color: theme(digitv2.lightTheme.paper) !important;
+
+      &-color {
+        color: theme(digitv2.lightTheme.paper) !important;
+      }
+    }
+
+    &-secondary {
+      background-color: theme(digitv2.lightTheme.paper-secondary) !important;
+    }
+
+    &-border {
+      border-radius: 4px;
+      border-style: solid;
+      border-width: 1px;
+      border-color: theme(digitv2.lightTheme.divider);
+    }
+  }
+
+  &-divider {
+    background-color: theme(digitv2.lightTheme.divider) !important;
+  }
+
+  &-header-sidenav {
+    color: theme(digitv2.lightTheme.header-sidenav) !important;
+  }
+
+  &-input-border {
+    /* TODO Check why important added here @ANIL/NABEEL */
+    border-color: theme(digitv2.lightTheme.input-border);
+  }
+}
+
+.alert {
+  &-error {
+    color: theme(digitv2.alert.error) !important;
+
+    &-bg {
+      background-color: theme(digitv2.alert.error-bg) !important;
+    }
+
+    &-border {
+      border-color: theme(digitv2.alert.error) !important;
+    }
+  }
+
+  &-success {
+    color: theme(digitv2.alert.success) !important;
+
+    &-bg {
+      background-color: theme(digitv2.alert.success-bg) !important;
+    }
+  }
+
+  &-info {
+    color: theme(digitv2.alert.info) !important;
+
+    &-bg {
+      background-color: theme(digitv2.alert.info-bg) !important;
+    }
+  }
+}
+
+.chart {
+  &-item-1 {
+    color: theme(digitv2.chart.chart-1) !important;
+  }
+
+  &-item-1-gradient {
+    color: theme(digitv2.chart.chart-1-gradient) !important;
+  }
+
+  &-item-2 {
+    color: theme(digitv2.chart.chart-2) !important;
+  }
+
+  &-item-2-gradient {
+    color: theme(digitv2.chart.chart-2-gradient) !important;
+  }
+
+  &-item-3 {
+    color: theme(digitv2.chart.chart-3) !important;
+  }
+
+  &-item-4 {
+    color: theme(digitv2.chart.chart-4) !important;
+  }
+
+  &-item-5 {
+    color: theme(digitv2.chart.chart-5) !important;
+  }
+}
