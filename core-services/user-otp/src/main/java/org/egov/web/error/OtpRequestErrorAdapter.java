@@ -18,7 +18,7 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
     private static final String TENANT_FIELD = "otp.tenantId";
 
     private static final String MOBILE_MANDATORY_CODE = "OTP.MOBILE_NUMBER_MANDATORY";
-    private static final String MOBILE_MANDATORY_MESSAGE = "Mobile number field is mandatory";
+    private static final String MOBILE_MANDATORY_MESSAGE = "Mobile number or userName field is mandatory";
     private static final String MOBILE_FIELD = "otp.mobileNumber";
 
 	private static final String TYPE_INVALID_CODE = "OTP.REQUEST_TYPE_MANDATORY";
@@ -67,7 +67,7 @@ public class OtpRequestErrorAdapter implements ErrorAdapter<OtpRequest> {
 	}
 
 	private void addMobileNumberValidationErrors(OtpRequest model, List<ErrorField> errorFields) {
-        if (!model.isMobileNumberAbsent()) {
+        if (!model.isMobileNumberAbsent() || !model.isUserNameAbsent()) {
             return;
         }
         final ErrorField errorField = ErrorField.builder()

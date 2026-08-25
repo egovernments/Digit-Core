@@ -14,6 +14,8 @@ import org.egov.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 @Service
 @Slf4j
 public class OtpService {
@@ -37,6 +39,7 @@ public class OtpService {
     public void sendOtp(OtpRequest otpRequest) {
         // Validate the OTP request (includes fetching MDMS config)
         otpRequestValidator.validate(otpRequest);
+        setUserNameIfNotPresent(otpRequest);
 
         if (otpRequest.isRegistrationRequestType() || otpRequest.isLoginRequestType()) {
             sendOtpForUserRegistration(otpRequest);
@@ -46,7 +49,7 @@ public class OtpService {
     }
 
     private void sendOtpForUserRegistration(OtpRequest otpRequest) {
-        final User matchingUser = userRepository.fetchUser(otpRequest.getMobileNumber(), otpRequest.getTenantId(),
+        final User matchingUser = userRepository.fetchUser(otpRequest.getUserName(), otpRequest.getTenantId(),
                 otpRequest.getUserType());
 
         if (otpRequest.isRegistrationRequestType() && null != matchingUser)
@@ -66,7 +69,7 @@ public class OtpService {
     }
 
     private void sendOtpForPasswordReset(OtpRequest otpRequest) {
-        final User matchingUser = userRepository.fetchUser(otpRequest.getMobileNumber(), otpRequest.getTenantId(),
+        final User matchingUser = userRepository.fetchUser(otpRequest.getUserName(), otpRequest.getTenantId(),
                 otpRequest.getUserType());
         if (null == matchingUser) {
             throw new UserNotFoundException();
@@ -84,6 +87,12 @@ public class OtpService {
             }
         } catch (Exception e) {
             log.error("Exception while fetching otp: ", e);
+        }
+    }
+
+    private void setUserNameIfNotPresent(OtpRequest otpRequest) {
+        if (isEmpty(otpRequest.getUserName())) {
+            otpRequest.setUserName(otpRequest.getMobileNumber());
         }
     }
 

@@ -19,6 +19,7 @@ public class OtpRequest {
                 .type(getType())
                 .userType(getUserType())
                 .countryCode(getCountryCode())
+                .userName(getUserName())
                 .requestInfo(getRequestInfo())
                 .build();
     }
@@ -41,6 +42,10 @@ public class OtpRequest {
 
     private String getCountryCode() {
         return otp != null ? otp.getCountryCode() : null;
+    }
+
+    private String getUserName() {
+        return otp != null ? otp.getUserName() : null;
     }
 }
 

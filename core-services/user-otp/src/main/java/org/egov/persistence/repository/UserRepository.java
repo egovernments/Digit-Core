@@ -35,8 +35,8 @@ public class UserRepository {
     @Autowired
     private RestTemplate restTemplate;
 
-    public User fetchUser(String mobileNumber, String tenantId, String userType) {
-    	
+    public User fetchUser(String userName, String tenantId, String userType) {
+
     	/*
     	 * #central-instance
     	 * tenantId for header will be  when citizen is being fetched in OTP
@@ -45,10 +45,10 @@ public class UserRepository {
     	String tenantIdForHeader = tenantId;
         UserSearchRequest request = null;
         if (userType !=null && userType.equals("EMPLOYEE")) {
-            request = new UserSearchRequest(null, tenantId, userType, mobileNumber);
+            request = new UserSearchRequest(userName, tenantId, userType, null);
         } else {
         	tenantIdForHeader = tenantId.split("\\.")[0];
-            request = new UserSearchRequest(null, tenantIdForHeader, userType, mobileNumber);
+            request = new UserSearchRequest(userName, tenantIdForHeader, userType, null);
         }
         
         ObjectMapper mapper = new ObjectMapper();
