@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 import org.egov.common.contract.request.User;
 import org.springframework.validation.annotation.Validated;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModel;
@@ -80,7 +81,12 @@ public class ProcessInstance   {
         @JsonProperty("assigner")
         private User assigner = null;
 
+        // "assignes" is the historical (misspelled) contract key; serialization must
+        // keep emitting it because the persister jsonPaths (ProcessInstances.*.assignes.*)
+        // and downstream consumers depend on it. The alias accepts the correctly spelled
+        // "assignees" that some clients send, which was previously dropped silently.
         @JsonProperty("assignes")
+        @JsonAlias("assignees")
         private List<User> assignes = null;
 
         @JsonProperty("nextActions")
