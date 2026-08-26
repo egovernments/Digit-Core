@@ -51,11 +51,10 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.tracer.model.CustomException;
 import org.egov.userevent.config.PropertiesManager;
 import org.egov.userevent.model.AuditDetails;
-import org.egov.userevent.model.LATWrapper;
 import org.egov.userevent.model.LastAccesDetails;
 import org.egov.userevent.model.RecepientEvent;
 import org.egov.userevent.model.enums.Status;
-import org.egov.userevent.producer.UserEventsProducer;
+import org.egov.userevent.persistence.EventPersistenceService;
 import org.egov.userevent.repository.UserEventRepository;
 import org.egov.userevent.utils.ErrorConstants;
 import org.egov.userevent.utils.ResponseInfoFactory;
@@ -83,7 +82,7 @@ public class UserEventsService {
 	private PropertiesManager properties;
 
 	@Autowired
-	private UserEventsProducer producer;
+	private EventPersistenceService persistenceService;
 
 	@Autowired
 	private ResponseInfoFactory responseInfo;
@@ -112,7 +111,7 @@ public class UserEventsService {
 			validator.validateCreateEvent(request, true);
 		log.info("enriching and storing the event......");
 		enrichCreateEvent(request);
-		producer.push(properties.getSaveEventsPersisterTopic(), request);
+		persistenceService.saveEvents(request.getEvents());
 		request.getEvents().forEach(event -> event.setRecepientEventMap(null));
 		return EventResponse.builder()
 				.responseInfo(responseInfo.createResponseInfoFromRequestInfo(request.getRequestInfo(), true))
@@ -150,7 +149,7 @@ public class UserEventsService {
 			log.info("Generating counter events.....");
 			createEvents(req, true);
 		}
-		producer.push(properties.getUpdateEventsPersisterTopic(), request);
+		persistenceService.updateEvents(request.getEvents());
 		request.getEvents().forEach(event -> {
 			event.setRecepientEventMap(null);
 			event.setGenerateCounterEvent(null);
@@ -459,13 +458,25 @@ public class UserEventsService {
 	 * @return
 	 */
 	public ResponseInfo persistLastAccessTime(RequestInfo requestInfo) {
-		LastAccesDetails loginDetails = LastAccesDetails.builder().userId(requestInfo.getUserInfo().getUuid())
-				.lastAccessTime(new Date().getTime()).build();
-		LATWrapper wrapper = LATWrapper.builder().lastAccessDetails(loginDetails).build();
-		producer.push(properties.getLatDetailsTopic(), wrapper);
-
+		persistLastAccessTime(requestInfo, null);
 		return responseInfo.createResponseInfoFromRequestInfo(requestInfo, true);
 
+	}
+
+	/**
+	 * Service method used to persist the lastaccesstime of the user.
+	 *
+	 * @param requestInfo
+	 * @param lastAccessTime epoch millis to record; defaults to the current server
+	 *                       time when null
+	 * @return the persisted details
+	 */
+	public LastAccesDetails persistLastAccessTime(RequestInfo requestInfo, Long lastAccessTime) {
+		LastAccesDetails loginDetails = LastAccesDetails.builder().userId(requestInfo.getUserInfo().getUuid())
+				.lastAccessTime(null != lastAccessTime ? lastAccessTime : new Date().getTime()).build();
+		persistenceService.saveLastAccessTime(loginDetails);
+
+		return loginDetails;
 	}
 
 	/**
@@ -489,13 +500,15 @@ public class UserEventsService {
 			if (null != event.getEventDetails()) {
 				event.getEventDetails().setId(UUID.randomUUID().toString());
 				event.getEventDetails().setEventId(event.getId());
-				if (event.getEventType().equals(UserEventsConstants.MEN_MDMS_BROADCAST_CODE)) {
+				if (event.getEventType().equals(UserEventsConstants.MEN_MDMS_BROADCAST_CODE)
+						&& !Status.CANCELLED.equals(event.getStatus())) {
 					if (null != event.getEventDetails().getFromDate()) {
 						if (event.getEventDetails().getFromDate() > utils.getTomorrowsEpoch()) {
 							event.setStatus(Status.INACTIVE);
 						}
 					}
-				} // BROADCASTs are ACTIVE only between the given from and to date, they're INACTIVE beyond that.
+				} // BROADCASTs are ACTIVE only between the given from and to date, they're INACTIVE beyond
+					// that — but an explicit CANCELLED always wins over the date-based override.
 			}
 
 			List<RecepientEvent> recepientEventList = new ArrayList<>();
@@ -542,13 +555,15 @@ public class UserEventsService {
 					event.getEventDetails().setId(UUID.randomUUID().toString());
 					event.getEventDetails().setEventId(event.getId());
 				}
-				if (event.getEventType().equals(UserEventsConstants.MEN_MDMS_BROADCAST_CODE)) {
+				if (event.getEventType().equals(UserEventsConstants.MEN_MDMS_BROADCAST_CODE)
+						&& !Status.CANCELLED.equals(event.getStatus())) {
 					if (null != event.getEventDetails().getFromDate()) {
 						if (event.getEventDetails().getFromDate() > utils.getTomorrowsEpoch()) {
 							event.setStatus(Status.INACTIVE);
 						}
 					}
-				} // BROADCASTs are ACTIVE only between the given from and to date, they're INACTIVE beyond that.
+				} // BROADCASTs are ACTIVE only between the given from and to date, they're INACTIVE beyond
+					// that — but an explicit CANCELLED always wins over the date-based override.
 			}
 			List<RecepientEvent> recepientEventList = new ArrayList<>();
 			utils.manageRecepients(event, recepientEventList);
@@ -599,7 +614,12 @@ public class UserEventsService {
 			List<String> userIds = new ArrayList<>();
 			List<String> roles = new ArrayList<>();
 			userIds.add(requestInfo.getUserInfo().getUuid());
-			roles.add("CITIZEN.CITIZEN");
+			if (!CollectionUtils.isEmpty(requestInfo.getUserInfo().getRoles())) {
+				requestInfo.getUserInfo().getRoles().forEach(role -> roles.add(role.getCode()));
+			}
+			if (roles.isEmpty()) {
+				roles.add("CITIZEN.CITIZEN");
+			}
 			criteria.setUserids(userIds);
 			criteria.setRoles(roles);
 			criteria.setIsCitizenSearch(true);

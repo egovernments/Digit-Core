@@ -5,13 +5,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserEventsConstants {
 	
-	public static final String MEN_MDMS_MODULE_CODE = "mseva";	
+	public static final String MEN_MDMS_MODULE_CODE = "mseva";
 	public static final String MEN_MDMS_EVENTMASTER_CODE = "EventTypes";
 	public static final String MEN_MDMS_EVENTCATEGORY_MASTER_CODE = "EventCategories";
-	public static final String MEN_MDMS_EVENTMASTER_FILTER = "$.[?(@.active==true)].code";
-	public static final String MEN_MDMS_EVENTCATEGORY_MASTER_FILTER = "$.[?(@.active==true)].code";
-	public static final String MEN_MDMS_EVENTMASTER_CODES_JSONPATH = "$.MdmsRes." + MEN_MDMS_MODULE_CODE + "." + MEN_MDMS_EVENTMASTER_CODE;
-	public static final String MEN_MDMS_EVENTCATEGORY_MASTER_CODES_JSONPATH = "$.MdmsRes." + MEN_MDMS_MODULE_CODE + "." + MEN_MDMS_EVENTCATEGORY_MASTER_CODE;
+
+	// mdms-v2 schema codes: <module>.<master>
+	public static final String MEN_MDMS_V2_EVENTTYPES_SCHEMA = MEN_MDMS_MODULE_CODE + "." + MEN_MDMS_EVENTMASTER_CODE;
+	public static final String MEN_MDMS_V2_EVENTCATEGORIES_SCHEMA = MEN_MDMS_MODULE_CODE + "." + MEN_MDMS_EVENTCATEGORY_MASTER_CODE;
+	// mdms-v2 GET response: {"mdms":[{schemaCode, uniqueIdentifier, data{code,...}, isActive, ...}]}
+	public static final String MEN_MDMS_V2_EVENTTYPES_CODES_JSONPATH =
+			"$.mdms[?(@.schemaCode=='" + MEN_MDMS_V2_EVENTTYPES_SCHEMA + "' && @.isActive==true)].data.code";
+	public static final String MEN_MDMS_V2_EVENTCATEGORIES_CODES_JSONPATH =
+			"$.mdms[?(@.schemaCode=='" + MEN_MDMS_V2_EVENTCATEGORIES_SCHEMA + "' && @.isActive==true)].data.code";
 
 	
 	public static final String MEN_MDMS_EVENTSONGROUND_CODE = "EVENTSONGROUND";	

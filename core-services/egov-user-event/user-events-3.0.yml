@@ -1,0 +1,686 @@
+openapi: 3.0.3
+
+info:
+  title: Event Service API
+  version: 3.0.0
+  description: |
+    Multi-tenant service to create, update, and search events that are surfaced to users
+    (citizens and employees) on the DIGIT platform.
+
+    An event is any occurrence a user should be notified about — a status change on a
+    complaint/PT/TL application, a public broadcast, or an ULB-specific announcement
+    pushed through mSeva. Events can carry follow-up actions (e.g. REOPEN, RATE) that
+    the recipient can act on.
+
+    All endpoints require X-Tenant-ID header for tenant scoping.
+
+servers:
+  - url: https://api.example.com/event/v3
+    description: Production server
+  - url: https://staging-api.example.com/event/v3
+    description: Staging server
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Events
+    description: Create, update, and search events.
+
+  - name: Notifications
+    description: Per-user notification counters and read-state tracking.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────────────────────
+
+paths:
+
+  # ── Events ────────────────────────────────────────────────────────────────
+
+  /v1/events/_create:
+    post:
+      summary: Create events
+      description: Creates one or more events under the calling tenant.
+      operationId: createEvents
+      tags: [Events]
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/CorrelationIdHeader'
+        - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ForwardedForHeader'
+        - $ref: '#/components/parameters/ClientId'
+        - $ref: '#/components/parameters/ClientSecret'
+        - $ref: '#/components/parameters/TimeStamp'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventListRequest'
+      responses:
+        '201':
+          description: Events created.
+          headers:
+            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
+            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
+            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
+            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
+            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
+            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
+            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
+            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+
+  /v1/events/_update:
+    post:
+      summary: Update events
+      description: Updates one or more existing events under the calling tenant.
+      operationId: updateEvents
+      tags: [Events]
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/CorrelationIdHeader'
+        - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ForwardedForHeader'
+        - $ref: '#/components/parameters/ClientId'
+        - $ref: '#/components/parameters/ClientSecret'
+        - $ref: '#/components/parameters/TimeStamp'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventListRequest'
+      responses:
+        '200':
+          description: Events updated.
+          headers:
+            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
+            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
+            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
+            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
+            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
+            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
+            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
+            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '404':
+          description: One or more event ids not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+
+  /v1/events/_search:
+    post:
+      summary: Search events
+      description: Returns events under the calling tenant that match the given search filters.
+      operationId: searchEvents
+      tags: [Events]
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/CorrelationIdHeader'
+        - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ForwardedForHeader'
+        - $ref: '#/components/parameters/ClientId'
+        - $ref: '#/components/parameters/ClientSecret'
+        - $ref: '#/components/parameters/TimeStamp'
+        - name: ids
+          in: query
+          description: List of event UUIDs.
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - name: status
+          in: query
+          description: Filter by event status.
+          schema:
+            $ref: '#/components/schemas/EventStatus'
+        - name: name
+          in: query
+          description: List of event names to filter by.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: eventTypes
+          in: query
+          description: List of event types (MDMS codes) to filter by.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: roles
+          in: query
+          description: List of roles the events are addressed to.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: userIds
+          in: query
+          description: List of recipient user UUIDs.
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - name: postedBy
+          in: query
+          description: List of UUIDs of the employees who posted the event.
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - name: fromDate
+          in: query
+          description: Lower bound (epoch milliseconds) on event creation time.
+          schema:
+            type: integer
+            format: int64
+        - name: toDate
+          in: query
+          description: Upper bound (epoch milliseconds) on event creation time.
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          description: Page size (max 200).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 200
+        - name: offset
+          in: query
+          description: Offset for pagination.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Matching events.
+          headers:
+            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
+            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
+            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
+            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
+            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
+            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
+            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
+            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+
+  # ── Notifications ─────────────────────────────────────────────────────────
+
+  /notification/_count:
+    post:
+      summary: Get notification counts for the calling user
+      description: |
+        Returns the total, read, and unread notification counts for the calling user
+        under the calling tenant. The user is identified from the bearer token
+        (or the `X-User-ID` header, if provided).
+      operationId: getNotificationCount
+      tags: [Notifications]
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/CorrelationIdHeader'
+        - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ForwardedForHeader'
+        - $ref: '#/components/parameters/ClientId'
+        - $ref: '#/components/parameters/ClientSecret'
+        - $ref: '#/components/parameters/TimeStamp'
+      responses:
+        '200':
+          description: Notification counts.
+          headers:
+            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
+            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
+            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
+            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
+            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
+            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
+            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
+            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationCount'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+
+  /lat/_update:
+    post:
+      summary: Update the calling user's last-access time
+      description: |
+        Records the last-access (last-login) time for the calling user. This value is
+        used to determine which of the user's notifications count as read vs. unread.
+      operationId: updateLastAccessTime
+      tags: [Notifications]
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/CorrelationIdHeader'
+        - $ref: '#/components/parameters/UserAgentHeader'
+        - $ref: '#/components/parameters/UserIdHeader'
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ForwardedForHeader'
+        - $ref: '#/components/parameters/ClientId'
+        - $ref: '#/components/parameters/ClientSecret'
+        - $ref: '#/components/parameters/TimeStamp'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LastAccessTimeRequest'
+      responses:
+        '200':
+          description: Last-access time updated.
+          headers:
+            X-Response-Time: { $ref: '#/components/headers/X-Response-Time' }
+            X-Response-Timestamp: { $ref: '#/components/headers/X-Response-Timestamp' }
+            X-Request-ID: { $ref: '#/components/headers/X-Request-ID' }
+            X-Correlation-ID: { $ref: '#/components/headers/X-Correlation-ID' }
+            X-Tenant-ID: { $ref: '#/components/headers/X-Tenant-ID' }
+            X-Rate-Limit: { $ref: '#/components/headers/X-Rate-Limit' }
+            X-Rate-Limit-Remaining: { $ref: '#/components/headers/X-Rate-Limit-Remaining' }
+            X-Rate-Limit-Reset: { $ref: '#/components/headers/X-Rate-Limit-Reset' }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LastAccessTimeResponse'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized — missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+
+components:
+
+  # ── Security ────────────────────────────────────────────────────────────────
+
+  securitySchemes:
+    BearerAuth:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/securitySchemes/BearerAuth'
+
+  # ── Parameters ──────────────────────────────────────────────────────────────
+
+  parameters:
+    RequestIdHeader:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/RequestIdHeader'
+    CorrelationIdHeader:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/CorrelationIdHeader'
+    UserAgentHeader:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/UserAgentHeader'
+    UserIdHeader:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/UserIdHeader'
+    TenantIdHeader:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/TenantIdHeader'
+    ForwardedForHeader:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/ForwardedForHeader'
+    ClientId:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/ClientId'
+    ClientSecret:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/ClientSecret'
+    TimeStamp:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/parameters/TimeStamp'
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: Provide a unique value to prevent duplicate creations/updates on retries.
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
+
+  # ── Response Headers ─────────────────────────────────────────────────────────
+
+  headers:
+    X-Response-Time:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Response-Time'
+    X-Response-Timestamp:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Response-Timestamp'
+    X-Request-ID:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Request-ID'
+    X-Correlation-ID:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Correlation-ID'
+    X-Tenant-ID:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Tenant-ID'
+    X-Rate-Limit:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Rate-Limit'
+    X-Rate-Limit-Remaining:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Rate-Limit-Remaining'
+    X-Rate-Limit-Reset:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/headers/X-Rate-Limit-Reset'
+
+  # ── Schemas ──────────────────────────────────────────────────────────────────
+
+  schemas:
+
+    # ── Common refs ─────────────────────────────────────────────────────────────
+
+    Error:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/schemas/Error'
+
+    AuditDetail:
+      $ref: 'https://raw.githubusercontent.com/digitnxt/digit-specs/refs/heads/main/v3.0.0/common.yaml#/components/schemas/AuditDetail'
+
+    # ── Enums ───────────────────────────────────────────────────────────────────
+
+    EventStatus:
+      type: string
+      description: Lifecycle status of an event.
+      enum: [ACTIVE, INACTIVE, CANCELED]
+      example: ACTIVE
+
+    # ── Event Schemas ────────────────────────────────────────────────────────────
+
+    ActionItem:
+      type: object
+      description: A single actionable link surfaced with an event (e.g. REOPEN, RATE).
+      required:
+        - actionUrl
+        - code
+      properties:
+        actionUrl:
+          type: string
+          minLength: 2
+          maxLength: 128
+          description: Redirection URL for this action.
+        code:
+          type: string
+          minLength: 2
+          maxLength: 32
+          description: Localization code for the action's display label.
+
+    Action:
+      type: object
+      description: >-
+        The set of actions a recipient can take on an event. For example, a resolved
+        complaint may offer REOPEN and RATE actions.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: System-generated unique identifier for this action record.
+        eventId:
+          type: string
+          format: uuid
+          description: The event this action belongs to.
+        actionUrls:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ActionItem'
+        auditDetail:
+          $ref: '#/components/schemas/AuditDetail'
+
+    EventDetails:
+      type: object
+      description: Optional time, location, and attachment details for an event.
+      properties:
+        fromDate:
+          type: integer
+          format: int64
+          description: Event start time (epoch milliseconds).
+        toDate:
+          type: integer
+          format: int64
+          description: Event end time (epoch milliseconds).
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        documents:
+          type: array
+          maxItems: 5
+          description: Filestore file reference IDs.
+          items:
+            type: string
+
+    Event:
+      type: object
+      description: >-
+        A single event to be surfaced to one or more users — a system-generated
+        status change, a public broadcast, or an ULB-specific announcement.
+      required:
+        - eventType
+        - description
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: System-generated unique identifier (UUID) for the event.
+        eventType:
+          type: string
+          minLength: 2
+          maxLength: 32
+          description: MDMS-namespaced code categorizing the event.
+        description:
+          type: string
+          minLength: 2
+          maxLength: 1024
+          description: Description of the event.
+        status:
+          $ref: '#/components/schemas/EventStatus'
+        toRoles:
+          type: array
+          description: Roles this event is addressed to.
+          items:
+            type: string
+        toUsers:
+          type: array
+          description: UUIDs of the users this event is addressed to.
+          items:
+            type: string
+            format: uuid
+        action:
+          $ref: '#/components/schemas/Action'
+        eventDetails:
+          $ref: '#/components/schemas/EventDetails'
+        auditDetail:
+          $ref: '#/components/schemas/AuditDetail'
+
+    EventListRequest:
+      type: object
+      description: Batch of events to create or update.
+      required:
+        - events
+      properties:
+        events:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Event'
+
+    # ── Notification Schemas ─────────────────────────────────────────────────────
+
+    NotificationCount:
+      type: object
+      description: Notification counters for a single user.
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          example: 42
+        read:
+          type: integer
+          minimum: 0
+          example: 30
+        unread:
+          type: integer
+          minimum: 0
+          example: 12
+
+    LastAccessTimeRequest:
+      type: object
+      properties:
+        lastAccessTime:
+          type: integer
+          format: int64
+          description: Epoch milliseconds to record as the last-access time. Defaults to server current time if omitted.
+
+    LastAccessTimeResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          readOnly: true
+        lastAccessTime:
+          type: integer
+          format: int64
+          readOnly: true

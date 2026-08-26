@@ -40,7 +40,7 @@ public class UserEventsUtils {
 
 		if (!CollectionUtils.isEmpty(criteria.getRoles())) {
 			criteria.getRoles().forEach(role -> {
-				role = role.replaceAll("\\.", "|"); //delimiter in the input is a dot, we convert it to pipe internally.
+				role = normalizeRole(role).replaceAll("\\.", "|"); //delimiter in the input is a dot, we convert it to pipe internally.
 				String[] typeAndRole = role.split("[|]");
 				recepients.add(typeAndRole[0] + "|*|*");
 				recepients.add("*|" + typeAndRole[1] + "|*");
@@ -59,6 +59,20 @@ public class UserEventsUtils {
 		recepients.add(UserEventsConstants.ALL_KEYWORD);
 
 		criteria.setRecepients(recepients);
+	}
+
+	/**
+	 * The registry format is TYPE.ROLE, but roles sourced from a JWT
+	 * (realm_access.roles) are single tokens like SUPERUSER or CITIZEN. A
+	 * dotless role R is treated as R.R on both the write and search side so the
+	 * two stay matchable — this also keeps the legacy CITIZEN → CITIZEN.CITIZEN
+	 * semantics intact.
+	 */
+	private String normalizeRole(String role) {
+		if (!role.contains(".")) {
+			return role + "." + role;
+		}
+		return role;
 	}
 
 	
@@ -97,7 +111,7 @@ public class UserEventsUtils {
 					if (!CollectionUtils.isEmpty(event.getRecepient().getToRoles())) {
 						if(!event.getRecepient().getToRoles().contains(UserEventsConstants.ALL_KEYWORD)) {
 							event.getRecepient().getToRoles().forEach(role -> {
-								role = role.replaceAll("\\.", "|");
+								role = normalizeRole(role).replaceAll("\\.", "|");
 								role = role + "|" + event.getTenantId();
 								RecepientEvent rcpntevent = RecepientEvent.builder().recepient(role).eventId(event.getId())
 										.build();

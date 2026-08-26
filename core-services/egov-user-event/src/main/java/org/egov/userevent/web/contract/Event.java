@@ -55,7 +55,7 @@ public class Event {
 
 	@NotNull
 	@CustomSafeHtml
-	@Size(max = 500)
+	@Size(max = 1024)
 	private String description;
 
 	private Status status;

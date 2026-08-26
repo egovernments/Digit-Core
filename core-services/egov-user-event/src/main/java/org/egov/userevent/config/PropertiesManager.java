@@ -55,9 +55,12 @@ public class PropertiesManager {
 	//Hosts and Endpoints
 	@Value("${egov.mdms.host}")
 	public String mdmsHost;
-	
-	@Value("${egov.mdms.search.endpoint}")
-	public String mdmsSearchEndpoint;
+
+	@Value("${egov.mdms.v2.endpoint}")
+	public String mdmsV2Endpoint;
+
+	@Value("${egov.mdms.client.id}")
+	public String mdmsClientId;
 	
 	@Value("${egov.localisation.host}")
 	public String localisationHost;
@@ -68,16 +71,7 @@ public class PropertiesManager {
 	
 	
 	
-	//Kafka Topics
-	@Value("${kafka.topics.persister.save.events}")
-	public String saveEventsPersisterTopic;
-	
-	@Value("${kafka.topics.persister.update.events}")
-	public String updateEventsPersisterTopic;
-	
-	@Value("${kafka.topics.lat.details}")
-	public String latDetailsTopic;
-	
+	//Kafka Topics (inbound async consumer only; persistence is direct via JPA)
 	@Value("${kafka.topics.save.events}")
 	public String saveEventsTopic;
 	
