@@ -118,7 +118,7 @@
     <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-spring-kafka-2.7</artifactId>
-      <version>2.1.0-alpha</version>
+      <version>2.26.0-alpha</version>
     </dependency>
     <!-- OpenTelemetry Exporter for Jaeger -->
     <dependency>
