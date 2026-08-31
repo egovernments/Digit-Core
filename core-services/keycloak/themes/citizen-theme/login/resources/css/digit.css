@@ -588,3 +588,12 @@ body.kc-digit::before { display: none !important; } /* kill PF bg image */
 }
 .kc-otp-edit svg { width: 14px; height: 14px; }
 .kc-otp-edit:hover { color: var(--kc-primary-hover); }
+
+/* Unify footer link lines: "New user? Register", "Already a user? Login",
+   "Didn't receive code? Resend Code" — same size, color, spacing, centered */
+.kc-form-side #kc-registration {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--kc-muted-fg);
+}

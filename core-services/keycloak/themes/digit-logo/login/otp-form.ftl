@@ -2,24 +2,15 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('otp'); section>
 
     <#if section="header">
-        ${msg("registerOtpTitle")}
+        ${msg("otpFormTitle")}
 
     <#elseif section="form">
-        <form id="kc-register-mobile-otp-form"
+        <form id="kc-otp-login-form"
               class="${properties.kcFormClass!}"
               action="${url.loginAction}"
               method="post">
 
-            <p class="kc-otp-instruction">
-                ${msg("registerOtpSentTo")} <span id="kc-otp-number">${maskedMobile!''}</span>
-                <button type="button" id="kc-otp-edit-btn" class="kc-otp-edit"
-                        aria-label="${msg("registerOtpChangeNumber")}" title="${msg("registerOtpChangeNumber")}">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                    </svg>
-                </button>
-            </p>
+            <p class="kc-otp-instruction">${msg("otpFormLabel")}</p>
 
             <input type="hidden" id="otp" name="otp"/>
 
@@ -36,12 +27,15 @@
 
             <div class="kc-otp-actions">
                 <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
-                       name="login" type="submit" value="${msg("registerOtpSubmit")}"/>
+                       name="login" type="submit" value="${msg("doLogIn")}"/>
             </div>
 
             <div class="kc-otp-links">
                 <span>${msg("otpDidntReceive")}</span>
                 <button type="submit" name="resend" value="1" class="kc-linklike">${msg("resendCode")}</button>
+            </div>
+            <div class="kc-otp-links">
+                <button type="submit" name="cancel" value="1" class="kc-linklike kc-linklike--muted">${msg("doCancel")}</button>
             </div>
 
         </form>
@@ -96,27 +90,6 @@
                 }
 
                 render(DEFAULT_LEN);
-
-                // pencil is type="button" so Enter submits Verify, not cancel;
-                // clicking it explicitly submits the change-number action
-                var edit = document.getElementById("kc-otp-edit-btn");
-                if (edit) {
-                    edit.addEventListener("click", function () {
-                        var c = document.createElement("input");
-                        c.type = "hidden";
-                        c.name = "cancel";
-                        c.value = "1";
-                        edit.form.appendChild(c);
-                        edit.form.submit();
-                    });
-                }
-
-                // theme-only: show the full number saved by the previous screen
-                try {
-                    var full = sessionStorage.getItem("kcRegMobile");
-                    var span = document.getElementById("kc-otp-number");
-                    if (full && span) span.textContent = full;
-                } catch (e) {}
 
                 // the tenant-config script in template.ftl calls this when otpLength is configured
                 window.kcApplyOtpLength = function (n) {

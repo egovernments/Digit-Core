@@ -61,7 +61,6 @@
                 <img id="kc-dynamic-logo" class="kc-brand__logo" src="${url.resourcesPath}/img/logo.png" alt="${realm.displayName!realm.name} logo"/>
                 <span class="kc-brand__name">${realm.displayName!realm.name}</span>
             </div>
-            <span class="kc-brandbar__step">Workspace Access</span>
         </div>
     </header>
 
@@ -184,124 +183,12 @@
             </div>
         </div>
 
-        <#-- Showcase side (matches the onboarding AuthShell feature panel) -->
+        <#-- Showcase side: single illustration image (drop your image at resources/img/showcase.png) -->
         <aside class="kc-showcase" aria-hidden="true">
-            <div class="kc-showcase__grid"></div>
-            <div class="kc-showcase__inner">
-                <div class="kc-showcase__badge">
-                    <span class="kc-showcase__badge-dot"></span>
-                    Secure Access
-                </div>
-
-                <div class="kc-features">
-
-                    <#-- Templates -->
-                    <div class="kc-feature is-active" data-accent="amber">
-                        <div class="kc-mockup kc-mockup--templates">
-                            <div class="kc-tmpl">
-                                <span class="kc-tmpl__ico">&#128196;</span>
-                                <div class="kc-tmpl__body">
-                                    <p class="kc-tmpl__name">Business License</p>
-                                    <div class="kc-tags"><span>Trade License</span><span>Business Reg.</span></div>
-                                </div>
-                            </div>
-                            <div class="kc-tmpl">
-                                <span class="kc-tmpl__ico">&#127970;</span>
-                                <div class="kc-tmpl__body">
-                                    <p class="kc-tmpl__name">Building Permits</p>
-                                    <div class="kc-tags"><span>Construction</span><span>Works Approval</span></div>
-                                </div>
-                            </div>
-                            <div class="kc-tmpl">
-                                <span class="kc-tmpl__ico">&#128293;</span>
-                                <div class="kc-tmpl__body">
-                                    <p class="kc-tmpl__name">Fire NOC</p>
-                                    <div class="kc-tags"><span>Fire Permit</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="kc-feature__title">Ready-to-use templates</p>
-                        <p class="kc-feature__desc">10+ service types, pre-configured</p>
-                    </div>
-
-                    <#-- Roles -->
-                    <div class="kc-feature" data-accent="violet">
-                        <div class="kc-mockup kc-mockup--roles">
-                            <div class="kc-role">
-                                <span class="kc-role__avatar">&#128100;</span>
-                                <p class="kc-role__name">Citizen</p>
-                                <span class="kc-role__badge">Default</span>
-                            </div>
-                            <div class="kc-role">
-                                <span class="kc-role__avatar">&#128100;</span>
-                                <p class="kc-role__name">Doc Verifier</p>
-                                <span class="kc-role__steps">2 steps</span>
-                            </div>
-                            <div class="kc-role">
-                                <span class="kc-role__avatar">&#128100;</span>
-                                <p class="kc-role__name">Approver</p>
-                                <span class="kc-role__badge">Approver</span>
-                            </div>
-                        </div>
-                        <p class="kc-feature__title">Role-based access</p>
-                        <p class="kc-feature__desc">Citizen, verifier &amp; approver workflows</p>
-                    </div>
-
-                    <#-- No-code builder -->
-                    <div class="kc-feature" data-accent="emerald">
-                        <div class="kc-mockup kc-mockup--nocode">
-                            <div class="kc-palette">
-                                <p class="kc-mockup__label">Fields</p>
-                                <span class="kc-chip">&#9632; Name</span>
-                                <span class="kc-chip">&#9632; Address</span>
-                                <span class="kc-chip">&#9632; File</span>
-                                <span class="kc-chip">&#9632; Slider</span>
-                            </div>
-                            <div class="kc-canvas">
-                                <p class="kc-mockup__label">Canvas</p>
-                                <div class="kc-canvas__field is-on">Full Name &#10022;</div>
-                                <div class="kc-canvas__field">Phone Number</div>
-                                <div class="kc-canvas__drop">+ drop field</div>
-                            </div>
-                        </div>
-                        <p class="kc-feature__title">Configure without code</p>
-                        <p class="kc-feature__desc">Visual form builder &amp; workflow designer</p>
-                    </div>
-
-                    <#-- Analytics -->
-                    <div class="kc-feature" data-accent="sky">
-                        <div class="kc-mockup kc-mockup--analytics">
-                            <div class="kc-kpis">
-                                <div class="kc-kpi"><span class="kc-kpi__v">18.4k</span><span class="kc-kpi__l">Active</span></div>
-                                <div class="kc-kpi"><span class="kc-kpi__v">697</span><span class="kc-kpi__l">Pending</span></div>
-                                <div class="kc-kpi"><span class="kc-kpi__v">92%</span><span class="kc-kpi__l">SLA</span></div>
-                            </div>
-                            <div class="kc-bars">
-                                <span style="height:28%"></span><span style="height:42%"></span><span style="height:35%"></span>
-                                <span style="height:58%"></span><span style="height:48%"></span><span style="height:67%"></span>
-                                <span style="height:55%"></span><span style="height:78%"></span><span style="height:68%"></span>
-                                <span style="height:88%"></span><span style="height:75%"></span><span style="height:92%"></span>
-                            </div>
-                            <p class="kc-trend">&#9650; Application trend &middot; last 12 months</p>
-                        </div>
-                        <p class="kc-feature__title">Monitor &amp; manage</p>
-                        <p class="kc-feature__desc">Real-time KPIs, SLA tracking, audit trails</p>
-                    </div>
-
-                </div>
-
-                <div class="kc-showcase__foot">
-                    <div class="kc-showcase__pills">
-                        <span class="kc-pill is-active"></span>
-                        <span class="kc-pill"></span>
-                        <span class="kc-pill"></span>
-                        <span class="kc-pill"></span>
-                    </div>
-                    <div class="kc-showcase__trust">
-                        <span class="kc-showcase__trust-line"></span>
-                        Trusted by public institutions
-                    </div>
-                </div>
+            <img class="kc-showcase__img" id="kc-showcase-img" src="${url.resourcesPath}/img/showcase1.png" alt=""/>
+            <div class="kc-showcase-nav">
+                <button type="button" class="kc-showcase-arrow" id="kc-showcase-prev" aria-label="Previous image">&#10094;</button>
+                <button type="button" class="kc-showcase-arrow" id="kc-showcase-next" aria-label="Next image">&#10095;</button>
             </div>
         </aside>
 
@@ -317,20 +204,48 @@
 
 </div>
 
-<#-- Auto-rotate the active feature card to mirror the onboarding showcase -->
+<#-- Showcase image carousel: left/right arrows cycle through the images -->
 <script>
     (function () {
-        var cards = document.querySelectorAll(".kc-feature");
-        var pills = document.querySelectorAll(".kc-pill");
-        if (!cards.length) return;
-        var active = 0;
-        setInterval(function () {
-            cards[active].classList.remove("is-active");
-            if (pills[active]) pills[active].classList.remove("is-active");
-            active = (active + 1) % cards.length;
-            cards[active].classList.add("is-active");
-            if (pills[active]) pills[active].classList.add("is-active");
-        }, 3800);
+        var img = document.getElementById("kc-showcase-img");
+        if (!img) return;
+
+        var images = [
+            "${url.resourcesPath}/img/showcase1.png",
+            "${url.resourcesPath}/img/showcase2.png",
+            "${url.resourcesPath}/img/showcase3.png",
+            "${url.resourcesPath}/img/showcase4.png"
+        ];
+        var current = 0;
+
+        // preload so switching is instant
+        images.forEach(function (src) { new Image().src = src; });
+
+        function show(i) {
+            current = (i + images.length) % images.length;
+            img.style.opacity = "0";
+            var next = new Image();
+            next.onload = function () {
+                img.src = next.src;
+                img.style.opacity = "1";
+            };
+            next.src = images[current];
+        }
+
+        // auto-advance every 3s; a manual click restarts the timer so the
+        // image the user chose isn't immediately replaced
+        var timer = setInterval(function () { show(current + 1); }, 3000);
+
+        function manual(step) {
+            clearInterval(timer);
+            show(current + step);
+            timer = setInterval(function () { show(current + 1); }, 3000);
+        }
+
+        document.getElementById("kc-showcase-prev")
+            .addEventListener("click", function () { manual(-1); });
+        document.getElementById("kc-showcase-next")
+            .addEventListener("click", function () { manual(1); });
     })();
 </script>
 
@@ -396,11 +311,17 @@
             }
         }
 
+        function applyOtpLength(n) {
+            // OTP templates expose this hook; default is 6 boxes if unset
+            if (n && typeof window.kcApplyOtpLength === "function") window.kcApplyOtpLength(n);
+        }
+
         fetch("/accounts/v3/config", { headers: { "x-tenant-id": tenant } })
             .then(function (r) { if (!r.ok) throw new Error("config " + r.status); return r.json(); })
             .then(function (data) {
                 applyLogo(findConfig(data, "loginLogoUrl"));
                 applyPrefix(findConfig(data, "mobilePrefix"));
+                applyOtpLength(findConfig(data, "otpLength"));
             })
             .catch(function (e) {
                 console.debug("Tenant config unavailable, using defaults:", e && e.message);

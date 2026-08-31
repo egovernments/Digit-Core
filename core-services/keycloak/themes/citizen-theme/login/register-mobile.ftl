@@ -44,14 +44,13 @@
                                type="submit" value="${msg("registerMobileSubmit")}"/>
                     </div>
                 </div>
-                <div class="${properties.kcFormOptionsClass!}">
-                    <div class="${properties.kcFormOptionsWrapperClass!}">
-                        <span>${msg("registerAlreadyUser")} <a href="${url.loginUrl}">${msg("registerLoginLink")}</a></span>
-                    </div>
-                </div>
             </div>
 
         </form>
+
+        <div id="kc-registration">
+            <span>${msg("registerAlreadyUser")} <a href="${url.loginUrl}">${msg("registerLoginLink")}</a></span>
+        </div>
 
         <script>
             // theme-only: remember the full number (prefix badge + typed local part)

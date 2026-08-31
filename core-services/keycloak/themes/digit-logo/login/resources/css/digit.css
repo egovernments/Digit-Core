@@ -140,7 +140,7 @@ body.kc-digit::before { display: none !important; } /* kill PF bg image */
   margin: 4px 0 20px;
 }
 .kc-form-side #kc-page-title::before {
-  content: "Workspace Access";
+  content: none;
   display: block;
   font-size: 11px;
   font-weight: 600;
@@ -490,3 +490,111 @@ body.kc-digit::before { display: none !important; } /* kill PF bg image */
   background: var(--kc-primary);
   color: #fff;
 }
+
+/* ---- OTP digit boxes (otp-form.ftl override) ---------------------------- */
+
+.kc-otp-instruction {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kc-muted-fg);
+  margin: -8px 0 18px;
+}
+
+.kc-otp-boxes {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 4px;
+}
+
+.kc-form-side input.kc-otp-box {
+  width: 44px;
+  height: 48px;
+  padding: 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.kc-otp-boxes[aria-invalid="true"] input.kc-otp-box { border-color: var(--kc-danger); }
+
+.kc-otp-error {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  color: var(--kc-danger);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.kc-otp-actions { margin-top: 18px; }
+
+.kc-otp-links {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--kc-muted-fg);
+}
+
+.kc-linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--kc-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.kc-linklike:hover { text-decoration: underline; }
+.kc-linklike--muted { color: var(--kc-muted-fg); font-weight: 500; }
+
+/* Showcase panel as a single full-bleed illustration */
+.kc-showcase__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Wider showcase panel so the full illustration fits uncropped */
+.kc-showcase { flex: 1.6; }
+.kc-showcase__img { object-fit: contain; }
+
+/* Light panel background so the contained illustration blends seamlessly
+   (overrides the dark teal gradient) */
+.kc-showcase {
+  background: linear-gradient(160deg, #f2faf8 0%, #e3f2ee 100%);
+  border-right: 1px solid var(--kc-border);
+}
+
+/* 6:5 asset matches the panel shape — fill edge-to-edge */
+.kc-showcase__img { object-fit: cover; }
+
+/* ---- Showcase carousel arrows ------------------------------------------- */
+
+.kc-showcase__img { transition: opacity .25s ease; }
+
+.kc-showcase-nav { display: contents; }
+
+/* plain light chevrons, vertically centered on the panel's left/right edges */
+.kc-showcase-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  background: none;
+  border: none;
+  padding: 8px;
+  color: rgba(90, 115, 110, 0.45);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .15s;
+}
+
+#kc-showcase-prev { left: 10px; }
+#kc-showcase-next { right: 10px; }
+
+.kc-showcase-arrow:hover { color: var(--kc-primary); }
