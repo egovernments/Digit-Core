@@ -186,14 +186,6 @@
 
     </main>
 
-    <#-- Footer bar -->
-    <footer class="kc-footer">
-        <div class="kc-footer__inner">
-            <span>Secure government workspace</span>
-            <span>v1.0</span>
-        </div>
-    </footer>
-
 </div>
 
 <#-- Auto-rotate the active feature card to mirror the onboarding showcase -->

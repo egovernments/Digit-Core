@@ -194,14 +194,6 @@
 
     </main>
 
-    <#-- Footer bar -->
-    <footer class="kc-footer">
-        <div class="kc-footer__inner">
-            <span>Secure government workspace</span>
-            <span>v1.0</span>
-        </div>
-    </footer>
-
 </div>
 
 <#-- Showcase image carousel: left/right arrows cycle through the images -->

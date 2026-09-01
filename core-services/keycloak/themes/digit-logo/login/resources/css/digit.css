@@ -598,3 +598,10 @@ body.kc-digit::before { display: none !important; } /* kill PF bg image */
 #kc-showcase-next { right: 10px; }
 
 .kc-showcase-arrow:hover { color: var(--kc-primary); }
+
+/* Brand bar flush to the left edge (no centered max-width inset) */
+.kc-brandbar__inner {
+  max-width: none;
+  margin: 0;
+  padding: 0 16px;
+}

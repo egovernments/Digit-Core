@@ -597,3 +597,10 @@ body.kc-digit::before { display: none !important; } /* kill PF bg image */
   font-size: 13px;
   color: var(--kc-muted-fg);
 }
+
+/* Brand bar flush to the left edge (no centered max-width inset) */
+.kc-brandbar__inner {
+  max-width: none;
+  margin: 0;
+  padding: 0 16px;
+}
