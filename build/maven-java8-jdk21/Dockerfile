@@ -28,12 +28,12 @@ WORKDIR /patch
 COPY --from=build /app/target/*.jar ./app.jar
 
 # Download JAXB API + implementation (removed from JDK 11+)
-RUN curl -sL -o jaxb-api.jar https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar && \
-    curl -sL -o javax.activation.jar https://repo1.maven.org/maven2/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar && \
-    curl -sL -o jaxb-runtime.jar https://repo1.maven.org/maven2/org/glassfish/jaxb/jaxb-runtime/2.3.9/jaxb-runtime-2.3.9.jar && \
-    curl -sL -o txw2.jar https://repo1.maven.org/maven2/org/glassfish/jaxb/txw2/2.3.9/txw2-2.3.9.jar && \
-    curl -sL -o istack-commons-runtime.jar https://repo1.maven.org/maven2/com/sun/istack/istack-commons-runtime/3.0.12/istack-commons-runtime-3.0.12.jar && \
-    curl -sL -o stax-ex.jar https://repo1.maven.org/maven2/org/jvnet/staxex/stax-ex/1.8.1/stax-ex-1.8.1.jar
+RUN curl -fsSL -o jaxb-api.jar https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar && \
+    curl -fsSL -o javax.activation.jar https://repo1.maven.org/maven2/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar && \
+    curl -fsSL -o jaxb-runtime.jar https://repo1.maven.org/maven2/org/glassfish/jaxb/jaxb-runtime/2.3.9/jaxb-runtime-2.3.9.jar && \
+    curl -fsSL -o txw2.jar https://repo1.maven.org/maven2/org/glassfish/jaxb/txw2/2.3.9/txw2-2.3.9.jar && \
+    curl -fsSL -o istack-commons-runtime.jar https://repo1.maven.org/maven2/com/sun/istack/istack-commons-runtime/3.0.12/istack-commons-runtime-3.0.12.jar && \
+    curl -fsSL -o stax-ex.jar https://repo1.maven.org/maven2/org/jvnet/staxex/stax-ex/1.8.1/stax-ex-1.8.1.jar
 
 # Inject JAXB jars into the fat JAR (jar uf0 preserves STORED entries)
 RUN mkdir -p BOOT-INF/lib && \
@@ -71,8 +71,21 @@ RUN java \
       -Xshare:dump \
       -XX:SharedClassListFile=/opt/egov/app.classlist \
       -XX:SharedArchiveFile=/opt/egov/app-cds.jsa \
-      -jar /opt/egov/app.jar 2>/dev/null; true
+      -jar /opt/egov/app.jar 2>/dev/null
 
 RUN dos2unix /opt/egov/start.sh && chmod +x /opt/egov/start.sh
+
+# Run unprivileged, matching the distroless :nonroot runtime that
+# build/maven/Dockerfile uses. Nothing writes to /opt/egov at runtime — the CDS
+# archive is read-only and logs go to stdout — so read access is sufficient.
+#
+# /tmp must be cleared first: the CDS pre-dump above boots the app as root,
+# which leaves root-owned artefacts there (e.g. logback's /tmp/spring.log and
+# hsperfdata_root). A non-root process cannot reopen those, and logback treats
+# that as a fatal configuration error.
+RUN find /tmp -mindepth 1 -delete \
+    && addgroup -S egov && adduser -S -G egov -h /opt/egov egov \
+    && chown -R egov:egov /opt/egov
+USER egov
 
 CMD ["/opt/egov/start.sh"]

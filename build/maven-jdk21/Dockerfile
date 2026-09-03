@@ -36,9 +36,22 @@ RUN timeout 30 java -XX:DumpLoadedClassList=/opt/egov/app.classlist \
 RUN java -Xshare:dump \
       -XX:SharedClassListFile=/opt/egov/app.classlist \
       -XX:SharedArchiveFile=/opt/egov/app-cds.jsa \
-      -jar /opt/egov/app.jar 2>/dev/null; true
+      -jar /opt/egov/app.jar 2>/dev/null
 
 # Ensure the start script has correct line endings and is executable
 RUN dos2unix /opt/egov/start.sh && chmod +x /opt/egov/start.sh
+
+# Run unprivileged, matching the distroless :nonroot runtime that
+# build/maven/Dockerfile uses. Nothing writes to /opt/egov at runtime — the CDS
+# archive is read-only and logs go to stdout — so read access is sufficient.
+#
+# /tmp must be cleared first: the CDS pre-dump above boots the app as root,
+# which leaves root-owned artefacts there (e.g. logback's /tmp/spring.log and
+# hsperfdata_root). A non-root process cannot reopen those, and logback treats
+# that as a fatal configuration error.
+RUN find /tmp -mindepth 1 -delete \
+    && addgroup -S egov && adduser -S -G egov -h /opt/egov egov \
+    && chown -R egov:egov /opt/egov
+USER egov
 
 CMD ["/opt/egov/start.sh"]
