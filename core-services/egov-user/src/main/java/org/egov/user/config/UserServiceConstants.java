@@ -88,5 +88,13 @@ public class UserServiceConstants {
     public static final String ERR_INVALID_SWITCH_REQUEST = "INVALID_SWITCH_REQUEST";
     public static final String ERR_LOGIN_FAILED = "LOGIN_FAILED";
 
+    // Single active login session constants
+    public static final String DEVICE_ID_DETAIL_KEY = "deviceId";
+    public static final String ACTIVE_SESSION_EXISTS_MESSAGE = "ACTIVE_SESSION_EXISTS: This user is already logged in on another device.";
+    public static final String ERR_SESSION_INVALID = "SESSION_INVALID";
+    public static final String SESSION_INVALID_MESSAGE = "Session is no longer valid";
+    public static final String ERR_NO_ACTIVE_SESSION = "NO_ACTIVE_SESSION";
+    public static final String NO_ACTIVE_SESSION_MESSAGE = "No active session found for this user";
+
 }
 

@@ -10,7 +10,9 @@ import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
+import org.egov.user.domain.service.UserSessionService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.config.UserServiceConstants;
 import org.egov.user.web.contract.auth.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,9 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
 
     @Autowired
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
+
+    @Autowired
+    private UserSessionService userSessionService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -90,7 +95,10 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
 
         List<GrantedAuthority> grantedAuths = new ArrayList<>();
         grantedAuths.add(new SimpleGrantedAuthority("ROLE_" + user.getType()));
-        final SecureUser finalUser = new SecureUser(getUser(user));
+        org.egov.user.web.contract.auth.User authUser = getUser(user);
+        String deviceId = details.get(UserServiceConstants.DEVICE_ID_DETAIL_KEY);
+        authUser.setSessionId(userSessionService.createSession(user.getUuid(), tenantId, deviceId));
+        final SecureUser finalUser = new SecureUser(authUser);
         return new PreAuthenticatedAuthenticationToken(finalUser,
                 null, grantedAuths);
     }

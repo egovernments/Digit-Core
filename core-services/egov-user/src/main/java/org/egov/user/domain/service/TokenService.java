@@ -19,12 +19,16 @@ public class TokenService {
 
     private ActionRestRepository actionRestRepository;
 
+    private UserSessionService userSessionService;
+
     @Value("${roles.state.level.enabled}")
     private boolean isRoleStateLevel;
 
-    private TokenService(TokenStore tokenStore, ActionRestRepository actionRestRepository) {
+    private TokenService(TokenStore tokenStore, ActionRestRepository actionRestRepository,
+                          UserSessionService userSessionService) {
         this.tokenStore = tokenStore;
         this.actionRestRepository = actionRestRepository;
+        this.userSessionService = userSessionService;
     }
 
     /**
@@ -45,6 +49,7 @@ public class TokenService {
         }
 
         SecureUser secureUser = ((SecureUser) authentication.getPrincipal());
+        userSessionService.validateAndTouch(secureUser.getUser().getSessionId(), secureUser.getTenantId());
         return new UserDetail(secureUser, null);
 //		String tenantId = null;
 //		if (isRoleStateLevel && (secureUser.getTenantId() != null && secureUser.getTenantId().contains(".")))

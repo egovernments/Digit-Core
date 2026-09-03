@@ -23,6 +23,7 @@ import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
+import org.egov.user.domain.service.UserSessionService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.DatabaseSchemaUtils;
 import org.egov.user.web.contract.auth.Role;
@@ -57,6 +58,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     
     @Autowired
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
+
+    @Autowired
+    private UserSessionService userSessionService;
 
     @Value("${citizen.login.password.otp.enabled}")
     private boolean citizenLoginPasswordOtpEnabled;
@@ -166,7 +170,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			 */
             List<GrantedAuthority> grantedAuths = new ArrayList<>();
             grantedAuths.add(new SimpleGrantedAuthority("ROLE_" + user.getType()));
-            final SecureUser secureUser = new SecureUser(getUser(user));
+            org.egov.user.web.contract.auth.User authUser = getUser(user);
+            String deviceId = details.get(UserServiceConstants.DEVICE_ID_DETAIL_KEY);
+            authUser.setSessionId(userSessionService.createSession(user.getUuid(), tenantId, deviceId));
+            final SecureUser secureUser = new SecureUser(authUser);
             userService.resetFailedLoginAttempts(user);
             return new UsernamePasswordAuthenticationToken(secureUser,
                     password, grantedAuths);
