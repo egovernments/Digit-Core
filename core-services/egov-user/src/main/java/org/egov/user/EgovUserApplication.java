@@ -107,6 +107,18 @@ public class EgovUserApplication {
         });
     }
 
+    // Dedicated pool for the single-active-login lastServerContact refresh, so that write
+    // never blocks the authenticated-request hot path it's invoked from.
+    @Bean(name = "sessionContactPool")
+    public ExecutorService sessionContactPool(
+            @Value("${egov.user.session.contact.pool.threads:2}") int threads) {
+        return Executors.newFixedThreadPool(threads, r -> {
+            Thread t = new Thread(r, "session-contact-worker");
+            t.setDaemon(true);
+            return t;
+        });
+    }
+
     @Bean
     public TokenStore tokenStore() {
         RedisTokenStore redisTokenStore = new RedisTokenStore(connectionFactory());

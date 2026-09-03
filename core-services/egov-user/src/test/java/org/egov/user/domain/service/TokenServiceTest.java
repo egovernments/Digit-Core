@@ -21,8 +21,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.egov.tracer.model.CustomException;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,6 +40,9 @@ public class TokenServiceTest {
 
     @Mock
     private ActionRestRepository actionRestRepository;
+
+    @Mock
+    private UserSessionService userSessionService;
 
     @Test
     public void test_should_get_user_details_for_given_token() {
@@ -62,6 +69,50 @@ public class TokenServiceTest {
         when(tokenStore.readAuthentication("accessToken")).thenReturn(null);
 
         tokenService.getUser("accessToken");
+    }
+
+    @Test
+    public void test_should_validate_session_using_sessionId_embedded_in_token() {
+        OAuth2Authentication oAuth2Authentication = mock(OAuth2Authentication.class);
+        final String accessToken = "c80e0ade-f48d-4077-b0d2-4e58526a6bfd";
+        when(tokenStore.readAuthentication(accessToken)).thenReturn(oAuth2Authentication);
+        User user = getUser();
+        user.setSessionId("session-123");
+        SecureUser secureUser = new SecureUser(user);
+        when(oAuth2Authentication.getPrincipal()).thenReturn(secureUser);
+
+        tokenService.getUser(accessToken);
+
+        verify(userSessionService).validateAndTouch("session-123", "default");
+    }
+
+    @Test
+    public void test_should_allow_token_with_no_sessionId_for_backward_compatibility() {
+        OAuth2Authentication oAuth2Authentication = mock(OAuth2Authentication.class);
+        final String accessToken = "c80e0ade-f48d-4077-b0d2-4e58526a6bfd";
+        when(tokenStore.readAuthentication(accessToken)).thenReturn(oAuth2Authentication);
+        SecureUser secureUser = new SecureUser(getUser());
+        when(oAuth2Authentication.getPrincipal()).thenReturn(secureUser);
+
+        UserDetail actualUserDetails = tokenService.getUser(accessToken);
+
+        assertEquals(secureUser, actualUserDetails.getSecureUser());
+        verify(userSessionService).validateAndTouch(null, "default");
+    }
+
+    @Test(expected = CustomException.class)
+    public void test_should_reject_request_when_session_is_no_longer_active() {
+        OAuth2Authentication oAuth2Authentication = mock(OAuth2Authentication.class);
+        final String accessToken = "c80e0ade-f48d-4077-b0d2-4e58526a6bfd";
+        when(tokenStore.readAuthentication(accessToken)).thenReturn(oAuth2Authentication);
+        User user = getUser();
+        user.setSessionId("session-123");
+        SecureUser secureUser = new SecureUser(user);
+        when(oAuth2Authentication.getPrincipal()).thenReturn(secureUser);
+        doThrow(new CustomException("SESSION_INVALID", "Session is no longer valid"))
+                .when(userSessionService).validateAndTouch("session-123", "default");
+
+        tokenService.getUser(accessToken);
     }
 
     private User getUser() {

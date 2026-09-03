@@ -25,4 +25,8 @@ public class User implements Serializable {
     private boolean active;
     private String tenantId;
     private String permanentCity;
+    // Backend session handle for single-active-login enforcement. Null for tokens issued
+    // before this feature — TokenService treats that as "no session enforcement" rather
+    // than rejecting the request, so pre-existing tokens keep working across rollout.
+    private String sessionId;
 }
