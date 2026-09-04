@@ -81,4 +81,27 @@ class BoundaryEntityRowMapperTest {
         assertEquals("value", result.get(0).getAdditionalDetails().get("key").asText());
     }
 
+
+    @Test
+    void shouldParseGeometry_whenPresentInDb() throws Exception {
+        when(resultSet.next()).thenReturn(true).thenReturn(false);
+        when(resultSet.getString("id")).thenReturn("b3");
+        when(resultSet.getString("code")).thenReturn("BND3");
+        when(resultSet.getString("geometry")).thenReturn("{\"type\":\"Point\",\"coordinates\":[10,20]}");
+        when(resultSet.getString("additionaldetails")).thenReturn(null);
+        when(resultSet.getString("tenantid")).thenReturn("pg.citya");
+        when(resultSet.getString("createdby")).thenReturn("system");
+        when(resultSet.getLong("createdtime")).thenReturn(123456789L);
+        when(resultSet.getString("lastmodifiedby")).thenReturn("system");
+        when(resultSet.getLong("lastmodifiedtime")).thenReturn(123456789L);
+
+        JsonNode fakeGeometryNode = new ObjectMapper().readTree("{\"type\":\"Point\",\"coordinates\":[10,20]}");
+        when(mapper.readTree("{\"type\":\"Point\",\"coordinates\":[10,20]}")).thenReturn(fakeGeometryNode);
+
+        List<Boundary> result = rowMapper.extractData(resultSet);
+
+        assertNotNull(result.get(0).getGeometry());
+        assertEquals("Point", result.get(0).getGeometry().get("type").asText());
+    }
+
 }
