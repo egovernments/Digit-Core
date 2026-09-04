@@ -186,6 +186,17 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Mockito 1.x (inherited from spring-boot-starter-parent 1.5.22) uses a
+                         cglib mock maker that reflects into JDK internals; JDK 9+'s module
+                         system blocks that reflection, so tests need these opened explicitly
+                         when run on JDK 9+. Harmless no-op on JDK 8. -->
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
