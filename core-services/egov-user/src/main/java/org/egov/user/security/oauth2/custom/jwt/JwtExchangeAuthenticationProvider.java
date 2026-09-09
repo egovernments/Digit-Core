@@ -39,6 +39,7 @@ import org.springframework.util.StringUtils;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -73,6 +74,10 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Slf4j
 @Component
 public class JwtExchangeAuthenticationProvider implements AuthenticationProvider {
+
+    private static final Pattern NAME_DISALLOWED_CHARS =
+            Pattern.compile(UserServiceConstants.PATTERN_NAME_DISALLOWED_CHARS);
+    private static final Pattern WHITESPACE_RUN = Pattern.compile("\\s+");
 
     private final JwtValidationService jwtValidationService;
     private final UserService userService;
@@ -627,6 +632,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         String username = jwt.getClaims().get("unique_name") != null ? 
             jwt.getClaims().get("unique_name").toString() : 
             jwt.getEmail(); // Use unique_name which has the email, fallback to preferred_username
+        String name = sanitizeName(jwt.getName());
         return org.egov.user.domain.model.hrms.User.builder()
                 .uuid(jwt.getExternalUserId())
                 .emailId(username)
@@ -636,10 +642,20 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .type(jwt.getUserType())
                 .roles(roles)
                 .userName(username)
-                .name(jwt.getName())
+                .name(name)
                 .dob(provider.getDefaultDob())
                 .createdBy(jwt.getOid())
                 .build();
+    }
+
+    private String sanitizeName(String name) {
+        if (name == null)
+            return null;
+        String sanitized = WHITESPACE_RUN
+                .matcher(NAME_DISALLOWED_CHARS.matcher(name).replaceAll(""))
+                .replaceAll(" ")
+                .trim();
+        return sanitized.isEmpty() ? null : sanitized;
     }
 
 
@@ -698,11 +714,12 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
      * @return User object ready for update (eg_user only)
      */
     private User createUserForSsoUpdate(User user, OidcValidatedJwt jwt) {
+        String name = sanitizeName(jwt.getName());
         return user.toBuilder()
                 .authProvider(jwt.getProviderId())
                 .idpSubject(jwt.getSubject())
                 .idpIssuer(jwt.getIssuer())
-                .name(jwt.getName())
+                .name(name)
                 .emailId(jwt.getClaims().get("unique_name") != null ? 
                     jwt.getClaims().get("unique_name").toString() : 
                     jwt.getEmail()) // Use unique_name which has the email, fallback to preferred_username

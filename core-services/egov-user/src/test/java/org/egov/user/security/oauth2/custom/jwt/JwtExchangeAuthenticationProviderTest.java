@@ -6,6 +6,7 @@ import org.egov.tracer.model.CustomException;
 import org.egov.user.config.AuthProperties;
 import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.config.SsoDefaultPasswordResolver;
+import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.sso.SsoException;
 import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.domain.exception.sso.SsoUserMappingException;
@@ -31,6 +32,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -1549,5 +1551,40 @@ public class JwtExchangeAuthenticationProviderTest {
                                 e instanceof OAuth2AuthenticationException || 
                                 e instanceof SsoException);
                 }
+        }
+
+        private String sanitizeName(String input) throws Exception {
+                Method m = JwtExchangeAuthenticationProvider.class
+                                .getDeclaredMethod("sanitizeName", String.class);
+                m.setAccessible(true);
+                return (String) m.invoke(authenticationProvider, input);
+        }
+
+        @Test
+        public void shouldStripAllDisallowedCharactersFromName() throws Exception {
+                String allDisallowed = "J\\o$h\"n<A>?~`!@#%^()+={}[]*,:;\u201cB\u201d\u2018C\u2019 Doe";
+                String sanitized = sanitizeName(allDisallowed);
+                assertEquals("JohnABC Doe", sanitized);
+                assertTrue("sanitized name must satisfy PATTERN_NAME",
+                                sanitized.matches(UserServiceConstants.PATTERN_NAME));
+        }
+
+        @Test
+        public void shouldCollapseWhitespaceAndTrimName() throws Exception {
+                assertEquals("John A Doe", sanitizeName("  John (A)  Doe! "));
+                assertEquals("Doe John", sanitizeName("Doe, John"));
+        }
+
+        @Test
+        public void shouldReturnNullWhenNameIsBlankOrNull() throws Exception {
+                assertNull(sanitizeName(null));
+                assertNull(sanitizeName("###"));
+                assertNull(sanitizeName("   "));
+        }
+
+        @Test
+        public void shouldPreserveAllowedCharactersInName() throws Exception {
+                assertEquals("Jane O'Neil-Smith", sanitizeName("Jane O'Neil-Smith"));
+                assertEquals("Dr. A_B 3", sanitizeName("Dr. A_B 3"));
         }
 }

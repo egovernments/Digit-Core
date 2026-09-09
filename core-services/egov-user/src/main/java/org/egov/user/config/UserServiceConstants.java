@@ -59,6 +59,8 @@ public class UserServiceConstants {
 
     public static final String PATTERN_NAME = "^[^\\\\$\\\"<>?\\\\\\\\~`!@#$%^()+={}\\\\[\\\\]*,:;“”‘’]*$";
 
+    public static final String PATTERN_NAME_DISALLOWED_CHARS = "[\\\\$\"<>?~`!@#$%^()+={}\\[\\]*,:;“”‘’]+";
+
 
     public static final String PATTERN_GENDER = "^[a-zA-Z ]*$";
     public static final String PATTERN_MOBILE = "(^$|[0-9]{8,11})";
