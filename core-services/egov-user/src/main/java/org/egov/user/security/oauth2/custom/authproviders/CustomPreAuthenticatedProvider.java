@@ -97,7 +97,8 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
         grantedAuths.add(new SimpleGrantedAuthority("ROLE_" + user.getType()));
         org.egov.user.web.contract.auth.User authUser = getUser(user);
         String deviceId = details.get(UserServiceConstants.DEVICE_ID_DETAIL_KEY);
-        authUser.setSessionId(userSessionService.createSession(user.getUuid(), tenantId, deviceId));
+        String clientType = details.get(UserServiceConstants.CLIENT_TYPE_DETAIL_KEY);
+        authUser.setSessionId(userSessionService.createSession(user.getUuid(), tenantId, deviceId, clientType));
         final SecureUser finalUser = new SecureUser(authUser);
         return new PreAuthenticatedAuthenticationToken(finalUser,
                 null, grantedAuths);

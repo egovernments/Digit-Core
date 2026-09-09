@@ -65,7 +65,7 @@ public class UserSessionServiceTest {
     // Test 1 — first login: no active session, login succeeds, ACTIVE session created.
     @Test
     public void test_should_create_active_session_when_no_existing_active_session() {
-        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         assertNotNull(sessionId);
         ArgumentCaptor<UserSession> captor = ArgumentCaptor.forClass(UserSession.class);
@@ -87,7 +87,7 @@ public class UserSessionServiceTest {
                 "ACTIVE", System.currentTimeMillis(), System.currentTimeMillis());
         when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(fresh));
 
-        userSessionService.createSession(USER_UUID, TENANT_ID, "device-B");
+        userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
     }
 
     // Test 7 — concurrent login: the DB's unique-index violation (surfaced as
@@ -102,7 +102,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(fresh));
 
         try {
-            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B");
+            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
         } catch (OAuth2Exception e) {
             assertTrue(e.getMessage().startsWith("ACTIVE_SESSION_EXISTS"));
             return;
@@ -116,11 +116,31 @@ public class UserSessionServiceTest {
     public void test_should_not_create_session_or_enforce_when_toggle_disabled() {
         ReflectionTestUtils.setField(userSessionService, "singleActiveSessionEnabled", false);
 
-        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         assertNull(sessionId);
         verify(userSessionRepository, never()).insertActiveSession(any(UserSession.class));
         verify(userSessionRepository, never()).findActiveSession(anyString(), anyString());
+    }
+
+    // Feature is mobile-only: a non-mobile clientType (e.g. web) skips enforcement entirely,
+    // even with the toggle enabled — no session row, no conflict check.
+    @Test
+    public void test_should_not_create_session_or_enforce_when_client_type_is_not_mobile() {
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "web");
+
+        assertNull(sessionId);
+        verify(userSessionRepository, never()).insertActiveSession(any(UserSession.class));
+        verify(userSessionRepository, never()).findActiveSession(anyString(), anyString());
+    }
+
+    // clientType match is case-insensitive.
+    @Test
+    public void test_should_create_active_session_when_client_type_is_mobile_regardless_of_case() {
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "MOBILE");
+
+        assertNotNull(sessionId);
+        verify(userSessionRepository).insertActiveSession(any(UserSession.class));
     }
 
     // Re-login on the same device: existing ACTIVE row is rotated in place, treated as
@@ -132,7 +152,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), anyString(), anyLong()))
                 .thenReturn(1);
 
-        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         assertNotNull(sessionId);
         verify(userSessionRepository).reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), eq(sessionId), anyLong());
@@ -150,7 +170,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(fresh));
 
         try {
-            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B");
+            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
         } finally {
             verify(userSessionRepository, never()).expireStaleSession(anyString(), anyString(), anyLong(), anyInt());
             verify(userSessionRepository, times(1)).insertActiveSession(any(UserSession.class));
@@ -171,7 +191,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(stale));
         when(userSessionRepository.expireStaleSession(eq("old-session"), eq(TENANT_ID), anyLong(), anyInt())).thenReturn(1);
 
-        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-B");
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
 
         assertNotNull(sessionId);
         verify(userSessionRepository).expireStaleSession(eq("old-session"), eq(TENANT_ID), anyLong(), anyInt());
@@ -193,7 +213,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.expireStaleSession(eq("old-session"), eq(TENANT_ID), anyLong(), eq(7))).thenReturn(0);
 
         try {
-            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B");
+            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
         } catch (OAuth2Exception expected) {
             // The row moved on (version mismatch) between the read and the conditional
             // UPDATE — expireStaleSession correctly matched zero rows, so this login is
@@ -207,8 +227,8 @@ public class UserSessionServiceTest {
     // Test 8 — different users: no interaction between two users' session creation.
     @Test
     public void test_should_allow_different_users_to_have_independent_active_sessions() {
-        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
-        userSessionService.createSession(OTHER_USER_UUID, TENANT_ID, "device-B");
+        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
+        userSessionService.createSession(OTHER_USER_UUID, TENANT_ID, "device-B", "mobile");
 
         verify(userSessionRepository, times(2)).insertActiveSession(any(UserSession.class));
     }
@@ -216,8 +236,8 @@ public class UserSessionServiceTest {
     // Test 9 — different tenants: same user, different tenant, independent sessions.
     @Test
     public void test_should_allow_same_user_to_have_independent_active_sessions_per_tenant() {
-        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
-        userSessionService.createSession(USER_UUID, OTHER_TENANT_ID, "device-A");
+        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
+        userSessionService.createSession(USER_UUID, OTHER_TENANT_ID, "device-A", "mobile");
 
         verify(userSessionRepository, times(2)).insertActiveSession(any(UserSession.class));
     }
@@ -395,7 +415,7 @@ public class UserSessionServiceTest {
     // Audit: a fresh login with no conflict is recorded as LOGIN_SUCCESS, self-attributed.
     @Test
     public void test_should_audit_login_success() {
-        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
+        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         UserSessionAudit audit = captureAudit();
         assertEquals("LOGIN_SUCCESS", audit.getAction());
@@ -413,7 +433,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(fresh));
 
         try {
-            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B");
+            userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
         } catch (OAuth2Exception ignored) {
             // expected — asserting the audit trail, not the exception itself
         }
@@ -432,7 +452,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), anyString(), anyLong()))
                 .thenReturn(1);
 
-        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
+        userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         UserSessionAudit audit = captureAudit();
         assertEquals("LOGIN_REACTIVATED", audit.getAction());
@@ -452,7 +472,7 @@ public class UserSessionServiceTest {
         when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(stale));
         when(userSessionRepository.expireStaleSession(eq("old-session"), eq(TENANT_ID), anyLong(), anyInt())).thenReturn(1);
 
-        userSessionService.createSession(USER_UUID, TENANT_ID, "device-B");
+        userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
 
         ArgumentCaptor<UserSessionAudit> captor = ArgumentCaptor.forClass(UserSessionAudit.class);
         verify(userSessionAuditRepository, times(2)).insert(captor.capture());
@@ -490,7 +510,7 @@ public class UserSessionServiceTest {
         org.mockito.Mockito.doThrow(new RuntimeException("db down"))
                 .when(userSessionAuditRepository).insert(any(UserSessionAudit.class));
 
-        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A");
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         assertNotNull(sessionId);
     }

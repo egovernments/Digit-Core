@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import static org.egov.user.config.UserServiceConstants.ACTIVE_SESSION_EXISTS_MESSAGE;
 import static org.egov.user.config.UserServiceConstants.ERR_NO_ACTIVE_SESSION;
 import static org.egov.user.config.UserServiceConstants.ERR_SESSION_INVALID;
+import static org.egov.user.config.UserServiceConstants.MOBILE_CLIENT_TYPE;
 import static org.egov.user.config.UserServiceConstants.NO_ACTIVE_SESSION_MESSAGE;
 import static org.egov.user.config.UserServiceConstants.SESSION_INVALID_MESSAGE;
 
@@ -68,18 +69,19 @@ public class UserSessionService {
      * status='ACTIVE'; a losing concurrent login fails the INSERT here rather than racing a
      * SELECT-then-INSERT.
      *
-     * @return null when {@code egov.user.session.single.active.enabled} is false — no session
-     *         row is written and no enforcement happens, preserving legacy unrestricted
-     *         multi-device login. A null sessionId is already the "no enforcement" signal
-     *         {@link #validateAndTouch} and {@link #logout} treat pre-feature tokens as, so
-     *         the toggle needs no special-casing anywhere else.
+     * @return null when {@code egov.user.session.single.active.enabled} is false, or when
+     *         {@code clientType} isn't "mobile" — no session row is written and no enforcement
+     *         happens, preserving legacy unrestricted multi-device login (this feature is
+     *         mobile-only; web and other clients are never subject to it). A null sessionId is
+     *         already the "no enforcement" signal {@link #validateAndTouch} and {@link #logout}
+     *         treat pre-feature tokens as, so the toggle needs no special-casing anywhere else.
      * @throws OAuth2Exception if the user already has an ACTIVE session on another device.
      *         Thrown as OAuth2Exception (not CustomException) because this runs inside
      *         CustomAuthenticationProvider/CustomPreAuthenticatedProvider, which are invoked
      *         from Spring's OAuth2 TokenEndpoint, not a normal @RestController.
      */
-    public String createSession(String userUuid, String tenantId, String deviceId) {
-        if (!singleActiveSessionEnabled) {
+    public String createSession(String userUuid, String tenantId, String deviceId, String clientType) {
+        if (!singleActiveSessionEnabled || !MOBILE_CLIENT_TYPE.equalsIgnoreCase(clientType)) {
             return null;
         }
 

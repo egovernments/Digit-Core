@@ -90,6 +90,8 @@ public class UserServiceConstants {
 
     // Single active login session constants
     public static final String DEVICE_ID_DETAIL_KEY = "deviceId";
+    public static final String CLIENT_TYPE_DETAIL_KEY = "clientType";
+    public static final String MOBILE_CLIENT_TYPE = "mobile";
     public static final String ACTIVE_SESSION_EXISTS_MESSAGE = "ACTIVE_SESSION_EXISTS: This user is already logged in on another device.";
     public static final String ERR_SESSION_INVALID = "SESSION_INVALID";
     public static final String SESSION_INVALID_MESSAGE = "Session is no longer valid";
