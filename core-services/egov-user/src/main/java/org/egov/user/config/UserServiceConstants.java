@@ -67,14 +67,19 @@ public class UserServiceConstants {
     public static final String PATTERN_CITY = "^[a-zA-Z. ]*$";
     public static final String PATTERN_TENANT = "^[a-zA-Z. ]*$";
     public static final String PATTERN_PINCODE = "^[1-9][0-9]{5}$";
-    
+
     public static final String TENANTID_MDC_STRING = "TENANTID";
-    
+
     public static final String CITIZEN_ROLE_CODE = "CITIZEN";
 
     public static final String INVALID_TENANT_ID_ERR_CODE = "INVALID_TENANT_ID";
-    
-    public static final Long SYSTEM_USER_ID = 97L;
-    
-}
 
+    public static final Long SYSTEM_USER_ID = 97L;
+
+    // User Status Change Event Keys
+    public static final String USER_UUID_KEY = "userUuid";
+    public static final String TENANT_ID_KEY = "tenantId";
+    public static final String ACTIVE_KEY = "active";
+    public static final String EFFECTIVE_DATE_KEY = "effectiveDate";
+
+}

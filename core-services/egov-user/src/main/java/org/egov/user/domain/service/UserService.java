@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
+import org.egov.user.config.UserConfig;
 import org.egov.user.domain.exception.*;
 import org.egov.user.domain.model.LoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.NonLoggedInUserUpdatePasswordRequest;
@@ -13,6 +14,7 @@ import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.domain.service.utils.NotificationUtil;
 import org.egov.user.domain.service.utils.UserUtils;
+import org.egov.user.kafka.UserProducer;
 import org.egov.user.persistence.dto.FailedLoginAttempt;
 import org.egov.user.persistence.repository.FileStoreRepository;
 import org.egov.user.persistence.repository.OtpRepository;
@@ -42,7 +44,11 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.egov.user.config.UserServiceConstants.ACTIVE_KEY;
+import static org.egov.user.config.UserServiceConstants.EFFECTIVE_DATE_KEY;
+import static org.egov.user.config.UserServiceConstants.TENANT_ID_KEY;
 import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
+import static org.egov.user.config.UserServiceConstants.USER_UUID_KEY;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
@@ -92,6 +98,12 @@ public class UserService {
 
     @Autowired
     private NotificationUtil notificationUtil;
+
+    @Autowired
+    private UserProducer userProducer;
+
+    @Autowired
+    private UserConfig userConfig;
 
     public UserService(UserRepository userRepository, OtpRepository otpRepository, FileStoreRepository fileRepository,
             UserUtils userUtils,
@@ -349,6 +361,7 @@ public class UserService {
     // TODO Fix date formats
     public User updateWithoutOtpValidation(User user, RequestInfo requestInfo) {
         final User existingUser = getUserByUuid(user.getUuid(), user.getTenantId());
+        Boolean existingUserActiveStatus = existingUser.getActive();
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         validateUserRoles(user);
         user.validateUserModification();
@@ -365,6 +378,21 @@ public class UserService {
         // If user is being unlocked via update, reset failed login attempts
         if (user.getAccountLocked() != null && !user.getAccountLocked() && existingUser.getAccountLocked())
             resetFailedLoginAttempts(user);
+
+        // Check if active status has changed and feature flag is enabled
+        if (userConfig.isUserStatusChangeEventEnabled() && user.getActive() != null
+                && !user.getActive().equals(existingUserActiveStatus)) {
+            // Store user status change details in a map
+            Map<String, String> userStatusChangeEvent = new HashMap<>();
+            userStatusChangeEvent.put(USER_UUID_KEY, user.getUuid());
+            userStatusChangeEvent.put(TENANT_ID_KEY, user.getTenantId());
+            userStatusChangeEvent.put(ACTIVE_KEY, String.valueOf(user.getActive()));
+            userStatusChangeEvent.put(EFFECTIVE_DATE_KEY, String.valueOf(user.getLastModifiedDate() != null
+                    ? user.getLastModifiedDate().getTime() : System.currentTimeMillis()));
+
+            // Publish user status change event to Kafka
+            userProducer.push(user.getTenantId(), userConfig.getUserStatusChangeTopic(), user.getUuid(), userStatusChangeEvent);
+        }
 
         User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid(), user.getTenantId());
         User decryptedupdatedUserfromDB = encryptionDecryptionUtil.decryptObject(encryptedUpdatedUserfromDB, "UserSelf",
