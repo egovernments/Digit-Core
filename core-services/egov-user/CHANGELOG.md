@@ -2,6 +2,11 @@
 All notable changes to this module will be documented in this file.
 
 
+## 1.3.1-oidc - 2026-09-11
+- Added DataAccessExceptionHandler to handle DataAccessException through `@ControllerAdvice` (added directly as the Java version is old)
+- Fixed account locking: audit/update user id accepts null, auth token carries the user id, lock message states the cool-down period
+- Added user status change event published to Kafka on activation/deactivation, behind `user.status.change.event.enabled` (default false)
+
 ## 1.3.0 - 2025-05-27
 - Introduced tenant-specific database schema support and dynamic schema resolution
 - Refactored repositories and services to use dynamic schema placeholders and centralized schema utilities.
