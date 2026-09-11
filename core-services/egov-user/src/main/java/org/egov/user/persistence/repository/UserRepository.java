@@ -214,7 +214,7 @@ public class UserRepository {
      * @param
      * @return
      */
-    public void update(final User user, User oldUser, long userId, String uuid) {
+    public void update(final User user, User oldUser, Long userId, String uuid) {
 
         Map<String, Object> updateuserInputs = new HashMap<>();
 
@@ -665,7 +665,7 @@ public class UserRepository {
         saveUserRoles(user);
     }
 
-    private void updateAuditDetails(User oldUser, long userId, String uuid) {
+    private void updateAuditDetails(User oldUser, Long userId, String uuid) {
         auditRepository.auditUser(oldUser, userId, uuid);
 
     }
