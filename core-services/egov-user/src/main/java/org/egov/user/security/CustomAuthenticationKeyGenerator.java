@@ -41,6 +41,10 @@ public class CustomAuthenticationKeyGenerator implements AuthenticationKeyGenera
         if (tenantId != null && !tenantId.isEmpty()) {
             values.put("tenantId", tenantId);
         }
+        String authorizationVersion = authorizationRequest.getRequestParameters().get("authorizationVersion");
+        if (authorizationVersion != null && !authorizationVersion.isEmpty()) {
+            values.put("authorizationVersion", authorizationVersion);
+        }
 
         MessageDigest digest;
         try {

@@ -54,6 +54,7 @@ public class UserServiceConstants {
     public static final String ROLECODE_MISSING_FIELD = "roles";
     public static final String ROLECODE_MISSING_MESSAGE = "Atleast One Role Is Required.";
     public static final String USER_CLIENT_ID = "egov-user-client";
+    public static final String IDENTITY_CLIENT_ID = "egov-identity-bridge";
     public static final String IP_HEADER_NAME = "x-real-ip";
 
 
@@ -73,4 +74,3 @@ public class UserServiceConstants {
     public static final String MOBILE_UNIQUE_IDENTIFIER = "mobile";
     
 }
-

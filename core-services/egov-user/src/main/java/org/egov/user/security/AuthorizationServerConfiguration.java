@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import redis.clients.jedis.JedisShardInfo;
 
 import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
+import static org.egov.user.config.UserServiceConstants.IDENTITY_CLIENT_ID;
 
 @Configuration
 @EnableAuthorizationServer
@@ -30,6 +31,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Value("${refresh.token.validity.in.minutes}")
     private int refreshTokenValidityInMinutes;
+
+    @Value("${identity.exchange.token.ttl.seconds:900}")
+    private int identityAccessTokenValidityInSeconds;
 
     @Autowired
     private AuthenticationManager customAuthenticationManager;
@@ -51,7 +55,13 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .authorizedGrantTypes("authorization_code", "refresh_token", "password")
                 .authorities("ROLE_APP", "ROLE_CITIZEN", "ROLE_ADMIN", "ROLE_EMPLOYEE").scopes("read", "write")
                 .refreshTokenValiditySeconds(refreshTokenValidityInSeconds)
-                .accessTokenValiditySeconds(accessTokenValidityInSeconds);
+                .accessTokenValiditySeconds(accessTokenValidityInSeconds)
+                .and()
+                .withClient(IDENTITY_CLIENT_ID)
+                .authorizedGrantTypes("identity_assertion")
+                .authorities("ROLE_APP", "ROLE_EMPLOYEE")
+                .scopes("read", "write")
+                .accessTokenValiditySeconds(identityAccessTokenValidityInSeconds);
     }
 
 

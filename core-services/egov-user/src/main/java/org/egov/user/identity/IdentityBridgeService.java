@@ -1,0 +1,190 @@
+package org.egov.user.identity;
+
+import org.egov.user.domain.model.SecureUser;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.egov.user.config.UserServiceConstants.IDENTITY_CLIENT_ID;
+
+@Service
+public class IdentityBridgeService {
+
+    private final IdentityRepository repository;
+    private final IdentityJwtVerifier jwtVerifier;
+    private final DefaultTokenServices tokenServices;
+    private final String workloadToken;
+    private final String allowedClientId;
+    private final Set<String> allowedRoles;
+
+    public IdentityBridgeService(
+            IdentityRepository repository,
+            IdentityJwtVerifier jwtVerifier,
+            DefaultTokenServices tokenServices,
+            @Value("${identity.service.token:}") String workloadToken,
+            @Value("${identity.allowed.client.id:digit-ui}") String allowedClientId,
+            @Value("${identity.allowed.role.codes:EMPLOYEE}") String allowedRoleCodes) {
+        this.repository = repository;
+        this.jwtVerifier = jwtVerifier;
+        this.tokenServices = tokenServices;
+        this.workloadToken = workloadToken;
+        this.allowedClientId = allowedClientId;
+        this.allowedRoles = new HashSet<String>();
+        for (String role : allowedRoleCodes.split(",")) {
+            if (!role.trim().isEmpty()) this.allowedRoles.add(role.trim());
+        }
+    }
+
+    public void requireWorkload(String authorization) {
+        if (workloadToken.isEmpty()) throw new IdentityException(503, "Identity bridge is not configured");
+        String supplied = authorization != null && authorization.startsWith("Bearer ")
+                ? authorization.substring(7) : "";
+        if (supplied.isEmpty() || !MessageDigest.isEqual(
+                supplied.getBytes(StandardCharsets.UTF_8), workloadToken.getBytes(StandardCharsets.UTF_8))) {
+            throw new IdentityException(401, "Invalid identity workload credential");
+        }
+    }
+
+    public List<IdentityContext> resolveContexts(Map<String, Object> request) {
+        requireAllowedClient(request);
+        Map<String, Object> identity = object(request.get("identity"), "identity");
+        String issuer = string(identity.get("issuer"), "identity.issuer");
+        String subject = string(identity.get("subject"), "identity.subject");
+        Object rawOrganizations = request.get("organizations");
+        if (!(rawOrganizations instanceof List)) {
+            throw new IdentityException(400, "organizations must be an array");
+        }
+        List<IdentityContext> contexts = new ArrayList<IdentityContext>();
+        Set<String> seen = new HashSet<String>();
+        for (Object value : (List<?>) rawOrganizations) {
+            Map<String, Object> organization = object(value, "organizations[]");
+            String organizationId = string(organization.get("organizationId"), "organizationId");
+            if (!seen.add(organizationId)) continue;
+            IdentityContext context = repository.resolveContext(issuer, subject, organizationId);
+            if (context != null) contexts.add(context);
+        }
+        return contexts;
+    }
+
+    @Transactional
+    public String ensureSubject(Map<String, Object> request) {
+        return repository.ensureSubject(
+                string(request.get("issuer"), "issuer"),
+                string(request.get("subject"), "subject"),
+                string(request.get("digitUserUuid"), "digitUserUuid"),
+                System.currentTimeMillis());
+    }
+
+    @Transactional
+    public String ensureOrganization(Map<String, Object> request) {
+        return repository.ensureOrganization(
+                string(request.get("organizationId"), "organizationId"),
+                string(request.get("alias"), "alias"),
+                string(request.get("tenantId"), "tenantId"),
+                string(request.get("name"), "name"),
+                System.currentTimeMillis());
+    }
+
+    @Transactional
+    public String reconcileMembership(Map<String, Object> request) {
+        String issuer = string(request.get("issuer"), "issuer");
+        String subject = string(request.get("subject"), "subject");
+        String organizationId = string(request.get("organizationId"), "organizationId");
+        boolean active = !(request.get("active") instanceof Boolean) || (Boolean) request.get("active");
+        Object requestedRoles = request.get("roles");
+        if (!(requestedRoles instanceof List)) {
+            throw new IdentityException(400, "roles must be an array");
+        }
+        Set<String> roles = new HashSet<String>();
+        for (Object value : (List<?>) requestedRoles) {
+            String role = string(value, "roles[]");
+            if (!allowedRoles.contains(role)) {
+                throw new IdentityException(400, "Role is not allowed for identity projection: " + role);
+            }
+            roles.add(role);
+        }
+        java.util.UUID membershipId = repository.reconcileMembership(
+                repository.requireSubjectId(issuer, subject), organizationId, roles,
+                active, System.currentTimeMillis());
+        return membershipId == null ? null : membershipId.toString();
+    }
+
+    public List<Map<String, Object>> reconciliationSnapshot() {
+        return repository.reconciliationSnapshot();
+    }
+
+    public Map<String, Object> exchange(String authorization, Map<String, Object> request) {
+        requireAllowedClient(request);
+        IdentityAssertion assertion = jwtVerifier.verify(authorization);
+        Map<String, Object> requestedContext = object(request.get("context"), "context");
+        String organizationId = string(requestedContext.get("organizationId"), "context.organizationId");
+        String tenantId = string(requestedContext.get("tenantId"), "context.tenantId");
+        if (!organizationId.equals(assertion.getOrganizationId())) {
+            throw new IdentityException(403, "Requested organization is not present in the assertion");
+        }
+
+        IdentityUserContext context = repository.requireUserContext(assertion);
+        if (!tenantId.equals(context.getTenantId())) {
+            throw new IdentityException(403, "Requested tenant does not match the mapped organization");
+        }
+        SecureUser secureUser = new SecureUser(context.getUser());
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("client_id", IDENTITY_CLIENT_ID);
+        parameters.put("tenantId", tenantId);
+        parameters.put("authorizationVersion", Long.toString(context.getAuthorizationVersion()));
+        Set<String> scopes = new HashSet<String>(Arrays.asList("read", "write"));
+        OAuth2Request oauthRequest = new OAuth2Request(
+                parameters, IDENTITY_CLIENT_ID, secureUser.getAuthorities(), true,
+                scopes, Collections.<String>emptySet(), null,
+                Collections.<String>emptySet(), Collections.<String, java.io.Serializable>emptyMap());
+        PreAuthenticatedAuthenticationToken userAuthentication =
+                new PreAuthenticatedAuthenticationToken(
+                        secureUser, null, secureUser.getAuthorities());
+        OAuth2AccessToken accessToken = tokenServices.createAccessToken(
+                new OAuth2Authentication(oauthRequest, userAuthentication));
+
+        Map<String, Object> response = new LinkedHashMap<String, Object>();
+        response.put("access_token", accessToken.getValue());
+        response.put("token_type", "bearer");
+        response.put("expires_in", accessToken.getExpiresIn());
+        response.put("UserRequest", context.getUser());
+        return response;
+    }
+
+    private void requireAllowedClient(Map<String, Object> request) {
+        String clientId = string(request.get("clientId"), "clientId");
+        if (allowedClientId.isEmpty() || !allowedClientId.equals(clientId)) {
+            throw new IdentityException(403, "Client is not allowed to request an identity context");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> object(Object value, String name) {
+        if (!(value instanceof Map)) throw new IdentityException(400, name + " is required");
+        return (Map<String, Object>) value;
+    }
+
+    private String string(Object value, String name) {
+        if (!(value instanceof String) || ((String) value).trim().isEmpty()) {
+            throw new IdentityException(400, name + " is required");
+        }
+        return ((String) value).trim();
+    }
+}
