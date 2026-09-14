@@ -126,6 +126,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         }
 
+        // Identity-provider-only employees have no local password, OTP or internal
+        // login path. Refuse before failed-login accounting, which assumes a
+        // stored mobile number these accounts may not have.
+        if (UserServiceConstants.DISABLED_LOCAL_CREDENTIAL.equals(user.getPassword())) {
+            throw new OAuth2Exception("Invalid login credentials");
+        }
+
         if (user.getActive() == null || !user.getActive()) {
             throw new OAuth2Exception("Please activate your account");
         }
