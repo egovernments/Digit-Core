@@ -70,4 +70,22 @@ public class CryptoApiController{
         return new ResponseEntity<RotateKeyResponse>(keyManagementService.rotateKey(rotateKeyRequest), HttpStatus.OK);
     }
 
+    /**
+     * Provision a symmetric + asymmetric key pair for a tenantId that doesn't
+     * have one yet. Idempotent — returns the existing keyId without rotating
+     * if the tenant already has a key.
+     *
+     * Required for new-state-root provisioning flows (MCP tenant_bootstrap,
+     * etc.) where the default MDMS-driven key discovery doesn't pick up the
+     * new tenant. Without this, the first encrypt for a brand-new tenant
+     * fails with "Tenant Id not found".
+     */
+    @RequestMapping(value = "/crypto/v1/_generatekey", method = RequestMethod.POST)
+    public ResponseEntity<GenerateKeyResponse> cryptoGenerateKey(
+            @Valid @RequestBody GenerateKeyRequest generateKeyRequest) throws Exception {
+        return new ResponseEntity<>(
+                keyManagementService.generateKeyForTenant(generateKeyRequest.getTenantId()),
+                HttpStatus.OK);
+    }
+
 }

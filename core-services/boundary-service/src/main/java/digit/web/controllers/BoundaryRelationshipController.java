@@ -4,7 +4,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import digit.service.BoundaryRelationshipService;
 import digit.web.models.*;
-import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +34,13 @@ public class BoundaryRelationshipController {
 
     /**
      * Request handler for serving boundary relationships search request.
-     * @param boundaryRelationshipSearchCriteria
-     * @param requestInfo
+     * @param body wrapper containing RequestInfo and BoundaryRelationshipSearchCriteria
      * @return
      */
     @RequestMapping(value = "/_search", method = RequestMethod.POST)
-    public ResponseEntity<BoundarySearchResponse> search(@Valid @ModelAttribute BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria, @RequestBody RequestInfo requestInfo) {
-        BoundarySearchResponse boundarySearchResponse = boundaryRelationshipService.getBoundaryRelationships(boundaryRelationshipSearchCriteria, requestInfo);
+    public ResponseEntity<BoundarySearchResponse> search(@Valid @RequestBody BoundaryRelationshipSearchRequest body) {
+        BoundarySearchResponse boundarySearchResponse = boundaryRelationshipService.getBoundaryRelationships(
+                body.getBoundaryRelationshipSearchCriteria(), body.getRequestInfo());
         return new ResponseEntity<>(boundarySearchResponse, HttpStatus.OK);
     }
 

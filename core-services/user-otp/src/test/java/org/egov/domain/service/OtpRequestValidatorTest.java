@@ -1,5 +1,6 @@
 package org.egov.domain.service;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -229,5 +230,69 @@ public class OtpRequestValidatorTest {
         validator.validate(OtpRequest.builder()
                 .tenantId("pb").mobileNumber("0000000000")
                 .type(OtpRequestType.REGISTER).build());
+    }
+
+    // -------- countryCode backfill onto OtpRequest (feeds OtpSMSRepository.send) --------
+
+    // Ethiopia is the MDMS "default" entry here (Java's own defaultRegex deliberately differs, and
+    // is never reached) — the resolved countryCode must come from that entry ("+251"), not stay
+    // null, otherwise OtpSMSRepository forwards a null countryCode and egov-notification-sms falls
+    // back to its own static sms.mobile.prefix.
+    private static MobileValidationConfig defaultEthiopiaConfig() {
+        return MobileValidationConfig.builder()
+                .countryCode("+251")
+                .mobileNumberRegex("^[79][0-9]{8}$")
+                .isDefault(true)
+                .build();
+    }
+
+    @Test
+    public void test_backfills_countryCode_from_mdms_default_entry_when_absent() {
+        when(mdmsRepository.fetchMobileValidationConfigs(anyString(), any()))
+                .thenReturn(Collections.singletonList(defaultEthiopiaConfig()));
+        OtpRequest req = OtpRequest.builder()
+                .tenantId("pb").mobileNumber("712345678")
+                .type(OtpRequestType.REGISTER).build();
+        validator.validate(req);
+        assertEquals("+251", req.getCountryCode());
+    }
+
+    @Test
+    public void test_backfills_countryCode_from_cached_config_when_absent() {
+        when(cacheRepository.getValidationRules(anyString(), anyString()))
+                .thenReturn(defaultEthiopiaConfig());
+        OtpRequest req = OtpRequest.builder()
+                .tenantId("pb").mobileNumber("712345678")
+                .type(OtpRequestType.REGISTER).build();
+        validator.validate(req);
+        assertEquals("+251", req.getCountryCode());
+    }
+
+    @Test
+    public void test_does_not_override_countryCode_when_caller_already_sent_one() {
+        when(mdmsRepository.fetchMobileValidationConfigs(anyString(), any()))
+                .thenReturn(Arrays.asList(indiaConfig(), ethiopiaConfig()));
+        OtpRequest req = OtpRequest.builder()
+                .tenantId("pb").mobileNumber("9123456789")
+                .countryCode("+91").type(OtpRequestType.REGISTER).build();
+        validator.validate(req);
+        assertEquals("+91", req.getCountryCode());
+    }
+
+    // A default=true entry with no regex configured must NOT be backfilled onto otpRequest — doing
+    // so would make isMobileNumberValid() take the "reject as country-specific misconfiguration"
+    // branch instead of falling back to the application.properties default regex, rejecting a
+    // request that should have passed.
+    @Test
+    public void test_does_not_backfill_countryCode_when_default_config_has_no_regex() {
+        MobileValidationConfig blankRegexDefault = MobileValidationConfig.builder()
+                .countryCode("+251").mobileNumberRegex(null).isDefault(true).build();
+        when(mdmsRepository.fetchMobileValidationConfigs(anyString(), any()))
+                .thenReturn(Collections.singletonList(blankRegexDefault));
+        OtpRequest req = OtpRequest.builder()
+                .tenantId("pb").mobileNumber("9123456789")
+                .type(OtpRequestType.REGISTER).build();
+        validator.validate(req);
+        assertEquals(null, req.getCountryCode());
     }
 }

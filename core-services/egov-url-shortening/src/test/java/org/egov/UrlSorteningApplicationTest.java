@@ -50,7 +50,7 @@ class UrlSorteningApplicationTest {
         JsonNodeFactory expectedNodeFactory = actualObjectMapper.getNodeFactory();
         assertSame(expectedNodeFactory, deserializationConfig.getNodeFactory());
         assertNull(deserializationConfig.getDefaultMergeable());
-        assertEquals(237020304, deserializationConfig.getDeserializationFeatures());
+        assertEquals(473998480, deserializationConfig.getDeserializationFeatures());
         assertTrue(deserializationConfig.getAttributes() instanceof ContextAttributes.Impl);
         assertSame(polymorphicTypeValidator, deserializationConfig.getPolymorphicTypeValidator());
     }

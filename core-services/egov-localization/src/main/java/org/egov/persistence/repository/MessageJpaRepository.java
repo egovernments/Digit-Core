@@ -24,4 +24,20 @@ public interface MessageJpaRepository extends JpaRepository<Message, Long> {
 	@Query("select m.id from Message m where m.tenantId = :tenantId and m.locale = :locale and m.module = :module and m.code = :code")
 	List<Message> find(@Param("tenantId") String tenantId, @Param("locale") String locale,
 			@Param("module") String module, @Param("code") String code);
+
+	/**
+	 * Lightweight projection queries that bypass JPA persistence context.
+	 * Returns only the 5 fields needed for message resolution, avoiding
+	 * the overhead of loading full entities with audit fields.
+	 */
+	@Query(value = "SELECT code, locale, module, message, tenantid AS tenantId FROM message WHERE tenantid = :tenantId AND locale = :locale", nativeQuery = true)
+	List<MessageProjection> findProjected(@Param("tenantId") String tenantId, @Param("locale") String locale);
+
+	@Query(value = "SELECT code, locale, module, message, tenantid AS tenantId FROM message WHERE tenantid = :tenantId AND locale = :locale AND module = :module", nativeQuery = true)
+	List<MessageProjection> findProjected(@Param("tenantId") String tenantId, @Param("locale") String locale,
+			@Param("module") String module);
+
+	@Query(value = "SELECT code, locale, module, message, tenantid AS tenantId FROM message WHERE tenantid = :tenantId AND locale = :locale AND module IN (:modules)", nativeQuery = true)
+	List<MessageProjection> findProjectedByModules(@Param("tenantId") String tenantId, @Param("locale") String locale,
+			@Param("modules") List<String> modules);
 }

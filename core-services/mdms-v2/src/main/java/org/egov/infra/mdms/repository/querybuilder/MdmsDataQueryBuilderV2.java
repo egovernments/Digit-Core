@@ -19,6 +19,8 @@ public class MdmsDataQueryBuilderV2 {
     private static final String SEARCH_MDMS_DATA_QUERY = "SELECT data.id, data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM eg_mdms_data data ";
 
+    private static final String COUNT_MDMS_DATA_QUERY = "SELECT COUNT(*) FROM eg_mdms_data data ";
+
     private static final String MDMS_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc ";
 
     /**
@@ -28,20 +30,32 @@ public class MdmsDataQueryBuilderV2 {
      * @return
      */
     public String getMdmsDataSearchQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
-        String query = buildQuery(mdmsCriteriaV2, preparedStmtList);
+        String query = buildQuery(mdmsCriteriaV2, preparedStmtList, SEARCH_MDMS_DATA_QUERY);
         query = QueryUtil.addOrderByClause(query, MDMS_DATA_QUERY_ORDER_BY_CLAUSE);
         query = getPaginatedQuery(query, mdmsCriteriaV2, preparedStmtList);
         return query;
     }
 
     /**
-     * Method to build query dynamically based on the criteria passed to the method
+     * Method to handle request for fetching MDMS data count query, built using the same
+     * criteria (and hence the same WHERE clause) as the search query.
      * @param mdmsCriteriaV2
      * @param preparedStmtList
      * @return
      */
-    private String buildQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
-        StringBuilder builder = new StringBuilder(SEARCH_MDMS_DATA_QUERY);
+    public String getMdmsDataCountQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList) {
+        return buildQuery(mdmsCriteriaV2, preparedStmtList, COUNT_MDMS_DATA_QUERY);
+    }
+
+    /**
+     * Method to build query dynamically based on the criteria passed to the method
+     * @param mdmsCriteriaV2
+     * @param preparedStmtList
+     * @param baseQuery
+     * @return
+     */
+    private String buildQuery(MdmsCriteriaV2 mdmsCriteriaV2, List<Object> preparedStmtList, String baseQuery) {
+        StringBuilder builder = new StringBuilder(baseQuery);
         Map<String, String> schemaCodeFilterMap = mdmsCriteriaV2.getSchemaCodeFilterMap();
         if (!Objects.isNull(mdmsCriteriaV2.getTenantId())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);

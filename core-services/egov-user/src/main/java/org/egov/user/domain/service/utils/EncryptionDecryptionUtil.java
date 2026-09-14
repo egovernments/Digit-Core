@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.encryption.EncryptionService;
 import org.egov.encryption.audit.AuditService;
 import org.egov.tracer.model.CustomException;
@@ -32,6 +33,9 @@ public class EncryptionDecryptionUtil {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private MultiStateInstanceUtil centralInstanceUtil;
+
     @Value(("${state.level.tenant.id}"))
     private String stateLevelTenantId;
 
@@ -48,6 +52,34 @@ public class EncryptionDecryptionUtil {
                 return null;
             }
             T encryptedObject = encryptionService.encryptJson(objectToEncrypt, key, stateLevelTenantId, classType);
+            if (encryptedObject == null) {
+                throw new CustomException("ENCRYPTION_NULL_ERROR", "Null object found on performing encryption");
+            }
+            return encryptedObject;
+        } catch (IOException | HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
+            log.error("Error occurred while encrypting", e);
+            throw new CustomException("ENCRYPTION_ERROR", "Error occurred in encryption process");
+        } catch (Exception e) {
+            log.error("Unknown Error occurred while encrypting", e);
+            throw new CustomException("UNKNOWN_ERROR", "Unknown error occurred in encryption process");
+        }
+    }
+
+    /**
+     * Tenant-aware encryption: derives the state-level tenant dynamically from the
+     * provided tenantId instead of using the hardcoded configuration property.
+     * This enables encryption to work correctly for any state root, not just the
+     * configured default.
+     */
+    public <T> T encryptObject(Object objectToEncrypt, String key, Class<T> classType, String tenantId) {
+        try {
+            if (objectToEncrypt == null) {
+                return null;
+            }
+            String resolvedTenantId = (tenantId != null)
+                    ? centralInstanceUtil.getStateLevelTenant(tenantId)
+                    : stateLevelTenantId;
+            T encryptedObject = encryptionService.encryptJson(objectToEncrypt, key, resolvedTenantId, classType);
             if (encryptedObject == null) {
                 throw new CustomException("ENCRYPTION_NULL_ERROR", "Null object found on performing encryption");
             }

@@ -1,0 +1,419 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: eGov MDMS V2 Service.
+  description: |
+    APIs for Master Data Management V2 service. This service reads/writes generic master data (validated against a registered JSON schema) and exposes it via REST API. This module handles the below functionality.
+    1. Register/search JSON schema definitions that master data is validated against
+    2. Create master data against a registered schema
+    3. Search master data using a common criteria model, with tenant-level fallback
+    4. Update existing master data
+    5. Count master data matching a search criteria, without fetching the actual records
+  contact:
+    name: eGovernments Foundation
+    email: contacts@egovernments.org
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+basePath: /mdms-v2
+x-api-id: org.egov.infra.mdms.service
+x-common-path: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml'
+paths:
+  /schema/v1/_create:
+    post:
+      summary: Register a new JSON schema definition.
+      description: |
+        Registers a new schema definition (a JSON schema keyed by a unique `code`) that master data records are validated against on create/update via /v2/_create/{schemaCode} and /v2/_update/{schemaCode}.
+      parameters:
+        - name: SchemaDefinitionRequest
+          in: body
+          description: Details for the new schema definition + RequestInfo meta data.
+          required: true
+          schema:
+            $ref: '#/definitions/SchemaDefinitionRequest'
+      responses:
+        '202':
+          description: ResponseInfo with schema definition accepted for creation.
+          schema:
+            $ref: '#/definitions/SchemaDefinitionResponse'
+        '400':
+          description: Schema definition creation failed.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2 Schema
+  /schema/v1/_search:
+    post:
+      summary: Search registered JSON schema definitions.
+      description: |
+        Fetches schema definitions matching SchemaDefCriteria (tenantId, codes), with pagination via offset/limit.
+      parameters:
+        - name: SchemaDefSearchRequest
+          in: body
+          description: RequestInfo meta data + SchemaDefCriteria to search schema definitions by.
+          required: true
+          schema:
+            $ref: '#/definitions/SchemaDefSearchRequest'
+      responses:
+        '202':
+          description: Schema definitions retrieved successfully.
+          schema:
+            $ref: '#/definitions/SchemaDefinitionResponse'
+        '400':
+          description: Invalid input.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2 Schema
+  /schema/v1/_update:
+    post:
+      summary: Update an existing JSON schema definition. Not yet implemented.
+      description: |
+        Reserved for updating an existing schema definition. Currently returns HTTP 501 (Not Implemented).
+      parameters:
+        - name: SchemaDefinitionRequest
+          in: body
+          description: Details of the schema definition to update + RequestInfo meta data.
+          required: true
+          schema:
+            $ref: '#/definitions/SchemaDefinitionRequest'
+      responses:
+        '501':
+          description: Not implemented.
+      tags:
+        - MDMS V2 Schema
+  /v2/_create/{schemaCode}:
+    post:
+      summary: Create new master data for a given schema.
+      description: |
+        Creates a new master data record against the JSON schema identified by schemaCode. The request payload (Mdms.data) is validated against the registered schema before being persisted.
+      parameters:
+        - name: schemaCode
+          in: path
+          description: Unique code of the schema definition the master data conforms to.
+          required: true
+          type: string
+        - name: MdmsRequest
+          in: body
+          description: Details for the new master data + RequestInfo meta data.
+          required: true
+          schema:
+            $ref: '#/definitions/MdmsRequest'
+      responses:
+        '202':
+          description: ResponseInfo with master data accepted for creation.
+          schema:
+            $ref: '#/definitions/MdmsResponseV2'
+        '400':
+          description: Master data creation failed.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2
+  /v2/_search:
+    post:
+      summary: Search master data matching the given criteria.
+      description: |
+        1. Fetches master data matching MdmsCriteria (tenantId, ids, uniqueIdentifiers, schemaCode, filters, isActive).
+        2. Applies tenant-level fallback - if no matching data is found at the given tenantId, the search progressively falls back to parent (e.g. state-level) tenants.
+        3. Supports pagination via offset/limit.
+      parameters:
+        - name: MdmsCriteriaReqV2
+          in: body
+          description: RequestInfo meta data + MdmsCriteria to search master data by.
+          required: true
+          schema:
+            $ref: '#/definitions/MdmsCriteriaReqV2'
+      responses:
+        '200':
+          description: Master data retrieved successfully.
+          schema:
+            $ref: '#/definitions/MdmsResponseV2'
+        '400':
+          description: Invalid input.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2
+  /v2/_count:
+    post:
+      summary: Get the count of master data matching the given criteria.
+      description: |
+        1. Returns the total number of master data records matching the given MdmsCriteria, without fetching the records themselves.
+        2. Accepts the exact same request contract (MdmsCriteriaReqV2/MdmsCriteria) as /v2/_search, so a totalCount can be paired with a paginated /v2/_search call using identical criteria.
+        3. Applies the same tenant-level fallback resolution as /v2/_search, so both APIs resolve to the same tenant for identical criteria. offset/limit on the criteria are ignored for this API.
+      parameters:
+        - name: MdmsCriteriaReqV2
+          in: body
+          description: RequestInfo meta data + MdmsCriteria to count master data by.
+          required: true
+          schema:
+            $ref: '#/definitions/MdmsCriteriaReqV2'
+      responses:
+        '200':
+          description: Master data count retrieved successfully.
+          schema:
+            $ref: '#/definitions/MdmsCountResponseV2'
+        '400':
+          description: Invalid input.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2
+  /v2/_update/{schemaCode}:
+    post:
+      summary: Update existing master data for a given schema.
+      description: |
+        Updates an existing master data record against the JSON schema identified by schemaCode. The updated Mdms.data is re-validated against the registered schema.
+      parameters:
+        - name: schemaCode
+          in: path
+          description: Unique code of the schema definition the master data conforms to.
+          required: true
+          type: string
+        - name: MdmsRequest
+          in: body
+          description: Details of the master data to update + RequestInfo meta data.
+          required: true
+          schema:
+            $ref: '#/definitions/MdmsRequest'
+      responses:
+        '202':
+          description: ResponseInfo with master data accepted for update.
+          schema:
+            $ref: '#/definitions/MdmsResponseV2'
+        '400':
+          description: Master data update failed.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2
+
+definitions:
+  SchemaDefinition:
+    type: object
+    description: A registered JSON schema that master data records are validated against.
+    properties:
+      id:
+        type: string
+        description: Unique identifier (UUID) of the schema definition.
+        minLength: 2
+        maxLength: 128
+        readOnly: true
+      tenantId:
+        type: string
+        description: Unique Identifier of ULB/tenant the schema definition belongs to.
+        minLength: 2
+        maxLength: 128
+      code:
+        type: string
+        description: Unique code identifying the schema (e.g. 'common-masters.Department'), referenced as schemaCode by /v2/_create, /v2/_search, /v2/_count and /v2/_update.
+        minLength: 2
+        maxLength: 128
+      description:
+        type: string
+        description: Human readable description of the schema.
+        minLength: 2
+        maxLength: 512
+      definition:
+        type: object
+        description: The JSON schema (draft) definition itself, used to validate master data payloads.
+      isActive:
+        type: boolean
+        description: Denotes whether the schema definition is active.
+        default: true
+      auditDetails:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/AuditDetails'
+    required:
+      - tenantId
+      - code
+      - definition
+
+  SchemaDefinitionRequest:
+    type: object
+    description: Contract class to receive create/update requests for a single SchemaDefinition.
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      SchemaDefinition:
+        $ref: '#/definitions/SchemaDefinition'
+    required:
+      - RequestInfo
+      - SchemaDefinition
+
+  SchemaDefCriteria:
+    type: object
+    description: Search criteria for schema definitions.
+    properties:
+      tenantId:
+        type: string
+        description: Unique Identifier of ULB/tenant to search schema definitions for.
+        minLength: 1
+        maxLength: 100
+      codes:
+        type: array
+        description: List of schema codes to filter by.
+        items:
+          type: string
+      offset:
+        type: integer
+        description: Number of records to skip.
+      limit:
+        type: integer
+        description: Maximum number of records to return.
+    required:
+      - tenantId
+
+  SchemaDefSearchRequest:
+    type: object
+    description: Contract class to receive schema definition search requests.
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      SchemaDefCriteria:
+        $ref: '#/definitions/SchemaDefCriteria'
+    required:
+      - RequestInfo
+      - SchemaDefCriteria
+
+  SchemaDefinitionResponse:
+    type: object
+    description: Contract class to send the response for schema definition create/search.
+    properties:
+      ResponseInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ResponseInfo'
+      SchemaDefinitions:
+        type: array
+        description: List of schema definitions.
+        items:
+          $ref: '#/definitions/SchemaDefinition'
+
+  Mdms:
+    type: object
+    description: A single master data record, validated against a registered JSON schema.
+    properties:
+      id:
+        type: string
+        description: Unique identifier (UUID) of the master data record.
+        minLength: 2
+        maxLength: 64
+        readOnly: true
+      tenantId:
+        type: string
+        description: Unique Identifier of ULB/tenant the master data belongs to.
+        minLength: 2
+        maxLength: 128
+      schemaCode:
+        type: string
+        description: Code of the schema definition this master data conforms to (e.g. 'common-masters.Department').
+        minLength: 2
+        maxLength: 128
+      uniqueIdentifier:
+        type: string
+        description: Business unique identifier for the record, unique within a schemaCode + tenantId.
+        minLength: 1
+        maxLength: 128
+      data:
+        type: object
+        description: The actual master data payload, validated against the schema identified by schemaCode.
+      isActive:
+        type: boolean
+        description: Denotes whether the master data record is active.
+        default: true
+      auditDetails:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/AuditDetails'
+    required:
+      - tenantId
+      - schemaCode
+      - data
+
+  MdmsRequest:
+    type: object
+    description: Contract class to receive create/update requests for a single Mdms record.
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      Mdms:
+        $ref: '#/definitions/Mdms'
+    required:
+      - Mdms
+
+  MdmsCriteria:
+    type: object
+    description: Search/count criteria for master data. offset and limit are only honoured by /v2/_search.
+    properties:
+      tenantId:
+        type: string
+        description: Unique Identifier of ULB/tenant to search/count master data for. Falls back to parent tenants if no match is found.
+        minLength: 1
+        maxLength: 100
+      ids:
+        type: array
+        description: List of master data ids to filter by.
+        items:
+          type: string
+      uniqueIdentifiers:
+        type: array
+        description: List of business unique identifiers to filter by.
+        minItems: 1
+        maxItems: 64
+        items:
+          type: string
+      schemaCode:
+        type: string
+        description: Schema code to filter master data by (e.g. 'common-masters.Department').
+      filters:
+        type: object
+        description: Key-value filters applied against the JSON data payload (JSONB containment match).
+        additionalProperties:
+          type: string
+      isActive:
+        type: boolean
+        description: Filter master data by active/inactive status.
+      offset:
+        type: integer
+        description: Number of records to skip. Ignored by /v2/_count.
+      limit:
+        type: integer
+        description: Maximum number of records to return. Ignored by /v2/_count.
+    required:
+      - tenantId
+
+  MdmsCriteriaReqV2:
+    type: object
+    description: |
+      Contract class to receive search/count requests, shared unchanged between /v2/_search and /v2/_count.
+      Note: MdmsCriteria is functionally required (its absence causes a NullPointerException downstream) but is not enforced by bean validation - the field carries only @Valid, not @NotNull.
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      MdmsCriteria:
+        $ref: '#/definitions/MdmsCriteria'
+    required:
+      - MdmsCriteria
+
+  MdmsResponseV2:
+    type: object
+    description: Contract class to send the response for create, search and update.
+    properties:
+      ResponseInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ResponseInfo'
+      mdms:
+        type: array
+        description: List of master data records.
+        items:
+          $ref: '#/definitions/Mdms'
+
+  MdmsCountResponseV2:
+    type: object
+    description: Contract class to send the response for /v2/_count.
+    properties:
+      ResponseInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ResponseInfo'
+      totalCount:
+        type: integer
+        format: int64
+        description: Total number of master data records matching the given MdmsCriteria.

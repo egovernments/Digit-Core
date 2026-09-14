@@ -27,6 +27,7 @@ public class OtpRequest {
 
     private String userType;
 
+    @Setter
     private String countryCode;
 
 	@Setter

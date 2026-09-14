@@ -1,6 +1,9 @@
 package org.egov.user.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.user.domain.model.MobileValidationRule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -10,15 +13,18 @@ import org.springframework.util.StringUtils;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Redis cache for MobileNumberValidation regex rules.
+ * Redis cache for MobileNumberValidation rules.
  *
  * Design: each (tenant, countryCode) pair is stored as an individual string key
  * with its own TTL. This avoids the shared-hash problem where one EXPIRE call
  * resets the expiry for every entry, and ensures that a pod restart does NOT
  * clear the cache (since there is no @PostConstruct wipe — the TTL drives expiry).
  *
- * Key pattern: mobile-validation:{tenantId}:{sanitizedCountryCode}
- * Value:       the mobileNumberRegex string
+ * Key pattern: egov-user:mobile-val:{tenantId}:{sanitizedCountryCode}
+ * Value:       {@link MobileValidationRule} serialized as JSON, carrying both the regex and the
+ *              resolved entry's own countryCode — so a lookup keyed by a null/absent incoming
+ *              countryCode can still recover the countryCode MDMS's own "default" entry is
+ *              configured for, on a cache HIT and not just on a fresh MDMS fetch.
  */
 @Repository
 @Slf4j
@@ -30,47 +36,62 @@ public class MobileNumerValidationCacheRepository {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Value("${egov.validation.cache.ttl.seconds:3600}")
     private long cacheTtlSeconds;
 
     /**
-     * Returns the cached mobileNumberRegex for the given tenant + countryCode, or null on miss.
+     * Returns the cached MobileValidationRule for the given tenant + countryCode, or null on miss.
      */
-    public String getMobileRegex(String tenantId, String countryCode) {
+    public MobileValidationRule getRule(String tenantId, String countryCode) {
         try {
             String key = buildKey(tenantId, countryCode);
             String value = stringRedisTemplate.opsForValue().get(key);
-            if (value != null) {
-                log.debug("Cache HIT: key={}", key);
-            } else {
+            if (value == null) {
                 log.debug("Cache MISS: key={}", key);
+                return null;
             }
-            return value;
+            MobileValidationRule rule = objectMapper.readValue(value, MobileValidationRule.class);
+            if (!StringUtils.hasText(rule.getRegex())) {
+                log.warn("Stale/incomplete cache entry at key={}, evicting.", key);
+                stringRedisTemplate.delete(key);
+                return null;
+            }
+            log.debug("Cache HIT: key={}", key);
+            return rule;
+        } catch (JsonProcessingException e) {
+            log.error("Cache deserialization error for tenantId={} countryCode={}", tenantId, countryCode, e);
+            return null;
         } catch (Exception e) {
-            log.error("Error reading mobile regex from cache for tenantId={} countryCode={}", tenantId, countryCode, e);
+            log.error("Error reading mobile validation rule from cache for tenantId={} countryCode={}", tenantId, countryCode, e);
             return null;
         }
     }
 
     /**
-     * Caches the mobileNumberRegex for the given tenant + countryCode.
+     * Caches the MobileValidationRule for the given tenant + countryCode.
      * Each key expires independently after cacheTtlSeconds.
      */
-    public void cacheMobileRegex(String tenantId, String countryCode, String regex) {
-        if (!StringUtils.hasText(regex)) {
+    public void cacheRule(String tenantId, String countryCode, MobileValidationRule rule) {
+        if (rule == null || !StringUtils.hasText(rule.getRegex())) {
             return;
         }
         try {
             String key = buildKey(tenantId, countryCode);
+            String value = objectMapper.writeValueAsString(rule);
             if (cacheTtlSeconds > 0) {
-                stringRedisTemplate.opsForValue().set(key, regex, cacheTtlSeconds, TimeUnit.SECONDS);
-                log.debug("Cached mobile regex: key={} ttl={}s", key, cacheTtlSeconds);
+                stringRedisTemplate.opsForValue().set(key, value, cacheTtlSeconds, TimeUnit.SECONDS);
+                log.debug("Cached mobile validation rule: key={} ttl={}s", key, cacheTtlSeconds);
             } else {
-                stringRedisTemplate.opsForValue().set(key, regex);
-                log.debug("Cached mobile regex (no TTL): key={}", key);
+                stringRedisTemplate.opsForValue().set(key, value);
+                log.debug("Cached mobile validation rule (no TTL): key={}", key);
             }
+        } catch (JsonProcessingException e) {
+            log.error("Cache serialization error for tenantId={} countryCode={}", tenantId, countryCode, e);
         } catch (Exception e) {
-            log.error("Error caching mobile regex for tenantId={} countryCode={}", tenantId, countryCode, e);
+            log.error("Error caching mobile validation rule for tenantId={} countryCode={}", tenantId, countryCode, e);
         }
     }
 
