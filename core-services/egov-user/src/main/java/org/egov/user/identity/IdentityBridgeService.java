@@ -1,6 +1,10 @@
 package org.egov.user.identity;
 
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.user.domain.model.SecureUser;
+import org.egov.user.domain.service.UserService;
+import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.web.contract.auth.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -30,6 +34,8 @@ public class IdentityBridgeService {
     private final IdentityRepository repository;
     private final IdentityJwtVerifier jwtVerifier;
     private final DefaultTokenServices tokenServices;
+    private final UserService userService;
+    private final EncryptionDecryptionUtil encryptionDecryptionUtil;
     private final String workloadToken;
     private final String allowedClientId;
     private final Set<String> allowedRoles;
@@ -38,12 +44,16 @@ public class IdentityBridgeService {
             IdentityRepository repository,
             IdentityJwtVerifier jwtVerifier,
             DefaultTokenServices tokenServices,
+            UserService userService,
+            EncryptionDecryptionUtil encryptionDecryptionUtil,
             @Value("${identity.service.token:}") String workloadToken,
             @Value("${identity.allowed.client.id:digit-ui}") String allowedClientId,
             @Value("${identity.allowed.role.codes:EMPLOYEE}") String allowedRoleCodes) {
         this.repository = repository;
         this.jwtVerifier = jwtVerifier;
         this.tokenServices = tokenServices;
+        this.userService = userService;
+        this.encryptionDecryptionUtil = encryptionDecryptionUtil;
         this.workloadToken = workloadToken;
         this.allowedClientId = allowedClientId;
         this.allowedRoles = new HashSet<String>();
@@ -144,7 +154,9 @@ public class IdentityBridgeService {
         if (!tenantId.equals(context.getTenantId())) {
             throw new IdentityException(403, "Requested tenant does not match the mapped organization");
         }
-        SecureUser secureUser = new SecureUser(context.getUser());
+        User user = context.getUser();
+        applyDecryptedIdentity(user);
+        SecureUser secureUser = new SecureUser(user);
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("client_id", IDENTITY_CLIENT_ID);
         parameters.put("tenantId", tenantId);
@@ -164,8 +176,41 @@ public class IdentityBridgeService {
         response.put("access_token", accessToken.getValue());
         response.put("token_type", "bearer");
         response.put("expires_in", accessToken.getExpiresIn());
-        response.put("UserRequest", context.getUser());
+        response.put("UserRequest", user);
         return response;
+    }
+
+    /**
+     * eg_user stores identity fields encrypted. Decrypt them exactly as password
+     * login does ("UserSelf" for the user's own record) so the exchanged token
+     * carries the same principal a native DIGIT login would.
+     */
+    private void applyDecryptedIdentity(User user) {
+        org.egov.user.domain.model.User stored = userService.getUserByUuid(user.getUuid());
+        List<org.egov.common.contract.request.Role> roles =
+                new ArrayList<org.egov.common.contract.request.Role>();
+        if (stored.getRoles() != null) {
+            for (org.egov.user.domain.model.Role role : stored.getRoles()) {
+                roles.add(org.egov.common.contract.request.Role.builder()
+                        .code(role.getCode()).name(role.getName()).build());
+            }
+        }
+        RequestInfo requestInfo = RequestInfo.builder()
+                .userInfo(org.egov.common.contract.request.User.builder()
+                        .uuid(stored.getUuid())
+                        .type(stored.getType() == null ? null : stored.getType().name())
+                        .roles(roles).build())
+                .build();
+        org.egov.user.domain.model.User decrypted = encryptionDecryptionUtil.decryptObject(
+                stored, "UserSelf", org.egov.user.domain.model.User.class, requestInfo);
+        user.setUserName(text(decrypted.getUsername()));
+        user.setName(text(decrypted.getName()));
+        user.setMobileNumber(text(decrypted.getMobileNumber()));
+        user.setEmailId(text(decrypted.getEmailId()));
+    }
+
+    private String text(String value) {
+        return value == null ? "" : value;
     }
 
     private void requireAllowedClient(Map<String, Object> request) {
