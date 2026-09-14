@@ -55,6 +55,10 @@ public class UserServiceConstants {
     public static final String ROLECODE_MISSING_MESSAGE = "Atleast One Role Is Required.";
     public static final String USER_CLIENT_ID = "egov-user-client";
     public static final String IDENTITY_CLIENT_ID = "egov-identity-bridge";
+    // eg_user.password is NOT NULL, so identity-provider employees cannot be
+    // passwordless. This marker is deliberately not a BCrypt hash: no input can
+    // match it and password-change flows refuse to replace it.
+    public static final String DISABLED_LOCAL_CREDENTIAL = "!external-identity-provider";
     public static final String IP_HEADER_NAME = "x-real-ip";
 
 

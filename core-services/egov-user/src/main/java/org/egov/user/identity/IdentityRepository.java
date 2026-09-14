@@ -37,16 +37,32 @@ public class IdentityRepository {
             return digitUserUuid;
         }
         Integer users = jdbcTemplate.queryForObject(
-                "SELECT count(*) FROM eg_user WHERE lower(uuid) = lower(?) AND active = true",
+                "SELECT count(*) FROM eg_user WHERE lower(uuid) = lower(?) AND active = true " +
+                        "AND type = 'EMPLOYEE'",
                 Integer.class, digitUserUuid);
         if (users == null || users != 1) {
-            throw new IdentityException(400, "digitUserUuid must identify one active DIGIT user");
+            throw new IdentityException(400, "digitUserUuid must identify one active DIGIT employee");
         }
         jdbcTemplate.update("INSERT INTO eg_identity_subject " +
                         "(id, issuer, external_subject, digit_user_uuid, active, created_at, updated_at) " +
                         "VALUES (?, ?, ?, ?, true, ?, ?)",
                 UUID.randomUUID(), issuer, subject, digitUserUuid, now, now);
         return digitUserUuid;
+    }
+
+    public String findLinkedUserUuid(String issuer, String subject) {
+        List<String> existing = jdbcTemplate.query(
+                "SELECT digit_user_uuid FROM eg_identity_subject WHERE issuer = ? AND external_subject = ?",
+                (rs, rowNum) -> rs.getString(1), issuer, subject);
+        return existing.isEmpty() ? null : existing.get(0);
+    }
+
+    public String requireActiveOrganizationTenant(String organizationId) {
+        List<String> tenants = jdbcTemplate.query(
+                "SELECT tenant_id FROM eg_identity_organization WHERE organization_id = ? AND active = true",
+                (rs, rowNum) -> rs.getString(1), organizationId);
+        if (tenants.size() != 1) throw new IdentityException(404, "Identity organization is not mapped");
+        return tenants.get(0);
     }
 
     public String ensureOrganization(String organizationId, String alias, String tenantId,

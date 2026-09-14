@@ -1,7 +1,9 @@
 package org.egov.user.identity;
 
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.model.SecureUser;
+import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.web.contract.auth.User;
@@ -100,6 +102,75 @@ public class IdentityBridgeService {
                 string(request.get("subject"), "subject"),
                 string(request.get("digitUserUuid"), "digitUserUuid"),
                 System.currentTimeMillis());
+    }
+
+    /**
+     * Returns the DIGIT employee for a verified external subject, creating one
+     * only when the subject is unlinked and no existing employee is named. The
+     * created employee has no usable local credential and only the base
+     * EMPLOYEE role at the Organization's tenant; authorization roles are
+     * granted afterwards through membership reconciliation. A subject keeps the
+     * same DIGIT user UUID across later Organization memberships.
+     */
+    @Transactional
+    public Map<String, Object> ensureEmployee(Map<String, Object> request) {
+        String issuer = string(request.get("issuer"), "issuer");
+        String subject = string(request.get("subject"), "subject");
+        String tenantId = repository.requireActiveOrganizationTenant(
+                string(request.get("organizationId"), "organizationId"));
+        String requestedUuid = optionalString(request.get("digitUserUuid"));
+        long now = System.currentTimeMillis();
+
+        String linked = repository.findLinkedUserUuid(issuer, subject);
+        if (linked != null || requestedUuid != null) {
+            String uuid = linked != null ? linked : requestedUuid;
+            if (requestedUuid != null && !requestedUuid.equalsIgnoreCase(uuid)) {
+                throw new IdentityException(409, "Identity subject is already linked to another DIGIT user");
+            }
+            repository.ensureSubject(issuer, subject, uuid, now);
+            return employeeResponse(uuid, false);
+        }
+
+        Map<String, Object> profile = object(request.get("profile"), "profile");
+        String name = string(profile.get("name"), "profile.name");
+        String mobileNumber = optionalString(profile.get("mobileNumber"));
+        org.egov.user.domain.model.User user = org.egov.user.domain.model.User.builder()
+                .username(identityUsername(issuer, subject))
+                .name(name.length() > 50 ? name.substring(0, 50) : name)
+                .emailId(optionalString(profile.get("emailId")))
+                .mobileNumber(mobileNumber)
+                .mobileValidationMandatory(mobileNumber != null)
+                .active(true).type(UserType.EMPLOYEE).tenantId(tenantId).locale("en_IN")
+                .roles(Collections.singleton(org.egov.user.domain.model.Role.builder()
+                        .code("EMPLOYEE").name("Employee").tenantId(tenantId).build()))
+                .build();
+        org.egov.user.domain.model.User created;
+        try {
+            created = userService.createIdentityProviderEmployee(user, new RequestInfo());
+        } catch (DuplicateUserNameException exception) {
+            throw new IdentityException(409, "Identity employee provisioning is already in progress");
+        }
+        repository.ensureSubject(issuer, subject, created.getUuid(), now);
+        return employeeResponse(created.getUuid(), true);
+    }
+
+    private Map<String, Object> employeeResponse(String uuid, boolean created) {
+        Map<String, Object> response = new LinkedHashMap<String, Object>();
+        response.put("digitUserUuid", uuid);
+        response.put("created", created);
+        return response;
+    }
+
+    static String identityUsername(String issuer, String subject) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest((issuer + "\n" + subject).getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder("idp-");
+            for (int i = 0; i < 16; i++) hex.append(String.format("%02x", digest[i]));
+            return hex.toString();
+        } catch (java.security.NoSuchAlgorithmException exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 
     @Transactional
@@ -207,6 +278,11 @@ public class IdentityBridgeService {
         user.setName(text(decrypted.getName()));
         user.setMobileNumber(text(decrypted.getMobileNumber()));
         user.setEmailId(text(decrypted.getEmailId()));
+    }
+
+    private String optionalString(Object value) {
+        return value instanceof String && !((String) value).trim().isEmpty()
+                ? ((String) value).trim() : null;
     }
 
     private String text(String value) {

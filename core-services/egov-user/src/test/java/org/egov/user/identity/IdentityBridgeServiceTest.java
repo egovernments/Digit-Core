@@ -26,6 +26,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.junit.Assert.assertTrue;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -141,6 +145,94 @@ public class IdentityBridgeServiceTest {
         assertEquals("Grievance Officer", user.getName());
         assertEquals("0712345678", user.getMobileNumber());
         assertEquals("", user.getEmailId());
+    }
+
+    @Test
+    public void newFounderWithoutDigitRecordIsProvisionedWithoutLocalPasswordAndLinked() {
+        when(repository.requireActiveOrganizationTenant("org-1")).thenReturn("pg");
+        when(repository.findLinkedUserUuid("https://issuer", "subject-1")).thenReturn(null);
+        when(userService.createIdentityProviderEmployee(
+                any(org.egov.user.domain.model.User.class), any(RequestInfo.class)))
+                .thenReturn(org.egov.user.domain.model.User.builder().uuid("new-uuid").build());
+
+        Map<String, Object> result = service.ensureEmployee(employeeRequest(null, "Founder Name"));
+
+        ArgumentCaptor<org.egov.user.domain.model.User> created =
+                ArgumentCaptor.forClass(org.egov.user.domain.model.User.class);
+        verify(userService).createIdentityProviderEmployee(created.capture(), any(RequestInfo.class));
+        org.egov.user.domain.model.User user = created.getValue();
+        assertEquals("new-uuid", result.get("digitUserUuid"));
+        assertEquals(true, result.get("created"));
+        assertEquals(UserType.EMPLOYEE, user.getType());
+        assertEquals("pg", user.getTenantId());
+        assertEquals(null, user.getPassword());
+        assertEquals(IdentityBridgeService.identityUsername("https://issuer", "subject-1"),
+                user.getUsername());
+        assertEquals(1, user.getRoles().size());
+        assertEquals("EMPLOYEE", user.getRoles().iterator().next().getCode());
+        verify(repository).ensureSubject(eq("https://issuer"), eq("subject-1"), eq("new-uuid"), anyLong());
+    }
+
+    @Test
+    public void linkedSubjectKeepsItsUserAcrossOrganizationsWithoutCreatingAnother() {
+        when(repository.requireActiveOrganizationTenant("org-2")).thenReturn("pg.citya");
+        when(repository.findLinkedUserUuid("https://issuer", "subject-1")).thenReturn("existing-uuid");
+        Map<String, Object> request = employeeRequest(null, "Founder Name");
+        request.put("organizationId", "org-2");
+
+        Map<String, Object> first = service.ensureEmployee(request);
+        Map<String, Object> second = service.ensureEmployee(request);
+
+        assertEquals("existing-uuid", first.get("digitUserUuid"));
+        assertEquals("existing-uuid", second.get("digitUserUuid"));
+        assertEquals(false, second.get("created"));
+        verify(userService, never()).createIdentityProviderEmployee(
+                any(org.egov.user.domain.model.User.class), any(RequestInfo.class));
+    }
+
+    @Test
+    public void namedExistingEmployeeIsLinkedRatherThanDuplicated() {
+        when(repository.requireActiveOrganizationTenant("org-1")).thenReturn("pg");
+
+        Map<String, Object> result = service.ensureEmployee(employeeRequest("employee-uuid", null));
+
+        assertEquals("employee-uuid", result.get("digitUserUuid"));
+        assertEquals(false, result.get("created"));
+        verify(repository).ensureSubject(eq("https://issuer"), eq("subject-1"), eq("employee-uuid"), anyLong());
+        verify(userService, never()).createIdentityProviderEmployee(
+                any(org.egov.user.domain.model.User.class), any(RequestInfo.class));
+    }
+
+    @Test
+    public void subjectLinkedElsewhereCannotBeRelinkedToAnotherEmployee() {
+        when(repository.requireActiveOrganizationTenant("org-1")).thenReturn("pg");
+        when(repository.findLinkedUserUuid("https://issuer", "subject-1")).thenReturn("existing-uuid");
+
+        expectStatus(409, () -> service.ensureEmployee(employeeRequest("other-uuid", null)));
+        verify(repository, never()).ensureSubject(anyString(), anyString(), anyString(), anyLong());
+    }
+
+    @Test
+    public void identityUsernameIsDeterministicPerIssuerAndSubject() {
+        String username = IdentityBridgeService.identityUsername("https://issuer", "subject-1");
+        assertEquals(username, IdentityBridgeService.identityUsername("https://issuer", "subject-1"));
+        assertTrue(!username.equals(IdentityBridgeService.identityUsername("https://other", "subject-1")));
+        assertTrue(username.startsWith("idp-") && username.length() == 36);
+    }
+
+    private Map<String, Object> employeeRequest(String digitUserUuid, String name) {
+        Map<String, Object> request = new LinkedHashMap<String, Object>();
+        request.put("issuer", "https://issuer");
+        request.put("subject", "subject-1");
+        request.put("organizationId", "org-1");
+        if (digitUserUuid != null) request.put("digitUserUuid", digitUserUuid);
+        if (name != null) {
+            Map<String, Object> profile = new LinkedHashMap<String, Object>();
+            profile.put("name", name);
+            profile.put("emailId", "founder@example.org");
+            request.put("profile", profile);
+        }
+        return request;
     }
 
     private Map<String, Object> request(String clientId) {

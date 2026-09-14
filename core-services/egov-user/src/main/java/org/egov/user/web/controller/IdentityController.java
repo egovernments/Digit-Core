@@ -49,6 +49,14 @@ public class IdentityController {
         return response("digitUserUuid", service.ensureSubject(request));
     }
 
+    @PostMapping("/employees/_ensure")
+    public Map<String, Object> ensureEmployee(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody Map<String, Object> request) {
+        service.requireWorkload(authorization);
+        return service.ensureEmployee(request);
+    }
+
     @PostMapping("/organizations/_ensure")
     public Map<String, Object> ensureOrganization(
             @RequestHeader(value = "Authorization", required = false) String authorization,

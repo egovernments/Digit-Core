@@ -32,6 +32,7 @@ import org.egov.user.domain.model.LoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.NonLoggedInUserUpdatePasswordRequest;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserSearchCriteria;
+import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.domain.service.utils.NotificationUtil;
@@ -262,6 +263,31 @@ public class UserService {
 
     }
 
+    /**
+     * Creates an employee whose only sign-in path is an external identity
+     * provider. Unlike createUser, no local password is generated: the stored
+     * credential is the non-verifiable DISABLED_LOCAL_CREDENTIAL marker.
+     */
+    public User createIdentityProviderEmployee(User user, RequestInfo requestInfo) {
+        user.setType(UserType.EMPLOYEE);
+        user.setPassword(null);
+        mobileNumberValidator.validateAndSetMobileNumbers(user, requestInfo);
+        user.setUuid(UUID.randomUUID().toString());
+        user.validateNewUser(createUserValidateName);
+        user = encryptionDecryptionUtil.encryptObject(user, "User", User.class, user.getTenantId());
+        validateUserUniqueness(user);
+        user.setPassword(UserServiceConstants.DISABLED_LOCAL_CREDENTIAL);
+        user.setDefaultPasswordExpiry(defaultPasswordExpiryInDays);
+        return persistNewUser(user);
+    }
+
+    private void rejectDisabledLocalCredential(User user) {
+        if (UserServiceConstants.DISABLED_LOCAL_CREDENTIAL.equals(user.getPassword())) {
+            log.info("Password change refused for an identity-provider-only user");
+            throw new InvalidUpdatePasswordRequestException();
+        }
+    }
+
     private void validateUserUniqueness(User user) {
     	
 		String tenantId = userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType());
@@ -476,6 +502,7 @@ public class UserService {
         updatePasswordRequest.validate();
         final User user = getUniqueUser(updatePasswordRequest.getUserName(), updatePasswordRequest.getTenantId(),
                 updatePasswordRequest.getType());
+        rejectDisabledLocalCredential(user);
 
         if (user.getType().toString().equals(UserType.CITIZEN.toString()) && isCitizenLoginOtpBased)
             throw new InvalidUpdatePasswordRequestException();
@@ -497,6 +524,7 @@ public class UserService {
         request.validate();
         // validateOtp(request.getOtpValidationRequest());
         User user = getUniqueUser(request.getUserName(), request.getTenantId(), request.getType());
+        rejectDisabledLocalCredential(user);
         if (user.getType().toString().equals(UserType.CITIZEN.toString()) && isCitizenLoginOtpBased) {
             log.info("CITIZEN forgot password flow is disabled");
             throw new InvalidUpdatePasswordRequestException();
