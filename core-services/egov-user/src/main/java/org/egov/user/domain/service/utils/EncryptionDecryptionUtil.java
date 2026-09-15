@@ -1,16 +1,15 @@
 package org.egov.user.domain.service.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.encryption.EncryptionService;
 import org.egov.encryption.audit.AuditService;
 import org.egov.tracer.model.CustomException;
+import org.egov.user.domain.model.GraphTokenWrapper;
+import org.egov.user.security.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -58,6 +56,53 @@ public class EncryptionDecryptionUtil {
         } catch (Exception e) {
             log.error("Unknown Error occurred while encrypting", e);
             throw new CustomException("UNKNOWN_ERROR", "Unknown error occurred in encryption process");
+        }
+    }
+
+    /**
+     * Encrypts a Graph API access token for storage in Redis. Uses GraphTokenWrapper and MDMS GraphToken policy.
+     * Fails fast if encryption was a no-op (e.g. GraphToken SecurityPolicy not in MDMS DataSecurity).
+     */
+    public String encryptGraphToken(String rawToken) {
+        GraphTokenWrapper wrapper = new GraphTokenWrapper();
+        wrapper.setToken(rawToken);
+        GraphTokenWrapper encrypted = encryptObject(wrapper, SecurityConstants.GRAPH_TOKEN_ENCRYPTION_KEY, GraphTokenWrapper.class);
+        String encryptedToken = encrypted.getToken();
+        if (rawToken.equals(encryptedToken)) {
+            throw new CustomException(SecurityConstants.GRAPH_TOKEN_ENCRYPTION_NOOP_CODE,
+                    SecurityConstants.GRAPH_TOKEN_ENCRYPTION_NOOP_MESSAGE);
+        }
+        return encryptedToken;
+    }
+
+    /**
+     * Decrypts a Graph API access token read from Redis. Uses system RequestInfo; bypasses ABAC.
+     */
+    public String decryptGraphToken(String encryptedToken) {
+        try {
+            GraphTokenWrapper wrapper = new GraphTokenWrapper();
+            wrapper.setToken(encryptedToken);
+            User systemUser = User.builder().uuid("system").type("SYSTEM")
+                    .tenantId(stateLevelTenantId).roles(Collections.emptyList()).build();
+            RequestInfo requestInfo = RequestInfo.builder().userInfo(getEncrichedandCopiedUserInfo(systemUser)).build();
+            List<GraphTokenWrapper> decrypted = (List<GraphTokenWrapper>) encryptionService.decryptJson(
+                    requestInfo,
+                    Collections.singletonList(wrapper),
+                    SecurityConstants.GRAPH_TOKEN_ENCRYPTION_KEY,
+                    SecurityConstants.GRAPH_TOKEN_DECRYPT_PURPOSE,
+                    GraphTokenWrapper.class);
+            if (decrypted == null || decrypted.isEmpty()) {
+                throw new CustomException("DECRYPTION_NULL_ERROR", "Null object found on performing decryption");
+            }
+            return decrypted.get(0).getToken();
+        } catch (CustomException e) {
+            throw e;
+        } catch (IOException | HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
+            log.error("Error occurred while decrypting graph token", e);
+            throw new CustomException("DECRYPTION_SERVICE_ERROR", "Error occurred in decryption process");
+        } catch (Exception e) {
+            log.error("Unknown error occurred while decrypting graph token", e);
+            throw new CustomException("UNKNOWN_ERROR", "Unknown error occurred in decryption process");
         }
     }
 

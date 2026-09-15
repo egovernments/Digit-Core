@@ -33,6 +33,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.JedisShardInfo;
@@ -88,6 +89,7 @@ public class EgovUserApplication {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setTimeZone(TimeZone.getTimeZone(timeZone));
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         return objectMapper;
     }
 

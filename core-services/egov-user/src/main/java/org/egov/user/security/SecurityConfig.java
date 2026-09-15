@@ -23,6 +23,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //		auth.authenticationProvider(customAuthProvider).authenticationProvider(preAuthProvider);
 //	}
 
+    /**
+     * Configures HTTP security settings for the application.
+     * Currently disables CSRF protection. This should be reviewed for production use
+     * as CSRF protection is important for web applications.
+     *
+     * @param http the HttpSecurity object to configure
+     * @throws Exception if configuration fails
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();

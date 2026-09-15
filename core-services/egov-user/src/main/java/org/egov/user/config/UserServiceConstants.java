@@ -59,6 +59,8 @@ public class UserServiceConstants {
 
     public static final String PATTERN_NAME = "^[^\\\\$\\\"<>?\\\\\\\\~`!@#$%^()+={}\\\\[\\\\]*,:;“”‘’]*$";
 
+    public static final String PATTERN_NAME_DISALLOWED_CHARS = "[\\\\$\"<>?~`!@#$%^()+={}\\[\\]*,:;“”‘’]+";
+
 
     public static final String PATTERN_GENDER = "^[a-zA-Z ]*$";
     public static final String PATTERN_MOBILE = "(^$|[0-9]{10})";
@@ -71,6 +73,8 @@ public class UserServiceConstants {
     public static final String CITIZEN_ROLE_CODE = "CITIZEN";
 
     public static final String MOBILE_UNIQUE_IDENTIFIER = "mobile";
+    
+    public static final Long SYSTEM_USER_ID = 97L;
     
 }
 

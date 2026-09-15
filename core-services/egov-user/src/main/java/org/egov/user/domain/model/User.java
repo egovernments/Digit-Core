@@ -43,6 +43,7 @@ public class User {
     private String tenantId;
     private String username;
     private String title;
+    @ToString.Exclude
     private String password;
     private String salutation;
 
@@ -89,6 +90,22 @@ public class User {
     private boolean mobileValidationMandatory = true;
     private String alternateMobileNumber;
 
+    // IdP/OIDC metadata (provider-agnostic)
+    // These are nullable and only populated for SSO/OIDC users.
+    private String idpIssuer;
+    private String idpSubject;
+    private Date idpTokenExp;
+    private Date lastSsoLoginAt;
+    private String authProvider = "LOCAL";
+    private String tokenId;
+
+    // MFA (Multi-Factor Authentication) details
+    private Boolean mfaEnabled;
+    private String mfaDeviceName;
+    private String mfaPhoneLast4;
+    private Date mfaRegisteredOn;
+    private String mfaDetails;
+
     public User addAddressItem(Address addressItem) {
         if (this.addresses == null) {
             this.addresses = new HashSet<>();
@@ -127,8 +144,7 @@ public class User {
     public void validateUserModification() {
         if (isPermanentAddressInvalid()
                 || isCorrespondenceAddressInvalid()
-                || isTenantIdAbsent()
-        ) {
+                || isTenantIdAbsent()) {
             throw new InvalidUserUpdateException(this);
         }
     }
@@ -251,5 +267,3 @@ public class User {
         active = isActive;
     }
 }
-
-

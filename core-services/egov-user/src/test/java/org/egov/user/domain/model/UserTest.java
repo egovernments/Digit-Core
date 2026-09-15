@@ -14,6 +14,14 @@ import static org.mockito.Mockito.when;
 
 public class UserTest {
 
+    @Test
+    public void builderPreservesDeployedOptionalMobileAndLocaleDefaults() {
+        User user = User.builder().build();
+
+        assertFalse(user.isMobileNumberAbsent());
+        assertNull(user.getLocale());
+    }
+
     @Test(expected = InvalidUserCreateException.class)
     public void testUserWithEmptyNameIsInvalid() throws Exception {
         User user = User.builder()

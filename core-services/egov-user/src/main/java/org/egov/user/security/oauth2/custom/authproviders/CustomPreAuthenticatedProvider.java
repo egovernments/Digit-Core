@@ -42,6 +42,22 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
     @Autowired
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
 
+    /**
+     * Authenticates a pre-authenticated user (e.g., from external authentication system).
+     * 
+     * <p>This method performs the following operations:
+     * <ol>
+     *   <li>Extracts user information from the pre-authenticated token</li>
+     *   <li>Looks up the user in the system</li>
+     *   <li>Decrypts user data</li>
+     *   <li>Validates account status (not locked)</li>
+     *   <li>Returns authenticated user with authorities</li>
+     * </ol>
+     *
+     * @param authentication the PreAuthenticatedAuthenticationToken containing user information
+     * @return PreAuthenticatedAuthenticationToken with authenticated user and authorities
+     * @throws AuthenticationException if authentication fails (user not found, account locked, etc.)
+     */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -95,12 +111,24 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
                 null, grantedAuths);
     }
 
+    /**
+     * Checks if this authentication provider supports the given authentication type.
+     *
+     * @param authentication the authentication class to check
+     * @return true if the authentication is a PreAuthenticatedAuthenticationToken, false otherwise
+     */
     @Override
     public boolean supports(Class<?> authentication) {
         return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
 
+    /**
+     * Converts a domain User object to a contract User object for API responses.
+     *
+     * @param user the domain User object
+     * @return contract User object with user information
+     */
     private org.egov.user.web.contract.auth.User getUser(User user) {
         org.egov.user.web.contract.auth.User authUser =  org.egov.user.web.contract.auth.User.builder().id(user.getId()).userName(user.getUsername()).uuid(user.getUuid())
                 .name(user.getName()).mobileNumber(user.getMobileNumber()).emailId(user.getEmailId())
@@ -114,6 +142,12 @@ public class CustomPreAuthenticatedProvider implements AuthenticationProvider {
         return authUser;
     }
 
+    /**
+     * Converts domain Role objects to contract Role objects.
+     *
+     * @param domainRoles set of domain Role objects
+     * @return set of contract Role objects
+     */
     private Set<Role> toAuthRole(Set<org.egov.user.domain.model.Role> domainRoles) {
         if (domainRoles == null)
             return new HashSet<>();

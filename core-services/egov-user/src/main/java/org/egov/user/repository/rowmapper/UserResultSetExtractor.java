@@ -12,7 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static org.egov.user.domain.model.enums.AddressType.CORRESPONDENCE;
@@ -40,18 +43,34 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
 
             if (!usersMap.containsKey(userId)) {
 
-                user = User.builder().id(rs.getLong("id")).tenantId(rs.getString("tenantid")).title(rs.getString("title"))
+                user = User.builder().id(rs.getLong("id")).tenantId(rs.getString("tenantid"))
+                        .title(rs.getString("title"))
                         .salutation(rs.getString("salutation"))
                         .dob(rs.getDate("dob")).locale(rs.getString("locale")).username(rs.getString("username"))
                         .password(rs.getString("password")).passwordExpiryDate(rs.getTimestamp("pwdexpirydate"))
                         .mobileNumber(rs.getString("mobilenumber")).altContactNumber(rs.getString("altcontactnumber"))
-                        .emailId(rs.getString("emailid")).active(rs.getBoolean("active")).name(rs.getString("name")).
-                                lastModifiedBy(rs.getLong("lastmodifiedby")).lastModifiedDate(rs.getTimestamp("lastmodifieddate"))
-                        .pan(rs.getString("pan")).aadhaarNumber(rs.getString("aadhaarnumber")).createdBy(rs.getLong("createdby"))
-                        .createdDate(rs.getTimestamp("createddate")).guardian(rs.getString("guardian")).signature(rs.getString("signature"))
+                        .emailId(rs.getString("emailid")).active(rs.getBoolean("active")).name(rs.getString("name"))
+                        .lastModifiedBy(rs.getLong("lastmodifiedby"))
+                        .lastModifiedDate(rs.getTimestamp("lastmodifieddate"))
+                        .pan(rs.getString("pan")).aadhaarNumber(rs.getString("aadhaarnumber"))
+                        .createdBy(rs.getLong("createdby"))
+                        .createdDate(rs.getTimestamp("createddate")).guardian(rs.getString("guardian"))
+                        .signature(rs.getString("signature"))
                         .accountLocked(rs.getBoolean("accountlocked")).photo(rs.getString("photo"))
                         .identificationMark(rs.getString("identificationmark")).uuid(rs.getString("uuid"))
-                        .accountLockedDate(rs.getLong("accountlockeddate")).alternateMobileNumber(rs.getString("alternatemobilenumber"))
+                        .accountLockedDate(rs.getLong("accountlockeddate"))
+                        .alternateMobileNumber(rs.getString("alternatemobilenumber"))
+                        .idpIssuer(rs.getString("idpissuer"))
+                        .idpSubject(rs.getString("idpsubject"))
+                        .idpTokenExp(rs.getTimestamp("idptokenexp"))
+                        .lastSsoLoginAt(rs.getTimestamp("lastssologinat"))
+                        .authProvider(rs.getString("authprovider"))
+                        .tokenId(rs.getString("tokenid"))
+                        .mfaEnabled(rs.getObject("mfaenabled", Boolean.class))
+                        .mfaDeviceName(rs.getString("mfadevicename"))
+                        .mfaPhoneLast4(rs.getString("mfaphonelast4"))
+                        .mfaRegisteredOn(rs.getTimestamp("mfaregisteredon"))
+                        .mfaDetails(rs.getString("mfadetails"))
                         .build();
 
                 for (UserType type : UserType.values()) {
@@ -59,7 +78,6 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
                         user.setType(type);
                     }
                 }
-
 
                 for (BloodGroup bloodGroup : BloodGroup.values()) {
                     if (bloodGroup.toString().equals(rs.getString("bloodgroup"))) {

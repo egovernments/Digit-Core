@@ -4,8 +4,8 @@ import java.util.Collections;
 
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.egov.user.domain.model.Email;
+import org.egov.user.kafka.Producer;
 import org.egov.user.domain.model.EmailRequest;
 import org.egov.user.domain.model.SMSRequest;
 import org.egov.user.domain.model.User;
@@ -21,7 +21,7 @@ import static org.egov.user.config.UserServiceConstants.EMAIL_UPDATION_CODE;
 public class NotificationUtil {
 
     @Autowired
-    private CustomKafkaTemplate<String, Object> kafkaTemplate;
+    private Producer kafkaProducer;
     @Autowired
     private LocalizationUtil localizationUtil;
 
@@ -52,8 +52,8 @@ public class NotificationUtil {
         smsRequest.setMessage(emailUpdationMessage);
 
         EmailRequest emailRequest = EmailRequest.builder().requestInfo(requestInfo).email(email).build();
-        kafkaTemplate.send(emailNotificationTopic,emailRequest);
-        kafkaTemplate.send(smsNotificationTopic,smsRequest);
+        kafkaProducer.push(null, emailNotificationTopic, emailRequest);
+        kafkaProducer.push(null, smsNotificationTopic, smsRequest);
     }
 
 }

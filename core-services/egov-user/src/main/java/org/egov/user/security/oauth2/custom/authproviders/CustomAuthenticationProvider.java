@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,13 +18,18 @@ import org.apache.log4j.MDC;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.ServiceCallException;
+import org.egov.user.config.AuthProperties;
+import org.egov.user.config.OidcConfigConstants;
+import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
+import org.egov.user.domain.exception.sso.IdpUserAccessRevokedException;
 import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
+import org.egov.user.security.oauth2.custom.service.IdpUserValidator;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.web.contract.auth.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +56,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     // TODO Remove default error handling provided by TokenEndpoint.class
 
-    private UserService userService;
+    private final UserService userService;
+
+    @Autowired(required = false)
+    private OidcProviderSupplier oidcProviderSupplier;
+
+    @Autowired
+    private List<IdpUserValidator> idpUserValidators = new ArrayList<>();
     
     @Autowired
     private MultiStateInstanceUtil centraInstanceUtil;
@@ -78,6 +90,25 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         this.userService = userService;
     }
 
+    /**
+     * Authenticates a user using username/password or OTP.
+     * 
+     * <p>This method performs the following operations:
+     * <ol>
+     *   <li>Extracts username, password, tenant ID, and user type from authentication</li>
+     *   <li>Looks up the user in the system</li>
+     *   <li>Decrypts user data</li>
+     *   <li>Validates account status (active, locked)</li>
+     *   <li>Unlocks account if eligible</li>
+     *   <li>Validates password or OTP based on configuration</li>
+     *   <li>Handles failed login attempts</li>
+     *   <li>Returns authenticated user with authorities</li>
+     * </ol>
+     *
+     * @param authentication the UsernamePasswordAuthenticationToken containing credentials
+     * @return UsernamePasswordAuthenticationToken with authenticated user and authorities
+     * @throws OAuth2Exception if authentication fails (invalid credentials, account locked, etc.)
+     */
     @Override
     public Authentication authenticate(Authentication authentication) {
         String userName = authentication.getName();
@@ -158,7 +189,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         }
 
         if (isPasswordMatched) {
-
+            validateIdpAccess(user);
 			/*
 			  We assume that there will be only one type. If it is multiple
 			  then we have change below code Separate by comma or other and
@@ -180,6 +211,64 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     }
 
+    /**
+     * Validates that a user with non-LOCAL authProvider still has access at the IdP.
+     * Skips when authProvider is LOCAL/null/blank, when OIDC supplier is absent, or when no provider/validator matches (fail-open).
+     */
+    private void validateIdpAccess(User user) {
+        String authProvider = user.getAuthProvider();
+        if (authProvider == null || authProvider.trim().isEmpty()
+                || OidcConfigConstants.AUTH_PROVIDER_LOCAL.equalsIgnoreCase(authProvider.trim())) {
+            return;
+        }
+        if (oidcProviderSupplier == null || idpUserValidators == null || idpUserValidators.isEmpty()) {
+            return;
+        }
+        String tenantId = user.getTenantId();
+        Optional<AuthProperties.Provider> providerOpt = oidcProviderSupplier.getProviders().stream()
+                .filter(p -> p.getId() != null && p.getId().trim().equals(authProvider.trim())
+                        && (tenantId == null || (p.getTenantId() != null && p.getTenantId().equals(tenantId))))
+                .findFirst();
+        if (!providerOpt.isPresent()) {
+            log.warn("IdP user validation skipped: no provider config for authProvider={}, tenantId={}", authProvider, tenantId);
+            return;
+        }
+        AuthProperties.Provider provider = providerOpt.get();
+        IdpUserValidator validator = idpUserValidators.stream()
+                .filter(v -> v.supports(provider))
+                .findFirst()
+                .orElse(null);
+        if (validator == null) {
+            log.warn("IdP user validation skipped: no IdpUserValidator supports provider id={}", provider.getId());
+            return;
+        }
+        try {
+            validator.validate(user, provider);
+        } catch (IdpUserAccessRevokedException e) {
+            // A genuine "this IdP user no longer has access" decision: deny the login.
+            throw e;
+        } catch (RuntimeException e) {
+            // FAIL-SAFE. This call reaches an external IdP (e.g. MS Graph) on the password-grant
+            // success path, after the password has already been verified. An IdP or network outage
+            // must not take down password login for users carrying a non-LOCAL authProvider, so any
+            // failure other than an explicit revocation is logged and the login is allowed.
+            log.warn("IdP user validation could not be completed for authProvider={}, tenantId={}; "
+                            + "allowing login on the already-verified password. Cause: {}",
+                    authProvider, tenantId, e.toString());
+        }
+    }
+
+    /**
+     * Validates password or OTP based on configuration.
+     * Supports both password-based and OTP-based authentication.
+     * Skips validation for internal calls if configured.
+     *
+     * @param isOtpBased true if OTP-based authentication is enabled
+     * @param password the password or OTP to validate
+     * @param user the user object containing stored password/OTP reference
+     * @param authentication the authentication object containing request details
+     * @return true if password/OTP matches, false otherwise
+     */
     private boolean isPasswordMatch(Boolean isOtpBased, String password, User user, Authentication authentication) {
         BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
         final LinkedHashMap<String, String> details = (LinkedHashMap<String, String>) authentication.getDetails();
@@ -205,6 +294,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
+    /**
+     * Extracts tenant ID from authentication details.
+     *
+     * @param authentication the authentication object
+     * @return the tenant ID string
+     * @throws OAuth2Exception if tenant ID is missing
+     */
     @SuppressWarnings("unchecked")
     private String getTenantId(Authentication authentication) {
         final LinkedHashMap<String, String> details = (LinkedHashMap<String, String>) authentication.getDetails();
@@ -219,6 +315,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         return tenantId;
     }
 
+    /**
+     * Converts a domain User object to a contract User object for API responses.
+     *
+     * @param user the domain User object
+     * @return contract User object with user information
+     */
     private org.egov.user.web.contract.auth.User getUser(User user) {
         org.egov.user.web.contract.auth.User authUser =  org.egov.user.web.contract.auth.User.builder().id(user.getId()).userName(user.getUsername()).uuid(user.getUuid())
                 .name(user.getName()).mobileNumber(user.getMobileNumber()).emailId(user.getEmailId())
@@ -232,12 +334,24 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         return authUser;
     }
 
+    /**
+     * Converts domain Role objects to contract Role objects.
+     *
+     * @param domainRoles set of domain Role objects
+     * @return set of contract Role objects
+     */
     private Set<Role> toAuthRole(Set<org.egov.user.domain.model.Role> domainRoles) {
         if (domainRoles == null)
             return new HashSet<>();
         return domainRoles.stream().map(org.egov.user.web.contract.auth.Role::new).collect(Collectors.toSet());
     }
 
+    /**
+     * Checks if this authentication provider supports the given authentication type.
+     *
+     * @param authentication the authentication class to check
+     * @return true if the authentication is a UsernamePasswordAuthenticationToken, false otherwise
+     */
     @Override
     public boolean supports(final Class<?> authentication) {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);

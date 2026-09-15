@@ -94,6 +94,9 @@ public class UserService {
     @Value("${egov.user.pwd.pattern}")
     private String pwdRegex;
 
+    @Value("${egov.user.oauth.client.basic.auth:ZWdvdi11c2VyLWNsaWVudDo=}")
+    private String oauthClientBasicAuth;
+
     @Value("${egov.user.pwd.pattern.min.length}")
     private Integer pwdMinLength;
 
@@ -342,7 +345,7 @@ public class UserService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            headers.set("Authorization", "Basic ZWdvdi11c2VyLWNsaWVudDo=");
+            headers.set("Authorization", "Basic " + oauthClientBasicAuth);
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
             map.add("username", user.getUsername());
             if (!isEmpty(password))
@@ -402,13 +405,31 @@ public class UserService {
      */
     // TODO Fix date formats
     public User updateWithoutOtpValidation(User user, RequestInfo requestInfo) {
+        // Deployed contract preserved exactly: a password is mandatory on this path, so the public
+        // /_updatenovalidate API keeps rejecting a null password. Only the SSO callers, which build
+        // the User from JWT claims and carry no password, opt into the relaxation below.
+        return updateWithoutOtpValidation(user, requestInfo, false);
+    }
+
+    /**
+     * @param preserveExistingPasswordIfAbsent when true, a null password keeps the stored hash rather
+     *        than being rejected by {@link #validatePassword(String)}. Intended ONLY for the SSO
+     *        paths; every other caller must use the two-argument overload so the deployed,
+     *        QA-signed-off behaviour of this shared method is unchanged.
+     */
+    public User updateWithoutOtpValidation(User user, RequestInfo requestInfo,
+                                           boolean preserveExistingPasswordIfAbsent) {
         mobileNumberValidator.validateAndSetMobileNumbers(user, requestInfo);
         final User existingUser = getUserByUuid(user.getUuid());
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         validateUserRoles(user);
         user.validateUserModification();
-        validatePassword(user.getPassword());
-        user.setPassword(encryptPwd(user.getPassword()));
+        if (preserveExistingPasswordIfAbsent && user.getPassword() == null) {
+            user.setPassword(existingUser.getPassword());
+        } else {
+            validatePassword(user.getPassword());
+            user.setPassword(encryptPwd(user.getPassword()));
+        }
         /* encrypt */
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
         userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
@@ -750,6 +771,28 @@ public class UserService {
         return encrypted.stream()
                 .map(u -> field == UserField.USERNAME ? u.getUsername() : u.getMobileNumber())
                 .collect(Collectors.toList());
+    }
+
+    public User getUniqueUser(String issuer, String subject, String tenantId, UserType userType) {
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .idpIssuer(issuer)
+                .idpSubject(subject)
+                .tenantId(userUtils.getStateLevelTenantForCitizen(tenantId, userType))
+                .type(userType)
+                .build();
+
+        if (isEmpty(subject) || isEmpty(tenantId) || isNull(userType)) {
+            log.error("Invalid lookup, mandatory fields are absent");
+            throw new UserNotFoundException(criteria);
+        }
+
+        criteria = encryptionDecryptionUtil.encryptObject(criteria, "User", UserSearchCriteria.class);
+        List<User> users = userRepository.findAll(criteria);
+        if (users.isEmpty())
+            throw new UserNotFoundException(criteria);
+        if (users.size() > 1)
+            throw new DuplicateUserNameException(criteria);
+        return users.get(0);
     }
 
 }

@@ -156,6 +156,17 @@ public class UserRepository {
         return count > 0;
     }
 
+    /** Lookup a user by IdP issuer and subject. */
+    public List<User> findByIdpIssuerSubject(String tenantId, UserType userType, String idpIssuer, String idpSubject) {
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .idpIssuer(idpIssuer)
+                .idpSubject(idpSubject)
+                .tenantId(tenantId)
+                .type(userType)
+                .build();
+        return findAll(criteria);
+    }
+
     /**
      * this api will create the user.
      *
@@ -291,6 +302,9 @@ public class UserRepository {
             updateuserInputs.put("CountryCode", user.getCountryCode());
         else
             updateuserInputs.put("CountryCode", oldUser.getCountryCode());
+        // Deployed behaviour: write the request value verbatim. Do NOT add preserve-on-null here --
+        // this is the shared _update/_updatenovalidate path and "omitted field means preserve" is a
+        // silent contract change for every existing caller. The SSO update path sets name explicitly.
         updateuserInputs.put("Name", user.getName());
         updateuserInputs.put("Pan", user.getPan());
 
@@ -326,6 +340,9 @@ public class UserRepository {
         }
 
         updateuserInputs.put("alternatemobilenumber", user.getAlternateMobileNumber());
+        updateuserInputs.put("IdpIssuer", user.getIdpIssuer() != null ? user.getIdpIssuer() : oldUser.getIdpIssuer());
+        updateuserInputs.put("IdpSubject", user.getIdpSubject() != null ? user.getIdpSubject() : oldUser.getIdpSubject());
+        updateuserInputs.put("AuthProvider", user.getAuthProvider() != null ? user.getAuthProvider() : oldUser.getAuthProvider());
 
         updateuserInputs.put("LastModifiedDate", new Date());
         updateuserInputs.put("LastModifiedBy", userId );
@@ -576,6 +593,9 @@ public class UserRepository {
         userInputs.put("createdby", entityUser.getLoggedInUserId());
         userInputs.put("lastmodifiedby", entityUser.getLoggedInUserId());
         userInputs.put("alternatemobilenumber", entityUser.getAlternateMobileNumber());
+        userInputs.put("idpissuer", entityUser.getIdpIssuer());
+        userInputs.put("idpsubject", entityUser.getIdpSubject());
+        userInputs.put("authprovider", entityUser.getAuthProvider());
 
         namedParameterJdbcTemplate.update(userTypeQueryBuilder.getInsertUserQuery(), userInputs);
         return entityUser;

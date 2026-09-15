@@ -63,11 +63,14 @@ public class UserTypeQueryBuilder {
             ".password, userdata.pwdexpirydate,  userdata.mobilenumber, userdata.altcontactnumber, userdata.emailid, userdata.createddate, userdata" +
             ".lastmodifieddate,  userdata.createdby, userdata.lastmodifiedby, userdata.active, userdata.name, userdata.gender, userdata.pan, userdata.aadhaarnumber, userdata" +
             ".type,  userdata.version, userdata.guardian, userdata.guardianrelation, userdata.signature, userdata.accountlocked, userdata.accountlockeddate, userdata" +
-            ".bloodgroup, userdata.photo, userdata.identificationmark,  userdata.tenantid, userdata.id, userdata.uuid, userdata.alternatemobilenumber, addr.id as addr_id, addr.type as " +
+            ".bloodgroup, userdata.photo, userdata.identificationmark,  userdata.tenantid, userdata.id, userdata.uuid, userdata.alternatemobilenumber, userdata.idpissuer, userdata.idpsubject, userdata.authprovider, " +
+            "idp.idptokenexp, idp.lastssologinat, idp.tokenid, idp.mfaenabled, idp.mfadevicename, idp.mfaphonelast4, idp.mfaregisteredon, idp.mfadetails, " +
+            "addr.id as addr_id, addr.type as " +
             "addr_type, addr .address as addr_address,  addr.city as addr_city, addr.pincode as addr_pincode, addr" +
             ".tenantid as " +
             "addr_tenantid, addr.userid as addr_userid, ur.role_code as role_code, ur.role_tenantid as role_tenantid \n" +
-            "\tFROM eg_user userdata LEFT OUTER JOIN eg_user_address addr ON userdata.id = addr.userid AND userdata.tenantid = addr" +
+            "\tFROM eg_user userdata LEFT OUTER JOIN eg_user_idp_details idp ON userdata.id = idp.id AND userdata.tenantid = idp.tenantid " +
+            "LEFT OUTER JOIN eg_user_address addr ON userdata.id = addr.userid AND userdata.tenantid = addr" +
             ".tenantid LEFT OUTER JOIN eg_userrole_v1 ur ON userdata.id = ur.user_id AND userdata.tenantid = ur.user_tenantid  ";
 
     private static final String PAGINATION_WRAPPER = "SELECT * FROM " +
@@ -120,7 +123,8 @@ public class UserTypeQueryBuilder {
                 && userSearchCriteria.getActive() == null && userSearchCriteria.getTenantId() == null
                 && userSearchCriteria.getType() == null && userSearchCriteria.getUuid() == null
                 && CollectionUtils.isEmpty(userSearchCriteria.getUserNames())
-                && CollectionUtils.isEmpty(userSearchCriteria.getMobileNumbers()))
+                && CollectionUtils.isEmpty(userSearchCriteria.getMobileNumbers())
+                && userSearchCriteria.getIdpIssuer() == null && userSearchCriteria.getIdpSubject() == null)
             return;
 
         selectQuery.append(" WHERE");
@@ -219,6 +223,18 @@ public class UserTypeQueryBuilder {
                     preparedStatementValues)).append(" )");
         }
 
+        if (userSearchCriteria.getIdpIssuer() != null) {
+            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
+            selectQuery.append(" userdata.idpissuer = ?");
+            preparedStatementValues.add(userSearchCriteria.getIdpIssuer().trim());
+        }
+
+        if (userSearchCriteria.getIdpSubject() != null) {
+            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
+            selectQuery.append(" userdata.idpsubject = ?");
+            preparedStatementValues.add(userSearchCriteria.getIdpSubject().trim());
+        }
+
 //        if(!isEmpty(userSearchCriteria.getRoleCodes())){
 //            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
 //            selectQuery.append(" ur.role_code IN (").append(getQueryForCollection(userSearchCriteria.getRoleCodes(),
@@ -302,9 +318,9 @@ public class UserTypeQueryBuilder {
 
     public String getInsertUserQuery() {
         return "insert into eg_user (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,countrycode,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
-                + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,createddate,lastmodifieddate,createdby,lastmodifiedby,alternatemobilenumber) values (:id,:uuid,:tenantid,:salutation,"
+                + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,createddate,lastmodifieddate,createdby,lastmodifiedby,alternatemobilenumber,idpissuer,idpsubject,authprovider) values (:id,:uuid,:tenantid,:salutation,"
                 + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:countrycode,:altcontactnumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
-                + ":accountlocked,:bloodgroup,:photo,:identificationmark,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby,:alternatemobilenumber) ";
+                + ":accountlocked,:bloodgroup,:photo,:identificationmark,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby,:alternatemobilenumber,:idpissuer,:idpsubject,:authprovider) ";
     }
 
     public String getUpdateUserQuery() {
@@ -312,7 +328,7 @@ public class UserTypeQueryBuilder {
                 + "type=:Type,guardian=:Guardian,guardianrelation=:GuardianRelation,signature=:Signature," +
                 "accountlocked=:AccountLocked, accountlockeddate=:AccountLockedDate, bloodgroup=:BloodGroup," +
                 "photo=:Photo, identificationmark=:IdentificationMark,lastmodifieddate=:LastModifiedDate," +
-                "lastmodifiedby=:LastModifiedBy, alternatemobilenumber=:alternatemobilenumber where username=:username and tenantid=:tenantid and type=:type";
+                "lastmodifiedby=:LastModifiedBy, alternatemobilenumber=:alternatemobilenumber, idpissuer=:IdpIssuer,idpsubject=:IdpSubject,authprovider=:AuthProvider where username=:username and tenantid=:tenantid and type=:type";
     }
 
 

@@ -33,6 +33,8 @@ public class UserSearchCriteria {
     private String tenantId;
     private List<String> roleCodes;
     private String alternatemobilenumber;
+    private String idpIssuer;
+    private String idpSubject;
 
     // Bulk criteria — when non-empty, produce SQL "IN (...)" and take
     // precedence over the scalar userName/mobileNumber counterparts.
@@ -56,7 +58,8 @@ public class UserSearchCriteria {
         if (isInterServiceCall)
             return isEmpty(userName) && isEmpty(name) && isEmpty(mobileNumber) && isEmpty(emailId) &&
                     CollectionUtils.isEmpty(uuid) && CollectionUtils.isEmpty(id) && CollectionUtils.isEmpty(roleCodes) &&
-                    CollectionUtils.isEmpty(userNames) && CollectionUtils.isEmpty(mobileNumbers);
+                    CollectionUtils.isEmpty(userNames) && CollectionUtils.isEmpty(mobileNumbers) &&
+                    isEmpty(idpIssuer) && isEmpty(idpSubject);
         else
             return isEmpty(userName) && isEmpty(name) && isEmpty(mobileNumber) && isEmpty(emailId) &&
                     CollectionUtils.isEmpty(uuid) &&
