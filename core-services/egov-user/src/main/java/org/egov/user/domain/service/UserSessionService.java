@@ -14,6 +14,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -51,6 +52,9 @@ public class UserSessionService {
     @Value("${egov.user.session.single.active.enabled:true}")
     private boolean singleActiveSessionEnabled;
 
+    @Value("#{'${egov.user.session.single.active.tenants:}'.split(',')}")
+    private List<String> singleActiveSessionTenants;
+
     public UserSessionService(UserSessionRepository userSessionRepository,
                                UserSessionAuditRepository userSessionAuditRepository,
                                @Qualifier("sessionContactPool") ExecutorService sessionContactPool) {
@@ -63,25 +67,33 @@ public class UserSessionService {
         return inactivityPeriodDays * 24L * 60 * 60 * 1000;
     }
 
+    private boolean isTenantEligible(String tenantId) {
+        return tenantId != null && singleActiveSessionTenants.stream().anyMatch(tenantId::equalsIgnoreCase);
+    }
+
     /**
      * Creates a new ACTIVE session for user+tenant and returns its sessionId. Concurrency
      * safety comes from the DB's partial unique index on (useruuid, tenantid) WHERE
      * status='ACTIVE'; a losing concurrent login fails the INSERT here rather than racing a
      * SELECT-then-INSERT.
      *
-     * @return null when {@code egov.user.session.single.active.enabled} is false, or when
-     *         {@code clientType} isn't "mobile" — no session row is written and no enforcement
-     *         happens, preserving legacy unrestricted multi-device login (this feature is
-     *         mobile-only; web and other clients are never subject to it). A null sessionId is
-     *         already the "no enforcement" signal {@link #validateAndTouch} and {@link #logout}
-     *         treat pre-feature tokens as, so the toggle needs no special-casing anywhere else.
+     * @return null when {@code egov.user.session.single.active.enabled} is false, when
+     *         {@code clientType} isn't "mobile", or when {@code tenantId} isn't in the
+     *         {@code egov.user.session.single.active.tenants} allow-list — no session row is
+     *         written and no enforcement happens, preserving legacy unrestricted multi-device
+     *         login (this feature is mobile-only and, further, scoped to specific tenants; web,
+     *         other client types, and non-listed tenants are never subject to it). A null
+     *         sessionId is already the "no enforcement" signal {@link #validateAndTouch} and
+     *         {@link #logout} treat pre-feature tokens as, so the toggle needs no
+     *         special-casing anywhere else.
      * @throws OAuth2Exception if the user already has an ACTIVE session on another device.
      *         Thrown as OAuth2Exception (not CustomException) because this runs inside
      *         CustomAuthenticationProvider/CustomPreAuthenticatedProvider, which are invoked
      *         from Spring's OAuth2 TokenEndpoint, not a normal @RestController.
      */
     public String createSession(String userUuid, String tenantId, String deviceId, String clientType) {
-        if (!singleActiveSessionEnabled || !MOBILE_CLIENT_TYPE.equalsIgnoreCase(clientType)) {
+        if (!singleActiveSessionEnabled || !MOBILE_CLIENT_TYPE.equalsIgnoreCase(clientType)
+                || !isTenantEligible(tenantId)) {
             return null;
         }
 
