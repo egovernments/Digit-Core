@@ -15,6 +15,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
@@ -60,6 +61,7 @@ public class UserSessionServiceTest {
         ReflectionTestUtils.setField(userSessionService, "lastContactIntervalSeconds", 60L);
         ReflectionTestUtils.setField(userSessionService, "inactivityPeriodDays", 29L);
         ReflectionTestUtils.setField(userSessionService, "singleActiveSessionEnabled", true);
+        ReflectionTestUtils.setField(userSessionService, "singleActiveSessionTenants", Arrays.asList(TENANT_ID, OTHER_TENANT_ID));
     }
 
     // Test 1 — first login: no active session, login succeeds, ACTIVE session created.
@@ -132,6 +134,31 @@ public class UserSessionServiceTest {
         assertNull(sessionId);
         verify(userSessionRepository, never()).insertActiveSession(any(UserSession.class));
         verify(userSessionRepository, never()).findActiveSession(anyString(), anyString());
+    }
+
+    // Feature is scoped to an allow-listed set of tenants: a tenantId outside that list skips
+    // enforcement entirely, even with the toggle enabled and clientType mobile — no session
+    // row, no conflict check. Legacy unrestricted multi-device login is preserved for it.
+    @Test
+    public void test_should_not_create_session_or_enforce_when_tenant_not_in_allow_list() {
+        ReflectionTestUtils.setField(userSessionService, "singleActiveSessionTenants", Arrays.asList("bednet", "bo"));
+
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
+
+        assertNull(sessionId);
+        verify(userSessionRepository, never()).insertActiveSession(any(UserSession.class));
+        verify(userSessionRepository, never()).findActiveSession(anyString(), anyString());
+    }
+
+    // tenantId allow-list match is case-insensitive.
+    @Test
+    public void test_should_create_active_session_when_tenant_in_allow_list_regardless_of_case() {
+        ReflectionTestUtils.setField(userSessionService, "singleActiveSessionTenants", Arrays.asList("bednet", "bo"));
+
+        String sessionId = userSessionService.createSession(USER_UUID, "BEDNET", "device-A", "mobile");
+
+        assertNotNull(sessionId);
+        verify(userSessionRepository).insertActiveSession(any(UserSession.class));
     }
 
     // clientType match is case-insensitive.
