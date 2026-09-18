@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.MDMSServiceV2;
 import org.egov.infra.mdms.service.validator.HeaderValidator;
+import org.egov.infra.mdms.service.validator.PaginationValidator;
 import org.egov.infra.mdms.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,11 +25,13 @@ public class MDMSControllerV2 {
 
     private final MDMSServiceV2 mdmsServiceV2;
     private final HeaderValidator headerValidator;
+    private final PaginationValidator paginationValidator;
 
     @Autowired
-    public MDMSControllerV2(MDMSServiceV2 mdmsServiceV2, HeaderValidator headerValidator) {
+    public MDMSControllerV2(MDMSServiceV2 mdmsServiceV2, HeaderValidator headerValidator, PaginationValidator paginationValidator) {
         this.mdmsServiceV2 = mdmsServiceV2;
         this.headerValidator = headerValidator;
+        this.paginationValidator = paginationValidator;
     }
 
     /**
@@ -81,14 +84,19 @@ public class MDMSControllerV2 {
                                                  @RequestHeader("X-Tenant-ID") String tenantId,
                                                  @RequestHeader("X-Client-ID") String clientId) {
         headerValidator.validateRequiredHeaders(tenantId, clientId);
-        
-        log.info("Search request received with parameters - schemaCode: {}, uniqueIdentifiers: {}, ids: {}, isActive: {}, offset: {}, limit: {}, allParams: {}", 
+        paginationValidator.validate(offset, limit);
+
+        log.info("Search request received with parameters - schemaCode: {}, uniqueIdentifiers: {}, ids: {}, isActive: {}, offset: {}, limit: {}, allParams: {}",
                  schemaCode, uniqueIdentifiers, ids, isActive, offset, limit, allParams);
-        
+
+        // Resolve defaults for missing offset/limit
+        Integer effectiveOffset = paginationValidator.resolveOffset(offset);
+        Integer effectiveLimit = paginationValidator.resolveLimit(limit);
+
         // Build MdmsCriteriaReqV2 from query params
         MdmsCriteriaReqV2 criteria = new MdmsCriteriaReqV2();
         MdmsCriteriaV2 mdmsCriteria = new MdmsCriteriaV2();
-        
+
         // Set tenantId from header
         mdmsCriteria.setTenantId(tenantId);
         
@@ -109,13 +117,8 @@ public class MDMSControllerV2 {
             mdmsCriteria.setIsActive(isActive);
         }
         
-        if (offset != null) {
-            mdmsCriteria.setOffset(offset);
-        }
-        
-        if (limit != null) {
-            mdmsCriteria.setLimit(limit);
-        }
+        mdmsCriteria.setOffset(effectiveOffset);
+        mdmsCriteria.setLimit(effectiveLimit);
         
         // Extract filter parameters from allParams (exclude known parameters)
         Map<String, String> filters = new HashMap<>();
@@ -137,9 +140,9 @@ public class MDMSControllerV2 {
         log.info("Final MdmsCriteria built: {}", mdmsCriteria);
         
         List<Mdms> masterDataList = mdmsServiceV2.search(criteria);
-        
+
         log.info("Search completed. Found {} records", masterDataList != null ? masterDataList.size() : 0);
-        
+
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(masterDataList), HttpStatus.OK);
     }
 }

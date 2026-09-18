@@ -19,7 +19,12 @@ public class MdmsDataQueryBuilderV2 {
     private static final String SEARCH_MDMS_DATA_QUERY = "SELECT data.id, data.tenantid, data.uniqueidentifier, data.schemacode, data.data, data.isactive, data.createdby, data.lastmodifiedby, data.createdtime, data.lastmodifiedtime" +
             " FROM eg_mdms_data data ";
 
-    private static final String MDMS_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc ";
+    /*
+     * Records created in one bulk request share the same createdtime, so createdtime alone
+     * does not define a total order and pages could overlap or skip rows. id is unique and
+     * makes the ordering deterministic across page requests.
+     */
+    private static final String MDMS_DATA_QUERY_ORDER_BY_CLAUSE = " order by data.createdtime desc, data.id ";
 
     /**
      * Method to handle request for fetching MDMS data search query

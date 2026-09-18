@@ -32,5 +32,10 @@ public class ErrorCodes {
     public static final String TENANT_ID_MISSING_ERROR_MESSAGE = "X-Tenant-ID header is required and cannot be empty";
     public static final String CLIENT_ID_MISSING_ERROR_MESSAGE = "X-Client-ID header is required and cannot be empty";
 
+    public static final String INVALID_OFFSET_ERROR_CODE = "INVALID_OFFSET";
+    public static final String INVALID_OFFSET_ERROR_MESSAGE = "offset must be greater than or equal to 0";
+    public static final String INVALID_LIMIT_ERROR_CODE = "INVALID_LIMIT";
+    public static final String INVALID_LIMIT_ERROR_MESSAGE = "limit must be between 1 and ";
+
 
 }

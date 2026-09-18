@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
 import org.egov.infra.mdms.service.validator.HeaderValidator;
+import org.egov.infra.mdms.service.validator.PaginationValidator;
 import org.egov.infra.mdms.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,11 +31,14 @@ public class SchemaDefinitionController {
 
     private final SchemaDefinitionService schemaDefinitionService;
     private final HeaderValidator headerValidator;
+    private final PaginationValidator paginationValidator;
 
     @Autowired
-    public SchemaDefinitionController(SchemaDefinitionService schemaDefinitionService, HeaderValidator headerValidator) {
+    public SchemaDefinitionController(SchemaDefinitionService schemaDefinitionService, HeaderValidator headerValidator,
+                                      PaginationValidator paginationValidator) {
         this.schemaDefinitionService = schemaDefinitionService;
         this.headerValidator = headerValidator;
+        this.paginationValidator = paginationValidator;
     }
 
     /**
@@ -54,19 +58,29 @@ public class SchemaDefinitionController {
     }
 
     /**
-     * REST-compliant search: GET /schema/v1/schema?code=...
+     * REST-compliant search: GET /schema/v1/schema?code=...&offset=...&limit=...
      */
     @GetMapping
     public ResponseEntity<SchemaDefinitionResponse> search(@RequestParam(required = false) String code,
+                                                          @RequestParam(required = false) Integer offset,
+                                                          @RequestParam(required = false) Integer limit,
                                                           @RequestHeader("X-Tenant-ID") String tenantId,
                                                           @RequestHeader("X-Client-ID") String clientId) {
         headerValidator.validateRequiredHeaders(tenantId, clientId);
+        paginationValidator.validate(offset, limit);
+
+        Integer effectiveOffset = paginationValidator.resolveOffset(offset);
+        Integer effectiveLimit = paginationValidator.resolveLimit(limit);
+
         // Build SchemaDefSearchRequest from query params
         SchemaDefSearchRequest searchRequest = new SchemaDefSearchRequest();
         SchemaDefCriteria criteria = new SchemaDefCriteria();
         criteria.setTenantId(tenantId);
         criteria.setCodes(code != null ? List.of(code) : null);
+        criteria.setOffset(effectiveOffset);
+        criteria.setLimit(effectiveLimit);
         searchRequest.setSchemaDefCriteria(criteria);
+
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionService.search(searchRequest);
         return new ResponseEntity<>(ResponseUtil.getSchemaDefinitionResponse(schemaDefinitions), HttpStatus.OK);
     }

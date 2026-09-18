@@ -19,7 +19,8 @@ public class SchemaDefinitionQueryBuilder {
             "schema.createdby, schema.lastmodifiedby, schema.createdtime, schema.lastmodifiedtime FROM " +
             "eg_mdms_schema_definition schema ";
 
-    private static final String SEARCH_SCHEMA_DEF_ORDER_BY_CLAUSE = " order by schema.createdtime desc ";
+    // id is a unique tiebreaker so rows sharing a createdtime are paged deterministically.
+    private static final String SEARCH_SCHEMA_DEF_ORDER_BY_CLAUSE = " order by schema.createdtime desc, schema.id ";
 
     /**
      * Method to handle request for fetching schema search query
