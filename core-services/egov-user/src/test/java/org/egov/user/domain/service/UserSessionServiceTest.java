@@ -62,9 +62,13 @@ public class UserSessionServiceTest {
         ReflectionTestUtils.setField(userSessionService, "inactivityPeriodDays", 29L);
         ReflectionTestUtils.setField(userSessionService, "singleActiveSessionEnabled", true);
         ReflectionTestUtils.setField(userSessionService, "singleActiveSessionTenants", Arrays.asList(TENANT_ID, OTHER_TENANT_ID));
+        // Default: no terminal row to reclaim, so createSession falls through to
+        // insertActiveSession — matches the plain first-login/no-history case. Tests exercising
+        // the reclaim path override this.
+        when(userSessionRepository.reclaimTerminalSession(any(UserSession.class))).thenReturn(false);
     }
 
-    // Test 1 — first login: no active session, login succeeds, ACTIVE session created.
+    // Test 1 — first login: no existing row at all, login succeeds, ACTIVE session inserted.
     @Test
     public void test_should_create_active_session_when_no_existing_active_session() {
         String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
@@ -78,6 +82,24 @@ public class UserSessionServiceTest {
         assertEquals("device-A", inserted.getDeviceId());
         assertEquals("ACTIVE", inserted.getStatus());
         assertEquals(sessionId, inserted.getSessionId());
+    }
+
+    // Reclaiming a terminal (LOGGED_OUT/EXPIRED/REVOKED) row updates it in place instead of
+    // inserting a new one — this is what keeps eg_user_session at one row per user+tenant.
+    @Test
+    public void test_should_reclaim_terminal_session_instead_of_inserting_when_terminal_row_exists() {
+        when(userSessionRepository.reclaimTerminalSession(any(UserSession.class))).thenReturn(true);
+
+        String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
+
+        assertNotNull(sessionId);
+        ArgumentCaptor<UserSession> captor = ArgumentCaptor.forClass(UserSession.class);
+        verify(userSessionRepository).reclaimTerminalSession(captor.capture());
+        UserSession claimed = captor.getValue();
+        assertEquals(USER_UUID, claimed.getUserUuid());
+        assertEquals("device-A", claimed.getDeviceId());
+        assertEquals(sessionId, claimed.getSessionId());
+        verify(userSessionRepository, never()).insertActiveSession(any(UserSession.class));
     }
 
     // Test 2 — second device login: Device A active, Device B login rejected, Device A remains ACTIVE.
@@ -112,6 +134,20 @@ public class UserSessionServiceTest {
         throw new AssertionError("Expected OAuth2Exception was not thrown");
     }
 
+    // A narrow race can also surface as DuplicateKeyException from reclaimTerminalSession
+    // itself (another login activated a row between its NOT EXISTS check and its UPDATE) —
+    // treated the same as a conflict from insertActiveSession.
+    @Test(expected = OAuth2Exception.class)
+    public void test_should_treat_duplicate_key_from_reclaim_as_conflict() {
+        doThrow(new DuplicateKeyException("duplicate active session"))
+                .when(userSessionRepository).reclaimTerminalSession(any(UserSession.class));
+        UserSession fresh = new UserSession(USER_UUID, TENANT_ID, "device-A", "session-1",
+                "ACTIVE", System.currentTimeMillis(), System.currentTimeMillis());
+        when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(fresh));
+
+        userSessionService.createSession(USER_UUID, TENANT_ID, "device-B", "mobile");
+    }
+
     // Feature toggle: when disabled, no enforcement happens and no session row is written —
     // legacy unrestricted multi-device login is preserved.
     @Test
@@ -121,6 +157,7 @@ public class UserSessionServiceTest {
         String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         assertNull(sessionId);
+        verify(userSessionRepository, never()).reclaimTerminalSession(any(UserSession.class));
         verify(userSessionRepository, never()).insertActiveSession(any(UserSession.class));
         verify(userSessionRepository, never()).findActiveSession(anyString(), anyString());
     }
@@ -206,7 +243,8 @@ public class UserSessionServiceTest {
 
     // Auto-expiry: a session with no backend contact for longer than the configured
     // inactivity window is expired the moment another device's login collides with it, and
-    // that device's login proceeds immediately rather than being rejected.
+    // that device's login proceeds immediately rather than being rejected. The retry after
+    // expiry goes through the same reclaim-then-insert write as a fresh login.
     @Test
     public void test_should_expire_stale_session_and_allow_login_from_new_device() {
         doThrow(new DuplicateKeyException("duplicate active session"))
@@ -365,33 +403,39 @@ public class UserSessionServiceTest {
                 .touchLastServerContact(anyString(), anyString(), anyLong(), anyLong());
     }
 
-    // Test 3 — logout: ACTIVE session marked LOGGED_OUT.
+    // Test 3 — logout: whatever session is currently ACTIVE for the user+tenant is marked
+    // LOGGED_OUT, even though the caller's sessionId ("session-1") is stale relative to the DB
+    // row ("session-2") — the scenario a reused OAuth2 access token can produce after a later
+    // same-device login rotated the row's sessionId. See UserSessionService#logout javadoc.
     @Test
-    public void test_logout_should_mark_session_logged_out() {
-        when(userSessionRepository.updateStatus("session-1", TENANT_ID, "LOGGED_OUT")).thenReturn(1);
+    public void test_logout_should_mark_current_active_session_logged_out_even_if_caller_sessionId_is_stale() {
+        UserSession active = new UserSession(USER_UUID, TENANT_ID, "device-A", "session-2",
+                "ACTIVE", System.currentTimeMillis(), System.currentTimeMillis());
+        when(userSessionRepository.logoutActiveSessionForUser(USER_UUID, TENANT_ID)).thenReturn(Optional.of(active));
 
         userSessionService.logout("session-1", TENANT_ID, USER_UUID);
 
-        verify(userSessionRepository).updateStatus("session-1", TENANT_ID, "LOGGED_OUT");
+        verify(userSessionRepository).logoutActiveSessionForUser(USER_UUID, TENANT_ID);
         UserSessionAudit audit = captureAudit();
         assertEquals("LOGOUT", audit.getAction());
         assertEquals(USER_UUID, audit.getActor());
-        assertEquals("session-1", audit.getSessionId());
+        assertEquals("session-2", audit.getSessionId());
+        assertEquals("device-A", audit.getDeviceId());
     }
 
     @Test
     public void test_logout_should_be_noop_when_sessionId_is_null() {
         userSessionService.logout(null, TENANT_ID, USER_UUID);
 
-        verify(userSessionRepository, never()).updateStatus(anyString(), anyString(), anyString());
+        verify(userSessionRepository, never()).logoutActiveSessionForUser(anyString(), anyString());
         verify(userSessionAuditRepository, never()).insert(any(UserSessionAudit.class));
     }
 
-    // Idempotency: a retried logout on an already-terminated session updates zero rows —
+    // Idempotency: a retried logout when nothing is ACTIVE any more finds no row to terminate —
     // no duplicate log, no duplicate audit entry.
     @Test
     public void test_logout_should_be_silent_when_session_already_terminated() {
-        when(userSessionRepository.updateStatus("session-1", TENANT_ID, "LOGGED_OUT")).thenReturn(0);
+        when(userSessionRepository.logoutActiveSessionForUser(USER_UUID, TENANT_ID)).thenReturn(Optional.empty());
 
         userSessionService.logout("session-1", TENANT_ID, USER_UUID);
 

@@ -74,8 +74,15 @@ public class UserSessionService {
     /**
      * Creates a new ACTIVE session for user+tenant and returns its sessionId. Concurrency
      * safety comes from the DB's partial unique index on (useruuid, tenantid) WHERE
-     * status='ACTIVE'; a losing concurrent login fails the INSERT here rather than racing a
-     * SELECT-then-INSERT.
+     * status='ACTIVE'; a losing concurrent login fails the write here rather than racing a
+     * SELECT-then-write.
+     * <p>
+     * The write itself first tries to reclaim (update in place) a terminal row already sitting
+     * in eg_user_session for this user+tenant — see {@link UserSessionRepository#reclaimTerminalSession}
+     * — and only inserts a brand-new row when there's nothing to reclaim. This is what keeps
+     * eg_user_session at one row per user+tenant instead of accumulating a new row on every
+     * login; it's purely an application-level change (no schema/constraint change), so legacy
+     * duplicate rows already in production are left alone and simply stop growing further.
      *
      * @return null when {@code egov.user.session.single.active.enabled} is false, when
      *         {@code clientType} isn't "mobile", or when {@code tenantId} isn't in the
@@ -102,7 +109,7 @@ public class UserSessionService {
         UserSession session = new UserSession(userUuid, tenantId, deviceId, sessionId,
                 SessionStatus.ACTIVE.name(), now, now);
         try {
-            userSessionRepository.insertActiveSession(session);
+            writeSession(session);
             log.info("Session created for user {} tenant {} sessionId {}", userUuid, tenantId, sessionId);
             recordAudit(userUuid, tenantId, deviceId, sessionId, SessionAuditAction.LOGIN_SUCCESS, userUuid, null);
             return sessionId;
@@ -112,10 +119,22 @@ public class UserSessionService {
     }
 
     /**
-     * Called after a losing INSERT. Tries, in order: (1) same-device re-login — rotate the
+     * Reclaims a terminal row for this user+tenant if one exists; otherwise inserts a fresh
+     * row. Either branch can throw {@link DuplicateKeyException} when the user already has (or
+     * concurrently acquires) an ACTIVE row — see reclaimTerminalSession's javadoc — which the
+     * caller must handle as the usual single-active-session conflict.
+     */
+    private void writeSession(UserSession session) {
+        if (!userSessionRepository.reclaimTerminalSession(session)) {
+            userSessionRepository.insertActiveSession(session);
+        }
+    }
+
+    /**
+     * Called after a losing write. Tries, in order: (1) same-device re-login — rotate the
      * existing row's sessionId in place, treated as normal re-authentication rather than a
      * conflict; (2) the blocking session has simply gone stale — expire it and retry the
-     * insert so this login can proceed immediately instead of waiting on an admin revoke;
+     * write so this login can proceed immediately instead of waiting on an admin revoke;
      * (3) otherwise, a genuinely different device is still active — reject.
      */
     private String handleActiveSessionConflict(String userUuid, String tenantId, String deviceId,
@@ -131,7 +150,7 @@ public class UserSessionService {
 
         if (expireIfStale(userUuid, tenantId, deviceId, now)) {
             try {
-                userSessionRepository.insertActiveSession(new UserSession(userUuid, tenantId, deviceId, sessionId,
+                writeSession(new UserSession(userUuid, tenantId, deviceId, sessionId,
                         SessionStatus.ACTIVE.name(), now, now));
                 log.info("Session created for user {} tenant {} sessionId {} after expiring stale session",
                         userUuid, tenantId, sessionId);
@@ -232,21 +251,42 @@ public class UserSessionService {
     }
 
     /**
-     * Marks the session LOGGED_OUT. History is preserved (status update, not delete) so a
-     * subsequent login on another device is allowed. A no-op retry of an already-terminated
-     * session (e.g. a duplicate /_logout delivery) updates zero rows and is intentionally
-     * silent — no duplicate log line, no duplicate audit entry.
+     * True if this user has any session row (of any status — ACTIVE, LOGGED_OUT, EXPIRED,
+     * REVOKED) recorded for tenantId, i.e. whether this userUuid has ever logged in under the
+     * single-active-session feature before.
+     */
+    public boolean userSessionExists(String userUuid, String tenantId) {
+        return userSessionRepository.existsByUserUuid(userUuid, tenantId);
+    }
+
+    /**
+     * Marks the user's currently-ACTIVE session LOGGED_OUT. History is preserved (status
+     * update, not delete) so a subsequent login on another device is allowed. A no-op retry of
+     * an already-terminated session (e.g. a duplicate /_logout delivery) updates zero rows and
+     * is intentionally silent — no duplicate log line, no duplicate audit entry.
+     * <p>
+     * Deliberately matches on (userUuid, tenantId) rather than the caller's {@code sessionId}:
+     * when an OAuth2 access token gets reused across repeat logins (DefaultTokenServices,
+     * reuseRefreshToken=true), the token can keep embedding a sessionId from before a later
+     * same-device login rotated the DB row's sessionId (see #handleActiveSessionConflict). A
+     * strict sessionId match would then update zero rows and silently fail to terminate the
+     * real active session, leaving it to block the next login until a second logout happened
+     * to be called with a token carrying the current sessionId.
+     *
+     * @param sessionId only used as the legacy "was single-active-session ever applicable to
+     *                   this token" guard; the actual row matched is looked up fresh by user+tenant.
      */
     public void logout(String sessionId, String tenantId, String userUuid) {
         if (sessionId == null) {
             return;
         }
-        int updated = userSessionRepository.updateStatus(sessionId, tenantId, SessionStatus.LOGGED_OUT.name());
-        if (updated == 0) {
+        Optional<UserSession> terminated = userSessionRepository.logoutActiveSessionForUser(userUuid, tenantId);
+        if (!terminated.isPresent()) {
             return;
         }
-        log.info("Session {} logged out", sessionId);
-        recordAudit(userUuid, tenantId, null, sessionId, SessionAuditAction.LOGOUT, userUuid, null);
+        UserSession session = terminated.get();
+        log.info("Session {} logged out", session.getSessionId());
+        recordAudit(userUuid, tenantId, session.getDeviceId(), session.getSessionId(), SessionAuditAction.LOGOUT, userUuid, null);
     }
 
     /**
