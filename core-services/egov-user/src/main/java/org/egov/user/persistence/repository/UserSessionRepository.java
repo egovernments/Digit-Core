@@ -49,6 +49,31 @@ public class UserSessionRepository {
         namedParameterJdbcTemplate.update(query, params);
     }
 
+    /**
+     * Reclaims (updates in place) a terminal row for this user+tenant if one exists, instead of
+     * a fresh login inserting a new row — see RECLAIM_TERMINAL_SESSION_SQL. Returns true if a
+     * row was reclaimed; false means the user has no terminal row to reuse (either no row at
+     * all yet, or they currently have an ACTIVE row), and the caller should fall back to
+     * {@link #insertActiveSession}. Callers must also catch
+     * {@link org.springframework.dao.DuplicateKeyException} around this call, same as around
+     * insertActiveSession: a narrow concurrent race can still collide with the partial unique
+     * index on (useruuid, tenantid) WHERE status='ACTIVE'.
+     */
+    public boolean reclaimTerminalSession(UserSession session) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("useruuid", session.getUserUuid());
+        params.put("tenantid", session.getTenantId());
+        params.put("deviceid", session.getDeviceId());
+        params.put("sessionid", session.getSessionId());
+        params.put("status", session.getStatus());
+        params.put("createdtime", session.getCreatedTime());
+        params.put("lastservercontact", session.getLastServerContact());
+
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(
+                UserSessionQueryBuilder.RECLAIM_TERMINAL_SESSION_SQL, session.getTenantId());
+        return namedParameterJdbcTemplate.update(query, params) > 0;
+    }
+
     public Optional<UserSession> findBySessionId(String sessionId, String tenantId) {
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(
                 UserSessionQueryBuilder.SELECT_SESSION_BY_SESSIONID_SQL, tenantId);
@@ -69,6 +94,20 @@ public class UserSessionRepository {
     }
 
     /**
+     * True if this user has any session row (any status) in tenantId's schema. Unlike
+     * {@link #findActiveSession}, this is not restricted to ACTIVE rows.
+     */
+    public boolean existsByUserUuid(String userUuid, String tenantId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("useruuid", userUuid);
+        params.put("tenantid", tenantId);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(
+                UserSessionQueryBuilder.EXISTS_SESSION_BY_USER_TENANT_SQL, tenantId);
+        Boolean exists = namedParameterJdbcTemplate.queryForObject(query, params, Boolean.class);
+        return Boolean.TRUE.equals(exists);
+    }
+
+    /**
      * Only transitions a row that is currently ACTIVE. Returns the number of rows updated
      * (0 or 1) so callers can tell a genuine transition apart from a no-op retry of an
      * already-terminated session — see UserSessionService.logout/revoke, which only log and
@@ -81,6 +120,23 @@ public class UserSessionRepository {
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(
                 UserSessionQueryBuilder.UPDATE_SESSION_STATUS_SQL, tenantId);
         return namedParameterJdbcTemplate.update(query, params);
+    }
+
+    /**
+     * Logs out whichever session is currently ACTIVE for this user+tenant, regardless of the
+     * sessionid the caller passed in — see LOGOUT_ACTIVE_SESSION_FOR_USER_SQL for why matching
+     * on the caller's remembered sessionid is unsafe. Returns the terminated row (sessionId +
+     * deviceId only) so the caller can audit the real session, or empty if none was ACTIVE.
+     */
+    public Optional<UserSession> logoutActiveSessionForUser(String userUuid, String tenantId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("useruuid", userUuid);
+        params.put("tenantid", tenantId);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(
+                UserSessionQueryBuilder.LOGOUT_ACTIVE_SESSION_FOR_USER_SQL, tenantId);
+        List<UserSession> results = namedParameterJdbcTemplate.query(query, params,
+                new BeanPropertyRowMapper<>(UserSession.class));
+        return results.stream().findFirst();
     }
 
     /**
