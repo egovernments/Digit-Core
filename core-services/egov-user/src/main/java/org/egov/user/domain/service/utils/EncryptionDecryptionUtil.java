@@ -6,6 +6,9 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.encryption.EncryptionService;
+import java.util.Collections;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.util.StringUtils;
 import org.egov.encryption.audit.AuditService;
 import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.model.GraphTokenWrapper;
@@ -23,6 +26,9 @@ import java.util.*;
 @Slf4j
 @Component
 public class EncryptionDecryptionUtil {
+
+    private static final String TENANT_MAPPING_MODEL = "User";
+    private static final String TENANT_MAPPING_FIELD = "username";
     private EncryptionService encryptionService;
     @Autowired
     private AuditService auditService;
@@ -38,6 +44,22 @@ public class EncryptionDecryptionUtil {
 
     public EncryptionDecryptionUtil(EncryptionService encryptionService) {
         this.encryptionService = encryptionService;
+    }
+
+    @Value("${auth.oidc.shared-login.tenant-id:}")
+    private String sharedLoginTenantId;
+
+    public String tenantMappingKey(String plaintextUsername) {
+        if (!StringUtils.hasText(sharedLoginTenantId) || !StringUtils.hasText(plaintextUsername)) {
+            return null;
+        }
+        try {
+            JsonNode encrypted = encryptionService.encryptJson(
+                    Collections.singletonMap(TENANT_MAPPING_FIELD, plaintextUsername.trim()), TENANT_MAPPING_MODEL, sharedLoginTenantId);
+            return encrypted.get(TENANT_MAPPING_FIELD).asText();
+        } catch (IOException e) {
+            throw new CustomException("TENANT_MAPPING_KEY_FAILED", "Failed to derive tenant mapping key: " + e.getMessage());
+        }
     }
 
     public <T> T encryptObject(Object objectToEncrypt, String key, Class<T> classType) {

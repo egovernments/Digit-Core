@@ -30,8 +30,11 @@ public final class SsoErrorCodes {
 
     public static final String TENANT_ID_MISSING = "sso.param.tenant_id_missing";
     public static final String USER_TYPE_MISSING = "sso.param.user_type_missing";
+    public static final String TENANT_NOT_SHARED = "sso.param.tenant_not_shared";
+    public static final String USERNAME_CLAIM_MISSING = "sso.param.username_claim_missing";
 
     public static final String USER_NOT_FOUND = "sso.user.not_found";
+    public static final String USER_NOT_ONBOARDED = "sso.user.not_onboarded";
     public static final String USER_DUPLICATE = "sso.user.duplicate";
     public static final String USER_CONTACT_ADMIN = "sso.user.contact_admin";
     public static final String USER_INACTIVE = "sso.user.inactive";

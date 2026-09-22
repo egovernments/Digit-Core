@@ -19,4 +19,14 @@ public class SsoMissingParamException extends SsoException {
         return new SsoMissingParamException(SsoErrorCodes.USER_TYPE_MISSING,
                 "userType is mandatory and must be a valid type (CITIZEN, EMPLOYEE, SYSTEM)");
     }
+
+    public static SsoMissingParamException tenantNotShared(String tenantId) {
+        return new SsoMissingParamException(SsoErrorCodes.TENANT_NOT_SHARED,
+                "tenantId must be the shared login tenant");
+    }
+
+    public static SsoMissingParamException usernameClaimMissing(String claimKey) {
+        return new SsoMissingParamException(SsoErrorCodes.USERNAME_CLAIM_MISSING,
+                "claim " + claimKey + " is absent from the id_token");
+    }
 }

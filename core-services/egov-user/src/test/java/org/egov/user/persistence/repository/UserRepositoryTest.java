@@ -11,6 +11,7 @@ import org.egov.user.domain.model.enums.AddressType;
 import org.egov.user.domain.model.enums.BloodGroup;
 import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.UserType;
+import org.mockito.Mockito;
 import org.egov.user.repository.builder.UserTypeQueryBuilder;
 import org.egov.user.repository.rowmapper.UserResultSetExtractor;
 import org.egov.user.utils.DatabaseSchemaUtils;
@@ -73,6 +74,8 @@ public class UserRepositoryTest {
 
     private UserRepository userRepository;
 
+    private UserTenantMappingRepository userTenantMappingRepository;
+
     private MockRestServiceServer server;
 
     @Autowired
@@ -88,9 +91,10 @@ public class UserRepositoryTest {
                 .andRespond(withSuccess(new Resources().getFileContents("roleSearchValidatedResponse.json"),
                         MediaType.APPLICATION_JSON_UTF8));
 
+        userTenantMappingRepository = Mockito.mock(UserTenantMappingRepository.class);
         userRepository = new UserRepository(databaseSchemaUtils, roleRepository, userTypeQueryBuilder, addressRepository,
                 userResultSetExtractor,
-                jdbcTemplate, namedParameterJdbcTemplate,auditRepository);
+                jdbcTemplate, namedParameterJdbcTemplate,auditRepository, userTenantMappingRepository);
     }
 
     @Test
@@ -391,6 +395,79 @@ public class UserRepositoryTest {
         List<User> actualUsers = userRepository.findAll(UserSearchCriteria.builder().userName("bigcat399")
                 .tenantId("ap.public").type(UserType.EMPLOYEE).build());
         assertTrue(!actualUsers.isEmpty());
+    }
+
+    @Test
+    @Sql(scripts = {"/sql/clearUserRoles.sql", "/sql/clearUsers.sql", "/sql/clearRoles.sql", "/sql/createRoles.sql",
+            "/sql/clearAddresses.sql"})
+    public void create_withMappingKey_writesMapping() {
+        final Set<Role> roles = new HashSet<>();
+        roles.add(Role.builder().code("EMP").tenantId("ap.public").build());
+        User domainUser = User.builder().roles(roles).username("ActiveUserName").password("password")
+                .tenantId("ap.public").active(true).tenantMappingKey("enc-key").build();
+
+        User actualUser = userRepository.create(domainUser);
+
+        Mockito.verify(userTenantMappingRepository).upsert(actualUser.getId(), actualUser.getType(),
+                actualUser.getTenantId(), "enc-key", actualUser.getUuid(), true);
+    }
+
+    @Test
+    @Sql(scripts = {"/sql/clearUserRoles.sql", "/sql/clearUsers.sql", "/sql/clearRoles.sql", "/sql/createRoles.sql",
+            "/sql/clearAddresses.sql"})
+    public void create_withoutMappingKey_skipsMapping() {
+        final Set<Role> roles = new HashSet<>();
+        roles.add(Role.builder().code("EMP").tenantId("ap.public").build());
+        User domainUser = User.builder().roles(roles).username("NoKeyUserName").password("password")
+                .tenantId("ap.public").active(true).build();
+
+        userRepository.create(domainUser);
+
+        Mockito.verifyZeroInteractions(userTenantMappingRepository);
+    }
+
+    @Test
+    public void update_activeToInactive_setsInactive() {
+        User oldUser = User.builder().id(1L).uuid("uuid-1").username("TestUserName").tenantId("ap.public")
+                .type(UserType.EMPLOYEE).active(true).build();
+        User user = oldUser.toBuilder().active(false).build();
+
+        userRepository.update(user, oldUser, 1L, "uuid-1");
+
+        Mockito.verify(userTenantMappingRepository).setActive(1L, UserType.EMPLOYEE, "ap.public", false);
+    }
+
+    @Test
+    public void update_inactiveToActive_setsActive() {
+        User oldUser = User.builder().id(1L).uuid("uuid-1").username("TestUserName").tenantId("ap.public")
+                .type(UserType.EMPLOYEE).active(false).build();
+        User user = oldUser.toBuilder().active(true).build();
+
+        userRepository.update(user, oldUser, 1L, "uuid-1");
+
+        Mockito.verify(userTenantMappingRepository).setActive(1L, UserType.EMPLOYEE, "ap.public", true);
+    }
+
+    @Test
+    public void update_activeUnchanged_noMappingCall() {
+        User oldUser = User.builder().id(1L).uuid("uuid-1").username("TestUserName").tenantId("ap.public")
+                .type(UserType.EMPLOYEE).active(true).build();
+        User user = oldUser.toBuilder().active(true).build();
+
+        userRepository.update(user, oldUser, 1L, "uuid-1");
+
+        Mockito.verifyZeroInteractions(userTenantMappingRepository);
+    }
+
+    @Test
+    public void update_activeNull_noMappingCall() {
+        User oldUser = User.builder().id(1L).uuid("uuid-1").username("TestUserName").tenantId("ap.public")
+                .type(UserType.EMPLOYEE).active(true).build();
+        User user = oldUser.toBuilder().active(null).build();
+
+        userRepository.update(user, oldUser, 1L, "uuid-1");
+
+        Mockito.verifyZeroInteractions(userTenantMappingRepository);
     }
 
 }

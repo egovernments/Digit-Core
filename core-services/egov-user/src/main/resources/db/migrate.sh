@@ -4,6 +4,9 @@ echo "the baseurl : $DB_URL"
 schemasetter="?currentSchema="
 schemas=$SCHEMA_NAME
 echo "the schemas : $schemas"
+if [ -n "$(ls -A /flyway/public 2>/dev/null)" ]; then
+    flyway -url=${baseurl}${schemasetter}public -table=${SCHEMA_TABLE}_public -user=$FLYWAY_USER -password=$FLYWAY_PASSWORD -locations=filesystem:/flyway/public -baselineOnMigrate=true -outOfOrder=true migrate
+fi
 for schemaname in ${schemas//,/ }
 do
     echo "the schema name : ${baseurl}${schemasetter}${schemaname}"

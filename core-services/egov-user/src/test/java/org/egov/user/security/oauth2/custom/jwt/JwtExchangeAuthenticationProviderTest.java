@@ -10,6 +10,7 @@ import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.sso.SsoException;
 import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.domain.exception.sso.SsoUserMappingException;
+import org.egov.user.domain.exception.sso.SsoUserNotOnboardedException;
 import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.*;
 import org.egov.user.domain.model.enums.UserType;
@@ -113,6 +114,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 when(provider.getTenantId()).thenReturn(TENANT_PB);
                 when(msGraphService.supports(any())).thenReturn(true);
                 when(msGraphService.getEmployeeCreationProfile(any(), anyString())).thenReturn(Optional.empty());
+                when(provider.isJitEnabled()).thenReturn(true);
         }
 
         private static OidcValidatedJwt oidcJwt(Map<String, Object> claims, String token) {
@@ -168,8 +170,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 User updatedUser = userCaptor.getValue();
                 assertEquals("John Doe", updatedUser.getName());
                 assertEquals("john@example.com", updatedUser.getEmailId());
-                assertEquals(1, updatedUser.getRoles().size());
-                assertEquals("ROLE", updatedUser.getRoles().iterator().next().getCode());
+                assertEquals(0, updatedUser.getRoles().size());
                 assertFalse(updatedUser.getMfaEnabled());
         }
 
@@ -193,7 +194,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 Set<Role> sameRoles = new HashSet<>();
                 sameRoles.add(Role.builder().code("ROLE").tenantId(TENANT_PB).build());
                 User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true).password("password")
-                                .tenantId(TENANT_PB)
+                                .idpSubject("subject").tenantId(TENANT_PB)
                                 .roles(sameRoles).build();
 
                 when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
@@ -205,6 +206,247 @@ public class JwtExchangeAuthenticationProviderTest {
                 assertTrue(result.getPrincipal() instanceof SecureUser);
                 verify(ssoUserPersistenceService, never()).updateUserAndUpsertIdpDetails(any(User.class), any(UserIdpDetails.class), anyString(), any(RequestInfo.class));
                 verify(ssoUserPersistenceService).upsertIdpDetailsOnly(any(UserIdpDetails.class), eq(TENANT_PB));
+        }
+
+        @Test
+        public void subjectHit_updatesIdpDetailsOnly_rolesUntouched() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                Set<Role> roles = new HashSet<>();
+                roles.add(Role.builder().code("ROLE_ADMIN").tenantId(TENANT_PB).build());
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .idpSubject("subject").tenantId(TENANT_PB).roles(roles).build();
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+
+                Authentication result = authenticationProvider.authenticate(authenticationToken);
+
+                assertNotNull(result);
+                verify(ssoUserPersistenceService, never()).updateUserAndUpsertIdpDetails(any(User.class), any(UserIdpDetails.class), anyString(), any(RequestInfo.class));
+                verify(ssoUserPersistenceService).upsertIdpDetailsOnly(any(UserIdpDetails.class), eq(TENANT_PB));
+                assertEquals(1, roles.size());
+                assertEquals("ROLE_ADMIN", roles.iterator().next().getCode());
+        }
+
+        @Test
+        public void subjectMiss_usernameHit_linksSubject_callsUpdateUserAndUpsert() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "new-subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+                claims.put("upn", "jane@example.com");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                when(provider.getUsernameClaimKey()).thenReturn("upn");
+
+                Set<Role> existingRoles = new HashSet<>();
+                existingRoles.add(Role.builder().code("ROLE_CLERK").tenantId(TENANT_PB).build());
+                User existingUser = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .tenantId(TENANT_PB).roles(existingRoles).build();
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+                when(userService.getUniqueUser(eq("jane@example.com"), eq(TENANT_PB), eq(UserType.EMPLOYEE)))
+                                .thenReturn(existingUser);
+
+                Authentication result = authenticationProvider.authenticate(authenticationToken);
+
+                assertNotNull(result);
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(ssoUserPersistenceService).updateUserAndUpsertIdpDetails(userCaptor.capture(), any(UserIdpDetails.class), eq(TENANT_PB), any(RequestInfo.class));
+                assertEquals("new-subject", userCaptor.getValue().getIdpSubject());
+        }
+
+        @Test
+        public void subjectMiss_usernameHit_rolesNotModified() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "new-subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+                claims.put("upn", "jane@example.com");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                when(provider.getUsernameClaimKey()).thenReturn("upn");
+
+                Set<Role> existingRoles = new HashSet<>();
+                existingRoles.add(Role.builder().code("ROLE_CLERK").tenantId(TENANT_PB).build());
+                User existingUser = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .tenantId(TENANT_PB).roles(existingRoles).build();
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+                when(userService.getUniqueUser(eq("jane@example.com"), eq(TENANT_PB), eq(UserType.EMPLOYEE)))
+                                .thenReturn(existingUser);
+
+                Authentication result = authenticationProvider.authenticate(authenticationToken);
+
+                assertNotNull(result);
+                ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+                verify(ssoUserPersistenceService).updateUserAndUpsertIdpDetails(userCaptor.capture(), any(UserIdpDetails.class), eq(TENANT_PB), any(RequestInfo.class));
+                assertEquals(existingRoles, userCaptor.getValue().getRoles());
+        }
+
+        @Test
+        public void subjectMiss_usernameHit_alreadyLinkedToOtherSubject_throwsNotOnboarded() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "new-subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+                claims.put("upn", "jane@example.com");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                when(provider.getUsernameClaimKey()).thenReturn("upn");
+
+                User alreadyLinkedUser = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
+                                .idpSubject("other-subject").tenantId(TENANT_PB).roles(Collections.emptySet()).build();
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+                when(userService.getUniqueUser(eq("jane@example.com"), eq(TENANT_PB), eq(UserType.EMPLOYEE)))
+                                .thenReturn(alreadyLinkedUser);
+
+                try {
+                        authenticationProvider.authenticate(authenticationToken);
+                        fail("Expected SsoUserNotOnboardedException");
+                } catch (SsoUserNotOnboardedException e) {
+                        assertEquals(SsoErrorCodes.USER_NOT_ONBOARDED, e.getErrorCode());
+                }
+                verify(ssoUserPersistenceService, never()).updateUserAndUpsertIdpDetails(any(User.class), any(UserIdpDetails.class), anyString(), any(RequestInfo.class));
+        }
+
+        @Test
+        public void subjectMiss_usernameMiss_jitDisabled_throwsNotOnboarded() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+                claims.put("upn", "ghost@example.com");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                when(provider.getUsernameClaimKey()).thenReturn("upn");
+                when(provider.isJitEnabled()).thenReturn(false);
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+                when(userService.getUniqueUser(eq("ghost@example.com"), eq(TENANT_PB), eq(UserType.EMPLOYEE)))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+
+                try {
+                        authenticationProvider.authenticate(authenticationToken);
+                        fail("Expected SsoUserNotOnboardedException");
+                } catch (SsoUserNotOnboardedException e) {
+                        assertEquals(SsoErrorCodes.USER_NOT_ONBOARDED, e.getErrorCode());
+                }
+        }
+
+        @Test
+        public void subjectMiss_usernameMiss_jitEnabled_createsUser() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+                claims.put("name", "John Doe");
+                claims.put("preferred_username", "johndoe");
+                claims.put("email", "john@example.com");
+                claims.put("upn", "unknown@example.com");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                when(provider.getUsernameClaimKey()).thenReturn("upn");
+                when(provider.isJitEnabled()).thenReturn(true);
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+                when(userService.getUniqueUser(eq("unknown@example.com"), eq(TENANT_PB), eq(UserType.EMPLOYEE)))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+
+                org.egov.user.domain.model.hrms.User hrmsUser = org.egov.user.domain.model.hrms.User.builder()
+                                .userServiceUuid("new-uuid").userName("johndoe").name("John Doe")
+                                .roles(Collections.emptyList()).tenantId(TENANT_PB).build();
+                when(hrmsUserUtil.createHrmsUser(
+                                any(org.egov.user.domain.model.hrms.User.class), anyString(), anyString(), anyString(),
+                                anyString(), anyString(), anyString(), anyString(), any(OidcValidatedJwt.class), any(RequestInfo.class)))
+                                .thenReturn(hrmsUser);
+
+                Authentication result = authenticationProvider.authenticate(authenticationToken);
+
+                assertNotNull(result);
+                verify(ssoUserPersistenceService).updateUserAndUpsertIdpDetails(any(User.class), any(UserIdpDetails.class), eq(TENANT_PB), any(RequestInfo.class));
+        }
+
+        @Test
+        public void usernameClaimAbsent_jitDisabled_throwsNotOnboarded() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                when(provider.getUsernameClaimKey()).thenReturn("upn");
+                when(provider.isJitEnabled()).thenReturn(false);
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(new UserSearchCriteria()));
+
+                try {
+                        authenticationProvider.authenticate(authenticationToken);
+                        fail("Expected SsoUserNotOnboardedException");
+                } catch (SsoUserNotOnboardedException e) {
+                        assertEquals(SsoErrorCodes.USER_NOT_ONBOARDED, e.getErrorCode());
+                }
+                verify(userService, never()).getUniqueUser(anyString(), anyString(), any(UserType.class));
         }
 
         @Test
@@ -540,6 +782,7 @@ public class JwtExchangeAuthenticationProviderTest {
                                 .type(UserType.EMPLOYEE)
                                 .active(true)
                                 .accountLocked(true)
+                                .idpSubject("subject")
                                 .tenantId(TENANT_PB)
                                 .roles(lockedUserRoles)
                                 .build();
@@ -881,7 +1124,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 Set<Role> sameRoles = new HashSet<>();
                 sameRoles.add(Role.builder().code("ROLE").tenantId(TENANT_PB).build());
                 User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
-                                .roles(sameRoles).tenantId(TENANT_PB).build();
+                                .idpSubject("subject").roles(sameRoles).tenantId(TENANT_PB).build();
 
                 when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
                 when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
@@ -1151,8 +1394,10 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 OidcValidatedJwt jwt = oidcJwt(claims, token);
 
+                Set<Role> roles = new HashSet<>();
+                roles.add(Role.builder().code("ROLE").tenantId(TENANT_PB).build());
                 User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
-                                .roles(Collections.emptySet()).tenantId(TENANT_PB).build();
+                                .roles(roles).tenantId(TENANT_PB).build();
 
                 when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
                 when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);

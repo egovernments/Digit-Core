@@ -59,13 +59,15 @@ public class UserRepository {
     private UserTypeQueryBuilder userTypeQueryBuilder;
     private RoleRepository roleRepository;
     private UserResultSetExtractor userResultSetExtractor;
+    private UserTenantMappingRepository userTenantMappingRepository;
 
     @Autowired
     UserRepository(DatabaseSchemaUtils databaseSchemaUtils, RoleRepository roleRepository,
             UserTypeQueryBuilder userTypeQueryBuilder,
             AddressRepository addressRepository, UserResultSetExtractor userResultSetExtractor,
             JdbcTemplate jdbcTemplate,
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate, AuditRepository auditRepository) {
+            NamedParameterJdbcTemplate namedParameterJdbcTemplate, AuditRepository auditRepository,
+            UserTenantMappingRepository userTenantMappingRepository) {
         this.databaseSchemaUtils = databaseSchemaUtils;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -74,6 +76,7 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.auditRepository = auditRepository;
+        this.userTenantMappingRepository = userTenantMappingRepository;
     }
 
     /**
@@ -194,6 +197,9 @@ public class UserRepository {
          */
         user.setTenantId(userUtils.getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         final User savedUser = save(user);
+        if (user.getTenantMappingKey() != null)
+            userTenantMappingRepository.upsert(savedUser.getId(), savedUser.getType(), savedUser.getTenantId(),
+                    user.getTenantMappingKey(), savedUser.getUuid(), Boolean.TRUE.equals(savedUser.getActive()));
         if (user.getRoles().size() > 0) {
             saveUserRoles(user);
         }
@@ -370,6 +376,10 @@ public class UserRepository {
         if (user.getPermanentAndCorrespondenceAddresses() != null) {
             addressRepository.update(user.getPermanentAndCorrespondenceAddresses(), user.getId(), tenantId);
         }
+
+        Boolean newActive = user.getActive();
+        if (newActive != null && !newActive.equals(oldUser.getActive()))
+            userTenantMappingRepository.setActive(oldUser.getId(), oldUser.getType(), tenantId, newActive);
     }
 
     public void fetchFailedLoginAttemptsByUser(String tenantId, String uuid) {

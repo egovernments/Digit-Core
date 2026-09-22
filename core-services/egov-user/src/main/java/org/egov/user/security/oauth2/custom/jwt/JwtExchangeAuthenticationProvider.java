@@ -11,6 +11,7 @@ import org.egov.user.domain.exception.UserNotFoundException;
 import org.egov.user.domain.exception.sso.OidcProviderConfigException;
 import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.domain.exception.sso.SsoUserMappingException;
+import org.egov.user.domain.exception.sso.SsoUserNotOnboardedException;
 import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.Role;
 import org.egov.user.domain.model.SecureUser;
@@ -294,18 +295,42 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
      */
     private UserAndRequestInfo findOrCreateUser(OidcValidatedJwt jwt, AuthProperties.Provider provider,
             TokenMfaDetails mfaDetails, String tenantId) {
+        UserType type = UserType.fromValue(jwt.getUserType());
+        User user;
         try {
-            return findExistingUserAndUpdate(jwt, provider, mfaDetails, tenantId);
-        } catch (UserNotFoundException e) {
-            log.info("User not found for oid: {}, creating new user", jwt.getOid(), e);
+            user = userService.getUniqueUser(jwt.getIssuer(), jwt.getExternalUserId(), tenantId, type);
+        } catch (UserNotFoundException bySubject) {
+            user = findByUsernameClaim(jwt, provider, tenantId, type);
+        }
+        if (user == null) {
+            if (!provider.isJitEnabled()) {
+                throw new SsoUserNotOnboardedException(tenantId);
+            }
             return createNewUser(jwt, provider, mfaDetails, tenantId);
         }
+        return updateExistingUser(user, jwt, provider, mfaDetails, tenantId);
     }
 
-    private UserAndRequestInfo findExistingUserAndUpdate(OidcValidatedJwt jwt, AuthProperties.Provider provider,
+    private User findByUsernameClaim(OidcValidatedJwt jwt, AuthProperties.Provider provider, String tenantId,
+            UserType type) {
+        Object claim = jwt.getClaims().get(provider.getUsernameClaimKey());
+        if (claim == null || !StringUtils.hasText(claim.toString())) {
+            return null;
+        }
+        User user;
+        try {
+            user = userService.getUniqueUser(claim.toString().trim(), tenantId, type);
+        } catch (UserNotFoundException e) {
+            return null;
+        }
+        if (user.getIdpSubject() != null && !jwt.getSubject().equals(user.getIdpSubject())) {
+            throw new SsoUserNotOnboardedException(tenantId);
+        }
+        return user;
+    }
+
+    private UserAndRequestInfo updateExistingUser(User user, OidcValidatedJwt jwt, AuthProperties.Provider provider,
             TokenMfaDetails mfaDetails, String tenantId) {
-        User user = userService.getUniqueUser(jwt.getIssuer(), jwt.getExternalUserId(), tenantId,
-                UserType.fromValue(jwt.getUserType()));
         RequestInfo requestInfo = getRequestInfo(user);
 
         User userForUpdate = createUserForSsoUpdate(user, jwt);
@@ -316,7 +341,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         UserIdpDetails idpDetails = buildIdpDetails(userForUpdate, jwt);
 
         User originalUser = user;
-        if (rolesChanged(user.getRoles(), userForUpdate.getRoles())) {
+        if (user.getIdpSubject() == null) {
             user = ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
                     userForUpdate, idpDetails, tenantId, requestInfo);
         } else {
@@ -723,7 +748,6 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .emailId(jwt.getClaims().get("unique_name") != null ? 
                     jwt.getClaims().get("unique_name").toString() : 
                     jwt.getEmail()) // Use unique_name which has the email, fallback to preferred_username
-                .roles(toDomainRoles(jwt.getRoles(), user.getTenantId()))
                 .createdBy(user.getCreatedBy())
                 .lastModifiedBy(user.getId())
                 .password(null)
@@ -757,45 +781,6 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                 .createdBy(user.getCreatedBy())
                 .lastModifiedBy(user.getLastModifiedBy())
                 .build();
-    }
-
-    /**
-     * Returns true if the two role sets differ by role identity (code + tenantId).
-     * Both null or both empty is treated as unchanged.
-     */
-    private boolean rolesChanged(Set<Role> previous, Set<Role> current) {
-        if (CollectionUtils.isEmpty(previous) && CollectionUtils.isEmpty(current)) {
-            return false;
-        }
-        if (CollectionUtils.isEmpty(previous) || CollectionUtils.isEmpty(current)) {
-            return true;
-        }
-        Set<String> previousKeys = previous.stream()
-                .map(r -> (r.getCode() != null ? r.getCode() : "") + "|" + (r.getTenantId() != null ? r.getTenantId() : ""))
-                .collect(Collectors.toSet());
-        Set<String> currentKeys = current.stream()
-                .map(r -> (r.getCode() != null ? r.getCode() : "") + "|" + (r.getTenantId() != null ? r.getTenantId() : ""))
-                .collect(Collectors.toSet());
-        return !previousKeys.equals(currentKeys);
-    }
-
-    /**
-     * Converts a set of role code strings to domain Role objects.
-     *
-     * @param roles set of role code strings
-     * @param tenantId the tenant ID for the roles
-     * @return set of domain Role objects
-     */
-    private Set<Role> toDomainRoles(Set<String> roles, String tenantId) {
-        if (CollectionUtils.isEmpty(roles)) {
-            return new HashSet<>();
-        }
-        return roles.stream()
-                .map(roleCode -> Role.builder()
-                        .code(roleCode)
-                        .tenantId(tenantId)
-                        .build())
-                .collect(Collectors.toSet());
     }
 
     /**

@@ -231,8 +231,10 @@ public class UserService {
         user.setUuid(UUID.randomUUID().toString());
         user.validateNewUser(createUserValidateName);
         conditionallyValidateOtp(user);
+        String tenantMappingKey = encryptionDecryptionUtil.tenantMappingKey(user.getUsername());
         /* encrypt here */
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
+        user.setTenantMappingKey(tenantMappingKey);
         validateUserUniqueness(user);
         if (isEmpty(user.getPassword())) {
             user.setPassword(UUID.randomUUID().toString());

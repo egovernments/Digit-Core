@@ -65,6 +65,7 @@ public class AuthProperties {
          * <p>Property: {@code auth.oidc.jwks-cache-ttl-ms}</p>
          */
         private Long jwksCacheTtlMs;
+        private String sharedLoginTenantId;
     }
 
     /**
@@ -140,6 +141,8 @@ public class AuthProperties {
          * Property: auth.providers[i].providerType
          */
         private final String providerType;
+        private final String usernameClaimKey;
+        private final boolean jitEnabled;
 
         static final ObjectMapper ROLE_MAPPING_MAPPER = new ObjectMapper();
 
@@ -175,6 +178,8 @@ public class AuthProperties {
             this.graphAppResourceId = null;
             this.idpUserValidatorType = OidcConfigConstants.IDP_USER_VALIDATOR_TYPE_NONE;
             this.providerType = OidcConfigConstants.PROVIDER_TYPE_MICROSOFT;
+            this.usernameClaimKey = OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY;
+            this.jitEnabled = OidcConfigConstants.DEFAULT_JIT_ENABLED;
         }
 
         // Full constructor for creating immutable instances
@@ -185,7 +190,8 @@ public class AuthProperties {
                        Long defaultDob, String defaultEmployeeStatus, String rolePrefix, String decryptionPurpose,
                        String graphClientId, String graphTenantId, String graphMethodsUrl, String graphUsersUrl,
                        String graphTokenUrl, String graphScope, String graphAppRoleAssignmentUrl,
-                       String graphServiceType, String graphAppResourceId, String idpUserValidatorType, String providerType) {
+                       String graphServiceType, String graphAppResourceId, String idpUserValidatorType, String providerType,
+                       String usernameClaimKey, boolean jitEnabled) {
             this.id = id;
             this.issuerUri = issuerUri;
             this.issuerAliases = issuerAliases != null ? Collections.unmodifiableList(new ArrayList<>(issuerAliases)) : Collections.emptyList();
@@ -216,6 +222,8 @@ public class AuthProperties {
             this.graphAppResourceId = graphAppResourceId;
             this.idpUserValidatorType = idpUserValidatorType != null ? idpUserValidatorType : OidcConfigConstants.IDP_USER_VALIDATOR_TYPE_NONE;
             this.providerType = providerType != null ? providerType : OidcConfigConstants.PROVIDER_TYPE_MICROSOFT;
+            this.usernameClaimKey = usernameClaimKey != null ? usernameClaimKey : OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY;
+            this.jitEnabled = jitEnabled;
         }
 
         // Builder pattern for easier construction
@@ -254,6 +262,8 @@ public class AuthProperties {
             private String graphAppResourceId;
             private String idpUserValidatorType = OidcConfigConstants.IDP_USER_VALIDATOR_TYPE_NONE;
             private String providerType = OidcConfigConstants.PROVIDER_TYPE_MICROSOFT;
+            private String usernameClaimKey = OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY;
+            private boolean jitEnabled = OidcConfigConstants.DEFAULT_JIT_ENABLED;
 
             public Builder id(String id) { this.id = id; return this; }
             public Builder issuerUri(String issuerUri) { this.issuerUri = issuerUri; return this; }
@@ -285,6 +295,8 @@ public class AuthProperties {
             public Builder graphAppResourceId(String graphAppResourceId) { this.graphAppResourceId = graphAppResourceId; return this; }
             public Builder idpUserValidatorType(String idpUserValidatorType) { this.idpUserValidatorType = idpUserValidatorType; return this; }
             public Builder providerType(String providerType) { this.providerType = providerType; return this; }
+            public Builder usernameClaimKey(String usernameClaimKey) { this.usernameClaimKey = usernameClaimKey; return this; }
+            public Builder jitEnabled(boolean jitEnabled) { this.jitEnabled = jitEnabled; return this; }
 
             public Provider build() {
                 return new Provider(id, issuerUri, issuerAliases, jwkSetUri, audiences, tenantId,
@@ -293,7 +305,8 @@ public class AuthProperties {
                         defaultDob, defaultEmployeeStatus, rolePrefix, decryptionPurpose,
                         graphClientId, graphTenantId, graphMethodsUrl, graphUsersUrl,
                         graphTokenUrl, graphScope, graphAppRoleAssignmentUrl,
-                        graphServiceType, graphAppResourceId, idpUserValidatorType, providerType);
+                        graphServiceType, graphAppResourceId, idpUserValidatorType, providerType,
+                        usernameClaimKey, jitEnabled);
             }
         }
     }

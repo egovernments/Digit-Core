@@ -370,7 +370,13 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
         if (n.has(OidcConfigConstants.KEY_DEFAULT_BOUNDARY_HIERARCHY_TYPE)) {
             builder.defaultBoundaryHierarchyType(textOrNull(n.get(OidcConfigConstants.KEY_DEFAULT_BOUNDARY_HIERARCHY_TYPE)));
         }
-        
+        if (n.has(OidcConfigConstants.KEY_USERNAME_CLAIM_KEY)) {
+            builder.usernameClaimKey(n.get(OidcConfigConstants.KEY_USERNAME_CLAIM_KEY).asText(OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY));
+        }
+        if (n.has(OidcConfigConstants.KEY_JIT_ENABLED)) {
+            builder.jitEnabled(n.get(OidcConfigConstants.KEY_JIT_ENABLED).asBoolean(OidcConfigConstants.DEFAULT_JIT_ENABLED));
+        }
+
         return builder.build();
     }
 }

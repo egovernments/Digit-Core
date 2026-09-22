@@ -10,6 +10,8 @@ COPY ./migration/qa /flyway/qa
 
 COPY ./migration/test /flyway/test
 
+COPY ./migration/public /flyway/public
+
 COPY migrate.sh /usr/bin/migrate.sh
 
 RUN chmod +x /usr/bin/migrate.sh

@@ -95,6 +95,8 @@ public class User {
     // These are nullable and only populated for SSO/OIDC users.
     private String idpIssuer;
     private String idpSubject;
+    @JsonIgnore
+    private String tenantMappingKey;
     private Date idpTokenExp;
     private Date lastSsoLoginAt;
     private String authProvider = "LOCAL";
