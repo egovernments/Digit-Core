@@ -28,6 +28,17 @@ public class OidcProviderConfigException extends SsoException {
         super(errorCode, message, httpStatus);
     }
 
+    public static OidcProviderConfigException jwksInlineNotAllowed(String providerId, String tenantId) {
+        return new OidcProviderConfigException(SsoErrorCodes.OIDC_JWKS_INLINE_NOT_ALLOWED,
+                "Provider " + providerId + " carries an inline jwkSet, but auth.oidc.test-mode does not allow tenant "
+                        + tenantId);
+    }
+
+    public static OidcProviderConfigException jwksInlineInvalid(String providerId, String reason) {
+        return new OidcProviderConfigException(SsoErrorCodes.OIDC_JWKS_INLINE_INVALID,
+                "Provider " + providerId + " has an unparseable inline jwkSet: " + reason);
+    }
+
     public static OidcProviderConfigException jwksMissing(String providerId) {
         return new OidcProviderConfigException(SsoErrorCodes.OIDC_JWKS_MISSING,
                 "jwk-set-uri is not configured for providerId=" + providerId, HttpStatus.INTERNAL_SERVER_ERROR);

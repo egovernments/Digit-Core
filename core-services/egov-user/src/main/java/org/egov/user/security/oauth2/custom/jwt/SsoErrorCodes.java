@@ -21,6 +21,8 @@ public final class SsoErrorCodes {
     public static final String JWT_SIGNATURE_ERROR_SUBSTRING = "signature";
 
     public static final String OIDC_JWKS_MISSING = "sso.oidc.jwks_missing";
+    public static final String OIDC_JWKS_INLINE_NOT_ALLOWED = "sso.oidc.jwks_inline_not_allowed";
+    public static final String OIDC_JWKS_INLINE_INVALID = "sso.oidc.jwks_inline_invalid";
     public static final String OIDC_ISSUER_MISSING = "sso.oidc.issuer_missing";
     public static final String OIDC_ISSUER_MISSING_IN_TOKEN = "sso.oidc.issuer_missing_in_token";
     public static final String OIDC_AUDIENCES_MISSING = "sso.oidc.audiences_missing";

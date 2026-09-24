@@ -1,6 +1,13 @@
 package org.egov.user.security.oauth2.custom.jwt;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.user.config.AuthProperties;
 import org.egov.user.config.OidcConfigConstants;
@@ -340,12 +347,73 @@ public class IDPJwtValidator implements JwtValidator {
         }
 
         validateProviderConfiguration(provider);
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(provider.getJwkSetUri().trim()).build();
+        NimbusJwtDecoder decoder = usesInlineJwkSet(provider)
+                ? inlineDecoder(provider)
+                : NimbusJwtDecoder.withJwkSetUri(provider.getJwkSetUri().trim()).build();
         decoder.setJwtValidator(createJwtValidator(provider));
 
         DecoderEntry newEntry = new DecoderEntry(decoder, now);
         decoders.put(key, newEntry);
         return newEntry.getDecoder();
+    }
+
+    private boolean testModeAllows(AuthProperties.Provider provider) {
+        AuthProperties.Oidc oidc = authProperties.getOidc();
+        return oidc != null && oidc.getTestMode() != null && oidc.getTestMode().allows(provider.getTenantId());
+    }
+
+    private boolean usesInlineJwkSet(AuthProperties.Provider provider) {
+        return testModeAllows(provider) && hasText(effectiveJwkSet(provider));
+    }
+
+    /**
+     * The pinned JWKS for a provider, or null when the provider should keep fetching its keys.
+     *
+     * <p>A reachable {@code jwkSetUri} always wins over the key configured for test mode, so
+     * turning test mode on for a tenant leaves existing providers (Azure/Microsoft and any
+     * other real IdP) validating exactly as before. The configured key applies only to
+     * providers that have no URI at all; a provider may still opt in explicitly by carrying
+     * its own {@code jwkSet}.</p>
+     */
+    private String effectiveJwkSet(AuthProperties.Provider provider) {
+        if (hasText(provider.getJwkSet())) {
+            return provider.getJwkSet();
+        }
+        if (hasText(provider.getJwkSetUri())) {
+            return null;
+        }
+        AuthProperties.Oidc oidc = authProperties.getOidc();
+        return oidc != null && oidc.getTestMode() != null ? oidc.getTestMode().getJwkSet() : null;
+    }
+
+    private static boolean hasText(String s) {
+        return s != null && !s.trim().isEmpty();
+    }
+
+    /**
+     * Builds a decoder whose verification keys come from the provider's inline JWKS instead of
+     * a fetched {@code jwkSetUri}, for IdPs this service cannot reach. Key selection (including
+     * {@code kid} matching across multiple keys) is delegated to Nimbus exactly as in the
+     * fetched case; only the key source differs. Signature, expiry, issuer and audience
+     * validation are applied unchanged by {@link #createJwtValidator}.
+     */
+    private NimbusJwtDecoder inlineDecoder(AuthProperties.Provider provider) {
+        JWKSet jwkSet;
+        try {
+            jwkSet = JWKSet.parse(effectiveJwkSet(provider).trim());
+        } catch (Exception e) {
+            throw OidcProviderConfigException.jwksInlineInvalid(provider.getId(), e.getMessage());
+        }
+        if (jwkSet.getKeys().isEmpty()) {
+            throw OidcProviderConfigException.jwksInlineInvalid(provider.getId(), "no keys present");
+        }
+        log.warn("TEST MODE: provider {} (tenant {}) is verifying tokens with an inline jwkSet of {} key(s); "
+                        + "no JWKS endpoint is contacted", provider.getId(), provider.getTenantId(),
+                jwkSet.getKeys().size());
+        JWKSource<SecurityContext> source = new ImmutableJWKSet<>(jwkSet);
+        DefaultJWTProcessor<SecurityContext> processor = new DefaultJWTProcessor<>();
+        processor.setJWSKeySelector(new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, source));
+        return new NimbusJwtDecoder(processor);
     }
 
     /**
@@ -355,7 +423,10 @@ public class IDPJwtValidator implements JwtValidator {
      * @throws OidcProviderConfigException if required configuration is missing
      */
     private void validateProviderConfiguration(AuthProperties.Provider provider) {
-        if (provider.getJwkSetUri() == null || provider.getJwkSetUri().trim().isEmpty()) {
+        if (hasText(provider.getJwkSet()) && !testModeAllows(provider)) {
+            throw OidcProviderConfigException.jwksInlineNotAllowed(provider.getId(), provider.getTenantId());
+        }
+        if (!usesInlineJwkSet(provider) && !hasText(provider.getJwkSetUri())) {
             throw OidcProviderConfigException.jwksMissing(provider.getId());
         }
         if (provider.getIssuerUri() == null || provider.getIssuerUri().trim().isEmpty()) {

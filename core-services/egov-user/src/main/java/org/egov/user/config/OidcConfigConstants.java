@@ -17,6 +17,7 @@ public final class OidcConfigConstants {
     public static final String KEY_ISSUER_URI = "issuerUri";
     public static final String KEY_ISSUER_ALIASES = "issuerAliases";
     public static final String KEY_JWK_SET_URI = "jwkSetUri";
+    public static final String KEY_JWK_SET = "jwkSet";
     public static final String KEY_AUDIENCES = "audiences";
     public static final String KEY_TENANT_ID = "tenantId";
     public static final String KEY_USER_TYPE = "userType";

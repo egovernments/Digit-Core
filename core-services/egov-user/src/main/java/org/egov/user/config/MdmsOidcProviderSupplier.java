@@ -216,6 +216,12 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
         if (n.has(OidcConfigConstants.KEY_JWK_SET_URI)) {
             builder.jwkSetUri(textOrNull(n.get(OidcConfigConstants.KEY_JWK_SET_URI)));
         }
+        if (n.has(OidcConfigConstants.KEY_JWK_SET)) {
+            JsonNode jwks = n.get(OidcConfigConstants.KEY_JWK_SET);
+            // accepted either as the JWKS object itself or as a JSON string holding it
+            builder.jwkSet(jwks == null || jwks.isNull() ? null
+                    : jwks.isTextual() ? jwks.asText() : jwks.toString());
+        }
         if (n.has(OidcConfigConstants.KEY_AUDIENCES) && n.get(OidcConfigConstants.KEY_AUDIENCES).isArray()) {
             List<String> aud = new ArrayList<>();
             n.get(OidcConfigConstants.KEY_AUDIENCES).forEach(a -> aud.add(a.asText()));

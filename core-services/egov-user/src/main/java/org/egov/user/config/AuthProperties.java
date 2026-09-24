@@ -66,6 +66,38 @@ public class AuthProperties {
          */
         private Long jwksCacheTtlMs;
         private String sharedLoginTenantId;
+
+        /**
+         * Non-production switch that lets a provider carry its verification key by value
+         * ({@code jwkSet}) instead of a fetchable {@code jwkSetUri}, for IdPs the service
+         * cannot reach over the network (a developer's Keycloak on localhost, for example).
+         *
+         * <p>Signature, expiry, issuer and audience validation are unchanged — only the
+         * source of the public key differs. Disabled by default, and even when enabled a
+         * provider's tenant must appear in {@code tenants}.</p>
+         *
+         * <p>Properties: {@code auth.oidc.test-mode.enabled}, {@code auth.oidc.test-mode.tenants}</p>
+         */
+        private TestMode testMode = new TestMode();
+    }
+
+    @Getter
+    @Setter
+    public static class TestMode {
+        private boolean enabled = false;
+        private List<String> tenants = new ArrayList<>();
+        /**
+         * A single JWKS document used for every allowed provider that has no reachable
+         * {@code jwkSetUri}. Because this comes from deployment config rather than MDMS
+         * data, editing a master cannot introduce a trusted key.
+         *
+         * <p>Property: {@code auth.oidc.test-mode.jwk-set}</p>
+         */
+        private String jwkSet;
+
+        public boolean allows(String tenantId) {
+            return enabled && tenantId != null && tenants.contains(tenantId);
+        }
     }
 
     /**
@@ -98,6 +130,13 @@ public class AuthProperties {
          */
         private final List<String> issuerAliases;
         private final String jwkSetUri;
+        /**
+         * JWKS document by value, as an alternative to {@link #jwkSetUri} for unreachable IdPs.
+         * Only honoured when {@code auth.oidc.test-mode} allows this provider's tenant.
+         *
+         * Property / MDMS key: {@code jwkSet}
+         */
+        private final String jwkSet;
         private final List<String> audiences;
         private final String tenantId;
         private final String userType;
@@ -152,6 +191,7 @@ public class AuthProperties {
             this.issuerUri = null;
             this.issuerAliases = Collections.emptyList();
             this.jwkSetUri = null;
+            this.jwkSet = null;
             this.audiences = Collections.emptyList();
             this.tenantId = null;
             this.userType = "EMPLOYEE";
@@ -184,7 +224,7 @@ public class AuthProperties {
 
         // Full constructor for creating immutable instances
         public Provider(String id, String issuerUri, List<String> issuerAliases, String jwkSetUri,
-                       List<String> audiences, String tenantId, String userType, String defaultRoleCodes,
+                       String jwkSet, List<String> audiences, String tenantId, String userType, String defaultRoleCodes,
                        String roleClaimKey, Map<String, String> roleMapping, Map<String, String> designationMapping,
                        String defaultDesignationCode, String defaultDepartmentCode, String designationClaimKey, String defaultBoundaryHierarchyType,
                        Long defaultDob, String defaultEmployeeStatus, String rolePrefix, String decryptionPurpose,
@@ -196,6 +236,7 @@ public class AuthProperties {
             this.issuerUri = issuerUri;
             this.issuerAliases = issuerAliases != null ? Collections.unmodifiableList(new ArrayList<>(issuerAliases)) : Collections.emptyList();
             this.jwkSetUri = jwkSetUri;
+            this.jwkSet = jwkSet;
             this.audiences = audiences != null ? Collections.unmodifiableList(new ArrayList<>(audiences)) : Collections.emptyList();
             this.tenantId = tenantId;
             this.userType = userType != null ? userType : "EMPLOYEE";
@@ -236,6 +277,7 @@ public class AuthProperties {
             private String issuerUri;
             private List<String> issuerAliases = new ArrayList<>();
             private String jwkSetUri;
+            private String jwkSet;
             private List<String> audiences = new ArrayList<>();
             private String tenantId;
             private String userType = "EMPLOYEE";
@@ -269,6 +311,7 @@ public class AuthProperties {
             public Builder issuerUri(String issuerUri) { this.issuerUri = issuerUri; return this; }
             public Builder issuerAliases(List<String> issuerAliases) { this.issuerAliases = issuerAliases; return this; }
             public Builder jwkSetUri(String jwkSetUri) { this.jwkSetUri = jwkSetUri; return this; }
+            public Builder jwkSet(String jwkSet) { this.jwkSet = jwkSet; return this; }
             public Builder audiences(List<String> audiences) { this.audiences = audiences; return this; }
             public Builder tenantId(String tenantId) { this.tenantId = tenantId; return this; }
             public Builder userType(String userType) { this.userType = userType; return this; }
@@ -299,7 +342,7 @@ public class AuthProperties {
             public Builder jitEnabled(boolean jitEnabled) { this.jitEnabled = jitEnabled; return this; }
 
             public Provider build() {
-                return new Provider(id, issuerUri, issuerAliases, jwkSetUri, audiences, tenantId,
+                return new Provider(id, issuerUri, issuerAliases, jwkSetUri, jwkSet, audiences, tenantId,
                         userType, defaultRoleCodes, roleClaimKey, roleMapping, designationMapping,
                         defaultDesignationCode, defaultDepartmentCode, designationClaimKey, defaultBoundaryHierarchyType,
                         defaultDob, defaultEmployeeStatus, rolePrefix, decryptionPurpose,
