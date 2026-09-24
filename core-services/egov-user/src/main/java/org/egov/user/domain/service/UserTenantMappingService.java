@@ -93,12 +93,6 @@ public class UserTenantMappingService {
 
     private Result upsert(String identifier, User user, String tenantId, UserType type, String plainUserName) {
         String mappingKey = encryptionDecryptionUtil.tenantMappingKey(plainUserName);
-        if (mappingKey == null) {
-            log.warn("No mapping key derived for {} in tenant {}; is auth.oidc.shared-login.tenant-id set?",
-                    identifier, tenantId);
-            return Result.builder().identifier(identifier).userId(user.getId())
-                    .status(Status.USER_NOT_FOUND).build();
-        }
         boolean existed = userTenantMappingRepository.exists(user.getId(), type, tenantId);
         userTenantMappingRepository.upsert(user.getId(), type, tenantId, mappingKey, user.getUuid(),
                 Boolean.TRUE.equals(user.getActive()));
