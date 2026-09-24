@@ -255,6 +255,107 @@ public class JwtExchangeAuthenticationProviderTest {
                 verify(ssoUserPersistenceService).updateUserAndUpsertIdpDetails(any(User.class), any(UserIdpDetails.class), eq(TENANT_PB), any(RequestInfo.class));
         }
 
+        /**
+         * Regression guard for the SSO -> HRMS correlation-id defect.
+         *
+         * The jwt_exchange grant is a form-encoded OAuth2 request carrying no RequestInfo body, so
+         * this provider has nothing to forward and must synthesize one. Downstream services treat
+         * correlationId as always-present and dereference it without a null check — egov-hrms does
+         * getCorrelationId().concat("-username-hrms") while validating the employee create — so a
+         * null here crashed the callee with a NullPointerException that reached the user as the
+         * unrelated "sso.user.contact_admin" / "A conflict was detected with your account".
+         */
+        @Test
+        public void testAuthenticate_NewUserCreation_SynthesizedRequestInfoHasCorrelationId() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+                claims.put("name", "John Doe");
+                claims.put("preferred_username", "johndoe");
+                claims.put("email", "john@example.com");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any()))
+                                .thenThrow(new org.egov.user.domain.exception.UserNotFoundException(
+                                                new UserSearchCriteria()));
+
+                org.egov.user.domain.model.hrms.User hrmsUser = org.egov.user.domain.model.hrms.User.builder()
+                                .userServiceUuid("new-uuid")
+                                .userName("johndoe")
+                                .name("John Doe")
+                                .roles(Collections.emptyList())
+                                .tenantId(TENANT_PB)
+                                .build();
+
+                when(hrmsUserUtil.createHrmsUser(
+                                any(org.egov.user.domain.model.hrms.User.class), anyString(), anyString(), anyString(),
+                                anyString(), anyString(), anyString(), anyString(), any(OidcValidatedJwt.class), any(RequestInfo.class)))
+                                .thenReturn(hrmsUser);
+
+                authenticationProvider.authenticate(authenticationToken);
+
+                ArgumentCaptor<RequestInfo> requestInfoCaptor = ArgumentCaptor.forClass(RequestInfo.class);
+                verify(hrmsUserUtil).createHrmsUser(
+                                any(org.egov.user.domain.model.hrms.User.class), anyString(), anyString(), anyString(),
+                                anyString(), anyString(), anyString(), anyString(), any(OidcValidatedJwt.class),
+                                requestInfoCaptor.capture());
+
+                RequestInfo sentToHrms = requestInfoCaptor.getValue();
+                assertNotNull("RequestInfo sent to HRMS must not be null", sentToHrms);
+                assertNotNull("correlationId must be set — egov-hrms dereferences it without a null check",
+                                sentToHrms.getCorrelationId());
+                assertTrue("correlationId must not be blank",
+                                sentToHrms.getCorrelationId().trim().length() > 0);
+        }
+
+        /**
+         * Same guard for the returning-user branch, which synthesizes its RequestInfo from the
+         * resolved User. That object also reaches boundary-service and egov-enc.
+         */
+        @Test
+        public void testAuthenticate_ExistingUser_SynthesizedRequestInfoHasCorrelationId() {
+                String token = "jwt-token";
+                JwtExchangeAuthenticationToken authenticationToken =
+                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
+
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("iss", "issuer");
+                claims.put("sub", "subject");
+                claims.put("tenantId", TENANT_PB);
+                claims.put("userType", "EMPLOYEE");
+                claims.put("name", "John Doe");
+                claims.put("email", "john@example.com");
+                claims.put("preferred_username", "john@example.com");
+
+                OidcValidatedJwt jwt = oidcJwt(claims, token);
+
+                User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true).password("password")
+                                .tenantId(TENANT_PB)
+                                .roles(Collections.emptySet()).build();
+
+                when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
+                when(userService.getUniqueUser(anyString(), anyString(), anyString(), any())).thenReturn(user);
+
+                authenticationProvider.authenticate(authenticationToken);
+
+                ArgumentCaptor<RequestInfo> requestInfoCaptor = ArgumentCaptor.forClass(RequestInfo.class);
+                verify(ssoUserPersistenceService).updateUserAndUpsertIdpDetails(any(User.class),
+                                any(UserIdpDetails.class), eq(TENANT_PB), requestInfoCaptor.capture());
+
+                RequestInfo synthesized = requestInfoCaptor.getValue();
+                assertNotNull(synthesized);
+                assertNotNull("correlationId must be set on the returning-user path too",
+                                synthesized.getCorrelationId());
+        }
+
         @Test
         public void testAuthenticate_NewUserCreation_UsesGraphEmployeeProfile() {
                 String token = "jwt-token";

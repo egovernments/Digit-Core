@@ -588,7 +588,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         org.egov.common.contract.request.User userInfo = org.egov.common.contract.request.User.builder()
                 .uuid(user.getUuid())
                 .type(user.getType() != null ? user.getType().name() : null).roles(contract_roles).build();
-        return RequestInfo.builder().userInfo(userInfo).build();
+        return RequestInfo.builder().correlationId(newCorrelationId()).userInfo(userInfo).build();
     }
 
     /**
@@ -608,7 +608,27 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
 
         org.egov.common.contract.request.User userInfo = org.egov.common.contract.request.User.builder().uuid(userUuid)
                 .type(userType).roles(contract_roles).id(SYSTEM_USER_ID).build();
-        return RequestInfo.builder().userInfo(userInfo).build();
+        return RequestInfo.builder().correlationId(newCorrelationId()).userInfo(userInfo).build();
+    }
+
+    /**
+     * Supplies a non-null correlation id for the RequestInfo objects this provider synthesizes.
+     *
+     * The jwt_exchange grant arrives as a form-encoded OAuth2 request with no RequestInfo body, so
+     * unlike every other caller of the downstream services this provider has nothing to forward and
+     * must build one. Downstream services treat correlationId as always-present and dereference it
+     * without a null check — egov-hrms does
+     * {@code requestInfo.setCorrelationId(requestInfo.getCorrelationId().concat("-username-hrms"))}
+     * while validating an employee create — so leaving it null crashes the callee with a
+     * NullPointerException that surfaces to the user as an unrelated "contact your administrator".
+     *
+     * The real end-to-end trace id still travels in the {@code x-correlation-id} header, which the
+     * tracer's outbound interceptor populates; this value only has to be a non-null, unique tag.
+     *
+     * @return a fresh correlation id, never null
+     */
+    private String newCorrelationId() {
+        return UUID.randomUUID().toString();
     }
 
     /**
