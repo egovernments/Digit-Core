@@ -17,6 +17,9 @@ public final class UserTenantMappingQueryBuilder {
             "UPDATE " + TABLE + " SET active = :active, lastmodifieddate = CURRENT_TIMESTAMP "
                     + "WHERE userid = :userid AND type = :type AND tenantid = :tenantid";
 
+    public static final String EXISTS =
+            "SELECT 1 FROM " + TABLE + " WHERE userid = :userid AND type = :type AND tenantid = :tenantid";
+
     public static final String FIND_ACTIVE_BY_USERNAMEKEY_AND_TYPE =
             "SELECT tenantid, userid, uuid FROM " + TABLE
                     + " WHERE usernamekey = :usernamekey AND type = :type AND active ORDER BY tenantid";

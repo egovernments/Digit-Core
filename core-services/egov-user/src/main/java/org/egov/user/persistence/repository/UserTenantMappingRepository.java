@@ -29,6 +29,15 @@ public class UserTenantMappingRepository {
         namedParameterJdbcTemplate.update(UserTenantMappingQueryBuilder.UPSERT, params);
     }
 
+    public boolean exists(Long userId, UserType type, String tenantId) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("userid", userId)
+                .addValue("type", type.name())
+                .addValue("tenantid", tenantId);
+        return !namedParameterJdbcTemplate.queryForList(UserTenantMappingQueryBuilder.EXISTS, params, Integer.class)
+                .isEmpty();
+    }
+
     public void setActive(Long userId, UserType type, String tenantId, boolean active) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userid", userId)

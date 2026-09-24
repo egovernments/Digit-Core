@@ -3,6 +3,7 @@ All notable changes to this module will be documented in this file.
 
 
 ## 1.3.1-oidc - 2026-09-11
+- Added `POST /sso/tenant-mappings/_upsert` to backfill the tenant mapping of users that already exist, by username or user id (mappings are only written on user create, so users predating that behaviour are missing from the shared-login tenant lookup)
 - Added OIDC test mode (`auth.oidc.test-mode.*`): an allow-listed tenant may verify IdP tokens with a pinned JWKS from config or the provider entry, for IdPs the service cannot reach. Disabled by default; signature, expiry, issuer and audience validation are unchanged, and a provider with a `jwkSetUri` always fetches it
 - Added DataAccessExceptionHandler to handle DataAccessException through `@ControllerAdvice` (added directly as the Java version is old)
 - Fixed account locking: audit/update user id accepts null, auth token carries the user id, lock message states the cool-down period
