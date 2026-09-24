@@ -13,7 +13,7 @@ public final class UserSessionLogoutEventQueryBuilder {
 
     public static final String SELECT_LOGOUT_EVENT_SQL =
             "SELECT clienteventid FROM " + SCHEMA_REPLACE_STRING + ".eg_user_session_logout_event " +
-            "WHERE clienteventid = :clienteventid";
+            "WHERE clienteventid = :clienteventid AND useruuid = :useruuid";
 
     public static final String INSERT_LOGOUT_EVENT_SQL =
             "INSERT INTO " + SCHEMA_REPLACE_STRING + ".eg_user_session_logout_event " +

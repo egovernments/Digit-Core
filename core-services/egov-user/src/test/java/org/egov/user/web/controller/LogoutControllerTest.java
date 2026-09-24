@@ -76,13 +76,14 @@ public class LogoutControllerTest {
     }
 
     // Offline-logout retry: the client resends the same clientEventId after reconnecting.
-    // The first delivery does the real work; a second, duplicate delivery must be a pure
-    // no-op — not a second logout(), not a second event record.
+    // The first delivery does the real work and records the event; a second, duplicate
+    // delivery is safe to re-run (logout() no-ops on an already-ended session, token removal is
+    // idempotent) but must not record the event a second time.
     @Test
-    public void test_should_process_logout_event_exactly_once_on_retry() throws Exception {
+    public void test_should_record_logout_event_exactly_once_on_retry() throws Exception {
         OAuth2AccessToken token = tokenWithUser(userSessionOwner());
         when(tokenStore.readAccessToken(ACCESS_TOKEN)).thenReturn(token);
-        when(userSessionLogoutEventRepository.isAlreadyProcessed("event-1", TENANT_ID)).thenReturn(false);
+        when(userSessionLogoutEventRepository.isAlreadyProcessed("event-1", "user-uuid-1", TENANT_ID)).thenReturn(false);
 
         ResponseEntity<?> first = logoutController.deleteToken(tokenWrapper("event-1"));
         assertEquals(HttpStatus.OK, first.getStatusCode());
@@ -91,28 +92,30 @@ public class LogoutControllerTest {
 
         // Simulate the retry: token store no longer has it removed in this mock (still
         // stubbed to return the token), but the event ledger now reports the id as seen.
-        when(userSessionLogoutEventRepository.isAlreadyProcessed("event-1", TENANT_ID)).thenReturn(true);
+        when(userSessionLogoutEventRepository.isAlreadyProcessed("event-1", "user-uuid-1", TENANT_ID)).thenReturn(true);
 
         ResponseEntity<?> retry = logoutController.deleteToken(tokenWrapper("event-1"));
         assertEquals(HttpStatus.OK, retry.getStatusCode());
-        // Still only the one call from the first delivery — the retry short-circuited.
-        verify(userSessionService, times(1)).logout(anyString(), anyString(), anyString());
-        verify(tokenStore, times(1)).removeAccessToken(any(OAuth2AccessToken.class));
+        // The retry re-runs logout() and token removal (both idempotent) but is not re-recorded.
+        verify(userSessionService, times(2)).logout("session-1", TENANT_ID, "user-uuid-1");
+        verify(tokenStore, times(2)).removeAccessToken(any(OAuth2AccessToken.class));
         verify(userSessionLogoutEventRepository, times(1))
                 .recordProcessed(anyString(), anyString(), anyString(), anyString(), anyLong());
     }
 
+    // Same user reusing a clientEventId for a later login: the duplicate must still end that
+    // login's session (not leave it ACTIVE behind a removed token), without re-recording.
     @Test
-    public void test_should_not_touch_session_or_token_store_when_event_already_recorded() throws Exception {
+    public void test_should_still_logout_session_and_remove_token_when_event_id_reused() throws Exception {
         OAuth2AccessToken token = tokenWithUser(userSessionOwner());
         when(tokenStore.readAccessToken(ACCESS_TOKEN)).thenReturn(token);
-        when(userSessionLogoutEventRepository.isAlreadyProcessed("event-1", TENANT_ID)).thenReturn(true);
+        when(userSessionLogoutEventRepository.isAlreadyProcessed("event-1", "user-uuid-1", TENANT_ID)).thenReturn(true);
 
         ResponseEntity<?> response = logoutController.deleteToken(tokenWrapper("event-1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(userSessionService, never()).logout(anyString(), anyString(), anyString());
-        verify(tokenStore, never()).removeAccessToken(any(OAuth2AccessToken.class));
+        verify(userSessionService).logout("session-1", TENANT_ID, "user-uuid-1");
+        verify(tokenStore).removeAccessToken(token);
         verify(userSessionLogoutEventRepository, never())
                 .recordProcessed(anyString(), anyString(), anyString(), anyString(), anyLong());
     }

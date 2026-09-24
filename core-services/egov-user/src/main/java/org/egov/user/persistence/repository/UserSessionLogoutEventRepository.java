@@ -7,7 +7,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,17 +29,19 @@ public class UserSessionLogoutEventRepository {
         this.databaseSchemaUtils = databaseSchemaUtils;
     }
 
-    public boolean isAlreadyProcessed(String clientEventId, String tenantId) {
+    public boolean isAlreadyProcessed(String clientEventId, String userUuid, String tenantId) {
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(
                 UserSessionLogoutEventQueryBuilder.SELECT_LOGOUT_EVENT_SQL, tenantId);
-        return !namedParameterJdbcTemplate.queryForList(query,
-                Collections.singletonMap("clienteventid", clientEventId)).isEmpty();
+        Map<String, Object> params = new HashMap<>();
+        params.put("clienteventid", clientEventId);
+        params.put("useruuid", userUuid);
+        return !namedParameterJdbcTemplate.queryForList(query, params).isEmpty();
     }
 
     /**
      * Best-effort: called only after the logout it records has already taken effect, so a
      * failure here (including a losing race against a concurrent duplicate call, surfaced as
-     * {@link DuplicateKeyException} on the clientEventId primary key) must never fail the
+     * {@link DuplicateKeyException} on the (clientEventId, userUuid) primary key) must never fail the
      * request — the logout itself already succeeded.
      */
     public void recordProcessed(String clientEventId, String sessionId, String tenantId, String userUuid, long now) {

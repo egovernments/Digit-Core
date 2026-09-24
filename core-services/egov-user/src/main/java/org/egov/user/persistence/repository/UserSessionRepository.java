@@ -94,20 +94,6 @@ public class UserSessionRepository {
     }
 
     /**
-     * True if this user has any session row (any status) in tenantId's schema. Unlike
-     * {@link #findActiveSession}, this is not restricted to ACTIVE rows.
-     */
-    public boolean existsByUserUuid(String userUuid, String tenantId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("useruuid", userUuid);
-        params.put("tenantid", tenantId);
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(
-                UserSessionQueryBuilder.EXISTS_SESSION_BY_USER_TENANT_SQL, tenantId);
-        Boolean exists = namedParameterJdbcTemplate.queryForObject(query, params, Boolean.class);
-        return Boolean.TRUE.equals(exists);
-    }
-
-    /**
      * Only transitions a row that is currently ACTIVE. Returns the number of rows updated
      * (0 or 1) so callers can tell a genuine transition apart from a no-op retry of an
      * already-terminated session — see UserSessionService.logout/revoke, which only log and
@@ -123,17 +109,18 @@ public class UserSessionRepository {
     }
 
     /**
-     * Logs out whichever session is currently ACTIVE for this user+tenant, regardless of the
-     * sessionid the caller passed in — see LOGOUT_ACTIVE_SESSION_FOR_USER_SQL for why matching
-     * on the caller's remembered sessionid is unsafe. Returns the terminated row (sessionId +
-     * deviceId only) so the caller can audit the real session, or empty if none was ACTIVE.
+     * Logs out the ACTIVE session with exactly this sessionId for this user+tenant. A stale
+     * sessionId (row since terminated or reclaimed by another login) matches nothing, so it can
+     * never terminate a different device's session. Returns the terminated row (sessionId +
+     * deviceId only) for auditing, or empty if nothing was terminated.
      */
-    public Optional<UserSession> logoutActiveSessionForUser(String userUuid, String tenantId) {
+    public Optional<UserSession> logoutSession(String sessionId, String userUuid, String tenantId) {
         Map<String, Object> params = new HashMap<>();
+        params.put("sessionid", sessionId);
         params.put("useruuid", userUuid);
         params.put("tenantid", tenantId);
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(
-                UserSessionQueryBuilder.LOGOUT_ACTIVE_SESSION_FOR_USER_SQL, tenantId);
+                UserSessionQueryBuilder.LOGOUT_SESSION_SQL, tenantId);
         List<UserSession> results = namedParameterJdbcTemplate.query(query, params,
                 new BeanPropertyRowMapper<>(UserSession.class));
         return results.stream().findFirst();
@@ -155,21 +142,20 @@ public class UserSessionRepository {
     }
 
     /**
-     * Re-login on the same device: rotates the ACTIVE row's sessionId in place. Returns the
-     * number of rows updated (0 or 1) so the caller can tell a same-device re-auth apart from
-     * a genuine different-device conflict without a separate read.
+     * Re-login on the same device: refreshes the ACTIVE row's timestamps in place, keeping its
+     * sessionId. Returns that existing sessionId, or empty if this device has no ACTIVE row (a
+     * genuine different-device conflict) — no separate read needed to tell the two apart.
      */
-    public int reactivateSessionForDevice(String userUuid, String tenantId, String deviceId,
-                                           String newSessionId, long now) {
+    public Optional<String> reactivateSessionForDevice(String userUuid, String tenantId, String deviceId, long now) {
         Map<String, Object> params = new HashMap<>();
         params.put("useruuid", userUuid);
         params.put("tenantid", tenantId);
         params.put("deviceid", deviceId);
-        params.put("newsessionid", newSessionId);
         params.put("now", now);
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(
                 UserSessionQueryBuilder.REACTIVATE_SESSION_FOR_DEVICE_SQL, tenantId);
-        return namedParameterJdbcTemplate.update(query, params);
+        List<String> results = namedParameterJdbcTemplate.queryForList(query, params, String.class);
+        return results.stream().findFirst();
     }
 
     /**

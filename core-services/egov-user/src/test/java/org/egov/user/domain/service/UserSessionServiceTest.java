@@ -66,6 +66,9 @@ public class UserSessionServiceTest {
         // insertActiveSession — matches the plain first-login/no-history case. Tests exercising
         // the reclaim path override this.
         when(userSessionRepository.reclaimTerminalSession(any(UserSession.class))).thenReturn(false);
+        // Default: no ACTIVE row on this device to reactivate (Mockito 1.x returns null for Optional).
+        when(userSessionRepository.reactivateSessionForDevice(anyString(), anyString(), anyString(), anyLong()))
+                .thenReturn(Optional.empty());
     }
 
     // Test 1 — first login: no existing row at all, login succeeds, ACTIVE session inserted.
@@ -213,13 +216,14 @@ public class UserSessionServiceTest {
     public void test_should_reactivate_session_when_relogin_from_same_active_device() {
         doThrow(new DuplicateKeyException("duplicate active session"))
                 .when(userSessionRepository).insertActiveSession(any(UserSession.class));
-        when(userSessionRepository.reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), anyString(), anyLong()))
-                .thenReturn(1);
+        when(userSessionRepository.reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), anyLong()))
+                .thenReturn(Optional.of("existing-session"));
 
         String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
-        assertNotNull(sessionId);
-        verify(userSessionRepository).reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), eq(sessionId), anyLong());
+        // The row's existing sessionId is kept and reused, not rotated.
+        assertEquals("existing-session", sessionId);
+        verify(userSessionRepository).reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), anyLong());
         verify(userSessionRepository, never()).findActiveSession(anyString(), anyString());
     }
 
@@ -403,31 +407,41 @@ public class UserSessionServiceTest {
                 .touchLastServerContact(anyString(), anyString(), anyLong(), anyLong());
     }
 
-    // Test 3 — logout: whatever session is currently ACTIVE for the user+tenant is marked
-    // LOGGED_OUT, even though the caller's sessionId ("session-1") is stale relative to the DB
-    // row ("session-2") — the scenario a reused OAuth2 access token can produce after a later
-    // same-device login rotated the row's sessionId. See UserSessionService#logout javadoc.
+    // Test 3 — logout: the ACTIVE session matching the caller's sessionId is marked LOGGED_OUT
+    // and audited. See UserSessionService#logout javadoc.
     @Test
-    public void test_logout_should_mark_current_active_session_logged_out_even_if_caller_sessionId_is_stale() {
-        UserSession active = new UserSession(USER_UUID, TENANT_ID, "device-A", "session-2",
+    public void test_logout_should_mark_matching_active_session_logged_out() {
+        UserSession active = new UserSession(USER_UUID, TENANT_ID, "device-A", "session-1",
                 "ACTIVE", System.currentTimeMillis(), System.currentTimeMillis());
-        when(userSessionRepository.logoutActiveSessionForUser(USER_UUID, TENANT_ID)).thenReturn(Optional.of(active));
+        when(userSessionRepository.logoutSession("session-1", USER_UUID, TENANT_ID)).thenReturn(Optional.of(active));
 
         userSessionService.logout("session-1", TENANT_ID, USER_UUID);
 
-        verify(userSessionRepository).logoutActiveSessionForUser(USER_UUID, TENANT_ID);
+        verify(userSessionRepository).logoutSession("session-1", USER_UUID, TENANT_ID);
         UserSessionAudit audit = captureAudit();
         assertEquals("LOGOUT", audit.getAction());
         assertEquals(USER_UUID, audit.getActor());
-        assertEquals("session-2", audit.getSessionId());
+        assertEquals("session-1", audit.getSessionId());
         assertEquals("device-A", audit.getDeviceId());
+    }
+
+    // A stale sessionId (e.g. a revoked device whose row was reclaimed by another device's
+    // login) matches no ACTIVE row, so the newer session is left alone and nothing is audited.
+    @Test
+    public void test_logout_should_not_terminate_other_devices_session_when_sessionId_is_stale() {
+        when(userSessionRepository.logoutSession("stale-session", USER_UUID, TENANT_ID)).thenReturn(Optional.empty());
+
+        userSessionService.logout("stale-session", TENANT_ID, USER_UUID);
+
+        verify(userSessionRepository).logoutSession("stale-session", USER_UUID, TENANT_ID);
+        verify(userSessionAuditRepository, never()).insert(any(UserSessionAudit.class));
     }
 
     @Test
     public void test_logout_should_be_noop_when_sessionId_is_null() {
         userSessionService.logout(null, TENANT_ID, USER_UUID);
 
-        verify(userSessionRepository, never()).logoutActiveSessionForUser(anyString(), anyString());
+        verify(userSessionRepository, never()).logoutSession(anyString(), anyString(), anyString());
         verify(userSessionAuditRepository, never()).insert(any(UserSessionAudit.class));
     }
 
@@ -435,7 +449,7 @@ public class UserSessionServiceTest {
     // no duplicate log, no duplicate audit entry.
     @Test
     public void test_logout_should_be_silent_when_session_already_terminated() {
-        when(userSessionRepository.logoutActiveSessionForUser(USER_UUID, TENANT_ID)).thenReturn(Optional.empty());
+        when(userSessionRepository.logoutSession("session-1", USER_UUID, TENANT_ID)).thenReturn(Optional.empty());
 
         userSessionService.logout("session-1", TENANT_ID, USER_UUID);
 
@@ -520,12 +534,13 @@ public class UserSessionServiceTest {
     public void test_should_audit_login_reactivated() {
         doThrow(new DuplicateKeyException("duplicate active session"))
                 .when(userSessionRepository).insertActiveSession(any(UserSession.class));
-        when(userSessionRepository.reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), anyString(), anyLong()))
-                .thenReturn(1);
+        when(userSessionRepository.reactivateSessionForDevice(eq(USER_UUID), eq(TENANT_ID), eq("device-A"), anyLong()))
+                .thenReturn(Optional.of("existing-session"));
 
         userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         UserSessionAudit audit = captureAudit();
+        assertEquals("existing-session", audit.getSessionId());
         assertEquals("LOGIN_REACTIVATED", audit.getAction());
         assertEquals(USER_UUID, audit.getActor());
     }
