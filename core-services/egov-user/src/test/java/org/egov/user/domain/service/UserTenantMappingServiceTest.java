@@ -157,16 +157,4 @@ public class UserTenantMappingServiceTest {
         assertEquals("2", results.get(1).getIdentifier());
     }
 
-    @Test
-    public void doesNotWriteAMappingWhenNoSharedLoginTenantIsConfigured() {
-        when(userService.getUniqueUser(USERNAME, TENANT, UserType.EMPLOYEE)).thenReturn(user(42L, true));
-        when(encryptionDecryptionUtil.tenantMappingKey(USERNAME)).thenReturn(null);
-
-        List<Result> results = service.upsertMappings(TENANT, UserType.EMPLOYEE,
-                Collections.singletonList(USERNAME), null, requestInfo);
-
-        assertEquals(Status.USER_NOT_FOUND, results.get(0).getStatus());
-        verify(userTenantMappingRepository, never()).upsert(any(), any(), anyString(), anyString(), anyString(),
-                org.mockito.Matchers.anyBoolean());
-    }
 }

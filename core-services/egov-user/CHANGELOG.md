@@ -3,6 +3,7 @@ All notable changes to this module will be documented in this file.
 
 
 ## 1.3.1-oidc - 2026-09-11
+- Tenant mapping keys are now derived with the encryption client's state-level tenant (`state.level.tenant.id`) instead of `auth.oidc.shared-login.tenant-id`: that tenant is common to all tenants, so one username yields one key, and egov-enc-service always holds keys for it (a shared-login tenant absent from the MDMS tenant list made encryption fail)
 - Added `POST /sso/tenant-mappings/_upsert` to backfill the tenant mapping of users that already exist, by username or user id (mappings are only written on user create, so users predating that behaviour are missing from the shared-login tenant lookup)
 - Added OIDC test mode (`auth.oidc.test-mode.*`): an allow-listed tenant may verify IdP tokens with a pinned JWKS from config or the provider entry, for IdPs the service cannot reach. Disabled by default; signature, expiry, issuer and audience validation are unchanged, and a provider with a `jwkSetUri` always fetches it
 - Added DataAccessExceptionHandler to handle DataAccessException through `@ControllerAdvice` (added directly as the Java version is old)

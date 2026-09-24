@@ -6,6 +6,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.encryption.EncryptionService;
+import org.egov.encryption.config.EncProperties;
 import java.util.Collections;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.util.StringUtils;
@@ -46,16 +47,26 @@ public class EncryptionDecryptionUtil {
         this.encryptionService = encryptionService;
     }
 
-    @Value("${auth.oidc.shared-login.tenant-id:}")
-    private String sharedLoginTenantId;
+    @Autowired
+    private EncProperties encProperties;
 
+    /**
+     * Derives the key a username is recorded under in the tenant mapping table.
+     *
+     * <p>Encrypted with the tenant the encryption client itself uses
+     * ({@code state.level.tenant.id}), for two reasons: that tenant is common to all
+     * tenants, so the same username yields the same key everywhere and the shared-login
+     * lookup can group a person's tenants; and egov-enc-service is guaranteed to hold keys
+     * for it, since it only generates keys for tenants present in the MDMS tenant list.</p>
+     */
     public String tenantMappingKey(String plaintextUsername) {
-        if (!StringUtils.hasText(sharedLoginTenantId) || !StringUtils.hasText(plaintextUsername)) {
+        if (!StringUtils.hasText(plaintextUsername)) {
             return null;
         }
         try {
             JsonNode encrypted = encryptionService.encryptJson(
-                    Collections.singletonMap(TENANT_MAPPING_FIELD, plaintextUsername.trim()), TENANT_MAPPING_MODEL, sharedLoginTenantId);
+                    Collections.singletonMap(TENANT_MAPPING_FIELD, plaintextUsername.trim()), TENANT_MAPPING_MODEL,
+                    encProperties.getStateLevelTenantId());
             return encrypted.get(TENANT_MAPPING_FIELD).asText();
         } catch (IOException e) {
             throw new CustomException("TENANT_MAPPING_KEY_FAILED", "Failed to derive tenant mapping key: " + e.getMessage());
