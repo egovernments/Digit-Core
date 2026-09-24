@@ -34,15 +34,13 @@ public class LogoutController {
     /**
      * End-point to logout the session. Idempotent — a device that logs out while offline
      * clears its local session immediately and queues this call with a client-generated
-     * {@code clientEventId}, resent on reconnect (possibly more than once, on retry). Two
-     * things make repeated calls safe to replay:
-     * <ol>
-     *   <li>the underlying state change is itself a no-op once applied (see
-     *       UserSessionService#logout, guarded by "still ACTIVE"), and</li>
-     *   <li>when {@code clientEventId} is supplied, a duplicate is recognized up front via
-     *       {@link UserSessionLogoutEventRepository} and short-circuited before touching the
-     *       session or token store at all.</li>
-     * </ol>
+     * {@code clientEventId}, resent on reconnect (possibly more than once, on retry). Repeated
+     * calls are safe to replay because the underlying state change is itself a no-op once
+     * applied (see UserSessionService#logout, matched strictly on sessionId and guarded by
+     * "still ACTIVE"), and token removal is idempotent. When {@code clientEventId} is supplied,
+     * a duplicate is recognized via {@link UserSessionLogoutEventRepository} only so the event
+     * isn't recorded twice; it is still processed, so a client that reuses an id for a later
+     * login can't be left with a removed token and a still-ACTIVE session.
      */
     @PostMapping("/_logout")
     public ResponseEntity<?> deleteToken(@RequestBody TokenWrapper tokenWrapper) throws Exception {
@@ -59,16 +57,17 @@ public class LogoutController {
 
         String clientEventId = tokenWrapper.getClientEventId();
         User user = extractUser(redisToken);
-        if (user != null && clientEventId != null
-                && userSessionLogoutEventRepository.isAlreadyProcessed(clientEventId, user.getTenantId())) {
-            return buildLogoutSuccessResponse();
-        }
+        boolean duplicateEvent = user != null && clientEventId != null
+                && userSessionLogoutEventRepository.isAlreadyProcessed(clientEventId, user.getUuid(), user.getTenantId());
 
+        // Runs even for a duplicate event: if the first delivery already terminated the session
+        // this matches nothing (no-op), but if the client reused the id for a later login, this
+        // terminates that login's session so it isn't left ACTIVE behind a removed token.
         if (user != null) {
             userSessionService.logout(user.getSessionId(), user.getTenantId(), user.getUuid());
         }
         tokenStore.removeAccessToken(redisToken);
-        if (user != null && clientEventId != null) {
+        if (user != null && clientEventId != null && !duplicateEvent) {
             userSessionLogoutEventRepository.recordProcessed(clientEventId, user.getSessionId(), user.getTenantId(),
                     user.getUuid(), System.currentTimeMillis());
         }

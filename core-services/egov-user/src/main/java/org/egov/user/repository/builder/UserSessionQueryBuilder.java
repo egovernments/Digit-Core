@@ -61,32 +61,22 @@ public final class UserSessionQueryBuilder {
             "FROM " + SCHEMA_REPLACE_STRING + ".eg_user_session " +
             "WHERE useruuid = :useruuid AND tenantid = :tenantid AND status = 'ACTIVE'";
 
-    // Existence check across all statuses (ACTIVE/LOGGED_OUT/EXPIRED/REVOKED) — unlike
-    // SELECT_ACTIVE_SESSION_BY_USER_TENANT_SQL, this answers "has this user ever had a session
-    // row" rather than "does this user have a live session".
-    public static final String EXISTS_SESSION_BY_USER_TENANT_SQL =
-            "SELECT EXISTS(SELECT 1 FROM " + SCHEMA_REPLACE_STRING + ".eg_user_session " +
-            "WHERE useruuid = :useruuid AND tenantid = :tenantid)";
-
     // Only transitions a row that is currently ACTIVE — a stale/already-terminated session
     // is left untouched instead of being re-stamped with a new terminal status.
     public static final String UPDATE_SESSION_STATUS_SQL =
             "UPDATE " + SCHEMA_REPLACE_STRING + ".eg_user_session SET status = :status, version = version + 1 " +
             "WHERE sessionid = :sessionid AND status = 'ACTIVE'";
 
-    // Logout matches on (useruuid, tenantid, status='ACTIVE') rather than a specific sessionid.
-    // Reason: Spring's DefaultTokenServices (reuseRefreshToken=true) can hand back an existing,
-    // still-valid access token verbatim on a repeat login, so the token a client is holding can
-    // keep embedding a PRE-rotation sessionid even after a later same-device login has rotated
-    // the DB row's sessionid via REACTIVATE_SESSION_FOR_DEVICE_SQL. Matching strictly on that
-    // stale sessionid would update zero rows and silently fail to terminate the real active
-    // session (see UserSessionService#logout) — matching on user+tenant instead always targets
-    // whichever single row the partial unique index (uk_eg_user_session_active_user_tenant)
-    // allows to be ACTIVE. RETURNING hands back the row actually terminated so the audit trail
-    // reflects the real session, not the caller's stale one.
-    public static final String LOGOUT_ACTIVE_SESSION_FOR_USER_SQL =
+    // Logout matches strictly on the caller's sessionid (plus user+tenant, as defence in depth).
+    // A token whose sessionid no longer matches the ACTIVE row — e.g. a device whose session was
+    // revoked/expired and whose row has since been reclaimed by another device's login — must not
+    // terminate the newer session, so a mismatch updates zero rows. This is safe only because
+    // REACTIVATE_SESSION_FOR_DEVICE_SQL no longer rotates sessionid: the sessionid embedded in a
+    // (possibly reused) token stays equal to the row's for the life of that session.
+    // RETURNING hands back the terminated row's deviceid for the audit trail.
+    public static final String LOGOUT_SESSION_SQL =
             "UPDATE " + SCHEMA_REPLACE_STRING + ".eg_user_session SET status = 'LOGGED_OUT', version = version + 1 " +
-            "WHERE useruuid = :useruuid AND tenantid = :tenantid AND status = 'ACTIVE' " +
+            "WHERE sessionid = :sessionid AND useruuid = :useruuid AND tenantid = :tenantid AND status = 'ACTIVE' " +
             "RETURNING sessionid, deviceid";
 
     // Single atomic, conditional write: only applies (and only costs a write) when the stored
@@ -96,14 +86,18 @@ public final class UserSessionQueryBuilder {
             "UPDATE " + SCHEMA_REPLACE_STRING + ".eg_user_session SET lastservercontact = :now, version = version + 1 " +
             "WHERE sessionid = :sessionid AND status = 'ACTIVE' AND lastservercontact < :staleBefore";
 
-    // Re-login on the same device: rotates the sessionId and resets the timestamps on the
-    // existing ACTIVE row instead of inserting a new one, so it never collides with the
-    // partial unique index. The deviceid match in the WHERE clause (not just in application
-    // code) is what keeps this atomic against a concurrent different-device login.
+    // Re-login on the same device: resets the timestamps on the existing ACTIVE row instead of
+    // inserting a new one, so it never collides with the partial unique index. The sessionid is
+    // deliberately NOT rotated — a reused OAuth2 access token keeps embedding the original
+    // sessionid, and logout matches strictly on it. RETURNING hands back the row's existing
+    // sessionid, which the caller reuses for the new token. The deviceid match in the WHERE
+    // clause (not just in application code) is what keeps this atomic against a concurrent
+    // different-device login.
     public static final String REACTIVATE_SESSION_FOR_DEVICE_SQL =
             "UPDATE " + SCHEMA_REPLACE_STRING + ".eg_user_session " +
-            "SET sessionid = :newsessionid, createdtime = :now, lastservercontact = :now, version = version + 1 " +
-            "WHERE useruuid = :useruuid AND tenantid = :tenantid AND deviceid = :deviceid AND status = 'ACTIVE'";
+            "SET createdtime = :now, lastservercontact = :now, version = version + 1 " +
+            "WHERE useruuid = :useruuid AND tenantid = :tenantid AND deviceid = :deviceid AND status = 'ACTIVE' " +
+            "RETURNING sessionid";
 
     // Lazily expires a session that has gone stale beyond the configured inactivity window.
     // Conditional on status = 'ACTIVE', lastservercontact age, AND version — the version check
