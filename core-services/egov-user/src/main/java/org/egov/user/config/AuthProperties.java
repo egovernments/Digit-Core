@@ -66,6 +66,7 @@ public class AuthProperties {
          */
         private Long jwksCacheTtlMs;
         private String sharedLoginTenantId;
+        private boolean detailsIdTokenCheckEnabled = false;
     }
 
     /**

@@ -3,6 +3,11 @@ All notable changes to this module will be documented in this file.
 
 
 ## 1.3.1-oidc - 2026-09-11
+- Added optional ID token check on `POST /_details`, behind `auth.oidc.details-id-token-check-enabled` (default false): access tokens issued by `jwt_exchange` record the provider, tenant, issuer and subject, and `/_details` then requires a valid, unexpired `x-id-token` of the same user. Any fresh ID token of that user is accepted, across IdP re-login and refresh. Password/OTP sessions are unaffected
+- The `jwt_exchange` grant no longer stores the raw ID token (`assertion`) with the access token in Redis
+- Fixed `refresh_token` grant for SSO sessions (failed with `TenantId is mandatory`): the login now carries `tenantId`/`userType` for the refresh re-authentication
+- SSO and direct (password/OTP) logins of the same user now get separate access tokens, so one never changes the other's ID token enforcement; direct-login token keys are unchanged
+- ID token errors on `/_details` are always 401 (provider config lookups for a client-supplied token no longer surface as 500); a failing signature re-fetches the IdP JWKS at most once per provider every 30 s
 - Tenant mapping keys are now derived with the encryption client's state-level tenant (`state.level.tenant.id`) instead of `auth.oidc.shared-login.tenant-id`: that tenant is common to all tenants, so one username yields one key, and egov-enc-service always holds keys for it (a shared-login tenant absent from the MDMS tenant list made encryption fail)
 - Added `POST /sso/tenant-mappings/_upsert` to backfill the tenant mapping of users that already exist, by username or user id (mappings are only written on user create, so users predating that behaviour are missing from the shared-login tenant lookup)
 - Added DataAccessExceptionHandler to handle DataAccessException through `@ControllerAdvice` (added directly as the Java version is old)

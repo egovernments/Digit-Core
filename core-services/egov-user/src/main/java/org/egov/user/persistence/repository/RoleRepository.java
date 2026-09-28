@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.mdms.model.MasterDetail;
@@ -47,8 +48,6 @@ public class RoleRepository {
     private ObjectMapper objectMapper;
     private DatabaseSchemaUtils databaseSchemaUtils;
 
-    @Value("${mdms.roles.filter}")
-    private String roleFilter;
 
     @Value("${mdms.roles.masterName}")
     private String roleMasterName;
@@ -61,6 +60,15 @@ public class RoleRepository {
 
     @Value("${mdms.path}")
     private String path;
+
+    @Value("${mdms.roles.cache-ttl-ms:300000}")
+    private long rolesCacheTtlMs;
+
+    @Value("${mdms.roles.retry-after-failure-ms:30000}")
+    private long rolesRetryAfterFailureMs;
+
+    private final Map<String, CachedRoles> rolesCache = new ConcurrentHashMap<>();
+    private final Map<String, ReentrantLock> rolesLocks = new ConcurrentHashMap<>();
 
     /**
      * Constructs an instance of RoleRepository with the specified dependencies.
@@ -141,65 +149,105 @@ public class RoleRepository {
     }
 
     Set<Role> findRolesByCode(Set<String> roles, String tenantId) {
-
-        String url = host + path;
-        List<ModuleDetail> moduleDetail = new ArrayList<ModuleDetail>();
-        RequestInfo requestInfo = new RequestInfo();
-        String roleFilter = getRoleFilter(roles);
-
-
-        MasterDetail actionsMasterDetail =
-                MasterDetail.builder().name(roleMasterName).filter(roleFilter).build();
-        moduleDetail.add(ModuleDetail.builder().moduleName(roleModuleName).masterDetails(Collections.singletonList(
-                actionsMasterDetail)).build());
-
-
-        MdmsCriteria mc = new MdmsCriteria();
-        mc.setTenantId(tenantId);
-        mc.setModuleDetails(moduleDetail);
-
-        MdmsCriteriaReq mcq = new MdmsCriteriaReq();
-        mcq.setRequestInfo(requestInfo);
-        mcq.setMdmsCriteria(mc);
-        
-		HttpHeaders headers = new HttpHeaders();
-		if (roles.contains(UserServiceConstants.CITIZEN_ROLE_CODE))
-			headers.set("tenantId", tenantId);
-		HttpEntity<MdmsCriteriaReq> request = new HttpEntity<>(mcq, headers);
-
-        JsonNode response = restTemplate.postForObject(url, request, JsonNode.class).findValue(roleMasterName);
-
+        Map<String, JsonNode> rolesByCode = cachedRoles(tenantId, roles.contains(UserServiceConstants.CITIZEN_ROLE_CODE));
         Set<Role> validatedRoles = new HashSet<>();
-
-        if (!isNull(response) && response.isArray()) {
-
-            for (JsonNode objNode : response) {
-                try {
-                    validatedRoles.add(objectMapper.treeToValue(objNode, Role.class));
-                } catch (JsonProcessingException e) {
-                    log.error("Failed to fetch roles from MDMS", e);
-                    throw new CustomException("MDMS_ROLE_FETCH_FAILED", "Unable to fetch roles from MDMS");
-                }
+        for (String code : roles) {
+            JsonNode node = rolesByCode.get(code);
+            if (node == null) {
+                continue;
+            }
+            try {
+                validatedRoles.add(objectMapper.treeToValue(node, Role.class));
+            } catch (JsonProcessingException e) {
+                log.error("Failed to fetch roles from MDMS", e);
+                throw new CustomException("MDMS_ROLE_FETCH_FAILED", "Unable to fetch roles from MDMS");
             }
         }
-
         return validatedRoles;
     }
 
-    private String getRoleFilter(Set<String> roleCodes) {
-        StringBuilder filter = new StringBuilder();
-        Iterator<String> iterator = roleCodes.iterator();
+    private Map<String, JsonNode> cachedRoles(String tenantId, boolean withTenantHeader) {
+        String key = tenantId + (withTenantHeader ? "|tenant-header" : "");
+        CachedRoles cached = rolesCache.get(key);
+        if (cached != null && cached.isFresh()) {
+            return cached.rolesByCode;
+        }
+        ReentrantLock lock = rolesLocks.computeIfAbsent(key, k -> new ReentrantLock());
+        if (cached != null && !lock.tryLock()) {
+            return cached.rolesByCode;
+        }
+        if (cached == null) {
+            lock.lock();
+        }
+        try {
+            CachedRoles current = rolesCache.get(key);
+            if (current != null && current.isFresh()) {
+                return current.rolesByCode;
+            }
+            Map<String, JsonNode> fetched;
+            try {
+                fetched = fetchAllRoles(tenantId, withTenantHeader);
+            } catch (RuntimeException e) {
+                if (current == null) {
+                    throw e;
+                }
+                log.warn("MDMS roles refresh failed for tenant {}, serving cached roles", tenantId, e);
+                rolesCache.put(key, new CachedRoles(current.rolesByCode, rolesRetryAfterFailureMs));
+                return current.rolesByCode;
+            }
+            if (fetched.isEmpty() && current != null) {
+                log.warn("MDMS returned no roles for tenant {}, serving cached roles", tenantId);
+                rolesCache.put(key, new CachedRoles(current.rolesByCode, rolesRetryAfterFailureMs));
+                return current.rolesByCode;
+            }
+            if (!fetched.isEmpty()) {
+                rolesCache.put(key, new CachedRoles(fetched, rolesCacheTtlMs));
+            }
+            return fetched;
+        } finally {
+            lock.unlock();
+        }
+    }
 
+    private Map<String, JsonNode> fetchAllRoles(String tenantId, boolean withTenantHeader) {
+        MasterDetail rolesMasterDetail = MasterDetail.builder().name(roleMasterName).build();
+        MdmsCriteria mc = new MdmsCriteria();
+        mc.setTenantId(tenantId);
+        mc.setModuleDetails(Collections.singletonList(ModuleDetail.builder().moduleName(roleModuleName)
+                .masterDetails(Collections.singletonList(rolesMasterDetail)).build()));
+        MdmsCriteriaReq mcq = new MdmsCriteriaReq();
+        mcq.setRequestInfo(new RequestInfo());
+        mcq.setMdmsCriteria(mc);
 
-        while (iterator.hasNext()) {
-            filter.append("'")
-                    .append(iterator.next())
-                    .append("'");
+        HttpHeaders headers = new HttpHeaders();
+        if (withTenantHeader)
+            headers.set("tenantId", tenantId);
 
-            if (iterator.hasNext())
-                filter.append(",");
+        JsonNode response = restTemplate.postForObject(host + path, new HttpEntity<>(mcq, headers), JsonNode.class)
+                .findValue(roleMasterName);
+        Map<String, JsonNode> rolesByCode = new HashMap<>();
+        if (!isNull(response) && response.isArray()) {
+            for (JsonNode node : response) {
+                if (node.hasNonNull("code")) {
+                    rolesByCode.put(node.get("code").asText(), node);
+                }
+            }
+        }
+        log.info("MDMS roles cached for tenant {}: {} role(s)", tenantId, rolesByCode.size());
+        return Collections.unmodifiableMap(rolesByCode);
+    }
+
+    private static final class CachedRoles {
+        private final Map<String, JsonNode> rolesByCode;
+        private final long expiresAt;
+
+        private CachedRoles(Map<String, JsonNode> rolesByCode, long ttlMs) {
+            this.rolesByCode = rolesByCode;
+            this.expiresAt = System.currentTimeMillis() + ttlMs;
         }
 
-        return roleFilter.replaceAll("\\$code", filter.toString());
+        private boolean isFresh() {
+            return System.currentTimeMillis() < expiresAt;
+        }
     }
 }

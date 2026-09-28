@@ -1,5 +1,9 @@
 package org.egov.user.web.controller;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import org.egov.user.domain.exception.sso.IdpJwtValidationException;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.ArrayUtils.isEquals;
@@ -276,12 +280,34 @@ public class UserControllerTest {
         OAuth2Authentication oAuth2Authentication = mock(OAuth2Authentication.class);
         SecureUser secureUser = new SecureUser(getUser());
         when(oAuth2Authentication.getPrincipal()).thenReturn(secureUser);
-        when(tokenService.getUser("c80e0ade-f48d-4077-b0d2-4e58526a6bfd"))
+        when(tokenService.getUser("c80e0ade-f48d-4077-b0d2-4e58526a6bfd", null))
                 .thenReturn(getCustomUserDetails());
 
         mockMvc.perform(post("/_details?access_token=c80e0ade-f48d-4077-b0d2-4e58526a6bfd"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(getFileContents("userDetailsResponse.json")));
+    }
+
+    @Test
+    @WithMockUser
+    public void testUserDetailsPassesIdTokenHeader() throws Exception {
+        when(tokenService.getUser("c80e0ade-f48d-4077-b0d2-4e58526a6bfd", "id.token.value"))
+                .thenReturn(getCustomUserDetails());
+
+        mockMvc.perform(post("/_details?access_token=c80e0ade-f48d-4077-b0d2-4e58526a6bfd")
+                        .header("x-id-token", "id.token.value"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    public void testUserDetailsReturns401WhenIdTokenMissing() throws Exception {
+        when(tokenService.getUser("c80e0ade-f48d-4077-b0d2-4e58526a6bfd", null))
+                .thenThrow(IdpJwtValidationException.idTokenMissing());
+
+        mockMvc.perform(post("/_details?access_token=c80e0ade-f48d-4077-b0d2-4e58526a6bfd"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("sso.id_token.missing"));
     }
 
     private UserSearchCriteria getUserSearch() {

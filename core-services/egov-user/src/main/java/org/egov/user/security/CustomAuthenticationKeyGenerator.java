@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.egov.user.security.oauth2.custom.jwt.JwtConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -47,6 +48,10 @@ public class CustomAuthenticationKeyGenerator implements AuthenticationKeyGenera
             values.put(SCOPE, OAuth2Utils.formatParameterList(authorizationRequest.getScope()));
         }
 
+        Object idpProviderId = authorizationRequest.getExtensions().get(JwtConstants.EXT_IDP_PROVIDER_ID);
+        if (idpProviderId != null) {
+            values.put(JwtConstants.EXT_IDP_PROVIDER_ID, idpProviderId.toString());
+        }
         String tenantId = authorizationRequest.getRequestParameters().get("tenantId");
         if (tenantId != null && !tenantId.isEmpty()) {
             values.put("tenantId", tenantId);

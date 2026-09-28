@@ -28,6 +28,9 @@ public class IDPJwtValidator implements JwtValidator {
     // cache by tenant:providerId
     private final Map<String, DecoderEntry> decoders = new ConcurrentHashMap<>();
 
+    static final long SIGNATURE_REFRESH_MIN_INTERVAL_MS = 30_000L;
+    private final Map<String, Long> lastSignatureRefresh = new ConcurrentHashMap<>();
+
     /**
      * TTL in milliseconds for decoder cache entries.
      * Derived from {@code auth.oidc.jwks-cache-ttl-ms} with fallback to
@@ -117,6 +120,14 @@ public class IDPJwtValidator implements JwtValidator {
             }
 
             // Likely signature failure: refresh decoder once and retry
+            String refreshKey = cacheKey(provider.getTenantId(), provider.getId());
+            long now = System.currentTimeMillis();
+            Long lastRefresh = lastSignatureRefresh.get(refreshKey);
+            if (lastRefresh != null && now - lastRefresh < SIGNATURE_REFRESH_MIN_INTERVAL_MS) {
+                log.warn("JWT signature validation failed for issuer: {}; JWKS refreshed recently, not refetching", issuer);
+                throw IdpJwtValidationException.invalid(e);
+            }
+            lastSignatureRefresh.put(refreshKey, now);
             log.info(SsoErrorCodes.MSG_DECODER_REFRESH_ON_SIGNATURE_FAILURE, provider.getId());
             clearDecoderForProvider(provider.getTenantId(), provider.getId());
             JwtDecoder freshDecoder = getDecoder(provider);

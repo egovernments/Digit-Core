@@ -164,6 +164,13 @@ public class JwtExchangeAuthenticationProviderTest {
                 assertTrue(result instanceof UsernamePasswordAuthenticationToken);
                 SecureUser secureUser = (SecureUser) result.getPrincipal();
                 assertEquals("uuid", secureUser.getUser().getUuid());
+                Map<?, ?> provenance = (Map<?, ?>) result.getDetails();
+                assertEquals(jwt.getProviderId(), provenance.get(JwtConstants.EXT_IDP_PROVIDER_ID));
+                assertEquals(TENANT_PB, provenance.get(JwtConstants.EXT_IDP_TENANT_ID));
+                assertEquals("issuer", provenance.get(JwtConstants.EXT_IDP_ISSUER));
+                assertEquals("subject", provenance.get(JwtConstants.EXT_IDP_SUBJECT));
+                assertEquals(TENANT_PB, provenance.get(JwtConstants.PARAM_TENANT_ID));
+                assertEquals("EMPLOYEE", provenance.get(JwtConstants.PARAM_USER_TYPE));
 
                 ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
                 verify(ssoUserPersistenceService).updateUserAndUpsertIdpDetails(userCaptor.capture(), any(UserIdpDetails.class), eq(TENANT_PB), any(RequestInfo.class));

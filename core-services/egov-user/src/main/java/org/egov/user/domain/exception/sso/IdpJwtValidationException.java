@@ -44,6 +44,16 @@ public class IdpJwtValidationException extends SsoException {
                 "JWT token has expired: " + detail, cause);
     }
 
+    public static IdpJwtValidationException idTokenMissing() {
+        return new IdpJwtValidationException(SsoErrorCodes.ID_TOKEN_MISSING,
+                "ID token is required for this SSO session");
+    }
+
+    public static IdpJwtValidationException idTokenMismatch() {
+        return new IdpJwtValidationException(SsoErrorCodes.ID_TOKEN_MISMATCH,
+                "ID token does not belong to this SSO session");
+    }
+
     public static IdpJwtValidationException invalid(Throwable cause) {
         return new IdpJwtValidationException(SsoErrorCodes.JWT_INVALID,
                 SsoErrorCodes.MSG_JWT_INVALID, cause);

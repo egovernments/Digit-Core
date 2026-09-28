@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static org.egov.user.config.AuthProperties.Provider.ROLE_MAPPING_MAPPER;
@@ -59,6 +60,9 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
 
     private final AtomicReference<CacheEntry> cache = new AtomicReference<>(null);
     private final long cacheTtlMs;
+    private final long retryAfterFailureMs;
+    private final ReentrantLock refreshLock = new ReentrantLock();
+    private volatile long lastFailureAt = 0L;
 
     public MdmsOidcProviderSupplier(
             RestTemplate restTemplate,
@@ -67,7 +71,8 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
             @Value("${mdms.oidcproviders.moduleName}") String moduleName,
             @Value("${mdms.oidcproviders.masterName}") String masterName,
             @Value("${mdms.oidcproviders.tenantId}") String tenantIdConfig,
-            @Value("${mdms.oidcproviders.cache-ttl-ms:300000}") long cacheTtlMs) {
+            @Value("${mdms.oidcproviders.cache-ttl-ms:300000}") long cacheTtlMs,
+            @Value("${mdms.oidcproviders.retry-after-failure-ms:30000}") long retryAfterFailureMs) {
         this.restTemplate = restTemplate;
         this.mdmsHost = mdmsHost;
         this.mdmsEndpoint = mdmsEndpoint;
@@ -75,6 +80,7 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
         this.masterName = masterName;
         this.tenantIds = parseTenantIds(tenantIdConfig);
         this.cacheTtlMs = cacheTtlMs;
+        this.retryAfterFailureMs = retryAfterFailureMs;
         log.info("MDMS OIDC providers initialized with cache TTL: {} ms ({} minutes)", 
                 cacheTtlMs, cacheTtlMs / 60000.0);
     }
@@ -91,23 +97,45 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
 
     @Override
     public List<AuthProperties.Provider> getProviders() {
-        long now = System.currentTimeMillis();
         CacheEntry entry = cache.get();
-        
-        if (entry != null && (now - entry.timestamp) < cacheTtlMs) {
-            return new ArrayList<>(entry.providers); // Defensive copy
+        if (isFresh(entry) || inFailureBackoff()) {
+            return copyOf(entry);
         }
-        
-        List<AuthProperties.Provider> list = fetchFromMdms();
-        if (list != null) {
-            // Store immutable list in cache
-            cache.set(new CacheEntry(Collections.unmodifiableList(list), now));
-            return new ArrayList<>(list); // Return copy
+        if (entry != null && !refreshLock.tryLock()) {
+            return copyOf(entry);
         }
-        
-        // Keep previous cache on failure
-        CacheEntry existing = cache.get();
-        return existing != null ? new ArrayList<>(existing.providers) : Collections.emptyList();
+        if (entry == null) {
+            refreshLock.lock();
+        }
+        try {
+            entry = cache.get();
+            if (isFresh(entry) || inFailureBackoff()) {
+                return copyOf(entry);
+            }
+            List<AuthProperties.Provider> list = fetchFromMdms();
+            if (list != null) {
+                CacheEntry fresh = new CacheEntry(Collections.unmodifiableList(list), System.currentTimeMillis());
+                cache.set(fresh);
+                lastFailureAt = 0L;
+                return copyOf(fresh);
+            }
+            lastFailureAt = System.currentTimeMillis();
+            return copyOf(entry);
+        } finally {
+            refreshLock.unlock();
+        }
+    }
+
+    private boolean isFresh(CacheEntry entry) {
+        return entry != null && (System.currentTimeMillis() - entry.timestamp) < cacheTtlMs;
+    }
+
+    private boolean inFailureBackoff() {
+        return lastFailureAt != 0L && (System.currentTimeMillis() - lastFailureAt) < retryAfterFailureMs;
+    }
+
+    private static List<AuthProperties.Provider> copyOf(CacheEntry entry) {
+        return entry != null ? new ArrayList<>(entry.providers) : Collections.emptyList();
     }
 
     /**
