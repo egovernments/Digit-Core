@@ -1,5 +1,6 @@
 package com.example.gateway.utils;
 
+import com.example.gateway.exception.UserDetailsException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,6 +65,8 @@ public class ExceptionUtils {
                 return _setExceptionBody(exchange,HttpStatus.TOO_MANY_REQUESTS, getErrorInfoObject(exceptionName, "Rate limit exceeded", null));
             } else if (exceptionName.equalsIgnoreCase("JsonParseException")) {
                 return _setExceptionBody(exchange,HttpStatus.BAD_REQUEST, getErrorInfoObject(exceptionName, "Bad request", null));
+            } else if (e instanceof UserDetailsException ude) {
+                return _setExceptionBody(exchange, HttpStatus.UNAUTHORIZED, getErrorInfoObject(ude.getCode(), ude.getMessage(), ude.getDescription()));
             } else if (exceptionName.equalsIgnoreCase("CustomException")) {
                 CustomException ce = (CustomException) e;
 //                HttpStatus.valueOf(ce.getCode());

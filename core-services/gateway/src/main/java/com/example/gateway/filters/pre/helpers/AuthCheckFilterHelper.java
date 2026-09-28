@@ -1,5 +1,6 @@
 package com.example.gateway.filters.pre.helpers;
 
+import com.example.gateway.exception.UserDetailsException;
 import com.example.gateway.utils.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,8 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
                 return Mono.just(body);
             }
 
+        } catch (UserDetailsException ex) {
+            throw ex;
         } catch (Exception ex) {
             log.error("An error occurred in Auth check filter", ex);
 
