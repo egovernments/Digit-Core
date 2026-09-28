@@ -43,6 +43,9 @@ public final class SsoErrorCodes {
     public static final String USER_LOCKED = "sso.user.locked";
     public static final String IDP_USER_ACCESS_REVOKED = "sso.user.idp_access_revoked";
 
+    public static final String DIGIT_LOGIN_DISABLED = "digit.login.disabled";
+    public static final String MSG_DIGIT_LOGIN_DISABLED = "Password/OTP login is disabled for employees. Use SSO.";
+
     public static final String MFA_ENRICHMENT_FAILED = "sso.mfa.enrichment_failed";
 
     public static final String ROLE_MAPPING_FAILED = "sso.role.mapping_failed";

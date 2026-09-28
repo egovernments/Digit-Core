@@ -5,6 +5,7 @@ import static org.egov.user.config.UserServiceConstants.IP_HEADER_NAME;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,16 +24,19 @@ import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
+import org.egov.user.domain.exception.sso.SsoException;
 import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
+import org.egov.user.security.oauth2.custom.jwt.SsoErrorCodes;
 import org.egov.user.security.oauth2.custom.service.IdpUserValidator;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.DatabaseSchemaUtils;
 import org.egov.user.web.contract.auth.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -80,6 +84,19 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Value("${citizen.login.password.otp.fixed.enabled}")
     private boolean fixedOTPEnabled;
+
+    @Value("${employee.login.digit.disabled:false}")
+    private boolean employeeDigitLoginDisabled;
+
+    private Set<String> employeeDigitLoginAllowedUsernames = new HashSet<>();
+
+    @Value("${employee.login.digit.allowed-usernames:}")
+    void setEmployeeDigitLoginAllowedUsernames(String usernames) {
+        employeeDigitLoginAllowedUsernames = Arrays.stream(usernames.split(","))
+                .map(u -> u.trim().toLowerCase())
+                .filter(u -> !u.isEmpty())
+                .collect(Collectors.toSet());
+    }
 
     @Autowired
     private HttpServletRequest request;
@@ -129,6 +146,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         }
         if (isEmpty(userType) || isNull(UserType.fromValue(userType))) {
             throw new OAuth2Exception("User Type is mandatory and has to be a valid type");
+        }
+        if (employeeDigitLoginDisabled && UserType.EMPLOYEE == UserType.fromValue(userType)
+                && !employeeDigitLoginAllowedUsernames.contains(userName.trim().toLowerCase())) {
+            throw new SsoException(SsoErrorCodes.DIGIT_LOGIN_DISABLED, SsoErrorCodes.MSG_DIGIT_LOGIN_DISABLED, HttpStatus.FORBIDDEN);
         }
 
         User user;
