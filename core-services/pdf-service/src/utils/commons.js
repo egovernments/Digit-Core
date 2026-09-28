@@ -35,6 +35,10 @@ export const getTransformedLocale = (label) => {
   codeList,
   pdfKey
 ) => {
+  // No codes means nothing to translate; an empty search makes localization load its whole table
+  if (!codeList || codeList.length === 0) {
+    return { messages: [] };
+  }
   let cacheData = null;
   let locale = requestInfo.msgId;
   if (null != locale) {
