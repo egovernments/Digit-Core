@@ -37,7 +37,7 @@ public class MdmsOidcProviderSupplierTest {
                 "module",
                 "master",
                 "",
-                1000L);
+                1000L, 30_000L);
 
         List<Provider> providers = supplier.getProviders();
 
@@ -54,7 +54,7 @@ public class MdmsOidcProviderSupplierTest {
                 "module",
                 "master",
                 "pb",
-                1000L);
+                1000L, 30_000L);
 
         String mdmsJson = "{\n" +
                 "  \"" + OidcConfigConstants.MDMS_RES + "\": {\n" +
@@ -97,7 +97,7 @@ public class MdmsOidcProviderSupplierTest {
                 "module",
                 "master",
                 "pb",
-                10L);
+                10L, 30_000L);
 
         Provider provider = Provider.builder()
                 .id("cached")
@@ -131,7 +131,7 @@ public class MdmsOidcProviderSupplierTest {
                 "module",
                 "master",
                 "pb",
-                1000L);
+                1000L, 30_000L);
 
         String mdmsJson = "{\n" +
                 "  \"" + OidcConfigConstants.MDMS_RES + "\": {\n" +
@@ -169,7 +169,7 @@ public class MdmsOidcProviderSupplierTest {
                 "module",
                 "master",
                 "pb",
-                1000L);
+                1000L, 30_000L);
 
         String mdmsJson = "{\n" +
                 "  \"" + OidcConfigConstants.MDMS_RES + "\": {\n" +
@@ -195,5 +195,58 @@ public class MdmsOidcProviderSupplierTest {
         assertEquals(OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY, p.getUsernameClaimKey());
         assertFalse(p.isJitEnabled());
     }
-}
 
+    @Test
+    public void getProviders_FailedFetch_BacksOffInsteadOfRefetchingEveryCall() {
+        MdmsOidcProviderSupplier supplier = new MdmsOidcProviderSupplier(
+                restTemplate, "http://mdms", "/mdms/search", "module", "master", "pb", 60_000L, 30_000L);
+        when(restTemplate.postForObject(eq("http://mdms/mdms/search"), any(Object.class), eq(JsonNode.class)))
+                .thenReturn(null);
+
+        for (int i = 0; i < 5; i++) {
+            assertTrue(supplier.getProviders().isEmpty());
+        }
+
+        org.mockito.Mockito.verify(restTemplate, org.mockito.Mockito.times(1))
+                .postForObject(eq("http://mdms/mdms/search"), any(Object.class), eq(JsonNode.class));
+    }
+
+    @Test
+    public void getProviders_StaleEntryWhileAnotherThreadRefreshes_ReturnsStaleWithoutFetching() throws Exception {
+        MdmsOidcProviderSupplier supplier = new MdmsOidcProviderSupplier(
+                restTemplate, "http://mdms", "/mdms/search", "module", "master", "pb", 10L, 30_000L);
+        Provider provider = Provider.builder().id("stale").issuerUri("https://stale").jwkSetUri("https://keys").build();
+        Class<?> cacheEntryClass = Class.forName("org.egov.user.config.MdmsOidcProviderSupplier$CacheEntry");
+        Object cacheEntry = cacheEntryClass.getDeclaredConstructor(List.class, long.class)
+                .newInstance(Collections.singletonList(provider), 0L);
+        java.lang.reflect.Field cacheField = MdmsOidcProviderSupplier.class.getDeclaredField("cache");
+        cacheField.setAccessible(true);
+        cacheField.set(supplier, new AtomicReference<>(cacheEntry));
+        java.lang.reflect.Field lockField = MdmsOidcProviderSupplier.class.getDeclaredField("refreshLock");
+        lockField.setAccessible(true);
+        java.util.concurrent.locks.ReentrantLock lock = (java.util.concurrent.locks.ReentrantLock) lockField.get(supplier);
+
+        java.util.concurrent.CountDownLatch held = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        Thread refresher = new Thread(() -> {
+            lock.lock();
+            try {
+                held.countDown();
+                release.await();
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            } finally {
+                lock.unlock();
+            }
+        });
+        refresher.start();
+        held.await();
+
+        List<Provider> providers = supplier.getProviders();
+        release.countDown();
+        refresher.join();
+
+        assertEquals("stale", providers.get(0).getId());
+        org.mockito.Mockito.verifyZeroInteractions(restTemplate);
+    }
+}

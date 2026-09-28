@@ -11,6 +11,8 @@ public final class SsoErrorCodes {
     public static final String JWT_INVALID = "sso.jwt.invalid";
     public static final String JWT_EXPIRED = "sso.jwt.expired";
     public static final String JWT_PARSE_FAILED = "sso.jwt.parse_failed";
+    public static final String ID_TOKEN_MISSING = "sso.id_token.missing";
+    public static final String ID_TOKEN_MISMATCH = "sso.id_token.mismatch";
 
     // Client-facing, non-sensitive message templates for JWT/OIDC validation
     public static final String MSG_JWT_INVALID = "JWT validation failed";

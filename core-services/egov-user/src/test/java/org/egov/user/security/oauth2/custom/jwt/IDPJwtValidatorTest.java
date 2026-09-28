@@ -759,6 +759,38 @@ public class IDPJwtValidatorTest {
         }
 
         @Test
+        public void testValidate_RepeatedSignatureFailure_DoesNotRefetchWithinInterval() {
+                String issuer = "https://sts.windows.net/tenant-id/";
+                String tenantId = "pb.amritsar";
+                AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                        .id("azure").issuerUri(issuer).jwkSetUri("http://jwks").roleClaimKey("roles")
+                        .tenantId(tenantId).audiences(Collections.singletonList("aud1")).build();
+                when(oidcProviderSupplier.getProviders()).thenReturn(Collections.singletonList(provider));
+
+                IDPJwtValidator spyValidator = spy(new IDPJwtValidator(authProperties, oidcProviderSupplier));
+                Map<String, Object> decoders = (Map<String, Object>) ReflectionTestUtils.getField(spyValidator, "decoders");
+                decoders.put("pb.amritsar:azure", createDecoderEntry(jwtDecoder, System.currentTimeMillis()));
+                doNothing().when(spyValidator).clearDecoderForProvider(eq(tenantId), eq("azure"));
+
+                String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+                        + "eyJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC90ZW5hbnQtaWQvIn0.signature";
+                JwtValidationException signatureEx = new JwtValidationException("signature failure",
+                        Collections.singletonList(new OAuth2Error("invalid_token", "Signature verification failed", null)));
+                when(jwtDecoder.decode(token)).thenThrow(signatureEx);
+
+                for (int attempt = 0; attempt < 2; attempt++) {
+                        try {
+                                spyValidator.validate(token, tenantId);
+                                fail("expected IdpJwtValidationException");
+                        } catch (IdpJwtValidationException e) {
+                                assertEquals(SsoErrorCodes.JWT_INVALID, e.getErrorCode());
+                        }
+                }
+                verify(spyValidator, times(1)).clearDecoderForProvider(eq(tenantId), eq("azure"));
+                verify(jwtDecoder, times(3)).decode(token);
+        }
+
+        @Test
         public void testDecoderCacheTtl_DefaultValue() {
                 IDPJwtValidator validator = new IDPJwtValidator(authProperties, oidcProviderSupplier);
                 Long ttl = (Long) ReflectionTestUtils.getField(validator, "decoderCacheTtlMs");

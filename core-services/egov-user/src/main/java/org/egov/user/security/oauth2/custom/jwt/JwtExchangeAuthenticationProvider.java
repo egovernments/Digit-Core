@@ -196,7 +196,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
                     providerAndMfa.mfaDetails, input.tenantId);
             User user = ensureAccountEligible(userAndRequestInfo.user, userAndRequestInfo.requestInfo);
 
-            return buildSuccessAuthentication(user, providerAndMfa.provider);
+            return buildSuccessAuthentication(user, providerAndMfa.provider, jwt, input.tenantId);
         } catch (org.egov.user.domain.exception.sso.IdpJwtValidationException e) {
             throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token", e.getMessage(), null));
         }
@@ -438,12 +438,23 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     /**
      * Builds the successful authentication result: authorities, SecureUser, reset failed attempts.
      */
-    private Authentication buildSuccessAuthentication(User user, AuthProperties.Provider provider) {
+    private Authentication buildSuccessAuthentication(User user, AuthProperties.Provider provider,
+            OidcValidatedJwt jwt, String tenantId) {
         List<GrantedAuthority> grantedAuths = new ArrayList<>();
         grantedAuths.add(new SimpleGrantedAuthority(provider.getRolePrefix() + user.getType()));
         SecureUser secureUser = new SecureUser(getUser(user));
         userService.resetFailedLoginAttempts(user);
-        return new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
+        UsernamePasswordAuthenticationToken result =
+                new UsernamePasswordAuthenticationToken(secureUser, user.getPassword(), grantedAuths);
+        Map<String, String> provenance = new LinkedHashMap<>();
+        provenance.put(JwtConstants.EXT_IDP_PROVIDER_ID, provider.getId());
+        provenance.put(JwtConstants.EXT_IDP_TENANT_ID, tenantId);
+        provenance.put(JwtConstants.EXT_IDP_ISSUER, jwt.getIssuer());
+        provenance.put(JwtConstants.EXT_IDP_SUBJECT, jwt.getSubject());
+        provenance.put(JwtConstants.PARAM_TENANT_ID, tenantId);
+        provenance.put(JwtConstants.PARAM_USER_TYPE, user.getType().name());
+        result.setDetails(provenance);
+        return result;
     }
 
     /**

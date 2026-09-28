@@ -17,6 +17,15 @@ public final class JwtConstants {
     /** Request parameter keys. */
     public static final String PARAM_ASSERTION = "assertion";
     public static final String PARAM_TENANT_ID = "tenantId";
+    public static final String PARAM_USER_TYPE = "userType";
+
+    public static final String HEADER_ID_TOKEN = "x-id-token";
+
+    public static final String EXT_IDP_PREFIX = "idp_";
+    public static final String EXT_IDP_PROVIDER_ID = "idp_provider_id";
+    public static final String EXT_IDP_TENANT_ID = "idp_tenant_id";
+    public static final String EXT_IDP_ISSUER = "idp_issuer";
+    public static final String EXT_IDP_SUBJECT = "idp_subject";
 
     /** JWT claim keys. */
     public static final String CLAIM_USER_TYPE = "userType";

@@ -66,6 +66,7 @@ public class AuthProperties {
          */
         private Long jwksCacheTtlMs;
         private String sharedLoginTenantId;
+        private boolean detailsIdTokenCheckEnabled = false;
 
         /**
          * Non-production switch that lets a provider carry its verification key by value

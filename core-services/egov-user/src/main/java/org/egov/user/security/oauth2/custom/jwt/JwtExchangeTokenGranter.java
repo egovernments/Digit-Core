@@ -7,6 +7,10 @@ import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.token.AbstractTokenGranter;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 public class JwtExchangeTokenGranter extends AbstractTokenGranter {
 
     private final AuthenticationManager authenticationManager;
@@ -51,7 +55,7 @@ public class JwtExchangeTokenGranter extends AbstractTokenGranter {
                     authenticationManager.authenticate(authRequest);
 
             OAuth2Request storedRequest = getRequestFactory().createOAuth2Request(client, tokenRequest);
-            return new OAuth2Authentication(storedRequest, authResult);
+            return new OAuth2Authentication(withIdpProvenance(storedRequest, authResult), authResult);
         } catch (org.springframework.security.core.AuthenticationException e) {
             throw new org.springframework.security.oauth2.common.exceptions.InvalidGrantException(
                     "JWT authentication failed: " + e.getMessage(), e);
@@ -62,6 +66,22 @@ public class JwtExchangeTokenGranter extends AbstractTokenGranter {
             throw new org.springframework.security.oauth2.common.exceptions.InvalidGrantException(
                     "Error processing JWT exchange request: " + e.getMessage(), e);
         }
+    }
+
+    static OAuth2Request withIdpProvenance(OAuth2Request request, Authentication authResult) {
+        Map<String, String> params = new HashMap<>(request.getRequestParameters());
+        params.remove(JwtConstants.PARAM_ASSERTION);
+        Map<String, Serializable> extensions = new HashMap<>(request.getExtensions());
+        if (authResult.getDetails() instanceof Map) {
+            ((Map<?, ?>) authResult.getDetails()).forEach((k, v) -> {
+                if (String.valueOf(k).startsWith(JwtConstants.EXT_IDP_PREFIX)) {
+                    extensions.put(String.valueOf(k), (Serializable) v);
+                }
+            });
+        }
+        return new OAuth2Request(params, request.getClientId(), request.getAuthorities(), request.isApproved(),
+                request.getScope(), request.getResourceIds(), request.getRedirectUri(), request.getResponseTypes(),
+                extensions);
     }
 }
 

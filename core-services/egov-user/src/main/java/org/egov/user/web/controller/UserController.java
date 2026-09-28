@@ -13,6 +13,8 @@ import org.egov.user.domain.model.UserDetail;
 import org.egov.user.domain.model.UserSearchCriteria;
 import org.egov.user.domain.service.TokenService;
 import org.egov.user.domain.service.UserService;
+import org.egov.user.domain.exception.sso.SsoException;
+import org.egov.user.security.oauth2.custom.jwt.JwtConstants;
 import org.egov.user.web.contract.*;
 import org.egov.user.web.contract.auth.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,8 +143,9 @@ public class UserController {
      * @return
      */
     @PostMapping("/_details")
-    public CustomUserDetails getUser(@RequestParam(value = "access_token") String accessToken) {
-        final UserDetail userDetail = tokenService.getUser(accessToken);
+    public CustomUserDetails getUser(@RequestParam(value = "access_token") String accessToken,
+                                     @RequestHeader(value = JwtConstants.HEADER_ID_TOKEN, required = false) String idToken) {
+        final UserDetail userDetail = tokenService.getUser(accessToken, idToken);
         return new CustomUserDetails(userDetail);
         //  no encrypt/decrypt
     }
@@ -215,4 +218,12 @@ public class UserController {
         return true;
     }
 
+
+    @ExceptionHandler(SsoException.class)
+    public ResponseEntity<Map<String, String>> handleSsoException(SsoException e) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", e.getErrorCode());
+        body.put("error_description", e.getMessage());
+        return ResponseEntity.status(e.getHttpStatus()).body(body);
+    }
 }
