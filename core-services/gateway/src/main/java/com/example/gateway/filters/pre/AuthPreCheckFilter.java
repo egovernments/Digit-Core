@@ -153,7 +153,7 @@ public class AuthPreCheckFilter implements GlobalFilter, Ordered {
         } catch (Exception ex) {
             log.error("Failed transforming the request body to set Anonymous User in mixed mode endpoints {}", ex);
             // Throw a custom exception
-            throw new CustomException("AUTHENTICATION_ERROR", ex.getMessage());
+            throw new CustomException("AUTHENTICATION_ERROR", INVALID_REQUEST_INFO_MESSAGE);
         }
     }
 
