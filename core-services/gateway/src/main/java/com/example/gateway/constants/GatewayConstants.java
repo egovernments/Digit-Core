@@ -56,6 +56,5 @@ public class GatewayConstants {
 
     public static final String X_CONTENT_TYPE_OPTIONS_HEADER = "X-Content-Type-Options";
     public static final String NOSNIFF = "nosniff";
-    public static final String ERROR_RESPONSE_CSP = "default-src 'none'; frame-ancestors 'none'";
 
 }

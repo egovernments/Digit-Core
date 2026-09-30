@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.gateway.constants.GatewayConstants.ERROR_RESPONSE_CSP;
 import static com.example.gateway.constants.GatewayConstants.GATEWAY_UNEXPECTED_ERROR_MESSAGE;
 import static com.example.gateway.constants.GatewayConstants.INVALID_ACCESS_TOKEN_MESSAGE;
 import static com.example.gateway.constants.GatewayConstants.NOSNIFF;
@@ -121,8 +120,6 @@ public class ExceptionUtils {
             HttpHeaders headers = response.getHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(X_CONTENT_TYPE_OPTIONS_HEADER, NOSNIFF);
-            headers.set(HttpHeaders.CACHE_CONTROL, "no-store");
-            headers.set("Content-Security-Policy", ERROR_RESPONSE_CSP);
         }
         return response.writeWith(Mono.just(response
                 .bufferFactory().wrap(getObjectJSONString(body).getBytes(StandardCharsets.UTF_8))));

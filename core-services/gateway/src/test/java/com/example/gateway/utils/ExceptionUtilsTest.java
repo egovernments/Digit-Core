@@ -44,8 +44,6 @@ class ExceptionUtilsTest {
         HttpHeaders headers = response.getHeaders();
         assertTrue(MediaType.APPLICATION_JSON.isCompatibleWith(headers.getContentType()));
         assertEquals("nosniff", headers.getFirst("X-Content-Type-Options"));
-        assertEquals("no-store", headers.getFirst(HttpHeaders.CACHE_CONTROL));
-        assertEquals("default-src 'none'; frame-ancestors 'none'", headers.getFirst("Content-Security-Policy"));
     }
 
     private static void assertNoRawMarkup(String body) {
