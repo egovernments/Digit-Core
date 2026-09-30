@@ -61,6 +61,7 @@ public class TenantLookupService {
         List<UserTenantMapping> tenants = new ArrayList<>(mappingRepository.findActiveByUsernameKeyAndType(
                 encryptionDecryptionUtil.tenantMappingKey(username), UserType.fromValue(provider.getUserType())));
         addJitOnlyTenants(tenants, jwt, provider);
+        tenants.removeIf(t -> shared.equals(t.getTenantId()));
         return TenantLookupResponse.builder().username(username).tenants(tenants).build();
     }
 

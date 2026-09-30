@@ -365,4 +365,46 @@ public class TenantLookupServiceTest {
 
         assertTrue(response.getTenants().isEmpty());
     }
+
+    @Test
+    public void lookup_sharedTenantMapping_excluded() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        OidcValidatedJwt jwt = jwt(claims, "azure");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE").build();
+
+        List<UserTenantMapping> mappings = java.util.Arrays.asList(
+                UserTenantMapping.builder().tenantId(SHARED_TENANT).userId(1L).uuid("uuid-1").build(),
+                UserTenantMapping.builder().tenantId("pb.amritsar").userId(2L).uuid("uuid-2").build());
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(Collections.singletonList(provider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(mappings);
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertEquals(1, response.getTenants().size());
+        assertEquals("pb.amritsar", response.getTenants().get(0).getTenantId());
+    }
+
+    @Test
+    public void lookup_sharedTenantJitProvider_excluded() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://issuer.example.com").build();
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(Collections.singletonList(provider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(Collections.emptyList());
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertTrue(response.getTenants().isEmpty());
+    }
 }
