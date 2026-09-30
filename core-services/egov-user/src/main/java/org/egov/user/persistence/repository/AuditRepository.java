@@ -22,9 +22,9 @@ public class AuditRepository {
 
     public static final String INSERT_AUDIT_DETAILS = "insert into " + SCHEMA_REPLACE_STRING
             + ".eg_user_audit_table (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
-            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime,idpissuer,idpsubject,authprovider) values (:id,:uuid,:tenantid,:salutation,"
+            + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,auditcreatedby,auditcreatedtime) values (:id,:uuid,:tenantid,:salutation,"
             + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:alternatemobilenumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
-            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime,:idpissuer,:idpsubject,:authprovider) ";
+            + ":accountlocked,:bloodgroup,:photo,:identificationmark,:auditcreatedby,:auditcreatedtime) ";
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final DatabaseSchemaUtils databaseSchemaUtils;
@@ -149,9 +149,6 @@ public class AuditRepository {
         }
 
         auditInputs.put("alternatemobilenumber", oldUser.getAlternateMobileNumber());
-        auditInputs.put("idpissuer", oldUser.getIdpIssuer());
-        auditInputs.put("idpsubject", oldUser.getIdpSubject());
-        auditInputs.put("authprovider", oldUser.getAuthProvider());
 
         String query = INSERT_AUDIT_DETAILS;
         // replaced schema placeholder with tenant specific schema name

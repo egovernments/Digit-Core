@@ -91,15 +91,11 @@ public class User {
     private boolean mobileValidationMandatory = true;
     private String alternateMobileNumber;
 
-    // IdP/OIDC metadata (provider-agnostic)
-    // These are nullable and only populated for SSO/OIDC users.
-    private String idpIssuer;
-    private String idpSubject;
+    // IdP/OIDC session metadata; nullable, only populated for SSO/OIDC users.
     @JsonIgnore
     private String tenantMappingKey;
     private Date idpTokenExp;
     private Date lastSsoLoginAt;
-    private String authProvider = "LOCAL";
     private String tokenId;
 
     // MFA (Multi-Factor Authentication) details

@@ -310,6 +310,58 @@ public class UserServiceTest {
         userService.updateWithoutOtpValidation(domainUser, getValidRequestInfo());
     }
 
+    @Test
+    public void test_updateWithoutOtpValidation_backfillsTenantMapping_whenKeyPresent() {
+        java.util.Set<Role> roles = Collections.singleton(Role.builder().code("EMPLOYEE").tenantId(TENANT_ID).build());
+        User existingUser = User.builder().uuid("uuid-1").tenantId(TENANT_ID).type(UserType.EMPLOYEE)
+                .active(true).roles(roles).build();
+        User domainUser = User.builder().uuid("uuid-1").tenantId(TENANT_ID).type(UserType.EMPLOYEE)
+                .active(true).roles(roles).build();
+        User dbUserAfterUpdate = User.builder().id(5L).uuid("uuid-1").tenantId(TENANT_ID).type(UserType.EMPLOYEE)
+                .active(true).username("jdoe").roles(roles).build();
+
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.EMPLOYEE)).thenReturn(TENANT_ID);
+        when(userRepository.findAll(any(UserSearchCriteria.class)))
+                .thenReturn(Collections.singletonList(existingUser))
+                .thenReturn(Collections.singletonList(dbUserAfterUpdate));
+        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.decryptObject(dbUserAfterUpdate, "UserSelf", User.class, getValidRequestInfo()))
+                .thenReturn(dbUserAfterUpdate);
+        when(encryptionDecryptionUtil.tenantMappingKey("jdoe")).thenReturn("enc-key");
+        org.springframework.test.util.ReflectionTestUtils.setField(userService, "userConfig",
+                new org.egov.user.config.UserConfig());
+
+        userService.updateWithoutOtpValidation(domainUser, getValidRequestInfo());
+
+        verify(userRepository).upsertTenantMapping(dbUserAfterUpdate, "enc-key");
+    }
+
+    @Test
+    public void test_updateWithoutOtpValidation_noUsername_nullKey_skipsUpsert() {
+        java.util.Set<Role> roles = Collections.singleton(Role.builder().code("EMPLOYEE").tenantId(TENANT_ID).build());
+        User existingUser = User.builder().uuid("uuid-1").tenantId(TENANT_ID).type(UserType.EMPLOYEE)
+                .active(true).roles(roles).build();
+        User domainUser = User.builder().uuid("uuid-1").tenantId(TENANT_ID).type(UserType.EMPLOYEE)
+                .active(true).roles(roles).build();
+        User dbUserAfterUpdate = User.builder().id(5L).uuid("uuid-1").tenantId(TENANT_ID).type(UserType.EMPLOYEE)
+                .active(true).roles(roles).build();
+
+        when(userUtils.getStateLevelTenantForCitizen(TENANT_ID, UserType.EMPLOYEE)).thenReturn(TENANT_ID);
+        when(userRepository.findAll(any(UserSearchCriteria.class)))
+                .thenReturn(Collections.singletonList(existingUser))
+                .thenReturn(Collections.singletonList(dbUserAfterUpdate));
+        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(encryptionDecryptionUtil.decryptObject(dbUserAfterUpdate, "UserSelf", User.class, getValidRequestInfo()))
+                .thenReturn(dbUserAfterUpdate);
+        when(encryptionDecryptionUtil.tenantMappingKey(null)).thenReturn(null);
+        org.springframework.test.util.ReflectionTestUtils.setField(userService, "userConfig",
+                new org.egov.user.config.UserConfig());
+
+        userService.updateWithoutOtpValidation(domainUser, getValidRequestInfo());
+
+        verify(userRepository).upsertTenantMapping(dbUserAfterUpdate, null);
+    }
+
     @Test(expected = UserNotFoundException.class)
     public void test_should_throw_exception_on_partial_update_when_id_is_not_present() {
         final User user = User.builder().uuid(null).build();

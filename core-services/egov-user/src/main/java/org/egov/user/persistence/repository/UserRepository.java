@@ -164,19 +164,6 @@ public class UserRepository {
     }
 
     /**
-     * Lookup a user by IdP issuer + subject pair (SSO/OIDC identity).
-     */
-    public List<User> findByIdpIssuerSubject(String tenantId, UserType userType, String idpIssuer, String idpSubject) {
-        UserSearchCriteria criteria = UserSearchCriteria.builder()
-                .idpIssuer(idpIssuer)
-                .idpSubject(idpSubject)
-                .tenantId(tenantId)
-                .type(userType)
-                .build();
-        return findAll(criteria);
-    }
-
-    /**
      * this api will create the user.
      *
      * @param user
@@ -340,26 +327,6 @@ public class UserRepository {
 
         updateuserInputs.put("alternatemobilenumber", user.getAlternateMobileNumber());
 
-        // IdP/OIDC metadata: keep old values if new ones are null to avoid
-        // unintentionally wiping linkage
-        if (user.getIdpIssuer() != null) {
-            updateuserInputs.put("IdpIssuer", user.getIdpIssuer());
-        } else {
-            updateuserInputs.put("IdpIssuer", oldUser.getIdpIssuer());
-        }
-
-        if (user.getIdpSubject() != null) {
-            updateuserInputs.put("IdpSubject", user.getIdpSubject());
-        } else {
-            updateuserInputs.put("IdpSubject", oldUser.getIdpSubject());
-        }
-
-        if (user.getAuthProvider() != null) {
-            updateuserInputs.put("AuthProvider", user.getAuthProvider());
-        } else {
-            updateuserInputs.put("AuthProvider", oldUser.getAuthProvider());
-        }
-
         updateuserInputs.put("LastModifiedDate", new Date());
         updateuserInputs.put("LastModifiedBy", userId);
 
@@ -380,6 +347,14 @@ public class UserRepository {
         Boolean newActive = user.getActive();
         if (newActive != null && !newActive.equals(oldUser.getActive()))
             userTenantMappingRepository.setActive(oldUser.getId(), oldUser.getType(), tenantId, newActive);
+    }
+
+    public void upsertTenantMapping(User user, String tenantMappingKey) {
+        if (tenantMappingKey == null) {
+            return;
+        }
+        userTenantMappingRepository.upsert(user.getId(), user.getType(), user.getTenantId(), tenantMappingKey,
+                user.getUuid(), Boolean.TRUE.equals(user.getActive()));
     }
 
     public void fetchFailedLoginAttemptsByUser(String tenantId, String uuid) {
@@ -616,9 +591,6 @@ public class UserRepository {
         userInputs.put("createdby", entityUser.getLoggedInUserId());
         userInputs.put("lastmodifiedby", entityUser.getLoggedInUserId());
         userInputs.put("alternatemobilenumber", entityUser.getAlternateMobileNumber());
-        userInputs.put("idpissuer", entityUser.getIdpIssuer());
-        userInputs.put("idpsubject", entityUser.getIdpSubject());
-        userInputs.put("authprovider", entityUser.getAuthProvider());
 
         // replaced schema placeholder with tenant specific schema name
         String query = databaseSchemaUtils.replaceSchemaPlaceholder(userTypeQueryBuilder.getInsertUserQuery(),

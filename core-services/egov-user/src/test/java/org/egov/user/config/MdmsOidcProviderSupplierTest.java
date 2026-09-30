@@ -192,8 +192,87 @@ public class MdmsOidcProviderSupplierTest {
 
         assertEquals(1, providers.size());
         Provider p = providers.get(0);
-        assertEquals(OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY, p.getUsernameClaimKey());
+        assertEquals(null, p.getUsernameClaimKey());
         assertFalse(p.isJitEnabled());
+    }
+
+    @Test
+    public void mapNodeToProvider_withClaimKeys_mapsTrimmedValues() throws Exception {
+        MdmsOidcProviderSupplier supplier = new MdmsOidcProviderSupplier(
+                restTemplate,
+                "http://mdms",
+                "/mdms/search",
+                "module",
+                "master",
+                "pb",
+                1000L, 30_000L);
+
+        String mdmsJson = "{\n" +
+                "  \"" + OidcConfigConstants.MDMS_RES + "\": {\n" +
+                "    \"module\": {\n" +
+                "      \"master\": [\n" +
+                "        {\n" +
+                "          \"" + OidcConfigConstants.KEY_ID + "\": \"azure\",\n" +
+                "          \"" + OidcConfigConstants.KEY_ISSUER_URI + "\": \"https://sts.windows.net/tenant-id/\",\n" +
+                "          \"" + OidcConfigConstants.KEY_TENANT_ID + "\": \"pb\",\n" +
+                "          \"" + OidcConfigConstants.KEY_USERNAME_CLAIM_KEY + "\": \" upn \",\n" +
+                "          \"" + OidcConfigConstants.KEY_EMAIL_CLAIM_KEY + "\": \" mail \",\n" +
+                "          \"" + OidcConfigConstants.KEY_MOBILE_NUMBER_CLAIM_KEY + "\": \" phone \",\n" +
+                "          \"" + OidcConfigConstants.KEY_NAME_CLAIM_KEY + "\": \" displayName \"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+        JsonNode node = objectMapper.readTree(mdmsJson);
+        when(restTemplate.postForObject(eq("http://mdms/mdms/search"), any(Object.class), eq(JsonNode.class)))
+                .thenReturn(node);
+
+        List<Provider> providers = supplier.getProviders();
+
+        assertEquals(1, providers.size());
+        Provider p = providers.get(0);
+        assertEquals("upn", p.getUsernameClaimKey());
+        assertEquals("mail", p.getEmailClaimKey());
+        assertEquals("phone", p.getMobileNumberClaimKey());
+        assertEquals("displayName", p.getNameClaimKey());
+    }
+
+    @Test
+    public void mapNodeToProvider_blankClaimKeys_mapToNull() throws Exception {
+        MdmsOidcProviderSupplier supplier = new MdmsOidcProviderSupplier(
+                restTemplate,
+                "http://mdms",
+                "/mdms/search",
+                "module",
+                "master",
+                "pb",
+                1000L, 30_000L);
+
+        String mdmsJson = "{\n" +
+                "  \"" + OidcConfigConstants.MDMS_RES + "\": {\n" +
+                "    \"module\": {\n" +
+                "      \"master\": [\n" +
+                "        {\n" +
+                "          \"" + OidcConfigConstants.KEY_ID + "\": \"azure\",\n" +
+                "          \"" + OidcConfigConstants.KEY_ISSUER_URI + "\": \"https://sts.windows.net/tenant-id/\",\n" +
+                "          \"" + OidcConfigConstants.KEY_TENANT_ID + "\": \"pb\",\n" +
+                "          \"" + OidcConfigConstants.KEY_USERNAME_CLAIM_KEY + "\": \"  \",\n" +
+                "          \"" + OidcConfigConstants.KEY_EMAIL_CLAIM_KEY + "\": \"\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+        JsonNode node = objectMapper.readTree(mdmsJson);
+        when(restTemplate.postForObject(eq("http://mdms/mdms/search"), any(Object.class), eq(JsonNode.class)))
+                .thenReturn(node);
+
+        List<Provider> providers = supplier.getProviders();
+
+        Provider p = providers.get(0);
+        assertEquals(null, p.getUsernameClaimKey());
+        assertEquals(null, p.getEmailClaimKey());
     }
 
     @Test

@@ -45,6 +45,9 @@ public final class OidcConfigConstants {
     public static final String KEY_DEFAULT_BOUNDARY_HIERARCHY_TYPE = "defaultBoundaryHierarchyType";
     public static final String KEY_PROVIDER_TYPE = "providerType";
     public static final String KEY_USERNAME_CLAIM_KEY = "usernameClaimKey";
+    public static final String KEY_EMAIL_CLAIM_KEY = "emailClaimKey";
+    public static final String KEY_MOBILE_NUMBER_CLAIM_KEY = "mobileNumberClaimKey";
+    public static final String KEY_NAME_CLAIM_KEY = "nameClaimKey";
     public static final String KEY_JIT_ENABLED = "jitEnabled";
 
     /** Default values used in code. */
@@ -52,7 +55,6 @@ public final class OidcConfigConstants {
     public static final String DEFAULT_EMPLOYED_STATUS = "EMPLOYED";
     public static final String DEFAULT_ROLE_PREFIX = "ROLE_";
     public static final String DEFAULT_DECRYPTION_PURPOSE = "UserSelf";
-    public static final String DEFAULT_USERNAME_CLAIM_KEY = "preferred_username";
     public static final boolean DEFAULT_JIT_ENABLED = false;
 
     public static final String PROVIDERS_SOURCE_STATIC = "static";

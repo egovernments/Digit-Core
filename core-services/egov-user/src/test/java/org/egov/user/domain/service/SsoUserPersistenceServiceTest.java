@@ -5,8 +5,10 @@ import org.egov.user.domain.exception.sso.IdpPersistenceException;
 import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserIdpDetails;
+import org.egov.user.domain.model.UserIdpLink;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.persistence.repository.UserIdpDetailsRepository;
+import org.egov.user.persistence.repository.UserIdpLinkRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +34,9 @@ public class SsoUserPersistenceServiceTest {
     @Mock
     private UserIdpDetailsRepository userIdpDetailsRepository;
 
+    @Mock
+    private UserIdpLinkRepository userIdpLinkRepository;
+
     private SsoUserPersistenceService ssoUserPersistenceService;
 
     private User testUser;
@@ -42,7 +47,7 @@ public class SsoUserPersistenceServiceTest {
 
     @Before
     public void setup() {
-        ssoUserPersistenceService = new SsoUserPersistenceService(userService, userIdpDetailsRepository);
+        ssoUserPersistenceService = new SsoUserPersistenceService(userService, userIdpDetailsRepository, userIdpLinkRepository);
 
         testUser = User.builder()
                 .id(1L)
@@ -76,6 +81,33 @@ public class SsoUserPersistenceServiceTest {
     }
 
     @Test
+    public void testUpdateUserAndUpsertIdpDetails_LinkInsertedInSameTransaction() {
+        UserIdpLink link = UserIdpLink.builder()
+                .tenantId(TENANT_ID).issuer("issuer").subject("subject")
+                .userId(1L).uuid("user-uuid-123").providerId("oidc-azure")
+                .build();
+
+        when(userService.updateWithoutOtpValidation(any(User.class), any(RequestInfo.class)))
+                .thenReturn(testUser);
+
+        ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
+                testUser, testIdpDetails, TENANT_ID, testRequestInfo, link);
+
+        verify(userIdpLinkRepository).insert(link);
+    }
+
+    @Test
+    public void testUpdateUserAndUpsertIdpDetails_NullLink_Skipped() {
+        when(userService.updateWithoutOtpValidation(any(User.class), any(RequestInfo.class)))
+                .thenReturn(testUser);
+
+        ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
+                testUser, testIdpDetails, TENANT_ID, testRequestInfo, null);
+
+        verify(userIdpLinkRepository, never()).insert(any(UserIdpLink.class));
+    }
+
+    @Test
     public void testUpdateUserAndUpsertIdpDetails_Success() {
         // Arrange
         User expectedUpdatedUser = User.builder()
@@ -91,7 +123,7 @@ public class SsoUserPersistenceServiceTest {
 
         // Act
         User result = ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                testUser, testIdpDetails, TENANT_ID, testRequestInfo);
+                testUser, testIdpDetails, TENANT_ID, testRequestInfo, null);
 
         // Assert
         assertNotNull(result);
@@ -113,7 +145,7 @@ public class SsoUserPersistenceServiceTest {
 
         // Act
         ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                testUser, testIdpDetails, TENANT_ID, testRequestInfo);
+                testUser, testIdpDetails, TENANT_ID, testRequestInfo, null);
     }
 
     @Test(expected = DataIntegrityViolationException.class)
@@ -128,7 +160,7 @@ public class SsoUserPersistenceServiceTest {
 
         // Act
         ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                testUser, testIdpDetails, TENANT_ID, testRequestInfo);
+                testUser, testIdpDetails, TENANT_ID, testRequestInfo, null);
     }
 
     @Test
@@ -267,7 +299,7 @@ public class SsoUserPersistenceServiceTest {
 
         // Act
         User result = ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                testUser, detailsWithoutTokenId, TENANT_ID, testRequestInfo);
+                testUser, detailsWithoutTokenId, TENANT_ID, testRequestInfo, null);
 
         // Assert
         assertNotNull(result);
@@ -291,7 +323,7 @@ public class SsoUserPersistenceServiceTest {
 
         // Act
         User result = ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                testUser, detailsWithEmptyTokenId, TENANT_ID, testRequestInfo);
+                testUser, detailsWithEmptyTokenId, TENANT_ID, testRequestInfo, null);
 
         // Assert
         assertNotNull(result);

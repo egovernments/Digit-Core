@@ -399,6 +399,10 @@ public class UserService {
         User encryptedUpdatedUserfromDB = getUserByUuid(user.getUuid(), user.getTenantId());
         User decryptedupdatedUserfromDB = encryptionDecryptionUtil.decryptObject(encryptedUpdatedUserfromDB, "UserSelf",
                 User.class, requestInfo);
+
+        String tenantMappingKey = encryptionDecryptionUtil.tenantMappingKey(decryptedupdatedUserfromDB.getUsername());
+        userRepository.upsertTenantMapping(encryptedUpdatedUserfromDB, tenantMappingKey);
+
         return decryptedupdatedUserfromDB;
     }
 
@@ -700,28 +704,15 @@ public class UserService {
         }
     }
 
-    public User getUniqueUser(String issuer, String subject, String tenantId, UserType userType) {
-
+    public User getUserById(Long id, String tenantId) {
         UserSearchCriteria userSearchCriteria = UserSearchCriteria.builder()
-                .idpIssuer(issuer)
-                .idpSubject(subject)
-                .tenantId(userUtils.getStateLevelTenantForCitizen(tenantId, userType))
-                .type(userType)
+                .id(Collections.singletonList(id))
+                .tenantId(tenantId)
                 .build();
 
-        if (isEmpty(subject) || isEmpty(tenantId) || isNull(userType)) {
-            log.error("Invalid lookup, mandatory fields are absent");
-            throw new UserNotFoundException(userSearchCriteria);
-        }
-
-        userSearchCriteria = encryptionDecryptionUtil.encryptObject(userSearchCriteria, "User",
-                UserSearchCriteria.class);
         List<User> users = userRepository.findAll(userSearchCriteria);
-
         if (users.isEmpty())
             throw new UserNotFoundException(userSearchCriteria);
-        if (users.size() > 1)
-            throw new DuplicateUserNameException(userSearchCriteria);
 
         return users.get(0);
     }

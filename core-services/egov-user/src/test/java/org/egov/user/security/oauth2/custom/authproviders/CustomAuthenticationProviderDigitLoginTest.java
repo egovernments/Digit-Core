@@ -5,6 +5,7 @@ import org.egov.user.domain.exception.sso.SsoException;
 import org.egov.user.domain.model.UserSearchCriteria;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
+import org.egov.user.security.oauth2.custom.jwt.JwtExchangeAuthenticationToken;
 import org.egov.user.security.oauth2.custom.jwt.SsoErrorCodes;
 import org.egov.user.utils.DatabaseSchemaUtils;
 import org.junit.Before;
@@ -20,6 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.LinkedHashMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -77,6 +79,38 @@ public class CustomAuthenticationProviderDigitLoginTest {
     public void flagOff_EmployeePassesGuard() {
         ReflectionTestUtils.setField(provider, "employeeDigitLoginDisabled", false);
         assertPassesGuard(token("EMP-1", "EMPLOYEE"));
+    }
+
+    @Test
+    public void tenantListedInDisabledTenants_IsRejected() {
+        ReflectionTestUtils.setField(provider, "employeeDigitLoginDisabled", false);
+        provider.setEmployeeDigitLoginDisabledTenants(" PB.AMRITSAR ");
+        try {
+            provider.authenticate(token("EMP-1", "EMPLOYEE"));
+            fail("expected SsoException");
+        } catch (SsoException e) {
+            assertEquals(SsoErrorCodes.DIGIT_LOGIN_DISABLED, e.getErrorCode());
+        }
+        verifyZeroInteractions(userService);
+    }
+
+    @Test
+    public void tenantNotListed_globalOff_PassesGuard() {
+        ReflectionTestUtils.setField(provider, "employeeDigitLoginDisabled", false);
+        provider.setEmployeeDigitLoginDisabledTenants("other.tenant");
+        assertPassesGuard(token("EMP-1", "EMPLOYEE"));
+    }
+
+    @Test
+    public void allowListedUsername_TenantListedInDisabledTenants_PassesGuard() {
+        ReflectionTestUtils.setField(provider, "employeeDigitLoginDisabled", false);
+        provider.setEmployeeDigitLoginDisabledTenants(TENANT);
+        assertPassesGuard(token("  ADMIN ", "EMPLOYEE"));
+    }
+
+    @Test
+    public void doesNotSupportSsoJwtExchangeTokens_DigitLoginDisableIsPasswordGrantOnly() {
+        assertFalse(provider.supports(JwtExchangeAuthenticationToken.class));
     }
 
     @Test

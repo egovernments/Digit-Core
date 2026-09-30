@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,9 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.MDC;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.ServiceCallException;
-import org.egov.user.config.AuthProperties;
-import org.egov.user.config.OidcConfigConstants;
-import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
@@ -30,7 +26,6 @@ import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.security.oauth2.custom.jwt.SsoErrorCodes;
-import org.egov.user.security.oauth2.custom.service.IdpUserValidator;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
 import org.egov.user.utils.DatabaseSchemaUtils;
 import org.egov.user.web.contract.auth.Role;
@@ -61,12 +56,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final UserService userService;
 
-    @Autowired(required = false)
-    private OidcProviderSupplier oidcProviderSupplier;
-
-    @Autowired
-    private List<IdpUserValidator> idpUserValidators = new ArrayList<>();
-    
     @Autowired
     private DatabaseSchemaUtils centraInstanceUtil;
     
@@ -95,6 +84,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         employeeDigitLoginAllowedUsernames = Arrays.stream(usernames.split(","))
                 .map(u -> u.trim().toLowerCase())
                 .filter(u -> !u.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    private Set<String> employeeDigitLoginDisabledTenants = new HashSet<>();
+
+    @Value("${employee.login.digit.disabled-tenants:}")
+    void setEmployeeDigitLoginDisabledTenants(String tenants) {
+        employeeDigitLoginDisabledTenants = Arrays.stream(tenants.split(","))
+                .map(t -> t.trim().toLowerCase())
+                .filter(t -> !t.isEmpty())
                 .collect(Collectors.toSet());
     }
 
@@ -147,7 +146,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (isEmpty(userType) || isNull(UserType.fromValue(userType))) {
             throw new OAuth2Exception("User Type is mandatory and has to be a valid type");
         }
-        if (employeeDigitLoginDisabled && UserType.EMPLOYEE == UserType.fromValue(userType)
+        boolean digitLoginDisabledForTenant = employeeDigitLoginDisabled
+                || employeeDigitLoginDisabledTenants.contains(tenantId.trim().toLowerCase());
+        if (digitLoginDisabledForTenant && UserType.EMPLOYEE == UserType.fromValue(userType)
                 && !employeeDigitLoginAllowedUsernames.contains(userName.trim().toLowerCase())) {
             throw new SsoException(SsoErrorCodes.DIGIT_LOGIN_DISABLED, SsoErrorCodes.MSG_DIGIT_LOGIN_DISABLED, HttpStatus.FORBIDDEN);
         }
@@ -211,7 +212,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         }
 
         if (isPasswordMatched) {
-            validateIdpAccess(user);
 			/*
 			  We assume that there will be only one type. If it is multiple
 			  then we have change below code Separate by comma or other and
@@ -231,40 +231,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new OAuth2Exception("Invalid login credentials");
         }
 
-    }
-
-    /**
-     * Validates that a user with non-LOCAL authProvider still has access at the IdP.
-     * Skips when authProvider is LOCAL/null/blank, when OIDC supplier is absent, or when no provider/validator matches (fail-open).
-     */
-    private void validateIdpAccess(User user) {
-        String authProvider = user.getAuthProvider();
-        if (authProvider == null || authProvider.trim().isEmpty()
-                || OidcConfigConstants.AUTH_PROVIDER_LOCAL.equalsIgnoreCase(authProvider.trim())) {
-            return;
-        }
-        if (oidcProviderSupplier == null || idpUserValidators == null || idpUserValidators.isEmpty()) {
-            return;
-        }
-        String tenantId = user.getTenantId();
-        Optional<AuthProperties.Provider> providerOpt = oidcProviderSupplier.getProviders().stream()
-                .filter(p -> p.getId() != null && p.getId().trim().equals(authProvider.trim())
-                        && (tenantId == null || (p.getTenantId() != null && p.getTenantId().equals(tenantId))))
-                .findFirst();
-        if (!providerOpt.isPresent()) {
-            log.warn("IdP user validation skipped: no provider config for authProvider={}, tenantId={}", authProvider, tenantId);
-            return;
-        }
-        AuthProperties.Provider provider = providerOpt.get();
-        IdpUserValidator validator = idpUserValidators.stream()
-                .filter(v -> v.supports(provider))
-                .findFirst()
-                .orElse(null);
-        if (validator == null) {
-            log.warn("IdP user validation skipped: no IdpUserValidator supports provider id={}", provider.getId());
-            return;
-        }
-        validator.validate(user, provider);
     }
 
     /**
