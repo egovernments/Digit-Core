@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import org.egov.requestvalidation.ValidateRequest;
 
+@ValidateRequest
 @Controller
 @RequestMapping("/boundary")
 public class BoundaryController {
