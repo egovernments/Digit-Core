@@ -14,9 +14,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.egov.requestvalidation.ValidateRequest;
 
-@ValidateRequest
 @RestController
 @RequestMapping("/egov-wf")
 public class EscalationController {

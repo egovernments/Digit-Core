@@ -11,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
-import org.egov.requestvalidation.ValidateRequest;
 
-@ValidateRequest
 @RestController
 @Slf4j
 @RequestMapping(value = "/v1")

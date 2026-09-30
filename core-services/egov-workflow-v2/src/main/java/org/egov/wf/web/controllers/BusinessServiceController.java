@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import org.egov.requestvalidation.ValidateRequest;
 
-@ValidateRequest
 @RestController
 @RequestMapping("/egov-wf")
 public class BusinessServiceController {

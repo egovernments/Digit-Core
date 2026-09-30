@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.egov.requestvalidation.ValidateRequest;
 
-@ValidateRequest
 @RestController
 @Validated
 @RequestMapping("/messages")
