@@ -227,6 +227,15 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
         return n == null || n.isNull() ? null : n.asText();
     }
 
+    private static String blankToNull(JsonNode n) {
+        String text = textOrNull(n);
+        if (text == null) {
+            return null;
+        }
+        String trimmed = text.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
     private AuthProperties.Provider mapNodeToProvider(JsonNode n) throws IOException {
         AuthProperties.Provider.Builder builder = AuthProperties.Provider.builder();
         
@@ -399,7 +408,16 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
             builder.defaultBoundaryHierarchyType(textOrNull(n.get(OidcConfigConstants.KEY_DEFAULT_BOUNDARY_HIERARCHY_TYPE)));
         }
         if (n.has(OidcConfigConstants.KEY_USERNAME_CLAIM_KEY)) {
-            builder.usernameClaimKey(n.get(OidcConfigConstants.KEY_USERNAME_CLAIM_KEY).asText(OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY));
+            builder.usernameClaimKey(blankToNull(n.get(OidcConfigConstants.KEY_USERNAME_CLAIM_KEY)));
+        }
+        if (n.has(OidcConfigConstants.KEY_EMAIL_CLAIM_KEY)) {
+            builder.emailClaimKey(blankToNull(n.get(OidcConfigConstants.KEY_EMAIL_CLAIM_KEY)));
+        }
+        if (n.has(OidcConfigConstants.KEY_MOBILE_NUMBER_CLAIM_KEY)) {
+            builder.mobileNumberClaimKey(blankToNull(n.get(OidcConfigConstants.KEY_MOBILE_NUMBER_CLAIM_KEY)));
+        }
+        if (n.has(OidcConfigConstants.KEY_NAME_CLAIM_KEY)) {
+            builder.nameClaimKey(blankToNull(n.get(OidcConfigConstants.KEY_NAME_CLAIM_KEY)));
         }
         if (n.has(OidcConfigConstants.KEY_JIT_ENABLED)) {
             builder.jitEnabled(n.get(OidcConfigConstants.KEY_JIT_ENABLED).asBoolean(OidcConfigConstants.DEFAULT_JIT_ENABLED));

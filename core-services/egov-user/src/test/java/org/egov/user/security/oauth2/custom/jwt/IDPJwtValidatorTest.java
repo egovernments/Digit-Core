@@ -5,6 +5,7 @@ import org.egov.user.config.AuthProperties;
 import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.domain.exception.sso.IdpJwtValidationException;
 import org.egov.user.domain.exception.sso.OidcProviderConfigException;
+import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import org.junit.Before;
 import org.junit.Test;
@@ -154,6 +155,33 @@ public class IDPJwtValidatorTest {
                 assertEquals(tenantId, result.getTenantId());
                 assertEquals(1, result.getRoles().size());
                 assertEquals("DIGIT_ROLE_1", result.getRoles().iterator().next());
+        }
+
+        @Test(expected = SsoMissingParamException.class)
+        public void testValidate_EmptyTenantId_Throws() {
+                String header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+                String payload = "eyJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC90ZW5hbnQtaWQvIn0";
+                String realLookingToken = header + "." + payload + ".signature";
+
+                idpJwtValidator.validate(realLookingToken, "");
+        }
+
+        @Test(expected = OidcProviderConfigException.class)
+        public void testValidate_ProviderConfiguredForAnotherTenantOnly_ThrowsProviderNotFound() {
+                String issuer = "https://sts.windows.net/tenant-id/";
+                AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                        .id("azure")
+                        .issuerUri(issuer)
+                        .jwkSetUri("http://jwks")
+                        .tenantId("other-tenant")
+                        .build();
+                when(oidcProviderSupplier.getProviders()).thenReturn(Collections.singletonList(provider));
+
+                String header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+                String payload = "eyJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC90ZW5hbnQtaWQvIn0";
+                String realLookingToken = header + "." + payload + ".signature";
+
+                idpJwtValidator.validate(realLookingToken, "pb.amritsar");
         }
 
         @Test

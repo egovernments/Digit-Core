@@ -2,18 +2,22 @@ package org.egov.user.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+import java.util.Date;
+
+@Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-public class UserTenantMapping {
+@AllArgsConstructor
+public class UserIdpLink {
+
     private String tenantId;
+    private String issuer;
+    private String subject;
     private Long userId;
     private String uuid;
-    private Boolean jit;
+    private String providerId;
+    private Date createdDate;
 }

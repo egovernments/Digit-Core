@@ -68,7 +68,7 @@ public class UserTypeQueryBuilder {
             +
             ".type,  userdata.version, userdata.guardian, userdata.guardianrelation, userdata.signature, userdata.accountlocked, userdata.accountlockeddate, userdata"
             +
-            ".bloodgroup, userdata.photo, userdata.identificationmark,  userdata.tenantid, userdata.id, userdata.uuid, userdata.alternatemobilenumber, userdata.idpissuer, userdata.idpsubject, userdata.authprovider, "
+            ".bloodgroup, userdata.photo, userdata.identificationmark,  userdata.tenantid, userdata.id, userdata.uuid, userdata.alternatemobilenumber, "
             + "idp.idptokenexp, idp.lastssologinat, idp.tokenid, idp.mfaenabled, idp.mfadevicename, idp.mfaphonelast4, idp.mfaregisteredon, idp.mfadetails, "
             + "addr.id as addr_id, addr.type as "
             +
@@ -140,8 +140,7 @@ public class UserTypeQueryBuilder {
         if (CollectionUtils.isEmpty(userSearchCriteria.getId()) && userSearchCriteria.getUserName() == null
                 && userSearchCriteria.getName() == null && userSearchCriteria.getEmailId() == null
                 && userSearchCriteria.getActive() == null && userSearchCriteria.getTenantId() == null
-                && userSearchCriteria.getType() == null && userSearchCriteria.getUuid() == null
-                && userSearchCriteria.getIdpIssuer() == null && userSearchCriteria.getIdpSubject() == null)
+                && userSearchCriteria.getType() == null && userSearchCriteria.getUuid() == null)
             return;
 
         selectQuery.append(" WHERE");
@@ -224,18 +223,6 @@ public class UserTypeQueryBuilder {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
             selectQuery.append(" userdata.uuid IN (").append(getQueryForCollection(userSearchCriteria.getUuid(),
                     preparedStatementValues)).append(" )");
-        }
-
-        if (userSearchCriteria.getIdpIssuer() != null) {
-            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.idpissuer = ?");
-            preparedStatementValues.add(userSearchCriteria.getIdpIssuer().trim());
-        }
-
-        if (userSearchCriteria.getIdpSubject() != null) {
-            isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.idpsubject = ?");
-            preparedStatementValues.add(userSearchCriteria.getIdpSubject().trim());
         }
 
         // if(!isEmpty(userSearchCriteria.getRoleCodes())){
@@ -322,11 +309,11 @@ public class UserTypeQueryBuilder {
     public String getInsertUserQuery() {
         return "insert into " + SCHEMA_REPLACE_STRING
                 + ".eg_user (id,uuid,tenantid,salutation,dob,locale,username,password,pwdexpirydate,mobilenumber,altcontactnumber,emailid,active,name,gender,pan,aadhaarnumber,"
-                + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,createddate,lastmodifieddate,createdby,lastmodifiedby,alternatemobilenumber,"
-                + "idpissuer,idpsubject,authprovider) values (:id,:uuid,:tenantid,:salutation,"
+                + "type,guardian,guardianrelation,signature,accountlocked,bloodgroup,photo,identificationmark,createddate,lastmodifieddate,createdby,lastmodifiedby,alternatemobilenumber"
+                + ") values (:id,:uuid,:tenantid,:salutation,"
                 + ":dob,:locale,:username,:password,:pwdexpirydate,:mobilenumber,:altcontactnumber,:emailid,:active,:name,:gender,:pan,:aadhaarnumber,:type,:guardian,:guardianrelation,:signature,"
-                + ":accountlocked,:bloodgroup,:photo,:identificationmark,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby,:alternatemobilenumber,"
-                + ":idpissuer,:idpsubject,:authprovider) ";
+                + ":accountlocked,:bloodgroup,:photo,:identificationmark,:createddate,:lastmodifieddate,:createdby,:lastmodifiedby,:alternatemobilenumber"
+                + ") ";
     }
 
     public String getUpdateUserQuery() {
@@ -335,8 +322,7 @@ public class UserTypeQueryBuilder {
                 + "type=:Type,guardian=:Guardian,guardianrelation=:GuardianRelation,signature=:Signature,"
                 + "accountlocked=:AccountLocked, accountlockeddate=:AccountLockedDate, bloodgroup=:BloodGroup,"
                 + "photo=:Photo, identificationmark=:IdentificationMark,lastmodifieddate=:LastModifiedDate,"
-                + "lastmodifiedby=:LastModifiedBy, alternatemobilenumber=:alternatemobilenumber,"
-                + "idpissuer=:IdpIssuer,idpsubject=:IdpSubject,authprovider=:AuthProvider "
+                + "lastmodifiedby=:LastModifiedBy, alternatemobilenumber=:alternatemobilenumber "
                 + "where username=:username and tenantid=:tenantid and type=:type";
     }
 

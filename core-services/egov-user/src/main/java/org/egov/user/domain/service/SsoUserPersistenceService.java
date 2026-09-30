@@ -5,7 +5,9 @@ import org.egov.user.domain.exception.sso.IdpPersistenceException;
 import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserIdpDetails;
+import org.egov.user.domain.model.UserIdpLink;
 import org.egov.user.persistence.repository.UserIdpDetailsRepository;
+import org.egov.user.persistence.repository.UserIdpLinkRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -42,11 +44,14 @@ public class SsoUserPersistenceService {
 
     private final UserService userService;
     private final UserIdpDetailsRepository userIdpDetailsRepository;
+    private final UserIdpLinkRepository userIdpLinkRepository;
 
     public SsoUserPersistenceService(UserService userService,
-                                     UserIdpDetailsRepository userIdpDetailsRepository) {
+                                     UserIdpDetailsRepository userIdpDetailsRepository,
+                                     UserIdpLinkRepository userIdpLinkRepository) {
         this.userService = userService;
         this.userIdpDetailsRepository = userIdpDetailsRepository;
+        this.userIdpLinkRepository = userIdpLinkRepository;
     }
 
     /**
@@ -64,6 +69,7 @@ public class SsoUserPersistenceService {
      * @param idpDetails the IDP details to persist (tokenId, expiration, MFA data)
      * @param tenantId the tenant identifier for schema routing and data isolation
      * @param requestInfo the request context containing user information for audit trails
+     * @param link optional IdP link to insert in the same transaction; skipped when null
      * @return the updated user domain object with latest state
      * @throws TokenReplayException if the tokenId has already been used (database constraint violation)
      * @throws IdpPersistenceException if required input parameters are null or invalid
@@ -71,11 +77,14 @@ public class SsoUserPersistenceService {
      */
     @Transactional
     public User updateUserAndUpsertIdpDetails(User user, UserIdpDetails idpDetails,
-                                              String tenantId, RequestInfo requestInfo) {
+                                              String tenantId, RequestInfo requestInfo, UserIdpLink link) {
         validateIdpPersistenceInput(idpDetails, tenantId);
         try {
             User updatedUser = userService.updateWithoutOtpValidation(user, requestInfo);
             userIdpDetailsRepository.upsert(idpDetails, tenantId);
+            if (link != null) {
+                userIdpLinkRepository.insert(link);
+            }
             return updatedUser;
         } catch (DataIntegrityViolationException e) {
             if (e.getMessage() != null && e.getMessage().contains("eg_user_idp_details_tokenid_tenantid_key")) {

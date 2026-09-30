@@ -17,10 +17,12 @@ import org.egov.user.domain.model.Role;
 import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserIdpDetails;
+import org.egov.user.domain.model.UserIdpLink;
 import org.egov.user.domain.model.enums.UserType;
 import org.egov.user.domain.service.SsoUserPersistenceService;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.persistence.repository.UserIdpLinkRepository;
 import org.egov.user.security.oauth2.custom.service.EmployeeCreationProfile;
 import org.egov.user.security.oauth2.custom.service.IdpGraphService;
 import org.egov.user.security.oauth2.custom.service.impl.NoOpGraphService;
@@ -91,6 +93,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private final NoOpGraphService noOpGraphService;
     private final SsoUserPersistenceService ssoUserPersistenceService;
     private final EncryptionDecryptionUtil encryptionDecryptionUtil;
+    private final UserIdpLinkRepository userIdpLinkRepository;
 
     public JwtExchangeAuthenticationProvider(
             JwtValidationService jwtValidationService,
@@ -102,7 +105,8 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             SsoDefaultPasswordResolver ssoDefaultPasswordResolver,
             NoOpGraphService noOpGraphService,
             SsoUserPersistenceService ssoUserPersistenceService,
-            EncryptionDecryptionUtil encryptionDecryptionUtil) {
+            EncryptionDecryptionUtil encryptionDecryptionUtil,
+            UserIdpLinkRepository userIdpLinkRepository) {
         this.jwtValidationService = jwtValidationService;
         this.userService = userService;
         this.centraInstanceUtil = centraInstanceUtil;
@@ -115,6 +119,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         this.noOpGraphService = noOpGraphService;
         this.ssoUserPersistenceService = ssoUserPersistenceService;
         this.encryptionDecryptionUtil = encryptionDecryptionUtil;
+        this.userIdpLinkRepository = userIdpLinkRepository;
     }
 
     /** Holds token and tenant from the incoming authentication. */
@@ -181,12 +186,13 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     @Override
     public Authentication authenticate(Authentication authentication) {
         JwtExchangeInput input = extractJwtExchangeInput(authentication);
-        
+        validateTenantPresent(input.tenantId);
+
         try {
             OidcValidatedJwt jwt = jwtValidationService.validate(input.token, input.tenantId);
 
-            validateRequiredParams(jwt, input.tenantId);
-            
+            validateUserType(jwt);
+
             // TOKEN REPLAY PROTECTION
             validateTokenReplay(jwt, input.tenantId);
 
@@ -237,18 +243,18 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return new JwtExchangeInput(token, tenantId);
     }
 
-    /**
-     * Validates tenant ID and user type from JWT; sets tenant MDC when in central instance.
-     *
-     * @throws SsoMissingParamException if tenantId or userType is missing/invalid
-     */
-    private void validateRequiredParams(OidcValidatedJwt jwt, String tenantId) {
+    /** @throws SsoMissingParamException if tenantId is missing */
+    private void validateTenantPresent(String tenantId) {
         if (centraInstanceUtil.getIsEnvironmentCentralInstance()) {
             MDC.put(UserServiceConstants.TENANTID_MDC_STRING, tenantId);
         }
         if (isEmpty(tenantId)) {
             throw SsoMissingParamException.tenantIdMissing();
         }
+    }
+
+    /** @throws SsoMissingParamException if userType is missing/invalid */
+    private void validateUserType(OidcValidatedJwt jwt) {
         String userType = jwt.getUserType();
         if (isEmpty(userType) || isNull(UserType.fromValue(userType))) {
             throw SsoMissingParamException.userTypeMissing();
@@ -289,51 +295,61 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         return new ProviderAndMfa(provider, mfaDetails);
     }
 
-    /**
-     * Looks up user by issuer + subject + tenant; if not found, creates HRMS user and staff mapping,
-     * then persists user and IDP details. Returns the user and request info for downstream use.
-     */
+    /** Looks up the user via the IdP link; falls back to auto-link by username claim, then JIT creation. */
     private UserAndRequestInfo findOrCreateUser(OidcValidatedJwt jwt, AuthProperties.Provider provider,
             TokenMfaDetails mfaDetails, String tenantId) {
         UserType type = UserType.fromValue(jwt.getUserType());
-        User user;
-        try {
-            user = userService.getUniqueUser(jwt.getIssuer(), jwt.getExternalUserId(), tenantId, type);
-        } catch (UserNotFoundException bySubject) {
-            user = findByUsernameClaim(jwt, provider, tenantId, type);
+
+        Optional<UserIdpLink> existingLink = userIdpLinkRepository.find(tenantId, provider.getId(), jwt.getIssuer(),
+                jwt.getExternalUserId());
+        if (existingLink.isPresent()) {
+            User user = userService.getUserById(existingLink.get().getUserId(), tenantId);
+            return updateExistingUser(user, jwt, provider, mfaDetails, tenantId, null);
         }
+
+        User user = findByUsernameClaim(jwt, provider, tenantId, type);
         if (user == null) {
             if (!provider.isJitEnabled()) {
                 throw new SsoUserNotOnboardedException(tenantId);
             }
             return createNewUser(jwt, provider, mfaDetails, tenantId);
         }
-        return updateExistingUser(user, jwt, provider, mfaDetails, tenantId);
+        return updateExistingUser(user, jwt, provider, mfaDetails, tenantId, buildIdpLink(user, jwt, provider));
     }
 
     private User findByUsernameClaim(OidcValidatedJwt jwt, AuthProperties.Provider provider, String tenantId,
             UserType type) {
-        Object claim = jwt.getClaims().get(provider.getUsernameClaimKey());
-        if (claim == null || !StringUtils.hasText(claim.toString())) {
+        String username = provider.resolveUsername(jwt.getClaims());
+        if (!StringUtils.hasText(username)) {
             return null;
         }
         User user;
         try {
-            user = userService.getUniqueUser(claim.toString().trim(), tenantId, type);
+            user = userService.getUniqueUser(username, tenantId, type);
         } catch (UserNotFoundException e) {
             return null;
         }
-        if (user.getIdpSubject() != null && !jwt.getSubject().equals(user.getIdpSubject())) {
+        if (!autoLinkRulesPass(user, jwt, provider, tenantId)) {
             throw new SsoUserNotOnboardedException(tenantId);
         }
         return user;
     }
 
+    private boolean autoLinkRulesPass(User user, OidcValidatedJwt jwt, AuthProperties.Provider provider, String tenantId) {
+        UserType providerUserType = UserType.fromValue(provider.getUserType());
+        if (providerUserType != null && user.getType() != providerUserType) {
+            return false;
+        }
+        List<UserIdpLink> existingLinks = userIdpLinkRepository.findByUser(user.getId(), tenantId);
+        return existingLinks.stream()
+                .noneMatch(l -> provider.getId().equals(l.getProviderId()) && !jwt.getSubject().equals(l.getSubject()));
+    }
+
     private UserAndRequestInfo updateExistingUser(User user, OidcValidatedJwt jwt, AuthProperties.Provider provider,
-            TokenMfaDetails mfaDetails, String tenantId) {
+            TokenMfaDetails mfaDetails, String tenantId, UserIdpLink linkToInsert) {
         RequestInfo requestInfo = getRequestInfo(user);
 
-        User userForUpdate = createUserForSsoUpdate(user, jwt);
+        User userForUpdate = createUserForSsoUpdate(user, jwt, provider, requestInfo);
         applyMfaDetailsToUser(userForUpdate, mfaDetails);
         resolveGraphService(provider).enrichUserWithMfaDetails(userForUpdate, provider, jwt.getOid());
         requestInfo.getUserInfo().setId(userForUpdate.getId());
@@ -341,9 +357,9 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         UserIdpDetails idpDetails = buildIdpDetails(userForUpdate, jwt);
 
         User originalUser = user;
-        if (user.getIdpSubject() == null) {
+        if (linkToInsert != null) {
             user = ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                    userForUpdate, idpDetails, tenantId, requestInfo);
+                    userForUpdate, idpDetails, tenantId, requestInfo, linkToInsert);
         } else {
             ssoUserPersistenceService.upsertIdpDetailsOnly(idpDetails, tenantId);
             User decrypted = encryptionDecryptionUtil.decryptObject(user, "UserSelf", User.class, requestInfo);
@@ -389,9 +405,6 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         User createdUser = convertHrmsUserToUser(hrmsUser);
         createdUser.setPassword(password);
         createdUser.setTenantId(tenantId);
-        createdUser.setIdpIssuer(jwt.getIssuer());
-        createdUser.setIdpSubject(jwt.getSubject());
-        createdUser.setAuthProvider(jwt.getProviderId());
         createdUser.setTokenId(jwt.getTokenId());
         createdUser.setIdpTokenExp(jwt.getExpirationTime());
         createdUser.setLastSsoLoginAt(jwt.getIssuanceTime());
@@ -406,8 +419,9 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
 
         try {
             UserIdpDetails idpDetails = buildIdpDetails(createdUser, jwt);
+            UserIdpLink link = buildIdpLink(createdUser, jwt, provider);
             User user = ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                    createdUser, idpDetails, tenantId, requestInfo);
+                    createdUser, idpDetails, tenantId, requestInfo, link);
             return new UserAndRequestInfo(user, requestInfo);
         } catch (DuplicateUserNameException dupE) {
             log.error("Fatal: duplicate user conflict for oid: {}", jwt.getOid(), dupE);
@@ -665,13 +679,16 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
             }
         }
 
-        String username = jwt.getClaims().get("unique_name") != null ? 
-            jwt.getClaims().get("unique_name").toString() : 
-            jwt.getEmail(); // Use unique_name which has the email, fallback to preferred_username
-        String name = sanitizeName(jwt.getName());
+        String username = provider.resolveUsername(jwt.getClaims());
+        if (!StringUtils.hasText(username)) {
+            throw SsoMissingParamException.usernameClaimMissing(
+                    provider.getUsernameClaimKey() != null ? provider.getUsernameClaimKey() : "unique_name|email");
+        }
+        String name = sanitizeName(provider.resolveName(jwt.getClaims()));
         return org.egov.user.domain.model.hrms.User.builder()
                 .uuid(jwt.getExternalUserId())
-                .emailId(username)
+                .emailId(provider.resolveEmail(jwt.getClaims()))
+                .mobileNumber(provider.resolveMobileNumber(jwt.getClaims()))
                 .active(true)
                 .accountLocked(false)
                 .tenantId(jwt.getTenantId())
@@ -743,27 +760,40 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
 
     /**
      * Creates a User object for SSO update from existing user and JWT claims.
-     * Sets only identity and IdP linkage fields; session/MFA are persisted via eg_user_idp_details.
+     * IdP linkage lives in eg_user_idp_link; session/MFA are persisted via eg_user_idp_details.
      *
      * @param user the existing user object
      * @param jwt the validated JWT with updated claims
      * @return User object ready for update (eg_user only)
      */
-    private User createUserForSsoUpdate(User user, OidcValidatedJwt jwt) {
-        String name = sanitizeName(jwt.getName());
+    private User createUserForSsoUpdate(User user, OidcValidatedJwt jwt, AuthProperties.Provider provider,
+            RequestInfo requestInfo) {
+        String name = sanitizeName(provider.resolveName(jwt.getClaims()));
+        String email = provider.resolveEmail(jwt.getClaims());
+        if (email == null) {
+            User decrypted = encryptionDecryptionUtil.decryptObject(user, "UserSelf", User.class, requestInfo);
+            email = decrypted != null ? decrypted.getEmailId() : null;
+        }
+        String mobileNumber = provider.resolveMobileNumber(jwt.getClaims());
         return user.toBuilder()
-                .authProvider(jwt.getProviderId())
-                .idpSubject(jwt.getSubject())
-                .idpIssuer(jwt.getIssuer())
                 .name(name)
-                .emailId(jwt.getClaims().get("unique_name") != null ? 
-                    jwt.getClaims().get("unique_name").toString() : 
-                    jwt.getEmail()) // Use unique_name which has the email, fallback to preferred_username
+                .emailId(email)
+                .mobileNumber(mobileNumber)
                 .createdBy(user.getCreatedBy())
                 .lastModifiedBy(user.getId())
                 .password(null)
-                .mobileNumber(null)
                 .username(null)
+                .build();
+    }
+
+    private UserIdpLink buildIdpLink(User user, OidcValidatedJwt jwt, AuthProperties.Provider provider) {
+        return UserIdpLink.builder()
+                .tenantId(user.getTenantId())
+                .issuer(jwt.getIssuer())
+                .subject(jwt.getSubject())
+                .userId(user.getId())
+                .uuid(user.getUuid())
+                .providerId(provider.getId())
                 .build();
     }
 

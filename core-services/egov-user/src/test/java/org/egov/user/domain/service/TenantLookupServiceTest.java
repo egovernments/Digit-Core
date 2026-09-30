@@ -65,6 +65,11 @@ public class TenantLookupServiceTest {
         return new OidcValidatedJwt(Collections.emptySet(), claims, new Date(), new Date(), "token", providerId);
     }
 
+    private OidcValidatedJwt jwt(Map<String, Object> claims, String providerId, String issuer) {
+        claims.put("iss", issuer);
+        return jwt(claims, providerId);
+    }
+
     @Test
     public void lookup_wrongTenant_throwsTenantNotShared() {
         try {
@@ -100,7 +105,7 @@ public class TenantLookupServiceTest {
     @Test
     public void lookup_noProviderForProviderIdAndTenant_throwsOidcProviderConfigException() {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("preferred_username", "jdoe");
+        claims.put("unique_name", "jdoe");
         OidcValidatedJwt jwt = jwt(claims, "azure");
 
         when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
@@ -155,7 +160,7 @@ public class TenantLookupServiceTest {
     @Test
     public void lookup_happyPath_returnsSortedListFromRepository() {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("preferred_username", "jdoe");
+        claims.put("unique_name", "jdoe");
         OidcValidatedJwt jwt = jwt(claims, "azure");
 
         AuthProperties.Provider provider = AuthProperties.Provider.builder()
@@ -176,9 +181,177 @@ public class TenantLookupServiceTest {
     }
 
     @Test
+    public void lookup_jitProvider_addsJitOnlyTenant() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE")
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider jitProvider = AuthProperties.Provider.builder()
+                .id("jit-provider").tenantId("pb.jit-tenant").userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://issuer.example.com").build();
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(java.util.Arrays.asList(provider, jitProvider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(Collections.emptyList());
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertEquals(1, response.getTenants().size());
+        assertEquals("pb.jit-tenant", response.getTenants().get(0).getTenantId());
+        assertTrue(response.getTenants().get(0).getJit());
+    }
+
+    @Test
+    public void lookup_jitProvider_nonMatchingAudience_notAdded() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        claims.put("aud", "client-a");
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE")
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider jitProvider = AuthProperties.Provider.builder()
+                .id("jit-provider").tenantId("pb.jit-tenant").userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://issuer.example.com").audiences(Collections.singletonList("client-b")).build();
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(java.util.Arrays.asList(provider, jitProvider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(Collections.emptyList());
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertTrue(response.getTenants().isEmpty());
+    }
+
+    @Test
+    public void lookup_jitProvider_matchingAudience_added() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        claims.put("aud", java.util.Arrays.asList("client-a", "client-b"));
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE")
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider jitProvider = AuthProperties.Provider.builder()
+                .id("jit-provider").tenantId("pb.jit-tenant").userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://issuer.example.com").audiences(Collections.singletonList("client-b")).build();
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(java.util.Arrays.asList(provider, jitProvider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(Collections.emptyList());
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertEquals(1, response.getTenants().size());
+        assertEquals("pb.jit-tenant", response.getTenants().get(0).getTenantId());
+    }
+
+    @Test
+    public void lookup_jitProvider_existingMappedTenant_notDuplicated() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE")
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider jitProvider = AuthProperties.Provider.builder()
+                .id("jit-provider").tenantId("pb.amritsar").userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://issuer.example.com").build();
+
+        List<UserTenantMapping> mappings = Collections.singletonList(
+                UserTenantMapping.builder().tenantId("pb.amritsar").userId(1L).uuid("uuid-1").build());
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(java.util.Arrays.asList(provider, jitProvider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(mappings);
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertEquals(1, response.getTenants().size());
+        assertEquals("pb.amritsar", response.getTenants().get(0).getTenantId());
+    }
+
+    @Test
+    public void lookup_nonJitProvider_notAdded() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE")
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider nonJitProvider = AuthProperties.Provider.builder()
+                .id("non-jit-provider").tenantId("pb.non-jit").userType("EMPLOYEE").jitEnabled(false)
+                .issuerUri("https://issuer.example.com").build();
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(java.util.Arrays.asList(provider, nonJitProvider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(Collections.emptyList());
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertTrue(response.getTenants().isEmpty());
+    }
+
+    @Test
+    public void lookup_differentIssuerProvider_notAdded() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE")
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider otherIssuerProvider = AuthProperties.Provider.builder()
+                .id("other-issuer-provider").tenantId("pb.other-issuer").userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://other-issuer.example.com").build();
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders()).thenReturn(java.util.Arrays.asList(provider, otherIssuerProvider));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(Collections.emptyList());
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertTrue(response.getTenants().isEmpty());
+    }
+
+    @Test
+    public void lookup_twoJitProvidersSameTenant_oneEntry() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("unique_name", "jdoe");
+        OidcValidatedJwt jwt = jwt(claims, "azure", "https://issuer.example.com");
+
+        AuthProperties.Provider provider = AuthProperties.Provider.builder()
+                .id("azure").tenantId(SHARED_TENANT).userType("EMPLOYEE")
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider jitProviderA = AuthProperties.Provider.builder()
+                .id("jit-a").tenantId("pb.jit-tenant").userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://issuer.example.com").build();
+        AuthProperties.Provider jitProviderB = AuthProperties.Provider.builder()
+                .id("jit-b").tenantId("pb.jit-tenant").userType("EMPLOYEE").jitEnabled(true)
+                .issuerUri("https://issuer.example.com").build();
+
+        when(jwtValidationService.validate("assertion", SHARED_TENANT)).thenReturn(jwt);
+        when(oidcProviderSupplier.getProviders())
+                .thenReturn(java.util.Arrays.asList(provider, jitProviderA, jitProviderB));
+        when(mappingRepository.findActiveByUsernameKeyAndType(eq("enc:jdoe"), any())).thenReturn(Collections.emptyList());
+
+        TenantLookupResponse response = tenantLookupService.lookup("assertion", SHARED_TENANT);
+
+        assertEquals(1, response.getTenants().size());
+        assertEquals("pb.jit-tenant", response.getTenants().get(0).getTenantId());
+    }
+
+    @Test
     public void lookup_emptyListPassthrough() {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("preferred_username", "jdoe");
+        claims.put("unique_name", "jdoe");
         OidcValidatedJwt jwt = jwt(claims, "azure");
 
         AuthProperties.Provider provider = AuthProperties.Provider.builder()

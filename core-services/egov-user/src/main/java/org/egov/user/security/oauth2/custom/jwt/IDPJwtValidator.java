@@ -7,6 +7,7 @@ import org.egov.user.config.OidcConfigConstants;
 import org.egov.user.config.OidcProviderSupplier;
 import org.egov.user.domain.exception.sso.IdpJwtValidationException;
 import org.egov.user.domain.exception.sso.OidcProviderConfigException;
+import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.web.contract.auth.OidcValidatedJwt;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -413,21 +414,13 @@ public class IDPJwtValidator implements JwtValidator {
         if (issuer == null || issuer.isEmpty()) {
             throw OidcProviderConfigException.issuerMissingInToken();
         }
+        if (tenantId == null || tenantId.isEmpty()) {
+            throw SsoMissingParamException.tenantIdMissing();
+        }
 
         List<AuthProperties.Provider> issuerMatches = oidcProviderSupplier.getProviders().stream()
                 .filter(p -> matchesIssuer(p, issuer))
-                .filter(p -> {
-                    // If no tenantId provided, don't filter by tenantId
-                    if (tenantId == null || tenantId.isEmpty()) {
-                        return true;
-                    }
-                    // If provider has no tenantId configured, don't match
-                    if (p.getTenantId() == null || p.getTenantId().isEmpty()) {
-                        return false;
-                    }
-                    // Match tenantId exactly
-                    return tenantId.equals(p.getTenantId());
-                })
+                .filter(p -> p.getTenantId() != null && tenantId.equals(p.getTenantId()))
                 .collect(Collectors.toList());
 
         if (issuerMatches.isEmpty()) {

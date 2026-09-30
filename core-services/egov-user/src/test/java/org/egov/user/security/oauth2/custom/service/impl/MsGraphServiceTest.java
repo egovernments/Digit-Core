@@ -156,7 +156,6 @@ public class MsGraphServiceTest {
                 .thenThrow(new RuntimeException("graph error"));
 
         User user = new User();
-        user.setIdpSubject(USER_OID);
 
         msGraphService.enrichUserWithMfaDetails(user, provider, USER_OID);
     }
@@ -172,7 +171,6 @@ public class MsGraphServiceTest {
                 .thenReturn(ResponseEntity.ok("{\"other\":\"data\"}"));
 
         User user = new User();
-        user.setIdpSubject(USER_OID);
 
         msGraphService.enrichUserWithMfaDetails(user, provider, USER_OID);
 
@@ -200,7 +198,6 @@ public class MsGraphServiceTest {
                 .thenReturn(ResponseEntity.ok(body));
 
         User user = new User();
-        user.setIdpSubject(USER_OID);
 
         msGraphService.enrichUserWithMfaDetails(user, provider, USER_OID);
 
@@ -214,7 +211,6 @@ public class MsGraphServiceTest {
     @Test
     public void enrichUserWithMfaDetails_WhenNullProvider_Skips() {
         User user = new User();
-        user.setIdpSubject(USER_OID);
 
         msGraphService.enrichUserWithMfaDetails(user, null, USER_OID);
 
@@ -233,7 +229,6 @@ public class MsGraphServiceTest {
         when(graphAccessTokenProvider.getAccessToken(provider)).thenReturn(null);
 
         User user = new User();
-        user.setIdpSubject(USER_OID);
 
         msGraphService.enrichUserWithMfaDetails(user, provider, USER_OID);
     }

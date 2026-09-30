@@ -71,7 +71,7 @@ public class MsGraphService implements IdpGraphService {
             log.debug("Graph API not configured; skipping MFA enrichment");
             return;
         }
-        String userOid = StringUtils.hasText(userOidForGraph) ? userOidForGraph : user.getIdpSubject();
+        String userOid = userOidForGraph;
         if (!StringUtils.hasText(userOid)) {
             log.debug("No user oid for Graph; cannot call Graph methods API");
             return;

@@ -143,6 +143,9 @@ public class AuthProperties {
          */
         private final String providerType;
         private final String usernameClaimKey;
+        private final String emailClaimKey;
+        private final String mobileNumberClaimKey;
+        private final String nameClaimKey;
         private final boolean jitEnabled;
 
         static final ObjectMapper ROLE_MAPPING_MAPPER = new ObjectMapper();
@@ -179,7 +182,10 @@ public class AuthProperties {
             this.graphAppResourceId = null;
             this.idpUserValidatorType = OidcConfigConstants.IDP_USER_VALIDATOR_TYPE_NONE;
             this.providerType = OidcConfigConstants.PROVIDER_TYPE_MICROSOFT;
-            this.usernameClaimKey = OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY;
+            this.usernameClaimKey = null;
+            this.emailClaimKey = null;
+            this.mobileNumberClaimKey = null;
+            this.nameClaimKey = null;
             this.jitEnabled = OidcConfigConstants.DEFAULT_JIT_ENABLED;
         }
 
@@ -192,7 +198,8 @@ public class AuthProperties {
                        String graphClientId, String graphTenantId, String graphMethodsUrl, String graphUsersUrl,
                        String graphTokenUrl, String graphScope, String graphAppRoleAssignmentUrl,
                        String graphServiceType, String graphAppResourceId, String idpUserValidatorType, String providerType,
-                       String usernameClaimKey, boolean jitEnabled) {
+                       String usernameClaimKey, boolean jitEnabled,
+                       String emailClaimKey, String mobileNumberClaimKey, String nameClaimKey) {
             this.id = id;
             this.issuerUri = issuerUri;
             this.issuerAliases = issuerAliases != null ? Collections.unmodifiableList(new ArrayList<>(issuerAliases)) : Collections.emptyList();
@@ -223,8 +230,55 @@ public class AuthProperties {
             this.graphAppResourceId = graphAppResourceId;
             this.idpUserValidatorType = idpUserValidatorType != null ? idpUserValidatorType : OidcConfigConstants.IDP_USER_VALIDATOR_TYPE_NONE;
             this.providerType = providerType != null ? providerType : OidcConfigConstants.PROVIDER_TYPE_MICROSOFT;
-            this.usernameClaimKey = usernameClaimKey != null ? usernameClaimKey : OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY;
+            this.usernameClaimKey = usernameClaimKey;
+            this.emailClaimKey = emailClaimKey;
+            this.mobileNumberClaimKey = mobileNumberClaimKey;
+            this.nameClaimKey = nameClaimKey;
             this.jitEnabled = jitEnabled;
+        }
+
+        private static String claimValue(Map<String, Object> claims, String key) {
+            if (claims == null || key == null) {
+                return null;
+            }
+            Object value = claims.get(key);
+            if (value == null) {
+                return null;
+            }
+            String text = value.toString().trim();
+            return text.isEmpty() ? null : text;
+        }
+
+        public String resolveUsername(Map<String, Object> claims) {
+            String configuredKey = getUsernameClaimKey();
+            if (configuredKey != null) {
+                return claimValue(claims, configuredKey);
+            }
+            String uniqueName = claimValue(claims, "unique_name");
+            return uniqueName != null ? uniqueName : claimValue(claims, "email");
+        }
+
+        public String resolveEmail(Map<String, Object> claims) {
+            String configuredKey = getEmailClaimKey();
+            if (configuredKey != null) {
+                return claimValue(claims, configuredKey);
+            }
+            String uniqueName = claimValue(claims, "unique_name");
+            return uniqueName != null ? uniqueName : claimValue(claims, "email");
+        }
+
+        public String resolveName(Map<String, Object> claims) {
+            String configuredKey = getNameClaimKey();
+            if (configuredKey != null) {
+                return claimValue(claims, configuredKey);
+            }
+            String name = claimValue(claims, "name");
+            return name != null ? name : claimValue(claims, "sub");
+        }
+
+        public String resolveMobileNumber(Map<String, Object> claims) {
+            String configuredKey = getMobileNumberClaimKey();
+            return configuredKey != null ? claimValue(claims, configuredKey) : null;
         }
 
         // Builder pattern for easier construction
@@ -263,7 +317,10 @@ public class AuthProperties {
             private String graphAppResourceId;
             private String idpUserValidatorType = OidcConfigConstants.IDP_USER_VALIDATOR_TYPE_NONE;
             private String providerType = OidcConfigConstants.PROVIDER_TYPE_MICROSOFT;
-            private String usernameClaimKey = OidcConfigConstants.DEFAULT_USERNAME_CLAIM_KEY;
+            private String usernameClaimKey;
+            private String emailClaimKey;
+            private String mobileNumberClaimKey;
+            private String nameClaimKey;
             private boolean jitEnabled = OidcConfigConstants.DEFAULT_JIT_ENABLED;
 
             public Builder id(String id) { this.id = id; return this; }
@@ -297,6 +354,9 @@ public class AuthProperties {
             public Builder idpUserValidatorType(String idpUserValidatorType) { this.idpUserValidatorType = idpUserValidatorType; return this; }
             public Builder providerType(String providerType) { this.providerType = providerType; return this; }
             public Builder usernameClaimKey(String usernameClaimKey) { this.usernameClaimKey = usernameClaimKey; return this; }
+            public Builder emailClaimKey(String emailClaimKey) { this.emailClaimKey = emailClaimKey; return this; }
+            public Builder mobileNumberClaimKey(String mobileNumberClaimKey) { this.mobileNumberClaimKey = mobileNumberClaimKey; return this; }
+            public Builder nameClaimKey(String nameClaimKey) { this.nameClaimKey = nameClaimKey; return this; }
             public Builder jitEnabled(boolean jitEnabled) { this.jitEnabled = jitEnabled; return this; }
 
             public Provider build() {
@@ -307,7 +367,8 @@ public class AuthProperties {
                         graphClientId, graphTenantId, graphMethodsUrl, graphUsersUrl,
                         graphTokenUrl, graphScope, graphAppRoleAssignmentUrl,
                         graphServiceType, graphAppResourceId, idpUserValidatorType, providerType,
-                        usernameClaimKey, jitEnabled);
+                        usernameClaimKey, jitEnabled,
+                        emailClaimKey, mobileNumberClaimKey, nameClaimKey);
             }
         }
     }
