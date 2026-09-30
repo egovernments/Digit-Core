@@ -241,7 +241,7 @@ public class CommonUtils {
             log.error("An error occured while transforming the request body to set Anonymous User {}", ex);
 
             // Throw a custom exception
-            throw new CustomException("AUTHENTICATION_ERROR", ex.getMessage());
+            throw new CustomException("AUTHENTICATION_ERROR", INVALID_REQUEST_INFO_MESSAGE);
         }
     }
 

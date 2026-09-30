@@ -1,6 +1,5 @@
 package com.example.gateway.filters.pre.helpers;
 
-import com.example.gateway.exception.UserDetailsException;
 import com.example.gateway.utils.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.gateway.constants.GatewayConstants.AUTHENTICATION_FAILED_MESSAGE;
 import static com.example.gateway.constants.GatewayConstants.AUTH_TOKEN;
 import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_NAME_PASCAL_CASE;
 
@@ -49,13 +49,15 @@ public class AuthCheckFilterHelper implements RewriteFunction<Map, Map> {
                 return Mono.just(body);
             }
 
-        } catch (UserDetailsException ex) {
+        } catch (CustomException ex) {
+            // Includes UserDetailsException. UserUtils builds these from fixed texts (keeping the
+            // InvalidAccessTokenException marker the UI logs out on) or from egov-user's own error fields.
             throw ex;
         } catch (Exception ex) {
             log.error("An error occurred in Auth check filter", ex);
 
-            // Throw a custom exception
-            throw new CustomException("AUTHENTICATION_ERROR", ex.getMessage());
+            // Throw a custom exception; never echo the underlying message to the client
+            throw new CustomException("AUTHENTICATION_ERROR", AUTHENTICATION_FAILED_MESSAGE);
         }
     }
 

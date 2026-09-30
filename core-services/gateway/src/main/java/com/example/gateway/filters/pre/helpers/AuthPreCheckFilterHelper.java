@@ -71,7 +71,7 @@ public class AuthPreCheckFilterHelper implements RewriteFunction<Map, Map> {
 
         } catch (Exception e) {
             log.error(AUTH_TOKEN_RETRIEVE_FAILURE_MESSAGE, e);
-            throw new CustomException(AUTH_TOKEN_RETRIEVE_FAILURE_MESSAGE, e.getMessage());
+            throw new CustomException(AUTH_TOKEN_RETRIEVE_FAILURE_MESSAGE, INVALID_REQUEST_INFO_MESSAGE);
         }
 
         if (ObjectUtils.isEmpty(authToken)) {

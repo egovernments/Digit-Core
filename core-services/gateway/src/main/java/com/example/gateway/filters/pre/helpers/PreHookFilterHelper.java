@@ -16,6 +16,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import java.util.Map;
 
+import static com.example.gateway.constants.GatewayConstants.PRE_HOOK_FAILURE_MESSAGE;
+
 @Slf4j
 @Component
 public class PreHookFilterHelper implements RewriteFunction<Map, Map> {
@@ -48,10 +50,10 @@ public class PreHookFilterHelper implements RewriteFunction<Map, Map> {
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error("Pre-Hook - Http Exception Occurred", e);
-            throw new CustomException("PRE_HOOK_ERROR", "Pre-hook url threw an error - " + e.getMessage());
+            throw new CustomException("PRE_HOOK_ERROR", PRE_HOOK_FAILURE_MESSAGE);
         } catch (Exception e) {
             log.error("Pre-Hook - Exception Occurred", e);
-            throw new CustomException("PRE_HOOK_ERROR", "Pre-hook url threw an error" + e.getMessage());
+            throw new CustomException("PRE_HOOK_ERROR", PRE_HOOK_FAILURE_MESSAGE);
         }
     }
 
