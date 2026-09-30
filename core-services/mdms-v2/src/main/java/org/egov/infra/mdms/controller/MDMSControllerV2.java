@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.egov.requestvalidation.ValidateRequest;
 
+@ValidateRequest
 @RestController
 @Slf4j
 @RequestMapping(value = "/v2")

@@ -253,6 +253,11 @@ config:
       - work-dir: "libraries/services-common"
         image-name: "services-common"
 
+  - name: "builds/core-services/libraries/request-validation"
+    build:
+      - work-dir: "libraries/request-validation"
+        image-name: "request-validation"
+
   - name: "builds/core-services/nlp-engine"
     build:
       - work-dir: "nlp-engine"
