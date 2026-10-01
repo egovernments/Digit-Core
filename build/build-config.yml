@@ -262,6 +262,14 @@ config:
       - work-dir: "core-services/egov-document-uploader/src/main/resources/db"
         image-name: "egov-document-uploader-db"
 
+  - name: "builds/Digit-Core/core-services/egov-malware-detection"
+    build:
+      - work-dir: "core-services/egov-malware-detection"
+        image-name: "egov-malware-detection"
+        dockerfile: "core-services/egov-malware-detection/Dockerfile"
+      - work-dir: "core-services/egov-malware-detection/src/main/resources/db"
+        image-name: "egov-malware-detection-db"
+
   - name: "builds/Digit-Core/core-services/national-dashboard-ingest"
     build:
       - work-dir: "core-services/national-dashboard-ingest"
