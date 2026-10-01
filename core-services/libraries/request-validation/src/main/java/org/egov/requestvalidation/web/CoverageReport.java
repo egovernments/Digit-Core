@@ -77,6 +77,16 @@ public final class CoverageReport implements SmartInitializingSingleton {
         return text.append(']').toString();
     }
 
+    /** Java 8 equivalent of String.isBlank: empty or only Character.isWhitespace code points. */
+    private static boolean isBlank(String value) {
+        for (int offset = 0; offset < value.length();) {
+            int codePoint = value.codePointAt(offset);
+            if (!Character.isWhitespace(codePoint)) return false;
+            offset += Character.charCount(codePoint);
+        }
+        return true;
+    }
+
     private static void declaration(String handler, ValidateRequest annotation, boolean parameter) {
         if (annotation == null) return;
         if (parameter && !annotation.enabled()) {
@@ -85,7 +95,7 @@ public final class CoverageReport implements SmartInitializingSingleton {
         boolean exclusion = (!parameter && !annotation.enabled())
                 || annotation.structured() == Structured.DISABLED || annotation.skipPaths().length > 0;
         if (exclusion) {
-            if (annotation.reason().isBlank()) {
+            if (isBlank(annotation.reason())) {
                 LOG.warn("request_validation_exclusion_missing_reason handler={}", handler);
             } else {
                 LOG.info("request_validation_exclusion handler={} reason={}", handler,

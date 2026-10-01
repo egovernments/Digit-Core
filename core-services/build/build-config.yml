@@ -258,6 +258,11 @@ config:
       - work-dir: "libraries/request-validation"
         image-name: "request-validation"
 
+  - name: "builds/core-services/libraries/request-validation-jdk8"
+    build:
+      - work-dir: "libraries/request-validation/jdk8"
+        image-name: "request-validation-jdk8"
+
   - name: "builds/core-services/nlp-engine"
     build:
       - work-dir: "nlp-engine"

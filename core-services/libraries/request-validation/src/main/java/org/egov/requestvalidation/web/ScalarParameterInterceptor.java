@@ -31,7 +31,8 @@ public final class ScalarParameterInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (!(handler instanceof HandlerMethod method)) return true;
+        if (!(handler instanceof HandlerMethod)) return true;
+        HandlerMethod method = (HandlerMethod) handler;
         EffectiveValidationPolicy policy = resolver.handler(method);
         if (!policy.enabled()) return true;
         String handlerName = method.getBeanType().getName() + "#" + method.getMethod().getName();
@@ -51,9 +52,13 @@ public final class ScalarParameterInterceptor implements HandlerInterceptor {
             }
         }
         Object variables = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-        if (variables instanceof Map<?, ?> paths) {
-            for (Map.Entry<?, ?> entry : paths.entrySet()) {
-                if (entry.getKey() instanceof String name && entry.getValue() instanceof String value) {
+        if (variables instanceof Map<?, ?>) {
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) variables).entrySet()) {
+                Object key = entry.getKey();
+                Object text = entry.getValue();
+                if (key instanceof String && text instanceof String) {
+                    String name = (String) key;
+                    String value = (String) text;
                     String location = SafeLocationFormatter.scalar(name);
                     if (!inspect(request, name, location, "path", handlerName, policy, budget)
                             || !inspect(request, value, location, "path", handlerName, policy, budget)) {

@@ -7,6 +7,8 @@ import org.egov.requestvalidation.core.InspectionLimits;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.beans.factory.InitializingBean;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -94,10 +96,10 @@ public class RequestValidationProperties implements InitializingBean {
         private boolean markupStart = true;
         private boolean urlScheme = true;
         private boolean eventHandler = true;
-        private Set<Integer> disallowedControls = new LinkedHashSet<>(Set.of(0));
-        private Set<String> deniedSchemes = new LinkedHashSet<>(Set.of("javascript", "vbscript"));
+        private Set<Integer> disallowedControls = new LinkedHashSet<>(Collections.singleton(0));
+        private Set<String> deniedSchemes = new LinkedHashSet<>(Arrays.asList("javascript", "vbscript"));
         private Set<String> deniedDataMediaTypes = new LinkedHashSet<>(
-                Set.of("text/html", "application/xhtml+xml", "image/svg+xml"));
+                Arrays.asList("text/html", "application/xhtml+xml", "image/svg+xml"));
         private int decodeRounds = 2;
         private boolean normalizeNfkc;
 

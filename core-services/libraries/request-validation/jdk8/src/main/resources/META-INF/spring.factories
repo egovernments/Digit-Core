@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+io.digit.requestvalidation.autoconfigure.RequestValidationAutoConfiguration

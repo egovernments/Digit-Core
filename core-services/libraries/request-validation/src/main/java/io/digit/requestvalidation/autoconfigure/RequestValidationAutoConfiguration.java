@@ -12,18 +12,21 @@ import org.egov.requestvalidation.web.StructuredBodyAdvice;
 import org.egov.requestvalidation.web.ValidationAuditLogger;
 import org.egov.requestvalidation.web.ValidationReporter;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-/** Outside both org.egov and digit scans; registered by Boot's imports file only. */
-@AutoConfiguration
+/**
+ * Outside both org.egov and digit scans; registered only by Boot's AutoConfiguration.imports (Boot 2.7+/3.x)
+ * and, for the Java 8 build, spring.factories (Boot 2.2-2.6). Equivalent to @AutoConfiguration, which Boot 2.2 lacks.
+ */
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass(DispatcherServlet.class)
 @ConditionalOnProperty(prefix = "egov.request-validation", name = "enabled", havingValue = "true", matchIfMissing = false)

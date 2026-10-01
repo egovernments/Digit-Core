@@ -32,7 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.core.MethodParameter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,9 +51,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -73,7 +78,7 @@ class RequestValidationIntegrationTest {
     void checksUnknownFieldsAndWrongTypedValuesBeforeBinding() {
         runner.run(context -> {
             MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
-            for (String json : List.of("{\"unknown\":\"<script>\"}",
+            for (String json : Arrays.asList("{\"unknown\":\"<script>\"}",
                     "{\"id\":\"<script>\"}", "{\"RequestInfo\":{\"name\":\"<script>\"}}")) {
                 mvc.perform(post("/typed").contentType("application/json").content(json))
                         .andExpect(status().isBadRequest())
@@ -89,7 +94,7 @@ class RequestValidationIntegrationTest {
         runner.run(context -> {
             MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
             byte[] body = " { \"note\" : \"O'Brien & स्वास्थ्य < 5\" }\n".getBytes(StandardCharsets.UTF_8);
-            for (String path : List.of("/bytes", "/entity")) {
+            for (String path : Arrays.asList("/bytes", "/entity")) {
                 mvc.perform(post(path).contentType("application/problem+json;charset=UTF-8").content(body))
                         .andExpect(status().isOk()).andExpect(content().bytes(body));
             }
@@ -176,8 +181,8 @@ class RequestValidationIntegrationTest {
         runner.withPropertyValues("egov.request-validation.mode=REPORT").run(context -> {
             MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
             RecordingLogger logger = context.getBean(RecordingLogger.class);
-            for (String json : List.of("{} {}", "{\"a\":1,\"a\":2}", "{\"RequestInfo\":{},\"requestInfo\":{}}",
-                    "{\"a\":" + "[".repeat(70) + "]".repeat(70) + "}")) {
+            for (String json : Arrays.asList("{} {}", "{\"a\":1,\"a\":2}", "{\"RequestInfo\":{},\"requestInfo\":{}}",
+                    "{\"a\":" + repeat("[", 70) + repeat("]", 70) + "}")) {
                 byte[] body = json.getBytes(StandardCharsets.UTF_8);
                 logger.observations.clear();
                 mvc.perform(post("/bytes").contentType("application/json").content(body))
@@ -211,7 +216,7 @@ class RequestValidationIntegrationTest {
                 assertThat(undeclared.bodyCalls).isEqualTo(1);
                 assertThat(undeclared.consumed()).isEqualTo(17);
                 assertThat(replay.getHeaders()).isSameAs(undeclared.getHeaders());
-                assertThat(replay.getBody().readAllBytes()).isEqualTo(body);
+                assertThat(StreamUtils.copyToByteArray(replay.getBody())).isEqualTo(body);
 
                 CountingMessage declared = new CountingMessage(body, true);
                 assertThat(advice.beforeBodyRead(declared, parameter, byte[].class,
@@ -281,7 +286,7 @@ class RequestValidationIntegrationTest {
                 };
                 InputStream replay = advice.beforeBodyRead(input, smallBody(), byte[].class,
                         ByteArrayHttpMessageConverter.class).getBody();
-                assertThat(replay.readAllBytes()).isEqualTo(body);
+                assertThat(StreamUtils.copyToByteArray(replay)).isEqualTo(body);
                 assertThat(source.zeroReturned).isTrue();
                 assertThat(source.closes).isZero();
                 replay.close();
@@ -295,7 +300,7 @@ class RequestValidationIntegrationTest {
         runner.run(context -> {
             MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
             RecordingLogger logger = context.getBean(RecordingLogger.class);
-            var request = post("/mixed").contentType("application/json").content("\"<script>\"");
+            MockHttpServletRequestBuilder request = post("/mixed").contentType("application/json").content("\"<script>\"");
             for (int index = 0; index < 10; index++) request = request.param("p" + index, "<a>");
             mvc.perform(request).andExpect(status().isBadRequest());
             assertThat(logger.observations).hasSize(10);
@@ -312,14 +317,14 @@ class RequestValidationIntegrationTest {
             MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
             RecordingLogger logger = context.getBean(RecordingLogger.class);
             mvc.perform(post("/scalars").contentType("application/json").content(body)
-                            .param("a", "x".repeat(21)).param("b", "<script>"))
+                            .param("a", repeat("x", 21)).param("b", "<script>"))
                     .andExpect(status().isOk()).andExpect(content().bytes(body));
             assertThat(rules(logger)).containsExactly("scalar-limit", "inspection-incomplete", "R1");
         });
         runner.run(context -> {
             MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
             mvc.perform(post("/scalars").contentType("application/json").content("{}")
-                            .param("a", "x".repeat(21)).param("b", "ok"))
+                            .param("a", repeat("x", 21)).param("b", "ok"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.Errors[0].code").value("REQUEST_LIMIT_EXCEEDED"));
         });
@@ -367,7 +372,11 @@ class RequestValidationIntegrationTest {
     }
 
     private static List<String> rules(RecordingLogger logger) {
-        return logger.observations.stream().map(Violation::getRuleId).toList();
+        return logger.observations.stream().map(Violation::getRuleId).collect(Collectors.toList());
+    }
+
+    private static String repeat(String value, int count) {
+        return String.join("", Collections.nCopies(count, value));
     }
 
     private static MethodParameter smallBody() throws NoSuchMethodException {
@@ -492,8 +501,15 @@ class RequestValidationIntegrationTest {
     static class FixedErrorAdvice {
         @ExceptionHandler(ContentPolicyViolationException.class)
         ResponseEntity<?> reject(ContentPolicyViolationException exception) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("Errors",
-                    List.of(Map.of("code", exception.getCode(), "message", exception.getMessage()))));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("Errors",
+                    Collections.singletonList(error(exception))));
+        }
+
+        private static Map<String, String> error(ContentPolicyViolationException exception) {
+            Map<String, String> error = new LinkedHashMap<>();
+            error.put("code", exception.getCode());
+            error.put("message", exception.getMessage());
+            return error;
         }
     }
 

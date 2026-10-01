@@ -16,6 +16,7 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
@@ -25,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /** Registered explicitly before MVC adapter initialization; deliberately has no stereotype. */
 public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
@@ -94,7 +97,7 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
         byte[] bytes;
         try {
             source = input.getBody();
-            bytes = source.readNBytes(maximum + 1);
+            bytes = readNBytes(source, maximum + 1);
         } catch (IOException ex) {
             if (mode == ValidationMode.ENFORCE) {
                 // Do not pass an input-dependent I/O exception to the host's generic error renderer.
@@ -159,7 +162,7 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
 
         @Override
         public int read(byte[] buffer, int offset, int length) throws IOException {
-            Objects.checkFromIndexSize(offset, length, buffer.length);
+            checkFromIndexSize(offset, length, buffer.length);
             if (length == 0) return 0;
             if (position < prefix.length) {
                 int count = Math.min(length, prefix.length - position);
@@ -181,6 +184,63 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
         }
     }
 
+    /** Java 8 port of JDK 17 InputStream.readNBytes(int): the same read calls on the source and the same result. */
+    static byte[] readNBytes(InputStream source, int len) throws IOException {
+        if (len < 0) throw new IllegalArgumentException("len < 0");
+        List<byte[]> bufs = null;
+        byte[] result = null;
+        int total = 0;
+        int remaining = len;
+        int n;
+        do {
+            byte[] buf = new byte[Math.min(remaining, 8192)];
+            int nread = 0;
+            // Read to EOF, which may read more or less than the buffer size.
+            while ((n = source.read(buf, nread, Math.min(buf.length - nread, remaining))) > 0) {
+                nread += n;
+                remaining -= n;
+            }
+            if (nread > 0) {
+                if (Integer.MAX_VALUE - 8 - total < nread) throw new OutOfMemoryError("Required array size too large");
+                if (nread < buf.length) buf = Arrays.copyOfRange(buf, 0, nread);
+                total += nread;
+                if (result == null) {
+                    result = buf;
+                } else {
+                    if (bufs == null) {
+                        bufs = new ArrayList<byte[]>();
+                        bufs.add(result);
+                    }
+                    bufs.add(buf);
+                }
+            }
+            // Stop when the last read returned -1 or the requested number of bytes has been read.
+        } while (n >= 0 && remaining > 0);
+
+        if (bufs == null) {
+            if (result == null) return new byte[0];
+            return result.length == total ? result : Arrays.copyOf(result, total);
+        }
+        result = new byte[total];
+        int offset = 0;
+        remaining = total;
+        for (byte[] b : bufs) {
+            int count = Math.min(b.length, remaining);
+            System.arraycopy(b, 0, result, offset, count);
+            offset += count;
+            remaining -= count;
+        }
+        return result;
+    }
+
+    /** Java 8 equivalent of Objects.checkFromIndexSize, with the JDK's exception message. */
+    private static void checkFromIndexSize(int fromIndex, int size, int length) {
+        if ((length | fromIndex | size) < 0 || size > length - fromIndex) {
+            throw new IndexOutOfBoundsException(String.format(
+                    "Range [%s, %<s + %s) out of bounds for length %s", fromIndex, size, length));
+        }
+    }
+
     private static boolean isJson(MediaType type) {
         return type != null && "application".equalsIgnoreCase(type.getType())
                 && ("json".equalsIgnoreCase(type.getSubtype())
@@ -193,8 +253,9 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
     }
 
     private static HttpServletRequest currentRequest() {
-        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes) {
-            return attributes.getRequest();
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes instanceof ServletRequestAttributes) {
+            return ((ServletRequestAttributes) attributes).getRequest();
         }
         throw new IllegalStateException("Request validation requires a servlet request context");
     }

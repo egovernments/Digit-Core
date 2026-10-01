@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** A body annotation refines an activated handler; it does not opt in a whole controller. */
@@ -77,11 +78,33 @@ public final class ValidationPolicyResolver {
                     inherit(declaration.maxNumberLength(), limits.getMaxNumberLength()),
                     inherit(declaration.maxScalarLength(), limits.getMaxScalarLength()));
         }
-        List<String> paths = List.copyOf(skips);
+        List<String> paths = EffectiveValidationPolicy.immutableCopy(skips);
         return new EffectiveValidationPolicy(enabled, structured, mode, paths, new SkipPathMatcher(paths), limits);
     }
 
     private static int inherit(int value, int fallback) { return value == -1 ? fallback : value; }
     private static long inherit(long value, long fallback) { return value == -1 ? fallback : value; }
-    private record Key(Method method, Class<?> type, int parameterIndex) { }
+
+    private static final class Key {
+        private final Method method;
+        private final Class<?> type;
+        private final int parameterIndex;
+
+        Key(Method method, Class<?> type, int parameterIndex) {
+            this.method = method;
+            this.type = type;
+            this.parameterIndex = parameterIndex;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (!(other instanceof Key)) return false;
+            Key that = (Key) other;
+            return parameterIndex == that.parameterIndex && method.equals(that.method) && type.equals(that.type);
+        }
+
+        @Override
+        public int hashCode() { return Objects.hash(method, type, parameterIndex); }
+    }
 }

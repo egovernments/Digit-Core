@@ -1,6 +1,6 @@
 # Request validation
 
-Reusable Java 17 / Spring MVC library implementing the request-content policy in
+Reusable Java 8+ / Spring MVC library implementing the request-content policy in
 [the design](../../../docs/request-validation-design.md). It inspects wire JSON
 before DTO binding and scalar request text before conversion, without changing
 accepted bytes. It is a secondary input control, not a guarantee against XSS.
@@ -8,11 +8,23 @@ Output encoding and HTML sanitization at rendering boundaries remain necessary.
 
 ## Adoption
 
-No service is automatically annotated by this change. Adopting services need
-Java 17, Spring Boot 3.x, and their existing compatible tracer dependency.
-`egov-user` on Java 8 / Boot 1.5 is not supported. The gateway is unaffected.
+No service is automatically annotated by this change. The gateway is unaffected.
+One source tree is published as two artifacts; pick the one matching the service:
 
-Add `org.egov.services:request-validation:1.0.1-SNAPSHOT` for development.
+| Service stack | Artifact |
+| --- | --- |
+| Java 17, Spring Boot 3.x (`jakarta.servlet`), tracer 2.9.x | `org.egov.services:request-validation:1.0.1-SNAPSHOT` |
+| Java 8+, Spring Boot 2.2–2.7 (`javax.servlet`), tracer 2.1.x | `org.egov.services:request-validation-jdk8:1.0.1-SNAPSHOT` |
+
+Both have the same classes, configuration and behaviour. The `jdk8` build
+(`jdk8/pom.xml`) compiles the shared sources to Java 8 bytecode with
+`jakarta.servlet` rewritten to `javax.servlet`, and registers the
+auto-configuration through `spring.factories` as well. It shades and relocates
+jackson-core 2.18 (the parser limits need `StreamReadConstraints`), so the
+service's own Jackson version is not changed. Spring Boot 1.5 services
+(`egov-user`) are not supported. Keep shared sources free of Java 9+ syntax
+and APIs; the `jdk8` build fails if they are not.
+
 The dependency alone does nothing: validation starts only with `enabled: true`.
 Use a fixed release version for production after validation and release.
 The optional tracer dependency deliberately excludes all transitive dependencies;
@@ -146,8 +158,8 @@ limit. Gateways that reject before routing are also outside its coverage.
 
 ## Registration and verification
 
-Boot loads the auto-configuration through `AutoConfiguration.imports`; its package
-is outside both `org.egov` and `digit`. Infrastructure has no component/advice
+Boot loads the auto-configuration through `AutoConfiguration.imports` (and, in
+the `jdk8` artifact, `spring.factories`); its package is outside both `org.egov` and `digit`. Infrastructure has no component/advice
 stereotypes. A bean post-processor attaches body advice before MVC adapter
 initialization, preserving pre-existing advice; a dedicated MVC configurer adds
 the scalar interceptor. Custom MVC argument resolvers or custom body advice need
@@ -161,10 +173,11 @@ to the user. From this module, later run:
 mvn test
 mvn install -DskipTests
 mvn -f compatibility/boot-3.4.5/pom.xml test
+mvn -f jdk8/pom.xml install   # Java 8 / Boot 2.x artifact; run with JDK 8 to test on Java 8
 ```
 
 The compatibility project runs the same tests as a Boot 3.4.5 consumer of the
-installed jar. Neither a successful compile nor these local fixtures verifies
+installed jar. The `jdk8` build runs the same tests against Boot 2.2. Neither a successful compile nor these local fixtures verifies
 an adopted/deployed service or its latency. Measure largest legitimate payloads
 before ENFORCE rollout. The gateway rollback decision remains separate.
 

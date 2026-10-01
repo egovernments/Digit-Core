@@ -3,13 +3,15 @@ package io.digit.requestvalidation;
 import org.egov.requestvalidation.Structured;
 import org.egov.requestvalidation.ValidateRequest;
 import org.egov.requestvalidation.ValidationMode;
+import org.egov.requestvalidation.config.EffectiveValidationPolicy;
 import org.egov.requestvalidation.config.RequestValidationProperties;
 import org.egov.requestvalidation.config.ValidationPolicyResolver;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.method.HandlerMethod;
 
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,9 +25,9 @@ class ValidationPolicyResolverTest {
 
     @Test
     void propertiesBoundWhileDisabledNeverFailButEnabledRequiresTheDefault() {
-        var disabled = new RequestValidationProperties();
+        RequestValidationProperties disabled = new RequestValidationProperties();
         disabled.afterPropertiesSet();
-        var enabled = new RequestValidationProperties();
+        RequestValidationProperties enabled = new RequestValidationProperties();
         enabled.setEnabled(true);
         assertThatThrownBy(enabled::afterPropertiesSet)
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("structured-default");
@@ -33,34 +35,34 @@ class ValidationPolicyResolverTest {
 
     @Test
     void parameterOverridesModeAndBodySwitchWhilePathsCombine() throws Exception {
-        var properties = new RequestValidationProperties();
+        RequestValidationProperties properties = new RequestValidationProperties();
         properties.setStructuredDefault(false);
-        var resolver = new ValidationPolicyResolver(properties);
-        var method = PolicyController.class.getMethod("handle", String.class);
-        var body = resolver.parameter(new MethodParameter(method, 0));
+        ValidationPolicyResolver resolver = new ValidationPolicyResolver(properties);
+        Method method = PolicyController.class.getMethod("handle", String.class);
+        EffectiveValidationPolicy body = resolver.parameter(new MethodParameter(method, 0));
         assertThat(body.enabled()).isTrue();
         assertThat(body.structured()).isFalse();
         assertThat(body.mode()).isEqualTo(ValidationMode.ENFORCE);
         assertThat(body.skipPaths()).containsExactly("/class", "/method", "/parameter");
-        assertThat(body.matcher().matches(List.of("method", "child"))).isTrue();
+        assertThat(body.matcher().matches(Arrays.asList("method", "child"))).isTrue();
         assertThat(resolver.handler(new HandlerMethod(new PolicyController(), method)).structured()).isTrue();
     }
 
     @Test
     void parameterAnnotationDoesNotActivateAnUnannotatedHandler() throws Exception {
-        var properties = new RequestValidationProperties();
+        RequestValidationProperties properties = new RequestValidationProperties();
         properties.setStructuredDefault(true);
-        var resolver = new ValidationPolicyResolver(properties);
+        ValidationPolicyResolver resolver = new ValidationPolicyResolver(properties);
         assertThat(resolver.parameter(new MethodParameter(
                 UnannotatedController.class.getMethod("handle", String.class), 0)).enabled()).isFalse();
     }
 
     @Test
     void rejectsInvalidHandlerLimits() throws Exception {
-        var properties = new RequestValidationProperties();
+        RequestValidationProperties properties = new RequestValidationProperties();
         properties.setStructuredDefault(true);
-        var resolver = new ValidationPolicyResolver(properties);
-        var method = PolicyController.class.getMethod("invalid", String.class);
+        ValidationPolicyResolver resolver = new ValidationPolicyResolver(properties);
+        Method method = PolicyController.class.getMethod("invalid", String.class);
         assertThatThrownBy(() -> resolver.parameter(new MethodParameter(method, 0)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
