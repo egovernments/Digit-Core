@@ -101,7 +101,7 @@ public class RequestValidationAutoConfiguration {
         return new BodyAdviceRegistrar(advice);
     }
 
-    // Static: a post-processor must not initialise this configuration class early.
+    // Static: a factory post-processor must not initialise this configuration class early.
     @Bean
     static EnvironmentVariableFallback requestValidationEnvironmentVariableFallback() {
         return new EnvironmentVariableFallback();

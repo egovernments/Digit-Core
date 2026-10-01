@@ -41,14 +41,16 @@ Every setting can be given in `application.properties`/`.yml` or as an environme
 variable, on every supported Boot version. Environment variables are the property name
 in upper case with dots and dashes as underscores, for example
 `EGOV_REQUEST_VALIDATION_ENABLED`, `EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT`,
-`EGOV_REQUEST_VALIDATION_MODE` and `EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH`; they
-override the file as usual. (Spring Boot 1.5 cannot bind these into the hyphenated
-prefix itself, and Boot 2.x binds the nested ones only as `EGOV_REQUESTVALIDATION_*`;
-on javax.servlet hosts the library applies them after binding.) Use this
-`EGOV_REQUEST_VALIDATION_*` form: it is the one that works on every version. Boot 2.x/3.x
-also accept `EGOV_REQUESTVALIDATION_*`, but on Boot 1.5 that form leaves the library off. The list properties `rules.disallowed-controls`,
-`rules.denied-schemes` and `rules.denied-data-media-types` take a comma-separated value
-or a YAML list, and a configured list replaces the defaults. The defaults need no
+`EGOV_REQUEST_VALIDATION_MODE` and `EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH`. They
+override the file, and Spring resolves placeholders in them and converts them as it does
+for any property. (Boot 1.5 cannot bind such a variable for a setting no other source
+mentions, and Boot 2.0-2.6 cannot for a `limits`, `rules` or `log` setting when no other
+source mentions that group; on javax.servlet hosts the library declares those settings
+for Spring to bind, before the application beans are created.) Use this form: Boot 2.x/3.x also accept
+`EGOV_REQUESTVALIDATION_*`, but Boot 1.5 ignores it. The list properties
+`rules.disallowed-controls`, `rules.denied-schemes` and `rules.denied-data-media-types`
+take a comma-separated value or a YAML list, and a configured list replaces the defaults
+(an empty value is an empty list: that rule then denies nothing). The defaults need no
 configuration.
 
 The dependency alone does nothing: validation starts only with `enabled: true`.

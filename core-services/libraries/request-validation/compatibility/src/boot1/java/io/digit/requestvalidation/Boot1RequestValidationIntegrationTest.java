@@ -25,8 +25,6 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -179,6 +177,31 @@ class Boot1RequestValidationIntegrationTest {
             assertThat(properties.getRules().getDeniedSchemes()).containsExactly("livescript");
             assertThat(properties.getRules().toPolicy().getDeniedSchemes()).containsExactly("livescript");
             assertThat(properties.getRules().toPolicy().getDisallowedControls()).containsExactly(0);
+        } finally {
+            context.close();
+        }
+    }
+
+    /** Boot 1.5 does not know the Boot 2 form: the library stays off, or keeps the file's value. */
+    @Test
+    void theBoot2EnvironmentVariableFormIsIgnoredOnBoot15() {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("EGOV_REQUESTVALIDATION_ENABLED", "true");
+        variables.put("EGOV_REQUESTVALIDATION_STRUCTUREDDEFAULT", "true");
+        AnnotationConfigWebApplicationContext context = start(variables);
+        try {
+            assertThat(context.getBeansOfType(RequestValidationProperties.class)).isEmpty();
+        } finally {
+            context.close();
+        }
+        variables.clear();
+        variables.put("EGOV_REQUESTVALIDATION_MODE", "ENFORCE");
+        variables.put("EGOV_REQUESTVALIDATION_LIMITS_MAXDEPTH", "9");
+        context = start(variables, REPORT);
+        try {
+            RequestValidationProperties properties = context.getBean(RequestValidationProperties.class);
+            assertThat(properties.getMode()).isEqualTo(ValidationMode.REPORT);
+            assertThat(properties.getLimits().getMaxDepth()).isEqualTo(64);
         } finally {
             context.close();
         }
