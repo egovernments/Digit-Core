@@ -1,5 +1,6 @@
 package org.egov.user.config;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,4 +13,12 @@ public interface OidcProviderSupplier {
      * Returns the current list of OIDC providers (may be cached when backed by MDMS).
      */
     List<AuthProperties.Provider> getProviders();
+
+    /**
+     * Providers configured but switched off ({@code active: false}); used only to report
+     * {@code sso.idp.disabled} instead of an unknown issuer.
+     */
+    default List<AuthProperties.Provider> getDisabledProviders() {
+        return Collections.emptyList();
+    }
 }

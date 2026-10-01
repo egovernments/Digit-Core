@@ -35,7 +35,9 @@ public class JwtValidationService {
         return validators.stream()
                 .filter(v -> v.supports(issuer))
                 .findFirst()
-                .orElseThrow(() -> IdpJwtValidationException.invalid("No validator supports issuer: " + issuer, null))
+                .orElseThrow(() -> validators.stream().anyMatch(v -> v.isDisabled(issuer))
+                        ? IdpJwtValidationException.idpDisabled(issuer)
+                        : IdpJwtValidationException.invalid("No validator supports issuer: " + issuer, null))
                 .validate(token, tenantId);
     }
 

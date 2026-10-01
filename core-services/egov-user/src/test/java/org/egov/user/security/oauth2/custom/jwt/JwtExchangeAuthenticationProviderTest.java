@@ -33,7 +33,6 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -819,7 +818,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 assertTrue(result instanceof UsernamePasswordAuthenticationToken);
         }
 
-        @Test(expected = OAuth2AuthenticationException.class)
+        @Test(expected = org.egov.user.domain.exception.sso.IdpJwtValidationException.class)
         public void testAuthenticate_MissingJtiAndUti_Throws() {
                 String token = "jwt-token";
                 JwtExchangeAuthenticationToken authenticationToken =
@@ -851,12 +850,11 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 try {
                         authenticationProvider.authenticate(authenticationToken);
-                        fail("Expected OAuth2AuthenticationException for invalid JWT");
-                } catch (OAuth2AuthenticationException e) {
+                        fail("Expected IdpJwtValidationException for invalid JWT");
+                } catch (org.egov.user.domain.exception.sso.IdpJwtValidationException e) {
                         // Expected - invalid JWT should result in authentication exception
-                        assertNotNull("Error should not be null", e.getError());
-                        assertTrue("Error should contain JWT validation failure", 
-                                e.getError().getDescription().contains("Invalid signature"));
+                        assertTrue("Error should contain JWT validation failure",
+                                e.getMessage().contains("Invalid signature"));
                 }
         }
 
@@ -1626,7 +1624,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 assertFalse(userCaptor.getValue().getMfaEnabled());
         }
 
-        @Test(expected = OAuth2AuthenticationException.class)
+        @Test(expected = org.egov.user.domain.exception.sso.IdpJwtValidationException.class)
         public void testAuthenticate_MissingTokenId_ThrowsException() {
                 String token = "jwt-token";
                 JwtExchangeAuthenticationToken authenticationToken =
@@ -2093,12 +2091,11 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 try {
                         authenticationProvider.authenticate(authenticationToken);
-                        fail("Expected OAuth2AuthenticationException for invalid JWT");
-                } catch (OAuth2AuthenticationException e) {
+                        fail("Expected IdpJwtValidationException for invalid JWT");
+                } catch (org.egov.user.domain.exception.sso.IdpJwtValidationException e) {
                         // Expected - invalid JWT should result in authentication exception
-                        assertNotNull("Error should not be null", e.getError());
-                        assertTrue("Error should contain JWT validation failure", 
-                                e.getError().getDescription().contains("Invalid JWT"));
+                        assertTrue("Error should contain JWT validation failure",
+                                e.getMessage().contains("Invalid JWT"));
                 }
         }
 
@@ -2154,7 +2151,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 } catch (Exception e) {
                         // Expected - JWT with missing required claims should be rejected
                         assertTrue("Should handle missing claims gracefully", 
-                                e instanceof OAuth2AuthenticationException || 
+                                e instanceof org.egov.user.domain.exception.sso.IdpJwtValidationException || 
                                 e instanceof SsoException);
                 }
         }
@@ -2171,7 +2168,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 } catch (Exception e) {
                         // Expected - null token should be rejected
                         assertTrue("Should reject null token", 
-                                e instanceof OAuth2AuthenticationException || 
+                                e instanceof org.egov.user.domain.exception.sso.IdpJwtValidationException || 
                                 e instanceof IllegalArgumentException);
                 }
 
@@ -2185,7 +2182,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 } catch (Exception e) {
                         // Expected - empty token should be rejected
                         assertTrue("Should reject empty token", 
-                                e instanceof OAuth2AuthenticationException || 
+                                e instanceof org.egov.user.domain.exception.sso.IdpJwtValidationException || 
                                 e instanceof IllegalArgumentException);
                 }
         }
@@ -2207,7 +2204,7 @@ public class JwtExchangeAuthenticationProviderTest {
                 } catch (Exception e) {
                         // If it fails, should fail gracefully without crashing
                         assertTrue("Should handle large token gracefully", 
-                                e instanceof OAuth2AuthenticationException || 
+                                e instanceof org.egov.user.domain.exception.sso.IdpJwtValidationException || 
                                 e instanceof SsoException);
                 }
         }

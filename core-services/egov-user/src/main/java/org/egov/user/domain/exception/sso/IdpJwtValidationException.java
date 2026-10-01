@@ -54,6 +54,11 @@ public class IdpJwtValidationException extends SsoException {
                 "ID token does not belong to this SSO session");
     }
 
+    public static IdpJwtValidationException idpDisabled(String issuer) {
+        return new IdpJwtValidationException(SsoErrorCodes.IDP_DISABLED,
+                "Identity provider is disabled: " + issuer);
+    }
+
     public static IdpJwtValidationException invalid(Throwable cause) {
         return new IdpJwtValidationException(SsoErrorCodes.JWT_INVALID,
                 SsoErrorCodes.MSG_JWT_INVALID, cause);

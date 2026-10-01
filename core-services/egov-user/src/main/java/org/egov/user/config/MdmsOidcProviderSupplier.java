@@ -50,10 +50,12 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
      */
     private static class CacheEntry {
         final List<AuthProperties.Provider> providers;
+        final List<AuthProperties.Provider> disabled;
         final long timestamp;
         
-        CacheEntry(List<AuthProperties.Provider> providers, long timestamp) {
+        CacheEntry(List<AuthProperties.Provider> providers, List<AuthProperties.Provider> disabled, long timestamp) {
             this.providers = providers;
+            this.disabled = disabled;
             this.timestamp = timestamp;
         }
     }
@@ -97,12 +99,22 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
 
     @Override
     public List<AuthProperties.Provider> getProviders() {
+        return copyOf(currentEntry());
+    }
+
+    @Override
+    public List<AuthProperties.Provider> getDisabledProviders() {
+        CacheEntry entry = currentEntry();
+        return entry != null ? new ArrayList<>(entry.disabled) : Collections.emptyList();
+    }
+
+    private CacheEntry currentEntry() {
         CacheEntry entry = cache.get();
         if (isFresh(entry) || inFailureBackoff()) {
-            return copyOf(entry);
+            return entry;
         }
         if (entry != null && !refreshLock.tryLock()) {
-            return copyOf(entry);
+            return entry;
         }
         if (entry == null) {
             refreshLock.lock();
@@ -110,17 +122,19 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
         try {
             entry = cache.get();
             if (isFresh(entry) || inFailureBackoff()) {
-                return copyOf(entry);
+                return entry;
             }
-            List<AuthProperties.Provider> list = fetchFromMdms();
+            List<AuthProperties.Provider> disabled = new ArrayList<>();
+            List<AuthProperties.Provider> list = fetchFromMdms(disabled);
             if (list != null) {
-                CacheEntry fresh = new CacheEntry(Collections.unmodifiableList(list), System.currentTimeMillis());
+                CacheEntry fresh = new CacheEntry(Collections.unmodifiableList(list),
+                        Collections.unmodifiableList(disabled), System.currentTimeMillis());
                 cache.set(fresh);
                 lastFailureAt = 0L;
-                return copyOf(fresh);
+                return fresh;
             }
             lastFailureAt = System.currentTimeMillis();
-            return copyOf(entry);
+            return entry;
         } finally {
             refreshLock.unlock();
         }
@@ -142,19 +156,19 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
      * Fetches OIDC providers from MDMS. If multiple tenant IDs are configured (central instance),
      * fetches for each tenant and merges the lists (MDMS fallback applies per request).
      */
-    private List<AuthProperties.Provider> fetchFromMdms() {
+    private List<AuthProperties.Provider> fetchFromMdms(List<AuthProperties.Provider> disabledOut) {
         if (tenantIds.isEmpty()) {
             log.warn("MDMS OIDC providers: no tenant ID configured");
             return null;
         }
         List<AuthProperties.Provider> merged = new ArrayList<>();
         for (String tenantId : tenantIds) {
-            List<AuthProperties.Provider> forTenant = fetchFromMdmsForTenant(tenantId);
+            List<AuthProperties.Provider> forTenant = fetchFromMdmsForTenant(tenantId, disabledOut);
             if (forTenant != null) {
                 merged.addAll(forTenant);
             }
         }
-        if (merged.isEmpty()) {
+        if (merged.isEmpty() && disabledOut.isEmpty()) {
             log.warn("MDMS OIDC providers: no providers loaded for any tenant");
             return null;
         }
@@ -162,7 +176,7 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
         return merged;
     }
 
-    private List<AuthProperties.Provider> fetchFromMdmsForTenant(String tenantId) {
+    private List<AuthProperties.Provider> fetchFromMdmsForTenant(String tenantId, List<AuthProperties.Provider> disabledOut) {
         String url = mdmsHost + mdmsEndpoint;
         try {
             MasterDetail masterDetail = MasterDetail.builder().name(masterName).build();
@@ -195,12 +209,9 @@ public class MdmsOidcProviderSupplier implements OidcProviderSupplier {
             List<AuthProperties.Provider> providers = new ArrayList<>();
             for (JsonNode node : masterNode) {
                 try {
-                    if (!isProviderActive(node)) {
-                        continue;
-                    }
                     AuthProperties.Provider p = mapNodeToProvider(node);
                     if (p != null && p.getId() != null && p.getIssuerUri() != null) {
-                        providers.add(p);
+                        (isProviderActive(node) ? providers : disabledOut).add(p);
                     }
                 } catch (Exception e) {
                     log.warn("MDMS OIDC provider entry parse error for tenant {}: {}", tenantId, e.getMessage());

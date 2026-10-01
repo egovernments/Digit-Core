@@ -70,6 +70,23 @@ public class IDPJwtValidator implements JwtValidator {
                 .anyMatch(p -> matchesIssuer(p, normalized));
     }
 
+    @Override
+    public boolean isDisabled(String issuer) {
+        if (issuer == null || issuer.isEmpty() || !authProperties.getOidc().isEnabled()) {
+            return false;
+        }
+        String normalized = normalizeIssuer(issuer);
+        return oidcProviderSupplier.getDisabledProviders().stream()
+                .anyMatch(p -> matchesIssuer(p, normalized));
+    }
+
+    private boolean disabledFor(String issuer, String tenantId, List<String> tokenAudiences) {
+        return oidcProviderSupplier.getDisabledProviders().stream()
+                .filter(p -> matchesIssuer(p, issuer))
+                .filter(p -> tenantId.equals(p.getTenantId()))
+                .anyMatch(p -> tokenAudiences == null || intersects(p.getAudiences(), tokenAudiences));
+    }
+
     /**
      * Validates a JWT token from an identity provider.
      *
@@ -424,15 +441,18 @@ public class IDPJwtValidator implements JwtValidator {
                 .collect(Collectors.toList());
 
         if (issuerMatches.isEmpty()) {
+            if (disabledFor(issuer, tenantId, null)) {
+                throw IdpJwtValidationException.idpDisabled(issuerRaw);
+            }
             throw OidcProviderConfigException.providerNotFound(issuerRaw);
         }
 
-        if (issuerMatches.size() == 1) {
+        if (issuerMatches.size() == 1 && !disabledFor(issuer, tenantId, null)) {
             return issuerMatches.get(0);
         }
 
         // Disambiguate by audience when multiple providers share the same issuer
-        return resolveProviderByAudience(issuerRaw, issuerMatches, tokenAudiences);
+        return resolveProviderByAudience(issuerRaw, tenantId, issuerMatches, tokenAudiences);
     }
 
     /**
@@ -447,7 +467,7 @@ public class IDPJwtValidator implements JwtValidator {
      *         - providerAmbiguous when no audiences in token or multiple audience matches
      *         - providerNotFound when no providers match the token audiences
      */
-    private AuthProperties.Provider resolveProviderByAudience(String issuerRaw, 
+    private AuthProperties.Provider resolveProviderByAudience(String issuerRaw, String tenantId,
             List<AuthProperties.Provider> issuerMatches, List<String> tokenAudiences) {
         List<String> aud = tokenAudiences == null ? Collections.emptyList() : tokenAudiences;
         if (aud.isEmpty()) {
@@ -463,6 +483,9 @@ public class IDPJwtValidator implements JwtValidator {
         }
 
         if (audMatches.isEmpty()) {
+            if (disabledFor(normalizeIssuer(issuerRaw), tenantId, aud)) {
+                throw IdpJwtValidationException.idpDisabled(issuerRaw);
+            }
             throw OidcProviderConfigException.providerNotFound(issuerRaw);
         }
 

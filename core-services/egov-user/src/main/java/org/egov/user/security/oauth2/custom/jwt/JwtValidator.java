@@ -18,6 +18,10 @@ public interface JwtValidator {
      */
     boolean supports(String issuer);
 
+    default boolean isDisabled(String issuer) {
+        return false;
+    }
+
     /**
      * Validates a JWT token and extracts claims into a standardized format.
      *

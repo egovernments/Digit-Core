@@ -106,8 +106,8 @@ public class MdmsOidcProviderSupplierTest {
                 .build();
         Class<?> cacheEntryClass = Class.forName("org.egov.user.config.MdmsOidcProviderSupplier$CacheEntry");
         Object cacheEntry = cacheEntryClass
-                .getDeclaredConstructor(List.class, long.class)
-                .newInstance(Collections.singletonList(provider), 0L);
+                .getDeclaredConstructor(List.class, List.class, long.class)
+                .newInstance(Collections.singletonList(provider), Collections.emptyList(), 0L);
         AtomicReference<?> ref = new AtomicReference<>(cacheEntry);
         java.lang.reflect.Field cacheField = MdmsOidcProviderSupplier.class.getDeclaredField("cache");
         cacheField.setAccessible(true);
@@ -296,8 +296,8 @@ public class MdmsOidcProviderSupplierTest {
                 restTemplate, "http://mdms", "/mdms/search", "module", "master", "pb", 10L, 30_000L);
         Provider provider = Provider.builder().id("stale").issuerUri("https://stale").jwkSetUri("https://keys").build();
         Class<?> cacheEntryClass = Class.forName("org.egov.user.config.MdmsOidcProviderSupplier$CacheEntry");
-        Object cacheEntry = cacheEntryClass.getDeclaredConstructor(List.class, long.class)
-                .newInstance(Collections.singletonList(provider), 0L);
+        Object cacheEntry = cacheEntryClass.getDeclaredConstructor(List.class, List.class, long.class)
+                .newInstance(Collections.singletonList(provider), Collections.emptyList(), 0L);
         java.lang.reflect.Field cacheField = MdmsOidcProviderSupplier.class.getDeclaredField("cache");
         cacheField.setAccessible(true);
         cacheField.set(supplier, new AtomicReference<>(cacheEntry));
@@ -327,5 +327,38 @@ public class MdmsOidcProviderSupplierTest {
 
         assertEquals("stale", providers.get(0).getId());
         org.mockito.Mockito.verifyZeroInteractions(restTemplate);
+    }
+
+    @Test
+    public void getProviders_InactiveEntry_KeptAsDisabledOnly() throws Exception {
+        MdmsOidcProviderSupplier supplier = new MdmsOidcProviderSupplier(
+                restTemplate, "http://mdms", "/mdms/search", "module", "master", "pb", 1000L, 30_000L);
+        String mdmsJson = "{\"" + OidcConfigConstants.MDMS_RES + "\":{\"module\":{\"master\":["
+                + "{\"id\":\"on\",\"issuerUri\":\"https://on\",\"tenantId\":\"pb\",\"active\":true},"
+                + "{\"id\":\"off\",\"issuerUri\":\"https://off\",\"tenantId\":\"pb\",\"active\":false}"
+                + "]}}}";
+        when(restTemplate.postForObject(eq("http://mdms/mdms/search"), any(Object.class), eq(JsonNode.class)))
+                .thenReturn(objectMapper.readTree(mdmsJson));
+
+        assertEquals(Collections.singletonList("on"), ids(supplier.getProviders()));
+        assertEquals(Collections.singletonList("off"), ids(supplier.getDisabledProviders()));
+    }
+
+    @Test
+    public void getProviders_AllInactive_StillCachesDisabled() throws Exception {
+        MdmsOidcProviderSupplier supplier = new MdmsOidcProviderSupplier(
+                restTemplate, "http://mdms", "/mdms/search", "module", "master", "pb", 1000L, 30_000L);
+        String mdmsJson = "{\"" + OidcConfigConstants.MDMS_RES + "\":{\"module\":{\"master\":["
+                + "{\"id\":\"off\",\"issuerUri\":\"https://off\",\"tenantId\":\"pb\",\"active\":false}"
+                + "]}}}";
+        when(restTemplate.postForObject(eq("http://mdms/mdms/search"), any(Object.class), eq(JsonNode.class)))
+                .thenReturn(objectMapper.readTree(mdmsJson));
+
+        assertTrue(supplier.getProviders().isEmpty());
+        assertEquals(Collections.singletonList("off"), ids(supplier.getDisabledProviders()));
+    }
+
+    private static List<String> ids(List<Provider> providers) {
+        return providers.stream().map(Provider::getId).collect(java.util.stream.Collectors.toList());
     }
 }

@@ -8,6 +8,7 @@ import org.egov.tracer.model.CustomException;
 import org.egov.user.config.*;
 import org.egov.user.domain.exception.DuplicateUserNameException;
 import org.egov.user.domain.exception.UserNotFoundException;
+import org.egov.user.domain.exception.sso.IdpJwtValidationException;
 import org.egov.user.domain.exception.sso.OidcProviderConfigException;
 import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.domain.exception.sso.SsoUserMappingException;
@@ -33,8 +34,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -188,24 +187,20 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         JwtExchangeInput input = extractJwtExchangeInput(authentication);
         validateTenantPresent(input.tenantId);
 
-        try {
-            OidcValidatedJwt jwt = jwtValidationService.validate(input.token, input.tenantId);
+        OidcValidatedJwt jwt = jwtValidationService.validate(input.token, input.tenantId);
 
-            validateUserType(jwt);
+        validateUserType(jwt);
 
-            // TOKEN REPLAY PROTECTION
-            validateTokenReplay(jwt, input.tenantId);
+        // TOKEN REPLAY PROTECTION
+        validateTokenReplay(jwt, input.tenantId);
 
-            ProviderAndMfa providerAndMfa = resolveProviderAndMfa(jwt, input.tenantId);
+        ProviderAndMfa providerAndMfa = resolveProviderAndMfa(jwt, input.tenantId);
 
-            UserAndRequestInfo userAndRequestInfo = findOrCreateUser(jwt, providerAndMfa.provider,
-                    providerAndMfa.mfaDetails, input.tenantId);
-            User user = ensureAccountEligible(userAndRequestInfo.user, userAndRequestInfo.requestInfo);
+        UserAndRequestInfo userAndRequestInfo = findOrCreateUser(jwt, providerAndMfa.provider,
+                providerAndMfa.mfaDetails, input.tenantId);
+        User user = ensureAccountEligible(userAndRequestInfo.user, userAndRequestInfo.requestInfo);
 
-            return buildSuccessAuthentication(user, providerAndMfa.provider, jwt, input.tenantId);
-        } catch (org.egov.user.domain.exception.sso.IdpJwtValidationException e) {
-            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token", e.getMessage(), null));
-        }
+        return buildSuccessAuthentication(user, providerAndMfa.provider, jwt, input.tenantId);
     }
 
     /**
@@ -232,12 +227,12 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         
         // Validate token is not null or empty
         if (token == null || token.trim().isEmpty()) {
-            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token", "Token cannot be null or empty", null));
+            throw IdpJwtValidationException.invalid("Token cannot be null or empty", null);
         }
         
         // Validate token size to prevent DoS attacks (max 10KB)
         if (token.length() > 10240) {
-            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token", "Token size exceeds maximum allowed limit", null));
+            throw IdpJwtValidationException.invalid("Token size exceeds maximum allowed limit", null);
         }
         
         return new JwtExchangeInput(token, tenantId);
@@ -271,9 +266,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private void validateTokenReplay(OidcValidatedJwt jwt, String tenantId) {
         String tokenId = jwt.getTokenId();
         if (tokenId == null || tokenId.isEmpty()) {
-            throw new OAuth2AuthenticationException(
-                    new OAuth2Error(JwtConstants.OAUTH2_ERROR_INVALID_TOKEN, 
-                        JwtConstants.ERROR_MISSING_TOKEN_ID, null));
+            throw IdpJwtValidationException.invalid(JwtConstants.ERROR_MISSING_TOKEN_ID, null);
         }
         
         // Check if token has been used before via service layer
@@ -804,8 +797,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
     private UserIdpDetails buildIdpDetails(User user, OidcValidatedJwt jwt) {
         String tokenId = jwt.getTokenId();
         if (tokenId == null || tokenId.isEmpty()) {
-            throw new OAuth2AuthenticationException(
-                    new OAuth2Error(JwtConstants.OAUTH2_ERROR_INVALID_TOKEN, JwtConstants.ERROR_MISSING_TOKEN_ID, null));
+            throw IdpJwtValidationException.invalid(JwtConstants.ERROR_MISSING_TOKEN_ID, null);
         }
         return UserIdpDetails.builder()
                 .id(user.getId())

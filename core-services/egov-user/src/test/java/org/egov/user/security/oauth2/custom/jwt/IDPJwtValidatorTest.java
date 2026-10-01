@@ -1025,4 +1025,79 @@ public class IDPJwtValidatorTest {
                 // Should reuse decoder since negative TTL means no expiration
                 assertSame(first, second);
         }
+
+        private static String unsignedToken(String iss, String aud) {
+                java.util.Base64.Encoder b = java.util.Base64.getUrlEncoder().withoutPadding();
+                String header = b.encodeToString("{\"alg\":\"RS256\"}".getBytes());
+                String payload = b.encodeToString(("{\"iss\":\"" + iss + "\",\"aud\":\"" + aud + "\"}").getBytes());
+                return header + "." + payload + ".x";
+        }
+
+        private AuthProperties.Provider provider(String id, String iss, String tenant, String aud) {
+                return AuthProperties.Provider.builder().id(id).issuerUri(iss).jwkSetUri(iss + "/keys")
+                                .audiences(Collections.singletonList(aud)).tenantId(tenant).build();
+        }
+
+        private void oidcOn() {
+                AuthProperties.Oidc oidc = new AuthProperties.Oidc();
+                oidc.setEnabled(true);
+                when(authProperties.getOidc()).thenReturn(oidc);
+        }
+
+        @Test
+        public void testIsDisabled_DisabledIssuerTrue_UnknownFalse() {
+                oidcOn();
+                when(oidcProviderSupplier.getDisabledProviders())
+                                .thenReturn(Collections.singletonList(provider("off", "https://idp-off", "pb", "app")));
+
+                assertTrue(idpJwtValidator.isDisabled("https://idp-off/"));
+                assertFalse(idpJwtValidator.isDisabled("https://idp-unknown"));
+        }
+
+        @Test
+        public void testValidate_ProviderDisabledForTenant_ActiveElsewhere_IdpDisabled() {
+                oidcOn();
+                when(oidcProviderSupplier.getProviders())
+                                .thenReturn(Collections.singletonList(provider("on-bo", "https://idp", "bo", "app")));
+                when(oidcProviderSupplier.getDisabledProviders())
+                                .thenReturn(Collections.singletonList(provider("off-oy", "https://idp", "oy", "app")));
+
+                try {
+                        idpJwtValidator.validate(unsignedToken("https://idp", "app"), "oy");
+                        org.junit.Assert.fail("Expected IdpJwtValidationException");
+                } catch (IdpJwtValidationException e) {
+                        assertEquals(SsoErrorCodes.IDP_DISABLED, e.getErrorCode());
+                }
+        }
+
+        @Test
+        public void testValidate_SecondClientDisabled_IdpDisabled() {
+                oidcOn();
+                when(oidcProviderSupplier.getProviders())
+                                .thenReturn(Collections.singletonList(provider("app-1", "https://idp", "oy", "app-1")));
+                when(oidcProviderSupplier.getDisabledProviders())
+                                .thenReturn(Collections.singletonList(provider("app-2", "https://idp", "oy", "app-2")));
+
+                try {
+                        idpJwtValidator.validate(unsignedToken("https://idp", "app-2"), "oy");
+                        org.junit.Assert.fail("Expected IdpJwtValidationException");
+                } catch (IdpJwtValidationException e) {
+                        assertEquals(SsoErrorCodes.IDP_DISABLED, e.getErrorCode());
+                }
+        }
+
+        @Test
+        public void testValidate_NoEntryForTenant_NothingDisabled_ProviderNotFound() {
+                oidcOn();
+                when(oidcProviderSupplier.getProviders())
+                                .thenReturn(Collections.singletonList(provider("on-bo", "https://idp", "bo", "app")));
+                when(oidcProviderSupplier.getDisabledProviders()).thenReturn(Collections.emptyList());
+
+                try {
+                        idpJwtValidator.validate(unsignedToken("https://idp", "app"), "oy");
+                        org.junit.Assert.fail("Expected OidcProviderConfigException");
+                } catch (OidcProviderConfigException e) {
+                        assertEquals(SsoErrorCodes.OIDC_PROVIDER_NOT_FOUND, e.getErrorCode());
+                }
+        }
 }

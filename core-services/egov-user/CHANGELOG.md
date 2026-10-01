@@ -3,6 +3,7 @@ All notable changes to this module will be documented in this file.
 
 
 ## 1.3.1-oidc - 2026-09-11
+- `jwt_exchange` now returns `401` with the SSO error code for a bad ID token (`sso.jwt.invalid`, `sso.jwt.expired`, `sso.jwt.parse_failed`) instead of `400 invalid_request`; a provider switched off in MDMS (`active: false`) returns `401 sso.idp.disabled` on `jwt_exchange`, `/oauth/tenants` and `/_details`, an issuer not configured at all returns `sso.jwt.invalid`
 - Added optional ID token check on `POST /_details`, behind `auth.oidc.details-id-token-check-enabled` (default false): access tokens issued by `jwt_exchange` record the provider, tenant, issuer and subject, and `/_details` then requires a valid, unexpired `x-id-token` of the same user. Any fresh ID token of that user is accepted, across IdP re-login and refresh. Password/OTP sessions are unaffected
 - The `jwt_exchange` grant no longer stores the raw ID token (`assertion`) with the access token in Redis
 - Fixed `refresh_token` grant for SSO sessions (failed with `TenantId is mandatory`): the login now carries `tenantId`/`userType` for the refresh re-authentication
