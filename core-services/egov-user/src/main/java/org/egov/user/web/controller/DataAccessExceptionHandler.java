@@ -25,9 +25,7 @@ public class DataAccessExceptionHandler {
     public ResponseEntity<ErrorRes> handleDataAccessException(DataAccessException ex) {
         log.error("DataAccessException caught at controller level", ex);
 
-        Throwable rootCause = ex.getMostSpecificCause();
-        String errorMessage = "Database query failed: "
-                + (rootCause != null ? rootCause.getMessage() : ex.getMessage());
+        String errorMessage = "Database query failed";
 
         Error error = new Error();
         error.setCode(ERROR_CODE);

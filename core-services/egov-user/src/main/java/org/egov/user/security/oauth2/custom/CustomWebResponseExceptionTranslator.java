@@ -1,15 +1,19 @@
 package org.egov.user.security.oauth2.custom;
 
 import lombok.extern.slf4j.Slf4j;
+import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.exception.sso.SsoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
+import org.springframework.security.oauth2.common.exceptions.InvalidRequestException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.stereotype.Component;
+
+import static org.egov.user.config.UserServiceConstants.INVALID_TENANT_ID_ERR_CODE;
 
 /**
  * Translates exceptions from the OAuth2 token endpoint into structured OAuth2Exception responses
@@ -66,6 +70,11 @@ public class CustomWebResponseExceptionTranslator implements WebResponseExceptio
                 }
             };
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(oAuth2Exception);
+        }
+
+        if (e instanceof CustomException && INVALID_TENANT_ID_ERR_CODE.equals(((CustomException) e).getCode())) {
+            log.warn("Invalid tenantId on token request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new InvalidRequestException("Invalid tenantId"));
         }
 
         log.error("Unexpected error during token request", e);

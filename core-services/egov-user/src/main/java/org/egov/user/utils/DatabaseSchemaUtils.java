@@ -18,6 +18,7 @@ import static org.egov.user.config.UserServiceConstants.INVALID_TENANT_ID_ERR_CO
 @Configuration
 public class DatabaseSchemaUtils {
     public static String SCHEMA_REPLACE_STRING = "{schema}";
+    private static final Pattern SCHEMA_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
     @Value("${state.level.tenantid.length:1}")
     private Integer stateLevelTenantIdLength;
     @Value("${is.environment.central.instance:false}")
@@ -46,6 +47,10 @@ public class DatabaseSchemaUtils {
                 schemaName = tenantId.split("\\.")[this.getStateSchemaIndexPositionInTenantId()];
             } else {
                 schemaName = tenantId;
+            }
+
+            if (!SCHEMA_NAME_PATTERN.matcher(schemaName).matches()) {
+                throw new CustomException(INVALID_TENANT_ID_ERR_CODE, "Invalid tenantId");
             }
 
             // replaces schema placeholder with the schema name
