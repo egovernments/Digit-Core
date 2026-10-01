@@ -113,6 +113,20 @@ class EnvironmentVariablesTest {
                 .isEqualTo("mode=REPORT depth=64 schemes=[] media=[text/html, application/xhtml+xml, image/svg+xml]");
     }
 
+    /**
+     * Empty variables, as charts often render them: a blank mode or activation keeps its default and an empty list is
+     * empty. (A blank number or true/false value is Boot's own conversion: Boot 2.7/3 reject it at startup.)
+     */
+    @Test
+    void blankVariables() {
+        assertThat(bound(map("EGOV_REQUEST_VALIDATION_ACTIVATION= "), NONE)).isEqualTo("mode=REPORT depth=64 " + DEFAULT_RULES);
+        assertThat(bound(map("EGOV_REQUEST_VALIDATION_ACTIVATION=${RV_ACTIVATION:}"), NONE))
+                .isEqualTo("mode=REPORT depth=64 " + DEFAULT_RULES);
+        assertThat(bound(map("EGOV_REQUEST_VALIDATION_ENABLED=true", "EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT=true",
+                "EGOV_REQUEST_VALIDATION_MODE="), NONE, new String[0]))
+                .isEqualTo("mode=REPORT depth=64 " + DEFAULT_RULES);
+    }
+
     @Test
     void theKillSwitchAndNothingConfigured() {
         assertThat(bound(map("EGOV_REQUEST_VALIDATION_ENABLED=false"), NONE)).isEqualTo("INACTIVE");
@@ -131,6 +145,7 @@ class EnvironmentVariablesTest {
     void aSpringApplication() throws Exception {
         Map<String, Object> variables = map("EGOV_REQUEST_VALIDATION_ENABLED=true",
                 "EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT=${RV_STRUCTURED}", "RV_STRUCTURED=true",
+                "EGOV_REQUEST_VALIDATION_ACTIVATION=",
                 "EGOV_REQUEST_VALIDATION_MODE=ENFORCE", "EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH=3",
                 "EGOV_REQUEST_VALIDATION_RULES_DENIED_SCHEMES=livescript");
         ConfigurableApplicationContext context = run(variables);
@@ -146,17 +161,20 @@ class EnvironmentVariablesTest {
             context.close();
         }
         variables.put("EGOV_REQUEST_VALIDATION_MODE", "REPORT");
-        assertThat(mode(variables, "--egov.request-validation.mode=ENFORCE")).isEqualTo("ENFORCE");
-        // Boot 1.5 lets the variable win over a relaxed prefix (egov.requestValidation) in a higher source, with or
-        // without this library; the library leaves a setting that another source mentions to Boot.
+        assertThat(setting(variables, "--egov.request-validation.mode=ENFORCE")).isEqualTo("mode=ENFORCE depth=3");
+        assertThat(setting(variables, "--egov.request-validation.limits.maxDepth=7")).isEqualTo("mode=REPORT depth=7");
+        // Boot 1.5 ignores a camelCase prefix (egov.requestValidation) entirely, and the library leaves a setting
+        // that another source mentions to Boot, so there neither value applies and the default stays.
         boolean boot15 = ClassUtils.isPresent("org.springframework.boot.bind.RelaxedPropertyResolver", null);
-        assertThat(mode(variables, "--egov.requestValidation.mode=ENFORCE")).isEqualTo(boot15 ? "REPORT" : "ENFORCE");
+        assertThat(setting(variables, "--egov.requestValidation.limits.maxDepth=7"))
+                .isEqualTo(boot15 ? "mode=REPORT depth=64" : "mode=REPORT depth=7");
     }
 
-    private static String mode(Map<String, Object> variables, String argument) {
+    private static String setting(Map<String, Object> variables, String argument) {
         ConfigurableApplicationContext context = run(variables, argument);
         try {
-            return context.getBean(RequestValidationProperties.class).getMode().name();
+            RequestValidationProperties properties = context.getBean(RequestValidationProperties.class);
+            return "mode=" + properties.getMode() + " depth=" + properties.getLimits().getMaxDepth();
         } finally {
             context.close();
         }

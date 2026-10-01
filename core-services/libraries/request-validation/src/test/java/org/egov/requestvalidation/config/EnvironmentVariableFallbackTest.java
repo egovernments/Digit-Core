@@ -121,6 +121,35 @@ class EnvironmentVariableFallbackTest {
     }
 
     @Test
+    void declaresAnEmptyListButNoOtherBlankSetting() {
+        MutablePropertySources sources = sources(variables("EGOV_REQUEST_VALIDATION_ACTIVATION", "",
+                "EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH", "  ", "EGOV_REQUEST_VALIDATION_RULES_URL_SCHEME", "${RV_EMPTY:}",
+                "EGOV_REQUEST_VALIDATION_LOG_REPORT_SAMPLE_RATE", "${RV_BLANK}", "RV_BLANK", " ",
+                "EGOV_REQUEST_VALIDATION_RULES_DENIED_SCHEMES", "${RV_LIST:}",
+                "EGOV_REQUEST_VALIDATION_RULES_DENIED_DATA_MEDIA_TYPES", " ",
+                "EGOV_REQUEST_VALIDATION_MODE", "${RV_MODE}", "RV_MODE", "ENFORCE",
+                "EGOV_REQUEST_VALIDATION_RULES_DECODE_ROUNDS", "${RV_MISSING}"));
+        EnvironmentVariableFallback.declare(sources);
+        PropertySource<?> declared = sources.get(EnvironmentVariableFallback.SOURCE_NAME);
+        // Unresolvable placeholders are declared as they are: Spring reports them when it binds, as without the library.
+        assertThat(((EnumerablePropertySource<?>) declared).getPropertyNames()).containsExactlyInAnyOrder(
+                "egov.request-validation.mode", "egov.request-validation.rules.denied-schemes",
+                "egov.request-validation.rules.decode-rounds");
+        assertThat(declared.getProperty("egov.request-validation.mode")).isEqualTo("${RV_MODE}");
+    }
+
+    @Test
+    void readsEveryEnvironmentSourceAndDeclaresBelowTheLast() {
+        MutablePropertySources sources = sources(variables("EGOV_REQUEST_VALIDATION_MODE", "ENFORCE"));
+        sources.addFirst(new SystemEnvironmentPropertySource("test", variables("OTHER", "x")));
+        EnvironmentVariableFallback.declare(sources);
+        PropertySource<?> declared = sources.get(EnvironmentVariableFallback.SOURCE_NAME);
+        assertThat(declared.getProperty("egov.request-validation.mode")).isEqualTo("ENFORCE");
+        assertThat(sources.precedenceOf(declared))
+                .isEqualTo(sources.precedenceOf(sources.get(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME)) + 1);
+    }
+
+    @Test
     void normalizeIgnoresCaseSeparatorsAndIndexes() {
         assertThat(EnvironmentVariableFallback.normalize("egov.requestValidation.rules.denied_schemes[3]"))
                 .isEqualTo(EnvironmentVariableFallback.normalize("egov.request-validation.rules.denied-schemes"));

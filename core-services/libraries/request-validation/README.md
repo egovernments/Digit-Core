@@ -43,15 +43,20 @@ in upper case with dots and dashes as underscores, for example
 `EGOV_REQUEST_VALIDATION_ENABLED`, `EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT`,
 `EGOV_REQUEST_VALIDATION_MODE` and `EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH`. They
 override the file, and Spring resolves placeholders in them and converts them as it does
-for any property. (Boot 1.5 cannot bind such a variable for a setting no other source
-mentions, and Boot 2.0-2.6 cannot for a `limits`, `rules` or `log` setting when no other
-source mentions that group; on javax.servlet hosts the library declares those settings
-for Spring to bind, before the application beans are created.) Use this form: Boot 2.x/3.x also accept
+for any property. On Boot 1.5 this holds where the file writes the key as in this README
+(kebab case, lists comma-separated): Boot 1.5 lets a camelCase name (`limits.maxDepth`) or
+a YAML list in the file win, and ignores a camelCase prefix (`egov.requestValidation`)
+altogether. Leave a variable out rather than empty: a blank `mode` or `activation` keeps
+the default and an empty list value is an empty list, but Boot 2.7/3 reject a blank number
+or true/false value at startup.
+(Boot 1.5 cannot bind such a variable for a setting no other source mentions, and Boot
+2.0-2.6 cannot for a `limits`, `rules` or `log` setting when no other source mentions that
+group; on javax.servlet hosts the library declares those settings for Spring to bind,
+before the application beans are created.) Use this form: Boot 2.x/3.x also accept
 `EGOV_REQUESTVALIDATION_*`, but Boot 1.5 ignores it. The list properties
 `rules.disallowed-controls`, `rules.denied-schemes` and `rules.denied-data-media-types`
 take a comma-separated value or a YAML list, and a configured list replaces the defaults
-(an empty value is an empty list: that rule then denies nothing). The defaults need no
-configuration.
+(an empty list denies nothing). The defaults need no configuration.
 
 The dependency alone does nothing: validation starts only with `enabled: true`.
 Use a fixed release version for production after validation and release.
