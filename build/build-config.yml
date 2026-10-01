@@ -425,6 +425,11 @@ config:
       - work-dir: "core-services/libraries/notify-spi"
         image-name: "notify-spi"
 
+  - name: "builds/Digit-Core/core-services/libraries/request-validation"
+    build:
+      - work-dir: "core-services/libraries/request-validation"
+        image-name: "request-validation"
+
   - name: "builds/Digit-Core/core-services/nlp-engine"
     build:
       - work-dir: "core-services/nlp-engine"
