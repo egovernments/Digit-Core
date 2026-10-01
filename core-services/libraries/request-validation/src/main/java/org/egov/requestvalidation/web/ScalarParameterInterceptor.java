@@ -1,7 +1,5 @@
 package org.egov.requestvalidation.web;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.egov.requestvalidation.config.EffectiveValidationPolicy;
 import org.egov.requestvalidation.config.RequestValidationProperties;
 import org.egov.requestvalidation.config.ValidationPolicyResolver;
@@ -10,12 +8,15 @@ import org.egov.requestvalidation.core.SafeLocationFormatter;
 import org.egov.requestvalidation.core.Violation;
 import org.egov.requestvalidation.core.ViolationCode;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
 import java.util.Map;
 
-public final class ScalarParameterInterceptor implements HandlerInterceptor {
+/**
+ * Scalar checks run before argument conversion. Spring MVC calls them through the interceptor returned by
+ * {@link ServletSupport#scalarInterceptor}, which adapts the javax or jakarta servlet request.
+ */
+public final class ScalarParameterInterceptor {
     private final ValidationPolicyResolver resolver;
     private final ContentDetector detector;
     private final ValidationReporter reporter;
@@ -29,8 +30,7 @@ public final class ScalarParameterInterceptor implements HandlerInterceptor {
         inspectContentType = properties.isInspectContentTypeHeader();
     }
 
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(ValidationRequest request, Object handler) {
         if (!(handler instanceof HandlerMethod)) return true;
         HandlerMethod method = (HandlerMethod) handler;
         EffectiveValidationPolicy policy = resolver.handler(method);
@@ -71,7 +71,7 @@ public final class ScalarParameterInterceptor implements HandlerInterceptor {
     }
 
     /** Returns false when REPORT stops scalar inspection at a limit; the host then converts as usual. */
-    private boolean inspect(HttpServletRequest request, String value, String location, String kind,
+    private boolean inspect(ValidationRequest request, String value, String location, String kind,
                             String handler, EffectiveValidationPolicy policy, long[] budget) {
         if (value == null) return true;
         budget[0]++;

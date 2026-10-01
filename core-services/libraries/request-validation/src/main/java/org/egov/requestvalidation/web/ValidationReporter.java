@@ -1,6 +1,5 @@
 package org.egov.requestvalidation.web;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.egov.requestvalidation.ValidationMode;
 import org.egov.requestvalidation.core.ViolationCode;
 import org.egov.requestvalidation.core.Violation;
@@ -16,13 +15,13 @@ public final class ValidationReporter {
 
     public ValidationReporter(ValidationAuditLogger logger) { this.logger = logger; }
 
-    public void content(HttpServletRequest request, ValidationMode mode, Violation violation,
+    public void content(ValidationRequest request, ValidationMode mode, Violation violation,
                         String kind, String handler) {
         record(request, mode, violation, kind, handler);
         if (mode == ValidationMode.ENFORCE) throw new ContentPolicyViolationException(violation);
     }
 
-    public ContentPolicyViolationException rejected(HttpServletRequest request, Violation violation,
+    public ContentPolicyViolationException rejected(ValidationRequest request, Violation violation,
                                                     String kind, String handler) {
         record(request, ValidationMode.ENFORCE, violation, kind, handler);
         return new ContentPolicyViolationException(violation);
@@ -33,7 +32,7 @@ public final class ValidationReporter {
      * REPORT records the finding and the incomplete inspection, and returns null so the caller
      * hands the original input to the host's converter.
      */
-    public ContentPolicyViolationException structural(HttpServletRequest request, ValidationMode mode,
+    public ContentPolicyViolationException structural(ValidationRequest request, ValidationMode mode,
                                                       Violation violation, String kind, String handler) {
         if (mode == ValidationMode.ENFORCE) return rejected(request, violation, kind, handler);
         record(request, mode, violation, kind, handler);
@@ -42,14 +41,14 @@ public final class ValidationReporter {
     }
 
     /** Records, once per request, that REPORT inspection did not cover the whole request. */
-    public void incomplete(HttpServletRequest request, ViolationCode code, String kind, String handler) {
+    public void incomplete(ValidationRequest request, ViolationCode code, String kind, String handler) {
         if (request.getAttribute(INCOMPLETE) != null) return;
         request.setAttribute(INCOMPLETE, Boolean.TRUE);
         logger.violation(ValidationMode.REPORT, new Violation(code, INCOMPLETE_RULE, "/", 0),
                 kind, handler, request.getMethod());
     }
 
-    private void record(HttpServletRequest request, ValidationMode mode, Violation violation,
+    private void record(ValidationRequest request, ValidationMode mode, Violation violation,
                         String kind, String handler) {
         Integer count = (Integer) request.getAttribute(COUNT);
         if (count == null) count = 0;

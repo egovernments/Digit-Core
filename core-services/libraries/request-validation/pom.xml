@@ -1,56 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  request-validation: ONE artifact for every DIGIT service stack.
+
+    Java 8  + Spring Boot 1.5 (Spring 4.3, javax.servlet)    e.g. egov-user
+    Java 8+ + Spring Boot 2.x (Spring 5,   javax.servlet)
+    Java 17 + Spring Boot 3.x (Spring 6,   jakarta.servlet)
+
+  How: everything is compiled to Java 8 bytecode against the OLDEST supported API (Boot 1.5 / Spring 4.3),
+  which newer Spring versions still provide. The only servlet-specific code is ServletSupport: the javax
+  implementation lives in src/main/java, the jakarta one in src/jakarta/java (compiled against Spring 6).
+  Both ship in the jar and the right one is chosen at startup.
+
+  Spring, Boot, servlet API, slf4j and tracer are "provided": the service's own versions are used.
+  jackson-core is shaded (the parser limits need 2.15+, older stacks ship older Jackson).
+
+  Build with JDK 17+. Run compatibility/run-all.sh to test on every supported stack.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.2</version>
-    <relativePath/>
-  </parent>
   <groupId>org.egov.services</groupId>
   <artifactId>request-validation</artifactId>
   <version>1.0.1-SNAPSHOT</version>
   <name>request-validation</name>
-  <description>Opt-in, non-mutating Spring MVC request content validation</description>
+  <description>Opt-in, non-mutating Spring MVC request content validation (Java 8+, Spring Boot 1.5 / 2.x / 3.x)</description>
+
   <properties>
-    <java.version>17</java.version>
-    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>8</maven.compiler.release>
+    <!-- Oldest supported API: compiling against it guarantees the classes exist on every stack. -->
+    <spring-boot.version>1.5.22.RELEASE</spring-boot.version>
+    <spring.version>4.3.25.RELEASE</spring.version>
+    <javax-servlet.version>3.1.0</javax-servlet.version>
+    <slf4j.version>1.7.26</slf4j.version>
+    <tracer.version>2.1.2-SNAPSHOT</tracer.version>
+    <!-- Compile-only classpath for src/jakarta/java. -->
+    <spring6.version>6.1.4</spring6.version>
+    <jakarta-servlet.version>6.0.0</jakarta-servlet.version>
+    <jsoup.version>1.17.2</jsoup.version>
+    <shaded.jackson.version>2.18.6</shaded.jackson.version>
+    <junit-jupiter.version>5.9.3</junit-jupiter.version>
+    <assertj.version>3.24.2</assertj.version>
+    <jakarta.classpath>${project.build.directory}/jakarta-classpath</jakarta.classpath>
   </properties>
+
   <dependencies>
+    <!-- Supplied by the service. -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure</artifactId>
+      <version>${spring-boot.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-      <version>1.17.2</version>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${javax-servlet.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${slf4j.version}</version>
       <scope>provided</scope>
     </dependency>
-    <!-- Adopters supply tracer. Do not pull its Kafka/telemetry stack into this jar. -->
+    <!-- Only CustomException is used; it is the same in tracer 2.1.x and 2.9.x. -->
     <dependency>
       <groupId>org.egov.services</groupId>
       <artifactId>tracer</artifactId>
-      <version>2.9.2-SNAPSHOT</version>
-      <optional>true</optional>
+      <version>${tracer.version}</version>
+      <scope>provided</scope>
       <exclusions>
         <exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
       </exclusions>
@@ -58,19 +83,158 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
+      <version>${spring-boot.version}</version>
       <optional>true</optional>
     </dependency>
+
+    <!-- Bundled. -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>${jsoup.version}</version>
+    </dependency>
+    <!-- Shaded into this jar and removed from its published pom. -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${shaded.jackson.version}</version>
+    </dependency>
+
+    <!-- Stack-independent unit tests. MVC tests run per stack in compatibility/. -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <id>build-jdk</id>
+            <goals><goal>enforce</goal></goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[17,)</version>
+                  <message>Build with JDK 17+ (the jakarta bridge is compiled against Spring 6). The jar runs on Java 8+.</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+      </plugin>
+      <!-- Compile src/jakarta/java against Spring 6 + jakarta.servlet, to Java 8 bytecode, into target/classes. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>jakarta-classpath</id>
+            <phase>generate-sources</phase>
+            <goals><goal>copy</goal></goals>
+            <configuration>
+              <outputDirectory>${jakarta.classpath}</outputDirectory>
+              <artifactItems>
+                <artifactItem><groupId>org.springframework</groupId><artifactId>spring-webmvc</artifactId><version>${spring6.version}</version></artifactItem>
+                <artifactItem><groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>${spring6.version}</version></artifactItem>
+                <artifactItem><groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>${spring6.version}</version></artifactItem>
+                <artifactItem><groupId>org.springframework</groupId><artifactId>spring-beans</artifactId><version>${spring6.version}</version></artifactItem>
+                <artifactItem><groupId>org.springframework</groupId><artifactId>spring-core</artifactId><version>${spring6.version}</version></artifactItem>
+                <artifactItem><groupId>jakarta.servlet</groupId><artifactId>jakarta.servlet-api</artifactId><version>${jakarta-servlet.version}</version></artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>compile-jakarta-bridge</id>
+            <phase>process-classes</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <target>
+                <javac srcdir="${project.basedir}/src/jakarta/java" destdir="${project.build.outputDirectory}"
+                       release="8" encoding="UTF-8" includeantruntime="false" failonerror="true"
+                       debug="true" fork="false">
+                  <classpath>
+                    <pathelement location="${project.build.outputDirectory}"/>
+                    <fileset dir="${jakarta.classpath}" includes="*.jar"/>
+                  </classpath>
+                </javac>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>shade</goal></goals>
+            <configuration>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
+              <!-- Generated on every build; keep it out of the source tree. It is still the published pom. -->
+              <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+              <artifactSet>
+                <includes><include>com.fasterxml.jackson.core:jackson-core</include></includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>com.fasterxml.jackson.core</pattern>
+                  <shadedPattern>org.egov.requestvalidation.shaded.jackson.core</shadedPattern>
+                </relocation>
+              </relocations>
+              <filters>
+                <filter>
+                  <artifact>com.fasterxml.jackson.core:jackson-core</artifact>
+                  <!-- Keep the Java 8 base classes and the license files only. -->
+                  <excludes>
+                    <exclude>META-INF/versions/**</exclude>
+                    <exclude>META-INF/services/**</exclude>
+                    <exclude>META-INF/maven/**</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>module-info.class</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <repositories>
     <repository>
       <id>repo.digit.org</id>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test harness only; nothing here is published. It consumes the installed request-validation jar exactly
+  as a service would, on each supported stack (pick one profile):
+
+    -Pboot-1.5   Spring Boot 1.5.22 (egov-user)   run with JDK 8
+    -Pboot-2.2   Spring Boot 2.2.13               run with JDK 8
+    -Pboot-3.2   Spring Boot 3.2.2                run with JDK 17
+    -Pboot-3.4   Spring Boot 3.4.5                run with JDK 17
+
+  It runs the library's unit tests plus the MVC integration test for that stack:
+  src/boot2plus (Boot 2.2+ test support) or src/boot1 (the same scenarios on Boot 1.5 test support).
+  Use run-all.sh to run every profile with the right JDK.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.egov.services</groupId>
+  <artifactId>request-validation-compatibility</artifactId>
+  <version>1.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <maven.install.skip>true</maven.install.skip>
+    <request-validation.version>1.0.1-SNAPSHOT</request-validation.version>
+    <assertj.version>3.24.2</assertj.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Declared before the Boot BOM so it wins: the tests use AssertJ 3.24 APIs on every stack. -->
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.egov.services</groupId>
+      <artifactId>request-validation</artifactId>
+      <version>${request-validation.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.egov.services</groupId>
+      <artifactId>tracer</artifactId>
+      <version>${tracer.version}</version>
+      <exclusions>
+        <exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <testSourceDirectory>${project.basedir}/src/${mvc.tests}/java</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <id>profile-and-jdk</id>
+            <goals><goal>enforce</goal></goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>boot.version</property>
+                  <message>Choose a stack: -Pboot-1.5, -Pboot-2.2, -Pboot-3.2 or -Pboot-3.4 (or run run-all.sh).</message>
+                </requireProperty>
+                <requireJavaVersion>
+                  <version>${harness.jdk}</version>
+                  <message>This profile must run on JDK ${harness.jdk} (see run-all.sh).</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>${harness.java}</source>
+          <target>${harness.java}</target>
+        </configuration>
+      </plugin>
+      <!-- The library's own unit tests also run on this stack's JDK. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>library-unit-tests</id>
+            <phase>generate-test-sources</phase>
+            <goals><goal>add-test-source</goal></goals>
+            <configuration>
+              <sources><source>${project.basedir}/../src/test/java</source></sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>boot-1.5</id>
+      <properties>
+        <boot.version>1.5.22.RELEASE</boot.version>
+        <tracer.version>2.1.2-SNAPSHOT</tracer.version>
+        <mvc.tests>boot1</mvc.tests>
+        <harness.java>1.8</harness.java>
+        <harness.jdk>[1.8,9)</harness.jdk>
+      </properties>
+      <dependencies>
+        <!-- Boot 1.5 manages JUnit 4 only. -->
+        <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter</artifactId>
+          <version>5.9.3</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>boot-2.2</id>
+      <properties>
+        <boot.version>2.2.13.RELEASE</boot.version>
+        <tracer.version>2.1.2-SNAPSHOT</tracer.version>
+        <mvc.tests>boot2plus</mvc.tests>
+        <harness.java>1.8</harness.java>
+        <harness.jdk>[1.8,9)</harness.jdk>
+      </properties>
+    </profile>
+    <profile>
+      <id>boot-3.2</id>
+      <properties>
+        <boot.version>3.2.2</boot.version>
+        <tracer.version>2.9.2-SNAPSHOT</tracer.version>
+        <mvc.tests>boot2plus</mvc.tests>
+        <harness.java>17</harness.java>
+        <harness.jdk>[17,)</harness.jdk>
+      </properties>
+    </profile>
+    <profile>
+      <id>boot-3.4</id>
+      <properties>
+        <boot.version>3.4.5</boot.version>
+        <tracer.version>2.9.2-SNAPSHOT</tracer.version>
+        <mvc.tests>boot2plus</mvc.tests>
+        <harness.java>17</harness.java>
+        <harness.jdk>[17,)</harness.jdk>
+      </properties>
+    </profile>
+  </profiles>
+
+  <repositories>
+    <repository>
+      <id>repo.digit.org</id>
+      <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+  </repositories>
+</project>

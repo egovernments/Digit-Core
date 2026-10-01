@@ -6,13 +6,15 @@ import org.egov.requestvalidation.config.EffectiveValidationPolicy;
 import org.egov.requestvalidation.config.ValidationPolicyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,18 +22,26 @@ import java.util.function.Supplier;
 
 public final class CoverageReport implements SmartInitializingSingleton {
     private static final Logger LOG = LoggerFactory.getLogger(CoverageReport.class);
-    private final ObjectProvider<RequestMappingHandlerMapping> mappings;
+    private final ListableBeanFactory beanFactory;
     private final ValidationPolicyResolver resolver;
 
-    public CoverageReport(ObjectProvider<RequestMappingHandlerMapping> mappings, ValidationPolicyResolver resolver) {
-        this.mappings = mappings;
+    public CoverageReport(ListableBeanFactory beanFactory, ValidationPolicyResolver resolver) {
+        this.beanFactory = beanFactory;
         this.resolver = resolver;
+    }
+
+    /** All handler mappings in order. ObjectProvider.orderedStream() would do this but needs Spring 5.1+. */
+    private List<RequestMappingHandlerMapping> orderedMappings() {
+        List<RequestMappingHandlerMapping> mappings = new ArrayList<RequestMappingHandlerMapping>(
+                beanFactory.getBeansOfType(RequestMappingHandlerMapping.class).values());
+        AnnotationAwareOrderComparator.sort(mappings);
+        return mappings;
     }
 
     @Override
     public void afterSingletonsInstantiated() {
         Set<HandlerMethod> handlers = new LinkedHashSet<>();
-        mappings.orderedStream().forEach(mapping -> handlers.addAll(mapping.getHandlerMethods().values()));
+        orderedMappings().forEach(mapping -> handlers.addAll(mapping.getHandlerMethods().values()));
         for (HandlerMethod handler : handlers) {
             String name = handler.getBeanType().getName() + "#" + handler.getMethod().getName();
             EffectiveValidationPolicy policy = resolve(name, () -> resolver.handler(handler));

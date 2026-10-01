@@ -1,6 +1,5 @@
 package org.egov.requestvalidation.web;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.egov.requestvalidation.ValidationMode;
 import org.egov.requestvalidation.config.EffectiveValidationPolicy;
 import org.egov.requestvalidation.config.RequestValidationProperties;
@@ -16,9 +15,6 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 
 import java.io.ByteArrayInputStream;
@@ -37,9 +33,12 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
     private final ValidationReporter reporter;
     private final boolean rejectDuplicateKeys;
     private final boolean rejectDualRequestInfo;
+    private final ServletSupport servlet;
 
     public StructuredBodyAdvice(ValidationPolicyResolver resolver, JsonDocumentInspector inspector,
-                                ValidationReporter reporter, RequestValidationProperties properties) {
+                                ValidationReporter reporter, RequestValidationProperties properties,
+                                ServletSupport servlet) {
+        this.servlet = servlet;
         this.resolver = resolver;
         this.inspector = inspector;
         this.reporter = reporter;
@@ -65,7 +64,7 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
                                           Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
         EffectiveValidationPolicy policy = resolver.parameter(parameter);
         if (!policy.enabled() || !policy.structured()) return input;
-        HttpServletRequest request = currentRequest();
+        ValidationRequest request = servlet.currentRequest();
         String handler = parameter.getContainingClass().getName() + "#" + parameter.getMethod().getName();
         ValidationMode mode = policy.mode();
         MediaType media;
@@ -125,7 +124,7 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
     }
 
     /** ENFORCE rejects; REPORT records the finding and returns the input untouched and unread. */
-    private HttpInputMessage unread(HttpServletRequest request, ValidationMode mode, ViolationCode code,
+    private HttpInputMessage unread(ValidationRequest request, ValidationMode mode, ViolationCode code,
                                     String rule, String handler, HttpInputMessage input) {
         ContentPolicyViolationException rejection = reporter.structural(request, mode,
                 new Violation(code, rule, "/", 0), "body", handler);
@@ -247,16 +246,8 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
                 || type.getSubtype().toLowerCase(java.util.Locale.ROOT).endsWith("+json"));
     }
 
-    private ContentPolicyViolationException reject(HttpServletRequest request, ViolationCode code,
+    private ContentPolicyViolationException reject(ValidationRequest request, ViolationCode code,
                                                    String rule, String handler) {
         return reporter.rejected(request, new Violation(code, rule, "/", 0), "body", handler);
-    }
-
-    private static HttpServletRequest currentRequest() {
-        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-        if (attributes instanceof ServletRequestAttributes) {
-            return ((ServletRequestAttributes) attributes).getRequest();
-        }
-        throw new IllegalStateException("Request validation requires a servlet request context");
     }
 }

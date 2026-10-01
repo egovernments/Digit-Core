@@ -9,26 +9,43 @@ Output encoding and HTML sanitization at rendering boundaries remain necessary.
 ## Adoption
 
 No service is automatically annotated by this change. The gateway is unaffected.
-One source tree is published as two artifacts; pick the one matching the service:
 
-| Service stack | Artifact |
+**One dependency for every service**, whatever its Java and Spring Boot version:
+
+```xml
+<dependency>
+  <groupId>org.egov.services</groupId>
+  <artifactId>request-validation</artifactId>
+  <version>1.0.1-SNAPSHOT</version>
+</dependency>
+```
+
+| Service stack | Supported |
 | --- | --- |
-| Java 17, Spring Boot 3.x (`jakarta.servlet`), tracer 2.9.x | `org.egov.services:request-validation:1.0.1-SNAPSHOT` |
-| Java 8+, Spring Boot 2.2–2.7 (`javax.servlet`), tracer 2.1.x | `org.egov.services:request-validation-jdk8:1.0.1-SNAPSHOT` |
+| Java 8, Spring Boot 1.5 (e.g. `egov-user`), tracer 2.1.x | yes |
+| Java 8+, Spring Boot 2.x, tracer 2.1.x | yes |
+| Java 17, Spring Boot 3.x, tracer 2.9.x | yes |
 
-Both have the same classes, configuration and behaviour. The `jdk8` build
-(`jdk8/pom.xml`) compiles the shared sources to Java 8 bytecode with
-`jakarta.servlet` rewritten to `javax.servlet`, and registers the
-auto-configuration through `spring.factories` as well. It shades and relocates
-jackson-core 2.18 (the parser limits need `StreamReadConstraints`), so the
-service's own Jackson version is not changed. Spring Boot 1.5 services
-(`egov-user`) are not supported. Keep shared sources free of Java 9+ syntax
-and APIs; the `jdk8` build fails if they are not.
+The jar is Java 8 bytecode, compiled against the oldest supported API (Boot 1.5 /
+Spring 4.3), which later Spring versions still provide. The only code that
+differs between `javax.servlet` (Boot 1.5/2.x) and `jakarta.servlet` (Boot 3.x)
+is `ServletSupport`. Both implementations are in the jar, and the one matching the
+running Spring MVC is picked at startup. The auto-configuration is registered
+for every Boot version (`spring.factories` and `AutoConfiguration.imports`).
+Spring, Boot, servlet API, slf4j and tracer come from the service; jackson-core
+2.18 is shaded and relocated inside the jar (the parser limits need it), so the
+service's own Jackson version is not changed. The only transitive dependency is
+jsoup.
+
+On Spring Boot 1.5, write the list properties `rules.disallowed-controls`,
+`rules.denied-schemes` and `rules.denied-data-media-types` as comma-separated
+values (`rules.denied-schemes=javascript,vbscript`). Boot 1.5 cannot bind YAML
+list or `[0]=` syntax into a set, and startup fails if you use it. The defaults
+need no configuration.
 
 The dependency alone does nothing: validation starts only with `enabled: true`.
 Use a fixed release version for production after validation and release.
-The optional tracer dependency deliberately excludes all transitive dependencies;
-the host service must provide tracer and configure its error advice.
+The host service must provide tracer and its error advice (`CustomException` → HTTP 400).
 
 Explicitly configure the structured-body default, then opt in controllers:
 
@@ -158,26 +175,39 @@ limit. Gateways that reject before routing are also outside its coverage.
 
 ## Registration and verification
 
-Boot loads the auto-configuration through `AutoConfiguration.imports` (and, in
-the `jdk8` artifact, `spring.factories`); its package is outside both `org.egov` and `digit`. Infrastructure has no component/advice
+Boot loads the auto-configuration through `AutoConfiguration.imports` (Boot 2.7+)
+or `spring.factories` (Boot 1.5–2.6); its package is outside both `org.egov` and `digit`. Infrastructure has no component/advice
 stereotypes. A bean post-processor attaches body advice before MVC adapter
 initialization, preserving pre-existing advice; a dedicated MVC configurer adds
 the scalar interceptor. Custom MVC argument resolvers or custom body advice need
 adopter review, because they may change the normal conversion path.
 
 Unit and MVC test sources cover content policy, unknown fields, wrong types,
-byte preservation, exclusions, limits, and registration. Test execution is left
-to the user. From this module, later run:
+byte preservation, exclusions, limits, and registration.
+
+Build with JDK 17+ (the jakarta part of `ServletSupport`, in `src/jakarta/java`,
+is compiled against Spring 6; it is still Java 8 bytecode). `mvn install` runs the
+stack-independent unit tests. `compatibility/` is a test harness only (nothing is
+published from it): it uses the installed jar as a service would and runs the
+unit tests plus the MVC integration test on each stack:
 
 ```sh
-mvn test
-mvn install -DskipTests
-mvn -f compatibility/boot-3.4.5/pom.xml test
-mvn -f jdk8/pom.xml install   # Java 8 / Boot 2.x artifact; run with JDK 8 to test on Java 8
+compatibility/run-all.sh          # everything; set JAVA8_HOME / JAVA17_HOME if needed
+# or one stack:
+mvn install
+JAVA_HOME=<jdk8>  mvn -f compatibility/pom.xml -Pboot-1.5 clean test   # Boot 1.5 (egov-user)
+JAVA_HOME=<jdk8>  mvn -f compatibility/pom.xml -Pboot-2.2 clean test
+JAVA_HOME=<jdk17> mvn -f compatibility/pom.xml -Pboot-3.2 clean test
+JAVA_HOME=<jdk17> mvn -f compatibility/pom.xml -Pboot-3.4 clean test
 ```
 
-The compatibility project runs the same tests as a Boot 3.4.5 consumer of the
-installed jar. The `jdk8` build runs the same tests against Boot 2.2. Neither a successful compile nor these local fixtures verifies
+`compatibility/src/boot2plus` holds the MVC test for Boot 2.2+; `compatibility/src/boot1`
+holds the same scenarios written with Boot 1.5 test support. Keep them in step.
+Keep `src/main/java` free of Java 9+ APIs and of Spring 5+-only APIs (the code is
+compiled with `--release 8` against Spring 4.3, so the build fails if it is not),
+and keep servlet-API use inside `ServletSupport` implementations.
+
+Neither a successful compile nor these local fixtures verifies
 an adopted/deployed service or its latency. Measure largest legitimate payloads
 before ENFORCE rollout. The gateway rollback decision remains separate.
 

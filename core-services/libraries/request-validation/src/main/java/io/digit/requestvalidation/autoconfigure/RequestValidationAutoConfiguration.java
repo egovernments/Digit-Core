@@ -8,30 +8,40 @@ import org.egov.requestvalidation.web.BodyAdviceRegistrar;
 import org.egov.requestvalidation.web.CoverageReport;
 import org.egov.requestvalidation.web.RequestValidationMvcConfigurer;
 import org.egov.requestvalidation.web.ScalarParameterInterceptor;
+import org.egov.requestvalidation.web.ServletSupport;
 import org.egov.requestvalidation.web.StructuredBodyAdvice;
 import org.egov.requestvalidation.web.ValidationAuditLogger;
 import org.egov.requestvalidation.web.ValidationReporter;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
  * Outside both org.egov and digit scans; registered only by Boot's AutoConfiguration.imports (Boot 2.7+/3.x)
- * and, for the Java 8 build, spring.factories (Boot 2.2-2.6). Equivalent to @AutoConfiguration, which Boot 2.2 lacks.
+ * and spring.factories (Boot 1.5-2.6). Written against the Spring Boot 1.5 API so that the same class works
+ * on Boot 1.5, 2.x and 3.x: plain @Configuration (no @AutoConfiguration, no proxyBeanMethods; no bean method
+ * here calls another) and a servlet-application condition equivalent to Boot's.
  */
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@Configuration
+@Conditional(ServletWebApplicationCondition.class)
 @ConditionalOnClass(DispatcherServlet.class)
 @ConditionalOnProperty(prefix = "egov.request-validation", name = "enabled", havingValue = "true", matchIfMissing = false)
 @EnableConfigurationProperties(RequestValidationProperties.class)
 public class RequestValidationAutoConfiguration {
+    /** javax.servlet (Boot 1.5/2.x) or jakarta.servlet (Boot 3.x), detected from the running Spring MVC. */
+    @Bean
+    @ConditionalOnMissingBean
+    ServletSupport requestValidationServletSupport() {
+        return ServletSupport.forRuntime();
+    }
+
     @Bean
     @ConditionalOnMissingBean
     ValidationPolicyResolver requestValidationPolicyResolver(RequestValidationProperties properties) {
@@ -72,14 +82,16 @@ public class RequestValidationAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     StructuredBodyAdvice requestStructuredBodyAdvice(ValidationPolicyResolver resolver,
-            JsonDocumentInspector inspector, ValidationReporter reporter, RequestValidationProperties properties) {
-        return new StructuredBodyAdvice(resolver, inspector, reporter, properties);
+            JsonDocumentInspector inspector, ValidationReporter reporter, RequestValidationProperties properties,
+            ServletSupport servlet) {
+        return new StructuredBodyAdvice(resolver, inspector, reporter, properties, servlet);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    RequestValidationMvcConfigurer requestValidationMvcConfigurer(ScalarParameterInterceptor interceptor) {
-        return new RequestValidationMvcConfigurer(interceptor);
+    RequestValidationMvcConfigurer requestValidationMvcConfigurer(ScalarParameterInterceptor interceptor,
+                                                                  ServletSupport servlet) {
+        return new RequestValidationMvcConfigurer(servlet.scalarInterceptor(interceptor));
     }
 
     @Bean
@@ -90,8 +102,8 @@ public class RequestValidationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    CoverageReport requestValidationCoverageReport(ObjectProvider<RequestMappingHandlerMapping> mappings,
+    CoverageReport requestValidationCoverageReport(ListableBeanFactory beanFactory,
                                                    ValidationPolicyResolver resolver) {
-        return new CoverageReport(mappings, resolver);
+        return new CoverageReport(beanFactory, resolver);
     }
 }

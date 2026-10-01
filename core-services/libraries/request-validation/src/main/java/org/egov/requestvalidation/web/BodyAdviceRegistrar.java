@@ -29,4 +29,10 @@ public final class BodyAdviceRegistrar implements BeanPostProcessor {
         }
         return bean;
     }
+
+    // Explicit no-op (the Spring 5/6 default); Spring 4.3 (Boot 1.5) declares this method abstract.
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
+        return bean;
+    }
 }
