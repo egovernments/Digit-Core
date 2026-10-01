@@ -16,6 +16,11 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.egov.requestvalidation.config.RequestValidationProperties;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
+import java.util.HashMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -73,6 +78,48 @@ class RequestValidationIntegrationTest {
             .withPropertyValues("egov.request-validation.enabled=true",
                     "egov.request-validation.structured-default=true",
                     "egov.request-validation.mode=ENFORCE");
+
+    /** Both environment-variable forms bind every kind of setting (top level, nested limit, list) on Boot 2.x and 3.x. */
+    @Test
+    void environmentVariablesConfigureTheLibraryInEitherForm() {
+        for (String prefix : java.util.Arrays.asList("EGOV_REQUEST_VALIDATION_", "EGOV_REQUESTVALIDATION_")) {
+            boolean legacy = prefix.equals("EGOV_REQUEST_VALIDATION_");
+            java.util.Map<String, Object> variables = new HashMap<>();
+            variables.put(prefix + "ENABLED", "true");
+            variables.put(prefix + (legacy ? "STRUCTURED_DEFAULT" : "STRUCTUREDDEFAULT"), "true");
+            variables.put(prefix + "MODE", "ENFORCE");
+            variables.put(prefix + (legacy ? "LIMITS_MAX_DEPTH" : "LIMITS_MAXDEPTH"), "3");
+            variables.put(prefix + (legacy ? "RULES_DENIED_SCHEMES" : "RULES_DENIEDSCHEMES"), "livescript");
+            new WebApplicationContextRunner()
+                    .withConfiguration(AutoConfigurations.of(RequestValidationAutoConfiguration.class))
+                    .withUserConfiguration(MvcApplication.class)
+                    .withInitializer(context -> {
+                        context.getEnvironment().getPropertySources().replace(
+                                StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
+                                new SystemEnvironmentPropertySource(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, variables));
+                        // As SpringApplication does before refresh.
+                        ConfigurationPropertySources.attach(context.getEnvironment());
+                    })
+                    .run(context -> {
+                        assertThat(context).hasNotFailed();
+                        RequestValidationProperties properties = context.getBean(RequestValidationProperties.class);
+                        assertThat(properties.getMode()).as(prefix).isEqualTo(ValidationMode.ENFORCE);
+                        assertThat(properties.getLimits().getMaxDepth()).as(prefix).isEqualTo(3);
+                        assertThat(properties.getRules().toPolicy().getDeniedSchemes()).as(prefix).containsExactly("livescript");
+                    });
+        }
+    }
+
+    @Test
+    void aYamlListReplacesTheDefaults() {
+        runner.withPropertyValues("egov.request-validation.rules.denied-schemes[0]=livescript").run(context -> {
+            RequestValidationProperties properties = context.getBean(RequestValidationProperties.class);
+            assertThat(properties.getRules().getDeniedSchemes()).containsExactly("livescript");
+            assertThat(properties.getRules().toPolicy().getDeniedSchemes()).containsExactly("livescript");
+            assertThat(properties.getRules().toPolicy().getDeniedDataMediaTypes())
+                    .containsExactly("text/html", "application/xhtml+xml", "image/svg+xml");
+        });
+    }
 
     @Test
     void checksUnknownFieldsAndWrongTypedValuesBeforeBinding() {

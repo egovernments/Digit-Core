@@ -19,6 +19,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.egov.requestvalidation.config.RequestValidationProperties;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -92,6 +100,23 @@ class Boot1RequestValidationIntegrationTest {
         return context;
     }
 
+    /** OS environment variables, plus application.properties at the lowest precedence, as in a Boot 1.5 service. */
+    private static AnnotationConfigWebApplicationContext start(Map<String, Object> variables, String... applicationProperties) {
+        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.setServletContext(new MockServletContext());
+        MutablePropertySources sources = context.getEnvironment().getPropertySources();
+        sources.replace(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
+                new SystemEnvironmentPropertySource(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, variables));
+        Map<String, Object> file = new LinkedHashMap<>();
+        for (String property : applicationProperties) {
+            file.put(property.substring(0, property.indexOf('=')), property.substring(property.indexOf('=') + 1));
+        }
+        sources.addLast(new MapPropertySource("applicationProperties", file));
+        context.register(MvcApplication.class, AutoConfiguration.class);
+        context.refresh();
+        return context;
+    }
+
     private static void run(String[] properties, ContextWork work) throws Exception {
         AnnotationConfigWebApplicationContext context = start(MvcApplication.class, properties);
         try {
@@ -109,6 +134,54 @@ class Boot1RequestValidationIntegrationTest {
     void springFactoriesRegistersTheAutoConfigurationForBoot15() {
         assertThat(SpringFactoriesLoader.loadFactoryNames(EnableAutoConfiguration.class,
                 getClass().getClassLoader())).contains(RequestValidationAutoConfiguration.class.getName());
+    }
+
+    @Test
+    void environmentVariablesAloneConfigureTheLibrary() throws Exception {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("EGOV_REQUEST_VALIDATION_ENABLED", "true");
+        variables.put("EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT", "true");
+        variables.put("EGOV_REQUEST_VALIDATION_MODE", "ENFORCE");
+        variables.put("EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH", "3");
+        variables.put("EGOV_REQUEST_VALIDATION_RULES_DENIED_SCHEMES", "livescript");
+        AnnotationConfigWebApplicationContext context = start(variables);
+        try {
+            RequestValidationProperties properties = context.getBean(RequestValidationProperties.class);
+            assertThat(properties.getMode()).isEqualTo(ValidationMode.ENFORCE);
+            assertThat(properties.getLimits().getMaxDepth()).isEqualTo(3);
+            MockMvc mvc = mvc(context);
+            mvc.perform(post("/bytes").contentType("application/json").content("{\"u\":\"livescript:x\"}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.Errors[0].code").value("REQUEST_CONTENT_NOT_ALLOWED"));
+            // The configured list replaced the defaults.
+            mvc.perform(post("/bytes").contentType("application/json").content("{\"u\":\"javascript:x\"}"))
+                    .andExpect(status().isOk());
+            mvc.perform(post("/bytes").contentType("application/json").content("{\"a\":{\"b\":{\"c\":{}}}}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.Errors[0].code").value("REQUEST_LIMIT_EXCEEDED"));
+        } finally {
+            context.close();
+        }
+    }
+
+    @Test
+    void environmentVariablesOverrideApplicationPropertiesAndAYamlListReplacesTheDefaults() {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("EGOV_REQUEST_VALIDATION_MODE", "REPORT");
+        variables.put("EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH", "9");
+        AnnotationConfigWebApplicationContext context = start(variables, "egov.request-validation.enabled=true",
+                "egov.request-validation.structured-default=true", "egov.request-validation.mode=ENFORCE",
+                "egov.request-validation.limits.max-depth=5", "egov.request-validation.rules.denied-schemes[0]=livescript");
+        try {
+            RequestValidationProperties properties = context.getBean(RequestValidationProperties.class);
+            assertThat(properties.getMode()).isEqualTo(ValidationMode.REPORT);
+            assertThat(properties.getLimits().getMaxDepth()).isEqualTo(9);
+            assertThat(properties.getRules().getDeniedSchemes()).containsExactly("livescript");
+            assertThat(properties.getRules().toPolicy().getDeniedSchemes()).containsExactly("livescript");
+            assertThat(properties.getRules().toPolicy().getDisallowedControls()).containsExactly(0);
+        } finally {
+            context.close();
+        }
     }
 
     @Test

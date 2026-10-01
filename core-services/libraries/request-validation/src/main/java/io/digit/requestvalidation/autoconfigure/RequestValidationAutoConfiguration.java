@@ -1,5 +1,6 @@
 package io.digit.requestvalidation.autoconfigure;
 
+import org.egov.requestvalidation.config.EnvironmentVariableFallback;
 import org.egov.requestvalidation.config.RequestValidationProperties;
 import org.egov.requestvalidation.config.ValidationPolicyResolver;
 import org.egov.requestvalidation.core.ContentDetector;
@@ -98,6 +99,12 @@ public class RequestValidationAutoConfiguration {
     @ConditionalOnMissingBean
     static BodyAdviceRegistrar requestValidationBodyAdviceRegistrar(ObjectProvider<StructuredBodyAdvice> advice) {
         return new BodyAdviceRegistrar(advice);
+    }
+
+    // Static: a post-processor must not initialise this configuration class early.
+    @Bean
+    static EnvironmentVariableFallback requestValidationEnvironmentVariableFallback() {
+        return new EnvironmentVariableFallback();
     }
 
     @Bean

@@ -37,11 +37,19 @@ Spring, Boot, servlet API, slf4j and tracer come from the service; jackson-core
 service's own Jackson version is not changed. The only transitive dependency is
 jsoup.
 
-On Spring Boot 1.5, write the list properties `rules.disallowed-controls`,
-`rules.denied-schemes` and `rules.denied-data-media-types` as comma-separated
-values (`rules.denied-schemes=javascript,vbscript`). Boot 1.5 cannot bind YAML
-list or `[0]=` syntax into a set, and startup fails if you use it. The defaults
-need no configuration.
+Every setting can be given in `application.properties`/`.yml` or as an environment
+variable, on every supported Boot version. Environment variables are the property name
+in upper case with dots and dashes as underscores, for example
+`EGOV_REQUEST_VALIDATION_ENABLED`, `EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT`,
+`EGOV_REQUEST_VALIDATION_MODE` and `EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH`; they
+override the file as usual. (Spring Boot 1.5 cannot bind these into the hyphenated
+prefix itself, and Boot 2.x binds the nested ones only as `EGOV_REQUESTVALIDATION_*`;
+on javax.servlet hosts the library applies them after binding.) Use this
+`EGOV_REQUEST_VALIDATION_*` form: it is the one that works on every version. Boot 2.x/3.x
+also accept `EGOV_REQUESTVALIDATION_*`, but on Boot 1.5 that form leaves the library off. The list properties `rules.disallowed-controls`,
+`rules.denied-schemes` and `rules.denied-data-media-types` take a comma-separated value
+or a YAML list, and a configured list replaces the defaults. The defaults need no
+configuration.
 
 The dependency alone does nothing: validation starts only with `enabled: true`.
 Use a fixed release version for production after validation and release.

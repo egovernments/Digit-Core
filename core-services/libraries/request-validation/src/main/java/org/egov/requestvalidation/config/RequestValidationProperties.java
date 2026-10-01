@@ -10,6 +10,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @ConfigurationProperties(prefix = "egov.request-validation", ignoreUnknownFields = false)
@@ -96,17 +97,25 @@ public class RequestValidationProperties implements InitializingBean {
         private boolean markupStart = true;
         private boolean urlScheme = true;
         private boolean eventHandler = true;
-        private Set<Integer> disallowedControls = new LinkedHashSet<>(Collections.singleton(0));
-        private Set<String> deniedSchemes = new LinkedHashSet<>(Arrays.asList("javascript", "vbscript"));
-        private Set<String> deniedDataMediaTypes = new LinkedHashSet<>(
+        private static final List<Integer> DEFAULT_DISALLOWED_CONTROLS = Collections.singletonList(0);
+        private static final List<String> DEFAULT_DENIED_SCHEMES =
+                Collections.unmodifiableList(Arrays.asList("javascript", "vbscript"));
+        private static final List<String> DEFAULT_DENIED_DATA_MEDIA_TYPES = Collections.unmodifiableList(
                 Arrays.asList("text/html", "application/xhtml+xml", "image/svg+xml"));
+        // Lists, not sets: Spring Boot 1.5 binds a YAML list (indexed keys) only into a List, array or Map. Unset until
+        // configured, so a configured list replaces the defaults on every Boot version; toPolicy() applies them.
+        private List<Integer> disallowedControls;
+        private List<String> deniedSchemes;
+        private List<String> deniedDataMediaTypes;
         private int decodeRounds = 2;
         private boolean normalizeNfkc;
 
         public ContentPolicy toPolicy() {
             return ContentPolicy.builder().markupStart(markupStart).urlScheme(urlScheme)
-                    .eventHandler(eventHandler).disallowedControls(disallowedControls)
-                    .deniedSchemes(deniedSchemes).deniedDataMediaTypes(deniedDataMediaTypes)
+                    .eventHandler(eventHandler)
+                    .disallowedControls(toSet(disallowedControls, DEFAULT_DISALLOWED_CONTROLS))
+                    .deniedSchemes(toSet(deniedSchemes, DEFAULT_DENIED_SCHEMES))
+                    .deniedDataMediaTypes(toSet(deniedDataMediaTypes, DEFAULT_DENIED_DATA_MEDIA_TYPES))
                     .decodeRounds(decodeRounds).normalizeNfkc(normalizeNfkc).build();
         }
         public boolean isMarkupStart() { return markupStart; }
@@ -115,16 +124,21 @@ public class RequestValidationProperties implements InitializingBean {
         public void setUrlScheme(boolean value) { urlScheme = value; }
         public boolean isEventHandler() { return eventHandler; }
         public void setEventHandler(boolean value) { eventHandler = value; }
-        public Set<Integer> getDisallowedControls() { return disallowedControls; }
-        public void setDisallowedControls(Set<Integer> value) { disallowedControls = value; }
-        public Set<String> getDeniedSchemes() { return deniedSchemes; }
-        public void setDeniedSchemes(Set<String> value) { deniedSchemes = value; }
-        public Set<String> getDeniedDataMediaTypes() { return deniedDataMediaTypes; }
-        public void setDeniedDataMediaTypes(Set<String> value) { deniedDataMediaTypes = value; }
+        public List<Integer> getDisallowedControls() { return disallowedControls; }
+        public void setDisallowedControls(List<Integer> value) { disallowedControls = value; }
+        public List<String> getDeniedSchemes() { return deniedSchemes; }
+        public void setDeniedSchemes(List<String> value) { deniedSchemes = value; }
+        public List<String> getDeniedDataMediaTypes() { return deniedDataMediaTypes; }
+        public void setDeniedDataMediaTypes(List<String> value) { deniedDataMediaTypes = value; }
         public int getDecodeRounds() { return decodeRounds; }
         public void setDecodeRounds(int value) { decodeRounds = value; }
         public boolean isNormalizeNfkc() { return normalizeNfkc; }
         public void setNormalizeNfkc(boolean value) { normalizeNfkc = value; }
+
+        // ContentPolicy validates the values.
+        private static <T> Set<T> toSet(List<T> values, List<T> defaults) {
+            return new LinkedHashSet<>(values == null ? defaults : values);
+        }
     }
 
     public static class Log {
