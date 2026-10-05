@@ -24,8 +24,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.egov.requestvalidation.ValidateRequest;
 
 
+@ValidateRequest
 @RestController
 @RequestMapping("/egov-wf")
 public class WorkflowController {
