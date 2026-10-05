@@ -81,8 +81,8 @@ class BoundaryRelationshipRepositoryImplBulkTest {
         ArgumentCaptor<Object> valueCaptor = ArgumentCaptor.forClass(Object.class);
 
         // EXACTLY ONE push (was N=5 with the old per-record loop).
-        verify(producer, times(1)).push(topicCaptor.capture(), keyCaptor.capture(), valueCaptor.capture());
-        verify(producer, never()).push(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
+        verify(producer, times(1)).push(org.mockito.ArgumentMatchers.eq("mz"), topicCaptor.capture(), keyCaptor.capture(), valueCaptor.capture());
+        verify(producer, never()).push(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
 
         assertEquals(TOPIC, topicCaptor.getValue(), "bulk batch must go to the dedicated boundary-relationship-bulk-create-job topic, NOT save-boundary-relationship");
         assertEquals("P1", keyCaptor.getValue(), "batch keyed by the shared parent code");
@@ -113,14 +113,14 @@ class BoundaryRelationshipRepositoryImplBulkTest {
         repository.createBulk(input, requestInfo());
 
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
-        verify(producer, times(1)).push(org.mockito.ArgumentMatchers.eq(TOPIC), keyCaptor.capture(), org.mockito.ArgumentMatchers.any());
+        verify(producer, times(1)).push(org.mockito.ArgumentMatchers.eq("mz"), org.mockito.ArgumentMatchers.eq(TOPIC), keyCaptor.capture(), org.mockito.ArgumentMatchers.any());
         assertEquals(null, keyCaptor.getValue(), "mixed parents must fall back to keyless (null key)");
     }
 
     @Test
     void createBulk_emptyList_publishesNothing() {
         repository.createBulk(new ArrayList<>(), requestInfo());
-        verify(producer, never()).push(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
-        verify(producer, never()).push(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
+        verify(producer, never()).push(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
+        verify(producer, never()).push(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 }

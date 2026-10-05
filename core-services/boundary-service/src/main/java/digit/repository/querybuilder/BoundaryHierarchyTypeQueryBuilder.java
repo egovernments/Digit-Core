@@ -19,11 +19,11 @@ public class BoundaryHierarchyTypeQueryBuilder {
     }
 
     private static String BOUNDARY_HIERARCHY_TYPE_BASE_SEARCH_QUERY = "SELECT id, tenantid, hierarchytype, boundaryhierarchy, createdtime, lastmodifiedtime, createdby, lastmodifiedby" +
-            " FROM boundary_hierarchy ";
+            " FROM {schema}.boundary_hierarchy ";
 
     private static String ORDER_BY_CLAUSE = " order by createdtime desc ";
 
-    private static String BOUNDARY_HIERARCHY_TYPE_COUNT_QUERY = "SELECT count(*) FROM boundary_hierarchy ";
+    private static String BOUNDARY_HIERARCHY_TYPE_COUNT_QUERY = "SELECT count(*) FROM {schema}.boundary_hierarchy ";
 
     public String getBoundaryHierarchyTypeSearchQuery(BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(boundaryTypeHierarchySearchCriteria, preparedStmtList, BOUNDARY_HIERARCHY_TYPE_BASE_SEARCH_QUERY);

@@ -1,12 +1,16 @@
 package digit.repository.impl;
 
 import digit.config.ApplicationProperties;
+import digit.errors.ErrorCodes;
 import digit.kafka.Producer;
 import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.querybuilder.BoundaryRelationshipQueryBuilder;
 import digit.repository.rowmapper.BoundaryRelationshipRowMapper;
 import digit.web.models.*;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.exception.InvalidTenantIdException;
+import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -28,13 +32,17 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
     private ApplicationProperties applicationProperties;
 
+    private MultiStateInstanceUtil multiStateInstanceUtil;
+
     public BoundaryRelationshipRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
-                                              BoundaryRelationshipQueryBuilder boundaryRelationshipQueryBuilder, BoundaryRelationshipRowMapper boundaryRelationshipRowMapper, ApplicationProperties applicationProperties) {
+                                              BoundaryRelationshipQueryBuilder boundaryRelationshipQueryBuilder, BoundaryRelationshipRowMapper boundaryRelationshipRowMapper, ApplicationProperties applicationProperties,
+                                              MultiStateInstanceUtil multiStateInstanceUtil) {
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.boundaryRelationshipQueryBuilder = boundaryRelationshipQueryBuilder;
         this.boundaryRelationshipRowMapper = boundaryRelationshipRowMapper;
         this.applicationProperties = applicationProperties;
+        this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
     /**
@@ -48,7 +56,7 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
         BoundaryRelationshipRequestDTO boundaryRelationshipRequestDTO = convertContractPOJOToDTO(boundaryRelationshipRequest);
 
         // Push to event bus for creating asynchronously
-        producer.push(applicationProperties.getCreateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
+        producer.push(boundaryRelationshipRequestDTO.getBoundaryRelationshipDTO().getTenantId(), applicationProperties.getCreateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
     }
 
     /**
@@ -99,7 +107,7 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
                 .build();
 
         // Publish the whole validated list as ONE message to the dedicated bulk topic.
-        producer.push(applicationProperties.getBulkCreateBoundaryRelationshipJobTopic(), resolveBatchKey(boundaryRelationships), batchMessage);
+        producer.push(boundaryRelationships.get(0).getTenantId(), applicationProperties.getBulkCreateBoundaryRelationshipJobTopic(), resolveBatchKey(boundaryRelationships), batchMessage);
     }
 
     /**
@@ -140,7 +148,7 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
     @Override
     public void update(BoundaryRelationshipRequestDTO boundaryRelationshipRequestDTO) {
         // Push to event bus for updating asynchronously
-        producer.push(applicationProperties.getUpdateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
+        producer.push(boundaryRelationshipRequestDTO.getBoundaryRelationshipDTO().getTenantId(), applicationProperties.getUpdateBoundaryRelationshipTopic(), boundaryRelationshipRequestDTO);
     }
 
     /**
@@ -157,6 +165,13 @@ public class BoundaryRelationshipRepositoryImpl implements BoundaryRelationshipR
 
         // Get query for searching boundary relationship
         String query = boundaryRelationshipQueryBuilder.getBoundaryRelationshipSearchQuery(boundaryRelationshipSearchCriteria, preparedStmtList);
+
+        try {
+            // Replacing schema placeholder with the schema name for the tenant id
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, boundaryRelationshipSearchCriteria.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(ErrorCodes.INVALID_TENANT_ID_CODE, e.getMessage());
+        }
 
         // Return search response based on provided search criteria
         return jdbcTemplate.query(query, preparedStmtList.toArray(), boundaryRelationshipRowMapper);

@@ -44,6 +44,7 @@ public class ErrorCodes {
     public static final String BULK_REQUEST_INFO_MISSING_MSG = "Bulk boundary relationship request is missing RequestInfo.userInfo.";
     public static final String INVALID_BOUNDARY_CODE_CODE = "INVALID_BOUNDARY_CODE";
     public static final String INVALID_BOUNDARY_CODE_MSG = "code, tenantId and hierarchyType must not contain the '|' character, which is reserved as the ancestral materialized-path delimiter.";
+    public static final String INVALID_TENANT_ID_CODE = "INVALID_TENANT_ID";
     // Distinct code (not reused from INVALID_HIERARCHY_DEFINITION) so the UI can render a specific,
     // actionable message for this case rather than a generic hierarchy-definition failure.
     public static final String INVALID_HIERARCHY_TYPE_SEPARATOR_CODE = "INVALID_HIERARCHY_TYPE_SEPARATOR";

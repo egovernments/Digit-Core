@@ -3,6 +3,7 @@ package digit.repository.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import digit.config.ApplicationProperties;
+import digit.errors.ErrorCodes;
 import digit.kafka.Producer;
 import digit.repository.BoundaryRepository;
 import digit.repository.querybuilder.BoundaryEntityQueryBuilder;
@@ -11,6 +12,9 @@ import digit.web.models.Boundary;
 import digit.web.models.BoundaryRequest;
 import digit.web.models.BoundarySearchCriteria;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.exception.InvalidTenantIdException;
+import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -37,8 +41,11 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
 
     private final ApplicationProperties applicationProperties;
 
+    private final MultiStateInstanceUtil multiStateInstanceUtil;
+
     public BoundaryRepositoryImpl(ObjectMapper mapper , RestTemplate restTemplate , JdbcTemplate jdbcTemplate , BoundaryEntityRowMapper boundaryEntityRowMapper
-            , BoundaryEntityQueryBuilder boundaryEntityQueryBuilder , Producer producer , ApplicationProperties applicationProperties) {
+            , BoundaryEntityQueryBuilder boundaryEntityQueryBuilder , Producer producer , ApplicationProperties applicationProperties
+            , MultiStateInstanceUtil multiStateInstanceUtil) {
         this.mapper = mapper;
         this.restTemplate = restTemplate;
         this.jdbcTemplate = jdbcTemplate;
@@ -46,6 +53,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
         this.boundaryEntityQueryBuilder = boundaryEntityQueryBuilder;
         this.producer = producer;
         this.applicationProperties = applicationProperties;
+        this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
     /**
@@ -55,7 +63,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
      */
     @Override
     public void create(BoundaryRequest boundaryRequest) {
-        producer.push(applicationProperties.getCreateBoundaryTopic() , boundaryRequest);
+        producer.push(boundaryRequest.getBoundary().get(0).getTenantId() , applicationProperties.getCreateBoundaryTopic() , boundaryRequest);
     }
 
     /**
@@ -70,6 +78,13 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
 
         String query = boundaryEntityQueryBuilder.getBoundaryDataSearchQuery(boundarySearchCriteria , preparedStmtList);
 
+        try {
+            // Replacing schema placeholder with the schema name for the tenant id
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, boundarySearchCriteria.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(ErrorCodes.INVALID_TENANT_ID_CODE, e.getMessage());
+        }
+
         List<Boundary> boundaryList = jdbcTemplate.query(query , preparedStmtList.toArray() , boundaryEntityRowMapper);
 
         return boundaryList;
@@ -82,7 +97,7 @@ public class BoundaryRepositoryImpl implements BoundaryRepository {
      */
     @Override
     public void update(BoundaryRequest boundaryRequest) {
-        producer.push(applicationProperties.getUpdateBoundaryTopic() , boundaryRequest);
+        producer.push(boundaryRequest.getBoundary().get(0).getTenantId() , applicationProperties.getUpdateBoundaryTopic() , boundaryRequest);
     }
 
     /**

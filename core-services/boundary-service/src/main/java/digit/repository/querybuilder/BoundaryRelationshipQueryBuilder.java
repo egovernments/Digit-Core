@@ -13,7 +13,7 @@ import java.util.Set;
 public class BoundaryRelationshipQueryBuilder {
 
     private static String BOUNDARY_RELATIONSHIP_BASE_SEARCH_QUERY = "SELECT id, tenantid, code, hierarchytype, boundarytype, parent, ancestralmaterializedpath, createdtime, createdby, lastmodifiedtime, lastmodifiedby" +
-            " FROM boundary_relationship ";
+            " FROM {schema}.boundary_relationship ";
 
     private static String ORDER_BY_CLAUSE = " order by createdtime desc ";
 

@@ -1,10 +1,13 @@
 package digit.util;
 
+import digit.errors.ErrorCodes;
 import digit.repository.BoundaryHierarchyRepository;
 import digit.repository.querybuilder.BoundaryHierarchyTypeQueryBuilder;
 import digit.web.models.BoundaryTypeHierarchy;
 import digit.web.models.BoundaryTypeHierarchyDefinition;
 import digit.web.models.BoundaryTypeHierarchySearchCriteria;
+import org.egov.common.exception.InvalidTenantIdException;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -26,10 +29,14 @@ public class HierarchyUtil {
 
     private JdbcTemplate jdbcTemplate;
 
-    public HierarchyUtil(BoundaryHierarchyRepository boundaryHierarchyRepository, BoundaryHierarchyTypeQueryBuilder boundaryHierarchyTypeQueryBuilder, JdbcTemplate jdbcTemplate) {
+    private MultiStateInstanceUtil multiStateInstanceUtil;
+
+    public HierarchyUtil(BoundaryHierarchyRepository boundaryHierarchyRepository, BoundaryHierarchyTypeQueryBuilder boundaryHierarchyTypeQueryBuilder, JdbcTemplate jdbcTemplate,
+                         MultiStateInstanceUtil multiStateInstanceUtil) {
         this.boundaryHierarchyRepository = boundaryHierarchyRepository;
         this.boundaryHierarchyTypeQueryBuilder = boundaryHierarchyTypeQueryBuilder;
         this.jdbcTemplate = jdbcTemplate;
+        this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
     /**
@@ -90,6 +97,12 @@ public class HierarchyUtil {
     public Integer getBoundaryTypeHierarchyDefinitionCount(BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria) {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = boundaryHierarchyTypeQueryBuilder.getBoundaryHierarchyTypeCountQuery(boundaryTypeHierarchySearchCriteria, preparedStmtList);
+        try {
+            // Replacing schema placeholder with the schema name for the tenant id
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, boundaryTypeHierarchySearchCriteria.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(ErrorCodes.INVALID_TENANT_ID_CODE, e.getMessage());
+        }
         return jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
     }
 }

@@ -1,6 +1,7 @@
 package digit.repository.impl;
 
 import digit.config.ApplicationProperties;
+import digit.errors.ErrorCodes;
 import digit.kafka.Producer;
 import digit.repository.BoundaryHierarchyRepository;
 import digit.repository.querybuilder.BoundaryHierarchyTypeQueryBuilder;
@@ -9,6 +10,9 @@ import digit.web.models.BoundaryTypeHierarchyDefinition;
 import digit.web.models.BoundaryTypeHierarchyRequest;
 import digit.web.models.BoundaryTypeHierarchySearchCriteria;
 import lombok.extern.slf4j.Slf4j;
+import org.egov.common.exception.InvalidTenantIdException;
+import org.egov.common.utils.MultiStateInstanceUtil;
+import org.egov.tracer.model.CustomException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -29,13 +33,17 @@ public class BoundaryHierarchyRepositoryImpl implements BoundaryHierarchyReposit
 
     private ApplicationProperties applicationProperties;
 
+    private MultiStateInstanceUtil multiStateInstanceUtil;
+
     public BoundaryHierarchyRepositoryImpl(Producer producer, BoundaryHierarchyTypeQueryBuilder boundaryHierarchyTypeQueryBuilder,
-                                           JdbcTemplate jdbcTemplate, BoundaryHierarchyTypeRowMapper boundaryHierarchyTypeRowMapper, ApplicationProperties applicationProperties) {
+                                           JdbcTemplate jdbcTemplate, BoundaryHierarchyTypeRowMapper boundaryHierarchyTypeRowMapper, ApplicationProperties applicationProperties,
+                                           MultiStateInstanceUtil multiStateInstanceUtil) {
         this.producer = producer;
         this.boundaryHierarchyTypeQueryBuilder = boundaryHierarchyTypeQueryBuilder;
         this.jdbcTemplate = jdbcTemplate;
         this.boundaryHierarchyTypeRowMapper = boundaryHierarchyTypeRowMapper;
         this.applicationProperties = applicationProperties;
+        this.multiStateInstanceUtil = multiStateInstanceUtil;
     }
 
     /**
@@ -45,7 +53,7 @@ public class BoundaryHierarchyRepositoryImpl implements BoundaryHierarchyReposit
      */
     @Override
     public void create(BoundaryTypeHierarchyRequest boundaryTypeHierarchyRequest) {
-        producer.push(applicationProperties.getCreateBoundaryHierarchyTopic(), boundaryTypeHierarchyRequest);
+        producer.push(boundaryTypeHierarchyRequest.getBoundaryHierarchy().getTenantId(), applicationProperties.getCreateBoundaryHierarchyTopic(), boundaryTypeHierarchyRequest);
     }
 
     /**
@@ -55,7 +63,7 @@ public class BoundaryHierarchyRepositoryImpl implements BoundaryHierarchyReposit
      */
     @Override
     public void update(BoundaryTypeHierarchyRequest boundaryTypeHierarchyRequest) {
-        producer.push(applicationProperties.getUpdateBoundaryHierarchyTopic(), boundaryTypeHierarchyRequest);
+        producer.push(boundaryTypeHierarchyRequest.getBoundaryHierarchy().getTenantId(), applicationProperties.getUpdateBoundaryHierarchyTopic(), boundaryTypeHierarchyRequest);
     }
 
     /**
@@ -69,6 +77,12 @@ public class BoundaryHierarchyRepositoryImpl implements BoundaryHierarchyReposit
     public List<BoundaryTypeHierarchyDefinition> search(BoundaryTypeHierarchySearchCriteria boundaryTypeHierarchySearchCriteria) {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = boundaryHierarchyTypeQueryBuilder.getBoundaryHierarchyTypeSearchQuery(boundaryTypeHierarchySearchCriteria, preparedStmtList);
+        try {
+            // Replacing schema placeholder with the schema name for the tenant id
+            query = multiStateInstanceUtil.replaceSchemaPlaceholder(query, boundaryTypeHierarchySearchCriteria.getTenantId());
+        } catch (InvalidTenantIdException e) {
+            throw new CustomException(ErrorCodes.INVALID_TENANT_ID_CODE, e.getMessage());
+        }
         return jdbcTemplate.query(query, preparedStmtList.toArray(), boundaryHierarchyTypeRowMapper);
     }
 
