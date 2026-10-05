@@ -273,3 +273,8 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-document-uploader/src/main/resources/db"
         image-name: "egov-document-uploader-db"
+
+  - name: "builds/core-services/libraries/request-validation"
+    build:
+      - work-dir: "libraries/request-validation"
+        image-name: "request-validation"
