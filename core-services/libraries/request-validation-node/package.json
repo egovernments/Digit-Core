@@ -1,6 +1,6 @@
 {
   "name": "@egovernments/request-validation",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Request content validation for Express/Node services: REPORT logs, ENFORCE rejects with HTTP 400; never modifies input. Node port of org.egov.services:request-validation 1.0.1-SNAPSHOT.",
   "license": "MIT",
   "main": "index.js",

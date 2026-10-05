@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.0.0
+## 0.0.1
 
-First release: the Node.js port of `org.egov.services:request-validation` 1.0.1-SNAPSHOT.
+First release: the Node.js port of `org.egov.services:request-validation` 0.0.1-SNAPSHOT.
 
 - Express middleware with six touch points: `beforeParsers`, the body-parser `verify` hooks `jsonVerify` and
   `formVerify`, `afterParsers`, `pathParams` and `multipartFields` (after a multipart parser), plus
