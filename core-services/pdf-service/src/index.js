@@ -3,6 +3,7 @@ import http from "http";
 import request from "request";
 import express from "express";
 import logger from "./config/logger";
+import { createRequestValidation } from "@egovernments/request-validation";
 import path from "path";
 import fs, {
   exists
@@ -70,16 +71,20 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 var pdfMakePrinter = require("pdfmake/src/printer");
 
 let app = express();
+const requestValidation = createRequestValidation({
+  // ENFORCE: reject requests carrying script/markup (HTTP 400 REQUEST_CONTENT_NOT_ALLOWED). EGOV_REQUEST_VALIDATION_* env vars override these.
+  enabled: true,
+  structuredDefault: true,
+  activation: "ALL",
+  mode: "ENFORCE",
+  logger: { warn: (line) => logger.warn(line), info: (line) => logger.info(line) },
+});
+
 app.use(express.static(path.join(__dirname, "public")));
-app.use(bodyParser.json({
-  limit: "200mb",
-  extended: true
-}));
-app.use(bodyParser.urlencoded({
-  limit: "200mb",
-  extended: true,
-  parameterLimit:50000
-}));
+app.use(requestValidation.beforeParsers);
+app.use(bodyParser.json({ limit: "200mb", extended: true, verify: requestValidation.jsonVerify }));
+app.use(bodyParser.urlencoded({ limit: "200mb", extended: true, parameterLimit: 50000, verify: requestValidation.formVerify }));
+app.use(requestValidation.afterParsers);
 
 let maxPagesAllowed = envVariables.MAX_NUMBER_PAGES;
 let serverport = envVariables.SERVER_PORT;
