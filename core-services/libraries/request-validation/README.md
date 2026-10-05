@@ -48,7 +48,9 @@ for any property. On Boot 1.5 this holds where the file writes the key as in thi
 a YAML list in the file win, and ignores a camelCase prefix (`egov.requestValidation`)
 altogether. Leave a variable out rather than empty: a blank `mode` or `activation` keeps
 the default and an empty list value is an empty list, but Boot 2.7/3 reject a blank number
-or true/false value at startup.
+or true/false value at startup. A blank `EGOV_REQUEST_VALIDATION_ENABLED` turns the library
+off even when `application.properties` sets `enabled=true`: never ship it empty; set it to
+`true` or leave it out.
 (Boot 1.5 cannot bind such a variable for a setting no other source mentions, and Boot
 2.0-2.6 cannot for a `limits`, `rules` or `log` setting when no other source mentions that
 group; on javax.servlet hosts the library declares those settings for Spring to bind,
