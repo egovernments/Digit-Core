@@ -1,0 +1,572 @@
+{
+ "notice": "The kind=json cases of the Java library test suite (JsonDocumentInspectorTest), as recorded from the Java sources; expectations are the Java tests own assertions.",
+ "cases": [
+  {
+   "source": "JsonDocumentInspectorTest#inspectsUnknownPropertiesNestedObjectsAndArrays",
+   "kind": "json",
+   "input": "{\"known\":\"ok\",\"unknown\":[{\"a\":{\"b\":{\"c\":{\"d\":\"<script\"}}}}]}",
+   "config": {},
+   "expected": {
+    "violations": [
+     {
+      "ruleId": "R1",
+      "location": "/unknown/0/a/b/c/d"
+     }
+    ]
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#inspectsPropertyNamesAndRedactsUnsafeNameFromLocation",
+   "kind": "json",
+   "input": "{\"onload=\":true}",
+   "config": {},
+   "expected": {
+    "violations": [
+     {
+      "ruleId": "R3",
+      "location": "/*"
+     }
+    ]
+   },
+   "note": "the KEY itself is content-inspected, not only values; booleans are never content-inspected but the key always is"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#locationsStayCorrectAcrossSiblingContainersAndArrays",
+   "kind": "json",
+   "input": "{\"a\":[{\"x\":1},{\"y\":\"<b>\"},[\"ok\",\"<i>\"]],\"b\":{\"c\":\"<u>\"},\"d\":[{\"<k>\":1}],\"e\":\"<s>\"}",
+   "config": {},
+   "expected": {
+    "locations": [
+     "/a/1/y",
+     "/a/2/1",
+     "/b/c",
+     "/d/0/*",
+     "/e"
+    ]
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#locationsStayCorrectAcrossSiblingContainersAndArrays",
+   "kind": "json",
+   "input": "[\"ok\",[\"<b>\"]]",
+   "config": {},
+   "expected": {
+    "locations": [
+     "/1/0"
+    ]
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#locationsStayCorrectAcrossSiblingContainersAndArrays",
+   "kind": "json",
+   "input": "\"<b>\"",
+   "config": {},
+   "expected": {
+    "locations": [
+     "/"
+    ]
+   },
+   "note": "a bare scalar root value"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"a\":\"x\" \"b\":1}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/a"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"Mdms\":{\"data\":[1,2",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/Mdms/data/1"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"x\":{\"y\":{\"z\":{}}}}",
+   "config": {
+    "limits": {
+     "maxDepth": 3
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED",
+    "ruleId": "parser-limit",
+    "location": "/x/y/z"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"a\":1,\"b\":2}",
+   "config": {
+    "limits": {
+     "maxTokens": 4
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED",
+    "ruleId": "max-tokens",
+    "location": "/b"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"a\":{\"b\":1}} x",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"a\":[1,{\"b\":2}] ,",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/a"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "[1,[2,3]",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/1"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"k\":tru}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"a\":{},}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/a"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsMatchRelease100",
+   "kind": "json",
+   "input": "{\"a\":[\"s\" 1]}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100000,
+     "maxDepth": 64,
+     "maxStringLength": 10000,
+     "maxNameLength": 256,
+     "maxTokens": 10000,
+     "maxNumberLength": 1000,
+     "maxScalarLength": 4096
+    }
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "json",
+    "location": "/a/0"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#failureLocationsNameTheOffendingProperty",
+   "kind": "json",
+   "input": "{\"a\":[{\"x\":1,\"x\":2}]}",
+   "config": {
+    "rejectDuplicateKeys": true
+   },
+   "expected": {
+    "code": "REQUEST_JSON_DUPLICATE_KEY",
+    "location": "/a/0/x"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#skipPathSuppressesOnlyItsMatchedSubtree",
+   "kind": "json",
+   "input": "{\"items\":[{\"note\":\"<b>\"},{\"note\":\"<i>\"}],\"other\":\"<u>\"}",
+   "config": {
+    "skipPaths": [
+     "/items/0"
+    ]
+   },
+   "expected": {
+    "violations": [
+     {
+      "location": "/items/1/note"
+     },
+     {
+      "location": "/other"
+     }
+    ]
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#duplicateChecksRemainActiveInsideSkippedSubtree",
+   "kind": "json",
+   "input": "{\"safe\":{\"x\":1,\"x\":2}}",
+   "config": {
+    "skipPaths": [
+     "/safe"
+    ],
+    "rejectDuplicateKeys": true
+   },
+   "expected": {
+    "code": "REQUEST_JSON_DUPLICATE_KEY",
+    "location": "/safe/x"
+   },
+   "note": "duplicate-key check is NOT suppressed by a matching skip path; only content detection is skipped"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#contentConsumerMayEnforceImmediately",
+   "kind": "json",
+   "input": "{\"value\":\"<script\"}",
+   "config": {
+    "consumerThrowsOnFirstViolation": true
+   },
+   "expected": {
+    "code": "REQUEST_CONTENT_NOT_ALLOWED",
+    "ruleId": "R1"
+   },
+   "note": "models ENFORCE mode: the content-violation consumer itself throws, inspect() does not catch it, it propagates uncaught"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsLimitsExactlyAndRejectsLimitPlusOne",
+   "kind": "json",
+   "input": "{\"abc\":\"xyz\",\"n\":123}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": "exact byte length of input",
+     "maxDepth": 1,
+     "maxStringLength": 3,
+     "maxNameLength": 3,
+     "maxTokens": 6,
+     "maxNumberLength": 3,
+     "maxScalarLength": 1
+    }
+   },
+   "expected": {
+    "accepted": true
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsLimitsExactlyAndRejectsLimitPlusOne",
+   "kind": "json",
+   "input": "{\"a\":\"four\"}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100,
+     "maxDepth": 2,
+     "maxStringLength": 3,
+     "maxNameLength": 10,
+     "maxTokens": 10,
+     "maxNumberLength": 10,
+     "maxScalarLength": 1
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED"
+   },
+   "note": "maxStringLength=3 rejects 'four' (4 chars)"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsLimitsExactlyAndRejectsLimitPlusOne",
+   "kind": "json",
+   "input": "{\"four\":1}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100,
+     "maxDepth": 2,
+     "maxStringLength": 10,
+     "maxNameLength": 3,
+     "maxTokens": 10,
+     "maxNumberLength": 10,
+     "maxScalarLength": 1
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED"
+   },
+   "note": "maxNameLength=3 rejects key 'four'"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsLimitsExactlyAndRejectsLimitPlusOne",
+   "kind": "json",
+   "input": "{\"a\":1234}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100,
+     "maxDepth": 2,
+     "maxStringLength": 10,
+     "maxNameLength": 10,
+     "maxTokens": 10,
+     "maxNumberLength": 3,
+     "maxScalarLength": 1
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED"
+   },
+   "note": "maxNumberLength=3 rejects '1234'"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsLimitsExactlyAndRejectsLimitPlusOne",
+   "kind": "json",
+   "input": "{\"a\":{}}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100,
+     "maxDepth": 1,
+     "maxStringLength": 10,
+     "maxNameLength": 10,
+     "maxTokens": 10,
+     "maxNumberLength": 10,
+     "maxScalarLength": 1
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED"
+   },
+   "note": "maxDepth=1 rejects nested empty object at depth 2"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsLimitsExactlyAndRejectsLimitPlusOne",
+   "kind": "json",
+   "input": "[1]",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 100,
+     "maxDepth": 2,
+     "maxStringLength": 10,
+     "maxNameLength": 10,
+     "maxTokens": 2,
+     "maxNumberLength": 10,
+     "maxScalarLength": 1
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED"
+   },
+   "note": "maxTokens=2 rejects it; see source JsonDocumentInspectorTest.java:132-133 for exact token accounting"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsLimitsExactlyAndRejectsLimitPlusOne",
+   "kind": "json",
+   "input": "{}",
+   "config": {
+    "limits": {
+     "maxBodyBytes": 1,
+     "maxDepth": 2,
+     "maxStringLength": 10,
+     "maxNameLength": 10,
+     "maxTokens": 10,
+     "maxNumberLength": 10,
+     "maxScalarLength": 1
+    }
+   },
+   "expected": {
+    "code": "REQUEST_LIMIT_EXCEEDED"
+   },
+   "note": "maxBodyBytes=1 rejects 2-byte body '{}'"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#rejectsDuplicateKeysDualRequestInfoAndTrailingRoot",
+   "kind": "json",
+   "input": "{\"x\":1,\"x\":2}",
+   "config": {
+    "rejectDuplicateKeys": true,
+    "rejectDualRequestInfo": true
+   },
+   "expected": {
+    "code": "REQUEST_JSON_DUPLICATE_KEY"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#rejectsDuplicateKeysDualRequestInfoAndTrailingRoot",
+   "kind": "json",
+   "input": "{\"RequestInfo\":{},\"requestInfo\":{}}",
+   "config": {
+    "rejectDuplicateKeys": true,
+    "rejectDualRequestInfo": true
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "dual-request-info"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#rejectsDuplicateKeysDualRequestInfoAndTrailingRoot",
+   "kind": "json",
+   "input": "{} []",
+   "config": {
+    "rejectDuplicateKeys": true,
+    "rejectDualRequestInfo": true
+   },
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "ruleId": "trailing-content"
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#duplicateAndDualChecksCanBeConfiguredIndependently",
+   "kind": "json",
+   "input": "{\"RequestInfo\":{},\"requestInfo\":{},\"x\":1,\"x\":2}",
+   "config": {
+    "rejectDuplicateKeys": false,
+    "rejectDualRequestInfo": false
+   },
+   "expected": {
+    "accepted": true
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#rejectsEmptyMalformedInvalidUtf8AndUtf16BytesWithoutRawCause",
+   "kind": "json",
+   "input": "",
+   "config": {},
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "cause": null
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#rejectsEmptyMalformedInvalidUtf8AndUtf16BytesWithoutRawCause",
+   "kind": "json",
+   "input": "{\"unterminated\":",
+   "config": {},
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "cause": null
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#rejectsEmptyMalformedInvalidUtf8AndUtf16BytesWithoutRawCause",
+   "kind": "json",
+   "input_bytes_hex": "7b2278223a2263222c22c322227d",
+   "config": {},
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "cause": null
+   },
+   "note": "{\"x\":\"c\",\"\\xC3\"} -- invalid UTF-8 continuation byte"
+  },
+  {
+   "source": "JsonDocumentInspectorTest#rejectsEmptyMalformedInvalidUtf8AndUtf16BytesWithoutRawCause",
+   "kind": "json",
+   "input": "{\"x\":1}",
+   "input_encoding": "UTF-16LE",
+   "config": {},
+   "expected": {
+    "code": "REQUEST_JSON_MALFORMED",
+    "cause": null
+   }
+  },
+  {
+   "source": "JsonDocumentInspectorTest#acceptsUtf8BomAndMultilingualStrings",
+   "kind": "json",
+   "input": "{\"name\":\"বাংলা\",\"note\":\"🙂\"}",
+   "input_bom": true,
+   "config": {},
+   "expected": {
+    "violations": []
+   }
+  }
+ ]
+}

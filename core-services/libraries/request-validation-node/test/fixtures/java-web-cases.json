@@ -1,0 +1,1025 @@
+{
+"source": "The Java library's tests (request-validation 1.0.1-SNAPSHOT): every case of kind config, annotation and http, verbatim.",
+"cases": [
+{
+"source": "ContentDetectorTest#policyRejectsNonC0AndExemptWhitespaceControls",
+"kind": "config",
+"input": {
+"disallowedControls": [
+128
+]
+},
+"config": {},
+"expected": {
+"throws": "IllegalArgumentException"
+}
+},
+{
+"source": "ContentDetectorTest#policyRejectsNonC0AndExemptWhitespaceControls",
+"kind": "config",
+"input": {
+"disallowedControls": [
+9
+]
+},
+"config": {},
+"expected": {
+"throws": "IllegalArgumentException"
+}
+},
+{
+"source": "InspectionLimitsTest#defaultsMatchThePublishedStartingLimits",
+"kind": "config",
+"input": "InspectionLimits.defaults()",
+"config": {},
+"expected": {
+"maxBodyBytes": 10485760,
+"maxDepth": 64,
+"maxStringLength": 1000000,
+"maxNameLength": 256,
+"maxTokens": 2000000,
+"maxNumberLength": 1000,
+"maxScalarLength": 65536
+}
+},
+{
+"source": "InspectionLimitsTest#rejectsZeroAndUnsafeCeilingsAtConstructionTime",
+"kind": "config",
+"input": [
+0,
+1,
+1,
+1,
+1,
+1,
+1
+],
+"config": {},
+"expected": {
+"throws": "IllegalArgumentException"
+}
+},
+{
+"source": "InspectionLimitsTest#rejectsZeroAndUnsafeCeilingsAtConstructionTime",
+"kind": "config",
+"input": [
+1,
+257,
+1,
+1,
+1,
+1,
+1
+],
+"config": {},
+"expected": {
+"throws": "IllegalArgumentException"
+},
+"note": "maxDepth=257 exceeds ceiling 256"
+},
+{
+"source": "InspectionLimitsTest#rejectsZeroAndUnsafeCeilingsAtConstructionTime",
+"kind": "config",
+"input": [
+1,
+1,
+1,
+1,
+"MAX_TOKENS_CEILING+1",
+1,
+1
+],
+"config": {},
+"expected": {
+"throws": "IllegalArgumentException"
+}
+},
+{
+"source": "SkipPathMatcherTest#emptyPointerIsRejectedAndSlashIsTheEmptyNameProperty",
+"kind": "config",
+"api": "SkipPathMatcher constructor",
+"input": [
+""
+],
+"expected": {
+"throws": "IllegalArgumentException"
+}
+},
+{
+"source": "SkipPathMatcherTest#rejectsInvalidPointerEscapesAndPartialWildcards",
+"kind": "config",
+"api": "SkipPathMatcher constructor",
+"input": [
+"missing-slash"
+],
+"expected": {
+"throws": "IllegalArgumentException"
+}
+},
+{
+"source": "SkipPathMatcherTest#rejectsInvalidPointerEscapesAndPartialWildcards",
+"kind": "config",
+"api": "SkipPathMatcher constructor",
+"input": [
+"/bad~2escape"
+],
+"expected": {
+"throws": "IllegalArgumentException"
+}
+},
+{
+"source": "SkipPathMatcherTest#rejectsInvalidPointerEscapesAndPartialWildcards",
+"kind": "config",
+"api": "SkipPathMatcher constructor",
+"input": [
+"/prefix*"
+],
+"expected": {
+"throws": "IllegalArgumentException"
+},
+"note": "wildcard must occupy an entire segment"
+},
+{
+"source": "ValidationPolicyResolverTest#requiresExplicitStructuredDefault",
+"kind": "config",
+"input": "new ValidationPolicyResolver(new RequestValidationProperties())",
+"expected": {
+"throws": "IllegalArgumentException",
+"messageContains": "structured-default"
+}
+},
+{
+"source": "ValidationPolicyResolverTest#propertiesBoundWhileDisabledNeverFailButEnabledRequiresTheDefault",
+"kind": "config",
+"input": {
+"enabled": false
+},
+"expected": {
+"afterPropertiesSet": "no throw"
+}
+},
+{
+"source": "ValidationPolicyResolverTest#propertiesBoundWhileDisabledNeverFailButEnabledRequiresTheDefault",
+"kind": "config",
+"input": {
+"enabled": true
+},
+"expected": {
+"afterPropertiesSet": {
+"throws": "IllegalArgumentException",
+"messageContains": "structured-default"
+}
+}
+},
+{
+"source": "ValidationPolicyResolverTest#parameterOverridesModeAndBodySwitchWhilePathsCombine",
+"kind": "annotation",
+"input": {
+"class": "@ValidateRequest(skipPaths='/class', reason='class markup')",
+"method": "@ValidateRequest(structured=ENABLED, skipPaths='/method', reason='method markup')",
+"parameter": "@ValidateRequest(structured=DISABLED, mode=ENFORCE, skipPaths='/parameter', reason='body disabled')"
+},
+"config": {
+"structuredDefault": false
+},
+"expected": {
+"parameterPolicy": {
+"enabled": true,
+"structured": false,
+"mode": "ENFORCE",
+"skipPaths": [
+"/class",
+"/method",
+"/parameter"
+],
+"matcherMatches": [
+"method",
+"child"
+]
+},
+"handlerPolicy": {
+"structured": true
+}
+},
+"note": "skip paths UNION across class+method+parameter; structured/mode take the most-specific non-DEFAULT value; handler-level (no parameter) resolution is structured=true from the method annotation"
+},
+{
+"source": "ValidationPolicyResolverTest#parameterAnnotationDoesNotActivateAnUnannotatedHandler",
+"kind": "annotation",
+"input": {
+"class": null,
+"method": null,
+"parameter": "@ValidateRequest"
+},
+"config": {
+"structuredDefault": true,
+"activation": "ANNOTATED"
+},
+"expected": {
+"enabled": false
+}
+},
+{
+"source": "ValidationPolicyResolverTest#rejectsInvalidHandlerLimits",
+"kind": "annotation",
+"input": {
+"method": "@ValidateRequest(maxDepth = 0)"
+},
+"config": {
+"structuredDefault": true
+},
+"expected": {
+"throws": "IllegalArgumentException"
+},
+"note": "maxDepth=0 fails InspectionLimits' positiveAtMost check when resolved"
+},
+{
+"source": "EnvironmentVariableFallbackTest#knowsEverySetting",
+"kind": "config",
+"expected": {
+"settingCount": 23,
+"matchesGeneratedMetadata": true
+}
+},
+{
+"source": "EnvironmentVariableFallbackTest#declaresAVariableNoOtherSourceMentionsDirectlyAfterTheEnvironment",
+"kind": "config",
+"input": {
+"env": {
+"EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH": "${DEPTH}",
+"EGOV_REQUEST_VALIDATION_MODE": "ENFORCE",
+"DEPTH": "9"
+},
+"applicationProperties": {
+"egov.request-validation.enabled": "true"
+}
+},
+"expected": {
+"declaredKeys": [
+"egov.request-validation.mode",
+"egov.request-validation.limits.max-depth"
+],
+"rawValueNotResolved": "${DEPTH}"
+}
+},
+{
+"source": "EnvironmentVariableFallbackTest#leavesASettingThatAnotherSourceSpellsInAnyFormToSpring",
+"kind": "config",
+"input": {
+"otherSourceSpellings": [
+"egov.request-validation.mode",
+"egov.requestValidation.mode",
+"egov.request_validation.mode",
+"EGOV_REQUEST_VALIDATION_MODE",
+"egov.request-validation.rules.denied-schemes[0]"
+]
+},
+"expected": {
+"declaredSourceCreated": false
+},
+"note": "any of these spellings from a non-env-var source is enough to suppress the fallback declaration for that key"
+},
+{
+"source": "EnvironmentVariableFallbackTest#declaresAnEmptyListButNoOtherBlankSetting",
+"kind": "config",
+"input": {
+"env": {
+"EGOV_REQUEST_VALIDATION_ACTIVATION": "",
+"EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH": "  ",
+"EGOV_REQUEST_VALIDATION_RULES_URL_SCHEME": "${RV_EMPTY:}",
+"EGOV_REQUEST_VALIDATION_LOG_REPORT_SAMPLE_RATE": "${RV_BLANK}",
+"RV_BLANK": " ",
+"EGOV_REQUEST_VALIDATION_RULES_DENIED_SCHEMES": "${RV_LIST:}",
+"EGOV_REQUEST_VALIDATION_RULES_DENIED_DATA_MEDIA_TYPES": " ",
+"EGOV_REQUEST_VALIDATION_MODE": "${RV_MODE}",
+"RV_MODE": "ENFORCE",
+"EGOV_REQUEST_VALIDATION_RULES_DECODE_ROUNDS": "${RV_MISSING}"
+}
+},
+"expected": {
+"declaredKeys": [
+"egov.request-validation.mode",
+"egov.request-validation.rules.denied-schemes",
+"egov.request-validation.rules.decode-rounds"
+]
+},
+"note": "blank scalar settings (activation, max-depth, url-scheme, log sample-rate, denied-data-media-types) are NOT declared at all (default stands); the empty-list setting (denied-schemes resolving to '') IS declared as a real empty list; an unresolvable placeholder (decode-rounds) is still declared as-is"
+},
+{
+"source": "EnvironmentVariablesTest#environmentVariablesAlone",
+"kind": "config",
+"input": {
+"env": {
+"EGOV_REQUEST_VALIDATION_ENABLED": "true",
+"EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT": "true",
+"EGOV_REQUEST_VALIDATION_MODE": "ENFORCE",
+"EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH": "3",
+"EGOV_REQUEST_VALIDATION_RULES_DENIED_SCHEMES": "livescript,vbscript"
+}
+},
+"expected": "mode=ENFORCE depth=3 schemes=[livescript, vbscript] media=[text/html, application/xhtml+xml, image/svg+xml]"
+},
+{
+"source": "EnvironmentVariablesTest#valuesAreConvertedAsSpringConvertsThem",
+"kind": "config",
+"input": {
+"env": {
+"EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH": "0x10",
+"EGOV_REQUEST_VALIDATION_MODE": "enforce"
+}
+},
+"expected": "mode=ENFORCE depth=16 schemes=[javascript, vbscript] media=[text/html, application/xhtml+xml, image/svg+xml]",
+"note": "0x10 hex literal converts to 16; mode value is case-insensitive at bind time"
+},
+{
+"source": "EnvironmentVariablesTest#listsReplaceTheDefaults",
+"kind": "config",
+"input": {
+"env": {
+"EGOV_REQUEST_VALIDATION_RULES_DENIED_SCHEMES": ""
+}
+},
+"expected": "schemes=[]",
+"note": "an explicit empty-string env var produces a genuinely empty denied-schemes list (denies nothing), not the default"
+},
+{
+"source": "EnvironmentVariablesTest#theKillSwitchAndNothingConfigured",
+"kind": "config",
+"input": {
+"env": {
+"EGOV_REQUEST_VALIDATION_ENABLED": "false"
+}
+},
+"expected": "INACTIVE (no RequestValidationProperties bean / no validation infra)"
+},
+{
+"source": "EnvironmentVariablesTest#aSpringApplication",
+"kind": "http",
+"input": {
+"env": {
+"EGOV_REQUEST_VALIDATION_ENABLED": "true",
+"EGOV_REQUEST_VALIDATION_STRUCTURED_DEFAULT": "${RV_STRUCTURED}",
+"RV_STRUCTURED": "true",
+"EGOV_REQUEST_VALIDATION_MODE": "ENFORCE",
+"EGOV_REQUEST_VALIDATION_LIMITS_MAX_DEPTH": "3",
+"EGOV_REQUEST_VALIDATION_RULES_DENIED_SCHEMES": "livescript"
+},
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json",
+"cases": [
+{
+"body": "{\"u\":\"livescript:x\"}",
+"expectedStatus": 400
+},
+{
+"body": "{\"u\":\"javascript:x\"}",
+"expectedStatus": 200,
+"note": "javascript no longer in the (replaced) denied-schemes list"
+},
+{
+"body": "{\"a\":{\"b\":{\"c\":{}}}}",
+"expectedStatus": 400,
+"note": "depth 4 exceeds maxDepth=3"
+},
+{
+"body": "{\"a\":{\"b\":{}}}",
+"expectedStatus": 200,
+"note": "depth 3, exactly at the limit"
+}
+]
+},
+"expected": null
+},
+{
+"source": "RequestValidationIntegrationTest#checksUnknownFieldsAndWrongTypedValuesBeforeBinding",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/typed",
+"contentType": "application/json",
+"body": "{\"unknown\":\"<script>\"}"
+},
+"expected": {
+"status": 400,
+"body_jsonpath": {
+"$.Errors[0].code": "REQUEST_CONTENT_NOT_ALLOWED"
+},
+"body_excludes": "<script>",
+"handlerNeverCalled": true
+}
+},
+{
+"source": "RequestValidationIntegrationTest#checksUnknownFieldsAndWrongTypedValuesBeforeBinding",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/typed",
+"contentType": "application/json",
+"body": "{\"id\":\"<script>\"}"
+},
+"expected": {
+"status": 400,
+"body_jsonpath": {
+"$.Errors[0].code": "REQUEST_CONTENT_NOT_ALLOWED"
+}
+},
+"note": "TypedBody.id is Long; string value is still inspected since inspection runs before DTO binding"
+},
+{
+"source": "RequestValidationIntegrationTest#checksUnknownFieldsAndWrongTypedValuesBeforeBinding",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/typed",
+"contentType": "application/json",
+"body": "{\"RequestInfo\":{\"name\":\"<script>\"}}"
+},
+"expected": {
+"status": 400,
+"body_jsonpath": {
+"$.Errors[0].code": "REQUEST_CONTENT_NOT_ALLOWED"
+}
+}
+},
+{
+"source": "RequestValidationIntegrationTest#acceptedBytesAndHttpEntityBytesAreUnchanged",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/problem+json;charset=UTF-8",
+"body": " { \"note\" : \"O'Brien & स्वास्थ्य < 5\" }\n"
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true
+}
+},
+{
+"source": "RequestValidationIntegrationTest#acceptedBytesAndHttpEntityBytesAreUnchanged",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/entity",
+"contentType": "application/problem+json;charset=UTF-8",
+"body": " { \"note\" : \"O'Brien & स्वास्थ्य < 5\" }\n"
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true
+},
+"note": "same guarantee for an HttpEntity<byte[]> parameter, not just a plain byte[] @RequestBody"
+},
+{
+"source": "RequestValidationIntegrationTest#disabledBodyStillChecksScalarTextBeforeNumericConversion",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/skip",
+"contentType": "application/json",
+"body": "\"<script>\"",
+"query": {
+"count": "1"
+}
+},
+"expected": {
+"status": 200
+},
+"note": "body structured inspection is DISABLED on this param (@ValidateRequest(structured=DISABLED)), so the script in the body is never checked"
+},
+{
+"source": "RequestValidationIntegrationTest#disabledBodyStillChecksScalarTextBeforeNumericConversion",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/skip",
+"contentType": "application/json",
+"body": "{}",
+"query": {
+"count": "<script>"
+}
+},
+"expected": {
+"status": 400,
+"body_jsonpath": {
+"$.Errors[0].code": "REQUEST_CONTENT_NOT_ALLOWED"
+}
+},
+"note": "scalar (query param) check still runs even though the body is structurally excluded, and fires before Spring would try (and fail) to convert '<script>' to the Integer 'count' parameter"
+},
+{
+"source": "RequestValidationIntegrationTest#reportModePreservesBytesAndRegistersAdviceOnce",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "REPORT"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json",
+"body": "\"<script>\""
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true,
+"loggedObservationCount": 1,
+"preExistingBodyAdviceStillCalled": true
+}
+},
+{
+"source": "RequestValidationIntegrationTest#reportModePreservesBytesAndRegistersAdviceOnce",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "REPORT"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json",
+"body": "{} {}"
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true
+},
+"note": "malformed JSON (trailing content) in REPORT mode still reaches the host converter unchanged"
+},
+{
+"source": "RequestValidationIntegrationTest#rejectsCharsetDisagreementAndDoesNotActivatePlainControllers",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json;charset=ISO-8859-1",
+"body": "{}"
+},
+"expected": {
+"status": 400,
+"body_jsonpath": {
+"$.Errors[0].code": "REQUEST_JSON_MALFORMED"
+}
+}
+},
+{
+"source": "RequestValidationIntegrationTest#rejectsCharsetDisagreementAndDoesNotActivatePlainControllers",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/plain",
+"contentType": "application/json",
+"body": "\"<script>\""
+},
+"expected": {
+"status": 200
+},
+"note": "PlainEndpoint has no @ValidateRequest at all (not even on its class) -- never activated under ANNOTATED activation"
+},
+{
+"source": "RequestValidationIntegrationTest#globalKillSwitchDoesNotRequireBodyDefault",
+"kind": "config",
+"input": {
+"enabled": false
+},
+"expected": {
+"noStructuredBodyAdviceBeanExists": true
+}
+},
+{
+"source": "RequestValidationIntegrationTest#dependencyOnlyStartupIsInert",
+"kind": "http",
+"config": {},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json",
+"body": "\"<script>\""
+},
+"expected": {
+"status": 200
+},
+"note": "jar on classpath but egov.request-validation.enabled never set -- entire bean graph absent, completely inert"
+},
+{
+"source": "RequestValidationIntegrationTest#enabledWithoutStructuredDefaultFailsStartup",
+"kind": "config",
+"input": {
+"enabled": true
+},
+"expected": {
+"startupFailsWithMessageContaining": "structured-default"
+}
+},
+{
+"source": "RequestValidationIntegrationTest#reportLogsStructuralFindingsAndLeavesTheBodyToTheConverter",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "REPORT"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json",
+"body": "{} {}"
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true,
+"loggedLineCount": 2,
+"loggedLastRuleId": "inspection-incomplete"
+}
+},
+{
+"source": "RequestValidationIntegrationTest#reportLogsStructuralFindingsAndLeavesTheBodyToTheConverter",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "REPORT"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json",
+"body": "{\"a\":1,\"a\":2}"
+},
+"expected": {
+"status": 200,
+"loggedLineCount": 2,
+"loggedLastRuleId": "inspection-incomplete"
+}
+},
+{
+"source": "RequestValidationIntegrationTest#reportLogsStructuralFindingsAndLeavesTheBodyToTheConverter",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "REPORT"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json;charset=ISO-8859-1",
+"body_latin1": "{\"a\":\"café\"}"
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true,
+"loggedRuleIds": [
+"charset",
+"inspection-incomplete"
+]
+}
+},
+{
+"source": "RequestValidationIntegrationTest#reportLogsStructuralFindingsAndLeavesTheBodyToTheConverter",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "REPORT"
+},
+"input": {
+"method": "POST",
+"path": "/small",
+"contentType": "application/json",
+"body": "{\"note\":\"more than sixteen bytes\"}"
+},
+"annotation": {
+"maxBodyBytes": 16
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true,
+"loggedRuleIds": [
+"max-body-bytes",
+"inspection-incomplete"
+]
+}
+},
+{
+"source": "RequestValidationIntegrationTest#bodyLimitsInBothModesReadAtMostLimitPlusOneFromOneStream",
+"kind": "http",
+"config": {
+"mode": "REPORT"
+},
+"annotation": {
+"maxBodyBytes": 16
+},
+"input": {
+"body": "{\"note\":\"more than sixteen bytes\"}",
+"declaresContentLength": false
+},
+"expected": {
+"bodyGetCalls": 1,
+"bytesConsumedFromSource": 17,
+"replayedBytesEqualOriginal": true
+},
+"note": "body is 35 bytes; undeclared length reads exactly maxBodyBytes+1=17 bytes from the source, then replays prefix+rest"
+},
+{
+"source": "RequestValidationIntegrationTest#bodyLimitsInBothModesReadAtMostLimitPlusOneFromOneStream",
+"kind": "http",
+"config": {
+"mode": "REPORT"
+},
+"annotation": {
+"maxBodyBytes": 16
+},
+"input": {
+"body": "{\"note\":\"more than sixteen bytes\"}",
+"declaresContentLength": true
+},
+"expected": {
+"bodyGetCalls": 0
+},
+"note": "declared Content-Length (35) > maxBodyBytes (16) rejects without reading the stream at all"
+},
+{
+"source": "RequestValidationIntegrationTest#bodyLimitsInBothModesReadAtMostLimitPlusOneFromOneStream",
+"kind": "http",
+"config": {
+"mode": "ENFORCE"
+},
+"annotation": {
+"maxBodyBytes": 16
+},
+"input": {
+"body": "{\"note\":\"more than sixteen bytes\"}",
+"declaresContentLength": "either"
+},
+"expected": {
+"throws": "ContentPolicyViolationException",
+"bytesConsumedAtMost": 17
+}
+},
+{
+"source": "RequestValidationIntegrationTest#transportFailurePropagatesInReportAndIsFixedTextInEnforce",
+"kind": "http",
+"config": {
+"mode": "REPORT"
+},
+"input": {
+"simulateIOExceptionOnRead": "connection reset"
+},
+"expected": {
+"rethrowsOriginalIOException": true,
+"loggedRuleIds": [
+"inspection-incomplete"
+],
+"loggedKind": "transport"
+}
+},
+{
+"source": "RequestValidationIntegrationTest#transportFailurePropagatesInReportAndIsFixedTextInEnforce",
+"kind": "http",
+"config": {
+"mode": "ENFORCE"
+},
+"input": {
+"simulateIOExceptionOnRead": "connection reset"
+},
+"expected": {
+"throws": "ContentPolicyViolationException",
+"message": "Request body is not valid JSON"
+},
+"note": "the real IOException message ('connection reset') is NEVER exposed; fixed text only"
+},
+{
+"source": "RequestValidationIntegrationTest#overflowReplayPassesZeroByteReadsAndLeavesClosingToTheConverter",
+"kind": "http",
+"config": {
+"mode": "REPORT"
+},
+"annotation": {
+"maxBodyBytes": 16
+},
+"input": {
+"body": "{\"note\":\"more than sixteen bytes\"}",
+"sourceReturnsOneZeroByteReadAtOffset17": true
+},
+"expected": {
+"replayedBytesEqualOriginal": true,
+"zeroByteReadPassedThroughUnchanged": true,
+"sourceNotClosedUntilConsumerCloses": true,
+"closeCallCountAfterConsumerCloses": 1
+}
+},
+{
+"source": "RequestValidationIntegrationTest#enforceRejectionIsLoggedEvenAfterReportFindingsFillTheCap",
+"kind": "http",
+"config": {
+"mode": "ENFORCE"
+},
+"input": {
+"method": "POST",
+"path": "/mixed",
+"contentType": "application/json",
+"body": "\"<script>\"",
+"query": {
+"p0": "<a>",
+"p1": "<a>",
+"p2": "<a>",
+"p3": "<a>",
+"p4": "<a>",
+"p5": "<a>",
+"p6": "<a>",
+"p7": "<a>",
+"p8": "<a>",
+"p9": "<a>"
+}
+},
+"annotation": {
+"methodMode": "REPORT",
+"bodyParamMode": "ENFORCE"
+},
+"expected": {
+"status": 400,
+"loggedObservationCount": 10,
+"loggedModesFirst9": "REPORT",
+"loggedMode10th": "ENFORCE",
+"loggedKind10th": "body"
+},
+"note": "10 query params each trigger a REPORT-mode scalar finding ('<a>' is markup-start); the 9-slot cap fills, the 10th log line is the ENFORCE-mode body rejection, exempted from the cap"
+},
+{
+"source": "RequestValidationIntegrationTest#reportStopsScalarInspectionAtALimitButStillInspectsTheBody",
+"kind": "http",
+"config": {
+"mode": "REPORT"
+},
+"annotation": {
+"maxScalarLength": 20
+},
+"input": {
+"method": "POST",
+"path": "/scalars",
+"contentType": "application/json",
+"body": "\"<script>\"",
+"query": {
+"a": "xxxxxxxxxxxxxxxxxxxxx",
+"b": "<script>"
+}
+},
+"expected": {
+"status": 200,
+"bodyUnchangedByteForByte": true,
+"loggedRuleIds": [
+"scalar-limit",
+"inspection-incomplete",
+"R1"
+]
+},
+"note": "param 'a' is 21 chars (over maxScalarLength=20) stops scalar inspection, so 'b' is never scalar-checked; the JSON body is still separately inspected afterward and its R1 finding is logged"
+},
+{
+"source": "RequestValidationIntegrationTest#reportStopsScalarInspectionAtALimitButStillInspectsTheBody",
+"kind": "http",
+"config": {
+"mode": "ENFORCE"
+},
+"annotation": {
+"maxScalarLength": 20
+},
+"input": {
+"method": "POST",
+"path": "/scalars",
+"contentType": "application/json",
+"body": "{}",
+"query": {
+"a": "xxxxxxxxxxxxxxxxxxxxx",
+"b": "ok"
+}
+},
+"expected": {
+"status": 400,
+"body_jsonpath": {
+"$.Errors[0].code": "REQUEST_LIMIT_EXCEEDED"
+}
+}
+},
+{
+"source": "RequestValidationIntegrationTest#reportKeepsTheLastLogSlotForIncompleteInspection",
+"kind": "http",
+"config": {
+"mode": "REPORT"
+},
+"input": {
+"method": "POST",
+"path": "/bytes",
+"contentType": "application/json",
+"body": "[\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\",\"<a>\"] {}"
+},
+"expected": {
+"status": 200,
+"loggedLineCount": 10,
+"loggedRuleIdsFirst9": "R1",
+"loggedRuleId10th": "inspection-incomplete"
+},
+"note": "12 array elements each individually violate R1; document also has trailing-content malformation; only 10 total log lines ever emitted per request (9 real + 1 reserved incomplete slot)"
+},
+{
+"source": "RequestValidationIntegrationTest#emptySkipPathFailsStartupNamingTheHandler",
+"kind": "annotation",
+"input": {
+"parameter": "@ValidateRequest(skipPaths = \"\", reason = \"test\")"
+},
+"config": {
+"enabled": true,
+"structuredDefault": true
+},
+"expected": {
+"startupFailsWithMessageContaining": [
+"BadSkipEndpoint#bad",
+"Empty skip path"
+]
+}
+},
+{
+"source": "RequestValidationIntegrationTest#coverageShowsSkipPathsInBracketsAndSkipsOnlyThatField",
+"kind": "http",
+"config": {
+"enabled": true,
+"structuredDefault": true,
+"mode": "ENFORCE"
+},
+"input": {
+"startupLogContains": [
+"$Endpoints#skippath index=0 enabled=true structured=true mode=ENFORCE skipPaths=[\"/note\"]",
+"$Endpoints#bytes index=0 enabled=true structured=true mode=ENFORCE skipPaths=[]"
+]
+},
+"expected": {
+"status200ForBody": "{\"note\":\"<b>\"}",
+"status400ForBody": "{\"other\":\"<b>\"}"
+},
+"note": "endpoint /skippath has @ValidateRequest(skipPaths='/note', reason='rich text') -- content in /note is skipped, content in any other field is not"
+},
+{
+"source": "Boot1RequestValidationIntegrationTest#theBoot2EnvironmentVariableFormIsIgnoredOnBoot15",
+"kind": "config",
+"input": {
+"env": {
+"EGOV_REQUESTVALIDATION_ENABLED": "true",
+"EGOV_REQUESTVALIDATION_STRUCTUREDDEFAULT": "true"
+}
+},
+"expected": {
+"noRequestValidationPropertiesBean": true
+},
+"note": "the no-underscore-between-words env var form is Boot2+/3-only; Boot 1.5 ignores it entirely and the library stays uninitialized"
+}
+]
+}

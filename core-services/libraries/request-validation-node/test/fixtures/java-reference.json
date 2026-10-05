@@ -1,0 +1,825 @@
+{
+ "source": "Java reference constants (request-validation 1.0.1-SNAPSHOT: ViolationCode, InspectionLimits, ContentPolicy.Builder, event-handler-names.txt) and the Java unit-test cases for text detection, SafeLocationFormatter, Violation, SkipPathMatcher, ContentPolicy and InspectionLimits",
+ "violationCodes": {
+  "REQUEST_CONTENT_NOT_ALLOWED": "Request contains content that is not allowed",
+  "REQUEST_JSON_MALFORMED": "Request body is not valid JSON",
+  "REQUEST_LIMIT_EXCEEDED": "Request exceeds an allowed size limit",
+  "REQUEST_JSON_DUPLICATE_KEY": "Request body contains a duplicate property"
+ },
+ "inspectionLimits": {
+  "defaults": {
+   "maxBodyBytes": 10485760,
+   "maxDepth": 64,
+   "maxStringLength": 1000000,
+   "maxNameLength": 256,
+   "maxTokens": 2000000,
+   "maxNumberLength": 1000,
+   "maxScalarLength": 65536
+  },
+  "ceilings": {
+   "maxBodyBytes": 2147483646,
+   "maxDepth": 256,
+   "maxStringLength": 2147483646,
+   "maxNameLength": 2147483646,
+   "maxTokens": 2147483647,
+   "maxNumberLength": 2147483646,
+   "maxScalarLength": 2147483646
+  }
+ },
+ "contentDetection": {
+  "maxVariants": 40,
+  "maxNormalizationExpansion": 18,
+  "deniedSchemes": [
+   "javascript",
+   "vbscript"
+  ],
+  "deniedDataMediaTypes": [
+   "text/html",
+   "application/xhtml+xml",
+   "image/svg+xml"
+  ],
+  "disallowedControls": [
+   0
+  ],
+  "decodeRounds": 2,
+  "normalizeNfkc": false,
+  "eventHandlerNames": [
+   "onabort",
+   "onactivate",
+   "onafterprint",
+   "onanimationcancel",
+   "onanimationend",
+   "onanimationiteration",
+   "onanimationstart",
+   "onauxclick",
+   "onbeforeinput",
+   "onbeforematch",
+   "onbeforeprint",
+   "onbeforetoggle",
+   "onbeforeunload",
+   "onbegin",
+   "onblur",
+   "oncancel",
+   "oncanplay",
+   "oncanplaythrough",
+   "onchange",
+   "onclick",
+   "onclose",
+   "oncontextlost",
+   "oncontextmenu",
+   "oncontextrestored",
+   "oncopy",
+   "oncuechange",
+   "oncut",
+   "ondblclick",
+   "ondrag",
+   "ondragend",
+   "ondragenter",
+   "ondragleave",
+   "ondragover",
+   "ondragstart",
+   "ondrop",
+   "ondurationchange",
+   "onemptied",
+   "onend",
+   "onended",
+   "onerror",
+   "onfocus",
+   "onfocusin",
+   "onfocusout",
+   "onformdata",
+   "onfullscreenchange",
+   "onfullscreenerror",
+   "ongotpointercapture",
+   "onhashchange",
+   "oninput",
+   "oninvalid",
+   "onkeydown",
+   "onkeypress",
+   "onkeyup",
+   "onlanguagechange",
+   "onload",
+   "onloadeddata",
+   "onloadedmetadata",
+   "onloadstart",
+   "onlostpointercapture",
+   "onmessage",
+   "onmessageerror",
+   "onmousedown",
+   "onmouseenter",
+   "onmouseleave",
+   "onmousemove",
+   "onmouseout",
+   "onmouseover",
+   "onmouseup",
+   "onoffline",
+   "ononline",
+   "onpagehide",
+   "onpageshow",
+   "onpaste",
+   "onpause",
+   "onplay",
+   "onplaying",
+   "onpointercancel",
+   "onpointerdown",
+   "onpointerenter",
+   "onpointerleave",
+   "onpointermove",
+   "onpointerout",
+   "onpointerover",
+   "onpointerrawupdate",
+   "onpointerup",
+   "onpopstate",
+   "onprogress",
+   "onratechange",
+   "onrejectionhandled",
+   "onrepeat",
+   "onreset",
+   "onresize",
+   "onscroll",
+   "onscrollend",
+   "onsecuritypolicyviolation",
+   "onseeked",
+   "onseeking",
+   "onselect",
+   "onselectionchange",
+   "onselectstart",
+   "onslotchange",
+   "onstalled",
+   "onstorage",
+   "onsubmit",
+   "onsuspend",
+   "ontimeupdate",
+   "ontoggle",
+   "ontouchcancel",
+   "ontouchend",
+   "ontouchmove",
+   "ontouchstart",
+   "ontransitioncancel",
+   "ontransitionend",
+   "ontransitionrun",
+   "ontransitionstart",
+   "onunhandledrejection",
+   "onunload",
+   "onvolumechange",
+   "onwaiting",
+   "onwebkitanimationend",
+   "onwebkitanimationiteration",
+   "onwebkitanimationstart",
+   "onwebkittransitionend",
+   "onwheel"
+  ]
+ },
+ "maxSafeSegment": 64,
+ "cases": [
+  {
+   "source": "ContentDetectorTest#detectsEachDefaultRule",
+   "kind": "text",
+   "input": "prefix <script",
+   "config": {},
+   "expected": {
+    "rule": "R1"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#detectsEachDefaultRule",
+   "kind": "text",
+   "input": " \tjava\nscript:alert(1)",
+   "config": {},
+   "expected": {
+    "rule": "R2"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#detectsEachDefaultRule",
+   "kind": "text",
+   "input": "data:image/svg+xml,encoded-content",
+   "config": {},
+   "expected": {
+    "rule": "R2"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#detectsEachDefaultRule",
+   "kind": "text",
+   "input": "onrejectionhandled = value",
+   "config": {},
+   "expected": {
+    "rule": "R3"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#detectsEachDefaultRule",
+   "kind": "text",
+   "input": "left\u0000right",
+   "config": {},
+   "expected": {
+    "rule": "R4"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#composesEntityAndPercentDecodingWithinConfiguredRounds",
+   "kind": "text",
+   "input": "%26lt%3Bscript",
+   "config": {
+    "decodeRounds": 2
+   },
+   "expected": {
+    "rule": "R1"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#composesEntityAndPercentDecodingWithinConfiguredRounds",
+   "kind": "text",
+   "input": "&percnt;3Cscript",
+   "config": {
+    "decodeRounds": 2
+   },
+   "expected": {
+    "rule": "R1"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#composesEntityAndPercentDecodingWithinConfiguredRounds",
+   "kind": "text",
+   "input": "onload%3dvalue",
+   "config": {
+    "decodeRounds": 2
+   },
+   "expected": {
+    "rule": "R3"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#decodesMarkersThatOnlyAppearAfterAnEarlierRound",
+   "kind": "text",
+   "input": "&amp;lt;b&amp;gt;",
+   "config": {
+    "decodeRounds": 2
+   },
+   "expected": {
+    "rule": "R1"
+   },
+   "note": "entity decode round 1 then round 2"
+  },
+  {
+   "source": "ContentDetectorTest#decodesMarkersThatOnlyAppearAfterAnEarlierRound",
+   "kind": "text",
+   "input": "&#37;3Cb",
+   "config": {
+    "decodeRounds": 2
+   },
+   "expected": {
+    "rule": "R1"
+   },
+   "note": "entity decode yields '%', then percent decode in a later round"
+  },
+  {
+   "source": "ContentDetectorTest#decodesMarkersThatOnlyAppearAfterAnEarlierRound",
+   "kind": "text",
+   "input": "%2526lt;b",
+   "config": {
+    "decodeRounds": 2
+   },
+   "expected": {
+    "rule": null
+   },
+   "note": "needs 3 rounds (percent,percent,entity); NOT found at default decodeRounds=2"
+  },
+  {
+   "source": "ContentDetectorTest#decodesMarkersThatOnlyAppearAfterAnEarlierRound",
+   "kind": "text",
+   "input": "%2526lt;b",
+   "config": {
+    "decodeRounds": 3
+   },
+   "expected": {
+    "rule": "R1"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#valuesWithoutDecodingMarkersAreJudgedOnTheirOwnText",
+   "kind": "text",
+   "input": "2026-09-30T12:00:00Z",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#valuesWithoutDecodingMarkersAreJudgedOnTheirOwnText",
+   "kind": "text",
+   "input": "key=value: plain",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#valuesWithoutDecodingMarkersAreJudgedOnTheirOwnText",
+   "kind": "text",
+   "input": "javascript:alert(1)",
+   "config": {},
+   "expected": {
+    "rule": "R2"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#valuesWithoutDecodingMarkersAreJudgedOnTheirOwnText",
+   "kind": "text",
+   "input": "\" onerror = x",
+   "config": {},
+   "expected": {
+    "rule": "R3"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#decodesValidPrefixOfPercentRunContainingInvalidUtf8",
+   "kind": "text",
+   "input": "%3C%73%63%72%69%70%74%FF",
+   "config": {},
+   "expected": {
+    "rule": "R1"
+   },
+   "note": "valid <script prefix decodes and is detected even though trailing %FF is invalid UTF-8 (becomes U+FFFD via lossy decode)"
+  },
+  {
+   "source": "ContentDetectorTest#normalizesBeforeFastPathEvenWithZeroDecodeRounds",
+   "kind": "text",
+   "input": "\uff1cscript",
+   "config": {
+    "decodeRounds": 0,
+    "normalizeNfkc": true
+   },
+   "expected": {
+    "rule": "R1"
+   },
+   "note": "fullwidth U+FF1C NFKC-normalizes to '<'; NFKC runs even though decodeRounds=0 disables entity/percent decoding"
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "O'Brien",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "A&B Health Centre",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "age < 5 years",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "x <= y",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "50% complete",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "\u0939\u093f\u0902\u0926\u0940 \u092a\u0924\u093e",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "\u09ac\u09be\u0982\u09b2\u09be \u09a8\u09be\u09ae",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "\u0627\u0644\u0639\u0646\u0648\u0627\u0646",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "\u0ba4\u0bae\u0bbf\u0bb4\u0bcd \u0b95\u0bc1\u0bb1\u0bbf\u0baa\u0bcd\u0baa\u0bc1",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "\u4e2d\u6587\u5730\u5740",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#acceptsBenignMultilingualAndPunctuationCorpus",
+   "kind": "text",
+   "input": "\ud83d\ude42",
+   "config": {},
+   "expected": {
+    "rule": null
+   }
+  },
+  {
+   "source": "ContentDetectorTest#policyRejectsNonC0AndExemptWhitespaceControls",
+   "kind": "config",
+   "input": {
+    "disallowedControls": [
+     128
+    ]
+   },
+   "config": {},
+   "expected": {
+    "throws": "IllegalArgumentException"
+   }
+  },
+  {
+   "source": "ContentDetectorTest#policyRejectsNonC0AndExemptWhitespaceControls",
+   "kind": "config",
+   "input": {
+    "disallowedControls": [
+     9
+    ]
+   },
+   "config": {},
+   "expected": {
+    "throws": "IllegalArgumentException"
+   }
+  },
+  {
+   "source": "InspectionLimitsTest#defaultsMatchThePublishedStartingLimits",
+   "kind": "config",
+   "input": "InspectionLimits.defaults()",
+   "config": {},
+   "expected": {
+    "maxBodyBytes": 10485760,
+    "maxDepth": 64,
+    "maxStringLength": 1000000,
+    "maxNameLength": 256,
+    "maxTokens": 2000000,
+    "maxNumberLength": 1000,
+    "maxScalarLength": 65536
+   }
+  },
+  {
+   "source": "InspectionLimitsTest#rejectsZeroAndUnsafeCeilingsAtConstructionTime",
+   "kind": "config",
+   "input": [
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "config": {},
+   "expected": {
+    "throws": "IllegalArgumentException"
+   }
+  },
+  {
+   "source": "InspectionLimitsTest#rejectsZeroAndUnsafeCeilingsAtConstructionTime",
+   "kind": "config",
+   "input": [
+    1,
+    257,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "config": {},
+   "expected": {
+    "throws": "IllegalArgumentException"
+   },
+   "note": "maxDepth=257 exceeds ceiling 256"
+  },
+  {
+   "source": "InspectionLimitsTest#rejectsZeroAndUnsafeCeilingsAtConstructionTime",
+   "kind": "config",
+   "input": [
+    1,
+    1,
+    1,
+    1,
+    "MAX_TOKENS_CEILING+1",
+    1,
+    1
+   ],
+   "config": {},
+   "expected": {
+    "throws": "IllegalArgumentException"
+   }
+  },
+  {
+   "source": "SafeLocationFormatterTest#preservesOnlySafeAsciiSegments",
+   "kind": "text",
+   "api": "SafeLocationFormatter.format",
+   "input": [
+    "RequestInfo",
+    "0",
+    "user-name"
+   ],
+   "expected": "/RequestInfo/0/user-name"
+  },
+  {
+   "source": "SafeLocationFormatterTest#preservesOnlySafeAsciiSegments",
+   "kind": "text",
+   "api": "SafeLocationFormatter.format",
+   "input": [
+    "onload=",
+    "\u0928\u093e\u0935",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   ],
+   "expected": "/*/*/*",
+   "note": "third segment is 65 'a' chars, one over MAX_SAFE_SEGMENT=64"
+  },
+  {
+   "source": "SafeLocationFormatterTest#preservesOnlySafeAsciiSegments",
+   "kind": "text",
+   "api": "SafeLocationFormatter.format",
+   "input": [],
+   "expected": "/"
+  },
+  {
+   "source": "SafeLocationFormatterTest#characterScanMatchesThePreviousRegexDefinition",
+   "kind": "text",
+   "api": "SafeLocationFormatter.scalar",
+   "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "expected": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "note": "exactly 64 'a' chars, at the boundary, preserved unchanged"
+  },
+  {
+   "source": "SafeLocationFormatterTest#characterScanMatchesThePreviousRegexDefinition",
+   "kind": "text",
+   "api": "SafeLocationFormatter.scalar",
+   "input": null,
+   "expected": "*"
+  },
+  {
+   "source": "SafeLocationFormatterTest#violationConstructorSanitizesExternallySuppliedLocation",
+   "kind": "text",
+   "api": "Violation constructor -> SafeLocationFormatter.sanitizeLocation",
+   "input": "/safe/raw value",
+   "expected": "/safe/*",
+   "note": "second segment contains a space, replaced wholesale; first segment kept"
+  },
+  {
+   "source": "SkipPathMatcherTest#matchesExactPathAndEveryDescendant",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/Mdms/data/help"
+    ]
+   },
+   "input": [
+    "Mdms",
+    "data",
+    "help"
+   ],
+   "expected": true
+  },
+  {
+   "source": "SkipPathMatcherTest#matchesExactPathAndEveryDescendant",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/Mdms/data/help"
+    ]
+   },
+   "input": [
+    "Mdms",
+    "data",
+    "help",
+    "html"
+   ],
+   "expected": true,
+   "note": "descendant of the skip path also matches"
+  },
+  {
+   "source": "SkipPathMatcherTest#matchesExactPathAndEveryDescendant",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/Mdms/data/help"
+    ]
+   },
+   "input": [
+    "Mdms",
+    "data"
+   ],
+   "expected": false,
+   "note": "ancestor of the skip path does not match"
+  },
+  {
+   "source": "SkipPathMatcherTest#matchesExactPathAndEveryDescendant",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/Mdms/data/help"
+    ]
+   },
+   "input": [
+    "mdms",
+    "data",
+    "help"
+   ],
+   "expected": false,
+   "note": "case-sensitive, lowercase 'mdms' does not match"
+  },
+  {
+   "source": "SkipPathMatcherTest#wildcardMatchesOneSegmentAndPointerEscapesAreDecoded",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/items/*/note",
+     "/a~1b/~0key"
+    ]
+   },
+   "input": [
+    "items",
+    "7",
+    "note"
+   ],
+   "expected": true
+  },
+  {
+   "source": "SkipPathMatcherTest#wildcardMatchesOneSegmentAndPointerEscapesAreDecoded",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/items/*/note",
+     "/a~1b/~0key"
+    ]
+   },
+   "input": [
+    "items",
+    "note"
+   ],
+   "expected": false,
+   "note": "wildcard matches exactly one segment, not zero"
+  },
+  {
+   "source": "SkipPathMatcherTest#wildcardMatchesOneSegmentAndPointerEscapesAreDecoded",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/items/*/note",
+     "/a~1b/~0key"
+    ]
+   },
+   "input": [
+    "a/b",
+    "~key",
+    "child"
+   ],
+   "expected": true,
+   "note": "~1 decodes to '/', ~0 decodes to '~'; matches as prefix (child is a descendant)"
+  },
+  {
+   "source": "SkipPathMatcherTest#emptyPointerIsRejectedAndSlashIsTheEmptyNameProperty",
+   "kind": "config",
+   "api": "SkipPathMatcher constructor",
+   "input": [
+    ""
+   ],
+   "expected": {
+    "throws": "IllegalArgumentException"
+   }
+  },
+  {
+   "source": "SkipPathMatcherTest#emptyPointerIsRejectedAndSlashIsTheEmptyNameProperty",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/"
+    ]
+   },
+   "input": [
+    ""
+   ],
+   "expected": true
+  },
+  {
+   "source": "SkipPathMatcherTest#emptyPointerIsRejectedAndSlashIsTheEmptyNameProperty",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/"
+    ]
+   },
+   "input": [
+    "",
+    "child"
+   ],
+   "expected": true
+  },
+  {
+   "source": "SkipPathMatcherTest#emptyPointerIsRejectedAndSlashIsTheEmptyNameProperty",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/"
+    ]
+   },
+   "input": [],
+   "expected": false,
+   "note": "the zero-segment (whole-document) path does NOT match '/'"
+  },
+  {
+   "source": "SkipPathMatcherTest#emptyPointerIsRejectedAndSlashIsTheEmptyNameProperty",
+   "kind": "path",
+   "api": "SkipPathMatcher",
+   "config": {
+    "skipPaths": [
+     "/"
+    ]
+   },
+   "input": [
+    "anything"
+   ],
+   "expected": false
+  },
+  {
+   "source": "SkipPathMatcherTest#rejectsInvalidPointerEscapesAndPartialWildcards",
+   "kind": "config",
+   "api": "SkipPathMatcher constructor",
+   "input": [
+    "missing-slash"
+   ],
+   "expected": {
+    "throws": "IllegalArgumentException"
+   }
+  },
+  {
+   "source": "SkipPathMatcherTest#rejectsInvalidPointerEscapesAndPartialWildcards",
+   "kind": "config",
+   "api": "SkipPathMatcher constructor",
+   "input": [
+    "/bad~2escape"
+   ],
+   "expected": {
+    "throws": "IllegalArgumentException"
+   }
+  },
+  {
+   "source": "SkipPathMatcherTest#rejectsInvalidPointerEscapesAndPartialWildcards",
+   "kind": "config",
+   "api": "SkipPathMatcher constructor",
+   "input": [
+    "/prefix*"
+   ],
+   "expected": {
+    "throws": "IllegalArgumentException"
+   },
+   "note": "wildcard must occupy an entire segment"
+  }
+ ]
+}

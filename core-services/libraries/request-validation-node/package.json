@@ -1,0 +1,24 @@
+{
+  "name": "@egovernments/request-validation",
+  "version": "1.0.0",
+  "description": "Request content validation for Express/Node services: REPORT logs, ENFORCE rejects with HTTP 400; never modifies input. Node port of org.egov.services:request-validation 1.0.1-SNAPSHOT.",
+  "license": "MIT",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": { "types": "./index.d.ts", "import": "./index.mjs", "require": "./index.js" },
+    "./package.json": "./package.json"
+  },
+  "files": ["index.js", "index.mjs", "index.d.ts", "lib/", "data/", "README.md", "LICENSE", "NOTICE", "CHANGELOG.md"],
+  "engines": { "node": ">=8.4.0" },
+  "dependencies": {},
+  "scripts": { "test": "node test/run.js" },
+  "egovRequestValidation": {
+    "conformsTo": {
+      "jarSha256": "c3b55d47f25d4b027d0109c25dd61b30dda78339a3cb627613ce07004c7e85b4",
+      "jsoup": "1.17.2",
+      "jacksonCore": "2.18.6",
+      "javaCharacterData": "Corretto 8u504 (Unicode 6.2)"
+    }
+  }
+}
