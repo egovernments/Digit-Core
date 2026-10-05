@@ -31,7 +31,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.egov.requestvalidation.ValidateRequest;
 
+@ValidateRequest
 @RestController
 @RequestMapping("/v1/actions")
 public class ActionController {
