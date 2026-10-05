@@ -41,7 +41,9 @@ import javax.validation.Valid;
 
 import static org.egov.tracer.http.HttpUtils.isInterServiceCall;
 import static org.springframework.util.CollectionUtils.isEmpty;
+import org.egov.requestvalidation.ValidateRequest;
 
+@ValidateRequest
 @RestController
 @Slf4j
 public class UserController {
