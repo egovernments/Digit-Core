@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.egov.services</groupId>
   <artifactId>request-validation</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>request-validation</name>
   <description>Opt-in, non-mutating Spring MVC request content validation (Java 8+, Spring Boot 1.5 / 2.x / 3.x)</description>
 
@@ -141,6 +141,11 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.5.0</version>
+      </plugin>
       <!-- Compile src/jakarta/java against Spring 6 + jakarta.servlet, to Java 8 bytecode, into target/classes. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -242,6 +247,10 @@
     </repository>
   </repositories>
   <distributionManagement>
+    <repository>
+      <id>repo.digit.org</id>
+      <url>https://nexus-repo.digit.org/nexus/content/repositories/releases/</url>
+    </repository>
     <snapshotRepository>
       <id>repo.digit.org</id>
       <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
