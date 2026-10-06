@@ -1,7 +1,7 @@
 # @egovernments/request-validation
 
 Request content validation for Express and Node.js services. It is the Node.js port of the Java library
-`org.egov.services:request-validation` 0.0.1 and makes the same decisions for the same request:
+`org.egov.services:request-validation` 0.0.1-SNAPSHOT and makes the same decisions for the same request:
 
 - **REPORT** logs findings and changes nothing.
 - **ENFORCE** rejects the request with HTTP 400 and a fixed error body.

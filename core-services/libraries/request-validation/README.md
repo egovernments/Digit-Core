@@ -16,7 +16,7 @@ No service is automatically annotated by this change. The gateway is unaffected.
 <dependency>
   <groupId>org.egov.services</groupId>
   <artifactId>request-validation</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
 
