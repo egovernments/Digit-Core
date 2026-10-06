@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: user-save-topic
    isTransaction : true
    queryMaps: 
-    - query: INSERT INTO eg_user(id, salutation, locale, username, pwdexpirytime, mobilenumber,emailid, name, gender, aadhaarnumber, type, active, accountlocked,tenantid,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?,?,?,?,?,?);
+    - query: INSERT INTO eg_user(id, salutation, locale, username, pwdexpirytime, mobilenumber,emailid, name, gender, aadhaarnumber, type, active, accountlocked,tenantid,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?,?,?,?,?,?) ON CONFLICT (username, type, tenantid) DO NOTHING;
       basePath: $.users.*
       jsonMaps:
        - jsonPath: $.users.*.id
@@ -77,7 +77,7 @@ serviceMaps:
        
        - jsonPath: $.users.*.userDetails.signature
     
-    - query : INSERT INTO eg_user_address(type, address, city, pincode, userid, tenantid) VALUES (?, ?, ?, ?, ?, ?);
+    - query : INSERT INTO eg_user_address(type, address, city, pincode, userid, tenantid) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (userid, tenantid, type) DO NOTHING;
       basePath: $.users.*.userDetails.addresses.*
       jsonMaps:
         - jsonPath: $.users.*.userDetails.addresses.*.addressType   
@@ -175,7 +175,7 @@ serviceMaps:
 
        - jsonPath: $.users.*.tenantId
 
-    - query : INSERT INTO eg_user_address(type, address, city, pincode, userid, tenantid) VALUES (?, ?, ?, ?, ?, ?);
+    - query : INSERT INTO eg_user_address(type, address, city, pincode, userid, tenantid) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (userid, tenantid, type) DO NOTHING;
       basePath: $.users.*.userDetails.addresses.*
       jsonMaps:
         - jsonPath: $.users.*.userDetails.addresses.*.addressType   

@@ -7,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class BoundaryRelationshipQueryBuilder {
@@ -52,8 +53,11 @@ public class BoundaryRelationshipQueryBuilder {
 
             if (!CollectionUtils.isEmpty(boundaryRelationshipSearchCriteria.getCodes())) {
                 QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-                builder.append(" code IN ( ").append(QueryUtil.createQuery(boundaryRelationshipSearchCriteria.getCodes().size())).append(" )");
-                QueryUtil.addToPreparedStatement(preparedStmtList, new HashSet<>(boundaryRelationshipSearchCriteria.getCodes()));
+                // Deduplicate so the placeholder count matches the bind values (duplicate codes would
+                // otherwise leave a "?" without a value -> "No value specified for parameter").
+                Set<String> codeSet = new HashSet<>(boundaryRelationshipSearchCriteria.getCodes());
+                builder.append(" code IN ( ").append(QueryUtil.createQuery(codeSet.size())).append(" )");
+                QueryUtil.addToPreparedStatement(preparedStmtList, codeSet);
             }
         }
 
@@ -64,9 +68,11 @@ public class BoundaryRelationshipQueryBuilder {
 
         if(!CollectionUtils.isEmpty(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" ARRAY [ ").append(QueryUtil.createQuery(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes().size())).append(" ]").append("::text[] ");
+            // Deduplicate so the placeholder count matches the bind values (see note above).
+            Set<String> currentCodeSet = new HashSet<>(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes());
+            builder.append(" ARRAY [ ").append(QueryUtil.createQuery(currentCodeSet.size())).append(" ]").append("::text[] ");
             builder.append(" && string_to_array(ancestralmaterializedpath, '|') ");
-            QueryUtil.addToPreparedStatement(preparedStmtList, new HashSet<>(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes()));
+            QueryUtil.addToPreparedStatement(preparedStmtList, currentCodeSet);
         }
 
         return builder.toString();

@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: save-index-jobs
    isTransaction: true
    queryMaps:
-    - query: INSERT INTO eg_indexer_job(tenantid, jobid, requesterid, typeofjob, oldindex, newindex, jobstatus, totaltimetakeninms, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_indexer_job(tenantid, jobid, requesterid, typeofjob, oldindex, newindex, jobstatus, totaltimetakeninms, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (jobid) DO NOTHING;
       basePath: job
       jsonMaps:
 

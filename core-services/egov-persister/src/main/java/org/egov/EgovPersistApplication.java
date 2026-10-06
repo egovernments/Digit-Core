@@ -17,6 +17,7 @@ import org.springframework.context.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import jakarta.annotation.PostConstruct;
 import java.io.File;
@@ -25,6 +26,7 @@ import java.io.InputStream;
 import java.util.*;
 
 @SpringBootApplication
+@EnableScheduling
 @Slf4j
 public class EgovPersistApplication {
 

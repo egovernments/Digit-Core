@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: save-tl-billingslab
    isTransaction: true
    queryMaps:
-    - query: INSERT INTO eg_tl_billingSlab(id, tenantid, licensetype, structuretype, tradetype, accessorycategory, type, uom, fromUom, toUom, rate, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, cast(? as double precision), cast(? as double precision), ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_tl_billingSlab(id, tenantid, licensetype, structuretype, tradetype, accessorycategory, type, uom, fromUom, toUom, rate, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, cast(? as double precision), cast(? as double precision), ?, ?, ?, ?, ?) ON CONFLICT (tenantid, licensetype, structuretype, tradetype, accessorycategory, type, uom, fromuom, touom) DO NOTHING;
       basePath: billingSlab.*
       jsonMaps:
 

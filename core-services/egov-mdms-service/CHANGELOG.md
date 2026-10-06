@@ -3,6 +3,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.2 - 2026-07-27
+- Bumped tracer to 2.9.3-SNAPSHOT for end-to-end correlationId + tenantId propagation across HTTP↔Kafka (HCM flow tracing)
+
 ## 2.9.1 - 2025-05-21
 - Upgraded tracer version from 2.9.0 to 2.9.1
 - added variables in application.properties required for opentelemetry

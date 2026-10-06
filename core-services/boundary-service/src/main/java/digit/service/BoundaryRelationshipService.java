@@ -1,12 +1,19 @@
 package digit.service;
 
+import digit.config.ApplicationProperties;
+import digit.errors.ErrorCodes;
 import digit.repository.BoundaryRelationshipRepository;
 import digit.service.enrichment.BoundaryRelationshipEnricher;
 import digit.service.validator.BoundaryRelationshipValidator;
 import digit.util.HierarchyUtil;
 import digit.web.models.*;
+import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.ResponseInfoUtil;
+import org.egov.tracer.model.CustomException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.dao.RecoverableDataAccessException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -14,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class BoundaryRelationshipService {
 
     private BoundaryRelationshipValidator boundaryRelationshipValidator;
@@ -24,12 +32,16 @@ public class BoundaryRelationshipService {
 
     private HierarchyUtil hierarchyUtil;
 
+    private ApplicationProperties applicationProperties;
+
     public BoundaryRelationshipService(BoundaryRelationshipValidator boundaryRelationshipValidator, BoundaryRelationshipEnricher boundaryRelationshipEnricher,
-                                       BoundaryRelationshipRepository boundaryRelationshipRepository, HierarchyUtil hierarchyUtil) {
+                                       BoundaryRelationshipRepository boundaryRelationshipRepository, HierarchyUtil hierarchyUtil,
+                                       ApplicationProperties applicationProperties) {
         this.boundaryRelationshipValidator = boundaryRelationshipValidator;
         this.boundaryRelationshipEnricher = boundaryRelationshipEnricher;
         this.boundaryRelationshipRepository = boundaryRelationshipRepository;
         this.hierarchyUtil = hierarchyUtil;
+        this.applicationProperties = applicationProperties;
     }
 
     /**
@@ -54,6 +66,160 @@ public class BoundaryRelationshipService {
                 .tenantBoundary(Collections.singletonList(body.getBoundaryRelationship()))
                 .build();
 
+    }
+
+    /**
+     * Request handler for processing bulk boundary relationship create requests.
+     *
+     * <p>Each record is validated and enriched independently (reusing the same business rules as
+     * the single create), so a business failure on one record does not abort the others. The records
+     * that pass validation are handed to egov-persister for the actual DB write (see
+     * {@link BoundaryRelationshipRepository#createBulk}); this service performs no direct DB insert.
+     * The response reports the outcome of every record: the relationships accepted for persistence
+     * and, separately, the ones that failed validation/enrichment with a reason for each.</p>
+     *
+     * @param body bulk create request
+     * @return per-record success/failure response
+     */
+    public BulkBoundaryRelationshipResponse createBulkBoundaryRelationship(BulkBoundaryRelationshipRequest body) {
+
+        RequestInfo requestInfo = body.getRequestInfo();
+
+        // Guard the request envelope explicitly: bean validation (@Valid/@Size/@NotNull) is NOT active in
+        // this service, and this endpoint is the sole entry for bulk creation, so the size/shape limits
+        // must be enforced here (they are also required for a bounded synchronous validation+enrich pass).
+        if (requestInfo == null || requestInfo.getUserInfo() == null) {
+            throw new CustomException(ErrorCodes.BULK_REQUEST_INFO_MISSING_CODE, ErrorCodes.BULK_REQUEST_INFO_MISSING_MSG);
+        }
+        if (CollectionUtils.isEmpty(body.getBoundaryRelationships())) {
+            throw new CustomException(ErrorCodes.BULK_REQUEST_EMPTY_CODE, ErrorCodes.BULK_REQUEST_EMPTY_MSG);
+        }
+        if (body.getBoundaryRelationships().size() > applicationProperties.getBulkCreateMaxSize()) {
+            throw new CustomException(ErrorCodes.BULK_REQUEST_SIZE_EXCEEDED_CODE,
+                    ErrorCodes.BULK_REQUEST_SIZE_EXCEEDED_MSG + applicationProperties.getBulkCreateMaxSize());
+        }
+
+        List<BoundaryRelation> validatedRelationships = new ArrayList<>();
+        List<FailedBoundaryRelationship> failedRelationships = new ArrayList<>();
+
+        // Track records seen in this batch to reject intra-batch duplicates. The per-record
+        // duplicate check queries the database, which cannot see other records in the same request;
+        // without this, two identical records would both validate and be published for the same
+        // natural key, giving the caller no clear per-record duplicate signal and asking the persister
+        // to insert the same (tenantId, code, hierarchyType) twice in one batch.
+        Set<String> seenKeysInBatch = new HashSet<>();
+
+        for (BoundaryRelation boundaryRelationship : body.getBoundaryRelationships()) {
+            try {
+                String key = buildUniquenessKey(boundaryRelationship);
+                if (seenKeysInBatch.contains(key)) {
+                    throw new CustomException(ErrorCodes.DUPLICATE_RECORD_IN_REQUEST_CODE, ErrorCodes.DUPLICATE_RECORD_IN_REQUEST_MSG);
+                }
+
+                // Reuse the existing single-record validation and enrichment so bulk and single
+                // create share identical business rules.
+                BoundaryRelationshipRequest singleRequest = BoundaryRelationshipRequest.builder()
+                        .requestInfo(requestInfo)
+                        .boundaryRelationship(boundaryRelationship)
+                        .build();
+
+                String ancestralMaterializedPath = boundaryRelationshipValidator.validateBoundaryRelationshipCreateRequest(singleRequest);
+                boundaryRelationshipEnricher.enrichBoundaryRelationshipCreateRequest(singleRequest, ancestralMaterializedPath);
+
+                seenKeysInBatch.add(key);
+                validatedRelationships.add(singleRequest.getBoundaryRelationship());
+            } catch (CustomException e) {
+                failedRelationships.add(FailedBoundaryRelationship.builder()
+                        .boundaryRelationship(boundaryRelationship)
+                        .errorCode(e.getCode())
+                        .errorMessage(e.getMessage())
+                        .build());
+            } catch (TransientDataAccessException | RecoverableDataAccessException | DataAccessResourceFailureException e) {
+                // The validation pass issues several JDBC reads per record. A DB blip or Hikari pool
+                // exhaustion surfaces as CannotGetJdbcConnectionException, which extends
+                // DataAccessResourceFailureException (a NON-transient marker in Spring's hierarchy) — so it
+                // must be caught explicitly here alongside the transient/recoverable markers. Classifying
+                // it transient lets the caller retry (the reads are stateless and the persister insert is
+                // idempotent) instead of the whole campaign aborting on a momentary DB saturation.
+                failedRelationships.add(FailedBoundaryRelationship.builder()
+                        .boundaryRelationship(boundaryRelationship)
+                        .errorCode(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE)
+                        .errorMessage(withCause(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG, e))
+                        .build());
+            } catch (Exception e) {
+                // A non-business RuntimeException (e.g. null userInfo during enrichment, a malformed
+                // hierarchy definition) must not unwind the whole job; record it as a per-record
+                // failure so the remaining records still proceed.
+                failedRelationships.add(FailedBoundaryRelationship.builder()
+                        .boundaryRelationship(boundaryRelationship)
+                        .errorCode(ErrorCodes.BULK_RELATIONSHIP_VALIDATION_ERROR_CODE)
+                        .errorMessage(withCause(ErrorCodes.BULK_RELATIONSHIP_VALIDATION_ERROR_MSG, e))
+                        .build());
+            }
+        }
+
+        // Persistence is delegated to egov-persister (no direct DB write from this service): the whole
+        // validated + enriched list is published as ONE message (relationships as an array) to the
+        // dedicated boundary-relationship-bulk-create-job topic, which egov-persister maps ($.BoundaryRelationship.*)
+        // to N rows and writes in a single batchUpdate via the idempotent INSERT ... ON CONFLICT DO NOTHING.
+        // (Single-create keeps its own save-boundary-relationship topic + single-object mapping; the two
+        // message shapes cannot share a topic.) Publishing is blocking
+        // (CustomKafkaTemplate.send().get()); a publish failure (broker unreachable within max.block.ms,
+        // serialization) is reported transient so the caller retries the batch — re-publishing is a safe
+        // no-op because the insert is idempotent and duplicates are skipped by ON CONFLICT without
+        // aborting the batch.
+        List<BoundaryRelation> successfulRelationships = validatedRelationships;
+        if (!CollectionUtils.isEmpty(validatedRelationships)) {
+            try {
+                boundaryRelationshipRepository.createBulk(validatedRelationships, requestInfo);
+            } catch (Exception e) {
+                successfulRelationships = new ArrayList<>();
+                markPersistFailure(validatedRelationships, failedRelationships, ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE, withCause(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG, e));
+            }
+        }
+
+        return BulkBoundaryRelationshipResponse.builder()
+                .responseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE))
+                .successfulBoundaryRelationships(successfulRelationships)
+                .failedBoundaryRelationships(failedRelationships)
+                .build();
+    }
+
+    /**
+     * Builds the natural-key string (tenantId, hierarchyType, code) used to detect duplicate
+     * relationships within a single bulk request. Mirrors the table's primary key.
+     */
+    private String buildUniquenessKey(BoundaryRelation boundaryRelationship) {
+        return boundaryRelationship.getTenantId() + "|"
+                + boundaryRelationship.getHierarchyType() + "|"
+                + boundaryRelationship.getCode();
+    }
+
+    /**
+     * Records the whole validated set as failed with the given (transient) persistence error code
+     * when publishing the validated set to the batch-persister topic failed.
+     */
+    private void markPersistFailure(List<BoundaryRelation> relationships, List<FailedBoundaryRelationship> failures, String errorCode, String errorMessage) {
+        for (BoundaryRelation relationship : relationships) {
+            failures.add(FailedBoundaryRelationship.builder()
+                    .boundaryRelationship(relationship)
+                    .errorCode(errorCode)
+                    .errorMessage(errorMessage)
+                    .build());
+        }
+    }
+
+    /**
+     * Returns the stable, caller-facing message for a failure and logs the underlying cause separately.
+     * The concrete exception text is deliberately NOT folded into the returned message: that string is
+     * surfaced in the HTTP response payload and republished to the Kafka error topic, so raw
+     * SQL/driver/internal details must not leak into it.
+     */
+    private String withCause(String message, Throwable cause) {
+        if (cause != null) {
+            log.warn("{} (cause: {})", message, cause.toString(), cause);
+        }
+        return message;
     }
 
     /**
@@ -122,9 +288,19 @@ public class BoundaryRelationshipService {
         // Fetch parent boundaries if includeParents flag is true.
         if (!CollectionUtils.isEmpty(boundaries) && boundaryRelationshipSearchCriteria.getIncludeParents()) {
             Set<String> allAncestorCodes = boundaries.stream()
-                    .map(dto -> dto.getAncestralMaterializedPath().split("\\|"))
-                    .flatMap(Arrays::stream)
+                    .map(BoundaryRelationshipDTO::getAncestralMaterializedPath)
+                    .filter(path -> path != null && !path.isEmpty())
+                    .flatMap(path -> Arrays.stream(path.split("\\|")))
                     .collect(Collectors.toSet());
+
+            // Root nodes have an empty materialized path, so they contribute no ancestor codes. If NONE of
+            // the matched boundaries has an ancestor, there are no parents to fetch — return early. Passing
+            // an empty codes list to search would otherwise cause the query builder to drop the
+            // `code IN (...)` predicate and scan the entire tenant/hierarchy (a full-table read on a public
+            // endpoint that would also return the whole tree as bogus parents).
+            if (allAncestorCodes.isEmpty()) {
+                return parentBoundaries;
+            }
 
             parentBoundaries = boundaryRelationshipRepository.search(BoundaryRelationshipSearchCriteria.builder()
                     .tenantId(boundaryRelationshipSearchCriteria.getTenantId())
