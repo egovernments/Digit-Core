@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.0.2
+
+Matches `org.egov.services:request-validation` 0.0.2-SNAPSHOT.
+
+- Route option `exemption` (the Java `@ValidateRequest(exemption)` / `ContentExemption`): a function offered each
+  body string value the content check flagged, once the whole body passed the syntax and limit checks, with a
+  `FlaggedValue` view (`value`, `path`, `pointer`, `rule`, `matches`, `string`, `sibling`) of that value and the
+  other string values of the body. Returning `true` accepts that finding. Field names, limits and syntax are never
+  exempted. Routes without an exemption behave exactly as in 0.0.1.
+- `FlaggedValue` is exported; `inspectJson` and `JsonDocumentInspector#inspect` accept an `exemption` option.
+
 ## 0.0.1
 
 First release: the Node.js port of `org.egov.services:request-validation` 0.0.1-SNAPSHOT.

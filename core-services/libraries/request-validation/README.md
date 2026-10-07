@@ -16,7 +16,7 @@ No service is automatically annotated by this change. The gateway is unaffected.
 <dependency>
   <groupId>org.egov.services</groupId>
   <artifactId>request-validation</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -104,13 +104,35 @@ markup-bearing fields; keep output sanitization for these exclusions. An empty
 skip path `""` (the whole document) fails startup: exclude a whole body with
 `structured = DISABLED` and a reason. `"/"` is the property with an empty name.
 
+When a field may hold markup only under conditions (an HTML template for
+listed codes, a type name such as `List<String>` for one schema), declare an
+exemption instead of skipping the path:
+`@ValidateRequest(exemption = TemplateExemption.class, reason = "...")`, where
+`TemplateExemption implements ContentExemption`. Its `allows(FlaggedValue)` is
+called only for body string values the content check flagged, after the whole
+body passed the syntax and limit checks; `true` accepts that one finding.
+`FlaggedValue` gives the value, its path (`matches("/messages/*/message")`,
+exact length), the rule (R1–R4), and the other string values of the same body
+(`string("/Mdms/schemaCode")`, `sibling("code")`), whatever their order. Field
+names, limits and syntax are never exempted; `false` or an exception keeps the
+finding. If the body fails a syntax or limit check, earlier findings are
+reported unchanged without consulting it. The exemption is the single bean of
+that type if one exists, otherwise one created by the bean factory. The
+innermost declaration wins. Without an exemption, inspection is unchanged.
+Check the value itself in the exemption (for example with an HTML sanitizer)
+rather than accepting a field outright, and encode values where the stored
+markup is rendered. Lookups use exact wire names: if the host's JSON binding
+accepts other spellings (case-insensitive or aliased properties), the rule must
+account for them.
+
 Class/method annotations activate handlers. A parameter annotation refines an
 already active handler; it does not activate one by itself. In `activation: ALL`,
 all MVC handlers are active except explicit class/method `enabled = false`.
 Class/method `enabled` never inherits from a parameter. Parameter → method →
 class → configuration precedence applies to body mode, structured inspection,
-and limits. Skip paths are combined. Missing exclusion reasons produce startup
-warnings. Startup also lists effective handler/body coverage.
+and limits. Skip paths are combined. Missing exclusion reasons (including
+exemptions) produce startup warnings. Startup also lists effective handler/body
+coverage.
 
 ## Configuration
 

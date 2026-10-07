@@ -343,6 +343,7 @@ function compileEntry(raw, index, source, cfg) {
     mode: undefined,
     skipPaths: [],
     limits: {},
+    exemption: undefined,
     reason: reason,
     prefix: prefix
   };
@@ -372,6 +373,12 @@ function compileEntry(raw, index, source, cfg) {
       throw configError('Invalid route ' + name + ': ' + e.message);
     }
     entry.skipPaths = raw.skipPaths.slice();
+  }
+  if (raw.exemption !== undefined) {
+    if (typeof raw.exemption !== 'function') {
+      throw typeError(label + '.exemption must be a function');
+    }
+    entry.exemption = raw.exemption;
   }
   if (raw.limits !== undefined) {
     if (!isPlainObject(raw.limits)) {
@@ -415,6 +422,9 @@ function publicRoute(entry) {
   }
   out.skipPaths = Object.freeze(entry.skipPaths.slice());
   out.limits = Object.freeze(Object.assign({}, entry.limits));
+  if (entry.exemption !== undefined) {
+    out.exemption = entry.exemption;
+  }
   if (entry.reason !== undefined) {
     out.reason = entry.reason;
   }
@@ -456,6 +466,7 @@ PolicyResolver.prototype.merge = function (cls, mth) {
   var mode = cfg.mode;
   var limits = cfg.limitsObject;
   var skips = [];
+  var exemption = null;
   [cls, mth].forEach(function (d) {
     if (!d) {
       return;
@@ -471,6 +482,9 @@ PolicyResolver.prototype.merge = function (cls, mth) {
         skips.push(p);
       }
     });
+    if (d.exemption !== undefined) {
+      exemption = d.exemption;
+    }
     limits = InspectionLimits.fromObject(d.limits, limits);
   });
   var policy = Object.freeze({
@@ -480,6 +494,7 @@ PolicyResolver.prototype.merge = function (cls, mth) {
     skipPaths: Object.freeze(skips),
     matcher: new SkipPathMatcher(skips),
     limits: limits,
+    exemption: exemption,
     name: (mth && mth.name) || (cls && cls.name) || null
   });
   this.pairs.set(key, policy);

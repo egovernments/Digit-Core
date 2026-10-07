@@ -17,14 +17,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.egov.services</groupId>
   <artifactId>request-validation-compatibility</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.deploy.skip>true</maven.deploy.skip>
     <maven.install.skip>true</maven.install.skip>
-    <request-validation.version>0.0.1-SNAPSHOT</request-validation.version>
+    <request-validation.version>0.0.2-SNAPSHOT</request-validation.version>
     <assertj.version>3.24.2</assertj.version>
   </properties>
 

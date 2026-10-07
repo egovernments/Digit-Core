@@ -1,7 +1,7 @@
 # @egovernments/request-validation
 
 Request content validation for Express and Node.js services. It is the Node.js port of the Java library
-`org.egov.services:request-validation` 0.0.1-SNAPSHOT and makes the same decisions for the same request:
+`org.egov.services:request-validation` 0.0.2-SNAPSHOT and makes the same decisions for the same request:
 
 - **REPORT** logs findings and changes nothing.
 - **ENFORCE** rejects the request with HTTP 400 and a fixed error body.
@@ -343,7 +343,8 @@ createRequestValidation({
 | `mode` | `REPORT` or `ENFORCE` for the matched requests |
 | `skipPaths` | JSON pointers of body subtrees whose content is not checked (`~0` is `~`, `~1` is `/`, `*` matches one whole segment; `/` is the property with the empty name). Structure and limits are still checked |
 | `limits` | any of the seven limits; each field inherits independently |
-| `reason` | why the entry weakens inspection; logged at startup. Entries with `enabled: false`, `structured: false` or `skipPaths` and no reason log a warning |
+| `exemption` | `(value) => boolean`, the Java `ContentExemption`: accepts body string values the content check flagged when it returns `true` (see below) |
+| `reason` | why the entry weakens inspection; logged at startup. Entries with `enabled: false`, `structured: false`, `skipPaths` or `exemption` and no reason log a warning |
 
 Matching uses the path Express routes the request on: the raw (undecoded) path before the query or, for a request
 target with a fragment, whitespace or a backslash, the path Express derives from it (fragment removed, ends trimmed,
@@ -355,7 +356,18 @@ another policy than the route Express runs. Policies are merged in this order:
 2. the longest matching prefix entry (at equal length, one with a matching `method` wins);
 3. the matching exact entry (one with a matching `method` wins over one without).
 
-`skipPaths` from both entries are combined. Two entries with the same method, path and kind fail startup.
+`skipPaths` from both entries are combined; the exact entry's `exemption` replaces the prefix entry's. Two entries
+with the same method, path and kind fail startup.
+
+**Exemptions.** For a field that may hold markup only under conditions (an HTML template for listed codes, a type
+name such as `List<String>` for one schema), give the route an `exemption` instead of a skip path. It is called only
+for body string values the content check flagged, after the whole body passed the syntax and limit checks, with a
+`FlaggedValue`: `value`, `path`, `pointer`, `rule` (R1-R4), `matches('/messages/*/message')` (exact length),
+`string('/Mdms/schemaCode')` and `sibling('code')` (other string values of the same body, in any order; `null` when
+absent). Only `true` accepts that one finding; anything else, or a throw, keeps it. Field names, limits and syntax are
+never exempted, and a body that fails a syntax or limit check reports its earlier findings unchanged. Without an
+exemption nothing changes. Check the value itself (for example with an HTML sanitizer) rather than accepting a field
+outright, and encode values where the stored markup is rendered.
 
 **Activation.** `ALL` inspects every request except those switched off by a route or excluded; use it for every Node
 service. `ANNOTATED` (the Java default) inspects only requests that match a route entry; with no enabled route it
@@ -653,8 +665,8 @@ const {
 | `inspectJson(buffer, options?)` | `{ findings, failure }` for one JSON document; never logs or throws for findings |
 
 The core classes (`ContentDetector`, `ContentPolicy`, `InspectionLimits`, `JsonDocumentInspector`, `SkipPathMatcher`,
-`Violation`, `ViolationCode`, `InspectionError`, `SafeLocationFormatter`) are exported, with types, for tests and
-tools.
+`Violation`, `ViolationCode`, `InspectionError`, `SafeLocationFormatter`, `FlaggedValue`) are exported, with types,
+for tests and tools. `inspectJson` and `JsonDocumentInspector#inspect` take an `exemption` option.
 
 ## License
 

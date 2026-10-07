@@ -78,7 +78,7 @@ var OPTION_KEYS = Object.freeze([
 ]);
 var LOG_KEYS = Object.freeze(['reportSampleRate']);
 var ROUTE_KEYS = Object.freeze(['path', 'prefix', 'method', 'name', 'enabled', 'structured', 'mode', 'skipPaths',
-  'limits', 'reason']);
+  'limits', 'reason', 'exemption']);
 var EXCLUDE_KEYS = Object.freeze(['path', 'reason']);
 
 /** The Java defaults as an EffectiveConfig-shaped object (used when the package is disabled). */

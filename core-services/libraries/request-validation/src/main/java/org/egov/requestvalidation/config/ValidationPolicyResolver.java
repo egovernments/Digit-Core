@@ -4,8 +4,10 @@ import org.egov.requestvalidation.Activation;
 import org.egov.requestvalidation.Structured;
 import org.egov.requestvalidation.ValidateRequest;
 import org.egov.requestvalidation.ValidationMode;
+import org.egov.requestvalidation.core.ContentExemption;
 import org.egov.requestvalidation.core.InspectionLimits;
 import org.egov.requestvalidation.core.SkipPathMatcher;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.web.method.HandlerMethod;
@@ -18,15 +20,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /** A body annotation refines an activated handler; it does not opt in a whole controller. */
 public final class ValidationPolicyResolver {
     private final RequestValidationProperties properties;
+    private final Function<Class<? extends ContentExemption>, ContentExemption> exemptionFactory;
     private final Map<Key, EffectiveValidationPolicy> cache = new ConcurrentHashMap<>();
+    private final Map<Class<? extends ContentExemption>, ContentExemption> exemptions = new ConcurrentHashMap<>();
 
+    /** Exemptions are created through their no-argument constructor. */
     public ValidationPolicyResolver(RequestValidationProperties properties) {
+        this(properties, BeanUtils::instantiateClass);
+    }
+
+    /** exemptionFactory supplies the one instance used for each declared exemption type. */
+    public ValidationPolicyResolver(RequestValidationProperties properties,
+            Function<Class<? extends ContentExemption>, ContentExemption> exemptionFactory) {
         properties.validate();
         this.properties = properties;
+        this.exemptionFactory = Objects.requireNonNull(exemptionFactory, "exemptionFactory");
     }
 
     public EffectiveValidationPolicy handler(HandlerMethod handler) {
@@ -56,6 +69,7 @@ public final class ValidationPolicyResolver {
         ValidationMode mode = properties.getMode();
         InspectionLimits limits = properties.getLimits().toLimits();
         LinkedHashSet<String> skips = new LinkedHashSet<>();
+        Class<? extends ContentExemption> exemption = null;
         List<ValidateRequest> declarations = new ArrayList<>();
         if (onClass != null) declarations.add(onClass);
         if (onMethod != null) declarations.add(onMethod);
@@ -69,6 +83,7 @@ public final class ValidationPolicyResolver {
             }
             if (declaration.mode() != ValidationMode.DEFAULT) mode = declaration.mode();
             skips.addAll(Arrays.asList(declaration.skipPaths()));
+            if (declaration.exemption() != ContentExemption.None.class) exemption = declaration.exemption();
             limits = new InspectionLimits(
                     inherit(declaration.maxBodyBytes(), limits.getMaxBodyBytes()),
                     inherit(declaration.maxDepth(), limits.getMaxDepth()),
@@ -79,7 +94,21 @@ public final class ValidationPolicyResolver {
                     inherit(declaration.maxScalarLength(), limits.getMaxScalarLength()));
         }
         List<String> paths = EffectiveValidationPolicy.immutableCopy(skips);
-        return new EffectiveValidationPolicy(enabled, structured, mode, paths, new SkipPathMatcher(paths), limits);
+        return new EffectiveValidationPolicy(enabled, structured, mode, paths, new SkipPathMatcher(paths), limits,
+                exemption == null ? null : exemption(exemption));
+    }
+
+    private ContentExemption exemption(Class<? extends ContentExemption> type) {
+        return exemptions.computeIfAbsent(type, ignored -> {
+            ContentExemption instance;
+            try {
+                instance = exemptionFactory.apply(type);
+            } catch (RuntimeException ex) {
+                throw new IllegalArgumentException("Cannot create exemption " + type.getName() + ": " + ex.getMessage(), ex);
+            }
+            if (instance == null) throw new IllegalArgumentException("No exemption " + type.getName());
+            return instance;
+        });
     }
 
     private static int inherit(int value, int fallback) { return value == -1 ? fallback : value; }

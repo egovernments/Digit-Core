@@ -98,7 +98,7 @@ test('node --check passes for every source file on this runtime; requiring lib/c
 test('package.json is the specified manifest: no runtime dependencies, no install scripts', function () {
   var pkg = JSON.parse(fs.readFileSync(path.join(h.ROOT, 'package.json'), 'utf8'));
   assert.strictEqual(pkg.name, '@egovernments/request-validation');
-  assert.strictEqual(pkg.version, '1.0.0');
+  assert.strictEqual(pkg.version, '0.0.2');
   assert.deepStrictEqual(pkg.dependencies, {});
   assert.strictEqual(pkg.engines.node, '>=8.4.0');
   assert.deepStrictEqual(Object.keys(pkg.scripts), ['test']);

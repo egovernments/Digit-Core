@@ -115,7 +115,7 @@ public final class StructuredBodyAdvice extends RequestBodyAdviceAdapter {
         }
         try {
             inspector.inspect(bytes, policy.limits(), policy.matcher(), rejectDuplicateKeys, rejectDualRequestInfo,
-                    violation -> reporter.content(request, mode, violation, "body", handler));
+                    policy.exemption(), violation -> reporter.content(request, mode, violation, "body", handler));
         } catch (InspectionException ex) {
             ContentPolicyViolationException rejection = reporter.structural(request, mode, ex.getViolation(), "body", handler);
             if (rejection != null) throw rejection;

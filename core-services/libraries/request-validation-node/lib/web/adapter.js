@@ -15,6 +15,7 @@ var ViolationCode = require('../core/ViolationCode');
 var Violation = require('../core/Violation');
 var InspectionError = require('../core/InspectionError');
 var SafeLocationFormatter = require('../core/SafeLocationFormatter');
+var FlaggedValue = require('../core/FlaggedValue');
 var mediaType = require('./mediaType');
 var parameters = require('./parameters');
 var errorResponse = require('./errorResponse');
@@ -541,6 +542,8 @@ function createAdapter(deps) {
     var state = ctx.state;
     var policy = state.policy;
     var limits = policy.limits;
+    // With an exemption, findings wait until the walk is complete, as in JsonDocumentInspector.
+    var deferred = policy.exemption ? { strings: new Map(), findings: [] } : null;
     // Depth-first in document order: each property name, then its value.
     var stack = [{ value: root, path: [], name: false }];
     var seen = new Set();
@@ -548,12 +551,24 @@ function createAdapter(deps) {
     while (stack.length > 0) {
       var item = stack.pop();
       if (++nodes > limits.maxTokens) {
+        reportDeferred(ctx, deferred, null);
         return;
       }
       var value = item.value;
       if (item.name || typeof value === 'string') {
+        if (deferred !== null && !item.name) {
+          deferred.strings.set(FlaggedValue.format(item.path), value);
+        }
         if (!policy.matcher.matches(item.path)) {
-          reportWalk(ctx, value, SafeLocationFormatter.format(item.path), 'body');
+          if (deferred === null) {
+            reportWalk(ctx, value, SafeLocationFormatter.format(item.path), 'body');
+          } else {
+            var rule = detector.detect(value);
+            if (rule !== null) {
+              deferred.findings.push({ violation: new Violation(CONTENT, rule, SafeLocationFormatter.format(item.path),
+                  value.length), path: item.name ? null : item.path, value: value });
+            }
+          }
         }
         continue;
       }
@@ -571,6 +586,32 @@ function createAdapter(deps) {
         }
       }
     }
+    reportDeferred(ctx, deferred, policy.exemption);
+  }
+
+  // Reports held-back walk findings in order; exemption null (an incomplete walk) consults nothing.
+  function reportDeferred(ctx, deferred, exemption) {
+    if (deferred === null) {
+      return;
+    }
+    deferred.findings.forEach(function (finding) {
+      if (exemption !== null && finding.path !== null) {
+        var accepted = false;
+        try {
+          accepted = exemption(new FlaggedValue(finding.path, finding.value, finding.violation.ruleId,
+              deferred.strings)) === true;
+        } catch (e) {
+          accepted = false; // fails closed, as in JsonDocumentInspector
+        }
+        if (accepted) {
+          return;
+        }
+      }
+      var rejection = reporter.content(ctx, ctx.state.policy.mode, finding.violation, 'body');
+      if (rejection) {
+        throw rejection;
+      }
+    });
   }
 
   function reportWalk(ctx, text, location, kind) {
@@ -628,6 +669,10 @@ function createAdapter(deps) {
     var options;
     if (maxMillis !== null) {
       options = { deadline: nowMillis() + maxMillis, now: nowMillis };
+    }
+    if (policy.exemption) {
+      options = options || {};
+      options.exemption = policy.exemption;
     }
     try {
       inspector.inspect(buf, policy.limits, policy.matcher, cfg.rejectDuplicateKeys, cfg.rejectDualRequestInfo,

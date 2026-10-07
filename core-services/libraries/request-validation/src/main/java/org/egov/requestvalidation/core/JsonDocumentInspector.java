@@ -15,8 +15,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -33,11 +35,39 @@ public final class JsonDocumentInspector {
     public void inspect(byte[] body, InspectionLimits limits, SkipPathMatcher skipPaths,
             boolean rejectDuplicateKeys, boolean rejectDualRequestInfo,
             Consumer<Violation> contentViolations) {
+        inspect(body, limits, skipPaths, rejectDuplicateKeys, rejectDualRequestInfo, null, contentViolations);
+    }
+
+    /**
+     * As above; a non-null exemption is offered each flagged string value once the whole body has passed the
+     * syntax and limit checks, and findings it accepts are dropped. Findings are still reported in document
+     * order. If the body fails a syntax or limit check, every finding before the failure is reported unchanged
+     * and the exemption is not consulted.
+     */
+    public void inspect(byte[] body, InspectionLimits limits, SkipPathMatcher skipPaths,
+            boolean rejectDuplicateKeys, boolean rejectDualRequestInfo, ContentExemption exemption,
+            Consumer<Violation> contentViolations) {
         Objects.requireNonNull(body, "body");
         Objects.requireNonNull(limits, "limits");
         Objects.requireNonNull(skipPaths, "skipPaths");
         Objects.requireNonNull(contentViolations, "contentViolations");
+        if (exemption == null) {
+            scan(body, limits, skipPaths, rejectDuplicateKeys, rejectDualRequestInfo, null, contentViolations);
+            return;
+        }
+        Deferred deferred = new Deferred(exemption);
+        try {
+            scan(body, limits, skipPaths, rejectDuplicateKeys, rejectDualRequestInfo, deferred, contentViolations);
+        } catch (InspectionException failure) {
+            deferred.report(contentViolations, false);
+            throw failure;
+        }
+        deferred.report(contentViolations, true);
+    }
 
+    private void scan(byte[] body, InspectionLimits limits, SkipPathMatcher skipPaths,
+            boolean rejectDuplicateKeys, boolean rejectDualRequestInfo, Deferred deferred,
+            Consumer<Violation> contentViolations) {
         if (body.length > limits.getMaxBodyBytes()) {
             throw failure(ViolationCode.REQUEST_LIMIT_EXCEEDED,
                     "max-body-bytes", Collections.<String>emptyList(), body.length);
@@ -114,7 +144,7 @@ public final class JsonDocumentInspector {
                         }
                     }
                     object.currentField = name;
-                    inspectContent(name, path, skipPaths, contentViolations);
+                    inspectContent(name, false, path, skipPaths, deferred, contentViolations);
                     pending = true;
                     continue;
                 }
@@ -160,7 +190,7 @@ public final class JsonDocumentInspector {
                         throw failure(ViolationCode.REQUEST_LIMIT_EXCEEDED,
                                 "max-string-length", path, value.length());
                     }
-                    inspectContent(value, path, skipPaths, contentViolations);
+                    inspectContent(value, true, path, skipPaths, deferred, contentViolations);
                 } else if (token.isNumeric()) {
                     int length = parser.getTextLength();
                     if (length > limits.getMaxNumberLength()) {
@@ -186,15 +216,24 @@ public final class JsonDocumentInspector {
         }
     }
 
-    private void inspectContent(String value, List<String> path, SkipPathMatcher skipPaths,
-            Consumer<Violation> contentViolations) {
+    private void inspectContent(String value, boolean stringValue, List<String> path, SkipPathMatcher skipPaths,
+            Deferred deferred, Consumer<Violation> contentViolations) {
+        if (deferred != null && stringValue) {
+            deferred.strings.put(FlaggedValue.format(path), value);
+        }
         if (skipPaths.matches(path)) {
             return;
         }
         Optional<String> rule = detector.detect(value);
         if (rule.isPresent()) {
-            contentViolations.accept(new Violation(ViolationCode.REQUEST_CONTENT_NOT_ALLOWED,
-                    rule.get(), SafeLocationFormatter.format(path), value.length()));
+            Violation violation = new Violation(ViolationCode.REQUEST_CONTENT_NOT_ALLOWED,
+                    rule.get(), SafeLocationFormatter.format(path), value.length());
+            if (deferred == null) {
+                contentViolations.accept(violation);
+            } else {
+                // Field names are never offered to the exemption.
+                deferred.findings.add(new Finding(violation, stringValue ? new ArrayList<String>(path) : null, value));
+            }
         }
     }
 
@@ -229,6 +268,48 @@ public final class JsonDocumentInspector {
             ViolationCode code, String rule, List<String> path, int length) {
         return new InspectionException(new Violation(code, rule,
                 SafeLocationFormatter.format(path), Math.max(0, length)));
+    }
+
+    /** Findings held back until the whole body has been read, and every string value by JSON Pointer. */
+    private static final class Deferred {
+        private final ContentExemption exemption;
+        private final Map<String, String> strings = new HashMap<String, String>();
+        private final List<Finding> findings = new ArrayList<Finding>();
+
+        private Deferred(ContentExemption exemption) {
+            this.exemption = exemption;
+        }
+
+        private void report(Consumer<Violation> contentViolations, boolean consult) {
+            for (Finding finding : findings) {
+                if (consult && finding.path != null && allows(finding)) {
+                    continue;
+                }
+                contentViolations.accept(finding.violation);
+            }
+        }
+
+        private boolean allows(Finding finding) {
+            try {
+                return exemption.allows(new FlaggedValue(finding.path, finding.value,
+                        finding.violation.getRuleId(), strings));
+            } catch (RuntimeException exception) {
+                // Fails closed: a broken exemption keeps the finding (REPORT logs it, ENFORCE rejects).
+                return false;
+            }
+        }
+    }
+
+    private static final class Finding {
+        private final Violation violation;
+        private final List<String> path;
+        private final String value;
+
+        private Finding(Violation violation, List<String> path, String value) {
+            this.violation = violation;
+            this.path = path;
+            this.value = value;
+        }
     }
 
     private static final class Context {

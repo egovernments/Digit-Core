@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.egov.services</groupId>
   <artifactId>request-validation</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <name>request-validation</name>
   <description>Opt-in, non-mutating Spring MVC request content validation (Java 8+, Spring Boot 1.5 / 2.x / 3.x)</description>
 

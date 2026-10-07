@@ -4,6 +4,7 @@ import org.egov.requestvalidation.config.EnvironmentVariableFallback;
 import org.egov.requestvalidation.config.RequestValidationProperties;
 import org.egov.requestvalidation.config.ValidationPolicyResolver;
 import org.egov.requestvalidation.core.ContentDetector;
+import org.egov.requestvalidation.core.ContentExemption;
 import org.egov.requestvalidation.core.JsonDocumentInspector;
 import org.egov.requestvalidation.web.BodyAdviceRegistrar;
 import org.egov.requestvalidation.web.CoverageReport;
@@ -15,6 +16,7 @@ import org.egov.requestvalidation.web.ValidationAuditLogger;
 import org.egov.requestvalidation.web.ValidationReporter;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,8 +47,23 @@ public class RequestValidationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    ValidationPolicyResolver requestValidationPolicyResolver(RequestValidationProperties properties) {
-        return new ValidationPolicyResolver(properties);
+    ValidationPolicyResolver requestValidationPolicyResolver(RequestValidationProperties properties,
+                                                             AutowireCapableBeanFactory beanFactory) {
+        return new ValidationPolicyResolver(properties, type -> exemption(beanFactory, type));
+    }
+
+    /** The one bean of the declared type, or a new instance with its dependencies injected. */
+    static ContentExemption exemption(AutowireCapableBeanFactory beanFactory, Class<? extends ContentExemption> type) {
+        if (beanFactory instanceof ListableBeanFactory) {
+            String[] names = ((ListableBeanFactory) beanFactory).getBeanNamesForType(type);
+            if (names.length > 1) {
+                throw new IllegalArgumentException("More than one bean of type " + type.getName());
+            }
+            if (names.length == 1) {
+                return beanFactory.getBean(names[0], type);
+            }
+        }
+        return beanFactory.createBean(type);
     }
 
     @Bean

@@ -34,7 +34,8 @@ export interface RoutePolicy {
   mode?: Mode;
   skipPaths?: string[];          // unioned with every enclosing scope
   limits?: Partial<Limits>;      // each field inherits independently
-  reason?: string;               // required for enabled:false, structured:false or skipPaths (startup WARN otherwise)
+  exemption?: (value: FlaggedValue) => boolean;  // accepts flagged body strings it returns true for; innermost wins
+  reason?: string;               // required for enabled:false, structured:false, skipPaths or exemption (startup WARN otherwise)
 }
 export interface ExcludePath { path: string; reason?: string; }
 
@@ -69,7 +70,7 @@ export type VerifyHook = (req: IncomingMessage, res: ServerResponse, buf: Buffer
 
 export interface InspectJsonOptions {
   limits?: Partial<Limits>; rules?: Partial<Rules>; skipPaths?: string[];
-  rejectDuplicateKeys?: boolean; rejectDualRequestInfo?: boolean;
+  rejectDuplicateKeys?: boolean; rejectDualRequestInfo?: boolean; exemption?: (value: FlaggedValue) => boolean;
 }
 export interface InspectJsonResult { findings: Violation[]; failure: Violation | null; }
 
@@ -167,5 +168,16 @@ export declare class JsonDocumentInspector {
   constructor(detector: ContentDetector);
   inspect(body: Buffer | Uint8Array, limits: InspectionLimits, skipPaths: SkipPathMatcher, rejectDuplicateKeys: boolean,
           rejectDualRequestInfo: boolean, contentViolations: (violation: Violation) => void,
-          options?: { deadline?: number; now?: () => number }): void;
+          options?: { deadline?: number; now?: () => number; exemption?: (value: FlaggedValue) => boolean }): void;
+}
+/** A string value the content check flagged, with read access to the other string values of the same body. */
+export declare class FlaggedValue {
+  readonly path: ReadonlyArray<string>;  // raw segments; array indexes are decimal strings
+  readonly pointer: string;              // JSON Pointer of the value, '' for a bare string body
+  readonly value: string;
+  readonly rule: ContentRuleId;
+  matches(pattern: string): boolean;     // exact length; a '*' segment matches any one segment
+  string(pointer: string): string | null;  // another string value of the body; null when absent or not a string
+  sibling(name: string): string | null;    // a string field of the same object; null for array elements
+  static format(segments: string[]): string;
 }

@@ -1,7 +1,7 @@
 'use strict';
 
 // Startup lines (CoverageReport): the effective configuration, one coverage line per route entry, and the reason
-// (INFO) or a missing reason (WARN) for every exclusion: enabled:false, structured:false or skip paths.
+// (INFO) or a missing reason (WARN) for every exclusion: enabled:false, structured:false, skip paths or an exemption.
 
 var defaults = require('./defaults');
 var resolve = require('./resolve');
@@ -27,7 +27,8 @@ function startupLines(resolved) {
       line: 'request_validation_coverage handler=' + safeText(entry.name) + ' enabled=' + policy.enabled + ' mode='
           + policy.mode
     });
-    var exclusion = entry.enabled === false || entry.structured === false || entry.skipPaths.length > 0;
+    var exclusion = entry.enabled === false || entry.structured === false || entry.skipPaths.length > 0
+        || entry.exemption !== undefined;
     if (exclusion) {
       if (resolve.isBlankReason(entry.reason)) {
         lines.push({ level: 'warn', line: 'request_validation_exclusion_missing_reason handler=' + safeText(entry.name) });

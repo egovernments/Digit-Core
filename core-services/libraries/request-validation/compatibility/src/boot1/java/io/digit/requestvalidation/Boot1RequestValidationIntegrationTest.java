@@ -8,6 +8,8 @@ import io.digit.requestvalidation.autoconfigure.RequestValidationAutoConfigurati
 import org.egov.requestvalidation.Structured;
 import org.egov.requestvalidation.ValidateRequest;
 import org.egov.requestvalidation.ValidationMode;
+import org.egov.requestvalidation.core.ContentExemption;
+import org.egov.requestvalidation.core.FlaggedValue;
 import org.egov.requestvalidation.core.Violation;
 import org.egov.requestvalidation.web.ContentPolicyViolationException;
 import org.egov.requestvalidation.web.CoverageReport;
@@ -492,6 +494,43 @@ class Boot1RequestValidationIntegrationTest {
         }
     }
 
+    @Test
+    void exemptionAcceptsOnlyWhatItsRuleAllowsFromTheBeanOrANewInstance() throws Exception {
+        Logger coverage = (Logger) LoggerFactory.getLogger(CoverageReport.class);
+        ListAppender<ILoggingEvent> output = new ListAppender<ILoggingEvent>();
+        output.start();
+        coverage.addAppender(output);
+        try {
+            run(ENFORCE, context -> {
+                List<String> lines = output.list.stream().map(ILoggingEvent::getFormattedMessage)
+                        .collect(Collectors.toList());
+                assertThat(lines).anyMatch(line -> line.contains("$Endpoints#templates index=0 enabled=true structured=true"
+                        + " mode=ENFORCE skipPaths=[] exemption=" + TemplateExemption.class.getName()));
+                MockMvc mvc = mvc(context);
+                String allowed = "{\"messages\":[{\"message\":\"<p>Hi</p>\",\"code\":\"EMAIL_BODY\"}]}";
+                mvc.perform(post("/templates").contentType("application/json").content(allowed))
+                        .andExpect(status().isOk());
+                mvc.perform(post("/templates").contentType("application/json").content(allowed.replace("EMAIL_BODY", "OTHER")))
+                        .andExpect(status().isBadRequest());
+                mvc.perform(post("/templates").contentType("application/json")
+                        .content(allowed.replace("<p>Hi</p>", "<script>alert(1)</script>")))
+                        .andExpect(status().isBadRequest());
+                mvc.perform(post("/bytes").contentType("application/json").content(allowed))
+                        .andExpect(status().isBadRequest());
+                String type = "{\"Mdms\":{\"data\":{\"formDataType\":\"List<String>\"},\"schemaCode\":\"HCM.AppFieldType\"}}";
+                mvc.perform(post("/types").contentType("application/json").content(type))
+                        .andExpect(status().isOk());
+                mvc.perform(post("/types").contentType("application/json").content(type.replace("HCM.AppFieldType", "HCM.Other")))
+                        .andExpect(status().isBadRequest());
+                mvc.perform(post("/types").contentType("application/json")
+                        .content(type.replace("List<String>", "<img src=x onerror=alert(1)>")))
+                        .andExpect(status().isBadRequest());
+            });
+        } finally {
+            coverage.detachAppender(output);
+        }
+    }
+
     private static List<String> rules(RecordingLogger logger) {
         return logger.observations.stream().map(Violation::getRuleId).collect(Collectors.toList());
     }
@@ -593,6 +632,26 @@ class Boot1RequestValidationIntegrationTest {
         @Bean FixedErrorAdvice fixedErrorAdvice() { return new FixedErrorAdvice(); }
         @Bean RecordingLogger recordingLogger() { return new RecordingLogger(); }
         @Bean ExistingBodyAdvice existingBodyAdvice() { return new ExistingBodyAdvice(); }
+        @Bean TemplateExemption templateExemption() { return new TemplateExemption(Arrays.asList("EMAIL_BODY")); }
+    }
+
+    /** Registered as a bean with a constructor argument, so only the bean lookup can supply it. */
+    static class TemplateExemption implements ContentExemption {
+        private final List<String> codes;
+        TemplateExemption(List<String> codes) { this.codes = codes; }
+        @Override public boolean allows(FlaggedValue value) {
+            return value.matches("/messages/*/message") && value.sibling("code").map(codes::contains).orElse(false)
+                    && !value.value().toLowerCase().contains("<script");
+        }
+    }
+
+    /** Not registered: created by the bean factory. */
+    static class TypeExemption implements ContentExemption {
+        @Override public boolean allows(FlaggedValue value) {
+            return value.matches("/Mdms/data/formDataType")
+                    && value.string("/Mdms/schemaCode").filter("HCM.AppFieldType"::equals).isPresent()
+                    && Arrays.asList("List<String>", "Map<String,String>").contains(value.value());
+        }
     }
 
     @RestController
@@ -610,6 +669,10 @@ class Boot1RequestValidationIntegrationTest {
                 @ValidateRequest(mode = ValidationMode.ENFORCE) @RequestBody byte[] body) { return body; }
         @PostMapping("/skippath") public byte[] skippath(
                 @ValidateRequest(skipPaths = "/note", reason = "rich text") @RequestBody byte[] body) { return body; }
+        @PostMapping("/templates") @ValidateRequest(exemption = TemplateExemption.class, reason = "HTML templates")
+        public byte[] templates(@RequestBody byte[] body) { return body; }
+        @PostMapping("/types") public byte[] types(
+                @ValidateRequest(exemption = TypeExemption.class, reason = "type names") @RequestBody byte[] body) { return body; }
         @PostMapping("/skip") public byte[] skip(
                 @ValidateRequest(structured = Structured.DISABLED, reason = "test exclusion") @RequestBody byte[] body,
                 @RequestParam("count") Integer count) { return body; }

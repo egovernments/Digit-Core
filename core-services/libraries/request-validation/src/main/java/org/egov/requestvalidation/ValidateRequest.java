@@ -1,5 +1,7 @@
 package org.egov.requestvalidation;
 
+import org.egov.requestvalidation.core.ContentExemption;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -18,6 +20,12 @@ public @interface ValidateRequest {
     ValidationMode mode() default ValidationMode.DEFAULT;
     String[] skipPaths() default {};
     String reason() default "";
+    /**
+     * Accepts body string values the content check flagged when this rule allows them, for fields that
+     * legitimately hold markup. A bean of this type if one exists, otherwise created by the bean factory.
+     * The innermost declaration wins. Like skipPaths, it needs a reason.
+     */
+    Class<? extends ContentExemption> exemption() default ContentExemption.None.class;
     // -1 inherits the enclosing declaration or service configuration.
     int maxBodyBytes() default -1;
     int maxDepth() default -1;

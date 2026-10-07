@@ -14,3 +14,4 @@ export const ContentDetector = cjs.ContentDetector;
 export const SkipPathMatcher = cjs.SkipPathMatcher;
 export const SafeLocationFormatter = cjs.SafeLocationFormatter;
 export const JsonDocumentInspector = cjs.JsonDocumentInspector;
+export const FlaggedValue = cjs.FlaggedValue;

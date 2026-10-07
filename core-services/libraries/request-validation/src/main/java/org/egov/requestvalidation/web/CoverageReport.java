@@ -4,6 +4,7 @@ import org.egov.requestvalidation.Structured;
 import org.egov.requestvalidation.ValidateRequest;
 import org.egov.requestvalidation.config.EffectiveValidationPolicy;
 import org.egov.requestvalidation.config.ValidationPolicyResolver;
+import org.egov.requestvalidation.core.ContentExemption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -57,9 +58,10 @@ public final class CoverageReport implements SmartInitializingSingleton {
                 // Resolve every body at startup, including disabled handlers, to catch invalid limits/paths.
                 if (StructuredBodyAdvice.isBody(parameter)) {
                     EffectiveValidationPolicy body = resolve(name, () -> resolver.parameter(parameter));
-                    LOG.info("request_validation_body handler={} index={} enabled={} structured={} mode={} skipPaths={}",
+                    LOG.info("request_validation_body handler={} index={} enabled={} structured={} mode={} skipPaths={}{}",
                             name, parameter.getParameterIndex(), body.enabled(), body.structured(), body.mode(),
-                            display(body.skipPaths()));
+                            display(body.skipPaths()), body.exemption() == null ? ""
+                                    : " exemption=" + body.exemption().getClass().getName());
                 } else if (annotation != null) {
                     LOG.warn("request_validation_scalar_settings_ignored handler={} index={}", name, parameter.getParameterIndex());
                 }
@@ -103,7 +105,8 @@ public final class CoverageReport implements SmartInitializingSingleton {
             LOG.warn("request_validation_parameter_enabled_ignored handler={}", handler);
         }
         boolean exclusion = (!parameter && !annotation.enabled())
-                || annotation.structured() == Structured.DISABLED || annotation.skipPaths().length > 0;
+                || annotation.structured() == Structured.DISABLED || annotation.skipPaths().length > 0
+                || annotation.exemption() != ContentExemption.None.class;
         if (exclusion) {
             if (isBlank(annotation.reason())) {
                 LOG.warn("request_validation_exclusion_missing_reason handler={}", handler);

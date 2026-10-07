@@ -12,6 +12,7 @@ var InspectionError = require('./InspectionError');
 var InspectionLimits = require('./InspectionLimits');
 var SkipPathMatcher = require('./SkipPathMatcher');
 var SafeLocationFormatter = require('./SafeLocationFormatter');
+var FlaggedValue = require('./FlaggedValue');
 var utf8 = require('./jdk/utf8');
 var Tokenizer = require('./jackson/Tokenizer');
 
@@ -93,6 +94,10 @@ class JsonDocumentInspector {
    * @param {function(): number} [options.now] clock for the deadline (default Date.now)
    * @param {{size: number}} [options.textBufferPool] the recycled parser text buffer to start from and return to
    *   (default: none, as on a thread that has not parsed before)
+   * @param {function(FlaggedValue): boolean} [options.exemption] the Java overload's exemption: offered each flagged
+   *   string value once the whole body has passed the syntax and limit checks; a finding it returns true for is
+   *   dropped, false or a throw keeps it. Findings are still reported in document order; if the body fails a syntax
+   *   or limit check, every finding before the failure is reported unchanged and the exemption is not consulted.
    * @throws {InspectionError} the structural or limit finding
    */
   inspect(body, limits, skipPaths, rejectDuplicateKeys, rejectDualRequestInfo, contentViolations, options) {
@@ -118,6 +123,12 @@ class JsonDocumentInspector {
     var opts = options === undefined || options === null ? {} : options;
     var deadline = typeof opts.deadline === 'number' ? opts.deadline : null;
     var now = typeof opts.now === 'function' ? opts.now : Date.now;
+    if (opts.exemption !== undefined && opts.exemption !== null && typeof opts.exemption !== 'function') {
+      throw new TypeError('exemption');
+    }
+    var exemption = typeof opts.exemption === 'function' ? opts.exemption : null;
+    // Findings held back until the whole body has been read, and every string value by JSON Pointer.
+    var deferred = exemption === null ? null : { strings: new Map(), findings: [] };
 
     if (bytes.length > limits.maxBodyBytes) {
       throw failure(ViolationCode.REQUEST_LIMIT_EXCEEDED, 'max-body-bytes', [], bytes.length);
@@ -146,7 +157,10 @@ class JsonDocumentInspector {
     var countdown = BUDGET_TOKENS;
     var longText = false;
 
-    function inspectContent(value) {
+    function inspectContent(value, stringValue) {
+      if (deferred !== null && stringValue) {
+        deferred.strings.set(FlaggedValue.format(path), value);
+      }
       if (skipPaths.matches(path)) {
         return;
       }
@@ -154,10 +168,44 @@ class JsonDocumentInspector {
       if (rule !== null && rule !== undefined) {
         var violation = new Violation(ViolationCode.REQUEST_CONTENT_NOT_ALLOWED, rule,
             SafeLocationFormatter.format(path), value.length);
+        if (deferred !== null) {
+          // Field names are never offered to the exemption.
+          deferred.findings.push({ violation: violation, path: stringValue ? path.slice() : null, value: value });
+          return;
+        }
         consumerFailed = true;
         contentViolations(violation);
         consumerFailed = false;
       }
+    }
+
+    function allows(finding) {
+      try {
+        return exemption(new FlaggedValue(finding.path, finding.value, finding.violation.ruleId,
+            deferred.strings)) === true;
+      } catch (e) {
+        // Fails closed: a broken exemption keeps the finding (REPORT logs it, ENFORCE rejects).
+        return false;
+      }
+    }
+
+    function report(consult) {
+      var findings = deferred.findings;
+      deferred.findings = [];
+      for (var i = 0; i < findings.length; i++) {
+        if (consult && findings[i].path !== null && allows(findings[i])) {
+          continue;
+        }
+        contentViolations(findings[i].violation);
+      }
+    }
+
+    // A syntax or limit failure first reports the held-back findings unchanged, as without an exemption.
+    function failed(error) {
+      if (deferred !== null && error instanceof InspectionError) {
+        report(false);
+      }
+      return error;
     }
 
     try {
@@ -211,7 +259,7 @@ class JsonDocumentInspector {
             }
           }
           object.currentField = name;
-          inspectContent(name);
+          inspectContent(name, false);
           if (name.length > BUDGET_LONG_TEXT) {
             longText = true;
           }
@@ -259,7 +307,7 @@ class JsonDocumentInspector {
           if (value.length > limits.maxStringLength) {
             throw failure(ViolationCode.REQUEST_LIMIT_EXCEEDED, 'max-string-length', path, value.length);
           }
-          inspectContent(value);
+          inspectContent(value, true);
           if (value.length > BUDGET_LONG_TEXT) {
             longText = true;
           }
@@ -276,13 +324,13 @@ class JsonDocumentInspector {
       }
     } catch (e) {
       if (consumerFailed || e instanceof InspectionError) {
-        throw e;
+        throw failed(e);
       }
       if (e instanceof StreamConstraintsError) {
-        throw failure(ViolationCode.REQUEST_LIMIT_EXCEEDED, 'parser-limit', path, 0);
+        throw failed(failure(ViolationCode.REQUEST_LIMIT_EXCEEDED, 'parser-limit', path, 0));
       }
       if (e instanceof JsonParseError) {
-        throw failure(ViolationCode.REQUEST_JSON_MALFORMED, 'json', path, 0);
+        throw failed(failure(ViolationCode.REQUEST_JSON_MALFORMED, 'json', path, 0));
       }
       throw e;
     } finally {
@@ -290,7 +338,10 @@ class JsonDocumentInspector {
     }
 
     if (!started || !complete || contexts.length !== 0) {
-      throw failure(ViolationCode.REQUEST_JSON_MALFORMED, 'json', path, 0);
+      throw failed(failure(ViolationCode.REQUEST_JSON_MALFORMED, 'json', path, 0));
+    }
+    if (deferred !== null) {
+      report(true);
     }
   }
 }

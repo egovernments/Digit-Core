@@ -12,6 +12,7 @@ var ContentDetector = require('./core/ContentDetector');
 var SkipPathMatcher = require('./core/SkipPathMatcher');
 var SafeLocationFormatter = require('./core/SafeLocationFormatter');
 var JsonDocumentInspector = require('./core/JsonDocumentInspector');
+var FlaggedValue = require('./core/FlaggedValue');
 var resolve = require('./config/resolve');
 var defaults = require('./config/defaults');
 var coverage = require('./config/coverage');
@@ -78,7 +79,7 @@ function inspectionFunctions(detector, limits, rejectDuplicateKeys, rejectDualRe
     try {
       useInspector.inspect(body, useLimits, matcher, dup, dual, function (violation) {
         findings.push(violation);
-      });
+      }, { exemption: opts.exemption });
     } catch (e) {
       if (!(e instanceof InspectionError)) {
         throw e;
@@ -178,5 +179,6 @@ module.exports = {
   ContentDetector: ContentDetector,
   SkipPathMatcher: SkipPathMatcher,
   SafeLocationFormatter: SafeLocationFormatter,
-  JsonDocumentInspector: JsonDocumentInspector
+  JsonDocumentInspector: JsonDocumentInspector,
+  FlaggedValue: FlaggedValue
 };
