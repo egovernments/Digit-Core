@@ -82,23 +82,4 @@ public class UserIdpDetailsRepository {
         namedParameterJdbcTemplate.update(auditQuery, auditParams);
     }
 
-    /**
-     * Checks if a tokenId has already been used (token replay protection).
-     * 
-     * @param tokenId the JWT token ID (jti/uti) to check
-     * @param tenantId the tenant ID
-     * @return true if the tokenId has been used before, false otherwise
-     */
-    public boolean isTokenReplay(String tokenId, String tenantId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("tokenid", tokenId);
-        params.put("tenantid", tenantId);
-
-        String query = databaseSchemaUtils.replaceSchemaPlaceholder(
-                UserIdpDetailsQueryBuilder.CHECK_TOKEN_REPLAY, tenantId);
-        
-        Integer count = namedParameterJdbcTemplate.queryForObject(query, params, Integer.class);
-        return count != null && count > 0;
-    }
-
 }

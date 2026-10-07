@@ -2,7 +2,6 @@ package org.egov.user.domain.service;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.user.domain.exception.sso.IdpPersistenceException;
-import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserIdpDetails;
 import org.egov.user.domain.model.UserIdpLink;
@@ -133,21 +132,6 @@ public class SsoUserPersistenceServiceTest {
         verify(userIdpDetailsRepository).upsert(testIdpDetails, TENANT_ID);
     }
 
-    @Test(expected = TokenReplayException.class)
-    public void testUpdateUserAndUpsertIdpDetails_TokenReplayViolation() {
-        // Arrange
-        DataIntegrityViolationException constraintViolation = new DataIntegrityViolationException(
-                "Duplicate key value violates unique constraint \"eg_user_idp_details_tokenid_tenantid_key\"");
-        
-        when(userService.updateWithoutOtpValidation(any(User.class), any(RequestInfo.class)))
-                .thenReturn(testUser);
-        doThrow(constraintViolation).when(userIdpDetailsRepository).upsert(any(UserIdpDetails.class), anyString());
-
-        // Act
-        ssoUserPersistenceService.updateUserAndUpsertIdpDetails(
-                testUser, testIdpDetails, TENANT_ID, testRequestInfo, null);
-    }
-
     @Test(expected = DataIntegrityViolationException.class)
     public void testUpdateUserAndUpsertIdpDetails_OtherDataIntegrityViolation() {
         // Arrange
@@ -173,18 +157,6 @@ public class SsoUserPersistenceServiceTest {
 
         // Assert
         verify(userIdpDetailsRepository).upsert(testIdpDetails, TENANT_ID);
-    }
-
-    @Test(expected = TokenReplayException.class)
-    public void testUpsertIdpDetailsOnly_TokenReplayViolation() {
-        // Arrange
-        DataIntegrityViolationException constraintViolation = new DataIntegrityViolationException(
-                "Duplicate key value violates unique constraint \"eg_user_idp_details_tokenid_tenantid_key\"");
-        
-        doThrow(constraintViolation).when(userIdpDetailsRepository).upsert(any(UserIdpDetails.class), anyString());
-
-        // Act
-        ssoUserPersistenceService.upsertIdpDetailsOnly(testIdpDetails, TENANT_ID);
     }
 
     @Test(expected = DataIntegrityViolationException.class)
@@ -222,65 +194,6 @@ public class SsoUserPersistenceServiceTest {
 
         // Act
         ssoUserPersistenceService.upsertIdpDetailsOnly(detailsWithoutId, TENANT_ID);
-    }
-
-    @Test
-    public void testIsTokenReplay_ValidToken() {
-        // Arrange
-        when(userIdpDetailsRepository.isTokenReplay(TOKEN_ID, TENANT_ID)).thenReturn(false);
-
-        // Act
-        boolean result = ssoUserPersistenceService.isTokenReplay(TOKEN_ID, TENANT_ID);
-
-        // Assert
-        assertFalse(result);
-        verify(userIdpDetailsRepository).isTokenReplay(TOKEN_ID, TENANT_ID);
-    }
-
-    @Test
-    public void testIsTokenReplay_ReplayedToken() {
-        // Arrange
-        when(userIdpDetailsRepository.isTokenReplay(TOKEN_ID, TENANT_ID)).thenReturn(true);
-
-        // Act
-        boolean result = ssoUserPersistenceService.isTokenReplay(TOKEN_ID, TENANT_ID);
-
-        // Assert
-        assertTrue(result);
-        verify(userIdpDetailsRepository).isTokenReplay(TOKEN_ID, TENANT_ID);
-    }
-
-    @Test
-    public void testIsTokenReplay_DatabaseError_FailSecure() {
-        // Arrange
-        when(userIdpDetailsRepository.isTokenReplay(TOKEN_ID, TENANT_ID))
-                .thenThrow(new RuntimeException("Database connection failed"));
-
-        // Act
-        boolean result = ssoUserPersistenceService.isTokenReplay(TOKEN_ID, TENANT_ID);
-
-        // Assert
-        assertTrue(result); // Should fail-secure and return true
-    }
-
-    @Test
-    public void testIsTokenReplay_NullToken() {
-        // Act
-        boolean result = ssoUserPersistenceService.isTokenReplay(null, TENANT_ID);
-
-        // Assert
-        assertFalse(result);
-        verify(userIdpDetailsRepository).isTokenReplay(eq(null), eq(TENANT_ID));
-    }
-
-    @Test
-    public void testIsTokenReplay_EmptyToken() {
-        // Act
-        boolean result = ssoUserPersistenceService.isTokenReplay("", TENANT_ID);
-
-        // Assert
-        assertFalse(result);
-        verify(userIdpDetailsRepository).isTokenReplay(eq(""), eq(TENANT_ID));
     }
 
     @Test

@@ -98,7 +98,7 @@ Steps
 1. `JwtValidationService.validate(token, sharedTenantId)` — provider resolution filters on `tenantId = shared tenant`, so the MDMS `IdentityProviders` master needs one entry whose `tenantId` is the shared tenant (issuer, JWKS, audiences, `usernameClaimKey`). `jitEnabled` is meaningless on that entry.
 2. Read `provider.usernameClaimKey` (default `preferred_username`); missing claim → `401 sso.param.username_claim_missing`.
 3. `usernamekey = encryptValue(claim, sharedTenant, "Normal")`; `SELECT tenantid, userid, uuid FROM public.eg_user_tenant_mapping WHERE usernamekey=? AND type=? AND active ORDER BY tenantid`.
-4. No replay record written; the same `id_token` is expected at the next exchange.
+4. Nothing written; the same `id_token` is expected at the next exchange.
 
 Errors reuse `SsoErrorCodes`; status comes from each `SsoException` (`sso.jwt.*` → `401`, `sso.param.*` → `400`, `sso.oidc.provider_not_found` → `500`, matching the token endpoint).
 
@@ -119,7 +119,7 @@ flowchart TD
 
 - Username lookup: `UserService.getUniqueUser(userName, tenantId, userType)`, exact match as today.
 - `createUserForSsoUpdate` no longer sets `roles`; the `rolesChanged` branch is removed (R6).
-- Everything else (replay check, MFA, eligibility, token issuance) unchanged.
+- Everything else (MFA, eligibility, token issuance) unchanged.
 
 ### 5.3 MDMS `SSO.IdentityProviders` entry — new fields
 
@@ -200,7 +200,7 @@ Unchanged: UI calls `jwt_exchange` with the tenant from the URL. Resolution per 
 
 - The tenants endpoint reveals tenant membership only to a holder of a valid, unexpired, signature-checked `id_token` for that identity plus the registered client id. Enumeration of other users is not possible from the endpoint.
 - The OAuth client has no secret configured today; the filter checks client id existence, matching the token endpoint's effective posture. Adding a secret is a separate change.
-- No new token material is stored. Replay protection stays on the exchange.
+- No new token material is stored.
 - The mapping table never holds plaintext usernames; `usernamekey` is enc-service ciphertext under the shared tenant key. Rotating that key (`_rotateallkeys`) invalidates lookups exactly as it does for existing username search; re-derive keys after rotation.
 - Username linking binds an IdP subject to a pre-provisioned user on first login. It runs only when the user has no IdP subject yet; a user already linked to a different subject is rejected with `sso.user.not_onboarded`. The configured `usernameClaimKey` must be a claim the IdP guarantees unique and non-reassignable for that provider; `preferred_username` in Entra ID meets this, free-text claims do not.
 - `SsoCacheAdminController` remains unauthenticated at the application layer; unchanged by this design, tracked in `OIDC-SSO-LOGIN.md` §8.
@@ -228,7 +228,7 @@ e2e (`egov-user/e2e`, tenants `bo`/`oy`, mock OIDC issuer container)
 | T5 | pre-provisioned password user, first SSO | linked, no duplicate, roles unchanged |
 | T6 | JIT off, unknown user, exchange | `401 sso.user.not_onboarded` |
 | T7 | JIT on, unknown user, exchange | user + mapping row created |
-| T8 | same `id_token`: tenants then exchange, then exchange again | ok, ok, replay `401` |
+| T8 | same `id_token`: tenants then exchange, then exchange again | ok, ok, ok |
 | T9 | bad Basic client | `401` |
 | T10 | `auth.oidc.enabled=false` | `404` |
 | T11 | `tenantId=bo` on tenants endpoint (shared is `who`) | `400 sso.param.tenant_not_shared` |

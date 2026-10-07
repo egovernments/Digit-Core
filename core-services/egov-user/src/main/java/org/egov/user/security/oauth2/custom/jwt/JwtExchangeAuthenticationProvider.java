@@ -13,7 +13,6 @@ import org.egov.user.domain.exception.sso.OidcProviderConfigException;
 import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.domain.exception.sso.SsoUserMappingException;
 import org.egov.user.domain.exception.sso.SsoUserNotOnboardedException;
-import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.Role;
 import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
@@ -54,8 +53,7 @@ import static org.springframework.util.StringUtils.isEmpty;
  * 
  * <p>This provider handles the complete authentication lifecycle for SSO users using
  * JWT tokens from identity providers. It supports both existing user updates and new
- * user creation scenarios with comprehensive security features including token replay
- * protection, MFA enrichment, and HRMS integration.</p>
+ * user creation scenarios with MFA enrichment and HRMS integration.</p>
  * 
  * <p>Key capabilities:</p>
  * <ul>
@@ -64,7 +62,6 @@ import static org.springframework.util.StringUtils.isEmpty;
  *   <li>Automatic user creation with HRMS integration</li>
  *   <li>Role and designation mapping from JWT claims</li>
  *   <li>MFA device registration and enforcement</li>
- *   <li>Token replay protection for security</li>
  *   <li>Account status validation and unlock functionality</li>
  *   <li>Multi-tenant support with proper schema routing</li>
  * </ul>
@@ -191,8 +188,7 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
 
         validateUserType(jwt);
 
-        // TOKEN REPLAY PROTECTION
-        validateTokenReplay(jwt, input.tenantId);
+        validateTokenIdPresent(jwt);
 
         ProviderAndMfa providerAndMfa = resolveProviderAndMfa(jwt, input.tenantId);
 
@@ -256,22 +252,10 @@ public class JwtExchangeAuthenticationProvider implements AuthenticationProvider
         }
     }
 
-    /**
-     * Validates that the JWT token has not been used before (replay protection).
-     * 
-     * @param jwt the validated JWT containing tokenId
-     * @param tenantId the tenant ID
-     * @throws TokenReplayException if the tokenId has been used before
-     */
-    private void validateTokenReplay(OidcValidatedJwt jwt, String tenantId) {
+    private void validateTokenIdPresent(OidcValidatedJwt jwt) {
         String tokenId = jwt.getTokenId();
         if (tokenId == null || tokenId.isEmpty()) {
             throw IdpJwtValidationException.invalid(JwtConstants.ERROR_MISSING_TOKEN_ID, null);
-        }
-        
-        // Check if token has been used before via service layer
-        if (ssoUserPersistenceService.isTokenReplay(tokenId, tenantId)) {
-            throw new TokenReplayException(tokenId);
         }
     }
 

@@ -2,7 +2,6 @@ package org.egov.user.domain.service;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.user.domain.exception.sso.IdpPersistenceException;
-import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.UserIdpDetails;
 import org.egov.user.domain.model.UserIdpLink;
@@ -10,20 +9,14 @@ import org.egov.user.persistence.repository.UserIdpDetailsRepository;
 import org.egov.user.persistence.repository.UserIdpLinkRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for managing SSO user persistence operations with token replay protection.
+ * Service for managing SSO user persistence operations.
  * 
  * <p>This service provides atomic operations for persisting user and IDP details during SSO authentication
- * flows. It implements comprehensive token replay protection through multiple layers:
- * <ul>
- *   <li>Application-level validation via {@link #isTokenReplay(String, String)}</li>
- *   <li>Database constraint enforcement (unique constraint on tokenId + tenantId)</li>
- *   <li>Exception handling for constraint violations</li>
- * </ul>
+ * flows.
  * 
  * <p>The service handles two main persistence scenarios:
  * <ol>
@@ -34,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>All operations are transactional and include comprehensive input validation and error handling
  * to maintain data integrity and provide meaningful error messages for SSO integration scenarios.
  * 
- * @see org.egov.user.domain.exception.sso.TokenReplayException
  * @see org.egov.user.persistence.repository.UserIdpDetailsRepository
  */
 @Service
@@ -58,12 +50,10 @@ public class SsoUserPersistenceService {
      * Updates user record and upserts IDP details in a single atomic transaction.
      * 
      * <p>This method is used when both user information and IDP details must be persisted together,
-     * typically during SSO login with role changes or new user creation scenarios. The operation
-     * includes comprehensive token replay protection through database constraint enforcement.
+     * typically during SSO login with role changes or new user creation scenarios.
      * 
      * <p>The transaction ensures that either both the user update and IDP details upsert succeed,
-     * or neither does, maintaining data consistency. Any constraint violation on the unique
-     * tokenId + tenantId constraint is converted to a {@link TokenReplayException}.
+     * or neither does, maintaining data consistency.
      * 
      * @param user the user domain object to update (must contain valid user data)
      * @param idpDetails the IDP details to persist (tokenId, expiration, MFA data)
@@ -71,27 +61,19 @@ public class SsoUserPersistenceService {
      * @param requestInfo the request context containing user information for audit trails
      * @param link optional IdP link to insert in the same transaction; skipped when null
      * @return the updated user domain object with latest state
-     * @throws TokenReplayException if the tokenId has already been used (database constraint violation)
      * @throws IdpPersistenceException if required input parameters are null or invalid
-     * @throws DataIntegrityViolationException if other database constraints are violated
+     * @throws org.springframework.dao.DataIntegrityViolationException if database constraints are violated
      */
     @Transactional
     public User updateUserAndUpsertIdpDetails(User user, UserIdpDetails idpDetails,
                                               String tenantId, RequestInfo requestInfo, UserIdpLink link) {
         validateIdpPersistenceInput(idpDetails, tenantId);
-        try {
-            User updatedUser = userService.updateWithoutOtpValidation(user, requestInfo);
-            userIdpDetailsRepository.upsert(idpDetails, tenantId);
-            if (link != null) {
-                userIdpLinkRepository.insert(link);
-            }
-            return updatedUser;
-        } catch (DataIntegrityViolationException e) {
-            if (e.getMessage() != null && e.getMessage().contains("eg_user_idp_details_tokenid_tenantid_key")) {
-                throw new TokenReplayException(idpDetails.getTokenId());
-            }
-            throw e;
+        User updatedUser = userService.updateWithoutOtpValidation(user, requestInfo);
+        userIdpDetailsRepository.upsert(idpDetails, tenantId);
+        if (link != null) {
+            userIdpLinkRepository.insert(link);
         }
+        return updatedUser;
     }
 
     /**
@@ -99,28 +81,17 @@ public class SsoUserPersistenceService {
      * 
      * <p>This method is used when the user record remains unchanged but IDP session and MFA
      * details must be updated, typically during existing user SSO login scenarios without
-     * role changes. The operation includes token replay protection through database constraints.
-     * 
-     * <p>The method validates input parameters and handles constraint violations by converting
-     * them to {@link TokenReplayException} for consistent error handling in SSO flows.
+     * role changes.
      * 
      * @param idpDetails the IDP details to persist (tokenId, expiration, MFA data)
      * @param tenantId the tenant identifier for schema routing and data isolation
-     * @throws TokenReplayException if the tokenId has already been used (database constraint violation)
      * @throws IdpPersistenceException if required input parameters are null or invalid
-     * @throws DataIntegrityViolationException if other database constraints are violated
+     * @throws org.springframework.dao.DataIntegrityViolationException if database constraints are violated
      */
     @Transactional
     public void upsertIdpDetailsOnly(UserIdpDetails idpDetails, String tenantId) {
         validateIdpPersistenceInput(idpDetails, tenantId);
-        try {
-            userIdpDetailsRepository.upsert(idpDetails, tenantId);
-        } catch (DataIntegrityViolationException e) {
-            if (e.getMessage() != null && e.getMessage().contains("eg_user_idp_details_tokenid_tenantid_key")) {
-                throw new TokenReplayException(idpDetails.getTokenId());
-            }
-            throw e;
-        }
+        userIdpDetailsRepository.upsert(idpDetails, tenantId);
     }
 
     /**
@@ -146,33 +117,6 @@ public class SsoUserPersistenceService {
         if (tenantId == null) {
             LOG.error("IDP details persistence aborted: tenantId is null for userId={}", details.getId());
             throw IdpPersistenceException.invalidInput("tenantId is null");
-        }
-    }
-
-    /**
-     * Checks if a JWT token ID has already been used (token replay protection).
-     * 
-     * <p>This method implements the first layer of token replay protection by querying
-     * the database to determine if the given tokenId has been previously used for SSO
-     * authentication within the same tenant. This validation occurs before any database
-     * write operations to prevent unnecessary processing.
-     * 
-     * <p>The method follows a fail-secure approach: if the database query fails for any
-     * reason (connection issues, query errors, etc.), it assumes the token is a replay
-     * attempt and returns true to prevent potential security breaches.
-     * 
-     * @param tokenId the JWT token ID (jti or uti claim) to check for previous usage
-     * @param tenantId the tenant identifier to scope the token replay check
-     * @return true if the tokenId has been used before or if database check fails, false otherwise
-     * @throws Exception if database query fails (assumes token replay for security)
-     */
-    public boolean isTokenReplay(String tokenId, String tenantId) {
-        try {
-            return userIdpDetailsRepository.isTokenReplay(tokenId, tenantId);
-        } catch (Exception e) {
-            LOG.error("Error checking token replay for tokenId={}, tenantId={}", tokenId, tenantId, e);
-            // Fail secure: if we can't check, assume it's a replay to be safe
-            return true;
         }
     }
 }

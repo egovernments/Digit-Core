@@ -11,7 +11,6 @@ import org.egov.user.domain.exception.sso.SsoException;
 import org.egov.user.domain.exception.sso.SsoMissingParamException;
 import org.egov.user.domain.exception.sso.SsoUserMappingException;
 import org.egov.user.domain.exception.sso.SsoUserNotOnboardedException;
-import org.egov.user.domain.exception.sso.TokenReplayException;
 import org.egov.user.domain.model.*;
 import org.egov.user.persistence.repository.UserIdpLinkRepository;
 import org.egov.user.domain.model.enums.UserType;
@@ -106,7 +105,6 @@ public class JwtExchangeAuthenticationProviderTest {
                                             .active(true)
                                             .build();
                                 });
-                when(ssoUserPersistenceService.isTokenReplay(anyString(), anyString())).thenReturn(false);
                 when(userIdpLinkRepository.find(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.empty());
                 when(userIdpLinkRepository.findByUser(any(), anyString())).thenReturn(Collections.emptyList());
                 when(authProperties.getProviders()).thenReturn(Collections.singletonList(provider));
@@ -1524,8 +1522,8 @@ public class JwtExchangeAuthenticationProviderTest {
                 assertEquals("uti-123", idpCaptor.getValue().getTokenId());
         }
 
-        @Test(expected = TokenReplayException.class)
-        public void testAuthenticate_TokenReplay_ThrowsTokenReplayException() {
+        @Test
+        public void testAuthenticate_SameIdTokenReused_Succeeds() {
                 String token = "jwt-token";
                 JwtExchangeAuthenticationToken authenticationToken =
                                 new JwtExchangeAuthenticationToken(token, TENANT_PB);
@@ -1538,16 +1536,19 @@ public class JwtExchangeAuthenticationProviderTest {
 
                 OidcValidatedJwt jwt = oidcJwt(claims, token);
 
+                Set<Role> sameRoles = new HashSet<>();
+                sameRoles.add(Role.builder().code("ROLE").tenantId(TENANT_PB).build());
                 User user = User.builder().uuid("uuid").type(UserType.EMPLOYEE).active(true)
-                                .roles(Collections.emptySet()).tenantId(TENANT_PB).build();
+                                .roles(sameRoles).tenantId(TENANT_PB).build();
 
                 when(jwtValidationService.validate(anyString(), anyString())).thenReturn(jwt);
-                when(ssoUserPersistenceService.isTokenReplay(anyString(), anyString())).thenReturn(true);
                 when(userIdpLinkRepository.find(anyString(), anyString(), anyString(), anyString()))
                 		.thenReturn(Optional.of(UserIdpLink.builder().userId(user.getId()).providerId("oidc-azure").tenantId(TENANT_PB).build()));
                 when(userService.getUserById(any(), anyString())).thenReturn(user);
 
-                authenticationProvider.authenticate(authenticationToken);
+                assertNotNull(authenticationProvider.authenticate(authenticationToken));
+                assertNotNull(authenticationProvider.authenticate(authenticationToken));
+                verify(ssoUserPersistenceService, times(2)).upsertIdpDetailsOnly(any(UserIdpDetails.class), eq(TENANT_PB));
         }
 
         @Test
@@ -2096,36 +2097,6 @@ public class JwtExchangeAuthenticationProviderTest {
                         // Expected - invalid JWT should result in authentication exception
                         assertTrue("Error should contain JWT validation failure",
                                 e.getMessage().contains("Invalid JWT"));
-                }
-        }
-
-        @Test
-        public void testAuthenticate_TokenReplayAttack_Rejected() {
-                String token = "replayed-jwt-token";
-                JwtExchangeAuthenticationToken authenticationToken =
-                                new JwtExchangeAuthenticationToken(token, TENANT_PB);
-
-                Map<String, Object> claims = new HashMap<>();
-                claims.put("iss", "issuer");
-                claims.put("sub", "subject");
-                claims.put("tenantId", TENANT_PB);
-                claims.put("userType", "EMPLOYEE");
-
-                OidcValidatedJwt jwt = oidcJwt(claims, token);
-
-                when(jwtValidationService.validate(eq(token), eq(TENANT_PB))).thenReturn(jwt);
-                
-                // Mock token replay detection
-                when(ssoUserPersistenceService.isTokenReplay(anyString(), anyString()))
-                                .thenReturn(true);
-
-                try {
-                        authenticationProvider.authenticate(authenticationToken);
-                        fail("Expected TokenReplayException for replayed token");
-                } catch (TokenReplayException e) {
-                        // Expected - token replay should be detected and rejected
-                        assertNotNull("Token replay exception should not be null", e);
-                        assertEquals("token_replay", e.getErrorCode());
                 }
         }
 

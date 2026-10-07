@@ -1,0 +1,1 @@
+ALTER TABLE eg_user_idp_details DROP CONSTRAINT IF EXISTS eg_user_idp_details_tokenid_tenantid_key;

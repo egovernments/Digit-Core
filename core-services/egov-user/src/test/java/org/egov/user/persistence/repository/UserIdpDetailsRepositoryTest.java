@@ -48,8 +48,6 @@ public class UserIdpDetailsRepositoryTest {
                 .thenReturn(UserIdpDetailsQueryBuilder.UPSERT_IDP_DETAILS.replace(DatabaseSchemaUtils.SCHEMA_REPLACE_STRING, "pb"));
         when(databaseSchemaUtils.replaceSchemaPlaceholder(eq(UserIdpDetailsQueryBuilder.INSERT_IDP_AUDIT), eq("pb")))
                 .thenReturn(UserIdpDetailsQueryBuilder.INSERT_IDP_AUDIT.replace(DatabaseSchemaUtils.SCHEMA_REPLACE_STRING, "pb"));
-        when(databaseSchemaUtils.replaceSchemaPlaceholder(eq(UserIdpDetailsQueryBuilder.CHECK_TOKEN_REPLAY), eq("pb")))
-                .thenReturn(UserIdpDetailsQueryBuilder.CHECK_TOKEN_REPLAY.replace(DatabaseSchemaUtils.SCHEMA_REPLACE_STRING, "pb"));
     }
 
     @Test
@@ -144,32 +142,4 @@ public class UserIdpDetailsRepositoryTest {
         assertEquals(Boolean.FALSE, upsertParams.get("mfaenabled"));
         assertEquals(Boolean.FALSE, auditParams.get("mfaenabled"));
     }
-
-    @Test
-    public void isTokenReplay_WhenTokenExists_ReturnsTrue() {
-        when(jdbcTemplate.queryForObject(anyString(), anyMap(), eq(Integer.class))).thenReturn(1);
-
-        boolean replay = repository.isTokenReplay("token-1", "pb");
-
-        assertTrue(replay);
-    }
-
-    @Test
-    public void isTokenReplay_WhenTokenNotExists_ReturnsFalse() {
-        when(jdbcTemplate.queryForObject(anyString(), anyMap(), eq(Integer.class))).thenReturn(0);
-
-        boolean replay = repository.isTokenReplay("token-2", "pb");
-
-        assertFalse(replay);
-    }
-
-    @Test
-    public void isTokenReplay_WhenNullCount_ReturnsFalse() {
-        when(jdbcTemplate.queryForObject(anyString(), anyMap(), eq(Integer.class))).thenReturn(null);
-
-        boolean replay = repository.isTokenReplay("token-3", "pb");
-
-        assertFalse(replay);
-    }
 }
-

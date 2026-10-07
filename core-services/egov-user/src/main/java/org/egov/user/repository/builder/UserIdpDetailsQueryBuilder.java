@@ -14,7 +14,6 @@ import static org.egov.user.utils.DatabaseSchemaUtils.SCHEMA_REPLACE_STRING;
  * <ul>
  *   <li>Upsert operations with conflict resolution for IDP details</li>
  *   <li>Audit trail insertion for tracking changes</li>
- *   <li>Token replay protection queries</li>
  * </ul>
  * 
  * <p>The upsert operation uses PostgreSQL ON CONFLICT clause to handle concurrent
@@ -56,9 +55,4 @@ public final class UserIdpDetailsQueryBuilder {
                     + "VALUES (:id, :userid, :tenantid, :uuid, :idptokenexp, :lastssologinat, :tokenid, "
                     + ":mfaenabled, :mfadevicename, :mfaphonelast4, :mfaregisteredon, :mfadetails, "
                     + ":createddate, :lastmodifieddate, :createdby, :lastmodifiedby)";
-
-    /** Query to check if a tokenId has already been used (token replay protection). */
-    public static final String CHECK_TOKEN_REPLAY =
-            "SELECT COUNT(*) FROM " + SCHEMA_REPLACE_STRING + ".eg_user_idp_details "
-            + "WHERE tokenid = :tokenid AND tenantid = :tenantid";
 }
