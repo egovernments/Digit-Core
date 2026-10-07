@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.egov.requestvalidation.ValidateRequest;
 
+@ValidateRequest
 @RestController
 @RequestMapping("/oauth")
 @ConditionalOnProperty(name = "auth.oidc.enabled", havingValue = "true")

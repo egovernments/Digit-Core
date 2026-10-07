@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import org.egov.requestvalidation.ValidateRequest;
 
 /**
  * Internal admin endpoints for managing SSO decoder caches.
@@ -19,6 +20,7 @@ import javax.validation.Valid;
  * or via dedicated security configuration. They SHOULD NOT be exposed to
  * untrusted callers.</p>
  */
+@ValidateRequest
 @RestController
 @RequestMapping("/sso")
 public class SsoCacheAdminController {

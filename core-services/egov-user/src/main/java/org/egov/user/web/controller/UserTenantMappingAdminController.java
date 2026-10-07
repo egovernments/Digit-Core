@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import org.egov.requestvalidation.ValidateRequest;
 
 /**
  * Internal admin endpoint for backfilling user tenant mappings.
@@ -21,6 +22,7 @@ import java.util.List;
  * <p>Like the other {@code /sso} admin endpoints this is for operational use and must be
  * protected at the API gateway; it must not be exposed to untrusted callers.</p>
  */
+@ValidateRequest
 @RestController
 @RequestMapping("/sso")
 public class UserTenantMappingAdminController {
