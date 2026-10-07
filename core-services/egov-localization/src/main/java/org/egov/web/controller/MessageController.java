@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.egov.requestvalidation.ValidateRequest;
+import org.egov.web.requestvalidation.MessageMarkupExemption;
 
 @ValidateRequest
 @RestController
@@ -54,6 +55,7 @@ public class MessageController {
 	}
 
 	@PostMapping("/v1/_upsert")
+	@ValidateRequest(exemption = MessageMarkupExemption.class, reason = "HTML e-mail templates for configured message codes")
 	public MessagesResponse upsertMessages(@Valid @RequestBody CreateMessagesRequest messageRequest,
 			BindingResult bindingResult) {
 
@@ -66,6 +68,7 @@ public class MessageController {
 	}
 
 	@PostMapping("/v1/_create")
+	@ValidateRequest(exemption = MessageMarkupExemption.class, reason = "HTML e-mail templates for configured message codes")
 	public MessagesResponse createMessages(@Valid @RequestBody CreateMessagesRequest messageRequest,
 			BindingResult bindingResult) {
 
@@ -89,6 +92,7 @@ public class MessageController {
 	}
 
 	@PostMapping(value = "/v1/_update")
+	@ValidateRequest(exemption = MessageMarkupExemption.class, reason = "HTML e-mail templates for configured message codes")
 	public MessagesResponse update(@RequestBody @Valid final UpdateMessageRequest messageRequest,
 			final BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
