@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.egov.infra.mdms.requestvalidation.MdmsMarkupExemption;
 import org.egov.requestvalidation.ValidateRequest;
 
 @ValidateRequest
@@ -32,6 +33,7 @@ public class MDMSControllerV2 {
      * @param schemaCode
      * @return
      */
+    @ValidateRequest(exemption = MdmsMarkupExemption.class, reason = "HTML e-mail templates and type names in master data")
     @RequestMapping(value="_create/{schemaCode}", method = RequestMethod.POST)
     public ResponseEntity<MdmsResponseV2> create(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
         List<Mdms> masterDataList = mdmsServiceV2.create(mdmsRequest);
@@ -55,6 +57,7 @@ public class MDMSControllerV2 {
      * @param schemaCode
      * @return
      */
+    @ValidateRequest(exemption = MdmsMarkupExemption.class, reason = "HTML e-mail templates and type names in master data")
     @RequestMapping(value="_update/{schemaCode}", method = RequestMethod.POST)
     public ResponseEntity<MdmsResponseV2> update(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
         List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest);
