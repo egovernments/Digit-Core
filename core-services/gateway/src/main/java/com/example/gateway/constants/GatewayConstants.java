@@ -54,7 +54,4 @@ public class GatewayConstants {
     public static final String REQUEST_ENRICHMENT_FAILURE_MESSAGE = "Failed to enrich request body";
     public static final String GATEWAY_UNEXPECTED_ERROR_MESSAGE = "Unexpected error at the API gateway";
 
-    public static final String X_CONTENT_TYPE_OPTIONS_HEADER = "X-Content-Type-Options";
-    public static final String NOSNIFF = "nosniff";
-
 }

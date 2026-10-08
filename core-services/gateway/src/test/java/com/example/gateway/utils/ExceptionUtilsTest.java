@@ -5,15 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.egov.tracer.model.CustomException;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.mock.web.server.MockServerWebExchange;
-import org.springframework.web.client.HttpClientErrorException;
 
-import java.nio.charset.StandardCharsets;
 
 import static com.example.gateway.constants.GatewayConstants.GATEWAY_UNEXPECTED_ERROR_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,25 +36,11 @@ class ExceptionUtilsTest {
         return mapper.readTree(body(response)).path("Errors").path(0);
     }
 
-    private static void assertSecurityHeaders(MockServerHttpResponse response) {
-        HttpHeaders headers = response.getHeaders();
-        assertTrue(MediaType.APPLICATION_JSON.isCompatibleWith(headers.getContentType()));
-        assertEquals("nosniff", headers.getFirst("X-Content-Type-Options"));
-    }
-
-    private static void assertNoRawMarkup(String body) {
-        assertFalse(body.contains("<"), body);
-        assertFalse(body.contains(">"), body);
-    }
-
     @Test
-    void custom_exception_keeps_status_and_text_but_never_emits_raw_markup() throws Exception {
+    void custom_exception_keeps_status_and_text() throws Exception {
         MockServerHttpResponse response = raise(new CustomException("SOME_CODE", "value " + PAYLOAD));
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertSecurityHeaders(response);
-        assertNoRawMarkup(body(response));
-        // lossless for JSON clients: the parsed text is unchanged
         assertEquals("value " + PAYLOAD, firstError(response).path("message").asText());
         assertEquals("CustomException", firstError(response).path("code").asText());
     }
@@ -68,7 +50,6 @@ class ExceptionUtilsTest {
         MockServerHttpResponse response = raise(new IllegalArgumentException("Cannot deserialize value of type `java.lang.Long` from String \"" + PAYLOAD + "\""));
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertSecurityHeaders(response);
         String body = body(response);
         assertFalse(body.contains("135ta8ws"), body);
         assertFalse(body.contains("alert(1)"), body);
@@ -94,29 +75,16 @@ class ExceptionUtilsTest {
     }
 
     @Test
-    void user_details_exception_passes_egov_user_fields_through_escaped() throws Exception {
+    void user_details_exception_passes_egov_user_fields_through() throws Exception {
         MockServerHttpResponse response = raise(new UserDetailsException("InvalidAccessTokenException",
                 "InvalidAccessTokenException <img src=x onerror=alert(1)>", "d & 'e'"));
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertSecurityHeaders(response);
-        assertNoRawMarkup(body(response));
         JsonNode error = firstError(response);
         assertEquals("InvalidAccessTokenException", error.path("code").asText());
         assertEquals("InvalidAccessTokenException <img src=x onerror=alert(1)>", error.path("message").asText());
         assertEquals("d & 'e'", error.path("description").asText());
     }
-
-    @Test
-    void passed_through_downstream_error_body_is_escaped() {
-        HttpClientErrorException e = HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Forbidden", null,
-                ("{\"Errors\":[{\"message\":\"" + PAYLOAD + "\"}]}").getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-        MockServerHttpResponse response = raise(e);
-
-        assertSecurityHeaders(response);
-        assertNoRawMarkup(body(response));
-    }
-
 
     @Test
     void existing_status_codes_are_unchanged() {

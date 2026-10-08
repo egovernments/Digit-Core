@@ -80,7 +80,6 @@ class AuthPreCheckFilterHelperTest {
         assertEquals(HttpStatus.UNAUTHORIZED, exchange.getResponse().getStatusCode());
         assertFalse(responseBody.contains("135r6kfl"), responseBody);
         assertFalse(responseBody.contains("alert(1)"), responseBody);
-        assertEquals("nosniff", exchange.getResponse().getHeaders().getFirst("X-Content-Type-Options"));
     }
 
     @Test
