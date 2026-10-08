@@ -38,5 +38,20 @@ public class GatewayConstants {
     public static final String TENANT_ID_KEY = "TENANT_ID";
     public static final String OPEN_ENDPOINT_MESSAGE = "Routing to an open endpoint: {}";
 
+    // Client-facing error texts. Never put exception messages or request input in a gateway error response
+    // (reflected XSS). The UI redirects on "internal server error", "some error occured" and "ZuulRuntimeException",
+    // so keep those out of these texts - except USER_SERVICE_ERROR_MESSAGE, which keeps the maintenance-page
+    // redirect an egov-user 500 triggered before these texts were fixed.
+    public static final String INVALID_REQUEST_INFO_MESSAGE = "Invalid RequestInfo in request";
+    public static final String AUTHENTICATION_FAILED_MESSAGE = "Authentication failed";
+    public static final String USER_FETCH_FAILURE_CODE = "Exception occurred while fetching user: ";
+    public static final String USER_FETCH_FAILURE_MESSAGE = "Error while authenticating the auth token";
+    public static final String USER_SERVICE_ERROR_MESSAGE = "Internal Server Error while authenticating the auth token";
+    // The UI logs the user out when an error message contains this marker, so expired/invalid tokens must keep it.
+    public static final String INVALID_ACCESS_TOKEN_MARKER = "InvalidAccessTokenException";
+    public static final String INVALID_ACCESS_TOKEN_MESSAGE = INVALID_ACCESS_TOKEN_MARKER + ": Invalid or expired access token";
+    public static final String PRE_HOOK_FAILURE_MESSAGE = "Pre-hook url threw an error";
+    public static final String REQUEST_ENRICHMENT_FAILURE_MESSAGE = "Failed to enrich request body";
+    public static final String GATEWAY_UNEXPECTED_ERROR_MESSAGE = "Unexpected error at the API gateway";
 
 }

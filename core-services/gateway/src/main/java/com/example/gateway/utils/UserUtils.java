@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -71,12 +72,31 @@ public class UserUtils {
         try {
             user = restTemplate.postForObject(authURL, httpEntity, User.class);
         } catch (HttpClientErrorException e) {
-            throw toUserDetailsException(e).orElseGet(() -> new CustomException("Exception occurred while fetching user: ", e.getMessage()));
+            throw toUserDetailsException(e).orElseGet(() -> userFetchFailure(e));
+        } catch (RestClientResponseException e) {
+            throw userFetchFailure(e);
         } catch (Exception e) {
-            throw new CustomException("Exception occurred while fetching user: ", e.getMessage());
+            // Never return the transport failure text (it names the internal egov-user URL) to the client
+            log.error("Fetching user details failed", e);
+            throw new CustomException(USER_FETCH_FAILURE_CODE, USER_FETCH_FAILURE_MESSAGE);
         }
 
         return user;
+    }
+
+    /**
+     * egov-user's error text is never echoed to the client. The one signal that has to survive is the
+     * InvalidAccessTokenException marker: the UI logs the user out when an error message contains it.
+     */
+    private CustomException userFetchFailure(RestClientResponseException e) {
+        log.error("Fetching user details failed with HTTP {}", e.getStatusCode().value(), e);
+        if (e.getResponseBodyAsString().contains(INVALID_ACCESS_TOKEN_MARKER))
+            return new CustomException(USER_FETCH_FAILURE_CODE, INVALID_ACCESS_TOKEN_MESSAGE);
+        // The echoed text used to contain "Internal Server Error" (egov-user 500s), which sends the UI to its
+        // maintenance page; keep that behaviour without echoing anything
+        if (String.valueOf(e.getMessage()).toLowerCase().contains("internal server error"))
+            return new CustomException(USER_FETCH_FAILURE_CODE, USER_SERVICE_ERROR_MESSAGE);
+        return new CustomException(USER_FETCH_FAILURE_CODE, USER_FETCH_FAILURE_MESSAGE);
     }
 
     private String getIdToken(ServerWebExchange exchange) {

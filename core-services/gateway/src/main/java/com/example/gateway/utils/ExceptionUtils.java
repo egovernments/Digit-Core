@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.gateway.constants.GatewayConstants.GATEWAY_UNEXPECTED_ERROR_MESSAGE;
+import static com.example.gateway.constants.GatewayConstants.INVALID_ACCESS_TOKEN_MESSAGE;
 import static com.example.gateway.constants.GatewayConstants.REQUEST_INFO_FIELD_NAME_PASCAL_CASE;
 
 public class ExceptionUtils {
@@ -52,7 +54,7 @@ public class ExceptionUtils {
                 return _setExceptionBody(exchange,HttpStatus.BAD_GATEWAY, getErrorInfoObject(exceptionName, "The backend service is unreachable", null));
             } else if (exceptionName.equalsIgnoreCase("NullPointerException")) {
                 e.printStackTrace();
-                return _setExceptionBody(exchange,HttpStatus.INTERNAL_SERVER_ERROR, getErrorInfoObject(exceptionName, exceptionMessage, exceptionMessage));
+                return _setExceptionBody(exchange,HttpStatus.INTERNAL_SERVER_ERROR, getErrorInfoObject(exceptionName, GATEWAY_UNEXPECTED_ERROR_MESSAGE, GATEWAY_UNEXPECTED_ERROR_MESSAGE));
             } else if (exceptionName.equalsIgnoreCase("HttpClientErrorException")) {
                 String existingResponse = ((HttpClientErrorException) e).getResponseBodyAsString();
                 if (existingResponse.contains("InvalidAccessTokenException"))
@@ -60,7 +62,7 @@ public class ExceptionUtils {
                 else
                     return _setExceptionBody(exchange,(HttpStatus) ((HttpClientErrorException) e).getStatusCode(), existingResponse);
             } else if (exceptionName.equalsIgnoreCase("InvalidAccessTokenException")) {
-                return _setExceptionBody(exchange,HttpStatus.UNAUTHORIZED, getErrorInfoObject(exceptionName, exceptionMessage, exceptionMessage));
+                return _setExceptionBody(exchange,HttpStatus.UNAUTHORIZED, getErrorInfoObject(exceptionName, INVALID_ACCESS_TOKEN_MESSAGE, INVALID_ACCESS_TOKEN_MESSAGE));
             } else if (exceptionName.equalsIgnoreCase("RateLimitExceededException")) {
                 return _setExceptionBody(exchange,HttpStatus.TOO_MANY_REQUESTS, getErrorInfoObject(exceptionName, "Rate limit exceeded", null));
             } else if (exceptionName.equalsIgnoreCase("JsonParseException")) {
@@ -72,7 +74,7 @@ public class ExceptionUtils {
 //                HttpStatus.valueOf(ce.getCode());
                 return _setExceptionBody(exchange,HttpStatus.valueOf(401), getErrorInfoObject(exceptionName, exceptionMessage, exceptionMessage));
             } else {
-                return _setExceptionBody(exchange,HttpStatus.INTERNAL_SERVER_ERROR, getErrorInfoObject(exceptionName, exceptionMessage, exceptionMessage));
+                return _setExceptionBody(exchange,HttpStatus.INTERNAL_SERVER_ERROR, getErrorInfoObject(exceptionName, GATEWAY_UNEXPECTED_ERROR_MESSAGE, GATEWAY_UNEXPECTED_ERROR_MESSAGE));
             }
         } catch (Exception e1) {
             logger.error("Exception while raising error filter exception: " + e1.getMessage());

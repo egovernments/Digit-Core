@@ -129,7 +129,7 @@ public class RequestEnrichmentFilterHelper implements RewriteFunction<Map, Map> 
             enrichRequestBody(exchange, body);
         } catch (IOException e) {
             logger.error(FAILED_TO_ENRICH_REQUEST_BODY_MESSAGE, e);
-            throw new CustomException("FAILED_TO_ENRICH_REQUEST_BODY", e.getMessage());
+            throw new CustomException("FAILED_TO_ENRICH_REQUEST_BODY", REQUEST_ENRICHMENT_FAILURE_MESSAGE);
         }
     }
 
