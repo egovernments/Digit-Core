@@ -249,18 +249,20 @@ jobs:
           echo "app_digest=$APP_DIGEST" >> "$GITHUB_OUTPUT"
 
           {
-            echo "## Immutable artifact references"
+            echo "## Published artifacts"
             echo ""
-            echo "| Component | Tag | Digest | Pinned reference |"
-            echo "|---|---|---|---|"
-            echo "| app | \`${TAG}\` | \`${APP_DIGEST}\` | \`egovio/${SERVICE}:${TAG}@${APP_DIGEST}\` |"
+            echo "Commit \`${GITHUB_SHA}\` · multi-arch \`linux/amd64\`, \`linux/arm64\`"
+            echo ""
+            echo "| Image | Pinned reference (use this to deploy) |"
+            echo "|---|---|"
+            echo "| app | \`egovio/${SERVICE}:${TAG}@${APP_DIGEST}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$DB_EXISTS" = "true" ]; then
             DB_DIGEST=$(docker buildx imagetools inspect \
               "egovio/${SERVICE}-db:${TAG}" --format '{{.Manifest.Digest}}')
             echo "db_digest=$DB_DIGEST" >> "$GITHUB_OUTPUT"
-            echo "| db | \`${TAG}\` | \`${DB_DIGEST}\` | \`egovio/${SERVICE}-db:${TAG}@${DB_DIGEST}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| db | \`egovio/${SERVICE}-db:${TAG}@${DB_DIGEST}\` |" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       # NB: sigstore/cosign-installer publishes floating v2/v3 tags but no v4,
@@ -281,30 +283,15 @@ jobs:
           DB_DIGEST: ${{ steps.digest.outputs.db_digest }}
         run: |
           set -euo pipefail
+          SIGNED="app"
           cosign sign --yes "egovio/${SERVICE}@${APP_DIGEST}"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Signed \`egovio/${SERVICE}@${APP_DIGEST}\` (cosign keyless)" >> "$GITHUB_STEP_SUMMARY"
 
           if [ -n "${DB_DIGEST:-}" ]; then
             cosign sign --yes "egovio/${SERVICE}-db@${DB_DIGEST}"
-            echo "Signed \`egovio/${SERVICE}-db@${DB_DIGEST}\` (cosign keyless)" >> "$GITHUB_STEP_SUMMARY"
+            SIGNED="app, db"
           fi
 
-      - name: Add all image tags to GitHub summary
-        env:
-          DB_EXISTS: ${{ needs.build-matrix.outputs.db_folder_exists }}
-          SERVICE: ${{ github.event.inputs.service }}
-          TAG: ${{ needs.resolve-config.outputs.tag }}
-        run: |
-          echo "## App Docker images" >> $GITHUB_STEP_SUMMARY
-          echo "- \`egovio/${SERVICE}:${TAG}-amd64\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`egovio/${SERVICE}:${TAG}-arm64\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **multi‑arch** \`egovio/${SERVICE}:${TAG}\`" >> $GITHUB_STEP_SUMMARY
-
-          if [ "$DB_EXISTS" = "true" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "## DB Docker images" >> $GITHUB_STEP_SUMMARY
-            echo "- \`egovio/${SERVICE}-db:${TAG}-amd64\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`egovio/${SERVICE}-db:${TAG}-arm64\`" >> $GITHUB_STEP_SUMMARY
-            echo "- **multi‑arch** \`egovio/${SERVICE}-db:${TAG}\`" >> $GITHUB_STEP_SUMMARY
-          fi
+          {
+            echo ""
+            echo "Signed (${SIGNED}) with cosign keyless — GitHub OIDC → Fulcio → Rekor."
+          } >> "$GITHUB_STEP_SUMMARY"
