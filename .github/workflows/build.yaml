@@ -63,6 +63,12 @@ on:
 permissions:
   contents: read
 
+# Serialise builds of the same service on the same ref so two runs cannot race
+# to publish the same tag (CICD-906: artifacts must not be overwritable).
+concurrency:
+  group: build-${{ github.event.inputs.service }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   resolve-config:
     runs-on: ubuntu-latest
@@ -102,10 +108,16 @@ jobs:
 
       - name: Generate the Next Tag
         id: tag
+        env:
+          # github.ref_name keeps the full branch name. The previous
+          # "${GITHUB_REF##*/}" stripped everything before the last slash, so
+          # feature/x and bugfix/x produced identical tags at the same commit.
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
           set -euxo pipefail
-          BRANCH="${GITHUB_REF##*/}"
-          HASH=$(git rev-parse --short HEAD)
+          BRANCH="${BRANCH_NAME//\//-}"            # '/' is not legal in a docker tag
+          BRANCH="${BRANCH//[^a-zA-Z0-9._-]/-}"    # sanitise any other illegal chars
+          HASH=$(git rev-parse --short HEAD)       # unchanged: same length as before
           TAG="${BRANCH}-${HASH}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "NEXT_TAG=$TAG" >> "$GITHUB_ENV"
@@ -184,6 +196,12 @@ jobs:
   create-manifest:
     needs: [build-matrix, resolve-config]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write          # required for cosign keyless (OIDC -> Fulcio)
+    outputs:
+      app_digest: ${{ steps.digest.outputs.app_digest }}
+      db_digest:  ${{ steps.digest.outputs.db_digest }}
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -214,6 +232,60 @@ jobs:
             --tag "egovio/${SERVICE}-db:${TAG}" \
             "egovio/${SERVICE}-db:${TAG}-amd64" \
             "egovio/${SERVICE}-db:${TAG}-arm64"
+
+      # ---- CICD-906: immutable artifact identity -------------------------
+      # A tag is a mutable pointer; the digest is the content hash and cannot
+      # be repointed. Deployments should reference image@digest.
+      - name: Resolve manifest digests
+        id: digest
+        continue-on-error: true       # first run only - remove once verified
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          TAG: ${{ needs.resolve-config.outputs.tag }}
+          DB_EXISTS: ${{ needs.build-matrix.outputs.db_folder_exists }}
+        run: |
+          set -euo pipefail
+          APP_DIGEST=$(docker buildx imagetools inspect \
+            "egovio/${SERVICE}:${TAG}" --format '{{.Manifest.Digest}}')
+          echo "app_digest=$APP_DIGEST" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Immutable artifact references"
+            echo ""
+            echo "| Component | Tag | Digest | Pinned reference |"
+            echo "|---|---|---|---|"
+            echo "| app | \`${TAG}\` | \`${APP_DIGEST}\` | \`egovio/${SERVICE}:${TAG}@${APP_DIGEST}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$DB_EXISTS" = "true" ]; then
+            DB_DIGEST=$(docker buildx imagetools inspect \
+              "egovio/${SERVICE}-db:${TAG}" --format '{{.Manifest.Digest}}')
+            echo "db_digest=$DB_DIGEST" >> "$GITHUB_OUTPUT"
+            echo "| db | \`${TAG}\` | \`${DB_DIGEST}\` | \`egovio/${SERVICE}-db:${TAG}@${DB_DIGEST}\` |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      # Keyless signing: identity comes from the GitHub OIDC token, the
+      # certificate from Fulcio, and the signature is recorded in the public
+      # Rekor transparency log. No private key to manage or rotate.
+      - name: Sign images (cosign keyless)
+        continue-on-error: true       # first run only - remove once verified
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          APP_DIGEST: ${{ steps.digest.outputs.app_digest }}
+          DB_DIGEST: ${{ steps.digest.outputs.db_digest }}
+        run: |
+          set -euo pipefail
+          cosign sign --yes "egovio/${SERVICE}@${APP_DIGEST}"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Signed \`egovio/${SERVICE}@${APP_DIGEST}\` (cosign keyless)" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -n "${DB_DIGEST:-}" ]; then
+            cosign sign --yes "egovio/${SERVICE}-db@${DB_DIGEST}"
+            echo "Signed \`egovio/${SERVICE}-db@${DB_DIGEST}\` (cosign keyless)" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Add all image tags to GitHub summary
         env:
