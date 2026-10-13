@@ -3,6 +3,8 @@ package org.egov.user.web.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.user.domain.service.UserSessionService;
+import org.egov.user.web.contract.ActiveSessionSearchRequest;
+import org.egov.user.web.contract.ActiveSessionUser;
 import org.egov.user.web.contract.RevokeSessionRequest;
 import org.egov.user.web.contract.factory.ResponseInfoFactory;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,6 +46,21 @@ public class UserSessionController {
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
         Map<String, Object> response = new HashMap<>();
         response.put("ResponseInfo", responseInfo);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/user-session/v1/_search")
+    public ResponseEntity<Map<String, Object>> search(@Valid @RequestBody ActiveSessionSearchRequest request) {
+        log.info("Active session search requested for tenant: {} ({} users)", request.getTenantId(),
+                request.getUserUuids().size());
+        List<ActiveSessionUser> sessions = userSessionService.searchActiveSessions(request.getTenantId(),
+                request.getUserUuids());
+
+        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
+        Map<String, Object> response = new HashMap<>();
+        response.put("ResponseInfo", responseInfo);
+        response.put("sessions", sessions);
+        response.put("count", sessions.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -8,16 +8,19 @@ import org.egov.user.persistence.dto.UserSession;
 import org.egov.user.persistence.dto.UserSessionAudit;
 import org.egov.user.persistence.repository.UserSessionAuditRepository;
 import org.egov.user.persistence.repository.UserSessionRepository;
+import org.egov.user.web.contract.ActiveSessionUser;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import static org.egov.user.config.UserServiceConstants.ACTIVE_SESSION_EXISTS_MESSAGE;
 import static org.egov.user.config.UserServiceConstants.ERR_NO_ACTIVE_SESSION;
@@ -61,6 +64,18 @@ public class UserSessionService {
         this.userSessionRepository = userSessionRepository;
         this.userSessionAuditRepository = userSessionAuditRepository;
         this.sessionContactPool = sessionContactPool;
+    }
+
+    public List<ActiveSessionUser> searchActiveSessions(String tenantId, List<String> userUuids) {
+        List<String> uuids = userUuids == null ? Collections.<String>emptyList() : userUuids.stream()
+                .filter(uuid -> uuid != null && !uuid.trim().isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
+        // "IN ()" is invalid SQL, and an empty set of users can have no sessions anyway.
+        if (uuids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return userSessionRepository.findActiveSessionUsersByUserUuids(tenantId, uuids);
     }
 
     private long inactivityPeriodMillis() {

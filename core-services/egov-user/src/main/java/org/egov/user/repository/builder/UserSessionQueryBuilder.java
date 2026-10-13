@@ -61,6 +61,17 @@ public final class UserSessionQueryBuilder {
             "FROM " + SCHEMA_REPLACE_STRING + ".eg_user_session " +
             "WHERE useruuid = :useruuid AND tenantid = :tenantid AND status = 'ACTIVE'";
 
+    // The given users that have an ACTIVE session in the tenant, with their eg_user display details.
+    // eg_user_session only ever holds mobile logins (createSession skips every other client
+    // type), so no channel filter is needed. Rows are returned as stored: expiry is lazy, so
+    // callers can use lastservercontact to judge staleness.
+    public static final String SELECT_ACTIVE_SESSIONS_BY_USER_UUIDS_SQL =
+            "SELECT s.useruuid, u.username, u.name, s.deviceid, s.sessionid, s.lastservercontact " +
+            "FROM " + SCHEMA_REPLACE_STRING + ".eg_user_session s " +
+            "JOIN " + SCHEMA_REPLACE_STRING + ".eg_user u ON u.uuid = s.useruuid " +
+            "WHERE s.tenantid = :tenantid AND s.status = 'ACTIVE' AND s.useruuid IN (:useruuids) " +
+            "ORDER BY s.lastservercontact DESC";
+
     // Only transitions a row that is currently ACTIVE — a stale/already-terminated session
     // is left untouched instead of being re-stamped with a new terminal status.
     public static final String UPDATE_SESSION_STATUS_SQL =
