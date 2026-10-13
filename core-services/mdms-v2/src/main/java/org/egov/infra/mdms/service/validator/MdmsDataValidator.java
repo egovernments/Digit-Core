@@ -137,9 +137,15 @@ public class MdmsDataValidator {
      */
     private void validateReference(JSONObject schemaObject, Mdms mdms) {
         if (schemaObject.has(X_REFERENCE_SCHEMA_KEY)) {
-            org.json.JSONArray referenceSchema = (org.json.JSONArray) schemaObject.get(X_REFERENCE_SCHEMA_KEY);
+            Object referenceSchemaObject = schemaObject.get(X_REFERENCE_SCHEMA_KEY);
 
-            if (referenceSchema != null && referenceSchema.length() > 0) {
+            if (!(referenceSchemaObject instanceof org.json.JSONArray)) {
+                return;
+            }
+
+            org.json.JSONArray referenceSchema = (org.json.JSONArray) referenceSchemaObject;
+
+            if (referenceSchema.length() > 0) {
                 JsonNode mdmsData = mdms.getData();
 
                 IntStream.range(0, referenceSchema.length()).forEach(i -> {
