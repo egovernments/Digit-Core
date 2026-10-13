@@ -15,6 +15,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.*;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+@EnableAspectJAutoProxy
 @SpringBootApplication
 @Slf4j
 public class EgovPersistApplication {

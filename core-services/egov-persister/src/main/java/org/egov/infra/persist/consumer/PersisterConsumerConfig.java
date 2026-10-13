@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
@@ -23,9 +24,14 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import jakarta.annotation.PostConstruct;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
+import org.springframework.util.StringUtils;
+
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 
 @Configuration
@@ -51,14 +57,47 @@ public class PersisterConsumerConfig {
 
     private Set<String> topics = new HashSet<>();
 
+    @Value("${persister.batch.topics:}")
+    private String batchTopicsConfig;
+
+    @Value("${persister.bulk.enabled:false}")
+    private Boolean batchPersisterEnabled;
+
+    @Value("${persister.custom.executor.max-pool-size}")
+    private Integer maxPoolSize;
+
+    @Value("${persister.custom.executor.enabled}")
+    private Boolean customExecutorEnabled;
+
+    @Value("${persister.dead-letter.reprocess.enabled}")
+    private Boolean deadLetterReprocessEnabled;
+
+    @Value("${tracer.errorsTopic}")
+    private String deadLetterErrorTopic;
+
+    private Set<String> configuredBatchTopics = new HashSet<>();
+
     @PostConstruct
-    public void setTopics(){
+    public void setTopics() {
+        // Parse configured batch topics from property
+        if (batchPersisterEnabled && StringUtils.hasText(batchTopicsConfig)) {
+            configuredBatchTopics = Arrays.stream(batchTopicsConfig.split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::hasText)
+                    .collect(Collectors.toSet());
+            log.info("Configured batch topics from property: {}", configuredBatchTopics);
+        }
+
+        // Add topics that do NOT contain "-batch" AND are NOT in configured batch list
         topicMap.getTopicMap().keySet().forEach(topic -> {
-                    if(!topic.contains("-batch")){
-                        topics.add(topic);
-                    }
-               });
-        log.info("Topics subscribed for single listner: "+topics.toString());
+            if (!topic.contains("-batch") && !configuredBatchTopics.contains(topic)) {
+                topics.add(topic);
+            }
+        });
+        if (deadLetterReprocessEnabled && StringUtils.hasText(deadLetterErrorTopic)) {
+            topics.add(deadLetterErrorTopic);
+        }
+        log.info("Topics subscribed for single listener: {}", topics);
     }
 
     @Bean
@@ -68,7 +107,7 @@ public class PersisterConsumerConfig {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
 
-        JsonDeserializer jsonDeserializer = new JsonDeserializer<>(Object.class,false);
+        JsonDeserializer<String> jsonDeserializer = new JsonDeserializer<>(Object.class,false);
 
         ErrorHandlingDeserializer<String> errorHandlingDeserializer
                 = new ErrorHandlingDeserializer<>(jsonDeserializer);
@@ -80,7 +119,7 @@ public class PersisterConsumerConfig {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.getContainerProperties();
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
         factory.setConcurrency(3);
         factory.getContainerProperties().setPollTimeout(30000);
         factory.setCommonErrorHandler(kafkaConsumerErrorHandler);
@@ -93,15 +132,18 @@ public class PersisterConsumerConfig {
     @Bean
     public KafkaMessageListenerContainer<String, String> container() throws Exception {
         ContainerProperties properties = new ContainerProperties(this.topics.toArray(new String[topics.size()]));
-        // set more properties
-     //   properties.setPauseEnabled(true);
-     //   properties.setPauseAfter(0);
-     //   properties.setGenericErrorHandler(kafkaConsumerErrorHandler);
         properties.setMessageListener(indexerMessageListener);
+        if (customExecutorEnabled) {
+            ExecutorService executorService = Executors.newFixedThreadPool(maxPoolSize);
+            AsyncTaskExecutor taskExecutor = new ConcurrentTaskExecutor(executorService);
+            properties.setListenerTaskExecutor(taskExecutor);
+        }
 
         log.info("Custom KafkaListenerContainer built...");
 
-        return new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory(), properties);
+        container.setCommonErrorHandler(kafkaConsumerErrorHandler);
+        return container;
     }
 
     @Bean
