@@ -7,7 +7,7 @@ serviceMaps:
     fromTopic: save-hrms-employee
     isTransaction: true
     queryMaps:
-    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, phone, name, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, phone, name, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*
       jsonMaps:
@@ -43,7 +43,7 @@ serviceMaps:
 
 
 
-    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.assignments.*
       jsonMaps:
@@ -80,7 +80,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.assignments.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_educationaldetails(tenantid, uuid, employeeid, qualification, stream, yearofpassing, university, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_educationaldetails(tenantid, uuid, employeeid, qualification, stream, yearofpassing, university, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.education.*
       jsonMaps:
@@ -111,7 +111,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.education.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_departmentaltests(tenantid, uuid, employeeid, test, yearofpassing, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_departmentaltests(tenantid, uuid, employeeid, test, yearofpassing, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.tests.*
       jsonMaps:
@@ -138,7 +138,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.tests.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_empdocuments(tenantid, uuid, employeeid, documentid, documentname, referencetype, referenceid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_empdocuments(tenantid, uuid, employeeid, documentid, documentname, referencetype, referenceid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.documents.*
       jsonMaps:
@@ -167,7 +167,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.documents.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_servicehistory(tenantid, uuid, employeeid, servicestatus, servicefrom, serviceto, ordernumber, isCurrentPosition, location, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_servicehistory(tenantid, uuid, employeeid, servicestatus, servicefrom, serviceto, ordernumber, isCurrentPosition, location, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.serviceHistory.*
       jsonMaps:
@@ -200,7 +200,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.serviceHistory.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.jurisdictions.*
       jsonMaps:
@@ -241,7 +241,7 @@ serviceMaps:
 
       - jsonPath:  $.Employees.*.uuid
 
-    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, phone, name, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, phone, name, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*
       jsonMaps:
@@ -277,7 +277,7 @@ serviceMaps:
 
 
 
-    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.assignments.*
       jsonMaps:
@@ -314,7 +314,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.assignments.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_educationaldetails(tenantid, uuid, employeeid, qualification, stream, yearofpassing, university, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_educationaldetails(tenantid, uuid, employeeid, qualification, stream, yearofpassing, university, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.education.*
       jsonMaps:
@@ -345,7 +345,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.education.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_departmentaltests(tenantid, uuid, employeeid, test, yearofpassing, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_departmentaltests(tenantid, uuid, employeeid, test, yearofpassing, remarks, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.tests.*
       jsonMaps:
@@ -372,7 +372,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.tests.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_empdocuments(tenantid, uuid, employeeid, documentid, documentname, referencetype, referenceid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_empdocuments(tenantid, uuid, employeeid, documentid, documentname, referencetype, referenceid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.documents.*
       jsonMaps:
@@ -401,7 +401,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.documents.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_servicehistory(tenantid, uuid, employeeid, servicestatus, servicefrom, serviceto, ordernumber, isCurrentPosition, location, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_servicehistory(tenantid, uuid, employeeid, servicestatus, servicefrom, serviceto, ordernumber, isCurrentPosition, location, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.serviceHistory.*
       jsonMaps:
@@ -434,7 +434,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.serviceHistory.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.jurisdictions.*
       jsonMaps:
@@ -461,7 +461,7 @@ serviceMaps:
 
 
 
-    - query: INSERT INTO eg_hrms_deactivationdetails(uuid, employeeid, reasonfordeactivation, effectivefrom, ordernumber, typeOfDeactivation, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_deactivationdetails(uuid, employeeid, reasonfordeactivation, effectivefrom, ordernumber, typeOfDeactivation, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (uuid) DO NOTHING;
 
       basePath: Employees.*.deactivationDetails.*
       jsonMaps:

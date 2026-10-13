@@ -34,6 +34,24 @@ public class BoundaryRelationshipController {
     }
 
     /**
+     * Request handler for serving bulk boundary relationship create requests.
+     *
+     * <p>Validates and enriches each relationship synchronously and returns a per-record outcome
+     * (which records were accepted for persistence, and which failed validation with a reason). The
+     * actual DB write is performed asynchronously by egov-persister — the valid records are published
+     * to the idempotent batch-persister topic — so a successful entry means "accepted and will be
+     * persisted", not "already committed".</p>
+     *
+     * @param body bulk create request
+     * @return per-record success/failure response
+     */
+    @RequestMapping(value = "/bulk/_create", method = RequestMethod.POST)
+    public ResponseEntity<BulkBoundaryRelationshipResponse> bulkCreate(@Valid @RequestBody BulkBoundaryRelationshipRequest body) {
+        BulkBoundaryRelationshipResponse bulkBoundaryRelationshipResponse = boundaryRelationshipService.createBulkBoundaryRelationship(body);
+        return new ResponseEntity<>(bulkBoundaryRelationshipResponse, HttpStatus.OK);
+    }
+
+    /**
      * Request handler for serving boundary relationships search request.
      * @param boundaryRelationshipSearchCriteria
      * @param requestInfo

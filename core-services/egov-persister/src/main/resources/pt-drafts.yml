@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: save-pt-drafts
    isTransaction: true
    queryMaps:
-    - query: INSERT INTO eg_pt_drafts_v2(id, userid, tenantid, draft, createdBy, createdTime, lastModifiedBy, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_pt_drafts_v2(id, userid, tenantid, draft, createdBy, createdTime, lastModifiedBy, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id, tenantid) DO NOTHING;
 
       basePath: draft
       jsonMaps:

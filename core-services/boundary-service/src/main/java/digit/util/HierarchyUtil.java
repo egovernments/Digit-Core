@@ -58,7 +58,7 @@ public class HierarchyUtil {
                 .stream()
                 .filter(hierarchyNode -> ObjectUtils.isEmpty(hierarchyNode.getParentBoundaryType()))
                 .findFirst()
-                .get()
+                .orElseThrow(() -> new CustomException("HIERARCHY_DEFINITION_INVALID_ERR", "Hierarchy definition has no root boundary type."))
                 .getBoundaryType();
 
         hierarchyOrder.add(rootHierarchyNode);
