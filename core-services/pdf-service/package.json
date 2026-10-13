@@ -46,7 +46,7 @@
     "kafka-node": "^5.0.0",
     "lodash.get": "^4.4.2",
     "moment-timezone": "^0.5.28",
-    "morgan": "^1.8.0",
+    "morgan": "^1.11.0",
     "node-cache": "5.1.2",
     "pdf-merger-js": "3.2.1",
     "pdfmake": "0.2.4",
