@@ -120,6 +120,7 @@ public class DataTransformationService {
             result = jsonTobeIndexed.toString();
         } catch (Exception e) {
             log.error("Error while building jsonstring for indexing", e);
+            throw new RuntimeException("Failed to build JSON for indexing on index: " + index.getName(), e);
         }
 
         return result;
