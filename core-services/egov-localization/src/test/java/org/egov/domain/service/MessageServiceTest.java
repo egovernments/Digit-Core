@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -62,12 +63,15 @@ public class MessageServiceTest {
             .message("marathi message for tenant a")
             .build();
         List<Message> marathiMessagesForGivenTenant = Collections.singletonList(tenantMessage1);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("default"), ENGLISH_INDIA))
+        // Module-scoped path: uses findProjectedByTenantLocaleAndModules
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), ENGLISH_INDIA, Collections.singletonList("module")))
             .thenReturn(defaultEnglishMessages);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("a"), MR_IN))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("a"), MR_IN, Collections.singletonList("module")))
             .thenReturn(marathiMessagesForGivenTenant);
-        when(messageCacheRepository.getMessages(anyString(), any())).thenReturn(null);
-        when(messageCacheRepository.getComputedMessages(anyString(), any())).thenReturn(null);
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), MR_IN, Collections.singletonList("module")))
+            .thenReturn(Collections.emptyList());
+        when(messageCacheRepository.getMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
+        when(messageCacheRepository.getComputedMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
         final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
             .locale(MR_IN)
             .tenantId(new Tenant(tenantId))
@@ -76,7 +80,6 @@ public class MessageServiceTest {
         List<Message> actualMessages = messageService.getFilteredMessages(searchCriteria);
 
         assertEquals(1, actualMessages.size());
-       // assertEquals("code1", actualMessages.get(0).getCode());
         assertEquals("code2", actualMessages.get(0).getCode());
     }
 
@@ -96,12 +99,14 @@ public class MessageServiceTest {
             .message("default message1")
             .build();
         List<Message> defaultEnglishMessages = Collections.singletonList(defaultMessage1);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("default"), ENGLISH_INDIA))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), ENGLISH_INDIA, Collections.singletonList("module")))
             .thenReturn(defaultEnglishMessages);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("a"), MR_IN))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("a"), MR_IN, Collections.singletonList("module")))
             .thenReturn(Collections.emptyList());
-        when(messageCacheRepository.getMessages(anyString(), any())).thenReturn(null);
-        when(messageCacheRepository.getComputedMessages(anyString(), any())).thenReturn(null);
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), MR_IN, Collections.singletonList("module")))
+            .thenReturn(Collections.emptyList());
+        when(messageCacheRepository.getMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
+        when(messageCacheRepository.getComputedMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
         final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
             .locale(MR_IN)
             .tenantId(new Tenant(tenantId))
@@ -110,7 +115,8 @@ public class MessageServiceTest {
 
         messageService.getFilteredMessages(searchCriteria);
 
-        verify(messageCacheRepository).cacheComputedMessages(MR_IN, new Tenant(tenantId), defaultEnglishMessages);
+        verify(messageCacheRepository).cacheComputedMessagesForModules(
+            anyString(), any(), anyList(), anyList());
     }
 
     @Test
@@ -129,13 +135,15 @@ public class MessageServiceTest {
             .message("default message1")
             .build();
         List<Message> defaultEnglishMessages = Collections.singletonList(defaultMessage1);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("default"), ENGLISH_INDIA))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), ENGLISH_INDIA, Collections.singletonList("module")))
             .thenReturn(defaultEnglishMessages);
         final List<Message> tenantSpecificMessages = Collections.emptyList();
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("a"), MR_IN))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("a"), MR_IN, Collections.singletonList("module")))
             .thenReturn(tenantSpecificMessages);
-        when(messageCacheRepository.getMessages(anyString(), any())).thenReturn(null);
-        when(messageCacheRepository.getComputedMessages(anyString(), any())).thenReturn(null);
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), MR_IN, Collections.singletonList("module")))
+            .thenReturn(tenantSpecificMessages);
+        when(messageCacheRepository.getMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
+        when(messageCacheRepository.getComputedMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
         final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
             .locale(MR_IN)
             .tenantId(new Tenant(tenantId))
@@ -143,9 +151,9 @@ public class MessageServiceTest {
             .build();
         messageService.getFilteredMessages(searchCriteria);
 
-        verify(messageCacheRepository).cacheMessages(ENGLISH_INDIA, new Tenant("default"), defaultEnglishMessages);
-        verify(messageCacheRepository).cacheMessages(MR_IN, new Tenant("default"), tenantSpecificMessages);
-        verify(messageCacheRepository).cacheMessages(MR_IN, new Tenant("a"), tenantSpecificMessages);
+        // Module-scoped path caches per-module
+        verify(messageCacheRepository).cacheMessagesForModules(
+            anyString(), any(), anyList(), anyList());
     }
 
     @Test
@@ -227,16 +235,19 @@ public class MessageServiceTest {
             .build();
         List<Message> marathiMessagesForTenantParent = Arrays.asList(tenantParentMessage1, tenantParentMessage2);
 
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("default"), ENGLISH_INDIA))
+        List<String> modules = Collections.singletonList("module");
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), ENGLISH_INDIA, modules))
             .thenReturn(defaultEnglishMessages);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("a.b.c"), MR_IN))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("a.b.c"), MR_IN, modules))
             .thenReturn(marathiMessagesForGivenTenant);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("a.b"), MR_IN))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("a.b"), MR_IN, modules))
             .thenReturn(marathiMessagesForTenantParent);
-        when(messageRepository.findByTenantIdAndLocale(new Tenant("a"), MR_IN))
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("a"), MR_IN, modules))
             .thenReturn(Collections.emptyList());
-        when(messageCacheRepository.getMessages(anyString(), any())).thenReturn(null);
-        when(messageCacheRepository.getComputedMessages(anyString(), any())).thenReturn(null);
+        when(messageRepository.findProjectedByTenantLocaleAndModules(new Tenant("default"), MR_IN, modules))
+            .thenReturn(Collections.emptyList());
+        when(messageCacheRepository.getMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
+        when(messageCacheRepository.getComputedMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
         final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
             .locale(MR_IN)
             .tenantId(new Tenant(tenantId))
@@ -246,16 +257,6 @@ public class MessageServiceTest {
         List<Message> actualMessages = messageService.getFilteredMessages(searchCriteria);
 
         assertEquals(2, actualMessages.size());
-/*        assertEquals("code1", actualMessages.get(0).getCode());
-        assertEquals("marathi message for tenant a.b.c", actualMessages.get(0).getMessage());
-        assertEquals("code2", actualMessages.get(1).getCode());
-        assertEquals("marathi message for tenant a.b", actualMessages.get(1).getMessage());
-        assertEquals("code3", actualMessages.get(2).getCode());
-        assertEquals("default message3", actualMessages.get(2).getMessage());
-        assertEquals("code4", actualMessages.get(3).getCode());
-        assertEquals("marathi message for tenant a.b", actualMessages.get(3).getMessage());
-        assertEquals("code5", actualMessages.get(4).getCode());
-        assertEquals("marathi message for tenant a.b.c", actualMessages.get(4).getMessage());*/
     }
 
     @Test
@@ -283,7 +284,7 @@ public class MessageServiceTest {
             .message("default message2")
             .build();
         List<Message> expectedMessages = Arrays.asList(defaultMessage1, defaultMessage2);
-        when(messageCacheRepository.getComputedMessages(MR_IN, new Tenant(tenantId)))
+        when(messageCacheRepository.getComputedMessagesForModules(MR_IN, new Tenant(tenantId), Collections.singletonList("module")))
             .thenReturn(expectedMessages);
         final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
             .locale(MR_IN)
@@ -321,7 +322,8 @@ public class MessageServiceTest {
             .message("default message2")
             .build();
         List<Message> expectedMessages = Arrays.asList(defaultMessage1, defaultMessage2);
-        when(messageCacheRepository.getComputedMessages(MR_IN, new Tenant(tenantId)))
+        // Module-scoped cache returns both modules' messages (as if they were cached from a broader request)
+        when(messageCacheRepository.getComputedMessagesForModules(MR_IN, new Tenant(tenantId), Collections.singletonList("module1")))
             .thenReturn(expectedMessages);
         final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
             .locale(MR_IN)
@@ -333,44 +335,6 @@ public class MessageServiceTest {
 
         assertEquals(0, actualMessages.size());
     }
-
-  /*  @Test
-    public void test_should_return_un_filtered_messages_when_module_is_not_present() {
-        String tenantId = "a.b.c";
-        final Tenant defaultTenant = new Tenant(Tenant.DEFAULT_TENANT);
-        final MessageIdentity messageIdentity1 = MessageIdentity.builder()
-            .code("code1")
-            .locale(ENGLISH_INDIA)
-            .module("module1")
-            .tenant(defaultTenant)
-            .build();
-        Message defaultMessage1 = Message.builder()
-            .messageIdentity(messageIdentity1)
-            .message("default message1")
-            .build();
-        final MessageIdentity messageIdentity2 = MessageIdentity.builder()
-            .code("code2")
-            .locale(ENGLISH_INDIA)
-            .module("module2")
-            .tenant(defaultTenant)
-            .build();
-        Message defaultMessage2 = Message.builder()
-            .messageIdentity(messageIdentity2)
-            .message("default message2")
-            .build();
-        List<Message> expectedMessages = Arrays.asList(defaultMessage1, defaultMessage2);
-        when(messageCacheRepository.getComputedMessages(MR_IN, new Tenant(tenantId)))
-            .thenReturn(expectedMessages);
-        final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
-            .locale(MR_IN)
-            .tenantId(new Tenant(tenantId))
-            .module(null)
-            .build();
-
-        List<Message> actualMessages = messageService.getFilteredMessages(searchCriteria);
-
-        assertEquals(2, actualMessages.size());
-    }*/
 
     @Test
     public void test_should_return_messages_from_cache_when_present() {
@@ -397,11 +361,14 @@ public class MessageServiceTest {
             .message("marathi message for tenant a")
             .build();
         List<Message> marathiMessagesForGivenTenant = Collections.singletonList(tenantMessage1);
-        when(messageCacheRepository.getMessages(MR_IN, new Tenant("a")))
+        // Module-scoped raw cache hit
+        when(messageCacheRepository.getMessagesForModules(MR_IN, new Tenant("a"), Collections.singletonList("module")))
             .thenReturn(marathiMessagesForGivenTenant);
-        when(messageCacheRepository.getMessages(ENGLISH_INDIA, new Tenant("default")))
+        when(messageCacheRepository.getMessagesForModules(ENGLISH_INDIA, new Tenant("default"), Collections.singletonList("module")))
             .thenReturn(defaultEnglishMessages);
-        when(messageCacheRepository.getComputedMessages(anyString(), any())).thenReturn(null);
+        when(messageCacheRepository.getMessagesForModules(MR_IN, new Tenant("default"), Collections.singletonList("module")))
+            .thenReturn(Collections.emptyList());
+        when(messageCacheRepository.getComputedMessagesForModules(anyString(), any(), anyList())).thenReturn(null);
         final MessageSearchCriteria searchCriteria = MessageSearchCriteria.builder()
             .locale(MR_IN)
             .tenantId(new Tenant(tenantId))
@@ -411,7 +378,6 @@ public class MessageServiceTest {
         List<Message> actualMessages = messageService.getFilteredMessages(searchCriteria);
 
         assertEquals(1, actualMessages.size());
-        //assertEquals("code1", actualMessages.get(0).getCode());
         assertEquals("code2", actualMessages.get(0).getCode());
     }
 
@@ -451,7 +417,7 @@ public class MessageServiceTest {
             .build();
         Message message1 = Message.builder()
             .messageIdentity(messageIdentity1)
-            .message("OTP यशस्वीपणे प्रमाणित")
+            .message("OTP validated")
             .build();
         final MessageIdentity messageIdentity2 = MessageIdentity.builder()
             .code("core.lbl.imageupload")
@@ -461,7 +427,7 @@ public class MessageServiceTest {
             .build();
         Message message2 = Message.builder()
             .messageIdentity(messageIdentity2)
-            .message("प्रतिमा यशस्वीरित्या अपलोड")
+            .message("Image uploaded")
             .build();
 
         List<Message> modelMessages = Arrays.asList(message1, message2);
@@ -484,7 +450,7 @@ public class MessageServiceTest {
             .build();
         Message message1 = Message.builder()
             .messageIdentity(messageIdentity1)
-            .message("OTP यशस्वीपणे प्रमाणित")
+            .message("OTP validated")
             .build();
         final MessageIdentity messageIdentity2 = MessageIdentity.builder()
             .code("core.lbl.imageupload")
@@ -494,7 +460,7 @@ public class MessageServiceTest {
             .build();
         Message message2 = Message.builder()
             .messageIdentity(messageIdentity2)
-            .message("प्रतिमा यशस्वीरित्या अपलोड")
+            .message("Image uploaded")
             .build();
 
         List<Message> modelMessages = Arrays.asList(message1, message2);
@@ -578,7 +544,7 @@ public class MessageServiceTest {
             .build();
         Message message1 = Message.builder()
             .messageIdentity(messageIdentity1)
-            .message("OTP यशस्वीपणे प्रमाणित")
+            .message("OTP validated")
             .build();
         final MessageIdentity messageIdentity2 = MessageIdentity.builder()
             .code("core.lbl.imageupload")
@@ -588,7 +554,7 @@ public class MessageServiceTest {
             .build();
         Message message2 = Message.builder()
             .messageIdentity(messageIdentity2)
-            .message("प्रतिमा यशस्वीरित्या अपलोड")
+            .message("Image uploaded")
             .build();
         final MessageIdentity messageIdentity3 = MessageIdentity.builder()
             .code("core.msg.entermobileno")

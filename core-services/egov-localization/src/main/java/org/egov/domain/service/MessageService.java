@@ -14,6 +14,8 @@ import org.egov.persistence.repository.MessageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Responsible for creating, updating and computing localization message list.
  *
@@ -41,7 +43,7 @@ import org.springframework.util.CollectionUtils;
  * messages with key <locale>:default
  */
 @Service
-//@Slf4j
+@Slf4j
 public class MessageService {
 	private static final String ENGLISH_INDIA = "en_IN";
 	private MessageRepository messageRepository;
@@ -161,7 +163,55 @@ public class MessageService {
 		messageCacheRepository.bustCacheEntry(locale, tenant);
 	}
 
+	/**
+	 * Retrieves messages for a search request.
+	 *
+	 * When a module parameter is present, uses a module-scoped path that only
+	 * loads messages for the requested modules from the database. This reduces
+	 * memory usage from ~49K records (all modules) to ~5-8K records (single module),
+	 * preventing OOM on large datasets.
+	 *
+	 * When no module is specified, falls back to the original full computation.
+	 */
 	private List<Message> getMessages(MessageSearchCriteria searchCriteria) {
+		if (!searchCriteria.isModuleAbsent()) {
+			return getMessagesModuleScoped(searchCriteria);
+		}
+		return getMessagesUnscoped(searchCriteria);
+	}
+
+	/**
+	 * Module-scoped message retrieval. Queries the database with a module filter
+	 * pushed down to SQL, avoiding loading all ~49K messages into memory.
+	 * Uses a separate cache key that includes the module(s).
+	 */
+	private List<Message> getMessagesModuleScoped(MessageSearchCriteria searchCriteria) {
+		String locale = searchCriteria.getLocale();
+		Tenant tenant = searchCriteria.getTenantId();
+		List<String> modules = Arrays.asList(searchCriteria.getModule().split("[,]"));
+
+		// Check module-scoped computed cache first
+		final List<Message> cachedMessages = messageCacheRepository.getComputedMessagesForModules(
+				locale, tenant, modules);
+		if (cachedMessages != null) {
+			return cachedMessages;
+		}
+
+		// Compute using module-scoped DB queries (projection-based, no JPA entity overhead)
+		final Collection<Message> messagesForLocale = getMessagesForGivenLocaleAndModules(locale, tenant, modules);
+		List<Message> defaultMessages = getDefaultMessagesForMissingCodesWithModules(messagesForLocale, modules);
+		List<Message> computedMessages = Stream.concat(messagesForLocale.stream(), defaultMessages.stream())
+				.sorted(Comparator.comparing(Message::getCode)).collect(Collectors.toList());
+
+		messageCacheRepository.cacheComputedMessagesForModules(locale, tenant, modules, computedMessages);
+		return computedMessages;
+	}
+
+	/**
+	 * Original unscoped message retrieval (no module filter).
+	 * Now uses projection queries to avoid JPA persistence context overhead.
+	 */
+	private List<Message> getMessagesUnscoped(MessageSearchCriteria searchCriteria) {
 		final List<Message> cachedMessages = messageCacheRepository.getComputedMessages(searchCriteria.getLocale(),
 				searchCriteria.getTenantId());
 		if (cachedMessages != null) {
@@ -204,6 +254,9 @@ public class MessageService {
 		return messageIdentitiesForGivenModule.stream().map(MessageIdentity::getCode).collect(Collectors.toList());
 	}
 
+	/**
+	 * Original full computation — now uses projection queries to avoid JPA entity overhead.
+	 */
 	private List<Message> computeMessageList(String locale, Tenant tenant) {
 		final Collection<Message> messagesForGivenLocale = getMessagesForGivenLocale(locale, tenant);
 		List<Message> defaultMessages = getDefaultMessagesForMissingCodes(messagesForGivenLocale);
@@ -212,7 +265,7 @@ public class MessageService {
 	}
 
 	private List<Message> getDefaultMessagesForMissingCodes(Collection<Message> messagesForGivenLocale) {
-		final List<Message> messagesInEnglishForDefaultTenant = fetchMessageFromRepository(ENGLISH_INDIA,
+		final List<Message> messagesInEnglishForDefaultTenant = fetchMessagesProjected(ENGLISH_INDIA,
 				new Tenant(Tenant.DEFAULT_TENANT));
 
         Set<String> messageCodesInGivenLanguage = new HashSet<>();
@@ -225,10 +278,27 @@ public class MessageService {
 				messagesInEnglishForDefaultTenant);
 	}
 
+	/**
+	 * Module-scoped version: only loads English defaults for the requested modules.
+	 */
+	private List<Message> getDefaultMessagesForMissingCodesWithModules(Collection<Message> messagesForGivenLocale,
+			List<String> modules) {
+		final List<Message> messagesInEnglishForDefaultTenant = fetchMessagesProjectedForModules(ENGLISH_INDIA,
+				new Tenant(Tenant.DEFAULT_TENANT), modules);
+
+		Set<String> messageCodesInGivenLanguage = new HashSet<>();
+		messagesForGivenLocale.forEach(message -> {
+			messageCodesInGivenLanguage.add(message.getModule() + message.getCode());
+		});
+
+		return getEnglishMessagesForCodesNotPresentInLocalLanguage(messageCodesInGivenLanguage,
+				messagesInEnglishForDefaultTenant);
+	}
+
 	private Collection<Message> getMessagesForGivenLocale(String locale, Tenant tenant) {
 		final Map<String, Message> codeToMessageMap = new HashMap<>();
 		final List<Message> messages = tenant.getTenantHierarchy().stream()
-				.map(tenantItem -> fetchMessageFromRepository(locale, tenantItem)).flatMap(List::stream)
+				.map(tenantItem -> fetchMessagesProjected(locale, tenantItem)).flatMap(List::stream)
 				.collect(Collectors.toList());
 
 		messages.forEach(message -> {
@@ -245,19 +315,62 @@ public class MessageService {
 		return codeToMessageMap.values();
 	}
 
+	/**
+	 * Module-scoped tenant hierarchy merge — only loads messages for the specified modules.
+	 */
+	private Collection<Message> getMessagesForGivenLocaleAndModules(String locale, Tenant tenant,
+			List<String> modules) {
+		final Map<String, Message> codeToMessageMap = new HashMap<>();
+		final List<Message> messages = tenant.getTenantHierarchy().stream()
+				.map(tenantItem -> fetchMessagesProjectedForModules(locale, tenantItem, modules))
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
+
+		messages.forEach(message -> {
+			final Message matchingMessage = codeToMessageMap.get(message.getModule() + message.getCode());
+			if (matchingMessage == null) {
+				codeToMessageMap.put(message.getModule() + message.getCode(), message);
+			} else {
+				if (message.isMoreSpecificComparedTo(matchingMessage)) {
+					codeToMessageMap.put(message.getModule() + message.getCode(), message);
+				}
+			}
+		});
+
+		return codeToMessageMap.values();
+	}
+
 	private List<Message> getEnglishMessagesForCodesNotPresentInLocalLanguage(Set<String> messageCodesForGivenLocale,
 			List<Message> messagesInEnglish) {
 		return messagesInEnglish.stream().filter(message -> !messageCodesForGivenLocale.contains(message.getModule()+message.getCode()))
 				.collect(Collectors.toList());
 	}
 
-	private List<Message> fetchMessageFromRepository(String locale, Tenant tenant) {
+	/**
+	 * Fetch messages using projection queries (no JPA persistence context overhead).
+	 * Cached in Redis per locale+tenant (raw message cache).
+	 */
+	private List<Message> fetchMessagesProjected(String locale, Tenant tenant) {
 		final List<Message> cachedMessages = messageCacheRepository.getMessages(locale, tenant);
 		if (cachedMessages != null) {
 			return cachedMessages;
 		}
-		final List<Message> messages = messageRepository.findByTenantIdAndLocale(tenant, locale);
+		final List<Message> messages = messageRepository.findProjectedByTenantAndLocale(tenant, locale);
 		messageCacheRepository.cacheMessages(locale, tenant, messages);
+		return messages;
+	}
+
+	/**
+	 * Fetch messages for specific modules using projection queries.
+	 * Uses a module-scoped cache key to avoid polluting or being polluted by the unscoped cache.
+	 */
+	private List<Message> fetchMessagesProjectedForModules(String locale, Tenant tenant, List<String> modules) {
+		final List<Message> cachedMessages = messageCacheRepository.getMessagesForModules(locale, tenant, modules);
+		if (cachedMessages != null) {
+			return cachedMessages;
+		}
+		final List<Message> messages = messageRepository.findProjectedByTenantLocaleAndModules(tenant, locale, modules);
+		messageCacheRepository.cacheMessagesForModules(locale, tenant, modules, messages);
 		return messages;
 	}
 
