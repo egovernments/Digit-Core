@@ -99,6 +99,12 @@ public class ApplicationProperties {
     @Value("${kafka.topics.update.boundary.relationship}")
     private String updateBoundaryRelationshipTopic;
 
+    @Value("${kafka.topics.bulk.create.boundary.relationship.job}")
+    private String bulkCreateBoundaryRelationshipJobTopic;
+
+    @Value("${kafka.topics.bulk.create.boundary.relationship.error}")
+    private String bulkCreateBoundaryRelationshipErrorTopic;
+
     @Value("${boundary.default.offset}")
     private Integer defaultOffset;
 

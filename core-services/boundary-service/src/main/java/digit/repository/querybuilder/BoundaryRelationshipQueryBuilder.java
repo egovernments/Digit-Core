@@ -7,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class BoundaryRelationshipQueryBuilder {
@@ -15,6 +16,18 @@ public class BoundaryRelationshipQueryBuilder {
             " FROM boundary_relationship ";
 
     private static String ORDER_BY_CLAUSE = " order by createdtime desc ";
+
+    private static final String BOUNDARY_RELATIONSHIP_BULK_INSERT_QUERY = "INSERT INTO boundary_relationship (id, tenantid, code, hierarchytype, boundarytype, parent, ancestralmaterializedpath, createdtime, createdby, lastmodifiedtime, lastmodifiedby)"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (tenantid, code, hierarchytype) DO NOTHING";
+
+    /**
+     * Returns the prepared-statement INSERT used to synchronously persist boundary relationships
+     * in bulk. The column order matches the parameter order set by the repository batch insert
+     * and mirrors the egov-persister insert for the same table.
+     */
+    public String getBoundaryRelationshipBulkInsertQuery() {
+        return BOUNDARY_RELATIONSHIP_BULK_INSERT_QUERY;
+    }
 
     public String getBoundaryRelationshipSearchQuery(BoundaryRelationshipSearchCriteria boundaryRelationshipSearchCriteria, List<Object> preparedStmtList) {
         String query = buildQuery(boundaryRelationshipSearchCriteria, preparedStmtList);
@@ -52,8 +65,11 @@ public class BoundaryRelationshipQueryBuilder {
 
             if (!CollectionUtils.isEmpty(boundaryRelationshipSearchCriteria.getCodes())) {
                 QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-                builder.append(" code IN ( ").append(QueryUtil.createQuery(boundaryRelationshipSearchCriteria.getCodes().size())).append(" )");
-                QueryUtil.addToPreparedStatement(preparedStmtList, new HashSet<>(boundaryRelationshipSearchCriteria.getCodes()));
+                // Deduplicate so the placeholder count matches the bind values (duplicate codes would
+                // otherwise leave a "?" without a value -> "No value specified for parameter").
+                Set<String> codeSet = new HashSet<>(boundaryRelationshipSearchCriteria.getCodes());
+                builder.append(" code IN ( ").append(QueryUtil.createQuery(codeSet.size())).append(" )");
+                QueryUtil.addToPreparedStatement(preparedStmtList, codeSet);
             }
         }
 
@@ -64,9 +80,11 @@ public class BoundaryRelationshipQueryBuilder {
 
         if(!CollectionUtils.isEmpty(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" ARRAY [ ").append(QueryUtil.createQuery(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes().size())).append(" ]").append("::text[] ");
+            // Deduplicate so the placeholder count matches the bind values (see note above).
+            Set<String> currentCodeSet = new HashSet<>(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes());
+            builder.append(" ARRAY [ ").append(QueryUtil.createQuery(currentCodeSet.size())).append(" ]").append("::text[] ");
             builder.append(" && string_to_array(ancestralmaterializedpath, '|') ");
-            QueryUtil.addToPreparedStatement(preparedStmtList, new HashSet<>(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes()));
+            QueryUtil.addToPreparedStatement(preparedStmtList, currentCodeSet);
         }
 
         return builder.toString();

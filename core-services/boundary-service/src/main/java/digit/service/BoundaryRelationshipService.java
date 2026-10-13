@@ -1,12 +1,17 @@
 package digit.service;
 
+import digit.errors.ErrorCodes;
 import digit.repository.BoundaryRelationshipRepository;
 import digit.service.enrichment.BoundaryRelationshipEnricher;
 import digit.service.validator.BoundaryRelationshipValidator;
 import digit.util.HierarchyUtil;
 import digit.web.models.*;
+import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.utils.ResponseInfoUtil;
+import org.egov.tracer.model.CustomException;
+import org.springframework.dao.RecoverableDataAccessException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -14,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class BoundaryRelationshipService {
 
     private BoundaryRelationshipValidator boundaryRelationshipValidator;
@@ -54,6 +60,164 @@ public class BoundaryRelationshipService {
                 .tenantBoundary(Collections.singletonList(body.getBoundaryRelationship()))
                 .build();
 
+    }
+
+    /**
+     * Request handler for processing bulk boundary relationship create requests.
+     *
+     * <p>Each record is validated and enriched independently (reusing the same business rules as
+     * the single create), so a business failure on one record does not abort the others. The
+     * records that pass validation are persisted synchronously within a single transaction, and the
+     * response reports the outcome of every record: the successfully created relationships and,
+     * separately, the failed ones with a reason for each.</p>
+     *
+     * @param body bulk create request
+     * @return per-record success/failure response
+     */
+    public BulkBoundaryRelationshipResponse createBulkBoundaryRelationship(BulkBoundaryRelationshipRequest body) {
+
+        RequestInfo requestInfo = body.getRequestInfo();
+        List<BoundaryRelation> validatedRelationships = new ArrayList<>();
+        List<FailedBoundaryRelationship> failedRelationships = new ArrayList<>();
+
+        // Track records seen in this batch to reject intra-batch duplicates. The per-record
+        // duplicate check queries the database, which cannot see other records in the same request;
+        // without this, two identical records would both validate and the atomic batch insert would
+        // hit a primary key violation, failing the whole batch.
+        Set<String> seenKeysInBatch = new HashSet<>();
+
+        for (BoundaryRelation boundaryRelationship : body.getBoundaryRelationships()) {
+            try {
+                String key = buildUniquenessKey(boundaryRelationship);
+                if (seenKeysInBatch.contains(key)) {
+                    throw new CustomException(ErrorCodes.DUPLICATE_RECORD_IN_REQUEST_CODE, ErrorCodes.DUPLICATE_RECORD_IN_REQUEST_MSG);
+                }
+
+                // Reuse the existing single-record validation and enrichment so bulk and single
+                // create share identical business rules.
+                BoundaryRelationshipRequest singleRequest = BoundaryRelationshipRequest.builder()
+                        .requestInfo(requestInfo)
+                        .boundaryRelationship(boundaryRelationship)
+                        .build();
+
+                String ancestralMaterializedPath = boundaryRelationshipValidator.validateBoundaryRelationshipCreateRequest(singleRequest);
+                boundaryRelationshipEnricher.enrichBoundaryRelationshipCreateRequest(singleRequest, ancestralMaterializedPath);
+
+                seenKeysInBatch.add(key);
+                validatedRelationships.add(singleRequest.getBoundaryRelationship());
+            } catch (CustomException e) {
+                failedRelationships.add(FailedBoundaryRelationship.builder()
+                        .boundaryRelationship(boundaryRelationship)
+                        .errorCode(e.getCode())
+                        .errorMessage(e.getMessage())
+                        .build());
+            } catch (TransientDataAccessException | RecoverableDataAccessException e) {
+                // Validation/enrichment issues DB reads (entity/duplicate/parent lookups). A transient
+                // data-access failure here is NOT bad data — classify it as retryable (the same code the
+                // consumer's RETRYABLE set recognises) so the Kafka path redelivers the whole job instead
+                // of treating a dependency outage as permanent and dead-lettering valid records.
+                failedRelationships.add(FailedBoundaryRelationship.builder()
+                        .boundaryRelationship(boundaryRelationship)
+                        .errorCode(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE)
+                        .errorMessage(withCause(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG, e))
+                        .build());
+            } catch (Exception e) {
+                // A non-business RuntimeException (e.g. null userInfo during enrichment, a malformed
+                // hierarchy definition) must not unwind the whole job; record it as a per-record
+                // failure so the remaining records still proceed.
+                failedRelationships.add(FailedBoundaryRelationship.builder()
+                        .boundaryRelationship(boundaryRelationship)
+                        .errorCode(ErrorCodes.BULK_RELATIONSHIP_VALIDATION_ERROR_CODE)
+                        .errorMessage(withCause(ErrorCodes.BULK_RELATIONSHIP_VALIDATION_ERROR_MSG, e))
+                        .build());
+            }
+        }
+
+        // Persist the validated records. Business failures were already isolated per-record above.
+        // Fast path: one atomic batch insert. If that aborts, classify:
+        //  - transient (deadlock / serialization / lost connection): the DB was unavailable for the
+        //    whole transaction, so no row could have been inserted anyway -> report the whole batch
+        //    retryable and let the consumer re-attempt the entire job.
+        //  - otherwise it is a row-level error (a constraint/data problem a single record carried that
+        //    validation didn't catch). Fall back to inserting each record in its OWN transaction, so a
+        //    single un-insertable row no longer fails the rest: the good rows commit and only the
+        //    offending row(s) are reported per-record.
+        List<BoundaryRelation> successfulRelationships = validatedRelationships;
+        if (!CollectionUtils.isEmpty(validatedRelationships)) {
+            try {
+                boundaryRelationshipRepository.createBulk(validatedRelationships);
+            } catch (TransientDataAccessException | RecoverableDataAccessException e) {
+                successfulRelationships = new ArrayList<>();
+                markPersistFailure(validatedRelationships, failedRelationships, ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE, withCause(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG, e));
+            } catch (Exception e) {
+                // Row-level fallback: isolate per record so one bad row doesn't sink the batch.
+                successfulRelationships = new ArrayList<>();
+                for (BoundaryRelation relationship : validatedRelationships) {
+                    try {
+                        boundaryRelationshipRepository.createOne(relationship);
+                        successfulRelationships.add(relationship);
+                    } catch (TransientDataAccessException | RecoverableDataAccessException te) {
+                        // Transient while isolating this row -> retryable. The consumer redelivers the
+                        // job; rows already committed in this fallback are idempotent no-ops on retry.
+                        failedRelationships.add(FailedBoundaryRelationship.builder()
+                                .boundaryRelationship(relationship)
+                                .errorCode(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE)
+                                .errorMessage(withCause(ErrorCodes.BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG, te))
+                                .build());
+                    } catch (Exception ce) {
+                        // This specific row genuinely cannot be persisted -> permanent, for this record only.
+                        failedRelationships.add(FailedBoundaryRelationship.builder()
+                                .boundaryRelationship(relationship)
+                                .errorCode(ErrorCodes.BULK_RELATIONSHIP_PERSIST_FAILED_CODE)
+                                .errorMessage(withCause(ErrorCodes.BULK_RELATIONSHIP_PERSIST_FAILED_MSG, ce))
+                                .build());
+                    }
+                }
+            }
+        }
+
+        return BulkBoundaryRelationshipResponse.builder()
+                .responseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE))
+                .successfulBoundaryRelationships(successfulRelationships)
+                .failedBoundaryRelationships(failedRelationships)
+                .build();
+    }
+
+    /**
+     * Builds the natural-key string (tenantId, hierarchyType, code) used to detect duplicate
+     * relationships within a single bulk request. Mirrors the table's primary key.
+     */
+    private String buildUniquenessKey(BoundaryRelation boundaryRelationship) {
+        return boundaryRelationship.getTenantId() + "|"
+                + boundaryRelationship.getHierarchyType() + "|"
+                + boundaryRelationship.getCode();
+    }
+
+    /**
+     * Records the whole validated set as failed with the given (transient or permanent) persistence
+     * error code when the atomic batch insert could not be committed.
+     */
+    private void markPersistFailure(List<BoundaryRelation> relationships, List<FailedBoundaryRelationship> failures, String errorCode, String errorMessage) {
+        for (BoundaryRelation relationship : relationships) {
+            failures.add(FailedBoundaryRelationship.builder()
+                    .boundaryRelationship(relationship)
+                    .errorCode(errorCode)
+                    .errorMessage(errorMessage)
+                    .build());
+        }
+    }
+
+    /**
+     * Returns the stable, caller-facing message for a failure and logs the underlying cause separately.
+     * The concrete exception text is deliberately NOT folded into the returned message: that string is
+     * surfaced in the HTTP response payload and republished to the Kafka error topic, so raw
+     * SQL/driver/internal details must not leak into it.
+     */
+    private String withCause(String message, Throwable cause) {
+        if (cause != null) {
+            log.warn("{} (cause: {})", message, cause.toString(), cause);
+        }
+        return message;
     }
 
     /**
@@ -122,8 +286,9 @@ public class BoundaryRelationshipService {
         // Fetch parent boundaries if includeParents flag is true.
         if (!CollectionUtils.isEmpty(boundaries) && boundaryRelationshipSearchCriteria.getIncludeParents()) {
             Set<String> allAncestorCodes = boundaries.stream()
-                    .map(dto -> dto.getAncestralMaterializedPath().split("\\|"))
-                    .flatMap(Arrays::stream)
+                    .map(BoundaryRelationshipDTO::getAncestralMaterializedPath)
+                    .filter(path -> path != null && !path.isEmpty())
+                    .flatMap(path -> Arrays.stream(path.split("\\|")))
                     .collect(Collectors.toSet());
 
             parentBoundaries = boundaryRelationshipRepository.search(BoundaryRelationshipSearchCriteria.builder()
