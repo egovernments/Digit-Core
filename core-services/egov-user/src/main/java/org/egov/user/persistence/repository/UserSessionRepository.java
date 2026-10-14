@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.egov.user.persistence.dto.UserSession;
 import org.egov.user.repository.builder.UserSessionQueryBuilder;
 import org.egov.user.utils.DatabaseSchemaUtils;
+import org.egov.user.web.contract.ActiveSessionUser;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -91,6 +92,16 @@ public class UserSessionRepository {
         List<UserSession> results = namedParameterJdbcTemplate.query(query, params,
                 new BeanPropertyRowMapper<>(UserSession.class));
         return results.stream().findFirst();
+    }
+
+    public List<ActiveSessionUser> findActiveSessionUsersByUserUuids(String tenantId, List<String> userUuids) {
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(
+                UserSessionQueryBuilder.SELECT_ACTIVE_SESSIONS_BY_USER_UUIDS_SQL, tenantId);
+        Map<String, Object> params = new HashMap<>();
+        params.put("tenantid", tenantId);
+        params.put("useruuids", userUuids);
+        return namedParameterJdbcTemplate.query(query, params,
+                new BeanPropertyRowMapper<>(ActiveSessionUser.class));
     }
 
     /**

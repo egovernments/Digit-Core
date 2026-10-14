@@ -5,6 +5,7 @@ import org.egov.user.persistence.dto.UserSession;
 import org.egov.user.persistence.dto.UserSessionAudit;
 import org.egov.user.persistence.repository.UserSessionAuditRepository;
 import org.egov.user.persistence.repository.UserSessionRepository;
+import org.egov.user.web.contract.ActiveSessionUser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,8 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
@@ -599,6 +602,30 @@ public class UserSessionServiceTest {
         String sessionId = userSessionService.createSession(USER_UUID, TENANT_ID, "device-A", "mobile");
 
         assertNotNull(sessionId);
+    }
+
+    // Search: only the requested users are looked up; blank/duplicate uuids are dropped.
+    @Test
+    public void test_search_should_query_only_distinct_non_blank_user_uuids() {
+        ActiveSessionUser active = new ActiveSessionUser();
+        active.setUserUuid(USER_UUID);
+        when(userSessionRepository.findActiveSessionUsersByUserUuids(TENANT_ID, Arrays.asList(USER_UUID, OTHER_USER_UUID)))
+                .thenReturn(Collections.singletonList(active));
+
+        List<ActiveSessionUser> result = userSessionService.searchActiveSessions(TENANT_ID,
+                Arrays.asList(USER_UUID, " ", null, OTHER_USER_UUID, USER_UUID));
+
+        assertEquals(1, result.size());
+        assertEquals(USER_UUID, result.get(0).getUserUuid());
+    }
+
+    // Search: an empty user set never reaches the DB ("IN ()" is invalid SQL) and returns nothing.
+    @Test
+    public void test_search_should_return_empty_without_querying_for_empty_user_uuids() {
+        assertTrue(userSessionService.searchActiveSessions(TENANT_ID, Collections.<String>emptyList()).isEmpty());
+        assertTrue(userSessionService.searchActiveSessions(TENANT_ID, Arrays.asList(" ", null)).isEmpty());
+
+        verify(userSessionRepository, never()).findActiveSessionUsersByUserUuids(anyString(), any(List.class));
     }
 
     private UserSessionAudit captureAudit() {
