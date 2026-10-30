@@ -110,6 +110,34 @@ public class ApplicationProperties {
     @Value("${boundary.bulk.max.size:100}")
     private Integer bulkCreateMaxSize;
 
+    @Value("${kafka.topics.create.boundary.identifier}")
+    private String createBoundaryIdentifierTopic;
+
+    @Value("${kafka.topics.update.boundary.identifier}")
+    private String updateBoundaryIdentifierTopic;
+
+    // Upper bound on records accepted by POST /boundary-identifier/_create and _update (enforced in-service,
+    // and additionally capped at boundary.max.default.limit so validation lookups fit in one search page).
+    @Value("${boundary.identifier.max.size:100}")
+    private Integer boundaryIdentifierMaxSize;
+
+    // Auto-generation of identifiers by boundaryType: ids are fetched from egov-idgen and published to kafka
+    // in batches of this size.
+    @Value("${boundary.identifier.generate.batch.size:100}")
+    private Integer boundaryIdentifierGenerateBatchSize;
+
+    @Value("${egov.idgen.boundary.identifier.name}")
+    private String boundaryIdentifierIdGenName;
+
+    // Used by egov-idgen only when no IdFormat is configured in MDMS for the idName above.
+    @Value("${egov.idgen.boundary.identifier.format:}")
+    private String boundaryIdentifierIdGenFormat;
+
+    // Minimum width of the trailing sequence number in generated ids (idgen itself always pads to 6).
+    // Empty or 0 keeps the id exactly as idgen returns it.
+    @Value("${egov.idgen.boundary.identifier.sequence.min.digits:}")
+    private Integer boundaryIdentifierSequenceMinDigits;
+
     @Value("${boundary.default.offset}")
     private Integer defaultOffset;
 

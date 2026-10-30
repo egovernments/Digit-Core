@@ -149,3 +149,43 @@ serviceMaps:
             - jsonPath: $.BoundaryRelationshipList.*.auditDetails.lastModifiedBy
 
             - jsonPath: $.BoundaryRelationshipList.*.id
+    - version: 1.0
+      description: Persists boundary identifiers (POST /boundary-identifier/_create)
+      fromTopic: save-boundary-identifier
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary_identifier (id, tenantId, hierarchyType, code, identifierId, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING;
+          basePath: $.BoundaryIdentifier.*
+          jsonMaps:
+            - jsonPath: $.BoundaryIdentifier.*.id
+
+            - jsonPath: $.BoundaryIdentifier.*.tenantId
+
+            - jsonPath: $.BoundaryIdentifier.*.hierarchyType
+
+            - jsonPath: $.BoundaryIdentifier.*.code
+
+            - jsonPath: $.BoundaryIdentifier.*.identifierId
+
+            - jsonPath: $.BoundaryIdentifier.*.auditDetails.createdBy
+
+            - jsonPath: $.BoundaryIdentifier.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.BoundaryIdentifier.*.auditDetails.createdTime
+
+            - jsonPath: $.BoundaryIdentifier.*.auditDetails.lastModifiedTime
+    - version: 1.0
+      description: Updates the identifierId of boundary identifiers (POST /boundary-identifier/_update)
+      fromTopic: update-boundary-identifier
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE boundary_identifier SET identifierId = ?, lastModifiedBy = ?, lastModifiedTime = ? WHERE id = ?;
+          basePath: $.BoundaryIdentifier.*
+          jsonMaps:
+            - jsonPath: $.BoundaryIdentifier.*.identifierId
+
+            - jsonPath: $.BoundaryIdentifier.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.BoundaryIdentifier.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryIdentifier.*.id

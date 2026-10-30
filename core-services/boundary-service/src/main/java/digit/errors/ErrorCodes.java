@@ -49,4 +49,38 @@ public class ErrorCodes {
     public static final String INVALID_HIERARCHY_TYPE_SEPARATOR_CODE = "INVALID_HIERARCHY_TYPE_SEPARATOR";
     public static final String INVALID_HIERARCHY_TYPE_SEPARATOR_MSG = "hierarchyType must not contain separator characters. The characters '.', ':', '-', '/', '_' and any whitespace are all normalized to '_' when deriving the localisation module name and the boundary code prefix, so two hierarchy types differing only by these characters would silently collide. Offending character(s): ";
 
+    // Boundary identifier
+    public static final String BOUNDARY_IDENTIFIER_REQUEST_EMPTY_CODE = "BOUNDARY_IDENTIFIER_REQUEST_EMPTY";
+    public static final String BOUNDARY_IDENTIFIER_REQUEST_EMPTY_MSG = "Boundary identifier request must contain at least one BoundaryIdentifier (or GenerateCriteria on _create).";
+    public static final String BOUNDARY_IDENTIFIER_REQUEST_SIZE_EXCEEDED_CODE = "BOUNDARY_IDENTIFIER_REQUEST_SIZE_EXCEEDED";
+    public static final String BOUNDARY_IDENTIFIER_REQUEST_SIZE_EXCEEDED_MSG = "Boundary identifier request exceeds the maximum allowed size of ";
+    public static final String BOUNDARY_IDENTIFIER_REQUEST_INFO_MISSING_CODE = "BOUNDARY_IDENTIFIER_REQUEST_INFO_MISSING";
+    public static final String BOUNDARY_IDENTIFIER_REQUEST_INFO_MISSING_MSG = "Boundary identifier request is missing RequestInfo.userInfo.uuid.";
+    public static final String INVALID_BOUNDARY_IDENTIFIER_CODE = "INVALID_BOUNDARY_IDENTIFIER";
+    public static final String INVALID_BOUNDARY_IDENTIFIER_MSG = "tenantId, hierarchyType, code and identifierId are mandatory. Missing at request index(es): ";
+    public static final String DUPLICATE_BOUNDARY_CODE_IN_REQUEST_CODE = "DUPLICATE_BOUNDARY_CODE_IN_REQUEST";
+    public static final String DUPLICATE_BOUNDARY_CODE_IN_REQUEST_MSG = "Same boundary code is present more than once in the request, for ";
+    public static final String DUPLICATE_IDENTIFIER_ID_IN_REQUEST_CODE = "DUPLICATE_IDENTIFIER_ID_IN_REQUEST";
+    public static final String DUPLICATE_IDENTIFIER_ID_IN_REQUEST_MSG = "Same identifierId is present more than once in the request, for ";
+    public static final String BOUNDARY_NOT_FOUND_CODE = "BOUNDARY_NOT_FOUND";
+    public static final String BOUNDARY_NOT_FOUND_MSG = "Boundary code(s) not found in the boundary hierarchy (boundary_relationship) for ";
+    public static final String BOUNDARY_IDENTIFIER_ALREADY_EXISTS_CODE = "BOUNDARY_IDENTIFIER_ALREADY_EXISTS";
+    public static final String BOUNDARY_IDENTIFIER_ALREADY_EXISTS_MSG = "Boundary code(s) already have an identifier assigned, use _update to change it, for ";
+    public static final String BOUNDARY_IDENTIFIER_NOT_FOUND_CODE = "BOUNDARY_IDENTIFIER_NOT_FOUND";
+    public static final String BOUNDARY_IDENTIFIER_NOT_FOUND_MSG = "No boundary identifier exists for ";
+    public static final String IDENTIFIER_ID_ALREADY_ASSIGNED_CODE = "IDENTIFIER_ID_ALREADY_ASSIGNED";
+    public static final String IDENTIFIER_ID_ALREADY_ASSIGNED_MSG = "identifierId(s) already assigned to another boundary (identifierId=assignedCode), for ";
+    public static final String BOUNDARY_IDENTIFIER_SEARCH_CRITERIA_MISSING_CODE = "BOUNDARY_IDENTIFIER_SEARCH_CRITERIA_MISSING";
+    public static final String BOUNDARY_IDENTIFIER_SEARCH_CRITERIA_MISSING_MSG = "tenantId and hierarchyType are mandatory for boundary identifier search.";
+    public static final String BOUNDARY_IDENTIFIER_CREATE_MODE_CODE = "BOUNDARY_IDENTIFIER_CREATE_MODE";
+    public static final String BOUNDARY_IDENTIFIER_CREATE_MODE_MSG = "Provide either BoundaryIdentifier (manual) or GenerateCriteria (auto-generate), not both.";
+    public static final String BOUNDARY_IDENTIFIER_GENERATE_NOT_ALLOWED_CODE = "BOUNDARY_IDENTIFIER_GENERATE_NOT_ALLOWED";
+    public static final String BOUNDARY_IDENTIFIER_GENERATE_NOT_ALLOWED_MSG = "GenerateCriteria is only supported on _create.";
+    public static final String INVALID_GENERATE_CRITERIA_CODE = "INVALID_GENERATE_CRITERIA";
+    public static final String INVALID_GENERATE_CRITERIA_MSG = "GenerateCriteria needs tenantId, hierarchyType and exactly one of boundaryType or codes (no blank codes).";
+    public static final String IDGEN_ERROR_CODE = "IDGEN_ERROR";
+    public static final String IDGEN_ERROR_MSG = "Failed to generate boundary identifiers from egov-idgen: ";
+    public static final String IDGEN_UNIQUE_IDS_EXHAUSTED_CODE = "IDGEN_UNIQUE_IDS_EXHAUSTED";
+    public static final String IDGEN_UNIQUE_IDS_EXHAUSTED_MSG = "egov-idgen kept returning identifierIds that are already assigned. Check the idgen format/sequence for ";
+
 }
