@@ -129,8 +129,59 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "NEXT_TAG=$TAG" >> "$GITHUB_ENV"
 
-  build-matrix:
+  # Security gate: CodeQL (security-extended) on this service only. Any high/critical finding,
+  # mapped to OWASP Top 10:2025 by .claude/hooks/codeql-owasp-scan.py, stops the build before
+  # an image is built, pushed or signed.
+  codeql-gate:
     needs: resolve-config
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    env:
+      SERVICE_DIR: ${{ github.event.inputs.service_folder }}/${{ github.event.inputs.service }}
+      # Keep identical to codeql_version in .claude/hooks/codeql-policy.json.
+      CODEQL_BUNDLE: https://github.com/github/codeql-action/releases/download/codeql-bundle-v2.27.4/codeql-bundle-linux64.tar.gz
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Pick CodeQL language
+        id: lang
+        run: |
+          if [ -f "$SERVICE_DIR/pom.xml" ]; then LANG_ID=java-kotlin
+          elif [ -f "$SERVICE_DIR/package.json" ]; then LANG_ID=javascript-typescript
+          else echo "::error::No pom.xml or package.json in $SERVICE_DIR"; exit 1; fi
+          echo "language=$LANG_ID" >> "$GITHUB_OUTPUT"
+          printf 'paths:\n  - %s\n' "$SERVICE_DIR" > codeql-config.yml
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3
+        with:
+          tools: ${{ env.CODEQL_BUNDLE }}
+          languages: ${{ steps.lang.outputs.language }}
+          build-mode: none
+          queries: security-extended
+          config-file: ./codeql-config.yml
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3
+        with:
+          category: build/${{ github.event.inputs.service }}
+          output: sarif-results
+
+      - name: OWASP gate
+        run: |
+          git ls-files "$SERVICE_DIR" > service-files.txt
+          python3 .claude/hooks/codeql-owasp-scan.py --sarif sarif-results/*.sarif \
+            --changed-files service-files.txt --summary "$GITHUB_STEP_SUMMARY" || {
+            echo "::error::CodeQL OWASP gate failed for $SERVICE_DIR; image build stopped."
+            exit 1
+          }
+
+  build-matrix:
+    needs: [resolve-config, codeql-gate]
     # expose whether a DB folder was present
     outputs:
       db_folder_exists: ${{ steps.check-db-folder.outputs.folder_exists }}

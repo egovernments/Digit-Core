@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(**/.claude/hooks/codeql-policy.json)",
+      "Write(**/.claude/hooks/codeql-policy.json)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/codeql-owasp-scan.py --record",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/codeql-owasp-scan.py",
+            "timeout": 900
+          }
+        ]
+      }
+    ]
+  }
+}

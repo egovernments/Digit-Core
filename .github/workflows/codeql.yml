@@ -1,0 +1,68 @@
+name: CodeQL OWASP
+
+# CodeQL (security-extended) over the repo; findings go to the Security tab and are mapped to
+# OWASP Top 10:2025 by .claude/hooks/codeql-owasp-scan.py (same script and policy as the Claude Code hook).
+# Pull requests fail on high/critical findings in files the PR changes; push and schedule runs only report.
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Keep identical to codeql_version in .claude/hooks/codeql-policy.json.
+  CODEQL_BUNDLE: https://github.com/github/codeql-action/releases/download/codeql-bundle-v2.27.4/codeql-bundle-linux64.tar.gz
+
+jobs:
+  analyze:
+    name: CodeQL OWASP gate (${{ matrix.language }})
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [java-kotlin, javascript-typescript]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3
+        with:
+          tools: ${{ env.CODEQL_BUNDLE }}
+          languages: ${{ matrix.language }}
+          build-mode: none
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3
+        with:
+          category: /language:${{ matrix.language }}
+          output: sarif-results
+
+      - name: OWASP gate
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            git diff --name-only --diff-filter=d "$PR_BASE" HEAD > changed-files.txt
+            python3 .claude/hooks/codeql-owasp-scan.py --sarif sarif-results/*.sarif \
+              --changed-files changed-files.txt --summary "$GITHUB_STEP_SUMMARY"
+          else
+            # Baseline run: report every finding, never fail.
+            python3 .claude/hooks/codeql-owasp-scan.py --sarif sarif-results/*.sarif \
+              --all --summary "$GITHUB_STEP_SUMMARY" || true
+          fi
