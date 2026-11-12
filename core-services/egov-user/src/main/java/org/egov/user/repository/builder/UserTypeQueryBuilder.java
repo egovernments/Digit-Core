@@ -46,8 +46,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -89,6 +92,18 @@ public class UserTypeQueryBuilder {
             "'false' WHERE user_uuid = :user_uuid";
 
     private static final String SELECT_USER_ROLE_QUERY = "SELECT distinct(user_id) from eg_userrole_v1 ur";
+
+    /*
+     * Sortable eg_user columns: every column in SELECT_USER_QUERY except password, pan,
+     * aadhaarnumber, signature and photo. Those are deliberately excluded — ordering by a
+     * sensitive column leaks the relative order of stored values (an extraction oracle in
+     * deployments without field-level encryption), bypassing response masking.
+     */
+    private static final Set<String> ALLOWED_SORT_COLUMNS = new HashSet<>(Arrays.asList(
+            "id", "uuid", "tenantid", "username", "name", "gender", "type", "active", "title", "salutation",
+            "mobilenumber", "countrycode", "alternatemobilenumber", "altcontactnumber", "emailid", "locale", "dob",
+            "pwdexpirydate", "version", "guardian", "guardianrelation", "accountlocked", "accountlockeddate",
+            "bloodgroup", "identificationmark", "createddate", "lastmodifieddate", "createdby", "lastmodifiedby"));
 
     @SuppressWarnings("rawtypes")
     public String getQuery(final UserSearchCriteria userSearchCriteria, final List preparedStatementValues) {
@@ -194,7 +209,8 @@ public class UserTypeQueryBuilder {
 
         if (userSearchCriteria.isFuzzyLogic() && userSearchCriteria.getName() != null) {
             isAppendAndClause = addAndClauseIfRequired(isAppendAndClause, selectQuery);
-            selectQuery.append(" userdata.name like " + "'%").append(userSearchCriteria.getName().trim()).append("%'");
+            selectQuery.append(" userdata.name like ?");
+            preparedStatementValues.add("%" + userSearchCriteria.getName().trim() + "%");
         }
 
         if (!isEmpty(userSearchCriteria.getUuid())) {
@@ -211,8 +227,17 @@ public class UserTypeQueryBuilder {
     }
 
     private void addOrderByClause(final StringBuilder selectQuery, final UserSearchCriteria userSearchCriteria) {
-        final String sortBy = userSearchCriteria.getSort() != null && !userSearchCriteria.getSort().isEmpty()
-                ? " userdata." + userSearchCriteria.getSort().get(0) : "userdata.name";
+        String sortBy = "userdata.name";
+        if (userSearchCriteria.getSort() != null && !userSearchCriteria.getSort().isEmpty()) {
+            final String[] parts = userSearchCriteria.getSort().get(0).trim().toLowerCase().split("\\s+");
+            final boolean validColumn = ALLOWED_SORT_COLUMNS.contains(parts[0]);
+            final boolean validDirection = parts.length == 1
+                    || (parts.length == 2 && (parts[1].equals("asc") || parts[1].equals("desc")));
+            if (validColumn && validDirection)
+                sortBy = "userdata." + parts[0] + (parts.length == 2 ? " " + parts[1] : "");
+            else
+                log.warn("Ignoring invalid sort value in user search; defaulting to name");
+        }
         selectQuery.append(" ORDER BY ").append(sortBy);
     }
 
