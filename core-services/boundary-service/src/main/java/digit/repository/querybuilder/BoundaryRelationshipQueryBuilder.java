@@ -57,10 +57,9 @@ public class BoundaryRelationshipQueryBuilder {
             }
         }
 
-        if(boundaryRelationshipSearchCriteria.getIsSearchForRootNode()) {
-            QueryUtil.addClauseIfRequired(builder, preparedStmtList);
-            builder.append(" parent IS NULL ");
-        }
+        // When isSearchForRootNode is true, fetch ALL nodes for the tenant+hierarchy
+        // so the enricher can build the full tree. Do NOT restrict to parent IS NULL,
+        // as that returns only root nodes with no children to assemble.
 
         if(!CollectionUtils.isEmpty(boundaryRelationshipSearchCriteria.getCurrentBoundaryCodes())) {
             QueryUtil.addClauseIfRequired(builder, preparedStmtList);
