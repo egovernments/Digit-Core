@@ -22,6 +22,6 @@ public class BaseRepository {
     public List<Object> run(BaseQueryBuilder queryBuilder, RowMapper rowMapper) {
         String query = queryBuilder.build();
         log.debug("Query : " + query);
-        return jdbcTemplate.query(query, rowMapper);
+        return jdbcTemplate.query(query, rowMapper, queryBuilder.getParameters());
     }
 }
