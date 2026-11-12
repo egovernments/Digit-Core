@@ -2,6 +2,18 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.4 - 2026-07-20
+- At-least-once delivery: manual offset commit (`spring.kafka.consumer.enable-auto-commit=false`), per-record (RECORD) ack on the single container and per-batch (BATCH) ack on the batch container — offsets commit only after durable handling
+- SQLSTATE-based failure classification: benign duplicate (`unique_violation` 23505) treated as idempotent success, transient failures (connection/deadlock/serialization) retried in place, permanent/bad-data records routed to the dead-letter topic
+- Dead-letter topic (`tracer.errorsTopic`, default `egov-persister-deadletter`) with a bounded reprocessor and a terminal parking topic (`egov-persister-deadletter-processed`); durable DLQ/parking publishes (`acks=all`, idempotent producer)
+- DB-health pause/resume monitor: the single container is paused while the datasource is unreachable and resumed on recovery
+- Per-record poison isolation: a failing bulk (bare JSON array) message is split so only the offending record is dead-lettered while its siblings commit
+- Batch persist optimization: rows aggregated per QueryMap across all messages into a single order-preserving `batchUpdate`
+- Idempotent service configs: added `ON CONFLICT (uuid) DO NOTHING` to inserts to support safe redelivery / DLQ replay
+- New config keys: `persister.batch.topics`, `persister.dead-letter.*`, `persister.db-health.check-interval-ms`, `persister.custom.executor.*`, `persister.batch.parallel-topic-processing.thread-pool-size`, and the live-read `persister.kafka.*` consumer tuning knobs
+- Bumped tracer to 2.9.3-SNAPSHOT for end-to-end correlationId + tenantId propagation across HTTP↔Kafka (HCM flow tracing)
+
+
 ## 2.9.3 - 2026-03-16
 - Upgraded Spring Boot version from 3.2.2 to 3.4.5 to fix HIGH/CRITICAL CVEs
 - Upgraded tracer, services-common, mdms-client, enc-client library versions

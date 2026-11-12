@@ -51,8 +51,12 @@ public class BoundaryEntityQueryBuilder {
         }
         if (!Objects.isNull(boundarySearchCriteria.getCodes())) {
             QueryUtil.addClauseIfRequired(builder , preparedStmtList);
-            builder.append(" boundary.code IN ( ").append(QueryUtil.createQuery(boundarySearchCriteria.getCodes().size())).append(" )");
+            // Deduplicate first so the placeholder count matches the (deduped) bind values. Using the
+            // raw list size for the "?" placeholders while binding a HashSet of values leaves a trailing
+            // placeholder unbound when the batch contains duplicate codes -> PostgreSQL "No value
+            // specified for parameter".
             Set<String> codes = new HashSet<>(boundarySearchCriteria.getCodes());
+            builder.append(" boundary.code IN ( ").append(QueryUtil.createQuery(codes.size())).append(" )");
             QueryUtil.addToPreparedStatement(preparedStmtList , codes);
         }
         return builder.toString();

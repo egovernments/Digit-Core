@@ -1,5 +1,6 @@
 package digit.service.validator;
 
+import digit.errors.ErrorCodes;
 import digit.repository.BoundaryRelationshipRepository;
 import digit.repository.BoundaryRepository;
 import digit.util.HierarchyUtil;
@@ -35,6 +36,11 @@ public class BoundaryRelationshipValidator {
      * @return
      */
     public String validateBoundaryRelationshipCreateRequest(BoundaryRelationshipRequest body) {
+        // Reject the reserved materialized-path delimiter in the key fields: '|' joins the ancestral
+        // path (and the bulk dedup key), so a '|' inside code/tenantId/hierarchyType would corrupt
+        // subtree search and produce false dedup collisions. Applies to both single and bulk create.
+        validateKeyFieldsHaveNoDelimiter(body);
+
         // Check if boundary entity exists
         validateIfBoundaryEntityExists(body);
 
@@ -121,6 +127,24 @@ public class BoundaryRelationshipValidator {
     }
 
     /**
+     * Rejects the reserved '|' materialized-path delimiter in the natural-key fields (code, tenantId,
+     * hierarchyType). A '|' in any of these would split into bogus tokens in the ancestral path and the
+     * GIN-overlap subtree search, and collide in the bulk dedup key.
+     */
+    private void validateKeyFieldsHaveNoDelimiter(BoundaryRelationshipRequest body) {
+        BoundaryRelation boundaryRelationship = body.getBoundaryRelationship();
+        if (containsPathDelimiter(boundaryRelationship.getCode())
+                || containsPathDelimiter(boundaryRelationship.getTenantId())
+                || containsPathDelimiter(boundaryRelationship.getHierarchyType())) {
+            throw new CustomException(ErrorCodes.INVALID_BOUNDARY_CODE_CODE, ErrorCodes.INVALID_BOUNDARY_CODE_MSG);
+        }
+    }
+
+    private boolean containsPathDelimiter(String value) {
+        return value != null && value.contains("|");
+    }
+
+    /**
      * This method checks if the given boundary relationship already exists.
      * @param body
      */
@@ -187,7 +211,12 @@ public class BoundaryRelationshipValidator {
                 throw new CustomException("HIERARCHY_ERROR", "Boundary relationship without defined parent should have root boundary hierarchy type.");
             }
         } else{
-            if(!body.getBoundaryRelationship().getBoundaryType().equals(hierarchyOrder.get(hierarchyOrder.indexOf(parentBoundaryType) + 1))) {
+            // Guard the index lookup: if the parent's boundary type is not in the hierarchy or is the
+            // leaf level, indexOf(...)+1 would otherwise throw IndexOutOfBounds (a plain RuntimeException
+            // that would escape the per-record bulk handling). Surface it as a recordable CustomException.
+            int parentIndex = hierarchyOrder.indexOf(parentBoundaryType);
+            if(parentIndex < 0 || parentIndex + 1 >= hierarchyOrder.size()
+                    || !body.getBoundaryRelationship().getBoundaryType().equals(hierarchyOrder.get(parentIndex + 1))) {
                 throw new CustomException("HIERARCHY_ERROR", "Hierarchy of child should be the direct descendant of parent's boundary hierarchy type.");
             }
         }

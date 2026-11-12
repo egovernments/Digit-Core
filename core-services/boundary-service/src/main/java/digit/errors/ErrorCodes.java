@@ -30,5 +30,23 @@ public class ErrorCodes {
     public static final String MULTIPLE_ROOT_NODES_ERR_MSG = "Hierarchy definition must have only one root node.";
     public static final String DUPLICATE_BOUNDARY_CODE = "DUPLICATE_BOUNDARY";
     public static final String DUPLICATE_BOUNDARY_MSG = "Duplicate boundary entities found in the request.";
+    public static final String DUPLICATE_RECORD_IN_REQUEST_CODE = "DUPLICATE_RECORD_IN_REQUEST";
+    public static final String DUPLICATE_RECORD_IN_REQUEST_MSG = "Duplicate boundary relationship (same tenantId, hierarchyType and code) found within the bulk request.";
+    public static final String BULK_RELATIONSHIP_VALIDATION_ERROR_CODE = "BULK_RELATIONSHIP_VALIDATION_ERROR";
+    public static final String BULK_RELATIONSHIP_VALIDATION_ERROR_MSG = "Boundary relationship could not be validated due to an unexpected error.";
+    public static final String BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE = "BULK_RELATIONSHIP_PERSIST_TRANSIENT";
+    public static final String BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG = "Boundary relationship persistence failed transiently and will be retried.";
+    public static final String BULK_REQUEST_EMPTY_CODE = "BULK_REQUEST_EMPTY";
+    public static final String BULK_REQUEST_EMPTY_MSG = "Bulk boundary relationship request must contain at least one relationship.";
+    public static final String BULK_REQUEST_SIZE_EXCEEDED_CODE = "BULK_REQUEST_SIZE_EXCEEDED";
+    public static final String BULK_REQUEST_SIZE_EXCEEDED_MSG = "Bulk boundary relationship request exceeds the maximum allowed size of ";
+    public static final String BULK_REQUEST_INFO_MISSING_CODE = "BULK_REQUEST_INFO_MISSING";
+    public static final String BULK_REQUEST_INFO_MISSING_MSG = "Bulk boundary relationship request is missing RequestInfo.userInfo.";
+    public static final String INVALID_BOUNDARY_CODE_CODE = "INVALID_BOUNDARY_CODE";
+    public static final String INVALID_BOUNDARY_CODE_MSG = "code, tenantId and hierarchyType must not contain the '|' character, which is reserved as the ancestral materialized-path delimiter.";
+    // Distinct code (not reused from INVALID_HIERARCHY_DEFINITION) so the UI can render a specific,
+    // actionable message for this case rather than a generic hierarchy-definition failure.
+    public static final String INVALID_HIERARCHY_TYPE_SEPARATOR_CODE = "INVALID_HIERARCHY_TYPE_SEPARATOR";
+    public static final String INVALID_HIERARCHY_TYPE_SEPARATOR_MSG = "hierarchyType must not contain separator characters. The characters '.', ':', '-', '/', '_' and any whitespace are all normalized to '_' when deriving the localisation module name and the boundary code prefix, so two hierarchy types differing only by these characters would silently collide. Offending character(s): ";
 
 }

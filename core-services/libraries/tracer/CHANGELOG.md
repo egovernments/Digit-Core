@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this library will be documented in this file.
 
+## 2.9.3 - 2026-07-17
+- Propagated correlationId and tenantId across Kafka — stamp both onto message headers on produce and rebuild the MDC from them on consume, so consumer/async logs carry the same IDs
+- Added MdcRecordInterceptor (auto-attached to the default Kafka listener container factory), KafkaTemplateLoggingInterceptors, and TracerKafkaMdcUtil helper
+
+## 2.9.2 - 2026-03-10
+- Addition of Data Access Exception Handling in ExceptionAdvice.
+
 ## 2.9.0 - 2024-02-29
 - Upgraded spring boot version from 2.2.6.RELEASE to 3.2.2
 - Upgraded java version from 1.8 to 17

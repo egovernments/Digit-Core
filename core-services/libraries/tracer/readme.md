@@ -41,19 +41,49 @@ Map<String, String> map = new HashMap<>();
 The logging of the http request/response body and Kakfa message body can be toggled on/off using
 "tracer.detailed.tracing.enabled" application property.
 
+The per-record Kafka MDC rebuild + cleanup (see "Setting the correlation id in the MDC") is not
+toggleable. Correlation/tenant propagation over Kafka lives in the client interceptor registered by
+"spring.kafka.properties.interceptor.classes", so disabling the record interceptor would have left
+propagation running while dropping per-record cleanup — mis-attributing every record in a poll to the
+last one. Remove the client interceptor property if the Kafka hop must be switched off entirely.
+
 ###### Correlation id retrieval and forwarding -
 
 The library takes care of retrieving the correlation id from -
 
 - Incoming http request body or header
-- Kafka message payload
+- Kafka message headers (with a fallback to the message payload)
 
 For an outgoing http request the correlation id is sent as a custom request header "x-correlation-id".
+
+As of version 2.9.3 both the correlation id and the tenant id are also propagated across Kafka via
+message headers -
+
+- On produce, the correlation id and tenant id are stamped from the MDC onto the outgoing message
+  headers "x-correlation-id" (CORRELATION_ID_HEADER) and "tenantId" (TENANT_ID_HEADER), only when
+  present in the MDC and not already set on the record.
+- On consume, the MDC is rebuilt from these headers. The correlation id falls back to the message
+  payload (RequestInfo.correlationId / requestInfo.correlationId) when the header is absent.
+
+This means consumer and downstream async logs carry the same correlation id and tenant id as the
+originating request.
 
 ###### Setting the correlation id in the MDC -
 
 Given the library takes care of placing the correlation id into the MDC, any custom logging done in the
 application would seamlessly include the correlation id in the log message.
+
+For Kafka consumers, as of version 2.9.3 the MDC is managed per record by a RecordInterceptor
+(MdcRecordInterceptor). Before each record is processed the correlation id and tenant id are rebuilt
+into the MDC from the record headers, and after the record completes (on both success and failure)
+both MDC keys are cleared. This per-record cleanup prevents the ids from leaking across records when
+listener threads are reused.
+
+Note - The mdcRecordInterceptor bean is registered by TracerConfiguration, but Spring Boot only
+auto-attaches it to its autoconfigured record-listener container factory. Services that define a
+custom ConcurrentKafkaListenerContainerFactory or use batch listeners must wire it manually by calling
+setRecordInterceptor(mdcRecordInterceptor()) on their factory; otherwise their consumer logs will not
+carry the propagated correlation id and tenant id.
 
 Note - See the "logging.pattern" mentioned in the "Tracer integration" section.
 
@@ -114,10 +144,14 @@ Note - See the "logging.pattern" mentioned in the "Tracer integration" section.
   logging.
 - The LogAwareKafkaTemplate is a wrapper Spring bean class for Spring Kafka's KafkaTemplate that performs the logging
   of messages sent to Kafka.
-- For a Kafka consumer implemented using Spring Kafka's KafkaListener annotation an AspectJ's aspect is used to log and
-  retrieve the correlation id from the received payload.
-- The correlation id retrieved via the filter or aspect is then stored in a thread local variable to
-  forward as necessary.
+- For Kafka, a producer/consumer interceptor (KafkaTemplateLoggingInterceptors) performs the logging of messages
+  sent and received. As of version 2.9.3, on produce it stamps the correlation id and tenant id from the MDC onto the
+  message headers ("x-correlation-id" and "tenantId"), and on consume it rebuilds the MDC from those headers (with a
+  fallback to the payload for the correlation id) via the TracerKafkaMdcUtil helper.
+- For Kafka consumers, a RecordInterceptor (MdcRecordInterceptor) rebuilds the MDC (correlation id + tenant id) before
+  each record and clears both keys afterwards, so ids do not leak across records on reused listener threads.
+- The correlation id retrieved via the filter (for http) or the Kafka headers (for consumers) is placed into the MDC
+  to forward as necessary.
 
 #### Change log -
 
