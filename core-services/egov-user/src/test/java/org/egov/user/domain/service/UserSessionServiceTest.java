@@ -19,6 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
@@ -498,6 +499,26 @@ public class UserSessionServiceTest {
         } finally {
             verify(userSessionAuditRepository, never()).insert(any(UserSessionAudit.class));
         }
+    }
+
+    // Bulk revoke: one user without an active session doesn't fail the batch.
+    @Test
+    public void test_revokeAll_should_revoke_each_user_and_report_failures() {
+        UserSession active = new UserSession(USER_UUID, TENANT_ID, "device-A", "session-1",
+                "ACTIVE", System.currentTimeMillis(), System.currentTimeMillis());
+        when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(active));
+        when(userSessionRepository.updateStatus("session-1", TENANT_ID, "REVOKED")).thenReturn(1);
+        when(userSessionRepository.findActiveSession(OTHER_USER_UUID, TENANT_ID)).thenReturn(Optional.empty());
+
+        Map<String, Object> result = userSessionService.revokeAll(
+                Arrays.asList(USER_UUID, OTHER_USER_UUID), TENANT_ID, "admin-uuid-1");
+
+        assertEquals(Arrays.asList(USER_UUID), result.get("revoked"));
+        List<Map<String, String>> failed = (List<Map<String, String>>) result.get("failed");
+        assertEquals(1, failed.size());
+        assertEquals(OTHER_USER_UUID, failed.get(0).get("userUuid"));
+        assertEquals("NO_ACTIVE_SESSION", failed.get(0).get("code"));
+        verify(userSessionRepository).updateStatus("session-1", TENANT_ID, "REVOKED");
     }
 
     // Audit: a fresh login with no conflict is recorded as LOGIN_SUCCESS, self-attributed.

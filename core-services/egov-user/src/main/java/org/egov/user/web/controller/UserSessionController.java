@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +41,16 @@ public class UserSessionController {
     public ResponseEntity<Map<String, Object>> revoke(@Valid @RequestBody RevokeSessionRequest request) {
         String actor = request.getRequestInfo() != null && request.getRequestInfo().getUserInfo() != null
                 ? request.getRequestInfo().getUserInfo().getUuid() : "UNKNOWN_ADMIN";
-        log.info("Session revoke requested for user: {} tenant: {} by {}", request.getUserUuid(), request.getTenantId(), actor);
-        userSessionService.revoke(request.getUserUuid(), request.getTenantId(), actor);
+        // A single userUuid string is handled as a one-item list, so the response always has revoked/failed.
+        List<String> userUuids = request.getUserUuidList();
+        log.info("Session revoke requested for users: {} tenant: {} by {}", userUuids, request.getTenantId(), actor);
+        Map<String, Object> result = userSessionService.revokeAll(userUuids, request.getTenantId(), actor);
 
+        // LinkedHashMap keeps the JSON order: ResponseInfo first, then revoked, then failed.
+        Map<String, Object> response = new LinkedHashMap<>();
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
-        Map<String, Object> response = new HashMap<>();
         response.put("ResponseInfo", responseInfo);
+        response.putAll(result);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

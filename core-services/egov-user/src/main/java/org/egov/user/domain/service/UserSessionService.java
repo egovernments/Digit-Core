@@ -15,8 +15,11 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -314,6 +317,31 @@ public class UserSessionService {
         }
         log.info("Session {} revoked for user {} tenant {}", session.getSessionId(), userUuid, tenantId);
         recordAudit(userUuid, tenantId, session.getDeviceId(), session.getSessionId(), SessionAuditAction.REVOKED, actor, null);
+    }
+
+    /**
+     * Calls {@link #revoke} for each user. A user with no active session is reported in the
+     * result's failures instead of failing the whole batch.
+     */
+    public Map<String, Object> revokeAll(List<String> userUuids, String tenantId, String actor) {
+        List<String> revoked = new ArrayList<>();
+        List<Map<String, String>> failed = new ArrayList<>();
+        for (String userUuid : userUuids) {
+            try {
+                revoke(userUuid, tenantId, actor);
+                revoked.add(userUuid);
+            } catch (CustomException e) {
+                Map<String, String> failure = new LinkedHashMap<>();
+                failure.put("userUuid", userUuid);
+                failure.put("code", e.getCode());
+                failure.put("message", e.getMessage());
+                failed.add(failure);
+            }
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("revoked", revoked);
+        result.put("failed", failed);
+        return result;
     }
 
     /**
