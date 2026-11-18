@@ -383,7 +383,10 @@ public class UserService {
         user.setPassword(encryptPwd(user.getPassword()));
         /* encrypt */
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
-        userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
+        long loggedInUserId = requestInfo.getUserInfo() != null && requestInfo.getUserInfo().getId() != null
+                ? requestInfo.getUserInfo().getId() : 0L;
+        String loggedInUserUuid = requestInfo.getUserInfo() != null ? requestInfo.getUserInfo().getUuid() : null;
+        userRepository.update(user, existingUser, loggedInUserId, loggedInUserUuid);
 
         // If user is being unlocked via update, reset failed login attempts
         if (user.getAccountLocked() != null && !user.getAccountLocked() && existingUser.getAccountLocked())
@@ -440,7 +443,10 @@ public class UserService {
         validateProfileUpdateIsDoneByTheSameLoggedInUser(user);
         user.nullifySensitiveFields();
         validatePassword(user.getPassword());
-        userRepository.update(user, existingUser,requestInfo.getUserInfo().getId(), requestInfo.getUserInfo().getUuid() );
+        long partialLoggedInUserId = requestInfo.getUserInfo() != null && requestInfo.getUserInfo().getId() != null
+                ? requestInfo.getUserInfo().getId() : 0L;
+        String partialLoggedInUserUuid = requestInfo.getUserInfo() != null ? requestInfo.getUserInfo().getUuid() : null;
+        userRepository.update(user, existingUser, partialLoggedInUserId, partialLoggedInUserUuid);
         User updatedUser = getUserByUuid(user.getUuid());
         
         /* decrypt here */
