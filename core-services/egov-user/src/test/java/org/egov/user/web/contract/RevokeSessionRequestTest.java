@@ -57,6 +57,26 @@ public class RevokeSessionRequestTest {
         assertFalse(isValid(parse("{\"tenantId\":\"ko\",\"userUuid\":[\"u1\",null]}")));
     }
 
+    @Test
+    public void single_string_is_not_a_bulk_request() throws Exception {
+        assertFalse(parse("{\"tenantId\":\"ko\",\"userUuid\":\"u1\"}").isBulkRequest());
+        assertTrue(parse("{\"tenantId\":\"ko\",\"userUuid\":[\"u1\"]}").isBulkRequest());
+    }
+
+    @Test
+    public void list_size_is_limited() throws Exception {
+        assertTrue(isValid(parse(listJson(RevokeSessionRequest.MAX_BULK_REVOKE_SIZE))));
+        assertFalse(isValid(parse(listJson(RevokeSessionRequest.MAX_BULK_REVOKE_SIZE + 1))));
+    }
+
+    private static String listJson(int size) {
+        StringBuilder sb = new StringBuilder("{\"tenantId\":\"ko\",\"userUuid\":[");
+        for (int i = 0; i < size; i++) {
+            sb.append(i == 0 ? "" : ",").append("\"u").append(i).append("\"");
+        }
+        return sb.append("]}").toString();
+    }
+
     private static RevokeSessionRequest parse(String json) throws Exception {
         return MAPPER.readValue(json, RevokeSessionRequest.class);
     }

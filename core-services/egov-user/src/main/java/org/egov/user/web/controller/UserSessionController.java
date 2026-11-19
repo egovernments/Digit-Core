@@ -41,17 +41,28 @@ public class UserSessionController {
     public ResponseEntity<Map<String, Object>> revoke(@Valid @RequestBody RevokeSessionRequest request) {
         String actor = request.getRequestInfo() != null && request.getRequestInfo().getUserInfo() != null
                 ? request.getRequestInfo().getUserInfo().getUuid() : "UNKNOWN_ADMIN";
-        // A single userUuid string is handled as a one-item list, so the response always has revoked/failed.
+        if (!request.isBulkRequest()) {
+            // Original single-user contract, unchanged: a missing active session propagates as
+            // CustomException (error response), and success returns only ResponseInfo.
+            log.info("Session revoke requested for user: {} tenant: {} by {}", request.getUserUuid(), request.getTenantId(), actor);
+            userSessionService.revoke(request.getUserUuid(), request.getTenantId(), actor);
+            ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
+            Map<String, Object> response = new HashMap<>();
+            response.put("ResponseInfo", responseInfo);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
         List<String> userUuids = request.getUserUuidList();
-        log.info("Session revoke requested for users: {} tenant: {} by {}", userUuids, request.getTenantId(), actor);
+        log.info("Bulk session revoke requested for {} users tenant: {} by {}", userUuids.size(), request.getTenantId(), actor);
         Map<String, Object> result = userSessionService.revokeAll(userUuids, request.getTenantId(), actor);
 
+        // 200 only when every user was revoked; otherwise 207 Multi-Status, with per-user outcomes in the body.
+        boolean allRevoked = ((List<?>) result.get("failed")).isEmpty();
         // LinkedHashMap keeps the JSON order: ResponseInfo first, then revoked, then failed.
         Map<String, Object> response = new LinkedHashMap<>();
-        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
-        response.put("ResponseInfo", responseInfo);
+        response.put("ResponseInfo", responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), allRevoked));
         response.putAll(result);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, allRevoked ? HttpStatus.OK : HttpStatus.MULTI_STATUS);
     }
 
     @PostMapping("/user-session/v1/_search")

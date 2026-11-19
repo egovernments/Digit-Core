@@ -501,24 +501,50 @@ public class UserSessionServiceTest {
         }
     }
 
-    // Bulk revoke: one user without an active session doesn't fail the batch.
+    // Bulk revoke: one UPDATE for all users + one batch audit insert (no per-user calls);
+    // a user without an active session is reported in "failed", in request order.
     @Test
-    public void test_revokeAll_should_revoke_each_user_and_report_failures() {
-        UserSession active = new UserSession(USER_UUID, TENANT_ID, "device-A", "session-1",
-                "ACTIVE", System.currentTimeMillis(), System.currentTimeMillis());
-        when(userSessionRepository.findActiveSession(USER_UUID, TENANT_ID)).thenReturn(Optional.of(active));
-        when(userSessionRepository.updateStatus("session-1", TENANT_ID, "REVOKED")).thenReturn(1);
-        when(userSessionRepository.findActiveSession(OTHER_USER_UUID, TENANT_ID)).thenReturn(Optional.empty());
+    public void test_revokeAll_should_revoke_in_one_batch_and_report_failures() {
+        List<String> users = Arrays.asList(OTHER_USER_UUID, USER_UUID);
+        UserSession revokedRow = new UserSession();
+        revokedRow.setUserUuid(USER_UUID);
+        revokedRow.setSessionId("session-1");
+        revokedRow.setDeviceId("device-A");
+        when(userSessionRepository.revokeActiveSessions(TENANT_ID, users)).thenReturn(Collections.singletonList(revokedRow));
 
-        Map<String, Object> result = userSessionService.revokeAll(
-                Arrays.asList(USER_UUID, OTHER_USER_UUID), TENANT_ID, "admin-uuid-1");
+        Map<String, Object> result = userSessionService.revokeAll(users, TENANT_ID, "admin-uuid-1");
 
-        assertEquals(Arrays.asList(USER_UUID), result.get("revoked"));
+        assertEquals(Collections.singletonList(USER_UUID), result.get("revoked"));
         List<Map<String, String>> failed = (List<Map<String, String>>) result.get("failed");
         assertEquals(1, failed.size());
         assertEquals(OTHER_USER_UUID, failed.get(0).get("userUuid"));
         assertEquals("NO_ACTIVE_SESSION", failed.get(0).get("code"));
-        verify(userSessionRepository).updateStatus("session-1", TENANT_ID, "REVOKED");
+
+        verify(userSessionRepository, times(1)).revokeActiveSessions(TENANT_ID, users);
+        verify(userSessionRepository, never()).findActiveSession(anyString(), anyString());
+        verify(userSessionRepository, never()).updateStatus(anyString(), anyString(), anyString());
+        ArgumentCaptor<List> audits = ArgumentCaptor.forClass(List.class);
+        verify(userSessionAuditRepository).insertAll(eq(TENANT_ID), audits.capture());
+        assertEquals(1, audits.getValue().size());
+        UserSessionAudit audit = (UserSessionAudit) audits.getValue().get(0);
+        assertEquals(USER_UUID, audit.getUserUuid());
+        assertEquals("session-1", audit.getSessionId());
+        assertEquals("REVOKED", audit.getAction());
+        assertEquals("admin-uuid-1", audit.getActor());
+    }
+
+    // Audit failure on the bulk path must not fail the revoke.
+    @Test
+    public void test_revokeAll_should_swallow_audit_failure() {
+        List<String> users = Collections.singletonList(USER_UUID);
+        UserSession revokedRow = new UserSession();
+        revokedRow.setUserUuid(USER_UUID);
+        when(userSessionRepository.revokeActiveSessions(TENANT_ID, users)).thenReturn(Collections.singletonList(revokedRow));
+        doThrow(new RuntimeException("db down")).when(userSessionAuditRepository).insertAll(anyString(), any(List.class));
+
+        Map<String, Object> result = userSessionService.revokeAll(users, TENANT_ID, "admin-uuid-1");
+
+        assertEquals(users, result.get("revoked"));
     }
 
     // Audit: a fresh login with no conflict is recorded as LOGIN_SUCCESS, self-attributed.

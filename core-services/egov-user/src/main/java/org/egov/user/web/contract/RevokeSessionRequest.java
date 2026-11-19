@@ -29,6 +29,8 @@ public class RevokeSessionRequest {
 
     private static final int MAX_USER_UUID_LENGTH = 64;
 
+    public static final int MAX_BULK_REVOKE_SIZE = 100;
+
     @JsonProperty("RequestInfo")
     private RequestInfo requestInfo;
 
@@ -67,6 +69,12 @@ public class RevokeSessionRequest {
         }
     }
 
+    /** True when "userUuid" was sent as a list (bulk revoke); false for the original single-string form. */
+    @JsonIgnore
+    public boolean isBulkRequest() {
+        return userUuidList != null;
+    }
+
     /** All requested user UUIDs (a single string becomes a one-item list), duplicates removed, in request order. */
     public List<String> getUserUuidList() {
         if (userUuid != null) {
@@ -90,5 +98,10 @@ public class RevokeSessionRequest {
             }
         }
         return true;
+    }
+
+    @AssertTrue(message = "userUuid list cannot contain more than " + MAX_BULK_REVOKE_SIZE + " entries")
+    public boolean isUserUuidListWithinLimit() {
+        return userUuidList == null || userUuidList.size() <= MAX_BULK_REVOKE_SIZE;
     }
 }
