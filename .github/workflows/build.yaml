@@ -63,15 +63,21 @@ on:
 permissions:
   contents: read
 
+# Serialise builds of the same service on the same ref so two runs cannot race
+# to publish the same tag (CICD-906: artifacts must not be overwritable).
+concurrency:
+  group: build-${{ github.event.inputs.service }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   resolve-config:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       dockerfile_path: ${{ steps.pick_dockerfile.outputs.dockerfile_path }}
       tag:              ${{ steps.tag.outputs.tag }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Install yq
         run: |
@@ -102,10 +108,23 @@ jobs:
 
       - name: Generate the Next Tag
         id: tag
+        env:
+          # github.ref_name keeps the full branch name. The previous
+          # "${GITHUB_REF##*/}" stripped everything before the last slash, so
+          # feature/x and bugfix/x produced identical tags at the same commit.
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
           set -euxo pipefail
-          BRANCH="${GITHUB_REF##*/}"
-          HASH=$(git rev-parse --short HEAD)
+          # A docker tag must match [a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}: the first
+          # character may not be '.' or '-', and the whole tag is capped at 128.
+          # Branch names may contain '/' and non-ASCII characters, so sanitise,
+          # then strip any leading '.'/'-' left behind, then bound the length.
+          BRANCH=$(printf '%s' "$BRANCH_NAME" \
+            | tr '/' '-' \
+            | sed -e 's/[^a-zA-Z0-9._-]/-/g' -e 's/^[.-]*//')
+          BRANCH="${BRANCH:0:100}"                 # 100 + '-' + 7 hash + '-arm64' < 128
+          [ -n "$BRANCH" ] || BRANCH="build"       # guard against an empty result
+          HASH=$(git rev-parse --short HEAD)       # unchanged: same length as before
           TAG="${BRANCH}-${HASH}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "NEXT_TAG=$TAG" >> "$GITHUB_ENV"
@@ -120,14 +139,14 @@ jobs:
         include:
           - arch: amd64
             platform: linux/amd64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
           - arch: arm64
             platform: linux/arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Check for DB folder
         id: check-db-folder
@@ -150,17 +169,17 @@ jobs:
           fi
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Build & push ${{ matrix.arch }} image
         id: build_push_app
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
         with:
           context: .
           file: ${{ needs.resolve-config.outputs.dockerfile_path }}
@@ -173,7 +192,7 @@ jobs:
       - name: Build and Push Database Docker Image
         if: ${{ steps.check-db-folder.outputs.folder_exists == 'true' }}
         id: build_push_db
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
         with:
           context: ${{ steps.check-db-folder.outputs.db_path }}
           file: ${{ steps.check-db-folder.outputs.db_path }}/Dockerfile
@@ -183,13 +202,19 @@ jobs:
 
   create-manifest:
     needs: [build-matrix, resolve-config]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write          # required for cosign keyless (OIDC -> Fulcio)
+    outputs:
+      app_digest: ${{ steps.digest.outputs.app_digest }}
+      db_digest:  ${{ steps.digest.outputs.db_digest }}
     steps:
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
@@ -215,21 +240,77 @@ jobs:
             "egovio/${SERVICE}-db:${TAG}-amd64" \
             "egovio/${SERVICE}-db:${TAG}-arm64"
 
-      - name: Add all image tags to GitHub summary
+      # ---- CICD-906: immutable artifact identity -------------------------
+      # A tag is a mutable pointer; the digest is the content hash and cannot
+      # be repointed. Deployments should reference image@digest.
+      - name: Resolve manifest digests
+        id: digest
         env:
-          DB_EXISTS: ${{ needs.build-matrix.outputs.db_folder_exists }}
           SERVICE: ${{ github.event.inputs.service }}
           TAG: ${{ needs.resolve-config.outputs.tag }}
+          DB_EXISTS: ${{ needs.build-matrix.outputs.db_folder_exists }}
         run: |
-          echo "## App Docker images" >> $GITHUB_STEP_SUMMARY
-          echo "- \`egovio/${SERVICE}:${TAG}-amd64\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`egovio/${SERVICE}:${TAG}-arm64\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **multi‑arch** \`egovio/${SERVICE}:${TAG}\`" >> $GITHUB_STEP_SUMMARY
+          set -euo pipefail
+
+          # Guard the digest we are about to sign and publish. If a future
+          # buildx changes the template output, an empty or malformed value
+          # must fail the build loudly rather than be signed as-is.
+          assert_digest() {
+            printf '%s' "$2" | grep -Eq '^sha256:[a-f0-9]{64}$' && return 0
+            echo "::error::Could not resolve a valid digest for $1 (got: '$2')"
+            exit 1
+          }
+
+          APP_DIGEST=$(docker buildx imagetools inspect \
+            "egovio/${SERVICE}:${TAG}" --format '{{.Manifest.Digest}}')
+          assert_digest "egovio/${SERVICE}:${TAG}" "$APP_DIGEST"
+          echo "app_digest=$APP_DIGEST" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Published artifacts"
+            echo ""
+            echo "Commit \`${GITHUB_SHA}\` · multi-arch \`linux/amd64\`, \`linux/arm64\`"
+            echo ""
+            echo "| Image | Pinned reference (use this to deploy) |"
+            echo "|---|---|"
+            echo "| app | \`egovio/${SERVICE}:${TAG}@${APP_DIGEST}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$DB_EXISTS" = "true" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "## DB Docker images" >> $GITHUB_STEP_SUMMARY
-            echo "- \`egovio/${SERVICE}-db:${TAG}-amd64\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`egovio/${SERVICE}-db:${TAG}-arm64\`" >> $GITHUB_STEP_SUMMARY
-            echo "- **multi‑arch** \`egovio/${SERVICE}-db:${TAG}\`" >> $GITHUB_STEP_SUMMARY
+            DB_DIGEST=$(docker buildx imagetools inspect \
+              "egovio/${SERVICE}-db:${TAG}" --format '{{.Manifest.Digest}}')
+            assert_digest "egovio/${SERVICE}-db:${TAG}" "$DB_DIGEST"
+            echo "db_digest=$DB_DIGEST" >> "$GITHUB_OUTPUT"
+            echo "| db | \`egovio/${SERVICE}-db:${TAG}@${DB_DIGEST}\` |" >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      # NB: sigstore/cosign-installer publishes floating v2/v3 tags but no v4,
+      # so the v4 line must be referenced by exact tag.
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
+        with:
+          cosign-release: 'v3.1.3'   # pinned: a supply-chain control should not
+                                     # depend on a floating tool version
+
+      # Keyless signing: identity comes from the GitHub OIDC token, the
+      # certificate from Fulcio, and the signature is recorded in the public
+      # Rekor transparency log. No private key to manage or rotate.
+      - name: Sign images (cosign keyless)
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          APP_DIGEST: ${{ steps.digest.outputs.app_digest }}
+          DB_DIGEST: ${{ steps.digest.outputs.db_digest }}
+        run: |
+          set -euo pipefail
+          SIGNED="app"
+          cosign sign --yes "egovio/${SERVICE}@${APP_DIGEST}"
+
+          if [ -n "${DB_DIGEST:-}" ]; then
+            cosign sign --yes "egovio/${SERVICE}-db@${DB_DIGEST}"
+            SIGNED="app, db"
+          fi
+
+          {
+            echo ""
+            echo "Signed (${SIGNED}) with cosign keyless — GitHub OIDC → Fulcio → Rekor."
+          } >> "$GITHUB_STEP_SUMMARY"

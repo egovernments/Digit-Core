@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.3.0 - 2026-11-12
+- Standardized user-search query building on prepared-statement parameter binding; fuzzy-name (`fuzzyLogic: true`) search now binds the LIKE pattern as a parameter.
+- **Behavior change**: the `sort` field in user search is now validated against an allowlist of `eg_user` columns. `password`, `pan`, `aadhaarnumber`, `signature` and `photo` are no longer sortable. An optional `asc`/`desc` direction is supported (e.g. `"createddate desc"`). Unrecognized sort values fall back to the default `name` ordering instead of producing a database error. All other previously sortable columns continue to work unchanged.
+
 ## 1.2.9 - 2026-06-16
 - Added international mobile number validation driven by MDMS-v2 (`common-masters.MobileNumberValidation` schema).
 - Added `countryCode` field to user create/update contracts; stored in new `countrycode varchar(10)` column (Flyway `V20260309120000`).

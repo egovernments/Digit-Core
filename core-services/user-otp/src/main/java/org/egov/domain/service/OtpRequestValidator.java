@@ -132,6 +132,7 @@ public class OtpRequestValidator {
             MobileValidationConfig cached = cacheRepository.getValidationRules(stateTenantId, cacheKey);
             if (cached != null) {
                 otpRequest.setMdmsValidationConfig(cached);
+                resolveCountryCode(otpRequest, cached);
                 return;
             }
 
@@ -142,10 +143,31 @@ public class OtpRequestValidator {
             if (selected != null) {
                 cacheRepository.cacheValidationRules(stateTenantId, cacheKey, selected);
                 otpRequest.setMdmsValidationConfig(selected);
+                resolveCountryCode(otpRequest, selected);
             }
         } catch (Exception e) {
             log.warn("Failed to fetch MDMS validation config for tenantId: {} countryCode: {} — {}",
                     tenantId, countryCode, e.getMessage());
+        }
+    }
+
+    /**
+     * When the caller didn't pass a countryCode, backfill it from the MDMS entry that was actually
+     * matched (typically its "default" entry) so downstream consumers — e.g. the SMS request built
+     * from this OtpRequest — send with the country code MDMS is configured for, rather than falling
+     * through to egov-notification-sms's own static prefix default.
+     *
+     * Only backfills when the config carries a usable regex: isMobileNumberValid() branches on
+     * whether otpRequest.getCountryCode() is set to decide between "reject as country-specific
+     * misconfiguration" and "fall back to the application.properties default regex". Backfilling
+     * from a config with a blank regex would flip that decision and reject a request that should
+     * have fallen back to the default regex instead.
+     */
+    private void resolveCountryCode(OtpRequest otpRequest, MobileValidationConfig config) {
+        if (!StringUtils.hasText(otpRequest.getCountryCode())
+                && StringUtils.hasText(config.getCountryCode())
+                && StringUtils.hasText(config.getMobileNumberRegex())) {
+            otpRequest.setCountryCode(config.getCountryCode());
         }
     }
 
