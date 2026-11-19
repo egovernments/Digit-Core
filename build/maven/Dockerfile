@@ -18,4 +18,7 @@ WORKDIR /opt/egov
 # Copy artifact from the build stage
 COPY --from=build /app/target/*.jar ./application.jar
 
-ENTRYPOINT ["java", "-jar", "application.jar"]
+# -XX:-UseBASE64Intrinsics disables the AVX-512 Base64 intrinsic affected by
+# CVE-2026-114938 (Java4Shell). Interim mitigation until the runtime image
+# ships OpenJDK 17.0.21.1 or later; remove once the base image is patched.
+ENTRYPOINT ["java", "-XX:-UseBASE64Intrinsics", "-jar", "application.jar"]
