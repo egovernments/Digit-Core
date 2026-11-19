@@ -78,6 +78,16 @@ public final class UserSessionQueryBuilder {
             "UPDATE " + SCHEMA_REPLACE_STRING + ".eg_user_session SET status = :status, version = version + 1 " +
             "WHERE sessionid = :sessionid AND status = 'ACTIVE'";
 
+    // Bulk admin revoke in a single statement: terminates the ACTIVE session (at most one per
+    // user, enforced by the partial unique index) of every given user in the tenant. Being one
+    // conditional UPDATE, there is no read-then-write race; users with no ACTIVE row simply
+    // match nothing. RETURNING hands back exactly which users were revoked, plus the
+    // sessionid/deviceid for the audit trail.
+    public static final String REVOKE_ACTIVE_SESSIONS_BY_USER_UUIDS_SQL =
+            "UPDATE " + SCHEMA_REPLACE_STRING + ".eg_user_session SET status = 'REVOKED', version = version + 1 " +
+            "WHERE tenantid = :tenantid AND status = 'ACTIVE' AND useruuid IN (:useruuids) " +
+            "RETURNING useruuid, sessionid, deviceid";
+
     // Logout matches strictly on the caller's sessionid (plus user+tenant, as defence in depth).
     // A token whose sessionid no longer matches the ACTIVE row — e.g. a device whose session was
     // revoked/expired and whose row has since been reclaimed by another device's login — must not
