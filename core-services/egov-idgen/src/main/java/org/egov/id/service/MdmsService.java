@@ -12,8 +12,10 @@ import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.MdmsResponse;
 import org.egov.mdms.model.ModuleDetail;
 import org.egov.mdms.service.MdmsClientService;
+import org.egov.id.config.CacheConfig;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.jayway.jsonpath.DocumentContext;
@@ -61,6 +63,7 @@ public class MdmsService {
      * @throws Exception
      */
 
+    @Cacheable(cacheNames = CacheConfig.CITY_CODE_CACHE, key = "#idRequest.tenantId", unless = "#result == null")
     public String getCity(RequestInfo requestInfo, IdRequest idRequest) {
         Map<String, String> getCity = doMdmsServiceCall(requestInfo, idRequest);
         String cityCode = null;
@@ -88,6 +91,7 @@ public class MdmsService {
      * @throws Exception
      */
 
+    @Cacheable(cacheNames = CacheConfig.ID_FORMAT_CACHE, key = "#idRequest.tenantId + ':' + #idRequest.idName", unless = "#result == null")
     public String getIdFormat(RequestInfo requestInfo, IdRequest idRequest) {
         Map<String, String> getIdFormat = doMdmsServiceCall(requestInfo, idRequest);
         String idFormat = null;
