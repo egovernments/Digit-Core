@@ -1,0 +1,571 @@
+#
+# JDK 21 variant of build/build-config.yml
+#
+# Job names, work-dirs and image names match build/build-config.yml, so the two
+# configs are drop-in alternatives. Only the builder differs:
+#
+#   build/maven/Dockerfile        -> build/maven-jdk21/Dockerfile
+#     (Spring Boot 3.x / Java 17 bytecode, run on a JDK 21 JRE)
+#   build/maven-java8/Dockerfile  -> build/maven-java8-jdk21/Dockerfile
+#     (Spring Boot 1.5 / Java 8 bytecode, run on a JDK 21 JRE with JAXB
+#      injected and --add-opens applied)
+#
+# Both builders come from the maven-jdk21 branch. Neither recompiles for
+# Java 21 - they only move the runtime to JDK 21, which fixes cgroup v2 CPU
+# detection (JDK-8281181) and enables container-aware heap sizing + CDS.
+#
+# core-services/egov-user-chatbot builds the core-services/egov-user source
+# tree, so it uses the java8-jdk21 builder alongside the egov-user job.
+#
+# Not Java builds, left exactly as-is: db/migration dirs, nodejs (xstate-*),
+# frontend, and service-owned Dockerfiles (pdf-service, keycloak-spi,
+# nlp-engine, qr-scanner-ui, pgr-ai-chatbot).
+#
+# Two duplicate job entries present in build/build-config.yml are omitted here:
+#   - a second, stranded copy of core-services/egov-user-event (exact dup)
+#   - accelerators/sample-services/backend/java/egov-birth-service, which
+#     collides on the egov-birth-service image name and whose work-dir does
+#     not exist on any branch
+# So this file has 78 jobs where build/build-config.yml has 80.
+#
+# Because image names are shared with build/build-config.yml, only ONE of the
+# two configs should be wired into a given Jenkins folder at a time.
+#
+config:
+# Business Services
+  - name: "builds/Digit-Core/business-services/billing-service"
+    build:
+      - work-dir: "business-services/billing-service"
+        image-name: "billing-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "business-services/billing-service/src/main/resources/db"
+        image-name: "billing-service-db"
+
+  - name: "builds/Digit-Core/business-services/collection-services"
+    build:
+      - work-dir: "business-services/collection-services"
+        image-name: "collection-services"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "business-services/collection-services/src/main/resources/db"
+        image-name: "collection-services-db"
+
+  - name: "builds/Digit-Core/business-services/egf-instrument"
+    build:
+      - work-dir: "business-services/egf-instrument"
+        image-name: "egf-instrument"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "business-services/egf-instrument/src/main/resources/db"
+        image-name: "egf-instrument-db"
+
+  - name: "builds/Digit-Core/business-services/egf-master"
+    build:
+      - work-dir: "business-services/egf-master"
+        image-name: "egf-master"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "business-services/egf-master/src/main/resources/db"
+        image-name: "egf-master-db"
+
+  - name: "builds/Digit-Core/business-services/egov-apportion-service"
+    build:
+      - work-dir: "business-services/egov-apportion-service"
+        image-name: "egov-apportion-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "business-services/egov-apportion-service/src/main/resources/db"
+        image-name: "egov-apportion-service-db"
+        
+  - name: "builds/Digit-Core/business-services/egov-hrms"
+    build:
+      - work-dir: "business-services/egov-hrms"
+        image-name: "egov-hrms"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "business-services/egov-hrms/src/main/resources/db"
+        image-name: "egov-hrms-db"
+
+  - name: "builds/Digit-Core/business-services/finance-collections-voucher-consumer"
+    build:
+      - work-dir: "business-services/finance-collections-voucher-consumer"
+        image-name: "finance-collections-voucher-consumer"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "business-services/finance-collections-voucher-consumer/src/main/resources/db"
+        image-name: "finance-collections-voucher-consumer-db"
+
+  - name: "builds/Digit-Core/business-services/dashboard-analytics"
+    build:
+      - work-dir: "business-services/dashboard-analytics"
+        image-name: "dashboard-analytics"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/business-services/dashboard-ingest"
+    build:
+      - work-dir: "business-services/dashboard-ingest"
+        image-name: "dashboard-ingest"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+  - name: "builds/Digit-Core/core-services/egov-accesscontrol"
+    build:
+      - work-dir: "core-services/egov-accesscontrol"
+        image-name: "egov-accesscontrol"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+# Core Services
+  - name: "builds/Digit-Core/core-services/audit-service"
+    build:
+      - work-dir: "core-services/audit-service"
+        image-name: "audit-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/audit-service/src/main/resources/db"
+        image-name: "audit-service-db"
+  - name: "builds/Digit-Core/core-services/egov-common-masters"
+    build:
+      - work-dir: "core-services/egov-common-masters"
+        image-name: "egov-common-masters"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-common-masters/src/main/resources/db"
+        image-name: "egov-common-masters-db"
+
+  - name: "builds/Digit-Core/core-services/egov-data-uploader"
+    build:
+      - work-dir: "core-services/egov-data-uploader"
+        image-name: "egov-data-uploader"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-data-uploader/src/main/resources/db"
+        image-name: "egov-data-uploader-db"
+
+  - name: "builds/Digit-Core/core-services/egov-enc-service"
+    build:
+      - work-dir: "core-services/egov-enc-service"
+        image-name: "egov-enc-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-enc-service/src/main/resources/db"
+        image-name: "egov-enc-service-db"
+
+  - name: "builds/Digit-Core/core-services/egov-filestore"
+    build:
+      - work-dir: "core-services/egov-filestore"
+        image-name: "egov-filestore"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-filestore/src/main/resources/db"
+        image-name: "egov-filestore-db"
+
+  - name: "builds/Digit-Core/core-services/egov-idgen"
+    build:
+      - work-dir: "core-services/egov-idgen"
+        image-name: "egov-idgen"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-idgen/src/main/resources/db"
+        image-name: "egov-idgen-db"
+
+  - name: "builds/Digit-Core/core-services/egov-indexer"
+    build:
+      - work-dir: "core-services/egov-indexer"
+        image-name: "egov-indexer"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-indexer/src/main/resources/db"
+        image-name: "egov-indexer-db"
+
+  - name: "builds/Digit-Core/core-services/egov-localization"
+    build:
+      - work-dir: "core-services/egov-localization"
+        image-name: "egov-localization"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-localization/src/main/resources/db"
+        image-name: "egov-localization-db"
+
+  - name: "builds/Digit-Core/core-services/egov-location"
+    build:
+      - work-dir: "core-services/egov-location"
+        image-name: "egov-location"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-location/src/main/resources/db"
+        image-name: "egov-location-db"
+
+  - name: "builds/Digit-Core/core-services/boundary-service"
+    build:
+      - work-dir: "core-services/boundary-service"
+        image-name: "boundary-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/boundary-service/src/main/resources/db"
+        image-name: "boundary-service-db"
+
+  - name: "builds/Digit-Core/core-services/egov-mdms-service"
+    build:
+      - work-dir: "core-services/egov-mdms-service"
+        image-name: "egov-mdms-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/mdms-v2"
+    build:
+      - work-dir: "core-services/mdms-v2"
+        image-name: "mdms-v2"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/mdms-v2/src/main/resources/db"
+        image-name: "mdms-v2-db"
+
+  - name: "builds/Digit-Core/core-services/egov-notification-mail"
+    build:
+      - work-dir: "core-services/egov-notification-mail"
+        image-name: "egov-notification-mail"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/egov-notification-sms"
+    build:
+      - work-dir: "core-services/egov-notification-sms"
+        image-name: "egov-notification-sms"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/egov-otp"
+    build:
+      - work-dir: "core-services/egov-otp"
+        image-name: "egov-otp"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-otp/src/main/resources/db"
+        image-name: "egov-otp-db"
+
+  - name: "builds/Digit-Core/core-services/egov-persister"
+    build:
+      - work-dir: "core-services/egov-persister"
+        image-name: "egov-persister"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/egov-pg-service"
+    build:
+      - work-dir: "core-services/egov-pg-service"
+        image-name: "egov-pg-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-pg-service/src/main/resources/db"
+        image-name: "egov-pg-service-db"
+
+  - name: "builds/Digit-Core/core-services/egov-searcher"
+    build:
+      - work-dir: "core-services/egov-searcher"
+        image-name: "egov-searcher"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/egov-telemetry"
+    build:
+      - work-dir: "core-services/egov-telemetry"
+        image-name: "egov-telemetry"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/egov-user"
+    build:
+      - work-dir: "core-services/egov-user"
+        image-name: "egov-user"
+        dockerfile: "build/maven-java8-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-user/src/main/resources/db"
+        image-name: "egov-user-db"
+
+  - name: "builds/Digit-Core/core-services/egov-user-event"
+    build:
+      - work-dir: "core-services/egov-user-event"
+        image-name: "egov-user-event"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-user-event/src/main/resources/db"
+        image-name: "egov-user-event-db"
+
+  - name: "builds/Digit-Core/core-services/egov-workflow-v2"
+    build:
+      - work-dir: "core-services/egov-workflow-v2"
+        image-name: "egov-workflow-v2"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-workflow-v2/src/main/resources/db"
+        image-name: "egov-workflow-v2-db"
+
+  - name: "builds/Digit-Core/core-services/egov-document-uploader"
+    build:
+      - work-dir: "core-services/egov-document-uploader"
+        image-name: "egov-document-uploader"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-document-uploader/src/main/resources/db"
+        image-name: "egov-document-uploader-db"
+
+  - name: "builds/Digit-Core/core-services/national-dashboard-ingest"
+    build:
+      - work-dir: "core-services/national-dashboard-ingest"
+        image-name: "national-dashboard-ingest"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/national-dashboard-ingest/src/main/resources/db"
+        image-name: "national-dashboard-ingest-db"
+
+  - name: "builds/Digit-Core/core-services/national-dashboard-kafka-pipeline"
+    build:
+      - work-dir: "core-services/national-dashboard-kafka-pipeline"
+        image-name: "national-dashboard-kafka-pipeline"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/egov-survey-services"
+    build:
+      - work-dir: "core-services/egov-survey-services"
+        image-name: "egov-survey-services"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-survey-services/src/main/resources/db"
+        image-name: "egov-survey-services-db"
+
+
+  - name: "builds/Digit-Core/core-services/report"
+    build:
+      - work-dir: "core-services/report"
+        image-name: "report"
+        dockerfile: "build/maven-jdk21/Dockerfile"   
+
+  - name: "builds/Digit-Core/core-services/tenant"
+    build:
+      - work-dir: "core-services/tenant"
+        image-name: "tenant"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/tenant/src/main/resources/db"
+        image-name: "tenant-db"
+
+  - name: "builds/Digit-Core/core-services/user-otp"
+    build:
+      - work-dir: "core-services/user-otp"
+        image-name: "user-otp"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/zuul"
+    build:
+      - work-dir: "core-services/zuul"
+        image-name: "zuul"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/gateway"
+    build:
+      - work-dir: "core-services/gateway"
+        image-name: "gateway"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/internal-gateway"
+    build:
+      - work-dir: "core-services/internal-gateway"
+        image-name: "internal-gateway"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/internal-gateway-scg"
+    build:
+      - work-dir: "core-services/internal-gateway-scg"
+        image-name: "internal-gateway-scg"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/pdf-service"
+    build:
+      - work-dir: "core-services/pdf-service"
+        image-name: "pdf-service"
+        dockerfile: "core-services/pdf-service/Dockerfile"
+      - work-dir: "core-services/pdf-service/migration"
+        image-name: "pdf-service-db"
+        
+  - name: "builds/Digit-Core/core-services/telemetry/egov-telemetry-kafka-streams"
+    build:
+      - work-dir: "core-services/egov-telemetry/egov-telemetry-kafka-streams"
+        image-name: "egov-telemetry-kafka-streams"
+
+  - name: "builds/Digit-Core/core-services/telemetry/egov-telemetry-batch-process"
+    build:
+      - work-dir: "core-services/egov-telemetry/egov-telemetry-batch-process"
+        image-name: "egov-telemetry-batch-process"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+  
+  - name: "builds/Digit-Core/core-services/egov-url-shortening"
+    build:
+      - work-dir: "core-services/egov-url-shortening"
+        image-name: "egov-url-shortening"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/egov-url-shortening/src/main/resources/db"
+        image-name: "egov-url-shortening-db"
+  
+  - name: "builds/Digit-Core/core-services/chatbot"
+    build:
+      - work-dir: "core-services/chatbot"
+        image-name: "chatbot"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/chatbot/src/main/resources/db"
+        image-name: "chatbot-db"
+        
+  - name: "builds/Digit-Core/core-services/http-to-kafka-connector"
+    build:
+      - work-dir: "core-services/http-to-kafka-connector"
+        image-name: "whatsapp-webhook"
+
+  - name: "builds/Digit-Core/core-services/egov-user-chatbot"
+    build:
+      - work-dir: "core-services/egov-user"
+        image-name: "egov-user-chatbot"
+        dockerfile: "build/maven-java8-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/mailbot"
+    build:
+      - work-dir: "core-services/mailbot"
+        image-name: "mailbot"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/libraries/enc-client"
+    build:
+      - work-dir: "core-services/libraries/enc-client"
+        image-name: "enc-client"
+
+  - name: "builds/Digit-Core/core-services/libraries/mdms-client"
+    build:
+      - work-dir: "core-services/libraries/mdms-client"
+        image-name: "mdms-client"
+
+
+  - name: "builds/Digit-Core/core-services/libraries/tracer"
+    build:
+      - work-dir: "core-services/libraries/tracer"
+        image-name: "tracer"
+        
+  - name: "builds/Digit-Core/core-services/libraries/digit-client"
+    build:
+      - work-dir: "core-services/libraries/digit-client"
+        image-name: "digit-client"      
+
+  - name: "builds/Digit-Core/core-services/libraries/digit-models"
+    build:
+      - work-dir: "core-services/libraries/digit-models"
+        image-name: "digit-models"
+
+  - name: "builds/Digit-Core/core-services/libraries/services-common"
+    build:
+      - work-dir: "core-services/libraries/services-common"
+        image-name: "services-common"
+
+  - name: "builds/Digit-Core/core-services/libraries/notify-spi"
+    build:
+      - work-dir: "core-services/libraries/notify-spi"
+        image-name: "notify-spi"
+
+  - name: "builds/Digit-Core/core-services/nlp-engine"
+    build:
+      - work-dir: "core-services/nlp-engine"
+        image-name: "nlp-engine"
+        dockerfile: "nlp-engine/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/xstate-chatbot"
+    build:
+      - work-dir: "core-services/xstate-chatbot/nodejs"
+        image-name: "xstate-chatbot"
+      - work-dir: "core-services/xstate-chatbot/nodejs/db"
+        image-name: "xstate-chatbot-db"
+
+  - name: "builds/Digit-Core/core-services/xstate-webchat"
+    build:
+      - work-dir: "core-services/xstate-webchat/nodejs"
+        image-name: "xstate-webchat"
+      - work-dir: "core-services/xstate-webchat/nodejs/db"
+        image-name: "xstate-webchat-db"
+
+  - name: "builds/Digit-Core/accelerators/inbox"
+    build:
+      - work-dir: "accelerators/inbox"
+        image-name: "inbox"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/accelerators/gateway-kubernetes-discovery"
+    build:
+      - work-dir: "accelerators/gateway-kubernetes-discovery"
+        image-name: "gateway-kubernetes-discovery"
+
+  - name: "builds/Digit-Core/accelerators/pgr-services"
+    build:
+      - work-dir: "accelerators/pgr-services"
+        image-name: "pgr-services"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "accelerators/pgr-services/src/main/resources/db"
+        image-name: "pgr-services-db"
+
+  - name: "builds/Digit-Core/core-services/service-request"
+    build:
+      - work-dir: "core-services/service-request"
+        image-name: "service-request"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/service-request/src/main/resources/db"
+        image-name: "service-request-db"
+
+  - name: "builds/Digit-Core/core-services/default-data-handler"
+    build:
+      - work-dir: "core-services/default-data-handler"
+        image-name: "default-data-handler"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/core-services/TenantManagement"
+    build:
+      - work-dir: "core-services/TenantManagement"
+        image-name: "tenant-management"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "core-services/TenantManagement/src/main/resources/db"
+        image-name: "tenant-management-db"
+
+  - name: "builds/Digit-Core/core-services/keycloak-spi"
+    build:
+      - work-dir: "core-services/keycloak-spi"
+        image-name: "keycloak"
+        dockerfile: "core-services/keycloak-spi/Dockerfile"
+  
+  # PGR AI chatbot
+  - name: "builds/Digit-Core/accelerators/pgr-ai-chatbot"
+    build:
+      - work-dir: "accelerators/pgr-ai-chatbot"
+        image-name: "pgr-ai-chatbot"
+        dockerfile: "accelerators/pgr-ai-chatbot/ops/Dockerfile"
+    
+
+# frontend
+  - name: builds/Digit-Core/accelerators/workbench-ui
+    build:
+      - work-dir: frontend/micro-ui/
+        dockerfile: frontend/micro-ui/web/workbench/Dockerfile
+        image-name: workbench-ui
+        
+  - name: builds/Digit-Core/accelerators/storybook-svg
+    build:
+    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/
+      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/svg-components/docker/Dockerfile
+      image-name: storybook-svg
+      
+  - name: builds/Digit-Core/accelerators/storybook
+    build:
+    - work-dir: frontend/micro-ui/web/micro-ui-internals/packages/components-core/
+      dockerfile: frontend/micro-ui/web/micro-ui-internals/packages/components-core/docker/Dockerfile
+      image-name: storybook
+
+  - name: builds/Digit-Core/accelerators/digit-ui
+    build:
+      - work-dir: frontend/micro-ui/
+        dockerfile: frontend/micro-ui/web/docker/Dockerfile
+        image-name: digit-ui
+
+#lts-demo-birth-service
+  - name: "builds/Digit-Core/accelerators/egov-birth-service"
+    build:
+      - work-dir: "accelerators/egov-birth-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+        image-name: "egov-birth-service"
+      - work-dir: "accelerators/egov-birth-service/src/main/resources/db"
+        image-name: "egov-birth-service-db"
+
+  - name: "builds/Digit-Core/accelerators/sunbirdrc-credential-service"
+    build:
+      - work-dir: "accelerators/sunbirdrc-credential-service"
+        image-name: "sunbirdrc-credential-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "accelerators/sunbirdrc-credential-service/src/main/resources/db"
+        image-name: "sunbirdrc-credential-service-db"
+
+  - name: "builds/Digit-Core/accelerators/qr-scanner-ui"
+    build:
+      - work-dir: "accelerators/qr-scanner-ui"
+        image-name: "qr-scanner-ui"
+        dockerfile: "accelerators/qr-scanner-ui/Dockerfile"
+
+#Accelerators
+  - name: "builds/Digit-Core/accelerators/im-services-analytics"
+    build:
+      - work-dir: "accelerators/im-services-analytics"
+        image-name: "im-services-analytics"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+
+  - name: "builds/Digit-Core/accelerators/vault-enc-service"
+    build:
+      - work-dir: "accelerators/vault-enc-service"
+        image-name: "vault-enc-service"
+        dockerfile: "build/maven-jdk21/Dockerfile"
+      - work-dir: "accelerators/vault-enc-service/src/main/resources/db"
+        image-name: "vault-enc-service-db"
