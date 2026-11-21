@@ -24,33 +24,41 @@ public class BoundaryEntityRowMapper implements ResultSetExtractor<List<Boundary
     }
 
     @Override
-    public List<Boundary> extractData(ResultSet resultSet) throws SQLException , DataAccessException {
+    public List<Boundary> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
 
         List<Boundary> boundaryList = new ArrayList<>();
 
         while (resultSet.next()) {
 
-            AuditDetails auditDetails = AuditDetails.builder().createdBy(resultSet.getString("createdby")).
-                    createdTime(resultSet.getLong("createdtime")).
-                    lastModifiedBy(resultSet.getString("lastmodifiedby")).
-                    lastModifiedTime(resultSet.getLong("lastmodifiedtime")).build();
+            AuditDetails auditDetails = AuditDetails.builder()
+                    .createdBy(resultSet.getString("createdby"))
+                    .createdTime(resultSet.getLong("createdtime"))
+                    .lastModifiedBy(resultSet.getString("lastmodifiedby"))
+                    .lastModifiedTime(resultSet.getLong("lastmodifiedtime"))
+                    .build();
 
             Boundary boundary;
             try {
+                // Safely read JSON strings, handling potential NULLs from the database
+                String geometryStr = resultSet.getString("geometry");
+                String additionalDetailsStr = resultSet.getString("additionaldetails");
+
                 boundary = Boundary.builder()
                         .id(resultSet.getString("id"))
                         .code(resultSet.getString("code"))
                         .auditDetails(auditDetails)
-                        .geometry(mapper.readTree(resultSet.getString("geometry")))
-                        .additionalDetails(mapper.readTree(resultSet.getString("additionaldetails")))
+                        // Parse only if not null, otherwise leave as null
+                        .geometry(geometryStr != null ? mapper.readTree(geometryStr) : null)
+                        .additionalDetails(additionalDetailsStr != null ? mapper.readTree(additionalDetailsStr) : null)
                         .tenantId(resultSet.getString("tenantid"))
                         .build();
             } catch (JsonProcessingException e) {
-                throw new CustomException("JSON_PARSE_ERROR" , "Failed to parse either additional details or geometry json");
+                throw new CustomException("JSON_PARSE_ERROR", "Failed to parse either additional details or geometry json");
             }
 
             boundaryList.add(boundary);
         }
         return boundaryList;
     }
+
 }
