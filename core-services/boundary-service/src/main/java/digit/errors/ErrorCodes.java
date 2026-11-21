@@ -30,5 +30,13 @@ public class ErrorCodes {
     public static final String MULTIPLE_ROOT_NODES_ERR_MSG = "Hierarchy definition must have only one root node.";
     public static final String DUPLICATE_BOUNDARY_CODE = "DUPLICATE_BOUNDARY";
     public static final String DUPLICATE_BOUNDARY_MSG = "Duplicate boundary entities found in the request.";
+    public static final String DUPLICATE_RECORD_IN_REQUEST_CODE = "DUPLICATE_RECORD_IN_REQUEST";
+    public static final String DUPLICATE_RECORD_IN_REQUEST_MSG = "Duplicate boundary relationship (same tenantId, hierarchyType and code) found within the bulk request.";
+    public static final String BULK_RELATIONSHIP_PERSIST_FAILED_CODE = "BULK_RELATIONSHIP_PERSIST_FAILED";
+    public static final String BULK_RELATIONSHIP_PERSIST_FAILED_MSG = "Boundary relationship could not be persisted due to a database error.";
+    public static final String BULK_RELATIONSHIP_VALIDATION_ERROR_CODE = "BULK_RELATIONSHIP_VALIDATION_ERROR";
+    public static final String BULK_RELATIONSHIP_VALIDATION_ERROR_MSG = "Boundary relationship could not be validated due to an unexpected error.";
+    public static final String BULK_RELATIONSHIP_PERSIST_TRANSIENT_CODE = "BULK_RELATIONSHIP_PERSIST_TRANSIENT";
+    public static final String BULK_RELATIONSHIP_PERSIST_TRANSIENT_MSG = "Boundary relationship persistence failed transiently and will be retried.";
 
 }
