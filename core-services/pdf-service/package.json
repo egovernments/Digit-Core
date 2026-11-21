@@ -44,6 +44,7 @@
     "@babel/runtime": "^7.23.2",
     "jsonpath-plus": "^10.2.0",
     "kafka-node": "^5.0.0",
+    "kafkajs": "^1.16.0",
     "lodash.get": "^4.4.2",
     "moment-timezone": "^0.5.28",
     "morgan": "^1.8.0",
