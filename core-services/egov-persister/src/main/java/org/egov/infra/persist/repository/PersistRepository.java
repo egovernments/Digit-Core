@@ -68,16 +68,27 @@ public class PersistRepository {
 
         List<LinkedHashMap<String, Object>> dataSource = extractData(baseJsonPath, jsonObj);
 
+        if (dataSource == null || dataSource.isEmpty()) {
+            log.debug("No data found for basePath: {}", baseJsonPath);
+            return new ArrayList<>();
+        }
+
         List<Object[]> rows = new ArrayList<>();
+        int nullRecords = 0;
+        int emptyChildRecords = 0;
 
         for (int i = 0; i < dataSource.size(); i++) {
             LinkedHashMap<String, Object> rawDataRecord = dataSource.get(i);
 
-            if (rawDataRecord == null)
+            if (rawDataRecord == null) {
+                nullRecords++;
                 continue;
+            }
 
-            if (isChildObjectEmpty(baseJsonPath, rawDataRecord))
+            if (isChildObjectEmpty(baseJsonPath, rawDataRecord)) {
+                emptyChildRecords++;
                 continue;
+            }
 
 
             List<Object> row = new ArrayList<>();
@@ -185,6 +196,12 @@ public class PersistRepository {
             }
             rows.add(row.toArray());
         }
+
+        if (nullRecords > 0 || emptyChildRecords > 0) {
+            log.debug("getRows for basePath '{}': {} rows extracted, {} null records skipped, {} empty child records skipped",
+                    baseJsonPath, rows.size(), nullRecords, emptyChildRecords);
+        }
+
         return rows;
 
     }
