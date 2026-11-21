@@ -10,11 +10,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.egov.tracer.config.TracerConfiguration;
 import javax.net.ssl.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -22,6 +24,7 @@ import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
+@Import({TracerConfiguration.class})
 @Configuration
 @EnableCaching
 @PropertySource("classpath:application.properties")

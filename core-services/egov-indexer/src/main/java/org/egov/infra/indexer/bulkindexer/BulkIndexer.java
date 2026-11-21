@@ -48,15 +48,19 @@ public class BulkIndexer {
 			Object response = restTemplate.postForObject(url.toString(), entity, Map.class);
 			if (url.contains("_bulk")) {
 				if (JsonPath.read(mapper.writeValueAsString(response), "$.errors").equals(true)) {
-					log.info("Indexing FAILED!!!!");
-					log.info("Response from ES: " + response);
+					log.error("Indexing FAILED!!!! Response from ES: {}", response);
+					throw new RuntimeException("ES bulk indexing returned errors for URL: " + url + ", response: " + response);
 				}
 			}
 		} catch (final ResourceAccessException e) {
 			log.error("ES is DOWN, Pausing kafka listener.......");
 			indexerUtils.orchestrateListenerOnESHealth();
+			throw new RuntimeException("ES is DOWN, indexing failed for URL: " + url, e);
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			log.error("Exception while trying to index to ES. Note: ES is not Down.", e);
+			throw new RuntimeException("Exception while indexing to ES for URL: " + url, e);
 		}
 	}
 
