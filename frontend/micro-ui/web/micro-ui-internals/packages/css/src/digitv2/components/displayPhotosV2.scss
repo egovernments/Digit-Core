@@ -1,0 +1,33 @@
+.digit-photos-wrap {
+  max-width: 640px;
+  @apply flex pt-md;
+
+  img {
+    width: calc(33% - 9.333px);
+    margin-right: 14px;
+  }
+
+  svg {
+    width: calc(33% - 9.333px);
+    margin-right: 14px;
+  }
+
+  .last {
+    width: calc(33% - 9.333px);
+  }
+}
+
+.digit-image-pdf-icon {
+  @apply flex flex-wrap justify-start content-center;
+  .digit-url {
+    min-width: 100px;
+    margin-right: 10px;
+    max-width: 100px;
+    height: auto;
+    .digit-icon {
+      background: #f6f6f6;
+      padding: 8px;
+      width: 100px;
+    }
+  }
+}

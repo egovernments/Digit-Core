@@ -1,0 +1,33 @@
+@import url("../index.scss");
+
+.digit-mobile-number-container {
+  @apply flex  items-center;
+
+  .digit-citizen-card-input--front {
+    @extend .light-background;
+    width: fit-content !important;
+    display: flex;
+    align-items: center;
+    /* background: theme(colors.grey.mid); */
+    border-right: 0;
+    padding-right: 5px;
+  }
+
+  .digit-citizen-card-input {
+    @apply mb-lg pl-sm outline-none block border w-full h-10 border-input-border border-solid bg-white leading-10 text-form-field text-text-primary;
+  }
+
+  .digit-citizen-card-input--front {
+    width: fit-content !important;
+    display: flex;
+    align-items: center;
+    background: theme(colors.grey.mid);
+    border-right: 0;
+    padding-right: 5px;
+  }
+  .digit-employee-card-input-error {
+    @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-solid bg-white leading-10 text-form-field text-text-primary;
+    @extend .light-input-border;
+    @extend .alert-error;
+  }
+}

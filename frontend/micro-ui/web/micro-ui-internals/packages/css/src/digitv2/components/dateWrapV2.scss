@@ -1,0 +1,12 @@
+.digit-date-picker {
+  @apply relative w-full cursor-pointer;
+  .citizen {
+    max-width: 540px;
+  }
+  .digit-employee-card-input {
+    @apply mb-lg pl-sm outline-none block border w-full h-10 border-input-border border-solid bg-white leading-10 text-form-field text-text-primary;
+    @extend .light-input-border;
+    width: calc(100%-62px);
+    padding-right: 9px;
+  }
+}
