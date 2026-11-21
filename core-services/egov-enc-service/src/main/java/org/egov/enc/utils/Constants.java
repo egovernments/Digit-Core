@@ -8,4 +8,7 @@ public class Constants {
 
     public static final String TENANTID_MDC_STRING = "TENANTID";
 
+    public static final String DEFAULT_MASTER_DATA_PROVIDER = "org.egov.enc.masterdata.provider.WebServiceMasterDataProvider";
+
+    public static final String DEFAULT_TENANT_ID = "default";
 }
