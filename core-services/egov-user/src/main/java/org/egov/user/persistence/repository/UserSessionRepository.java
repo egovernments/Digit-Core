@@ -120,6 +120,22 @@ public class UserSessionRepository {
     }
 
     /**
+     * Revokes the ACTIVE session of every given user in one statement. Returns the revoked rows
+     * (userUuid, sessionId, deviceId); a user missing from the result had no ACTIVE session.
+     */
+    public List<UserSession> revokeActiveSessions(String tenantId, List<String> userUuids) {
+        if (userUuids == null || userUuids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("tenantid", tenantId);
+        params.put("useruuids", userUuids);
+        String query = databaseSchemaUtils.replaceSchemaPlaceholder(
+                UserSessionQueryBuilder.REVOKE_ACTIVE_SESSIONS_BY_USER_UUIDS_SQL, tenantId);
+        return namedParameterJdbcTemplate.query(query, params, new BeanPropertyRowMapper<>(UserSession.class));
+    }
+
+    /**
      * Logs out the ACTIVE session with exactly this sessionId for this user+tenant. A stale
      * sessionId (row since terminated or reclaimed by another login) matches nothing, so it can
      * never terminate a different device's session. Returns the terminated row (sessionId +

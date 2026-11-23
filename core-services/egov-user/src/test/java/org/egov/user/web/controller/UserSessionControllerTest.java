@@ -14,12 +14,18 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,27 +54,38 @@ public class UserSessionControllerTest {
         userSessionController = new UserSessionController(userSessionService, responseInfoFactory);
     }
 
+    // Backward compatibility: a single userUuid string uses the original revoke() path and
+    // response shape (ResponseInfo only), and never goes through the bulk path.
     @Test
     public void test_should_revoke_session_and_return_ok_with_actor_from_requestInfo() {
         RevokeSessionRequest request = revokeRequest(ADMIN_UUID);
-        ResponseInfo responseInfo = new ResponseInfo("", "", System.currentTimeMillis(), "", "", "successful");
-        when(responseInfoFactory.createResponseInfoFromRequestInfo(eq(request.getRequestInfo()), eq(true)))
+        ResponseInfo responseInfo = ResponseInfo.builder().status("successful").build();
+        when(responseInfoFactory.createResponseInfoFromRequestInfo(any(RequestInfo.class), eq(true)))
                 .thenReturn(responseInfo);
 
         ResponseEntity<Map<String, Object>> response = userSessionController.revoke(request);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(Collections.singleton("ResponseInfo"), response.getBody().keySet());
         assertEquals(responseInfo, response.getBody().get("ResponseInfo"));
         verify(userSessionService).revoke(USER_UUID, TENANT_ID, ADMIN_UUID);
+        verify(userSessionService, never()).revokeAll(any(List.class), any(String.class), any(String.class));
     }
 
-    // No caller identity on the request — falls back to a sentinel actor rather than failing
-    // the revoke or attributing it to the wrong admin in the audit trail.
+    // No caller identity on the request: falls back to a sentinel actor rather than failing.
     @Test
-    public void test_should_fallback_to_unknown_admin_when_requestInfo_has_no_userInfo() {
-        RevokeSessionRequest request = new RevokeSessionRequest();
-        request.setUserUuid(USER_UUID);
-        request.setTenantId(TENANT_ID);
+    public void test_should_fall_back_to_unknown_admin_when_requestInfo_missing() {
+        RevokeSessionRequest request = revokeRequest(ADMIN_UUID);
+        request.setRequestInfo(null);
+
+        userSessionController.revoke(request);
+
+        verify(userSessionService).revoke(USER_UUID, TENANT_ID, "UNKNOWN_ADMIN");
+    }
+
+    @Test
+    public void test_should_fall_back_to_unknown_admin_when_userInfo_missing() {
+        RevokeSessionRequest request = revokeRequest(ADMIN_UUID);
         request.setRequestInfo(RequestInfo.builder().build());
 
         userSessionController.revoke(request);
@@ -76,20 +93,8 @@ public class UserSessionControllerTest {
         verify(userSessionService).revoke(USER_UUID, TENANT_ID, "UNKNOWN_ADMIN");
     }
 
-    @Test
-    public void test_should_fallback_to_unknown_admin_when_requestInfo_is_null() {
-        RevokeSessionRequest request = new RevokeSessionRequest();
-        request.setUserUuid(USER_UUID);
-        request.setTenantId(TENANT_ID);
-
-        userSessionController.revoke(request);
-
-        verify(userSessionService).revoke(USER_UUID, TENANT_ID, "UNKNOWN_ADMIN");
-    }
-
-    // Validation item 12 / AC9's negative counterpart: revoking a user with no active session
-    // must not silently succeed — the exception propagates for the standard error handler to
-    // report, instead of being swallowed here.
+    // Backward compatibility: single-user revoke with no active session must not silently
+    // succeed. The exception propagates to the standard error handler, as before bulk support.
     @Test(expected = CustomException.class)
     public void test_should_propagate_exception_when_no_active_session_to_revoke() {
         RevokeSessionRequest request = revokeRequest(ADMIN_UUID);
@@ -97,6 +102,42 @@ public class UserSessionControllerTest {
                 .when(userSessionService).revoke(eq(USER_UUID), eq(TENANT_ID), any(String.class));
 
         userSessionController.revoke(request);
+    }
+
+    // Bulk: every user revoked -> 200.
+    @Test
+    public void test_bulk_revoke_all_succeeded_returns_ok() {
+        RevokeSessionRequest request = revokeRequest(ADMIN_UUID);
+        request.setUserUuid(Arrays.asList("u1", "u2", "u1"));
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("revoked", Arrays.asList("u1", "u2"));
+        result.put("failed", Collections.emptyList());
+        when(userSessionService.revokeAll(Arrays.asList("u1", "u2"), TENANT_ID, ADMIN_UUID)).thenReturn(result);
+
+        ResponseEntity<Map<String, Object>> response = userSessionController.revoke(request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(Arrays.asList("ResponseInfo", "revoked", "failed"), new ArrayList<>(response.getBody().keySet()));
+        verify(responseInfoFactory).createResponseInfoFromRequestInfo(any(RequestInfo.class), eq(true));
+        verify(userSessionService, never()).revoke(any(String.class), any(String.class), any(String.class));
+    }
+
+    // Bulk: some users failed -> 207 Multi-Status with per-user outcomes, ResponseInfo not successful.
+    @Test
+    public void test_bulk_revoke_with_failures_returns_multi_status() {
+        RevokeSessionRequest request = revokeRequest(ADMIN_UUID);
+        request.setUserUuid(Arrays.asList("u1", "u2"));
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("revoked", Collections.singletonList("u1"));
+        result.put("failed", Collections.singletonList(Collections.singletonMap("userUuid", "u2")));
+        when(userSessionService.revokeAll(Arrays.asList("u1", "u2"), TENANT_ID, ADMIN_UUID)).thenReturn(result);
+
+        ResponseEntity<Map<String, Object>> response = userSessionController.revoke(request);
+
+        assertEquals(HttpStatus.MULTI_STATUS, response.getStatusCode());
+        assertEquals(result.get("revoked"), response.getBody().get("revoked"));
+        assertEquals(result.get("failed"), response.getBody().get("failed"));
+        verify(responseInfoFactory).createResponseInfoFromRequestInfo(any(RequestInfo.class), eq(false));
     }
 
     private RevokeSessionRequest revokeRequest(String adminUuid) {

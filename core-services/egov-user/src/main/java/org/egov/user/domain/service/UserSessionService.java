@@ -15,9 +15,14 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -314,6 +319,62 @@ public class UserSessionService {
         }
         log.info("Session {} revoked for user {} tenant {}", session.getSessionId(), userUuid, tenantId);
         recordAudit(userUuid, tenantId, session.getDeviceId(), session.getSessionId(), SessionAuditAction.REVOKED, actor, null);
+    }
+
+    /**
+     * Bulk admin revoke. Uses a fixed number of DB round trips regardless of list size: one
+     * conditional UPDATE ... RETURNING for all users, then one JDBC batch insert for the audit
+     * entries. A user with no ACTIVE session is reported in "failed" instead of failing the batch.
+     */
+    public Map<String, Object> revokeAll(List<String> userUuids, String tenantId, String actor) {
+        List<UserSession> revokedSessions = userSessionRepository.revokeActiveSessions(tenantId, userUuids);
+
+        Set<String> revokedUsers = new HashSet<>();
+        List<UserSessionAudit> audits = new ArrayList<>(revokedSessions.size());
+        long now = System.currentTimeMillis();
+        for (UserSession session : revokedSessions) {
+            revokedUsers.add(session.getUserUuid());
+            audits.add(UserSessionAudit.builder()
+                    .userUuid(session.getUserUuid())
+                    .tenantId(tenantId)
+                    .deviceId(session.getDeviceId())
+                    .sessionId(session.getSessionId())
+                    .action(SessionAuditAction.REVOKED.name())
+                    .actor(actor)
+                    .eventTime(now)
+                    .build());
+        }
+
+        // Report in request order.
+        List<String> revoked = new ArrayList<>();
+        List<Map<String, String>> failed = new ArrayList<>();
+        for (String userUuid : userUuids) {
+            if (revokedUsers.contains(userUuid)) {
+                revoked.add(userUuid);
+            } else {
+                Map<String, String> failure = new LinkedHashMap<>();
+                failure.put("userUuid", userUuid);
+                failure.put("code", ERR_NO_ACTIVE_SESSION);
+                failure.put("message", NO_ACTIVE_SESSION_MESSAGE);
+                failed.add(failure);
+            }
+        }
+        log.info("Bulk revoke tenant {} by {}: {} revoked, {} failed", tenantId, actor, revoked.size(), failed.size());
+        recordAudits(tenantId, audits);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("revoked", revoked);
+        result.put("failed", failed);
+        return result;
+    }
+
+    /** Best-effort batch audit write, same guarantee as {@link #recordAudit}. */
+    private void recordAudits(String tenantId, List<UserSessionAudit> audits) {
+        try {
+            userSessionAuditRepository.insertAll(tenantId, audits);
+        } catch (Exception e) {
+            log.warn("Failed to write {} session audit entries for tenant {}", audits.size(), tenantId, e);
+        }
     }
 
     /**
