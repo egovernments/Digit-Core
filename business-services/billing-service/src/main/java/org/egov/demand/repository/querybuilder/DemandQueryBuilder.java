@@ -143,18 +143,27 @@ public class DemandQueryBuilder {
 			
 			if(consumerCodes!=null && !consumerCodes.isEmpty()){
 				
+				/*
+				 * The business-service/consumer-code pairs are OR'ed inside a single
+				 * parenthesised group so that the tenantid and status filters apply to
+				 * every pair, with all values passed as query parameters.
+				 */
 				if(orFlag)
-					query.append("OR");
+					query.append(" OR ");
 				else
-					query.append("AND");
-				
-				query.append(" dmd.businessservice='"+businessService+"' AND dmd.consumercode IN ("
-						+getIdQueryForStrings(consumerCodes)+")");
+					query.append("AND (");
+
+				query.append("(dmd.businessservice=? AND dmd.consumercode IN ("
+						+getIdQueryForStrings(consumerCodes)+"))");
+				preparedStmtList.add(businessService);
 				addToPreparedStatement(preparedStmtList, consumerCodes);
 				orFlag=true;
 			}
 		}
-		
+
+		if(orFlag)
+			query.append(")");
+
 		return query.toString();
 				}
 

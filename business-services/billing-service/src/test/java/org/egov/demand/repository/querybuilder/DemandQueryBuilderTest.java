@@ -88,21 +88,9 @@ class DemandQueryBuilderTest {
                         + ",dmdl.lastModifiedby AS dllastModifiedby,dmdl.createdtime AS dlcreatedtime,dmdl.lastModifiedtime AS"
                         + " dllastModifiedtime,dmdl.tenantid AS dltenantid,dmdl.additionaldetails as detailadditionaldetails FROM"
                         + " egbs_demand_v1 dmd INNER JOIN egbs_demanddetail_v1 dmdl ON dmd.id=dmdl.demandid AND dmd.tenantid=dmdl"
-                        + ".tenantid WHERE dmd.tenantid=? AND dmd.status='ACTIVE' AND dmd.businessservice='SELECT dmd.id AS"
-                        + " did,dmd.consumercode AS dconsumercode,dmd.consumertype AS dconsumertype,dmd.businessservice AS"
-                        + " dbusinessservice,dmd.payer,dmd.billexpirytime AS dbillexpirytime, dmd.fixedBillExpiryDate as"
-                        + " dfixedBillExpiryDate, dmd.taxperiodfrom AS dtaxperiodfrom,dmd.taxperiodto AS dtaxperiodto,dmd"
-                        + ".minimumamountpayable AS dminimumamountpayable,dmd.createdby AS dcreatedby,dmd.lastmodifiedby AS"
-                        + " dlastmodifiedby,dmd.createdtime AS dcreatedtime,dmd.lastmodifiedtime AS dlastmodifiedtime,dmd.tenantid"
-                        + " AS dtenantid,dmd.status,dmd.additionaldetails as demandadditionaldetails,dmd.ispaymentcompleted as"
-                        + " ispaymentcompleted,dmdl.id AS dlid,dmdl.demandid AS dldemandid,dmdl.taxheadcode AS dltaxheadcode,dmdl"
-                        + ".taxamount AS dltaxamount,dmdl.collectionamount AS dlcollectionamount,dmdl.createdby AS dlcreatedby"
-                        + ",dmdl.lastModifiedby AS dllastModifiedby,dmdl.createdtime AS dlcreatedtime,dmdl.lastModifiedtime AS"
-                        + " dllastModifiedtime,dmdl.tenantid AS dltenantid,dmdl.additionaldetails as detailadditionaldetails FROM"
-                        + " egbs_demand_v1 dmd INNER JOIN egbs_demanddetail_v1 dmdl ON dmd.id=dmdl.demandid AND dmd.tenantid=dmdl"
-                        + ".tenantid WHERE ' AND dmd.consumercode IN ( ? )",
+                        + ".tenantid WHERE dmd.tenantid=? AND dmd.status='ACTIVE' AND ((dmd.businessservice=? AND dmd.consumercode IN ( ? )))",
                 actualDemandQueryBuilder.getDemandQueryForConsumerCodes(stringSetMap, objectList, "42"));
-        assertEquals(2, objectList.size());
+        assertEquals(3, objectList.size());
     }
 
 
@@ -128,21 +116,9 @@ class DemandQueryBuilderTest {
                         + ",dmdl.lastModifiedby AS dllastModifiedby,dmdl.createdtime AS dlcreatedtime,dmdl.lastModifiedtime AS"
                         + " dllastModifiedtime,dmdl.tenantid AS dltenantid,dmdl.additionaldetails as detailadditionaldetails FROM"
                         + " egbs_demand_v1 dmd INNER JOIN egbs_demanddetail_v1 dmdl ON dmd.id=dmdl.demandid AND dmd.tenantid=dmdl"
-                        + ".tenantid WHERE dmd.tenantid=? AND dmd.status='ACTIVE' AND dmd.businessservice='SELECT dmd.id AS"
-                        + " did,dmd.consumercode AS dconsumercode,dmd.consumertype AS dconsumertype,dmd.businessservice AS"
-                        + " dbusinessservice,dmd.payer,dmd.billexpirytime AS dbillexpirytime, dmd.fixedBillExpiryDate as"
-                        + " dfixedBillExpiryDate, dmd.taxperiodfrom AS dtaxperiodfrom,dmd.taxperiodto AS dtaxperiodto,dmd"
-                        + ".minimumamountpayable AS dminimumamountpayable,dmd.createdby AS dcreatedby,dmd.lastmodifiedby AS"
-                        + " dlastmodifiedby,dmd.createdtime AS dcreatedtime,dmd.lastmodifiedtime AS dlastmodifiedtime,dmd.tenantid"
-                        + " AS dtenantid,dmd.status,dmd.additionaldetails as demandadditionaldetails,dmd.ispaymentcompleted as"
-                        + " ispaymentcompleted,dmdl.id AS dlid,dmdl.demandid AS dldemandid,dmdl.taxheadcode AS dltaxheadcode,dmdl"
-                        + ".taxamount AS dltaxamount,dmdl.collectionamount AS dlcollectionamount,dmdl.createdby AS dlcreatedby"
-                        + ",dmdl.lastModifiedby AS dllastModifiedby,dmdl.createdtime AS dlcreatedtime,dmdl.lastModifiedtime AS"
-                        + " dllastModifiedtime,dmdl.tenantid AS dltenantid,dmdl.additionaldetails as detailadditionaldetails FROM"
-                        + " egbs_demand_v1 dmd INNER JOIN egbs_demanddetail_v1 dmdl ON dmd.id=dmdl.demandid AND dmd.tenantid=dmdl"
-                        + ".tenantid WHERE ' AND dmd.consumercode IN ( ? , ? )",
+                        + ".tenantid WHERE dmd.tenantid=? AND dmd.status='ACTIVE' AND ((dmd.businessservice=? AND dmd.consumercode IN ( ? , ? )))",
                 actualDemandQueryBuilder.getDemandQueryForConsumerCodes(stringSetMap, objectList, "42"));
-        assertEquals(3, objectList.size());
+        assertEquals(4, objectList.size());
     }
 
 
@@ -366,5 +342,27 @@ class DemandQueryBuilderTest {
                 actualDemandQueryBuilder.getDemandQuery(demandCriteria, objectList));
         assertEquals(7, objectList.size());
     }
-}
 
+    /**
+     * business services and consumer codes are passed as query parameters, grouped per business service
+     */
+    @Test
+    void testGetDemandQueryForConsumerCodesMultipleBusinessServices() {
+        DemandQueryBuilder actualDemandQueryBuilder = new DemandQueryBuilder();
+        String businessService = "PT.MUTATION";
+
+        java.util.LinkedHashMap<String, Set<String>> businessConsumercodeMap = new java.util.LinkedHashMap<>();
+        businessConsumercodeMap.put(businessService, new HashSet<>(java.util.Collections.singleton("CC-1")));
+        businessConsumercodeMap.put("WS", new HashSet<>(java.util.Collections.singleton("CC-2")));
+        ArrayList<Object> objectList = new ArrayList<>();
+
+        String query = actualDemandQueryBuilder.getDemandQueryForConsumerCodes(businessConsumercodeMap, objectList,
+                "42");
+
+        org.junit.jupiter.api.Assertions.assertFalse(query.contains(businessService));
+        org.junit.jupiter.api.Assertions.assertTrue(query.endsWith("WHERE dmd.tenantid=? AND dmd.status='ACTIVE' "
+                + "AND ((dmd.businessservice=? AND dmd.consumercode IN ( ? ))"
+                + " OR (dmd.businessservice=? AND dmd.consumercode IN ( ? )))"));
+        assertEquals(java.util.Arrays.asList("42", businessService, "CC-1", "WS", "CC-2"), objectList);
+    }
+}
