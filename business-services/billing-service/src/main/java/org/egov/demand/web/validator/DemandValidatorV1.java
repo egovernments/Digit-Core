@@ -188,8 +188,13 @@ public class DemandValidatorV1 {
 		 */
 		validateDemandDetailsForAmount(detailsForValidation, errorMap);
 		
-		if (isCreate) {
-			/* validating consumer codes for create demands*/
+		if (isCreate && businessServicesNotFound.isEmpty()) {
+			/*
+			 * validating consumer codes for create demands
+			 *
+			 * skipped when any business service is unknown, as the request
+			 * is rejected in that case and the lookup is not needed
+			 */
 			validateConsumerCodes(demands, businessConsumerValidatorMap, errorMap);
 		}
 			
