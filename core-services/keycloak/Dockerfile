@@ -18,5 +18,10 @@ FROM quay.io/keycloak/keycloak:25.0.1
 
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
+# Java4Shell (CVE-2026-114938) stopgap: the bundled JDK (21.0.3) is affected, so the vulnerable
+# Base64 intrinsic is switched off. kc.sh appends JAVA_OPTS_APPEND to its JVM options.
+# Remove this once the base image carries a patched JDK (quay.io/keycloak/keycloak:26.8.2-3 or later).
+ENV JAVA_OPTS_APPEND="-XX:-UseBASE64Intrinsics"
+
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
 CMD ["start-dev"]
