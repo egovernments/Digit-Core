@@ -1,7 +1,9 @@
 package org.egov.infra.mdms.repository;
 
 import org.egov.infra.mdms.model.SchemaDefCriteria;
+import org.egov.infra.mdms.model.SchemaDefHistoryCriteria;
 import org.egov.infra.mdms.model.SchemaDefinition;
+import org.egov.infra.mdms.model.SchemaDefinitionHistory;
 import org.egov.infra.mdms.model.SchemaDefinitionRequest;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +16,7 @@ public interface SchemaDefinitionRepository {
     public void update(SchemaDefinitionRequest schemaDefinitionRequest);
 
     public List<SchemaDefinition> search(SchemaDefCriteria schemaDefCriteria);
+
+    public List<SchemaDefinitionHistory> searchHistory(SchemaDefHistoryCriteria schemaDefHistoryCriteria);
 
 }

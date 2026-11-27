@@ -18,4 +18,6 @@ public interface MdmsDataRepository {
     public Long countV2(MdmsCriteriaV2 mdmsCriteriaV2);
 
     public Map<String, Map<String, JSONArray>> search(MdmsCriteria mdmsCriteria);
+
+    public List<MdmsHistory> searchHistory(MdmsHistoryCriteria mdmsHistoryCriteria);
 }

@@ -9,6 +9,7 @@ info:
     3. Search master data using a common criteria model, with tenant-level fallback
     4. Update existing master data
     5. Count master data matching a search criteria, without fetching the actual records
+    6. Search the version history of schema definitions and master data, recorded by database triggers for every change including direct SQL
   contact:
     name: eGovernments Foundation
     email: contacts@egovernments.org
@@ -85,6 +86,56 @@ paths:
           description: Not implemented.
       tags:
         - MDMS V2 Schema
+  /schema/history/_search:
+    post:
+      summary: Search recorded versions of schema definitions.
+      description: |
+        1. Returns recorded versions of schema definitions, latest change first.
+        2. tenantId and codes are mandatory. tenantId is resolved to the state level tenant, same as /schema/v1/_search.
+        3. Versions are recorded by database triggers, so changes made directly in the database are included.
+      parameters:
+        - name: SchemaDefHistorySearchRequest
+          in: body
+          description: RequestInfo meta data + SchemaDefHistoryCriteria.
+          required: true
+          schema:
+            $ref: '#/definitions/SchemaDefHistorySearchRequest'
+      responses:
+        '200':
+          description: Schema definition versions retrieved successfully.
+          schema:
+            $ref: '#/definitions/SchemaDefinitionHistoryResponse'
+        '400':
+          description: Invalid input (INVALID_HISTORY_CRITERIA, INVALID_HISTORY_TENANT, INVALID_HISTORY_CODES, INVALID_HISTORY_FILTER_SIZE, INVALID_HISTORY_OFFSET, INVALID_HISTORY_LIMIT, INVALID_HISTORY_TIME_RANGE).
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2 Schema
+  /data/history/_search:
+    post:
+      summary: Search recorded versions of master data.
+      description: |
+        1. Returns recorded versions of master data matching MdmsHistoryCriteria, latest change first.
+        2. tenantId and schemaCode are mandatory. tenantId is matched exactly - no tenant fallback.
+        3. Versions are recorded by database triggers, so changes made directly in the database are included.
+      parameters:
+        - name: MdmsHistorySearchRequest
+          in: body
+          description: RequestInfo meta data + MdmsHistoryCriteria.
+          required: true
+          schema:
+            $ref: '#/definitions/MdmsHistorySearchRequest'
+      responses:
+        '200':
+          description: Master data versions retrieved successfully.
+          schema:
+            $ref: '#/definitions/MdmsHistoryResponse'
+        '400':
+          description: Invalid input (INVALID_HISTORY_CRITERIA, INVALID_HISTORY_TENANT, INVALID_HISTORY_SCHEMA_CODE, INVALID_HISTORY_FILTER_SIZE, INVALID_HISTORY_OFFSET, INVALID_HISTORY_LIMIT, INVALID_HISTORY_TIME_RANGE).
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2
   /v2/_create/{schemaCode}:
     post:
       summary: Create new master data for a given schema.
@@ -417,3 +468,170 @@ definitions:
         type: integer
         format: int64
         description: Total number of master data records matching the given MdmsCriteria.
+
+  ChangeDetails:
+    type: object
+    description: Details of one recorded change.
+    properties:
+      historyId:
+        type: integer
+        format: int64
+        description: Unique id of the history row.
+      version:
+        type: integer
+        description: Version number per record key (1, 2, 3 ...). Continues across delete and re-create of the same key.
+      operation:
+        type: string
+        enum: [MIGRATION, INSERT, UPDATE, DELETE, TRUNCATE]
+        description: Type of change. MIGRATION is the state recorded when history was enabled (version 1 of every existing record). DELETE and TRUNCATE carry the record as it was before removal.
+      changedTime:
+        type: integer
+        format: int64
+        description: Time of the change, epoch milliseconds.
+      dbUser:
+        type: string
+        description: Database role of the session that made the change.
+      clientAddress:
+        type: string
+        description: Client IP of the database session (empty for local socket connections).
+      applicationName:
+        type: string
+        description: application_name of the database session, e.g. a script name set with SET application_name.
+      transactionId:
+        type: integer
+        format: int64
+        description: Database transaction id. Changes made in the same transaction share it.
+
+  MdmsHistoryCriteria:
+    type: object
+    description: Search criteria for master data history.
+    properties:
+      tenantId:
+        type: string
+        description: Tenant the record is stored against (exact match, no fallback).
+        minLength: 1
+        maxLength: 100
+      schemaCode:
+        type: string
+        description: Schema code of the master data.
+        minLength: 1
+      uniqueIdentifiers:
+        type: array
+        minItems: 1
+        maxItems: 64
+        items:
+          type: string
+      ids:
+        type: array
+        minItems: 1
+        maxItems: 64
+        items:
+          type: string
+      fromTime:
+        type: integer
+        format: int64
+        description: Inclusive lower bound on changedTime, epoch milliseconds.
+      toTime:
+        type: integer
+        format: int64
+        description: Inclusive upper bound on changedTime, epoch milliseconds.
+      offset:
+        type: integer
+        minimum: 0
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 100
+        description: Page size, capped by mdms.history.max.limit (default 100).
+    required:
+      - tenantId
+      - schemaCode
+
+  MdmsHistorySearchRequest:
+    type: object
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      MdmsHistoryCriteria:
+        $ref: '#/definitions/MdmsHistoryCriteria'
+    required:
+      - MdmsHistoryCriteria
+
+  MdmsHistory:
+    type: object
+    properties:
+      changeDetails:
+        $ref: '#/definitions/ChangeDetails'
+      mdms:
+        $ref: '#/definitions/Mdms'
+
+  MdmsHistoryResponse:
+    type: object
+    properties:
+      ResponseInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ResponseInfo'
+      mdmsHistory:
+        type: array
+        items:
+          $ref: '#/definitions/MdmsHistory'
+
+  SchemaDefHistoryCriteria:
+    type: object
+    description: Search criteria for schema definition history.
+    properties:
+      tenantId:
+        type: string
+        description: Tenant, resolved to the state level tenant.
+        minLength: 1
+        maxLength: 100
+      codes:
+        type: array
+        description: Schema codes. At least one, no blank values.
+        minItems: 1
+        maxItems: 64
+        items:
+          type: string
+      fromTime:
+        type: integer
+        format: int64
+      toTime:
+        type: integer
+        format: int64
+      offset:
+        type: integer
+        minimum: 0
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 100
+    required:
+      - tenantId
+      - codes
+
+  SchemaDefHistorySearchRequest:
+    type: object
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      SchemaDefHistoryCriteria:
+        $ref: '#/definitions/SchemaDefHistoryCriteria'
+    required:
+      - SchemaDefHistoryCriteria
+
+  SchemaDefinitionHistory:
+    type: object
+    properties:
+      changeDetails:
+        $ref: '#/definitions/ChangeDetails'
+      SchemaDefinition:
+        $ref: '#/definitions/SchemaDefinition'
+
+  SchemaDefinitionHistoryResponse:
+    type: object
+    properties:
+      ResponseInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ResponseInfo'
+      SchemaDefinitionHistory:
+        type: array
+        items:
+          $ref: '#/definitions/SchemaDefinitionHistory'

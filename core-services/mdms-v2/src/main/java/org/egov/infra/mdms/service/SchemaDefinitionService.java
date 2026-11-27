@@ -7,6 +7,7 @@ import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
 import org.egov.infra.mdms.service.enrichment.SchemaDefinitionEnricher;
+import org.egov.infra.mdms.service.validator.HistorySearchValidator;
 import org.egov.infra.mdms.service.validator.SchemaDefinitionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,15 +25,18 @@ public class SchemaDefinitionService {
     private SchemaDefinitionEnricher schemaDefinitionEnricher;
     private SchemaDefinitionValidator schemaDefinitionValidator;
     private MultiStateInstanceUtil multiStateInstanceUtil;
+    private HistorySearchValidator historySearchValidator;
 
     @Autowired
     public SchemaDefinitionService(SchemaDefinitionRepository schemaDefinitionRepository, ApplicationConfig applicationConfig,
-                                   SchemaDefinitionEnricher schemaDefinitionEnricher, SchemaDefinitionValidator schemaDefinitionValidator, MultiStateInstanceUtil multiStateInstanceUtil){
+                                   SchemaDefinitionEnricher schemaDefinitionEnricher, SchemaDefinitionValidator schemaDefinitionValidator, MultiStateInstanceUtil multiStateInstanceUtil,
+                                   HistorySearchValidator historySearchValidator){
         this.schemaDefinitionRepository = schemaDefinitionRepository;
         this.applicationConfig = applicationConfig;
         this.schemaDefinitionEnricher = schemaDefinitionEnricher;
         this.schemaDefinitionValidator = schemaDefinitionValidator;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
+        this.historySearchValidator = historySearchValidator;
     }
 
     /**
@@ -73,6 +77,18 @@ public class SchemaDefinitionService {
         List<SchemaDefinition> schemaDefinitions = schemaDefinitionRepository.search(schemaDefSearchRequest.getSchemaDefCriteria());
 
         return schemaDefinitions;
+    }
+
+    public List<SchemaDefinitionHistory> searchHistory(SchemaDefHistorySearchRequest schemaDefHistorySearchRequest) {
+
+        SchemaDefHistoryCriteria criteria = schemaDefHistorySearchRequest.getSchemaDefHistoryCriteria();
+
+        historySearchValidator.validateSchemaHistorySearchCriteria(criteria);
+
+        // Schemas are stored at state level
+        criteria.setTenantId(multiStateInstanceUtil.getStateLevelTenant(criteria.getTenantId()));
+
+        return schemaDefinitionRepository.searchHistory(criteria);
     }
 
 }

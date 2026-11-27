@@ -3,6 +3,11 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.4.0 - 2026-11-27
+- Added version history for schema definitions and master data. Database triggers copy every insert, update, delete and truncate on `eg_mdms_schema_definition` and `eg_mdms_data` into the append-only tables `eg_mdms_schema_definition_history` and `eg_mdms_data_history`. Changes made directly in the database are captured too. The existing rows are recorded as version 1 with operation `MIGRATION`; later changes are recorded as `INSERT`, `UPDATE`, `DELETE` or `TRUNCATE`.
+- Added `POST /data/history/_search` (`tenantId` and `schemaCode` mandatory) and `POST /schema/history/_search` (`tenantId` and `codes` mandatory) to search recorded versions.
+- Added config `mdms.history.max.limit` (default 100).
+
 ## 1.3.5 - 2026-03-16
 - Upgraded Spring Boot version from 3.2.2 to 3.4.5 to fix HIGH/CRITICAL CVEs
 - Upgraded tracer, services-common library versions

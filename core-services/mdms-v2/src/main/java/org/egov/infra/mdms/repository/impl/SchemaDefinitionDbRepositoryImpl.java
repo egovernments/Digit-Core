@@ -3,11 +3,15 @@ package org.egov.infra.mdms.repository.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.SchemaDefCriteria;
+import org.egov.infra.mdms.model.SchemaDefHistoryCriteria;
 import org.egov.infra.mdms.model.SchemaDefinition;
+import org.egov.infra.mdms.model.SchemaDefinitionHistory;
 import org.egov.infra.mdms.model.SchemaDefinitionRequest;
 import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.SchemaDefinitionRepository;
+import org.egov.infra.mdms.repository.querybuilder.SchemaDefinitionHistoryQueryBuilder;
 import org.egov.infra.mdms.repository.querybuilder.SchemaDefinitionQueryBuilder;
+import org.egov.infra.mdms.repository.rowmapper.SchemaDefinitionHistoryRowMapper;
 import org.egov.infra.mdms.repository.rowmapper.SchemaDefinitionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,14 +33,21 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
 
     private SchemaDefinitionRowMapper rowMapper;
 
+    private SchemaDefinitionHistoryQueryBuilder schemaDefinitionHistoryQueryBuilder;
+
+    private SchemaDefinitionHistoryRowMapper historyRowMapper;
+
     @Autowired
     public SchemaDefinitionDbRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
-                                            ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper, SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder){
+                                            ApplicationConfig applicationConfig, SchemaDefinitionRowMapper rowMapper, SchemaDefinitionQueryBuilder schemaDefinitionQueryBuilder,
+                                            SchemaDefinitionHistoryQueryBuilder schemaDefinitionHistoryQueryBuilder, SchemaDefinitionHistoryRowMapper historyRowMapper){
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
         this.rowMapper = rowMapper;
         this.schemaDefinitionQueryBuilder = schemaDefinitionQueryBuilder;
+        this.schemaDefinitionHistoryQueryBuilder = schemaDefinitionHistoryQueryBuilder;
+        this.historyRowMapper = historyRowMapper;
     }
 
 
@@ -64,6 +75,16 @@ public class SchemaDefinitionDbRepositoryImpl implements SchemaDefinitionReposit
 
         // Query the database to fetch schema definitions
         return jdbcTemplate.query(query, preparedStatementList.toArray(), rowMapper);
+    }
+
+    @Override
+    public List<SchemaDefinitionHistory> searchHistory(SchemaDefHistoryCriteria schemaDefHistoryCriteria) {
+        List<Object> preparedStatementList = new ArrayList<>();
+
+        String query = schemaDefinitionHistoryQueryBuilder.getSchemaHistorySearchQuery(schemaDefHistoryCriteria, preparedStatementList);
+        log.info("Schema definition history search query: " + query);
+
+        return jdbcTemplate.query(query, preparedStatementList.toArray(), historyRowMapper);
     }
 
     /**

@@ -5,8 +5,12 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsCountResponseV2;
+import org.egov.infra.mdms.model.MdmsHistory;
+import org.egov.infra.mdms.model.MdmsHistoryResponse;
 import org.egov.infra.mdms.model.MdmsResponseV2;
 import org.egov.infra.mdms.model.SchemaDefinition;
+import org.egov.infra.mdms.model.SchemaDefinitionHistory;
+import org.egov.infra.mdms.model.SchemaDefinitionHistoryResponse;
 import org.egov.infra.mdms.model.SchemaDefinitionResponse;
 
 import java.util.List;
@@ -30,6 +34,18 @@ public class ResponseUtil {
     public static MdmsCountResponseV2 getMasterDataV2CountResponse(RequestInfo requestInfo, Long totalCount){
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
         MdmsCountResponseV2 response = MdmsCountResponseV2.builder().totalCount(totalCount).responseInfo(responseInfo).build();
+        return response;
+    }
+
+    public static MdmsHistoryResponse getMasterDataHistoryResponse(RequestInfo requestInfo, List<MdmsHistory> mdmsHistoryList){
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
+        MdmsHistoryResponse response = MdmsHistoryResponse.builder().mdmsHistory(mdmsHistoryList).responseInfo(responseInfo).build();
+        return response;
+    }
+
+    public static SchemaDefinitionHistoryResponse getSchemaDefinitionHistoryResponse(RequestInfo requestInfo, List<SchemaDefinitionHistory> schemaDefinitionHistoryList){
+        ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
+        SchemaDefinitionHistoryResponse response = SchemaDefinitionHistoryResponse.builder().schemaDefinitionHistory(schemaDefinitionHistoryList).responseInfo(responseInfo).build();
         return response;
     }
 

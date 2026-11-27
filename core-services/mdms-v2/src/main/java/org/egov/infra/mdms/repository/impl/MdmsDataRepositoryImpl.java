@@ -6,11 +6,15 @@ import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsCriteria;
 import org.egov.infra.mdms.model.MdmsCriteriaV2;
+import org.egov.infra.mdms.model.MdmsHistory;
+import org.egov.infra.mdms.model.MdmsHistoryCriteria;
 import org.egov.infra.mdms.model.MdmsRequest;
 import org.egov.infra.mdms.producer.Producer;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
+import org.egov.infra.mdms.repository.querybuilder.MdmsDataHistoryQueryBuilder;
 import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilder;
 import org.egov.infra.mdms.repository.querybuilder.MdmsDataQueryBuilderV2;
+import org.egov.infra.mdms.repository.rowmapper.MdmsDataHistoryRowMapper;
 import org.egov.infra.mdms.repository.rowmapper.MdmsDataRowMapper;
 import org.egov.infra.mdms.repository.rowmapper.MdmsDataRowMapperV2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +36,17 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
     private MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2;
     private MdmsDataRowMapperV2 mdmsDataRowMapperV2;
     private MdmsDataRowMapper mdmsDataRowMapper;
+    private MdmsDataHistoryQueryBuilder mdmsDataHistoryQueryBuilder;
+    private MdmsDataHistoryRowMapper mdmsDataHistoryRowMapper;
 
     @Autowired
     public MdmsDataRepositoryImpl(Producer producer, JdbcTemplate jdbcTemplate,
                                   ApplicationConfig applicationConfig, MdmsDataQueryBuilder mdmsDataQueryBuilder,
                                   MdmsDataRowMapperV2 mdmsDataRowMapperV2,
                                   MdmsDataQueryBuilderV2 mdmsDataQueryBuilderV2,
-                                  MdmsDataRowMapper mdmsDataRowMapper) {
+                                  MdmsDataRowMapper mdmsDataRowMapper,
+                                  MdmsDataHistoryQueryBuilder mdmsDataHistoryQueryBuilder,
+                                  MdmsDataHistoryRowMapper mdmsDataHistoryRowMapper) {
         this.producer = producer;
         this.jdbcTemplate = jdbcTemplate;
         this.applicationConfig = applicationConfig;
@@ -46,6 +54,8 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         this.mdmsDataRowMapper = mdmsDataRowMapper;
         this.mdmsDataRowMapperV2 = mdmsDataRowMapperV2;
         this.mdmsDataQueryBuilderV2 = mdmsDataQueryBuilderV2;
+        this.mdmsDataHistoryQueryBuilder = mdmsDataHistoryQueryBuilder;
+        this.mdmsDataHistoryRowMapper = mdmsDataHistoryRowMapper;
     }
 
     /**
@@ -98,5 +108,13 @@ public class MdmsDataRepositoryImpl implements MdmsDataRepository {
         String query = mdmsDataQueryBuilder.getMdmsDataSearchQuery(mdmsCriteria, preparedStmtList);
         log.info(query);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataRowMapper);
+    }
+
+    @Override
+    public List<MdmsHistory> searchHistory(MdmsHistoryCriteria mdmsHistoryCriteria) {
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = mdmsDataHistoryQueryBuilder.getMdmsDataHistorySearchQuery(mdmsHistoryCriteria, preparedStmtList);
+        log.info(query);
+        return jdbcTemplate.query(query, preparedStmtList.toArray(), mdmsDataHistoryRowMapper);
     }
 }

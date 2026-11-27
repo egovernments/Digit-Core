@@ -30,4 +30,7 @@ public class ApplicationConfig {
     @Value("${mdms.default.limit}")
     private Integer defaultLimit;
 
+    @Value("${mdms.history.max.limit}")
+    private Integer historyMaxLimit;
+
 }

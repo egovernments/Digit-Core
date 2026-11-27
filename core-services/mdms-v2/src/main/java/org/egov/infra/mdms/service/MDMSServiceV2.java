@@ -5,6 +5,7 @@ import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.enrichment.MdmsDataEnricher;
+import org.egov.infra.mdms.service.validator.HistorySearchValidator;
 import org.egov.infra.mdms.service.validator.MdmsDataValidator;
 import org.egov.infra.mdms.utils.FallbackUtil;
 import org.egov.infra.mdms.utils.SchemaUtil;
@@ -29,14 +30,18 @@ public class MDMSServiceV2 {
 
     private MultiStateInstanceUtil multiStateInstanceUtil;
 
+    private HistorySearchValidator historySearchValidator;
+
     @Autowired
     public MDMSServiceV2(MdmsDataValidator mdmsDataValidator, MdmsDataEnricher mdmsDataEnricher,
-                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil) {
+                         MdmsDataRepository mdmsDataRepository, SchemaUtil schemaUtil, MultiStateInstanceUtil multiStateInstanceUtil,
+                         HistorySearchValidator historySearchValidator) {
         this.mdmsDataValidator = mdmsDataValidator;
         this.mdmsDataEnricher = mdmsDataEnricher;
         this.mdmsDataRepository = mdmsDataRepository;
         this.schemaUtil = schemaUtil;
         this.multiStateInstanceUtil = multiStateInstanceUtil;
+        this.historySearchValidator = historySearchValidator;
     }
 
     /**
@@ -127,6 +132,16 @@ public class MDMSServiceV2 {
         mdmsDataRepository.update(mdmsRequest);
 
         return Arrays.asList(mdmsRequest.getMdms());
+    }
+
+    // tenantId is matched exactly; history does not use the tenant fallback chain
+    public List<MdmsHistory> searchHistory(MdmsHistorySearchRequest mdmsHistorySearchRequest) {
+
+        MdmsHistoryCriteria criteria = mdmsHistorySearchRequest.getMdmsHistoryCriteria();
+
+        historySearchValidator.validateMdmsHistorySearchCriteria(criteria);
+
+        return mdmsDataRepository.searchHistory(criteria);
     }
 
 }

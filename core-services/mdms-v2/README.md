@@ -39,6 +39,7 @@ erDiagram
 
 - `eg_mdms_schema_definition` - one row per registered JSON schema, keyed by `(tenantid, code)`. `definition` holds the JSON schema used to validate master data.
 - `eg_mdms_data` - one row per master data record, keyed by `(tenantid, schemacode, uniqueidentifier)`, with a separate unique `id` (UUID) used as the external identifier in `/v2/_update/{schemaCode}` requests. `data` holds the actual master data payload.
+- `eg_mdms_schema_definition_history` / `eg_mdms_data_history` - append-only version history, see [Version History](#version-history).
 
 ### Service Dependencies
 - NA
@@ -158,6 +159,88 @@ Creates a new master data record, validated against the JSON schema identified b
 d) `POST /_update/{schemaCode}`
 
 Updates an existing master data record, re-validated against the JSON schema identified by `schemaCode`. Request/Response: `MdmsRequest` / `MdmsResponseV2`.
+
+e) `POST /mdms-v2/data/history/_search` (full path; it is not under the `/v2` base path)
+
+Returns the recorded versions of master data, latest change first. `tenantId` and `schemaCode` are mandatory. `tenantId` is matched exactly (no tenant fallback). Request: `MdmsHistorySearchRequest` (RequestInfo + MdmsHistoryCriteria). Response: `MdmsHistoryResponse` (ResponseInfo + `mdmsHistory`). Each entry has `changeDetails` (historyId, version, operation, changedTime, dbUser, clientAddress, applicationName, transactionId) and `mdms` (the record as it was after that change).
+
+- `MdmsHistoryCriteria`
+
+    | Input Field          | Description                                                          | Mandatory  |   Data Type    |
+    | -------------------- | -------------------------------------------------------------------- | -----------|----------------|
+    | `tenantId`           | Tenant the record is stored against (exact match).                   | Yes        | String         |
+    | `schemaCode`         | Schema code.                                                         | Yes        | String         |
+    | `uniqueIdentifiers`  | Business unique identifiers (max 64).                                | No         | Set of String  |
+    | `ids`                | Master data ids (max 64).                                            | No         | Set of String  |
+    | `fromTime`/`toTime`  | Change time range, epoch milliseconds, inclusive.                    | No         | Long           |
+    | `offset`/`limit`     | Pagination. `limit` must be 1 to `mdms.history.max.limit` (100).    | No         | Integer        |
+
+`POST /mdms-v2/schema/history/_search` works the same way for schemas: `SchemaDefHistorySearchRequest` (RequestInfo + SchemaDefHistoryCriteria with `tenantId`, `codes`, `fromTime`, `toTime`, `offset`, `limit`). `tenantId` and `codes` (at least one, no blank values) are mandatory. The tenant is resolved to the state level, as in schema search.
+
+### Version History
+
+Every change to `eg_mdms_schema_definition` and `eg_mdms_data` is copied into `eg_mdms_schema_definition_history` and `eg_mdms_data_history` by database triggers, in the same transaction as the change. This covers every writer: the persister (API), seed or fix scripts and manual SQL. The migration `V20261114120000__mdms_history_ddl.sql` records every existing row as version 1 with operation `MIGRATION`.
+
+- `operation`: `MIGRATION`, `INSERT`, `UPDATE`, `DELETE` (the row as it was before deletion) or `TRUNCATE` (every row as it was before the truncate). Updates that change nothing are not recorded. An update that changes the key (`tenantid`/`code`, or `tenantid`/`schemacode`/`uniqueidentifier`) is recorded as `DELETE` of the old key plus `INSERT` of the new key.
+- `version`: 1, 2, 3 ... per key. It continues if a key is deleted and created again.
+- Who made the change: `auditDetails.lastModifiedBy` is the DIGIT user for API writes. Direct SQL usually leaves it unchanged, so use `dbUser`, `clientAddress` and `applicationName`. Start any script or manual session with `SET application_name = '<script-or-ticket>';` so its changes can be identified.
+- Restore is a manual procedure, described under [Restoring a version](#restoring-a-version).
+- The history tables are append-only. `UPDATE`, `DELETE` and `TRUNCATE` on them are rejected by `trg_eg_mdms_*_history_immutable`. A plain `INSERT` into a history table is rejected by `trg_eg_mdms_*_history_insert_guard`. This only prevents accidental inserts. It is not a security boundary, because the table owner can still bypass it, for example by disabling triggers. The real protection is separate database roles (see below).
+- The trigger functions are `SECURITY DEFINER` and owned by the migration user. Any role that can write the main tables can therefore write history without extra grants, and write access to the history tables can be revoked from application roles. Their `search_path` is fixed to `pg_catalog`, then the schema the migration ran in, then `pg_temp`, and every function and operator inside them is schema-qualified. On central instance, where the migration runs once per tenant schema, each schema's triggers write only to that schema's history. A temporary table with the same name, or a planted operator or function, cannot redirect the write or run with the owner's privileges. This still relies on the role setup below: the function owner must not be a superuser, and untrusted roles must not be able to create objects in the MDMS schema.
+- Under `REPEATABLE READ`/`SERIALIZABLE`, two transactions changing the same key at the same time can conflict on the version number. The later one fails with SQLSTATE `40001` (serialization failure) and should be retried. The default `READ COMMITTED`, which the persister uses, is not affected.
+- Cost: reads (`_search`, `_count`) are not affected. Each changed row adds one small insert, about 0.1–0.5 ms. With many concurrent writers the maximum write throughput roughly halves. Bulk statements in scripts are much slower; in testing, a 100k-row `UPDATE` went from about 1.4 s to 7.3 s and a 100k-row `DELETE` from 0.14 s to about 6 s. History takes about 1–1.15 times the storage of the main table on day one, then grows by one full row copy per change.
+- Migration: it blocks writes, not reads, on the two MDMS tables while existing rows are copied (about 15 s per million rows). It sets `lock_timeout = 10s`, so if a long-running transaction holds the tables it fails and rolls back instead of holding every writer. The timeout only limits waiting for the lock; once it holds the lock, writers wait until the copy finishes. Run it in a quiet window.
+- Telling the persister apart from scripts: set `ApplicationName=egov-persister` in the persister's JDBC URL. Otherwise its changes show the driver default `PostgreSQL JDBC Driver`.
+- Not captured: changes made with triggers disabled (`ALTER TABLE ... DISABLE TRIGGER`, `session_replication_role = replica`, `pg_restore --disable-triggers`). All of these need owner or superuser rights.
+- Schema changes to the main tables: the trigger functions reference columns by name. Dropping or renaming a column without updating the history table and trigger functions in the same migration makes every write to that table fail. A new column is not captured until it is added to both.
+- Data-only restores or environment copies: copying rows into the main tables creates new history rows, and copying into the history tables is rejected. Use `pg_restore --data-only --disable-triggers` when the history tables must be copied as they are. A full restore is not affected.
+- Retention: history is never purged automatically. A purge must be a planned change by the table owner, who has to disable `trg_eg_mdms_*_history_immutable` while doing it.
+
+Protection from bypass and tampering depends on database roles. The tables and trigger functions should be owned by a dedicated owner role that is not a superuser, and the service and persister should connect with a separate application role. If the application role is the owner, these grants have no effect, and anyone with the application credentials can bypass history. When the application role is not the owner, run the following as the owner. The `GRANT SELECT` is **required**; without it the history search APIs fail with `permission denied`.
+```sql
+-- On PG <= 14 every role can create objects in schema public by default
+REVOKE CREATE ON SCHEMA <mdms_schema> FROM PUBLIC;
+REVOKE TRUNCATE ON eg_mdms_data, eg_mdms_schema_definition FROM <app_role>;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON eg_mdms_data_history, eg_mdms_schema_definition_history FROM <app_role>;
+GRANT SELECT ON eg_mdms_data_history, eg_mdms_schema_definition_history TO <app_role>;
+```
+
+#### Restoring a version
+
+There is no restore API. Restore is a manual procedure.
+
+- **Master data, record still exists:** take `mdms.data` from the required version in `/mdms-v2/data/history/_search`. Send it to `/v2/_update/{schemaCode}` with the current record's `id` and `auditDetails`. The restore is recorded as a new version.
+- **Master data, record deleted:** send the old `data` to `/v2/_create/{schemaCode}`.
+- **Limits of the API path:**
+  - The old data is validated against the *current* schema, so a version that no longer matches the schema cannot be restored this way.
+  - A key change made by SQL (recorded as `DELETE` + `INSERT`) cannot be reverted, because `_update` does not allow changing unique fields.
+  - In both cases, restore with SQL as shown below.
+- **SQL restore checks:** `UPDATE` reports how many rows it changed. Check that it is `UPDATE 1`. `UPDATE 0` means nothing matched and nothing was restored.
+- **Schemas:** `/schema/v1/_update` is not implemented, so a schema is restored with SQL. Set `application_name` first so the restore can be identified in history:
+```sql
+SET application_name = 'restore-<ticket>';
+UPDATE eg_mdms_schema_definition s
+   SET definition = h.definition, description = h.description, isactive = h.isactive,
+       lastmodifiedby = '<user-uuid>', lastmodifiedtime = (EXTRACT(EPOCH FROM now()) * 1000)::BIGINT
+  FROM eg_mdms_schema_definition_history h
+ WHERE h.tenantid = s.tenantid AND h.code = s.code
+   AND s.tenantid = '<tenant>' AND s.code = '<code>' AND h.version = <version>;
+```
+  Master data whose key did not change is restored with SQL in the same way, from `eg_mdms_data_history`, matching on `tenantid`, `schemacode` and `uniqueidentifier`.
+- **Master data whose key was changed by SQL:** the current row has the new key, so matching on the old key finds nothing. Match on the record `id` instead, and take the old key's version (usually the `DELETE` row written by the key change). The restore is recorded as `DELETE` of the new key plus `INSERT` of the old key. If another record already uses the old key, the `UPDATE` fails with a primary-key error and nothing changes.
+```sql
+SET application_name = 'restore-<ticket>';
+UPDATE eg_mdms_data s
+   SET tenantid = h.tenantid, schemacode = h.schemacode, uniqueidentifier = h.uniqueidentifier,
+       data = h.data, isactive = h.isactive,
+       lastmodifiedby = '<user-uuid>', lastmodifiedtime = (EXTRACT(EPOCH FROM now()) * 1000)::BIGINT
+  FROM eg_mdms_data_history h
+ WHERE s.id = h.id
+   AND h.tenantid = '<tenant>' AND h.schemacode = '<schemaCode>' AND h.uniqueidentifier = '<old-key>'
+   AND h.version = <version>;
+```
+
+Gateway: add `/mdms-v2/data/history/_search` and `/mdms-v2/schema/history/_search` to the access-control actions and map them only to admin roles. The response includes database session details (`dbUser`, `clientAddress`).
 
 ### Kafka Consumers
 
