@@ -16,7 +16,7 @@ This method is use to create an AuditLog.
     
 b) `_search`
 
-This method is used to search audit logs.
+This method is used to search audit logs. Criteria are sent as query parameters (`tenantId` and `objectId` are mandatory; `module`, `userUUID`, `id`, `offset`, `limit` are optional). Results are ordered by `changedate` descending.
 
 
 ### Kafka Consumers

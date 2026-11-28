@@ -39,11 +39,16 @@ public class MdmsDataEnricher {
         return auditDetails;
     }
 
-    public void enrichUpdateRequest(MdmsRequest mdmsRequest) {
+    public void enrichUpdateRequest(MdmsRequest mdmsRequest, Mdms existingRecord) {
         Mdms mdms = mdmsRequest.getMdms();
 
         if(ObjectUtils.isEmpty(mdms.getAuditDetails()))
             throw new CustomException("AUDIT_DETAILS_ABSENT_ERR", "Audit details cannot be absent for update request");
+
+        // Key fields always come from the stored record, so the update event (and its audit log) carries the real key
+        mdms.setTenantId(existingRecord.getTenantId());
+        mdms.setSchemaCode(existingRecord.getSchemaCode());
+        mdms.setUniqueIdentifier(existingRecord.getUniqueIdentifier());
 
         mdms.setAuditDetails(getAuditDetails(mdmsRequest.getRequestInfo(), mdms.getAuditDetails(), Boolean.FALSE));
     }

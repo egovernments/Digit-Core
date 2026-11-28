@@ -66,7 +66,18 @@ public class MDMSControllerV2 {
      */
     @RequestMapping(value="_update/{schemaCode}", method = RequestMethod.POST)
     public ResponseEntity<MdmsResponseV2> update(@Valid @RequestBody MdmsRequest mdmsRequest, @PathVariable("schemaCode") String schemaCode) {
-        List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest);
+        List<Mdms> masterDataList = mdmsServiceV2.update(mdmsRequest, schemaCode);
         return new ResponseEntity<>(ResponseUtil.getMasterDataV2Response(mdmsRequest.getRequestInfo(), masterDataList), HttpStatus.ACCEPTED);
+    }
+
+    /**
+     * Request handler for serving master data history search requests
+     * @param mdmsHistoryRequest
+     * @return
+     */
+    @RequestMapping(value="_history", method = RequestMethod.POST)
+    public ResponseEntity<MdmsHistoryResponse> history(@Valid @RequestBody MdmsHistoryRequest mdmsHistoryRequest) {
+        MdmsHistoryResponse mdmsHistoryResponse = mdmsServiceV2.searchHistory(mdmsHistoryRequest);
+        return new ResponseEntity<>(ResponseUtil.getMasterDataHistoryResponse(mdmsHistoryRequest.getRequestInfo(), mdmsHistoryResponse), HttpStatus.OK);
     }
 }

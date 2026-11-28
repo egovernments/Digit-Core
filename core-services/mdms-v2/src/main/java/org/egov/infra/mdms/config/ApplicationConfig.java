@@ -30,4 +30,22 @@ public class ApplicationConfig {
     @Value("${mdms.default.limit}")
     private Integer defaultLimit;
 
+    @Value("${egov.audit.host}")
+    private String auditHost;
+
+    @Value("${egov.audit.search.endpoint}")
+    private String auditSearchEndpoint;
+
+    @Value("${egov.audit.search.page.size}")
+    private Integer auditSearchPageSize;
+
+    @Value("${egov.audit.mdms.module}")
+    private String auditMdmsModule;
+
+    @Value("${mdms.history.max.limit}")
+    private Integer historyMaxLimit;
+
+    @Value("${mdms.history.max.versions.per.record}")
+    private Integer historyMaxVersionsPerRecord;
+
 }

@@ -3,6 +3,11 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 1.4.0 - 2026-11-28
+- Added `POST /mdms-v2/v2/_history` to search the versions of master data records by `tenantId`, `schemaCode` and `uniqueIdentifiers` (all mandatory). Versions are read from audit-service, newest first.
+- `_update` now takes `tenantId`, `schemaCode` and `uniqueIdentifier` from the stored record, and rejects a request whose `schemaCode` differs from the stored record or from the `{schemaCode}` path (`SCHEMA_CODE_MISMATCH_ERR`).
+- Added config `egov.audit.host`, `egov.audit.search.endpoint`, `egov.audit.search.page.size`, `egov.audit.mdms.module`, `mdms.history.max.limit` and `mdms.history.max.versions.per.record`.
+
 ## 1.3.5 - 2026-03-16
 - Upgraded Spring Boot version from 3.2.2 to 3.4.5 to fix HIGH/CRITICAL CVEs
 - Upgraded tracer, services-common library versions

@@ -5,6 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.TypeRef;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
+import org.egov.infra.mdms.config.ApplicationConfig;
 import org.egov.infra.mdms.model.*;
 import org.egov.infra.mdms.repository.MdmsDataRepository;
 import org.egov.infra.mdms.service.SchemaDefinitionService;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import static org.egov.infra.mdms.errors.ErrorCodes.*;
 import static org.egov.infra.mdms.utils.MDMSConstants.*;
 
 @Component
@@ -34,10 +36,54 @@ public class MdmsDataValidator {
 
     private final MdmsDataRepository mdmsDataRepository;
 
+    private final ApplicationConfig applicationConfig;
+
     @Autowired
-    public MdmsDataValidator(SchemaDefinitionService schemaDefinitionService, MdmsDataRepository mdmsDataRepository) {
+    public MdmsDataValidator(SchemaDefinitionService schemaDefinitionService, MdmsDataRepository mdmsDataRepository,
+                             ApplicationConfig applicationConfig) {
         this.schemaDefinitionService = schemaDefinitionService;
         this.mdmsDataRepository = mdmsDataRepository;
+        this.applicationConfig = applicationConfig;
+    }
+
+    /**
+     * This method performs validations on master data history search request.
+     * Bean validation is not active in this service, so every rule is enforced here.
+     * @param mdmsHistoryRequest
+     */
+    public void validateHistoryRequest(MdmsHistoryRequest mdmsHistoryRequest) {
+        MdmsHistoryCriteria historyCriteria = mdmsHistoryRequest.getHistoryCriteria();
+        if (Objects.isNull(historyCriteria))
+            throw new CustomException(INVALID_HISTORY_CRITERIA, INVALID_HISTORY_CRITERIA_MSG);
+
+        // Initialize error map
+        Map<String, String> errors = new HashMap<>();
+
+        if (ObjectUtils.isEmpty(historyCriteria.getTenantId()) || historyCriteria.getTenantId().trim().isEmpty()
+                || historyCriteria.getTenantId().length() > MAX_HISTORY_TENANT_ID_LENGTH)
+            errors.put(INVALID_HISTORY_TENANT, INVALID_HISTORY_TENANT_MSG);
+
+        if (ObjectUtils.isEmpty(historyCriteria.getSchemaCode()) || historyCriteria.getSchemaCode().trim().isEmpty())
+            errors.put(INVALID_HISTORY_SCHEMA_CODE, INVALID_HISTORY_SCHEMA_CODE_MSG);
+
+        if (ObjectUtils.isEmpty(historyCriteria.getUniqueIdentifiers())
+                || historyCriteria.getUniqueIdentifiers().size() > applicationConfig.getHistoryMaxLimit()
+                || historyCriteria.getUniqueIdentifiers().stream().anyMatch(uniqueIdentifier -> ObjectUtils.isEmpty(uniqueIdentifier) || uniqueIdentifier.trim().isEmpty()))
+            errors.put(INVALID_HISTORY_UNIQUE_IDENTIFIERS, INVALID_HISTORY_UNIQUE_IDENTIFIERS_MSG);
+
+        if (!Objects.isNull(historyCriteria.getOffset()) && historyCriteria.getOffset() < 0)
+            errors.put(INVALID_HISTORY_OFFSET, INVALID_HISTORY_OFFSET_MSG);
+
+        if (!Objects.isNull(historyCriteria.getLimit())
+                && (historyCriteria.getLimit() < 1 || historyCriteria.getLimit() > applicationConfig.getHistoryMaxLimit()))
+            errors.put(INVALID_HISTORY_LIMIT, INVALID_HISTORY_LIMIT_MSG);
+
+        if (!Objects.isNull(historyCriteria.getMaxVersionsPerRecord())
+                && (historyCriteria.getMaxVersionsPerRecord() < 1 || historyCriteria.getMaxVersionsPerRecord() > applicationConfig.getHistoryMaxVersionsPerRecord()))
+            errors.put(INVALID_HISTORY_MAX_VERSIONS, INVALID_HISTORY_MAX_VERSIONS_MSG);
+
+        // Throw validation errors
+        ErrorUtil.throwCustomExceptions(errors);
     }
 
     /**
@@ -198,23 +244,39 @@ public class MdmsDataValidator {
     }
 
     /**
-     * This method performs business validations on create master data request.
+     * This method performs business validations on update master data request.
      * @param mdmsRequest
      * @param schemaObject
+     * @param pathSchemaCode schemaCode from the request path
+     * @return the existing record that is being updated
      */
-    public void validateUpdateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject) {
+    public Mdms validateUpdateRequest(MdmsRequest mdmsRequest, JSONObject schemaObject, String pathSchemaCode) {
         // Initialize error map and fetch schema
         Map<String, String> errors = new HashMap<>();
 
         // Validations are performed here on the incoming data
-        String uniqueIdentifierOfExistingRecord = fetchUniqueIdentifier(mdmsRequest);
-        validateIfUniqueFieldsAreNotBeingUpdated(uniqueIdentifierOfExistingRecord, CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
+        Mdms existingRecord = fetchExistingRecord(mdmsRequest);
+        validateSchemaCode(existingRecord, mdmsRequest.getMdms(), pathSchemaCode);
+        validateIfUniqueFieldsAreNotBeingUpdated(existingRecord.getUniqueIdentifier(), CompositeUniqueIdentifierGenerationUtil.getUniqueIdentifier(schemaObject, mdmsRequest));
         validateDataWithSchemaDefinition(mdmsRequest, schemaObject, errors);
         validateReference(schemaObject, mdmsRequest.getMdms());
 
         // Throw validation errors
         ErrorUtil.throwCustomExceptions(errors);
 
+        return existingRecord;
+    }
+
+    /**
+     * The record must be validated against its own schema, so schemaCode cannot differ
+     * from the stored record or from the request path.
+     */
+    private void validateSchemaCode(Mdms existingRecord, Mdms incomingRecord, String pathSchemaCode) {
+        if (!Objects.equals(existingRecord.getSchemaCode(), incomingRecord.getSchemaCode()))
+            throw new CustomException(SCHEMA_CODE_MISMATCH_ERR, SCHEMA_CODE_CHANGE_MSG);
+
+        if (!ObjectUtils.isEmpty(pathSchemaCode) && !pathSchemaCode.equals(incomingRecord.getSchemaCode()))
+            throw new CustomException(SCHEMA_CODE_MISMATCH_ERR, SCHEMA_CODE_PATH_MISMATCH_MSG);
     }
 
     /**
@@ -229,11 +291,11 @@ public class MdmsDataValidator {
     }
 
     /**
-     * This method checks if the master that is being created already exists or not.
+     * This method fetches the existing master data record that is being updated.
      * @param mdmsRequest
      * @return
      */
-    private String fetchUniqueIdentifier(MdmsRequest mdmsRequest) {
+    private Mdms fetchExistingRecord(MdmsRequest mdmsRequest) {
         if(ObjectUtils.isEmpty(mdmsRequest.getMdms().getId()))
             throw new CustomException("MASTER_DATA_ID_ABSENT_ERR", "Providing master data id is mandatory for update operation.");
 
@@ -249,9 +311,9 @@ public class MdmsDataValidator {
         // Throw error if the provided master data does not exist
         if (masterData == null || masterData.size() == 0) {
             throw new CustomException("MASTER_DATA_NOT_FOUND", "Master data not found for update operation.");
-        } // Return unique identifier if the master data exists
+        } // Return the existing record
         else {
-            return masterData.get(0).getUniqueIdentifier();
+            return masterData.get(0);
         }
     }
 }

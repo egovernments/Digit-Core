@@ -41,14 +41,14 @@ erDiagram
 - `eg_mdms_data` - one row per master data record, keyed by `(tenantid, schemacode, uniqueidentifier)`, with a separate unique `id` (UUID) used as the external identifier in `/v2/_update/{schemaCode}` requests. `data` holds the actual master data payload.
 
 ### Service Dependencies
-- NA
+- audit-service: read by `POST /mdms-v2/v2/_history`
 
 ### Swagger API Contract
 
 Please refer to the  below Swagger API contarct for MDMS service to understand the structure of APIs and to have visualization of all internal APIs.
 http://editor.swagger.io/?url=https://raw.githubusercontent.com/egovernments/egov-services/master/docs/mdms/contract/v1-0-0.yml#!/
 
-For the MDMS V2 APIs (schema `/mdms-v2/schema/v1/_create`, `_search`, `_update` and master data `/mdms-v2/v2/_search`, `_count`, `_create`, `_update`), refer to the contract checked into this repo:
+For the MDMS V2 APIs (schema `/mdms-v2/schema/v1/_create`, `_search`, `_update` and master data `/mdms-v2/v2/_search`, `_count`, `_create`, `_update`, `_history`), refer to the contract checked into this repo:
 [`core-services/docs/mdms-v2-contract.yml`](../docs/mdms-v2-contract.yml). It can be pasted into http://editor.swagger.io/ for a visual walkthrough of the requests/responses.
 
 
@@ -157,7 +157,28 @@ Creates a new master data record, validated against the JSON schema identified b
 
 d) `POST /_update/{schemaCode}`
 
-Updates an existing master data record, re-validated against the JSON schema identified by `schemaCode`. Request/Response: `MdmsRequest` / `MdmsResponseV2`.
+Updates an existing master data record, re-validated against the JSON schema identified by `schemaCode`. Request/Response: `MdmsRequest` / `MdmsResponseV2`. `Mdms.schemaCode` must match the stored record and the `{schemaCode}` path (`SCHEMA_CODE_MISMATCH_ERR`); `tenantId`, `schemaCode` and `uniqueIdentifier` are taken from the stored record.
+
+### Master Data History API
+
+`POST /mdms-v2/v2/_history` returns the versions of master data records, newest first. Every change made through `_create` and `_update` is recorded by audit-service (persister mappings `save-mdms-data` and `update-mdms-data` have `isAuditEnabled: true`); this API reads those records. audit-service must list `mdms-persister.yml` in `egov.persist.yml.repo.path`. Map the action to MDMS admin roles only.
+
+- `MdmsHistoryRequest` : RequestInfo + HistoryCriteria
+
+    | Input Field              | Description                                                                          | Mandatory  |   Data Type    |
+    | ------------------------ | ------------------------------------------------------------------------------------ | -----------|----------------|
+    | `tenantId`               | Tenant of the records. Exact match unless `useTenantFallback` is true.               | Yes        | String         |
+    | `schemaCode`             | Schema code of the records.                                                          | Yes        | String         |
+    | `uniqueIdentifiers`      | Business unique identifiers, 1 to 50.                                                | Yes        | Set of String  |
+    | `useTenantFallback`      | Apply the same parent-tenant fallback as `/v2/_search`. Default false.               | No         | Boolean        |
+    | `offset` / `limit`       | Paging over records; `limit` is 1 to `mdms.history.max.limit` (50).                  | No         | Integer        |
+    | `maxVersionsPerRecord`   | Version cap per record, 1 to `mdms.history.max.versions.per.record` (100).           | No         | Integer        |
+
+- `MdmsHistoryResponse` : ResponseInfo + `MdmsHistory` + `Pagination` (`offset`, `limit`, `totalRecords`). Each `MdmsHistory` has the record (`id`, `tenantId`, `schemaCode`, `uniqueIdentifier`, `isActive`), `baselineMissing`, `truncated` and `versions` (`operation`, `data`, `isActive`, `auditDetails`, `auditLogId`, `integrityHash`). `auditDetails.lastModifiedBy` / `lastModifiedTime` identify the change; `createdBy` / `createdTime` are those of the record.
+- Inactive records are included. Versions are ordered by `lastModifiedTime`, which mdms-v2 sets from server time on every write.
+- A record with no create entry in audit-service is marked `baselineMissing`; when its live value is newer than every audit entry, it is returned as a `CURRENT_SNAPSHOT` version.
+- A record with more versions than the cap is marked `truncated`.
+- Restore: send the chosen version's `data` to `/v2/_update/{schemaCode}`. It is recorded as a new version.
 
 ### Kafka Consumers
 

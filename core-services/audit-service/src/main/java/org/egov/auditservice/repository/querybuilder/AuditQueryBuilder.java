@@ -17,6 +17,9 @@ public class AuditQueryBuilder {
 
     private static final String BASE_QUERY = "SELECT id, useruuid, module, tenantid, transactioncode, changedate, entityname, objectid, keyvaluemap, operationtype, integrityhash, auditcorrelationid FROM eg_audit_logs ";
 
+    // A stable order is required for OFFSET/LIMIT paging; without it pages can skip or repeat rows
+    private static final String ORDER_BY_CLAUSE = " ORDER BY changedate DESC ";
+
     public String getAuditLogQuery(AuditLogSearchCriteria criteria, List<Object> preparedStmtList) {
         StringBuilder query = new StringBuilder(BASE_QUERY);
         if(!ObjectUtils.isEmpty(criteria.getTenantId())){
@@ -45,6 +48,7 @@ public class AuditQueryBuilder {
             preparedStmtList.add(criteria.getUserUUID());
         }
 
+        query.append(ORDER_BY_CLAUSE);
         addPagination(query, preparedStmtList, criteria);
 
         return query.toString();

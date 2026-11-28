@@ -5,6 +5,7 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.common.utils.ResponseInfoUtil;
 import org.egov.infra.mdms.model.Mdms;
 import org.egov.infra.mdms.model.MdmsCountResponseV2;
+import org.egov.infra.mdms.model.MdmsHistoryResponse;
 import org.egov.infra.mdms.model.MdmsResponseV2;
 import org.egov.infra.mdms.model.SchemaDefinition;
 import org.egov.infra.mdms.model.SchemaDefinitionResponse;
@@ -31,6 +32,11 @@ public class ResponseUtil {
         ResponseInfo responseInfo = ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE);
         MdmsCountResponseV2 response = MdmsCountResponseV2.builder().totalCount(totalCount).responseInfo(responseInfo).build();
         return response;
+    }
+
+    public static MdmsHistoryResponse getMasterDataHistoryResponse(RequestInfo requestInfo, MdmsHistoryResponse historyResponse){
+        historyResponse.setResponseInfo(ResponseInfoUtil.createResponseInfoFromRequestInfo(requestInfo, Boolean.TRUE));
+        return historyResponse;
     }
 
 }

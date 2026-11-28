@@ -9,6 +9,7 @@ info:
     3. Search master data using a common criteria model, with tenant-level fallback
     4. Update existing master data
     5. Count master data matching a search criteria, without fetching the actual records
+    6. Search the versions of master data records, read from audit-service
   contact:
     name: eGovernments Foundation
     email: contacts@egovernments.org
@@ -168,6 +169,7 @@ paths:
       summary: Update existing master data for a given schema.
       description: |
         Updates an existing master data record against the JSON schema identified by schemaCode. The updated Mdms.data is re-validated against the registered schema.
+        Mdms.schemaCode must match the stored record and the schemaCode path parameter (SCHEMA_CODE_MISMATCH_ERR); tenantId, schemaCode and uniqueIdentifier are taken from the stored record.
       parameters:
         - name: schemaCode
           in: path
@@ -187,6 +189,32 @@ paths:
             $ref: '#/definitions/MdmsResponseV2'
         '400':
           description: Master data update failed.
+          schema:
+            $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
+      tags:
+        - MDMS V2
+  /v2/_history:
+    post:
+      summary: Search the versions of master data records.
+      description: |
+        1. Resolves the records matching tenantId, schemaCode and uniqueIdentifiers (inactive records included) and reads each record's versions from audit-service.
+        2. Versions are returned newest first, ordered by lastModifiedTime.
+        3. tenantId is matched exactly unless useTenantFallback is true.
+        4. A record with no create entry in audit-service is marked baselineMissing; when its live value is newer than every audit entry it is returned as a CURRENT_SNAPSHOT version.
+      parameters:
+        - name: MdmsHistoryRequest
+          in: body
+          description: RequestInfo meta data + HistoryCriteria.
+          required: true
+          schema:
+            $ref: '#/definitions/MdmsHistoryRequest'
+      responses:
+        '200':
+          description: Versions of the matching master data records.
+          schema:
+            $ref: '#/definitions/MdmsHistoryResponse'
+        '400':
+          description: Invalid input (INVALID_HISTORY_CRITERIA, INVALID_HISTORY_TENANT, INVALID_HISTORY_SCHEMA_CODE, INVALID_HISTORY_UNIQUE_IDENTIFIERS, INVALID_HISTORY_OFFSET, INVALID_HISTORY_LIMIT, INVALID_HISTORY_MAX_VERSIONS) or audit-service failure (HISTORY_AUDIT_SERVICE_ERR).
           schema:
             $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ErrorRes'
       tags:
@@ -417,3 +445,112 @@ definitions:
         type: integer
         format: int64
         description: Total number of master data records matching the given MdmsCriteria.
+
+  MdmsHistoryCriteria:
+    type: object
+    description: Criteria for master data history search.
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 100
+      schemaCode:
+        type: string
+      uniqueIdentifiers:
+        type: array
+        minItems: 1
+        maxItems: 50
+        items:
+          type: string
+      useTenantFallback:
+        type: boolean
+        default: false
+        description: When true, the same parent-tenant fallback as /v2/_search is applied.
+      offset:
+        type: integer
+        minimum: 0
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 50
+        description: Page size over records (mdms.history.max.limit).
+      maxVersionsPerRecord:
+        type: integer
+        minimum: 1
+        maximum: 100
+        description: Version cap per record (mdms.history.max.versions.per.record); a capped record is marked truncated.
+    required:
+      - tenantId
+      - schemaCode
+      - uniqueIdentifiers
+
+  MdmsHistoryRequest:
+    type: object
+    properties:
+      RequestInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-1-1.yml#/definitions/RequestInfo'
+      HistoryCriteria:
+        $ref: '#/definitions/MdmsHistoryCriteria'
+    required:
+      - HistoryCriteria
+
+  MdmsVersion:
+    type: object
+    description: One version of a master data record.
+    properties:
+      operation:
+        type: string
+        enum: [CREATE, UPDATE, UPSERT, CURRENT_SNAPSHOT]
+      data:
+        type: object
+      isActive:
+        type: boolean
+      auditDetails:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/AuditDetails'
+      auditLogId:
+        type: string
+      integrityHash:
+        type: string
+
+  MdmsHistory:
+    type: object
+    properties:
+      id:
+        type: string
+      tenantId:
+        type: string
+      schemaCode:
+        type: string
+      uniqueIdentifier:
+        type: string
+      isActive:
+        type: boolean
+        description: Current active status of the record.
+      baselineMissing:
+        type: boolean
+      truncated:
+        type: boolean
+      versions:
+        type: array
+        items:
+          $ref: '#/definitions/MdmsVersion'
+
+  MdmsHistoryResponse:
+    type: object
+    properties:
+      ResponseInfo:
+        $ref: 'https://raw.githubusercontent.com/egovernments/egov-services/master/docs/common/contracts/v1-0-0.yml#/definitions/ResponseInfo'
+      MdmsHistory:
+        type: array
+        items:
+          $ref: '#/definitions/MdmsHistory'
+      Pagination:
+        type: object
+        properties:
+          offset:
+            type: integer
+          limit:
+            type: integer
+          totalRecords:
+            type: integer
+            format: int64

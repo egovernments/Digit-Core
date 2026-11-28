@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this module will be documented in this file.
 
+## 2.9.4 - 2026-11-28
+- Audit log search results are ordered by `changedate` descending.
+
 ## 2.9.3 - 2026-03-16
 - Upgraded Spring Boot version from 3.2.2 to 3.4.5 to fix HIGH/CRITICAL CVEs
 - Upgraded tracer, services-common, mdms-client, enc-client library versions
